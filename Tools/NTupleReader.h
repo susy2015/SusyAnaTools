@@ -1,5 +1,5 @@
-#ifndef STOP_NTUPLE_READER_H
-#define STOP_NTUPLE_READER_H
+#ifndef NTUPLE_READER_H
+#define NTUPLE_READER_H
 
 #include "TFile.h"
 #include "TBranch.h"
@@ -55,9 +55,14 @@ public:
 
     NTupleReader(TTree * tree);
 
+    int getEvtNum()
+    {
+        return nevt_;
+    }
+
     int getNEntries()
     {
-        if(tree_) return tree_->GetEntries();
+        if(tree_) return nEvtTotal_;
         else 
         {
             printf("NTupleReader::getNEntries() - NO tree defined yet!!!\n");
@@ -66,11 +71,13 @@ public:
     }
 
     bool getNextEvent();
+    double getTupleVar(const std::string var) const;
+    inline double operator()(const std::string var) const {return getTupleVar(var);}
 
 private:
-    // private variabals for internal use
+    // private variabls for internal use
     TTree *tree_;
-    int nevt_;
+    int nevt_, nEvtTotal_;
 
     // Map to hold branch list 
     std::map<std::string, void *> branchMap_;
