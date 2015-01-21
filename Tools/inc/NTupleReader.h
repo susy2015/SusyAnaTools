@@ -12,6 +12,16 @@
 #include <string>
 #include <vector>
 
+#ifdef __MAKECINT__
+#pragma link C++ class vector<int>;
+#pragma link C++ class vector<vector<int> >;
+#pragma link C++ class vector<vector<vector<int> > >;
+#pragma link C++ class vector<TLorentzVector>;
+#pragma link C++ class vector<string>;
+#pragma link C++ class vector<vector<TLorentzVector> >;
+#endif
+
+
 /* This class is designed to be a simple interface to reading stop NTuples
    
    To use this class simply open the desired Tree as a TTree or TChain and pass it 
@@ -49,7 +59,8 @@ public:
     std::vector<int> *recoJetsFlavor, *genDecayIdxVec, *genDecayPdgIdVec, *genDecayMomIdxVec;
     std::vector<int> *W_emuVec, *W_tau_emuVec, *W_tau_prongsVec, *trksForIsoVeto_pdgId;
     std::vector<int> *trksForIsoVeto_idx, *loose_isoTrks_pdgId, *loose_isoTrks_idx;
-    std::vector<int> *forVetoIsoTrksidx, *genDecayStrVec;
+    std::vector<int> *forVetoIsoTrksidx;
+    std::vector<std::string> *genDecayStrVec;
     std::vector<TLorentzVector> *muonsLVec, *elesLVec, *jetsLVec, *genDecayLVec;
     std::vector<TLorentzVector> *trksForIsoVetoLVec, *loose_isoTrksLVec;
 

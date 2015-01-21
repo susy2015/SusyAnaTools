@@ -16,7 +16,8 @@ NTupleReader::NTupleReader(TTree * tree)
     recoJetsFlavor = genDecayIdxVec = genDecayPdgIdVec = genDecayMomIdxVec = 0;
     W_emuVec = W_tau_emuVec = W_tau_prongsVec = trksForIsoVeto_pdgId = 0;
     trksForIsoVeto_idx = loose_isoTrks_pdgId = loose_isoTrks_idx = 0;
-    forVetoIsoTrksidx = genDecayStrVec = 0;
+    forVetoIsoTrksidx = 0;
+    genDecayStrVec = 0;
     muonsLVec = elesLVec = jetsLVec = genDecayLVec = 0;
     trksForIsoVetoLVec = loose_isoTrksLVec = 0;
 
