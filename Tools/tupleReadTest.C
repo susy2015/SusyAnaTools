@@ -9,10 +9,13 @@
 #include <string>
 #include <ctime>
 
-void calcJoe(const NTupleReader& tr, void* val)
+namespace joeFunctions
 {
-    double retval = tr("mht") + tr("met");
-    NTupleReader::setDerived(retval, val);
+    void calcJoe(const NTupleReader& tr, void* val)
+    {
+        double retval = tr("mht") + tr("met");
+        NTupleReader::setDerived(retval, val);
+    }
 }
 
 int main()
@@ -27,7 +30,7 @@ int main()
 
     size_t t0 = clock();
 
-    for(int i = 1; i <= 10; ++i)
+    for(int i = 1; i <= 1; ++i)
     {
         sprintf(fName, nBase, i);
         f->Add(fName);
@@ -37,7 +40,7 @@ int main()
     //TTree *t = (TTree*)f->Get("stopTreeMaker/AUX");
 
     NTupleReader tr(f);
-    tr.registerDerivedVar<double>("joe", &calcJoe);
+    tr.registerDerivedVar<double>("joe", &joeFunctions::calcJoe);
 
     std::cout << "NEVTS: " << tr.getNEntries() << std::endl;
 
@@ -45,6 +48,6 @@ int main()
     {
 //        std::cout << tr.getNEntries() << "\t" << tr.run << "\t" << tr.lumi << "\t" << tr.event << "\t" << tr.genDecayLVec->size() << "\t" <<  tr.mht << std::endl;
         if(tr.getEvtNum()%100000 == 0) std::cout << tr.getEvtNum() << "\t" << ((clock() - t0)/1000000.0) << std::endl;
-        std::cout << tr("met") << "\t" << tr("mht") << "\t" << tr("joe") << std::endl;
+        std::cout << tr("met") << "\t" << tr("mht") << "\t" << tr("joe") << "\t" << tr.getVec<double>("muonsMtw").size() << std::endl;
     }
 }

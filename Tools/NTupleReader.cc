@@ -37,6 +37,12 @@ void NTupleReader::activateBranches()
         tree_->SetBranchStatus(iMap.first.c_str(), 1);
         tree_->SetBranchAddress(iMap.first.c_str(), iMap.second);
     }
+
+    for(auto& iMap : branchVecMap_)
+    {
+        tree_->SetBranchStatus(iMap.first.c_str(), 1);
+        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second);
+    }
 }
 
 void NTupleReader::populateBranchList()
@@ -80,40 +86,41 @@ void NTupleReader::populateBranchList()
     branchMap_["bestTopJetIdx"]  = &bestTopJetIdx;
     branchMap_["pickedRemainingCombfatJetIdx"]  = &pickedRemainingCombfatJetIdx;
     branchMap_["remainPassCSVS"]  = &remainPassCSVS;
-    branchMap_["muonsCharge"]  = &muonsCharge;
-    branchMap_["muonsMtw"]  = &muonsMtw;
-    branchMap_["muonsRelIso"]  = &muonsRelIso;
-    branchMap_["elesCharge"]  = &elesCharge;
-    branchMap_["elesMtw"]  = &elesMtw;
-    branchMap_["elesRelIso"]  = &elesRelIso;
-    branchMap_["elesMtw"]  = &elesMtw;
-    branchMap_["elesRelIso"]  = &elesRelIso;
-    branchMap_["recoJetsBtag_0"]  = &recoJetsBtag_0;
-    branchMap_["trksForIsoVeto_charge"]  = &trksForIsoVeto_charge;
-    branchMap_["trksForIsoVeto_dz"]  = &trksForIsoVeto_dz;
-    branchMap_["loose_isoTrks_charge"]  = &loose_isoTrks_charge;
-    branchMap_["loose_isoTrks_dz"]  = &loose_isoTrks_dz;
-    branchMap_["loose_isoTrks_iso"]  = &loose_isoTrks_iso;
-    branchMap_["loose_isoTrks_mtw"]  = &loose_isoTrks_mtw;
-    branchMap_["recoJetsFlavor"]  = &recoJetsFlavor;
-    branchMap_["genDecayIdxVec"]  = &genDecayIdxVec;
-    branchMap_["genDecayPdgIdVec"]  = &genDecayPdgIdVec;
-    branchMap_["genDecayMomIdxVec"]  = &genDecayMomIdxVec;
-    branchMap_["W_emuVec"]  = &W_emuVec;
-    branchMap_["W_tau_emuVec"]  = &W_tau_emuVec;
-    branchMap_["W_tau_prongsVec"]  = &W_tau_prongsVec;
-    branchMap_["trksForIsoVeto_pdgId"]  = &trksForIsoVeto_pdgId;
-    branchMap_["trksForIsoVeto_idx"]  = &trksForIsoVeto_idx;
-    branchMap_["loose_isoTrks_pdgId"]  = &loose_isoTrks_pdgId;
-    branchMap_["loose_isoTrks_idx"]  = &loose_isoTrks_idx;
-    branchMap_["forVetoIsoTrksidx"]  = &forVetoIsoTrksidx;
-    branchMap_["genDecayStrVec"]  = &genDecayStrVec;
-    branchMap_["muonsLVec"]  = &muonsLVec;
-    branchMap_["elesLVec"]  = &elesLVec;
-    branchMap_["jetsLVec"]  = &jetsLVec;
-    branchMap_["genDecayLVec"]  = &genDecayLVec;
-    branchMap_["trksForIsoVetoLVec"]  = &trksForIsoVetoLVec;
-    branchMap_["loose_isoTrksLVec"]  = &loose_isoTrksLVec;
+    branchVecMap_["muonsCharge"]  = &muonsCharge;
+//    branchVecMap_["muonsMtw"]  = &muonsMtw;
+    registerVecBranch<double>("muonsMtw");
+    branchVecMap_["muonsRelIso"]  = &muonsRelIso;
+    branchVecMap_["elesCharge"]  = &elesCharge;
+    branchVecMap_["elesMtw"]  = &elesMtw;
+    branchVecMap_["elesRelIso"]  = &elesRelIso;
+    branchVecMap_["elesMtw"]  = &elesMtw;
+    branchVecMap_["elesRelIso"]  = &elesRelIso;
+    branchVecMap_["recoJetsBtag_0"]  = &recoJetsBtag_0;
+    branchVecMap_["trksForIsoVeto_charge"]  = &trksForIsoVeto_charge;
+    branchVecMap_["trksForIsoVeto_dz"]  = &trksForIsoVeto_dz;
+    branchVecMap_["loose_isoTrks_charge"]  = &loose_isoTrks_charge;
+    branchVecMap_["loose_isoTrks_dz"]  = &loose_isoTrks_dz;
+    branchVecMap_["loose_isoTrks_iso"]  = &loose_isoTrks_iso;
+    branchVecMap_["loose_isoTrks_mtw"]  = &loose_isoTrks_mtw;
+    branchVecMap_["recoJetsFlavor"]  = &recoJetsFlavor;
+    branchVecMap_["genDecayIdxVec"]  = &genDecayIdxVec;
+    branchVecMap_["genDecayPdgIdVec"]  = &genDecayPdgIdVec;
+    branchVecMap_["genDecayMomIdxVec"]  = &genDecayMomIdxVec;
+    branchVecMap_["W_emuVec"]  = &W_emuVec;
+    branchVecMap_["W_tau_emuVec"]  = &W_tau_emuVec;
+    branchVecMap_["W_tau_prongsVec"]  = &W_tau_prongsVec;
+    branchVecMap_["trksForIsoVeto_pdgId"]  = &trksForIsoVeto_pdgId;
+    branchVecMap_["trksForIsoVeto_idx"]  = &trksForIsoVeto_idx;
+    branchVecMap_["loose_isoTrks_pdgId"]  = &loose_isoTrks_pdgId;
+    branchVecMap_["loose_isoTrks_idx"]  = &loose_isoTrks_idx;
+    branchVecMap_["forVetoIsoTrksidx"]  = &forVetoIsoTrksidx;
+    branchVecMap_["genDecayStrVec"]  = &genDecayStrVec;
+    branchVecMap_["muonsLVec"]  = &muonsLVec;
+    branchVecMap_["elesLVec"]  = &elesLVec;
+    branchVecMap_["jetsLVec"]  = &jetsLVec;
+    branchVecMap_["genDecayLVec"]  = &genDecayLVec;
+    branchVecMap_["trksForIsoVetoLVec"]  = &trksForIsoVetoLVec;
+    branchVecMap_["loose_isoTrksLVec"]  = &loose_isoTrksLVec;
 }
 
 bool NTupleReader::getNextEvent()
@@ -147,29 +154,6 @@ void NTupleReader::disableUpdate()
 {
     isUpdateDisabled_ = true;
     printf("NTupleReader::disableUpdate(): You have disabled tuple updates.  You may therefore be using old variablre definitions.  Be sure you are ok with this!!!\n");
-}
-
-double NTupleReader::getTupleVar(const std::string var) const
-{
-    //This function can be used to return single variables or composite variables
-    //if(var.compare("run") == 0) return run;
-    //else if(var.compare("lumi") == 0) return lumi;
-
-    // Catchall for default tuple variables.  
-    std::map<std::string, void *>::const_iterator iter = branchMap_.find(var);
-    if(iter != branchMap_.end())
-    {
-        return *static_cast<double*>(iter->second);
-    }
-
-    //get derived variables here
-    auto derived_iter = derivedMap_.find(var);
-    if(derived_iter != derivedMap_.end())
-    {
-        return *static_cast<double*>(derived_iter->second.second);
-    }
-
-    printf("NTupleReader::getTupleVar(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
 }
 
 void NTupleReader::calculateDerivedVariables()

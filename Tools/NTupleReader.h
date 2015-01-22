@@ -12,8 +12,6 @@
 #include <string>
 #include <vector>
 
-//#include "
-
 #ifdef __MAKECINT__
 #pragma link C++ class vector<int>;
 #pragma link C++ class vector<vector<int> >;
@@ -68,12 +66,12 @@ public:
 
     NTupleReader(TTree * tree);
 
-    int getEvtNum()
+    int getEvtNum() const
     {
         return nevt_;
     }
 
-    int getNEntries()
+    int getNEntries() const
     {
         if(tree_) return nEvtTotal_;
         else 
@@ -86,40 +84,97 @@ public:
     bool getNextEvent();
     void disableUpdate();
 
-    template<typename T> void registerDerivedVar(std::string name, void (*f)(const NTupleReader&, void*))
+    template<typename T> void registerDerivedVar(const std::string name, void (*f)(const NTupleReader&, void* const))
     {
+        if(branchMap_.find(name) != branchMap_.end())
+        {
+            printf("NTupleReader::registerDerivedVar(...): You are trying to redefine a base tuple var: \"%s\".  This is not allowed!  Please choose a unique name.\n", name.c_str());
+            return;
+        }
         derivedMap_[name] = std::make_pair(f, new T());
     }
 
-    double getTupleVar(const std::string var) const;
-    inline double operator()(const std::string var) const {return getTupleVar(var);}
-    template<typename T> static void setDerived(const T& retval, void* loc)
+    template<typename T> void registerDerivedVec(const std::string name, void (*f)(const NTupleReader&, void* const))
+    {
+        if(branchVecMap_.find(name) != branchVecMap_.end())
+        {
+            printf("NTupleReader::registerDerivedVec(...): You are trying to redefine a base tuple vec: \"%s\".  This is not allowed!  Please choose a unique name.\n", name.c_str());
+            return;
+        }
+        derivedVecMap_[name] = std::make_pair(f, new std::vector<T>*());
+    }
+
+    template<typename T = double> T getVar(const std::string var) const
+    {
+        //This function can be used to return single variables
+
+        return getTupleObj<T>(var, branchMap_, derivedMap_);
+    }
+
+    template<typename T> const std::vector<T>& getVec(const std::string var) const
+    {
+        //This function can be used to return vectors
+
+        return *getTupleObj<std::vector<T>*>(var, branchVecMap_, derivedVecMap_);
+    }
+
+    inline double operator()(const std::string var) const {return getVar(var);}
+
+    template<typename T> inline static void setDerived(const T& retval, void* const loc)
     {
         *static_cast<T*>(loc) = retval;
     }
 
 private:
-    // private variabls for internal use
+    // private variables for internal use
     TTree *tree_;
     int nevt_, nEvtTotal_;
     bool isUpdateDisabled_;
 
-    // Map to hold branch list 
+    // Maps to hold branch list 
     std::map<std::string, void *> branchMap_;
+    std::map<std::string, void *> branchVecMap_;
     std::map<std::string, std::pair<void (*)(const NTupleReader&, void*), void*>> derivedMap_;
+    std::map<std::string, std::pair<void (*)(const NTupleReader&, void*), void*>> derivedVecMap_;
 
     void activateBranches();
     void populateBranchList();
     
-    template<typename T> void registerBranch(std::string name)
-    {
-        branchMap_[name] = new T();
-    }
-
     void calculateDerivedVariables();
 
     void clearTuple();
     void updateTuple();
+
+    template<typename T> void registerBranch(std::string name)
+    {
+        branchMap_[name] = new T();
+    }
+    
+    template<typename T> void registerVecBranch(std::string name)
+    {
+        branchVecMap_[name] = new std::vector<T>*();
+    }
+    
+    template<typename T, typename V1, typename V2> T getTupleObj(const std::string var, V1 v_tuple, V2 v_derived) const
+    {
+        // Check for default tuple variables first.
+        auto tuple_iter = v_tuple.find(var);
+        if(tuple_iter != v_tuple.end())
+        {
+            return *static_cast<T*>(tuple_iter->second);
+        }
+
+        //get derived variables here
+        auto derived_iter = v_derived.find(var);
+        if(derived_iter != v_derived.end())
+        {
+            return *static_cast<T*>(derived_iter->second.second);
+        }
+
+        printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
+        return T(0);
+    }
+
 };
 
 #endif
