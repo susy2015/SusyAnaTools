@@ -155,7 +155,7 @@ private:
         branchVecMap_[name] = new std::vector<T>*();
     }
     
-    template<typename T, typename V1, typename V2> T getTupleObj(const std::string var, V1 v_tuple, V2 v_derived) const
+    template<typename T, typename V1, typename V2> T getTupleObj(const std::string var, const V1& v_tuple, const V2& v_derived) const
     {
         // Check for default tuple variables first.
         auto tuple_iter = v_tuple.find(var);

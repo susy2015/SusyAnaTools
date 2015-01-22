@@ -128,7 +128,7 @@ void Plotter::Cuttable::parseCutString()
 
 bool Plotter::Cut::passCut(const NTupleReader& tr) const
 {
-    if (type == '<') return tr.getTupleVar(name) < val;
+    if (type == '<') return tr.getVar(name) < val;
     else if(type == '>') return tr(name) > val;
     else if(type == '-') return tr(name) > val && tr(name) < val2;
     else printf("Unrecognized cut type, %c\n", type);
