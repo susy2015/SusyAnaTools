@@ -5,6 +5,7 @@ NTupleReader::NTupleReader(TTree * tree)
     tree_ = tree;
     nEvtTotal_ = tree_->GetEntries();
     nevt_ = 0;
+    isUpdateDisabled_ = false;
     clearTuple();
     
     //vectors must be initialized to 0 here to avoid segfaults.  This cannot be done 
@@ -31,13 +32,11 @@ void NTupleReader::activateBranches()
     // Add desired branches to branchMap_
     populateBranchList();
 
-    for(std::map<std::string, void *>::const_iterator iMap = branchMap_.begin(); iMap != branchMap_.end(); ++iMap)
+    for(auto& iMap : branchMap_)
     {
-        tree_->SetBranchStatus(iMap->first.c_str(), 1);
-        tree_->SetBranchAddress(iMap->first.c_str(), iMap->second);
+        tree_->SetBranchStatus(iMap.first.c_str(), 1);
+        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second);
     }
-
-//    tree_->LoadBaskets();
 }
 
 void NTupleReader::populateBranchList()
@@ -45,7 +44,8 @@ void NTupleReader::populateBranchList()
     branchMap_["run"]   = &run;
     branchMap_["event"] = &event;
     branchMap_["lumi"]  = &lumi;    
-    branchMap_["mht"]  = &mht;
+    //branchMap_["mht"]  = &mht;
+    registerBranch<double>("mht");
     branchMap_["mhtphi"]  = &mhtphi;
     branchMap_["ht"]  = &ht;
     branchMap_["met"]  = &met;
@@ -125,6 +125,8 @@ bool NTupleReader::getNextEvent()
     //clearTuple();
     int status = tree_->GetEntry(nevt_);
     nevt_++;
+    if(!isUpdateDisabled_) updateTuple();
+    calculateDerivedVariables();
     return status > 0;
 }
 
@@ -141,57 +143,45 @@ void NTupleReader::clearTuple()
     remainPassCSVS = 0;
 }
 
+void NTupleReader::disableUpdate()
+{
+    isUpdateDisabled_ = true;
+    printf("NTupleReader::disableUpdate(): You have disabled tuple updates.  You may therefore be using old variablre definitions.  Be sure you are ok with this!!!\n");
+}
 
 double NTupleReader::getTupleVar(const std::string var) const
 {
     //This function can be used to return single variables or composite variables
-/*    if(var.compare("run") == 0) return run;
-    else if(var.compare("lumi") == 0) return lumi;
-    else if(var.compare("event") == 0) return event;
-    else if(var.compare("mht") == 0) return mht;
-    else if(var.compare("mhtphi") == 0) return mhtphi;
-    else if(var.compare("ht") == 0) return ht;
-    else if(var.compare("met") == 0) return met;
-    else if(var.compare("metphi") == 0) return metphi;
-    else if(var.compare("dPhi0_CUT") == 0) return dPhi0_CUT;
-    else if(var.compare("dPhi1_CUT") == 0) return dPhi1_CUT;
-    else if(var.compare("dPhi2_CUT") == 0) return dPhi2_CUT;
-    else if(var.compare("true_npv") == 0) return true_npv;
-    else if(var.compare("avg_npv") == 0) return avg_npv;
-    else if(var.compare("bestTopJetMass") == 0) return bestTopJetMass;
-    else if(var.compare("MT2") == 0) return MT2;
-    else if(var.compare("mTbestTopJet") == 0) return mTbestTopJet;
-    else if(var.compare("mTbJet") == 0) return mTbJet;
-    else if(var.compare("linearCombmTbJetPlusmTbestTopJet") == 0) return linearCombmTbJetPlusmTbestTopJet;
-    else if(var.compare("mTbestWJet") == 0) return mTbestWJet;
-    else if(var.compare("mTbestbJet") == 0) return mTbestbJet;
-    else if(var.compare("mTremainingTopJet") == 0) return mTremainingTopJet;
-    else if(var.compare("evtWeight") == 0) return evtWeight;
-    else if(var.compare("nMuons_CUT") == 0) return nMuons_CUT;
-    else if(var.compare("nMuons") == 0) return nMuons;
-    else if(var.compare("nElectrons_CUT") == 0) return nElectrons_CUT;
-    else if(var.compare("nElectrons") == 0) return nElectrons;
-    else if(var.compare("nJets") == 0) return nJets;
-    else if(var.compare("loose_nIsoTrks") == 0) return loose_nIsoTrks;
-    else if(var.compare("nIsoTrks_CUT") == 0) return nIsoTrks_CUT;
-    else if(var.compare("nJets_CUT") == 0) return nJets_CUT;
-    else if(var.compare("vtxSize") == 0) return vtxSize;
-    else if(var.compare("npv") == 0) return npv;
-    else if(var.compare("nm1") == 0) return nm1;
-    else if(var.compare("n0") == 0) return n0;
-    else if(var.compare("np1") == 0) return np1;
-    else if(var.compare("bestTopJetIdx") == 0) return bestTopJetIdx;
-    else if(var.compare("pickedRemainingCombfatJetIdx") == 0) return pickedRemainingCombfatJetIdx;
-    else if(var.compare("remainPassCSVS") == 0) return remainPassCSVS;*/
-    
+    //if(var.compare("run") == 0) return run;
+    //else if(var.compare("lumi") == 0) return lumi;
+
+    // Catchall for default tuple variables.  
     std::map<std::string, void *>::const_iterator iter = branchMap_.find(var);
     if(iter != branchMap_.end())
     {
         return *static_cast<double*>(iter->second);
     }
-    else
+
+    //get derived variables here
+    auto derived_iter = derivedMap_.find(var);
+    if(derived_iter != derivedMap_.end())
     {
-        printf("NTupleReader::getTupleVar(std::string var): INvalid turple varialble!!!\n");
-        return -999.0;
+        return *static_cast<double*>(derived_iter->second.second);
     }
+
+    printf("NTupleReader::getTupleVar(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
+}
+
+void NTupleReader::calculateDerivedVariables()
+{
+    //My apoligies for anyone looking at this totally cryptic line of code
+    for(auto& var : derivedMap_)
+    {
+        var.second.first(*this, var.second.second);
+    }
+}
+
+void NTupleReader::updateTuple()
+{
+    
 }

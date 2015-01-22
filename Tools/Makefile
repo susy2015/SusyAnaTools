@@ -1,6 +1,6 @@
-IDIR       = inc
+IDIR       = .
 ODIR       = obj
-SDIR       = src
+SDIR       = .
 
 #CXX       = ~/.vim/bundle/ClangComplete/bin/cc_args.py g++
 CXX        = g++

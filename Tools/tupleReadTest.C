@@ -9,6 +9,12 @@
 #include <string>
 #include <ctime>
 
+void calcJoe(const NTupleReader& tr, void* val)
+{
+    double retval = tr("mht") + tr("met");
+    NTupleReader::setDerived(retval, val);
+}
+
 int main()
 {
     //char nBase[] = "root://cmsxrootd-site.fnal.gov//store/user/pastika/DYJetsToLL_M-50_13TeV-madgraph-pythia8/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223539/0000/stopFlatNtuples_%d.root";
@@ -31,6 +37,7 @@ int main()
     //TTree *t = (TTree*)f->Get("stopTreeMaker/AUX");
 
     NTupleReader tr(f);
+    tr.registerDerivedVar<double>("joe", &calcJoe);
 
     std::cout << "NEVTS: " << tr.getNEntries() << std::endl;
 
@@ -38,5 +45,6 @@ int main()
     {
 //        std::cout << tr.getNEntries() << "\t" << tr.run << "\t" << tr.lumi << "\t" << tr.event << "\t" << tr.genDecayLVec->size() << "\t" <<  tr.mht << std::endl;
         if(tr.getEvtNum()%100000 == 0) std::cout << tr.getEvtNum() << "\t" << ((clock() - t0)/1000000.0) << std::endl;
+        std::cout << tr("met") << "\t" << tr("mht") << "\t" << tr("joe") << std::endl;
     }
 }

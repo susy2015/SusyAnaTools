@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+//#include "
+
 #ifdef __MAKECINT__
 #pragma link C++ class vector<int>;
 #pragma link C++ class vector<vector<int> >;
@@ -82,20 +84,42 @@ public:
     }
 
     bool getNextEvent();
+    void disableUpdate();
+
+    template<typename T> void registerDerivedVar(std::string name, void (*f)(const NTupleReader&, void*))
+    {
+        derivedMap_[name] = std::make_pair(f, new T());
+    }
+
     double getTupleVar(const std::string var) const;
     inline double operator()(const std::string var) const {return getTupleVar(var);}
+    template<typename T> static void setDerived(const T& retval, void* loc)
+    {
+        *static_cast<T*>(loc) = retval;
+    }
 
 private:
     // private variabls for internal use
     TTree *tree_;
     int nevt_, nEvtTotal_;
+    bool isUpdateDisabled_;
 
     // Map to hold branch list 
     std::map<std::string, void *> branchMap_;
+    std::map<std::string, std::pair<void (*)(const NTupleReader&, void*), void*>> derivedMap_;
 
     void activateBranches();
     void populateBranchList();
+    
+    template<typename T> void registerBranch(std::string name)
+    {
+        branchMap_[name] = new T();
+    }
+
+    void calculateDerivedVariables();
+
     void clearTuple();
+    void updateTuple();
 };
 
 #endif
