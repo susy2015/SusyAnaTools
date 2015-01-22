@@ -27,14 +27,10 @@ ifeq ($(shell echo $(BOOSTROOT)), '')
   CPPFLAGS  += -I$(shell echo $(BOOSTROOT))
 endif
 
-
-OBJ        = NTupleReader.o tupleReadTest.o
-PROGRAM    = runStop
-
 OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
+PROGRAMS = stopTupleTest makePlots
 
-all:          $(PROGRAM)
-
+all: $(PROGRAMS)
 
 $(ODIR)/%.o : $(SDIR)/%.C $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
@@ -42,11 +38,13 @@ $(ODIR)/%.o : $(SDIR)/%.C $(HEADERS)
 $(ODIR)/%.o : $(SDIR)/%.cc $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
 
+stopTupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o
+	$(LD) $^ $(LIBS) -o $@
 
-$(PROGRAM):  $(OBJS)
-	@echo "Linking $(PROGRAM) ..."
-	@$(LD) $(OBJS) $(LIBS) -o $(PROGRAM)
-	@echo "done"
+makePlots: $(ODIR)/NTupleReader.o $(ODIR)/Plotter.o $(ODIR)/MakePlots.o
+	$(LD) $^ $(LIBS) -o $@
 
-clean:;         @rm -f $(OBJS) $(PROGRAM) core 
+clean:
+	rm -f $(ODIR)/*.o $(PROGRAMS) core 
+
 
