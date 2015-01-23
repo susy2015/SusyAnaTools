@@ -45,24 +45,6 @@ class NTupleReader
 
 public:
     // List of all variables used in tuple
-    unsigned int run, lumi, event;
-    double mht, mhtphi, ht, met, metphi, dPhi0_CUT, dPhi1_CUT, dPhi2_CUT, true_npv, avg_npv;
-    double bestTopJetMass, MT2, mTbestTopJet, mTbJet, linearCombmTbJetPlusmTbestTopJet;
-    double mTbestWJet, mTbestbJet, mTremainingTopJet, evtWeight;
-    int nMuons_CUT, nMuons, nElectrons_CUT, nElectrons, nJets, loose_nIsoTrks, nIsoTrks_CUT;
-    int nJets_CUT, vtxSize, npv, nm1, n0, np1, bestTopJetIdx, pickedRemainingCombfatJetIdx;
-    unsigned int remainPassCSVS;
-    std::vector<double> *muonsCharge, *muonsMtw, *muonsRelIso, *elesCharge, *elesMtw, *elesRelIso;
-    std::vector<double> *recoJetsBtag_0, *trksForIsoVeto_charge, *trksForIsoVeto_dz;
-    std::vector<double> *loose_isoTrks_charge, *loose_isoTrks_dz;
-    std::vector<double> *loose_isoTrks_iso, *loose_isoTrks_mtw;
-    std::vector<int> *recoJetsFlavor, *genDecayIdxVec, *genDecayPdgIdVec, *genDecayMomIdxVec;
-    std::vector<int> *W_emuVec, *W_tau_emuVec, *W_tau_prongsVec, *trksForIsoVeto_pdgId;
-    std::vector<int> *trksForIsoVeto_idx, *loose_isoTrks_pdgId, *loose_isoTrks_idx;
-    std::vector<int> *forVetoIsoTrksidx;
-    std::vector<std::string> *genDecayStrVec;
-    std::vector<TLorentzVector> *muonsLVec, *elesLVec, *jetsLVec, *genDecayLVec;
-    std::vector<TLorentzVector> *trksForIsoVetoLVec, *loose_isoTrksLVec;
 
     NTupleReader(TTree * tree);
 
@@ -111,7 +93,7 @@ public:
         return getTupleObj<T>(var, branchMap_, derivedMap_);
     }
 
-    template<typename T> const std::vector<T>& getVec(const std::string var) const
+    template<typename T = TLorentzVector> const std::vector<T>& getVec(const std::string var) const
     {
         //This function can be used to return vectors
 

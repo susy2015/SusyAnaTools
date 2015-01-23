@@ -37,6 +37,9 @@ int main()
     while(tr.getNextEvent())
     {
         if(tr.getEvtNum()%100000 == 0) std::cout << tr.getEvtNum() << "\t" << ((clock() - t0)/1000000.0) << std::endl;
-        std::cout << tr("met") << "\t" << tr("mht") << "\t" << tr("joe") << "\t" << tr.getVec<double>("muonsMtw").size() << std::endl;
+        std::cout << tr("met") << "\t" << tr.getVar<double>("mht") << "\t" << tr("joe") << "\t" << tr.getVec<double>("muonsMtw").size() << std::endl;
     }
+
+//    const unsigned int& run = tr.getVar<unsigned int>("run");
+
 }

@@ -32,10 +32,10 @@ PROGRAMS = stopTupleTest makePlots
 
 all: $(PROGRAMS)
 
-$(ODIR)/%.o : $(SDIR)/%.C $(HEADERS)
+$(ODIR)/%.o : $(SDIR)/%.C $(IDIR)/%.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
 
-$(ODIR)/%.o : $(SDIR)/%.cc $(HEADERS)
+$(ODIR)/%.o : $(SDIR)/%.cc $(IDIR)/%.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
 
 stopTupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o
@@ -46,5 +46,4 @@ makePlots: $(ODIR)/NTupleReader.o $(ODIR)/Plotter.o $(ODIR)/MakePlots.o
 
 clean:
 	rm -f $(ODIR)/*.o $(PROGRAMS) core 
-
 
