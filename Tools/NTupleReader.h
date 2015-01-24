@@ -11,6 +11,8 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <typeinfo>
+#include <cxxabi.h>
 
 #ifdef __MAKECINT__
 #pragma link C++ class vector<int>;
@@ -65,59 +67,77 @@ public:
 
     bool getNextEvent();
     void disableUpdate();
+    void printTupleMembers(FILE *f = stdout) const;
 
-    template<typename T> void registerDerivedVar(const std::string name, void (*f)(const NTupleReader&, void* const))
+    void registerFunction(void (*f)(NTupleReader&));
+
+    template<typename T> void registerDerivedVar(const std::string name, T var)
     {
-        if(branchMap_.find(name) != branchMap_.end())
+        if(isFirstEvent_)
         {
-            printf("NTupleReader::registerDerivedVar(...): You are trying to redefine a base tuple var: \"%s\".  This is not allowed!  Please choose a unique name.\n", name.c_str());
-            return;
+            if(branchMap_.find(name) != branchMap_.end())
+            {
+                printf("NTupleReader::registerDerivedVar(...): You are trying to redefine a base tuple var: \"%s\".  This is not allowed!  Please choose a unique name.\n", name.c_str());
+                return;
+            }
+            branchMap_[name] = new T();
+
+            std::string type;
+            demangle<T>(type);
+            typeVec_.push_back(std::make_pair(name, type));
         }
-        derivedMap_[name] = std::make_pair(f, new T());
+        setDerived(var, branchMap_[name]);
     }
 
-    template<typename T> void registerDerivedVec(const std::string name, void (*f)(const NTupleReader&, void* const))
+    template<typename T> void registerDerivedVec(const std::string name, T* var)
     {
-        if(branchVecMap_.find(name) != branchVecMap_.end())
+        if(isFirstEvent_)
         {
-            printf("NTupleReader::registerDerivedVec(...): You are trying to redefine a base tuple vec: \"%s\".  This is not allowed!  Please choose a unique name.\n", name.c_str());
-            return;
+            if(branchVecMap_.find(name) != branchVecMap_.end())
+            {
+                printf("NTupleReader::registerDerivedVar(...): You are trying to redefine a base tuple var: \"%s\".  This is not allowed!  Please choose a unique name.\n", name.c_str());
+                return;
+            }
+            branchVecMap_[name] = new T*();
+            
+            std::string type;
+            demangle<T>(type);
+            typeVec_.push_back(std::make_pair(name, type));
         }
-        derivedVecMap_[name] = std::make_pair(f, new std::vector<T>*());
+        void * vecloc = branchVecMap_[name];
+        T *vecptr = *static_cast<T**>(branchVecMap_[name]);
+        if(vecptr != nullptr)
+        {
+            vecptr->~vector();
+        }
+        setDerived(var, vecloc);
     }
 
-    template<typename T = double> T getVar(const std::string var) const
+    template<typename T> T getVar(const std::string var) const
     {
         //This function can be used to return single variables
 
-        return getTupleObj<T>(var, branchMap_, derivedMap_);
+        return getTupleObj<T>(var, branchMap_);
     }
 
-    template<typename T = TLorentzVector> const std::vector<T>& getVec(const std::string var) const
+    template<typename T> const std::vector<T>& getVec(const std::string var) const
     {
         //This function can be used to return vectors
 
-        return *getTupleObj<std::vector<T>*>(var, branchVecMap_, derivedVecMap_);
+        return *getTupleObj<std::vector<T>*>(var, branchVecMap_);
     }
-
-    inline double operator()(const std::string var) const {return getVar(var);}
-
-    template<typename T> inline static void setDerived(const T& retval, void* const loc)
-    {
-        *static_cast<T*>(loc) = retval;
-    }
-
+ 
 private:
     // private variables for internal use
     TTree *tree_;
     int nevt_, nEvtTotal_;
-    bool isUpdateDisabled_;
+    bool isUpdateDisabled_, isFirstEvent_;
 
     // Maps to hold branch list 
     std::map<std::string, void *> branchMap_;
     std::map<std::string, void *> branchVecMap_;
-    std::map<std::string, std::pair<void (*)(const NTupleReader&, void*), void*>> derivedMap_;
-    std::map<std::string, std::pair<void (*)(const NTupleReader&, void*), void*>> derivedVecMap_;
+    std::vector<void (*)(NTupleReader&)> functionVec_;
+    std::vector<std::pair<std::string, std::string>> typeVec_;
 
     void activateBranches();
     void populateBranchList();
@@ -130,33 +150,46 @@ private:
     template<typename T> void registerBranch(std::string name)
     {
         branchMap_[name] = new T();
+
+        std::string type;
+        demangle<T>(type);
+        typeVec_.push_back(std::make_pair(name, type));
     }
     
     template<typename T> void registerVecBranch(std::string name)
     {
         branchVecMap_[name] = new std::vector<T>*();
+
+        std::string type;
+        demangle<std::vector<T>>(type);
+        typeVec_.push_back(std::make_pair(name, type));
     }
     
-    template<typename T, typename V1, typename V2> T getTupleObj(const std::string var, const V1& v_tuple, const V2& v_derived) const
+    template<typename T, typename V> T getTupleObj(const std::string var, const V& v_tuple) const
     {
-        // Check for default tuple variables first.
         auto tuple_iter = v_tuple.find(var);
         if(tuple_iter != v_tuple.end())
         {
             return *static_cast<T*>(tuple_iter->second);
         }
 
-        //get derived variables here
-        auto derived_iter = v_derived.find(var);
-        if(derived_iter != v_derived.end())
-        {
-            return *static_cast<T*>(derived_iter->second.second);
-        }
-
         printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
         return T(0);
     }
 
+    template<typename T> inline static void setDerived(const T& retval, void* const loc)
+    {
+        *static_cast<T*>(loc) = retval;
+    }
+
+    template<typename T> void demangle(std::string& s)
+    {
+        // unmangled
+        int status = 0;
+        char* demangled = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
+        s = demangled;
+        delete [] demangled;
+    }
 };
 
 #endif

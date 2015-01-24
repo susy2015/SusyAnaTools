@@ -11,10 +11,17 @@
 
 namespace joeFunctions
 {
-    void calcJoe(const NTupleReader& tr, void* val)
+    void calcJoe(NTupleReader& tr)
     {
-        double retval = tr("mht") + tr("met");
-        NTupleReader::setDerived(retval, val);
+        double retval = tr.getVar<double>("met") + tr.getVar<double>("mht");
+
+        int five = 5;
+
+        std::vector<double> *vec = new std::vector<double>(4, tr.getVar<double>("mht"));
+
+        tr.registerDerivedVar("joe", retval);
+        tr.registerDerivedVar("five", five);
+        tr.registerDerivedVec("threeNum", vec);
     }
 }
 
@@ -30,16 +37,23 @@ int main()
     f->Add(nBase);
     
     NTupleReader tr(f);
-    tr.registerDerivedVar<double>("joe", &joeFunctions::calcJoe);
+    tr.registerFunction(&joeFunctions::calcJoe);
 
     std::cout << "NEVTS: " << tr.getNEntries() << std::endl;
 
     while(tr.getNextEvent())
     {
+        if(tr.getEvtNum() == 1)
+        {
+            tr.printTupleMembers();
+            FILE * fout = fopen("NTupleTypes.txt", "w");
+            tr.printTupleMembers(fout);
+            fclose(fout);
+        }
         if(tr.getEvtNum()%100000 == 0) std::cout << tr.getEvtNum() << "\t" << ((clock() - t0)/1000000.0) << std::endl;
-        std::cout << tr("met") << "\t" << tr.getVar<double>("mht") << "\t" << tr("joe") << "\t" << tr.getVec<double>("muonsMtw").size() << std::endl;
+        //std::cout << tr.getVar<double>("met") << "\t" << tr.getVar<double>("mht") << "\t" << tr.getVar<double>("joe") << "\t" << tr.getVar<int>("five") << "\t" << tr.getVec<double>("muonsMtw").size() << "\t" << tr.getVec<double>("threeNum")[2] << std::endl;
     }
 
-//    const unsigned int& run = tr.getVar<unsigned int>("run");
+    const unsigned int& run = tr.getVar<unsigned int>("run");
 
 }

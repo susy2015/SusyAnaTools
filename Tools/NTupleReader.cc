@@ -2,6 +2,7 @@
 
 #include "TROOT.h"
 #include "TObjArray.h"
+#include "TLeaf.h"
 
 NTupleReader::NTupleReader(TTree * tree)
 {
@@ -9,6 +10,7 @@ NTupleReader::NTupleReader(TTree * tree)
     nEvtTotal_ = tree_->GetEntries();
     nevt_ = 0;
     isUpdateDisabled_ = false;
+    isFirstEvent_ = true;
     clearTuple();
 
     gROOT->ProcessLine("#include <vector>");
@@ -48,6 +50,17 @@ void NTupleReader::populateBranchList()
     {
         std::string type(branch->GetTitle());
         std::string name(branch->GetName());
+
+        if(type.compare(name) == 0)
+        {
+            TObjArray *lol = branch->GetListOfLeaves();
+            if (lol->GetEntries() == 1) 
+            {
+                TLeaf *leaf = (TLeaf*)lol->UncheckedAt(0);
+                type = leaf->GetTypeName();
+            }
+            else continue;
+        }
 
         if(type.find("vector") != std::string::npos)
         {
@@ -94,19 +107,29 @@ void NTupleReader::disableUpdate()
 
 void NTupleReader::calculateDerivedVariables()
 {
-    //My apoligies for anyone looking at this totally cryptic line of code
-    for(auto& var : derivedMap_)
+    for(auto& func : functionVec_)
     {
-        var.second.first(*this, var.second.second);
+        func(*this);
     }
 
-    for(auto& var : derivedVecMap_)
-    {
-        var.second.first(*this, var.second.second);
-    }
+    isFirstEvent_ = false;
+}
+
+void NTupleReader::registerFunction(void (*f)(NTupleReader&))
+{
+    if(isFirstEvent_) functionVec_.push_back(f);
+    else printf("NTupleReader::registerFunction(...): new functions cannot be registered after tuple reading begins!\n");
 }
 
 void NTupleReader::updateTuple()
 {
     
+}
+
+void NTupleReader::printTupleMembers(FILE *f) const
+{
+    for(auto& iVar : typeVec_)
+    {
+        fprintf(f, "%60s %s\n", iVar.second.c_str(), iVar.first.c_str());
+    }
 }
