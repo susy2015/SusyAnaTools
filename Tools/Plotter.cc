@@ -86,8 +86,8 @@ void Plotter::createHistsFromTuple()
                     if(!hist.passCuts(tr)) continue;
 
                     //fill histograms here 
-                    double weight = tr.evtWeight * file.xsec * file.lumi * file.kfactor / file.nEvts;
-                    hist.hist()->Fill(tr(hist.name));
+                    double weight = tr.getVar<double>("evtWeight") * file.xsec * file.lumi * file.kfactor / file.nEvts;
+                    hist.hist()->Fill(tr.getVar<double>(hist.name));
                 }
             }
         }
@@ -128,9 +128,9 @@ void Plotter::Cuttable::parseCutString()
 
 bool Plotter::Cut::passCut(const NTupleReader& tr) const
 {
-    if (type == '<') return tr.getVar(name) < val;
-    else if(type == '>') return tr(name) > val;
-    else if(type == '-') return tr(name) > val && tr(name) < val2;
+    if (type == '<') return tr.getVar<double>(name) < val;
+    else if(type == '>') return tr.getVar<double>(name) > val;
+    else if(type == '-') return tr.getVar<double>(name) > val && tr.getVar<double>(name) < val2;
     else printf("Unrecognized cut type, %c\n", type);
     return false;
 }
