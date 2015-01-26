@@ -71,6 +71,8 @@ public:
 
     void registerFunction(void (*f)(NTupleReader&));
 
+    void getType(const std::string& name, std::string& type) const;
+
     template<typename T> void registerDerivedVar(const std::string name, T var)
     {
         if(isFirstEvent_)
@@ -84,7 +86,7 @@ public:
 
             std::string type;
             demangle<T>(type);
-            typeVec_.push_back(std::make_pair(name, type));
+            typeMap_[name] = type;
         }
         setDerived(var, branchMap_[name]);
     }
@@ -102,7 +104,7 @@ public:
             
             std::string type;
             demangle<T>(type);
-            typeVec_.push_back(std::make_pair(name, type));
+            typeMap_[name] = type;
         }
         void * vecloc = branchVecMap_[name];
         T *vecptr = *static_cast<T**>(branchVecMap_[name]);
@@ -137,7 +139,7 @@ private:
     std::map<std::string, void *> branchMap_;
     std::map<std::string, void *> branchVecMap_;
     std::vector<void (*)(NTupleReader&)> functionVec_;
-    std::vector<std::pair<std::string, std::string>> typeVec_;
+    std::map<std::string, std::string> typeMap_;
 
     void activateBranches();
     void populateBranchList();
@@ -153,7 +155,7 @@ private:
 
         std::string type;
         demangle<T>(type);
-        typeVec_.push_back(std::make_pair(name, type));
+        typeMap_[name] = type;
     }
     
     template<typename T> void registerVecBranch(std::string name)
@@ -162,7 +164,7 @@ private:
 
         std::string type;
         demangle<std::vector<T>>(type);
-        typeVec_.push_back(std::make_pair(name, type));
+        typeMap_[name] = type;
     }
     
     template<typename T, typename V> T getTupleObj(const std::string var, const V& v_tuple) const

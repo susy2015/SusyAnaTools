@@ -1,8 +1,20 @@
 #include "Plotter.h"
+#include "derivedTupleVariables.h"
 
 #include "TROOT.h"
 #include "TLegend.h"
 #include "TCanvas.h"
+#include "TChain.h"
+
+const int colors[] = {
+    kRed,
+    kBlue,
+    kGreen-2,
+    kBlack,
+    kOrange,
+    kYellow
+};
+const int NCOLORS = sizeof(colors)/sizeof(int);
 
 Plotter::Plotter(std::vector<HistSummary> h, std::vector<std::vector<FileSummary>> t)
 {
@@ -19,7 +31,7 @@ Plotter::Cut::Cut(std::string s, char t, double v, double v2)
     val2 = v2;
 }
 
-Plotter::Cuttable::Cuttable(std::string c)
+Plotter::Cuttable::Cuttable(const std::string& c)
 {
     setCuts(c);
 }
@@ -70,10 +82,13 @@ void Plotter::createHistsFromTuple()
 
         for(FileSummary& file : tree)
         {
-            TFile *f = new TFile(file.name.c_str());
-            TTree *t = (TTree*)f->Get(file.treePath.c_str());
+            //TFile *f = new TFile(file.name.c_str());
+            //TTree *t = (TTree*)f->Get(file.treePath.c_str());
+            TChain *t = new TChain(file.treePath.c_str());
+            t->Add(file.name.c_str());
 
             NTupleReader tr(t);
+            plotterFunctions::registerFunctions(tr);
 
             while(tr.getNextEvent())
             {
@@ -87,14 +102,15 @@ void Plotter::createHistsFromTuple()
 
                     //fill histograms here 
                     double weight = tr.getVar<double>("evtWeight") * file.xsec * file.lumi * file.kfactor / file.nEvts;
-                    hist.hist()->Fill(tr.getVar<double>(hist.name));
+                    //hist.hist()->Fill(tr.getVar<double>(hist.name));
+                    fillHist(hist.hist(), hist.name, tr, weight);
                 }
             }
         }
     }
 }
 
-void Plotter::Cuttable::setCuts(std::string c)
+void Plotter::Cuttable::setCuts(const std::string& c)
 {
     cuts_ = c;
     cutVec_.clear();
@@ -110,8 +126,9 @@ void Plotter::Cuttable::parseCutString()
         std::string tmp = cuts_.substr(pos, npos - pos);
         size_t sepPos = 0;
         char cutType = ' ';
-        if((sepPos = tmp.find('>')) != size_t(-1)) cutType = '>';
+        if(     (sepPos = tmp.find('>')) != size_t(-1)) cutType = '>';
         else if((sepPos = tmp.find('<')) != size_t(-1)) cutType = '<';
+        else if((sepPos = tmp.find('=')) != size_t(-1)) cutType = '=';
         else continue;
         std::string t1 = tmp.substr(0, sepPos), t2 = tmp.substr(sepPos + 1, (size_t(-1)));
         t1.erase(remove(t1.begin(),t1.end(),' '),t1.end());
@@ -128,7 +145,7 @@ void Plotter::Cuttable::parseCutString()
 
 bool Plotter::Cut::passCut(const NTupleReader& tr) const
 {
-    if (type == '<') return tr.getVar<double>(name) < val;
+    if     (type == '<') return tr.getVar<double>(name) < val;
     else if(type == '>') return tr.getVar<double>(name) > val;
     else if(type == '-') return tr.getVar<double>(name) > val && tr.getVar<double>(name) < val2;
     else printf("Unrecognized cut type, %c\n", type);
@@ -157,6 +174,7 @@ void Plotter::plot()
 
         TH1 *dummy = new TH1F("dummy", "dummy", 1000, hist.hist()->GetBinLowEdge(1), hist.hist()->GetBinLowEdge(hist.hist()->GetNbinsX()) + hist.hist()->GetBinWidth(hist.hist()->GetNbinsX()));
         dummy->SetStats(0);
+        dummy->SetTitle(0);
         dummy->GetYaxis()->SetTitle(hist.yAxisLabel.c_str());
         dummy->GetYaxis()->SetTitleOffset(1.1);
         dummy->GetXaxis()->SetTitle(hist.xAxisLabel.c_str());
@@ -175,8 +193,11 @@ void Plotter::plot()
         leg->SetTextFont(42);
 
         double max = 0.0, min = 1.0e300;
+        int i = 0;
         for(std::pair<std::string, TH1*>& h : hist.histVec)
         {
+            h.second->SetLineColor(colors[i%NCOLORS]);
+            i++;
             leg->AddEntry(h.second, h.first.c_str());
             max = std::max(max, h.second->GetMaximum());
             min = std::min(min, h.second->GetMaximum());
@@ -205,4 +226,26 @@ void Plotter::plot()
         dummy->~TH1();
         c->~TCanvas();
     }    
+}
+
+void Plotter::fillHist(TH1 * const h, const std::string& name, const NTupleReader& tr, const double weight)
+{
+    std::string type;
+    tr.getType(name, type);
+
+    if(type.find("vector") != std::string::npos)
+    {
+        if     (type.find("double")         != std::string::npos) ;
+        else if(type.find("unsigned int")   != std::string::npos) ;
+        else if(type.find("int")            != std::string::npos) ;
+        else if(type.find("string")         != std::string::npos) ;
+        else if(type.find("TLorentzVector") != std::string::npos) ;
+    }
+    else
+    {
+        if     (type.find("double")       != std::string::npos) h->Fill(tr.getVar<double>(name), weight);
+        else if(type.find("unsigned int") != std::string::npos) h->Fill(tr.getVar<unsigned int>(name), weight);
+        else if(type.find("int")          != std::string::npos) h->Fill(tr.getVar<int>(name), weight);
+    }
+
 }

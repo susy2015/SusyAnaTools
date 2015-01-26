@@ -64,17 +64,17 @@ void NTupleReader::populateBranchList()
 
         if(type.find("vector") != std::string::npos)
         {
-            if(type.find("double")         != std::string::npos) registerVecBranch<double>(name);
-            if(type.find("int")            != std::string::npos) registerVecBranch<int>(name);
-            if(type.find("unsigned int")   != std::string::npos) registerVecBranch<unsigned int>(name);
-            if(type.find("string")         != std::string::npos) registerVecBranch<std::string>(name);
-            if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<TLorentzVector>(name);
+            if     (type.find("double")         != std::string::npos) registerVecBranch<double>(name);
+            else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<unsigned int>(name);
+            else if(type.find("int")            != std::string::npos) registerVecBranch<int>(name);
+            else if(type.find("string")         != std::string::npos) registerVecBranch<std::string>(name);
+            else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<TLorentzVector>(name);
         }
         else
         {
-            if(type.find("/D") != std::string::npos) registerBranch<double>(name);
-            if(type.find("/I") != std::string::npos) registerBranch<int>(name);
-            if(type.find("/i") != std::string::npos) registerBranch<unsigned int>(name);
+            if     (type.find("/D") != std::string::npos) registerBranch<double>(name);
+            else if(type.find("/I") != std::string::npos) registerBranch<int>(name);
+            else if(type.find("/i") != std::string::npos) registerBranch<unsigned int>(name);
         }
     }
 }
@@ -121,6 +121,15 @@ void NTupleReader::registerFunction(void (*f)(NTupleReader&))
     else printf("NTupleReader::registerFunction(...): new functions cannot be registered after tuple reading begins!\n");
 }
 
+void NTupleReader::getType(const std::string& name, std::string& type) const
+{
+    auto typeIter = typeMap_.find(name);
+    if(typeIter != typeMap_.end())
+    {
+        type = typeIter->second;
+    }
+}
+
 void NTupleReader::updateTuple()
 {
     
@@ -128,7 +137,7 @@ void NTupleReader::updateTuple()
 
 void NTupleReader::printTupleMembers(FILE *f) const
 {
-    for(auto& iVar : typeVec_)
+    for(auto& iVar : typeMap_)
     {
         fprintf(f, "%60s %s\n", iVar.second.c_str(), iVar.first.c_str());
     }

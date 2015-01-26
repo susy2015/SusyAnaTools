@@ -31,9 +31,9 @@ private:
     {
     public:
         Cuttable() {}
-        Cuttable(std::string c);
+        Cuttable(const std::string& c);
         bool passCuts(const NTupleReader& tr) const;
-        void setCuts(std::string c);
+        void setCuts(const std::string& c);
         std::string getCuts() {return cuts_;}
         
     private:
@@ -78,4 +78,5 @@ private:
     std::vector<std::vector<FileSummary>> trees_;
         
     void createHistsFromTuple();
+    void fillHist(TH1 * const h, const std::string& name, const NTupleReader& tr, const double weight);
 };
