@@ -1,3 +1,6 @@
+#ifndef STOP_PLOTTER_H
+#define STOP_PLOTTER_H
+
 #include "TChain.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -49,7 +52,7 @@ public:
     {
     public:
         std::vector<std::pair<std::string, TH1*>> histVec;
-        std::string name, label;
+        std::string name, label, vecVar;
         int nBins;
         double low, high;
         bool isLog;
@@ -58,6 +61,8 @@ public:
         HistSummary() {}
         HistSummary(std::string l, std::string n, std::string cuts, int nb, double ll, double ul, bool log, std::string xal = "", std::string yal = "");
         TH1* hist() {return histVec.back().second;}
+    private:
+        void parseName();
     };
 
     class FileSummary : public Cuttable
@@ -78,5 +83,29 @@ private:
     std::vector<std::vector<FileSummary>> trees_;
         
     void createHistsFromTuple();
-    void fillHist(TH1 * const h, const std::string& name, const NTupleReader& tr, const double weight);
+    void fillHist(TH1 * const h, const HistSummary& name, const NTupleReader& tr, const double weight);
+    
+    template<typename T> void fillHistFromVec(TH1 * const h, const HistSummary& hs, const NTupleReader& tr, const double weight)
+    {
+        const auto& vec = tr.getVec<T>(hs.name);
+        
+        if(hs.vecVar.compare("size") == 0) h->Fill(vec.size(), weight);
+        else
+        {
+            for(auto& obj : vec)
+            {
+                vectorFill(h, hs, obj, weight);
+            }
+        }
+    }
+
+    template<typename T> inline void vectorFill(TH1 * const h, const HistSummary& hs, const T& obj, const double weight)
+    {
+        h->Fill(obj, weight);
+    }
 };
+
+typedef Plotter::HistSummary PHS;
+typedef Plotter::FileSummary PFS;
+
+#endif

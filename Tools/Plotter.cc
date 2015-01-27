@@ -1,5 +1,6 @@
 #include "Plotter.h"
 #include "derivedTupleVariables.h"
+#include "tdrstyle.h"
 
 #include "TROOT.h"
 #include "TLegend.h"
@@ -46,6 +47,8 @@ Plotter::HistSummary::HistSummary(std::string l, std::string n, std::string cuts
     isLog = log;
     xAxisLabel = xal;
     yAxisLabel = yal;
+
+    parseName();
 }
 
 Plotter::FileSummary::FileSummary(std::string lab, std::string nam, std::string tree, std::string cuts, double xs, double l, double k, double n) : Cuttable(cuts)
@@ -59,6 +62,16 @@ Plotter::FileSummary::FileSummary(std::string lab, std::string nam, std::string 
     nEvts = n;
 }
 
+void Plotter::HistSummary::parseName()
+{
+    size_t b1 = 0, b2 = 0;
+    if((b1 = name.find("(")) != std::string::npos && (b2 = name.find(")")) != std::string::npos)
+    {
+        vecVar = name.substr(b1+1, b2 - b1 - 1);
+        name = name.substr(0, b1);
+    }
+    else vecVar = "";
+}
 
 void Plotter::createHistsFromTuple()
 {
@@ -86,6 +99,7 @@ void Plotter::createHistsFromTuple()
             //TTree *t = (TTree*)f->Get(file.treePath.c_str());
             TChain *t = new TChain(file.treePath.c_str());
             t->Add(file.name.c_str());
+            std::cout << "Processing file(s): " << file.name << std::endl;
 
             NTupleReader tr(t);
             plotterFunctions::registerFunctions(tr);
@@ -103,7 +117,7 @@ void Plotter::createHistsFromTuple()
                     //fill histograms here 
                     double weight = tr.getVar<double>("evtWeight") * file.xsec * file.lumi * file.kfactor / file.nEvts;
                     //hist.hist()->Fill(tr.getVar<double>(hist.name));
-                    fillHist(hist.hist(), hist.name, tr, weight);
+                    fillHist(hist.hist(), hist, tr, weight);
                 }
             }
         }
@@ -147,6 +161,7 @@ bool Plotter::Cut::passCut(const NTupleReader& tr) const
 {
     if     (type == '<') return tr.getVar<double>(name) < val;
     else if(type == '>') return tr.getVar<double>(name) > val;
+    else if(type == '=') return tr.getVar<double>(name) == val;
     else if(type == '-') return tr.getVar<double>(name) > val && tr.getVar<double>(name) < val2;
     else printf("Unrecognized cut type, %c\n", type);
     return false;
@@ -164,7 +179,8 @@ bool Plotter::Cuttable::passCuts(const NTupleReader& tr) const
 
 void Plotter::plot()
 {
-    gROOT->SetStyle("Plain");
+    //gROOT->SetStyle("Plain");
+    setTDRStyle();
     
     for(HistSummary& hist : hists_)
     {
@@ -206,7 +222,7 @@ void Plotter::plot()
         c->SetLogy(hist.isLog);
         if(hist.isLog)
         {
-            dummy->GetYaxis()->SetRangeUser(std::max(0.0001, 0.2 * min), 3*max);
+            dummy->GetYaxis()->SetRangeUser(std::min(1.0, std::max(0.0001, 0.2 * min)), 3*max);
         }
         else
         {
@@ -228,24 +244,32 @@ void Plotter::plot()
     }    
 }
 
-void Plotter::fillHist(TH1 * const h, const std::string& name, const NTupleReader& tr, const double weight)
+void Plotter::fillHist(TH1 * const h, const HistSummary& hs, const NTupleReader& tr, const double weight)
 {
     std::string type;
-    tr.getType(name, type);
+    tr.getType(hs.name, type);
 
     if(type.find("vector") != std::string::npos)
     {
-        if     (type.find("double")         != std::string::npos) ;
-        else if(type.find("unsigned int")   != std::string::npos) ;
-        else if(type.find("int")            != std::string::npos) ;
-        else if(type.find("string")         != std::string::npos) ;
-        else if(type.find("TLorentzVector") != std::string::npos) ;
+        if     (type.find("double")         != std::string::npos) fillHistFromVec<double>(h, hs, tr, weight);
+        else if(type.find("unsigned int")   != std::string::npos) fillHistFromVec<unsigned int>(h, hs, tr, weight);
+        else if(type.find("int")            != std::string::npos) fillHistFromVec<int>(h, hs, tr, weight);
+        else if(type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector>(h, hs, tr, weight);
     }
     else
     {
-        if     (type.find("double")       != std::string::npos) h->Fill(tr.getVar<double>(name), weight);
-        else if(type.find("unsigned int") != std::string::npos) h->Fill(tr.getVar<unsigned int>(name), weight);
-        else if(type.find("int")          != std::string::npos) h->Fill(tr.getVar<int>(name), weight);
+        if     (type.find("double")       != std::string::npos) h->Fill(tr.getVar<double>(hs.name), weight);
+        else if(type.find("unsigned int") != std::string::npos) h->Fill(tr.getVar<unsigned int>(hs.name), weight);
+        else if(type.find("int")          != std::string::npos) h->Fill(tr.getVar<int>(hs.name), weight);
     }
+}
 
+template<> inline void Plotter::vectorFill(TH1 * const h, const HistSummary& hs, const TLorentzVector& obj, const double weight)
+{
+    if     (hs.vecVar.find("pt")  != std::string::npos) h->Fill(obj.Pt(), weight);
+    else if(hs.vecVar.find("eta") != std::string::npos) h->Fill(obj.Eta(), weight);
+    else if(hs.vecVar.find("phi") != std::string::npos) h->Fill(obj.Phi(), weight);
+    else if(hs.vecVar.find("E")   != std::string::npos) h->Fill(obj.E(), weight);
+    else if(hs.vecVar.find("M")   != std::string::npos) h->Fill(obj.M(), weight);
+    else if(hs.vecVar.find("Mt")  != std::string::npos) h->Fill(obj.Mt(), weight);
 }

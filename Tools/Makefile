@@ -7,7 +7,7 @@ CXX        = g++
 
 CXXFLAGS  += -Iinc -std=c++0x
 ## Optimization flag
-CXXFLAGS += -O3
+CXXFLAGS += -g #-O3
 ## Enable the maximun warning
 #CXXFLAGS += -Wall -Wextra -Weffc++ -g
 
@@ -33,10 +33,10 @@ $(ODIR)/%.o : $(SDIR)/%.cc
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
 
 tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o
-	$(LD) $^ $(LIBS) -o $@
+	$(LD) $^ $(LIBS) -L. TupleDict_h.so -o $@
 
 makePlots: $(ODIR)/NTupleReader.o $(ODIR)/Plotter.o $(ODIR)/MakePlots.o
-	$(LD) $^ $(LIBS) -o $@
+	$(LD) $^ $(LIBS) -L .TupleDict_h.so -o $@
 
 clean:
 	rm -f $(ODIR)/*.o $(ODIR)/*.d $(PROGRAMS) core 

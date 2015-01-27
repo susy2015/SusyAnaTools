@@ -1,11 +1,15 @@
 #include "NTupleReader.h"
 
 #include "TROOT.h"
+#include "TInterpreter.h"
 #include "TObjArray.h"
 #include "TLeaf.h"
 
 NTupleReader::NTupleReader(TTree * tree)
 {
+    //gROOT->ProcessLine(".L TupleDict.h+");
+    gInterpreter->GenerateDictionary("vector<TLorentzVector>","TLorentzVector.h;vector");
+
     tree_ = tree;
     nEvtTotal_ = tree_->GetEntries();
     nevt_ = 0;
@@ -13,8 +17,6 @@ NTupleReader::NTupleReader(TTree * tree)
     isFirstEvent_ = true;
     clearTuple();
 
-    gROOT->ProcessLine("#include <vector>");
-    
     //vectors must be initialized to 0 here to avoid segfaults.  This cannot be done 
     //in clearTuple() as it will cause memory leaks.
 

@@ -22,11 +22,10 @@ namespace plotterFunctions
         const std::vector<TLorentzVector>& genDecayLVec = tr.getVec<TLorentzVector>("genDecayLVec");
         const std::vector<TLorentzVector>& muonsLVec    = tr.getVec<TLorentzVector>("muonsLVec");
 
-        std::vector<TLorentzVector>* genMatchMu = new std::vector<TLorentzVector>();
+        std::vector<int>* genMatchMu = new std::vector<int>();
 
         for(int j = 0; j < muonsLVec.size(); ++j)
         {
-            int jMindR = 0;
             double dRMin = 999.9;
 
             for(int i = 0; i < genDecayPdgIdVec.size() && i < genDecayLVec.size(); ++i)
@@ -37,21 +36,17 @@ namespace plotterFunctions
                     if(dR < dRMin)
                     {
                         dRMin = dR;
-                        jMindR = j;
                     }
                 }
          
             }
             if(dRMin < 0.02)
             {
-                genMatchMu->push_back(muonsLVec[j]);
+                genMatchMu->push_back(j);
             }
         }
 
-        int nMuGenMatch = genMatchMu->size();
-
         tr.registerDerivedVec("genMatchMu", genMatchMu);
-        tr.registerDerivedVar("nGenMatchedMu", nMuGenMatch);
     }
     
     void registerFunctions(NTupleReader& tr)

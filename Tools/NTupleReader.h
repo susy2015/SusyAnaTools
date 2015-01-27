@@ -14,16 +14,6 @@
 #include <typeinfo>
 #include <cxxabi.h>
 
-#ifdef __MAKECINT__
-#pragma link C++ class vector<int>;
-#pragma link C++ class vector<vector<int> >;
-#pragma link C++ class vector<vector<vector<int> > >;
-#pragma link C++ class vector<TLorentzVector>;
-#pragma link C++ class vector<string>;
-#pragma link C++ class vector<vector<TLorentzVector> >;
-#endif
-
-
 /* This class is designed to be a simple interface to reading stop NTuples
    
    To use this class simply open the desired Tree as a TTree or TChain and pass it 
@@ -134,7 +124,7 @@ private:
     TTree *tree_;
     int nevt_, nEvtTotal_;
     bool isUpdateDisabled_, isFirstEvent_;
-
+    
     // Maps to hold branch list 
     std::map<std::string, void *> branchMap_;
     std::map<std::string, void *> branchVecMap_;
