@@ -5,12 +5,23 @@
 #include "TObjArray.h"
 #include "TLeaf.h"
 
+NTupleReader::NTupleReader(TTree * tree, std::set<std::string>& activeBranches) : activeBranches_(activeBranches)
+{
+    tree_ = tree;
+    init();
+}
+
 NTupleReader::NTupleReader(TTree * tree)
+{
+    tree_ = tree;
+    init();
+}
+
+void NTupleReader::init()
 {
     //gROOT->ProcessLine(".L TupleDict.h+");
     gInterpreter->GenerateDictionary("vector<TLorentzVector>","TLorentzVector.h;vector");
 
-    tree_ = tree;
     nEvtTotal_ = tree_->GetEntries();
     nevt_ = 0;
     isUpdateDisabled_ = false;
@@ -20,7 +31,7 @@ NTupleReader::NTupleReader(TTree * tree)
     //vectors must be initialized to 0 here to avoid segfaults.  This cannot be done 
     //in clearTuple() as it will cause memory leaks.
 
-    activateBranches();
+    activateBranches();    
 }
 
 void NTupleReader::activateBranches()
@@ -52,6 +63,8 @@ void NTupleReader::populateBranchList()
     {
         std::string type(branch->GetTitle());
         std::string name(branch->GetName());
+
+        if(activeBranches_.size() > 0 && activeBranches_.count(name) == 0) continue;
 
         if(type.compare(name) == 0)
         {

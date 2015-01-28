@@ -11,6 +11,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <set>
 #include <typeinfo>
 #include <cxxabi.h>
 
@@ -38,6 +39,7 @@ class NTupleReader
 public:
     // List of all variables used in tuple
 
+    NTupleReader(TTree * tree, std::set<std::string>& activeBranches_);
     NTupleReader(TTree * tree);
 
     int getEvtNum() const
@@ -125,11 +127,12 @@ private:
     int nevt_, nEvtTotal_;
     bool isUpdateDisabled_, isFirstEvent_;
     
-    // Maps to hold branch list 
+    // stl collections to hold branch list and associated info
     std::map<std::string, void *> branchMap_;
     std::map<std::string, void *> branchVecMap_;
     std::vector<void (*)(NTupleReader&)> functionVec_;
     std::map<std::string, std::string> typeMap_;
+    std::set<std::string> activeBranches_;
 
     void activateBranches();
     void populateBranchList();
@@ -138,6 +141,8 @@ private:
 
     void clearTuple();
     void updateTuple();
+
+    void init();
 
     template<typename T> void registerBranch(std::string name)
     {
