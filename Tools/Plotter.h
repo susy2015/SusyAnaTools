@@ -19,6 +19,8 @@
 class Plotter
 {
 private:
+    class HistCutSummary;
+
     class Cut
     {
     public:
@@ -53,42 +55,74 @@ private:
 
 public:
 
-    class FileSummary : public Cuttable
+    class FileSummary
     {
     public:
-        std::string name, treePath, label;
+        std::string name, treePath;
         double xsec, lumi, kfactor, nEvts;
-
+        
         FileSummary() {}
-        FileSummary(std::string lab, std::string nam, std::string tree, std::string cuts, double xs, double l, double k, double n);
+        FileSummary(std::string nam, std::string tp, double x, double l, double k, double n);
+
+    };
+
+    class DatasetSummary : public Cuttable
+    {
+    public:
+        std::string label;
+        std::vector<FileSummary> files;
+        double kfactor;
+
+        DatasetSummary() {}
+//        DatasetSummary(std::string lab, std::string nam, std::string tree, std::string cuts, double xs, double l, double k, double n);
+        DatasetSummary(std::string lab, std::vector<FileSummary>& f, std::string cuts = "", double k = 1.0);
+    };
+
+    class DataCollection
+    {
+    public:
+        std::vector<DatasetSummary> datasets;
+
+        DataCollection(std::vector<DatasetSummary> ds) : datasets(ds) {}
     };
 
     class HistSummary : public Cuttable
     {
     public:
-        std::vector<std::pair<std::string, TH1*>> histVec;
-        std::map<std::vector<FileSummary>, std::pair<std::string, std::string>> names;
-        std::string name, label, vecVar;
+        std::vector<HistCutSummary> hists;
+        std::string name;
         int nBins;
         double low, high;
         bool isLog, isNorm;
         std::string xAxisLabel, yAxisLabel;
         
         HistSummary() {}
-        HistSummary(std::string l, std::map<std::vector<Plotter::FileSummary>, std::string> ns, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal);
-        HistSummary(std::string l, std::string name, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal);
-        TH1* hist() {return histVec.back().second;}
+        HistSummary(std::string l,  std::vector<std::pair<Plotter::DataCollection, std::string>> ns, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal);
+
+        TH1* fhist(){if(hists.size()) return hists.front().h;}
     private:
-        void parseName();
+        void parseName(std::vector<std::pair<Plotter::DataCollection, std::string>>& ns);
     };
 
-    Plotter(std::vector<HistSummary> h, std::vector<std::vector<FileSummary>> t);
+    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<FileSummary>>& t);
     void plot();
 
 private:
     std::vector<HistSummary> hists_;
     std::vector<std::vector<FileSummary>> trees_;
     std::set<std::string> activeBranches_;
+
+    class HistCutSummary
+    {
+    public:
+        std::string label;
+        std::pair<std::string, std::string> variable;
+        TH1 *h;
+        const HistSummary *hs;
+        DatasetSummary dss;
+
+        HistCutSummary(const std::string lab, TH1* hist, const std::pair<std::string, std::string> v, const HistSummary* hsum, const DatasetSummary& ds) : label(lab), h(hist), variable(v), hs(hsum), dss(ds) {}
+    };
     
     void createHistsFromTuple();
     void fillHist(TH1 * const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight);
@@ -102,12 +136,17 @@ private:
         else if(name.find("M")   != std::string::npos) return v.M();
         else if(name.find("Mt")  != std::string::npos) return v.Mt();
     }
-    
-    /*template<typename T> void fillHist(TH1* const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight)
-    {
-        h->Fill(tr.getVar<T>(name.first), weight);
-        }*/
 
+    template<typename T> inline const T pointerDeref(T obj) const
+    {
+        return obj;
+    }
+
+    template<typename T> inline const T& pointerDeref(T* const obj) const
+    {
+        return *obj;
+    }
+    
     template<typename T> void fillHistFromVec(TH1* const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight)
     {
         const auto& vec = tr.getVec<T>(name.first);
@@ -117,7 +156,7 @@ private:
         {
             for(auto& obj : vec)
             {
-                vectorFill(h, name, obj, weight);
+                vectorFill(h, name, pointerDeref(obj), weight);
             }
         }
     }
@@ -131,9 +170,24 @@ private:
 typedef Plotter::HistSummary PHS;
 typedef Plotter::FileSummary PFS;
 
+inline bool operator< (const Plotter::DataCollection& lhs, const Plotter::DataCollection& rhs)
+{
+    return lhs.datasets < rhs.datasets;
+}
+
+inline bool operator< (const Plotter::DatasetSummary& lhs, const Plotter::DatasetSummary& rhs)
+{
+    return lhs.label < rhs.label || lhs.files < rhs.files;
+}
+
 inline bool operator< (const Plotter::FileSummary& lhs, const Plotter::FileSummary& rhs)
 {
-    return lhs.name < rhs.name || lhs.label < rhs.label || lhs.treePath < rhs.treePath;
+    return lhs.name < rhs.name || lhs.treePath < rhs.treePath;
+}
+
+inline bool operator== (const Plotter::FileSummary& lhs, const Plotter::FileSummary& rhs)
+{
+    return lhs.name == rhs.name && lhs.treePath == rhs.treePath && lhs.xsec == rhs.xsec && lhs.lumi == rhs.lumi && lhs.kfactor == rhs.kfactor && lhs.nEvts == rhs.nEvts;
 }
 
 #endif

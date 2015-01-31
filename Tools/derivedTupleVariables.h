@@ -87,9 +87,54 @@ namespace plotterFunctions
         tr.registerDerivedVar("genZmass", genZmass);
         tr.registerDerivedVar("pdgIdZDec", pdgIdZDec);
     }
+
+    void cleanJets(NTupleReader& tr)
+    {
+        const std::vector<TLorentzVector>& jetsLVec  = tr.getVec<TLorentzVector>("jetsLVec");
+        const std::vector<TLorentzVector>& elesLVec  = tr.getVec<TLorentzVector>("elesLVec");
+        const std::vector<TLorentzVector>& muonsLVec = tr.getVec<TLorentzVector>("muonsLVec");
+        const std::vector<double>& elesRelIso        = tr.getVec<double>("elesRelIso");
+        const std::vector<double>& muonsRelIso       = tr.getVec<double>("muonsRelIso");
+
+        if(elesLVec.size() != elesRelIso.size() || muonsLVec.size() != muonsRelIso.size())
+        {
+            std::cout << "MISMATCH IN VECTOR SIZE!!!!!" << std::endl;
+            return;
+        }
+
+        std::vector<const TLorentzVector*>* cleanJetVec = new std::vector<const TLorentzVector*>();
+
+        const double lPtMin = 5.0;
+        const double ldBetaMax = 0.2;
+        const double jldRMax = 0.3;
+
+        for(auto& jet : jetsLVec)
+        {
+            double dRmin = 999.0;
+
+            for(int i = 0; i < elesLVec.size() && i < elesRelIso.size(); ++i)
+            {
+                if(elesRelIso[i] > ldBetaMax || elesLVec[i].Pt() < lPtMin) continue;
+                double dR = ROOT::Math::VectorUtil::DeltaR(jet, elesLVec[i]);
+                dRmin = std::min(dRmin, dR);
+            }
+
+            for(int i = 0; i < muonsLVec.size() && i < muonsRelIso.size(); ++i)
+            {
+                if(muonsRelIso[i] > ldBetaMax || muonsLVec[i].Pt() < lPtMin) continue;
+                double dR = ROOT::Math::VectorUtil::DeltaR(jet, muonsLVec[i]);
+                dRmin = std::min(dRmin, dR);
+            }
+
+            if(dRmin > jldRMax) cleanJetVec->push_back(&jet);
+        }
+
+        tr.registerDerivedVec("cleanJetVec", cleanJetVec);
+    }
     
     void registerFunctions(NTupleReader& tr)
     {
+        tr.registerFunction(&cleanJets);
         tr.registerFunction(&generateWeight);
         tr.registerFunction(&muInfo);
     }
@@ -100,7 +145,8 @@ namespace plotterFunctions
         activeBranches.insert("genDecayLVec");
         activeBranches.insert("muonsLVec");
         activeBranches.insert("muonsRelIso");
+        activeBranches.insert("elesLVec");
+        activeBranches.insert("elesRelIso");
         activeBranches.insert("W_emuVec");
-        
     }
 }
