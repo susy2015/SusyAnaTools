@@ -108,6 +108,11 @@ namespace plotterFunctions
         const double ldBetaMax = 0.2;
         const double jldRMax = 0.3;
 
+        const double HT_jetPtMin = 50;
+        const double HT_jetEtaMax = 2.4;
+
+        double HT = 0.0;
+
         for(auto& jet : jetsLVec)
         {
             double dRmin = 999.0;
@@ -126,9 +131,14 @@ namespace plotterFunctions
                 dRmin = std::min(dRmin, dR);
             }
 
-            if(dRmin > jldRMax) cleanJetVec->push_back(&jet);
+            if(dRmin > jldRMax) 
+            {
+                cleanJetVec->push_back(&jet);
+                if(jet.Pt() > HT_jetPtMin && fabs(jet.Eta()) < HT_jetEtaMax) HT += jet.Pt();
+            }
         }
 
+        tr.registerDerivedVar("cleanHt", HT);
         tr.registerDerivedVec("cleanJetVec", cleanJetVec);
     }
     

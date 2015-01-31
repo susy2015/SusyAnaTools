@@ -15,11 +15,13 @@ int main()
     vDY_nunu.push_back(PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/lhx/PU20bx25_ZJetsToNuNu_HT-400to600-madgraph-tauola/ZJetsToNuNu_HT-400to600_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/150109_230130/0000/stopFlatNtuples_1.root", "stopTreeMaker/AUX", 11.99, 1000.0, 1.0, 4433784));
     vDY_nunu.push_back(PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/ZJetsToNuNu_HT-600toInf_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223010/0000/stopFlatNtuples_1.root", "stopTreeMaker/AUX", 4.113, 1000.0, 1.0, 4463806));
 
-    Plotter::DatasetSummary dsDY_ll(  "DY#rightarrow#mu#mu", vDY_ll,   "pdgIdZDec=13");
+    Plotter::DatasetSummary dsDY_ll(       "DY#rightarrow#mu#mu",           vDY_ll,   "pdgIdZDec=13");
+    Plotter::DatasetSummary dsDY_llclean(  "DY#rightarrow#mu#mu muRemoved", vDY_ll,   "pdgIdZDec=13");
     Plotter::DatasetSummary dsDY_nunu("Z#rightarrow#nu#nu",  vDY_nunu, "");
     Plotter::DatasetSummary dsDY_test("test",  vDY_nunu, "");
 
     Plotter::DataCollection dcDY_ll({dsDY_ll});
+    Plotter::DataCollection dcDY_llclean({dsDY_llclean});
     Plotter::DataCollection dcDY_nunu({dsDY_nunu});
     Plotter::DataCollection dcDY_test({dsDY_test});
 
@@ -28,6 +30,7 @@ int main()
     vh.push_back(PHS("mt2",         {{dcDY_ll, "MT2"},              {dcDY_nunu, "MT2"}},              "", 100, 0, 1000, true, true,  "MT2 [GeV]",          "Norm Events"));
     vh.push_back(PHS("met",         {{dcDY_ll, "met"},              {dcDY_nunu, "met"}},              "", 100, 0, 1000, true, true,  "MET [GeV]",          "Norm Events"));
     vh.push_back(PHS("ht",          {{dcDY_ll, "ht"},               {dcDY_nunu, "ht"}},               "", 100, 0, 1000, true, true,  "H_{T} [GeV]",        "Norm Events"));
+    vh.push_back(PHS("cleanht",     {{dcDY_ll, "Ht"}, {dcDY_nunu, "cleanht"}, {dcDY_llclean, "cleanHt"}},  "", 100, 0, 1000, true, true,  "H_{T} [GeV]",        "Norm Events"));
     vh.push_back(PHS("nMuons",      {{dcDY_ll, "cutMuVec(size)"},   {dcDY_nunu, "cutMuVec(size)"}},   "", 10,  0, 10,   true, false, "N(#mu)",             "Events"));
     vh.push_back(PHS("jetPt",       {{dcDY_ll, "jetsLVec(pt)"},     {dcDY_nunu, "jetsLVec(pt)"}},     "", 100, 0, 1000, true, true,  "Jet p_{T} [GeV]",    "Norm Events"));
     vh.push_back(PHS("cleanJetPt",  {{dcDY_ll, "cleanJetVec(pt)"},  {dcDY_nunu, "cleanJetVec(pt)"}},  "", 100, 0, 1000, true, true,  "Cleaned Jet p_{T} [GeV]", "Norm Events"));
