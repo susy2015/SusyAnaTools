@@ -1,0 +1,31 @@
+<lcgdict>
+  <class name="edm::ValueMap<edm::ProductID>"/>
+  <class name="edm::ValueMap<unsigned long>"/>
+  <class name="edm::Wrapper<edm::ValueMap<edm::ProductID> >"/>
+  <class name="edm::Wrapper<edm::ValueMap<unsigned long> >"/>
+  <class name="std::vector<edm::ProductID>"/>
+  <class name="std::vector<unsigned long>"/>
+  <class name="edm::Wrapper<std::vector<edm::ProductID> >"/>
+  <class name="edm::Wrapper<std::vector<unsigned long> >"/>
+  <class name="pat::UserHolder<edm::ProductID>"/>
+  <class name="edm::Wrapper<pat::UserHolder<edm::ProductID> >"/>
+  <class name="edm::reftobase::BaseVectorHolder<pat::Muon>"/>
+  <class name="edm::RefToBaseVector<pat::Muon>"/>
+  <class name="edm::Wrapper<edm::RefToBaseVector<pat::Muon> >"/>
+  <class name="std::vector<std::vector<double> >"/>
+  <class name="edm::Wrapper<std::vector<std::vector<double> > >"/>
+  <class name="std::vector<std::vector<std::vector<double> > >"/>
+  <class name="edm::Wrapper<std::vector<std::vector<std::vector<double> > > >"/>
+  <class name="std::vector<std::vector<int> >"/>
+  <class name="edm::Wrapper<std::vector<std::vector<int> > >"/>
+  <class name="std::vector<std::vector<std::vector<int> > >"/>
+  <class name="edm::Wrapper<std::vector<std::vector<std::vector<int> > > >"/>
+  <class name="std::vector<std::vector<std::string> >"/>
+  <class name="edm::Wrapper<std::vector<std::vector<std::string> > >"/>
+  <class name="std::vector<TLorentzVector>"/>
+  <class name="edm::Wrapper<std::vector<TLorentzVector> >"/>
+  <class name="std::vector<std::vector<TLorentzVector> >"/>
+  <class name="edm::Wrapper<std::vector<std::vector<TLorentzVector> > >"/>
+  <class name="std::vector<reco::Jet>"/>
+  <class name="edm::Wrapper<std::vector<reco::Jet> >"/>
+</lcgdict>
