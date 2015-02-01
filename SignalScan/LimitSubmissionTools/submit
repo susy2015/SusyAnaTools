@@ -1,0 +1,34 @@
+echo "Submitting configs: $1"
+INPUT=`basename $1`
+WORKPATH=`date +%F-%H-%M`-$INPUT
+mkdir $WORKPATH
+FULLWORKPATH=`pwd`/$WORKPATH
+find $1/. -name "*.txt" > $WORKPATH/configs.txt
+split -a 4 -l 1 -d $WORKPATH/configs.txt $WORKPATH/config_
+id=0
+for i in `find $WORKPATH/. -name "config_*"`
+do
+  id=$(($id+1)) 
+  ZERO="" #$SGE_TASK_ID
+  if [ $id -lt 1000 ]; then
+    ZERO="0"
+  fi
+  if [ $id -lt 100 ]; then
+    ZERO="00"
+  fi
+  if [ $id -lt 10 ]; then
+    ZERO="000"
+  fi
+  mkdir $WORKPATH/job$ZERO$id
+  mkdir $WORKPATH/job$ZERO$id/config
+  mv $i $WORKPATH/job$ZERO$id/config/.
+done
+#rm -f /tmp/.temp*
+TMP1=`mktemp`
+sed "s|AUniquePlaceholderName|$FULLWORKPATH|g" Orig.sh > $TMP1
+#sed "s|ConfigDirPlaceholderName|$1|g" /tmp/.temp1 > /tmp/.temp2
+sed "s|ReleaseDirPlaceholderName|$CMSSW_BASE|g" $TMP1 > $WORKPATH/Job$INPUT.sh
+rm $TMP1
+chmod a+x $WORKPATH/Job$INPUT.sh
+echo "qsub -j y -o /dev/null -t 1-$id -l h_cpu=00:59:00 -l h_vmem=4000M $WORKPATH/Job$INPUT.sh"
+qsub -j y -o /dev/null -t 1-$id -l h_cpu=00:59:00 -l h_vmem=4000M $WORKPATH/Job$INPUT.sh
