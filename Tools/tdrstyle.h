@@ -3,6 +3,8 @@
 
 #include "TStyle.h"
 #include "TPad.h"
+#include "TColor.h"
+
 // tdrGrid: Turns the grid lines on (true) or off (false)
 TStyle *tdrStyle;
 void tdrGrid(bool gridOn) {
@@ -132,6 +134,17 @@ void setTDRStyle() {
 // tdrStyle->SetHistMinimumZero(kTRUE);
 //tdrStyle->SetHatchesLineWidth(5);
 //tdrStyle->SetHatchesSpacing(0.05);
+
+// For the color
+  int nColors = 999;
+  Double_t r[]    = {0.0, 0.0, 0.0, 1.0, 1.0};
+  Double_t g[]    = {0.0, 1.0, 1.0, 1.0, 0.0};
+  Double_t b[]    = {1.0, 1.0, 0.0, 0.0, 0.0};
+  Double_t stop[] = {0.000, 0.200, 0.400, 0.600, 0.800, 1.000};
+  TColor::CreateGradientColorTable(5, stop, r, g, b, nColors);
+
+  tdrStyle->SetNumberContours(nColors);
+
     tdrStyle->cd();
 }
 
