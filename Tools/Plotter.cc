@@ -87,10 +87,13 @@ void Plotter::HistSummary::parseName(std::vector<std::pair<Plotter::DataCollecti
             hvecvar = "";
         }
 
-        TH1 *h = new TH1D((name + hname + hvecvar + n.first.datasets.front().label).c_str(), hname.c_str(), nBins, low, high);
-        h->GetXaxis()->SetTitle(xAxisLabel.c_str());
-        h->GetYaxis()->SetTitle(yAxisLabel.c_str());
-        hists.push_back(HistCutSummary(n.first.datasets.front().label, h, std::make_pair(hname, hvecvar), nullptr, n.first.datasets.front()));
+        for(auto& dataset : n.first.datasets)
+        {
+            TH1 *h = new TH1D((name + hname + hvecvar + dataset.label).c_str(), hname.c_str(), nBins, low, high);
+            h->GetXaxis()->SetTitle(xAxisLabel.c_str());
+            h->GetYaxis()->SetTitle(yAxisLabel.c_str());
+            hists.push_back(HistCutSummary(dataset.label, h, std::make_pair(hname, hvecvar), nullptr, dataset));
+        }
     }
 }
 
@@ -258,7 +261,7 @@ void Plotter::plot()
         dummy->GetYaxis()->SetLabelSize(0.04);
         if(dummy->GetNdivisions() % 100 > 5) dummy->GetXaxis()->SetNdivisions(6, 5, 0);
 
-        TLegend *leg = new TLegend(0.45, 0.61, 0.89, 0.91);
+        TLegend *leg = new TLegend(0.45, 0.65, 0.89, 0.88);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
         leg->SetLineWidth(1);
