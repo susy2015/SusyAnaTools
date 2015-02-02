@@ -1,0 +1,27 @@
+<library   name="SusyAnaToolsSkims_plugins" file="*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="DataFormats/HcalRecHit"/>
+  <use   name="RecoLocalCalo/EcalRecAlgos"/>
+  <use   name="RecoLocalCalo/HcalRecAlgos"/>
+  <use   name="DataFormats/PatCandidates"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="RecoParticleFlow/PFProducer"/>
+  <use   name="EGamma/EGammaAnalysisTools"/>
+  <use   name="JetMETCorrections/Objects"/>
+  <use   name="CondFormats/JetMETObjects"/>
+  <use   name="PhysicsTools/Utilities"/>
+  <use   name="SusyAnaTools/DataFormats"/>
+  <use   name="DataFormats/HLTReco"/>
+  <use   name="HLTrigger/HLTcore"/>
+  <use   name="RecoEgamma/EgammaTools"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<export>
+</export>

@@ -1,0 +1,16 @@
+<use name=FWCore/Utilities>
+<use name=rootrflx>
+<use name=DataFormats/Common>
+<use name=DataFormats/HepMCCandidate>
+<use name=DataFormats/PatCandidates>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/Math>
+<use name=CommonTools/Utils>
+
+#<Flags CppDefines="OLD_CMSSW_VERSION=1">
+#<Flags CppDefines="OLD_JETUPLE_VERSION=1">
+
+<export>
+  <lib name=UserCodeDataFormats>
+</export>
