@@ -69,7 +69,8 @@ void passBaselineFunc(NTupleReader &tr){
    bool passLeptVeto = true;
    if( nMuons != AnaConsts::nMuonsSel ){ passBaseline = false; passLeptVeto = false; }
    if( nElectrons != AnaConsts::nElectronsSel ){ passBaseline = false; passLeptVeto = false; }
-   if( nIsoTrks != AnaConsts::nIsoTrksSel ){ passBaseline = false; passLeptVeto = false; }
+// Isolated track veto is disabled for now
+//   if( nIsoTrks != AnaConsts::nIsoTrksSel ){ passBaseline = false; passLeptVeto = false; }
    if( debug ) std::cout<<"nMuons : "<<nMuons<<"  nElectrons : "<<nElectrons<<"  nIsoTrks : "<<nIsoTrks<<"  passBaseline : "<<passBaseline<<std::endl;
 
 // Pass number of jets?
