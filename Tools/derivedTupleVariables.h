@@ -110,8 +110,10 @@ namespace plotterFunctions
 
         const double HT_jetPtMin = 50;
         const double HT_jetEtaMax = 2.4;
+        const double MTH_jetPtMin = 30.0;
 
         double HT = 0.0;
+        TLorentzVector MHT;
 
         for(auto& jet : jetsLVec)
         {
@@ -135,10 +137,13 @@ namespace plotterFunctions
             {
                 cleanJetVec->push_back(&jet);
                 if(jet.Pt() > HT_jetPtMin && fabs(jet.Eta()) < HT_jetEtaMax) HT += jet.Pt();
+                if(jet.Pt() > MTH_jetPtMin) MHT += jet;
             }
         }
 
         tr.registerDerivedVar("cleanHt", HT);
+        tr.registerDerivedVar("cleanMHt", MHT.Pt());
+        tr.registerDerivedVar("cleanMHtPhi", MHT.Phi());
         tr.registerDerivedVec("cleanJetVec", cleanJetVec);
     }
     

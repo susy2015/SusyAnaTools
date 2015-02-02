@@ -2,12 +2,11 @@ IDIR       = .
 ODIR       = obj
 SDIR       = .
 
-#CXX       = ~/.vim/bundle/ClangComplete/bin/cc_args.py g++
 CXX        = g++
 
-CXXFLAGS  += -Iinc -std=c++0x -I$(CMSSW_BASE)/src/
+CXXFLAGS  += -I. -std=c++0x -I$(CMSSW_BASE)/src/
 ## Optimization flag
-CXXFLAGS += -g #-O3
+CXXFLAGS += -O3
 ## Enable the maximun warning
 #CXXFLAGS += -Wall -Wextra -Weffc++ -g
 
@@ -36,7 +35,7 @@ tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o
 	$(LD) $^ $(LIBS) -o $@
 
 makePlots: $(ODIR)/NTupleReader.o $(ODIR)/Plotter.o $(ODIR)/MakePlots.o
-	$(LD) $^ $(LIBS) -L .TupleDict_h.so -o $@
+	$(LD) $^ $(LIBS) -o $@
 
 baselineDef: $(ODIR)/NTupleReader.o $(ODIR)/baselineDef.o
 	$(LD) $^ $(LIBS) -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2 -o $@
