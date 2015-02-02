@@ -15,6 +15,12 @@
 #include <map>
 #include <set>
 #include <string>
+/*
+   This file is used to customize the NTupleReader and the flat ntuples for our baseline and search region definitions.
+   Currently these include jet pt, eta requirements for counting, functions to calculate nJets, nbJets, deltaphi, and so on.
+   The functions here have nothing to do with NTupleReader so that can be used in other cases independent of the reader.
+   An example baseline cut flow is defined in a separate code, i.e., baselineDef.C.
+*/
 
 topTagger::type3TopTagger * type3Ptr;
 

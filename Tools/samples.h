@@ -6,6 +6,11 @@
 #include <map>
 #include <string>
 #include "TString.h"
+/*
+  This file is used to define MC/data samples related information. 
+  Here currently we have MC sample names/keywords, cross-sections and number of events.
+  PU related information are empty now.
+*/
 
 const TString treeStrTtype = "stopTreeMaker";
 
