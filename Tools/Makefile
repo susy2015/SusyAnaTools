@@ -2,10 +2,9 @@ IDIR       = .
 ODIR       = obj
 SDIR       = .
 
-#CXX       = ~/.vim/bundle/ClangComplete/bin/cc_args.py g++
 CXX        = g++
 
-CXXFLAGS  += -Iinc -std=c++0x -I$(CMSSW_BASE)/src/
+CXXFLAGS  += -I. -std=c++0x -I$(CMSSW_BASE)/src/
 ## Optimization flag
 CXXFLAGS += -O3
 ## Enable the maximun warning
