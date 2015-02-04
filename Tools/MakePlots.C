@@ -5,15 +5,15 @@ int main()
     using namespace std;
 
     vector<Plotter::FileSummary> vDY_ll, vDY_nunu;
-    vDY_ll.push_back( PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-100to200_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/150101_225307/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 194.3, 1000.0, 1.0, 4054159));
-    vDY_ll.push_back( PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-200to400_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223846/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 52.24, 1000.0, 1.0, 4666496));
-    vDY_ll.push_back( PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-400to600_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_224040/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 6.546, 1000.0, 1.0, 4931372));
-    vDY_ll.push_back( PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-600toInf_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_224252/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 2.179, 1000.0, 1.0, 4493574));
+    vDY_ll.push_back( PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-100to200_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/150101_225307/0000/stopFlatNtuples_1.root", "stopTreeMaker/AUX", 194.3, 1000.0, 1.0, 4054159));
+//    vDY_ll.push_back( PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-200to400_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223846/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 52.24, 1000.0, 1.0, 4666496));
+//    vDY_ll.push_back( PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-400to600_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_224040/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 6.546, 1000.0, 1.0, 4931372));
+//    vDY_ll.push_back( PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-600toInf_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_224252/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 2.179, 1000.0, 1.0, 4493574));
 
-    vDY_nunu.push_back(PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/ZJetsToNuNu_HT-100to200_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_222641/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 372.6, 1000.0, 1.0, 4986424));
-    vDY_nunu.push_back(PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/ZJetsToNuNu_HT-200to400_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_222913/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 100.8, 1000.0, 1.0, 4546470));
-    vDY_nunu.push_back(PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/lhx/PU20bx25_ZJetsToNuNu_HT-400to600-madgraph-tauola/ZJetsToNuNu_HT-400to600_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/150109_230130/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 11.99, 1000.0, 1.0, 4433784));
-    vDY_nunu.push_back(PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/ZJetsToNuNu_HT-600toInf_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223010/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 4.113, 1000.0, 1.0, 4463806));
+    vDY_nunu.push_back(PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/ZJetsToNuNu_HT-100to200_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_222641/0000/stopFlatNtuples_1.root", "stopTreeMaker/AUX", 372.6, 1000.0, 1.0, 4986424));
+//    vDY_nunu.push_back(PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/ZJetsToNuNu_HT-200to400_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_222913/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 100.8, 1000.0, 1.0, 4546470));
+//    vDY_nunu.push_back(PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/lhx/PU20bx25_ZJetsToNuNu_HT-400to600-madgraph-tauola/ZJetsToNuNu_HT-400to600_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/150109_230130/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 11.99, 1000.0, 1.0, 4433784));
+//    vDY_nunu.push_back(PFS("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/ZJetsToNuNu_HT-600toInf_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223010/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 4.113, 1000.0, 1.0, 4463806));
 
     Plotter::DatasetSummary dsDY_ll(       "DY#rightarrow#mu#mu",           vDY_ll,   "pdgIdZDec=13");
     Plotter::DatasetSummary dsDY_llclean(  "DY#rightarrow#mu#mu muRemoved", vDY_ll,   "pdgIdZDec=13");
@@ -39,9 +39,10 @@ int main()
     vh.push_back(PHS("genZEta",     {{dcDY_ll, "genZEta"},          {dcDY_nunu, "genZEta"}},          "", 100, -3, 3,   false, true,  "gen Z #eta",         "Norm Events"));
     vh.push_back(PHS("genZmass",    {{dcDY_ll, "genZmass"},         {dcDY_nunu, "genZmass"}},         "", 100, 0, 500,  true,  true,  "gen M(Z) [GeV]",     "Norm Events"));
 
-    vh.push_back(PHS("cleanmht",    {{dcDY_ll, "ht"},     {dcDY_nunu, "cleanHt"},     {dcDY_llclean, "cleanHt"}},      "", 100, 0,     1000, true, true,  "H_{T} [GeV]",         "Norm Events"));
-    vh.push_back(PHS("cleanmhtphi", {{dcDY_ll, "mht"},    {dcDY_nunu, "cleanMHt"},    {dcDY_llclean, "cleanMHt"}},     "", 100, 0,     1000, true, true,  "MH_{T} [GeV]",        "Norm Events"));
-    vh.push_back(PHS("cleanht",     {{dcDY_ll, "mhtphi"}, {dcDY_nunu, "cleanMHtPhi"}, {dcDY_llclean, "cleanMHtPhi"}},  "", 100, -3.14, 3.14, true, true,  "#phi(MH_{T})",        "Norm Events"));
+    vh.push_back(PHS("cleanmht",             {{dcDY_ll, "ht"},     {dcDY_nunu, "cleanHt"},     {dcDY_llclean, "cleanHt"}},      "",               100, 0,     1000, true, true,  "H_{T} [GeV]",         "Norm Events"));
+    vh.push_back(PHS("cleanmht_baseline",    {{dcDY_ll, "ht"},     {dcDY_nunu, "cleanHt"},     {dcDY_llclean, "cleanHt"}},      "passBaseline", 100, 0,     1000, true, true,  "H_{T} [GeV]",         "Norm Events"));
+    vh.push_back(PHS("cleanmhtphi",          {{dcDY_ll, "mht"},    {dcDY_nunu, "cleanMHt"},    {dcDY_llclean, "cleanMHt"}},     "",               100, 0,     1000, true, true,  "MH_{T} [GeV]",        "Norm Events"));
+    vh.push_back(PHS("cleanht",              {{dcDY_ll, "mhtphi"}, {dcDY_nunu, "cleanMHtPhi"}, {dcDY_llclean, "cleanMHtPhi"}},  "",               100, -3.14, 3.14, true, true,  "#phi(MH_{T})",        "Norm Events"));
 
     vh.push_back(PHS("test", {{dcDY_ll, "mht"}, {dcDY_nunu, "jetsLVec(pt)"}, {dcDY_test, "genZmass"}, {dcDY_test, "genZPt"}},  "genZmass>80", 100, 0, 1000,   true, true,  "???",         "Norm Events"));
 

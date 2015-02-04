@@ -29,11 +29,12 @@ private:
         double val, val2;
         bool inverted;
 
-        Cut(std::string s, char t, double v, double v2 = 0);
+        Cut(std::string s, char t, bool inv, double v, double v2 = 0);
         bool passCut(const NTupleReader& tr) const;
     private:
         void parseName();
         double translateVar(const NTupleReader& tr) const;
+        bool boolReturn(const NTupleReader& tr) const;
     };
     
     class Cuttable

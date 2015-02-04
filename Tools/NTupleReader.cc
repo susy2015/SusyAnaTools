@@ -103,7 +103,7 @@ bool NTupleReader::getNextEvent()
     //clearTuple();
     int status = tree_->GetEntry(nevt_);
     nevt_++;
-    if(!isUpdateDisabled_) updateTuple();
+//    if(!isUpdateDisabled_) updateTuple();
     calculateDerivedVariables();
     return status > 0;
 }
@@ -143,11 +143,6 @@ void NTupleReader::getType(const std::string& name, std::string& type) const
     {
         type = typeIter->second;
     }
-}
-
-void NTupleReader::updateTuple()
-{
-    
 }
 
 void NTupleReader::printTupleMembers(FILE *f) const

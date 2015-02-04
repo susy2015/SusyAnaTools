@@ -227,6 +227,7 @@ namespace topTagger{
          void setDefaultVars(){
 
             isTopEvent = false;
+
             finalCombfatJets.clear(); finalRemaining.clear(); finalCombJetSubStruc.clear();
             fatJetMassVec.clear(); fatJetSubMassVec.clear();
             finalCombMaxDR.clear();

@@ -1,5 +1,6 @@
 #include "Plotter.h"
 #include "derivedTupleVariables.h"
+#include "baselineDef.h"
 #include "tdrstyle.h"
 
 #include "TROOT.h"
@@ -19,15 +20,18 @@ const int NCOLORS = sizeof(colors)/sizeof(int);
 
 Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<FileSummary>>& t)
 {
+    prepareTopTagger();
+
     hists_ = h;
     trees_ = t;
     createHistsFromTuple();
 }
 
-Plotter::Cut::Cut(std::string s, char t, double v, double v2)
+Plotter::Cut::Cut(std::string s, char t, bool inv, double v, double v2)
 {
     name = s;
     type = t;
+    inverted = inv;
     val = v;
     val2 = v2;
     parseName();
@@ -149,6 +153,7 @@ void Plotter::createHistsFromTuple()
             //activeBranches_.insert("evtWeight");
 
             NTupleReader tr(t, activeBranches_);
+            tr.registerFunction(&passBaselineFunc);
             plotterFunctions::registerFunctions(tr);
 
             while(tr.getNextEvent())
@@ -187,10 +192,22 @@ void Plotter::Cuttable::parseCutString()
         std::string tmp = cuts_.substr(pos, npos - pos);
         size_t sepPos = 0;
         char cutType = ' ';
+        bool inverted = false;
+        if((sepPos = tmp.find("!")) != size_t(-1))
+        {
+            inverted = true;
+            tmp = tmp.substr(sepPos + 1, size_t(-1));
+        }
+        sepPos = 0;
         if(     (sepPos = tmp.find('>')) != size_t(-1)) cutType = '>';
         else if((sepPos = tmp.find('<')) != size_t(-1)) cutType = '<';
         else if((sepPos = tmp.find('=')) != size_t(-1)) cutType = '=';
-        else continue;
+        else 
+        {
+            cutType = 'B';
+            cutVec_.push_back(Cut(tmp, cutType, inverted, 0.0));
+            continue;
+        }
         std::string t1 = tmp.substr(0, sepPos), t2 = tmp.substr(sepPos + 1, (size_t(-1)));
         t1.erase(remove(t1.begin(),t1.end(),' '),t1.end());
         t2.erase(remove(t2.begin(),t2.end(),' '),t2.end());
@@ -199,7 +216,7 @@ void Plotter::Cuttable::parseCutString()
         tmp = vname;
         double cutvalue;
         sscanf(t2.c_str(), "%lf", &cutvalue);
-        Cut tmpCut(tmp, cutType, cutvalue);
+        Cut tmpCut(tmp, cutType, inverted, cutvalue);
         cutVec_.push_back(tmpCut);
     }
 }
@@ -210,6 +227,7 @@ bool Plotter::Cut::passCut(const NTupleReader& tr) const
     else if(type == '>') return translateVar(tr) > val;
     else if(type == '=') return translateVar(tr) == val;
     else if(type == '-') return translateVar(tr) > val && translateVar(tr) < val2;
+    else if(type == 'B') return boolReturn(tr);
     else printf("Unrecognized cut type, %c\n", type);
     return false;
 }
@@ -224,6 +242,14 @@ double Plotter::Cut::translateVar(const NTupleReader& tr) const
     else if(varType.find("int")          != std::string::npos) return static_cast<double>(tr.getVar<int>(name));
 }
 
+bool Plotter::Cut::boolReturn(const NTupleReader& tr) const
+{
+    // Functions here
+
+    // Booleans here
+    return tr.getVar<bool>(name);
+}
+
 bool Plotter::Cuttable::passCuts(const NTupleReader& tr) const
 {
     bool passCut = true;
@@ -231,7 +257,7 @@ bool Plotter::Cuttable::passCuts(const NTupleReader& tr) const
     {
         if(cut.vecVar.size() == 0)
         {
-            passCut = passCut && cut.passCut(tr);
+            passCut = passCut && (cut.inverted)?(!cut.passCut(tr)):(cut.passCut(tr));
         }
     }
     return passCut;

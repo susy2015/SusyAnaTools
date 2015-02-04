@@ -6,7 +6,7 @@ CXX        = g++
 
 CXXFLAGS  += -I. -std=c++0x -I$(CMSSW_BASE)/src/
 ## Optimization flag
-CXXFLAGS += -O3
+CXXFLAGS += -g #-O3
 ## Enable the maximun warning
 #CXXFLAGS += -Wall -Wextra -Weffc++ -g
 
@@ -35,7 +35,7 @@ tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o
 	$(LD) $^ $(LIBS) -o $@
 
 makePlots: $(ODIR)/NTupleReader.o $(ODIR)/Plotter.o $(ODIR)/MakePlots.o
-	$(LD) $^ $(LIBS) -o $@
+	$(LD) $^ $(LIBS) -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2 -o $@
 
 baselineDef: $(ODIR)/NTupleReader.o $(ODIR)/baselineDef.o
 	$(LD) $^ $(LIBS) -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2 -o $@
