@@ -21,7 +21,7 @@ LDFLAGS    =
 LIBS       = $(shell root-config --glibs)
 
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
-PROGRAMS = tupleTest makePlots baselineDef
+PROGRAMS = tupleTest makePlots #baselineDef
 
 all: $(PROGRAMS)
 

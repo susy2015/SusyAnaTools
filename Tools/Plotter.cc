@@ -7,6 +7,8 @@
 #include "TLegend.h"
 #include "TCanvas.h"
 #include "TChain.h"
+#include "TF1.h"
+#include "THStack.h"
 
 const int colors[] = {
     kRed,
@@ -17,6 +19,18 @@ const int colors[] = {
     kYellow
 };
 const int NCOLORS = sizeof(colors)/sizeof(int);
+
+const int stackColors[] = {
+    kAzure,
+    kOrange + 7,
+    kGreen + 2,
+    kYellow + 4,
+    kMagenta - 1,
+    kRed,
+    kBlue,
+    kGreen
+};
+const int NSTACKCOLORS = sizeof(stackColors) / sizeof(int);
 
 Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<FileSummary>>& t)
 {
@@ -58,7 +72,7 @@ void Plotter::Cuttable::extractCuts(std::set<std::string>& ab)
     for(auto& cut : cutVec_) ab.insert(cut.name);
 }
 
-Plotter::HistSummary::HistSummary(std::string l, std::vector<std::pair<Plotter::DataCollection, std::string>> ns, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal) : Cuttable(cuts) 
+Plotter::HistSummary::HistSummary(std::string l, std::vector<Plotter::DataCollection> ns, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal) : Cuttable(cuts) 
 {
     name = l;
     nBins = nb;
@@ -72,33 +86,44 @@ Plotter::HistSummary::HistSummary(std::string l, std::vector<std::pair<Plotter::
     parseName(ns);
 }
 
-void Plotter::HistSummary::parseName(std::vector<std::pair<Plotter::DataCollection, std::string>>& ns)
+void Plotter::HistSummary::parseName(std::vector<Plotter::DataCollection>& ns)
 {
-
     for(auto& n : ns)
     {
-        size_t b1 = 0, b2 = 0;
-        //std::string hname = n.first.datasets.front().label + "_" + n.second;
-        std::string hname, hvecvar;
-        if((b1 = n.second.find("(")) != std::string::npos && (b2 = n.second.find(")")) != std::string::npos)
+        std::vector<std::shared_ptr<HistCutSummary>> tmphtp;
+        for(auto& dataset : n.datasets)
         {
-            hvecvar  = n.second.substr(b1+1, b2 - b1 - 1);
-            hname    = n.second.substr(0, b1);
-        }
-        else 
-        {
-            hname = n.second;
-            hvecvar = "";
-        }
+            size_t b1 = 0, b2 = 0;
+            std::string hname, hvecvar;
+            if((b1 = dataset.first.find("(")) != std::string::npos && (b2 = dataset.first.find(")")) != std::string::npos)
+            {
+                hvecvar = dataset.first.substr(b1+1, b2 - b1 - 1);
+                hname   = dataset.first.substr(0, b1);
+            }
+            else 
+            {
+                hname = dataset.first;
+                hvecvar = "";
+            }
 
-        for(auto& dataset : n.first.datasets)
-        {
-            TH1 *h = new TH1D((name + hname + hvecvar + dataset.label).c_str(), hname.c_str(), nBins, low, high);
+            TH1 *h = new TH1D((name + hname + hvecvar + dataset.first + dataset.second.label + n.type).c_str(), hname.c_str(), nBins, low, high);
+            h->Sumw2();
             h->GetXaxis()->SetTitle(xAxisLabel.c_str());
             h->GetYaxis()->SetTitle(yAxisLabel.c_str());
-            hists.push_back(HistCutSummary(dataset.label, h, std::make_pair(hname, hvecvar), nullptr, dataset));
+           
+            tmphtp.push_back(std::shared_ptr<HistCutSummary>(new HistCutSummary(dataset.second.label, h, std::make_pair(hname, hvecvar), nullptr, dataset.second)));
         }
+        hists.push_back(HistVecAndType(tmphtp, n.type));
     }
+}
+
+Plotter::HistSummary::~HistSummary()
+{
+}
+
+Plotter::HistCutSummary::~HistCutSummary()
+{
+    if(h) delete h;
 }
 
 Plotter::FileSummary::FileSummary(std::string nam, std::string tp, double x, double l, double k, double n)
@@ -118,6 +143,14 @@ Plotter::DatasetSummary::DatasetSummary(std::string lab, std::vector<FileSummary
     kfactor = k;
 }
 
+Plotter::DataCollection::DataCollection(std::string type, std::string var, std::vector<DatasetSummary> ds) : type(type)
+{
+    for(auto& dataset : ds)
+    {
+        datasets.push_back(std::make_pair(var, dataset));
+    }
+}
+
 void Plotter::createHistsFromTuple()
 {
     TH1::AddDirectory(false);
@@ -125,17 +158,20 @@ void Plotter::createHistsFromTuple()
     for(auto& fileList : trees_)
     {    
         //make vector of hists to fill
-        std::vector<HistCutSummary*> histsToFill;
+        std::vector<std::shared_ptr<HistCutSummary>> histsToFill;
         for(auto& hs : hists_)
         {
-            for(auto& hist : hs.hists)
+            for(auto& histvec : hs.hists)
             {
-                if(hist.dss.files == fileList)
+                for(auto& hist : histvec.hcsVec)
                 {
-                    //annoying hack to fix vector pointer issue
-                    hist.hs = &hs;
+                    if(hist->dss.files == fileList)
+                    {
+                        //annoying hack to fix vector pointer issue
+                        hist->hs = &hs;
 
-                    histsToFill.push_back(&hist);
+                        histsToFill.push_back(hist);
+                    }
                 }
             } 
         }
@@ -156,6 +192,8 @@ void Plotter::createHistsFromTuple()
             tr.registerFunction(&passBaselineFunc);
             plotterFunctions::registerFunctions(tr);
 
+            double fweight = file.xsec * file.lumi * file.kfactor / file.nEvts;
+
             while(tr.getNextEvent())
             {
                 for(auto& hist : histsToFill)
@@ -167,7 +205,7 @@ void Plotter::createHistsFromTuple()
                     if(!hist->hs->passCuts(tr)) continue;
 
                     //fill histograms here 
-                    double weight = tr.getVar<double>("evtWeight") * file.xsec * file.lumi * file.kfactor * hist->dss.kfactor / file.nEvts;
+                    double weight = fweight * tr.getVar<double>("evtWeight") * hist->dss.kfactor;
 
                     fillHist(hist->h, hist->variable, tr, weight);
                 }
@@ -267,19 +305,42 @@ void Plotter::plot()
 {
     //gROOT->SetStyle("Plain");
     setTDRStyle();
+
+    const bool showRatio = true;
     
     for(HistSummary& hist : hists_)
     {
-        TCanvas *c = new TCanvas("c1", "c1", 800, 800);
-        c->cd();
-        c->SetMargin(0.15, 0.1, 0.1, 0.1);
+        TCanvas *c;
+        double fontScale;
+        if(showRatio)
+        {
+            c = new TCanvas("c1", "c1", 800, 900);
+            c->Divide(1, 2);
+            c->cd(1);
+            gPad->SetPad("p1", "p1", 0, 2.5 / 9.0, 1, 1, kWhite, 0, 0);
+            gPad->SetBottomMargin(0.01);
+            fontScale = 1.0;
+        }
+        else
+        {
+            c = new TCanvas("c1", "c1", 800, 800);
+            c->Divide(1, 1);
+            c->cd(1);
+            gPad->SetPad("p1", "p1", 0, 0, 1, 1, kWhite, 0, 0);
+            gPad->SetBottomMargin(0.12);
+            fontScale = 6.5 / 8;
+        }
+        gPad->SetLeftMargin(0.15);
+        gPad->SetRightMargin(0.06);
+        gPad->SetTopMargin(0.06 * (8.0 / 6.5) * fontScale);
 
         TH1 *dummy = new TH1F("dummy", "dummy", 1000, hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
         dummy->SetStats(0);
         dummy->SetTitle(0);
         dummy->GetYaxis()->SetTitle(hist.yAxisLabel.c_str());
         dummy->GetYaxis()->SetTitleOffset(1.20);
-        dummy->GetXaxis()->SetTitle(hist.xAxisLabel.c_str());
+        if(showRatio) dummy->GetXaxis()->SetTitle(hist.xAxisLabel.c_str());
+        else          dummy->GetXaxis()->SetTitle("");
         dummy->GetXaxis()->SetTitleOffset(1.05);
         dummy->GetXaxis()->SetTitleSize(0.04);
         dummy->GetXaxis()->SetLabelSize(0.04);
@@ -294,21 +355,62 @@ void Plotter::plot()
         leg->SetNColumns(1);
         leg->SetTextFont(42);
 
-        double max = 0.0, min = 1.0e300;
-        int i = 0;
-        for(auto& h : hist.hists)
+        double max = 0.0, min = 1.0e300, minAvgWgt = 1.0e300;
+        int i = 0, iStack = 0;
+        for(auto& hvec : hist.hists)
         {
-            h.h->SetLineColor(colors[i%NCOLORS]);
-            i++;
-            leg->AddEntry(h.h, h.label.c_str());
-            max = std::max(max, h.h->GetMaximum());
-            min = std::min(min, h.h->GetMaximum());
+            if(hvec.type.compare("single") == 0)
+            {
+                for(auto& h : hvec.hcsVec)
+                {
+                    h->h->SetLineColor(colors[i%NCOLORS]);
+                    i++;
+                    if(hist.isNorm) h->h->Scale(hist.fhist()->Integral()/h->h->Integral());
+                    leg->AddEntry(h->h, h->label.c_str());
+                    max = std::max(max, h->h->GetMaximum());
+                    min = std::min(min, h->h->GetMaximum());
+                    minAvgWgt = std::min(minAvgWgt, h->h->GetSumOfWeights()/h->h->GetEntries());
+                }
+            }
+            else if(hvec.type.compare("ratio") == 0 && hvec.hcsVec.size() >= 2)
+            {
+                auto hIter = hvec.hcsVec.begin();
+                TH1* hratio = static_cast<TH1*>((*hIter)->h->Clone());
+                hvec.h = static_cast<TNamed*>(hratio);
+                ++hIter;
+                if(hist.isNorm) hratio->Scale((*hIter)->h->Integral()/hratio->Integral());
+                hratio->Divide((*hIter)->h);
+                leg->AddEntry(hratio, hvec.flabel().c_str());
+                max = std::max(max, hratio->GetMaximum());
+                min = std::min(min, hratio->GetMaximum());
+                minAvgWgt = std::min(minAvgWgt, 1.0);
+            }
+            else if(hvec.type.compare("stack") == 0)
+            {
+                THStack *stack = new THStack((hist.name + hvec.hcsVec.front()->label).c_str(), "stack");
+                hvec.h = static_cast<TNamed*>(stack);
+
+                double sow = 0, te = 0;
+                for(auto& h : hvec.hcsVec)
+                {
+                    h->h->SetLineColor(stackColors[iStack%NSTACKCOLORS]);
+                    h->h->SetFillColor(stackColors[iStack%NSTACKCOLORS]);
+                    iStack++;
+                    stack->Add(h->h);
+                    leg->AddEntry(h->h, h->label.c_str());
+                    sow += h->h->GetSumOfWeights();
+                    te +=  h->h->GetEntries();
+                }
+                max = std::max(max, stack->GetMaximum());
+                min = std::min(min, stack->GetMaximum());
+                minAvgWgt = std::min(minAvgWgt, sow/te);
+            }
         }
         
-        c->SetLogy(hist.isLog);
+        gPad->SetLogy(hist.isLog);
         if(hist.isLog)
         {
-            dummy->GetYaxis()->SetRangeUser(std::min(1.0, std::max(0.0001, 0.2 * min)), 3*max);
+            dummy->GetYaxis()->SetRangeUser(std::min(0.2*minAvgWgt, std::max(0.0001, 0.05 * min)), 3*max);
         }
         else
         {
@@ -316,18 +418,65 @@ void Plotter::plot()
         }
         dummy->Draw();
 
-        for(auto& h : hist.hists)
+        for(auto& hvec : hist.hists)
         {
-            if(hist.isNorm) h.h->Scale(hist.fhist()->Integral()/h.h->Integral());
-            h.h->Draw("same");
+            if(!hvec.h)
+            {
+                for(auto& h : hvec.hcsVec)
+                {
+                    h->h->Draw("hist same");
+                }
+            }
+            else
+            {
+                hvec.h->Draw("hist same");
+            }
         }
         leg->Draw();
 
+        TH1 *dummy2;
+        if(showRatio)
+        {
+            c->cd(2);
+            gPad->SetPad("p2", "p2", 0, 0, 1, 2.5 / 9.0, kWhite, 0, 0);
+            gPad->SetLeftMargin(0.15);
+            gPad->SetRightMargin(0.06);
+            gPad->SetTopMargin(0.01);
+            gPad->SetBottomMargin(0.37);
+
+            dummy2 = new TH1F("dummy2", "dummy2", 1000, hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
+            dummy2->GetXaxis()->SetTitle(hist.xAxisLabel.c_str());
+            dummy2->GetXaxis()->SetTitleOffset(1.05);
+            dummy2->GetYaxis()->SetRangeUser(0, 10);
+            dummy2->GetYaxis()->SetTitle("Ratio");
+            dummy2->GetYaxis()->SetTitleOffset(0.42);
+            dummy2->GetYaxis()->SetNdivisions(3, 5, 0, true);
+
+            dummy2->GetYaxis()->SetTitleSize(0.16 * 2 / 2.5);
+            dummy2->GetYaxis()->SetLabelSize(0.20 * 2 / 2.5);
+            dummy2->GetXaxis()->SetTitleSize(0.20 * 2 / 2.5);
+            dummy2->GetXaxis()->SetLabelSize(0.20 * 2 / 2.5);
+
+            dummy2->SetStats(0);
+            dummy2->SetTitle(0);
+            if(dummy2->GetNdivisions() % 100 > 5) dummy2->GetXaxis()->SetNdivisions(6, 5, 0);
+
+            TF1 * fline = new TF1("line", "pol0", hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
+            fline->SetParameter(0, 1);
+            fline->SetLineColor(kRed);
+
+
+
+            dummy2->Draw();
+            fline->Draw("same");
+        }
+
         c->Print((hist.name+".png").c_str());
 
-        leg->~TLegend();
-        dummy->~TH1();
-        c->~TCanvas();
+        delete leg;
+        delete dummy;
+        delete dummy2;
+        delete c;
     }    
 }
 

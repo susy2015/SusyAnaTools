@@ -123,7 +123,8 @@ public:
         T *vecptr = *static_cast<T**>(branchVecMap_[name]);
         if(vecptr != nullptr)
         {
-            vecptr->~vector();
+            //vecptr->clear();
+            delete vecptr;
         }
         setDerived(var, vecloc);
     }

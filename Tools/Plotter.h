@@ -13,6 +13,7 @@
 #include <utility>
 #include <string>
 #include <set>
+#include <memory>
 
 #include "NTupleReader.h"
 
@@ -53,6 +54,18 @@ private:
         void parseCutString();
     };
 
+    class HistVecAndType
+    {
+    public:
+        TNamed* h;
+        std::vector<std::shared_ptr<HistCutSummary>> hcsVec;
+        std::string type;
+
+        HistVecAndType(std::vector<std::shared_ptr<HistCutSummary>> hcsVec, std::string type) : hcsVec(hcsVec), type(type) {h = nullptr;}
+        ~HistVecAndType() { if(h) delete h;}
+
+        const std::string& flabel() const {return hcsVec.front()->label;}
+    };
 
 public:
 
@@ -82,15 +95,17 @@ public:
     class DataCollection
     {
     public:
-        std::vector<DatasetSummary> datasets;
+        std::string type;
+        std::vector<std::pair<std::string, DatasetSummary>> datasets;
 
-        DataCollection(std::vector<DatasetSummary> ds) : datasets(ds) {}
+        DataCollection(std::string type, std::vector<std::pair<std::string, DatasetSummary>> ds) : type(type), datasets(ds) {}
+        DataCollection(std::string type, std::string var, std::vector<DatasetSummary> ds);
     };
 
     class HistSummary : public Cuttable
     {
     public:
-        std::vector<HistCutSummary> hists;
+        std::vector<HistVecAndType> hists;
         std::string name;
         int nBins;
         double low, high;
@@ -98,11 +113,12 @@ public:
         std::string xAxisLabel, yAxisLabel;
         
         HistSummary() {}
-        HistSummary(std::string l,  std::vector<std::pair<Plotter::DataCollection, std::string>> ns, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal);
+        HistSummary(std::string l,  std::vector<Plotter::DataCollection> ns, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal);
+        ~HistSummary();
 
-        TH1* fhist(){if(hists.size()) return hists.front().h;}
+        TH1* fhist(){if(hists.size()) return hists.front().hcsVec.front()->h;}
     private:
-        void parseName(std::vector<std::pair<Plotter::DataCollection, std::string>>& ns);
+        void parseName(std::vector<Plotter::DataCollection>& ns);
     };
 
     Plotter(std::vector<HistSummary>& h, std::vector<std::vector<FileSummary>>& t);
@@ -123,6 +139,7 @@ private:
         DatasetSummary dss;
 
         HistCutSummary(const std::string lab, TH1* hist, const std::pair<std::string, std::string> v, const HistSummary* hsum, const DatasetSummary& ds) : label(lab), h(hist), variable(v), hs(hsum), dss(ds) {}
+        ~HistCutSummary();
     };
     
     void createHistsFromTuple();

@@ -17,34 +17,51 @@ int main()
 
     Plotter::DatasetSummary dsDY_ll(       "DY#rightarrow#mu#mu",           vDY_ll,   "pdgIdZDec=13");
     Plotter::DatasetSummary dsDY_llclean(  "DY#rightarrow#mu#mu muRemoved", vDY_ll,   "pdgIdZDec=13");
-    Plotter::DatasetSummary dsDY_nunu("Z#rightarrow#nu#nu",  vDY_nunu, "");
-    Plotter::DatasetSummary dsDY_test("test",  vDY_nunu, "");
+    Plotter::DatasetSummary dsDY_nunu(     "Z#rightarrow#nu#nu",            vDY_nunu, "");
+    Plotter::DatasetSummary dsDY_test(     "test",                          vDY_nunu, "");
 
-    Plotter::DataCollection dcDY_ll({dsDY_ll});
-    Plotter::DataCollection dcDY_llclean({dsDY_llclean});
-    Plotter::DataCollection dcDY_nunu({dsDY_nunu});
-    Plotter::DataCollection dcDY_test({dsDY_test});
+    Plotter::DataCollection mht(        "single", "mht",              {dsDY_ll, dsDY_nunu});
+    Plotter::DataCollection mt2(        "single", "mt2",              {dsDY_ll, dsDY_nunu});
+    Plotter::DataCollection met(        "single", "met",              {dsDY_ll, dsDY_nunu});
+    Plotter::DataCollection ht(         "single", "ht",               {dsDY_ll, dsDY_nunu});
+    Plotter::DataCollection nMuon(      "single", "cutMuVec(size)",   {dsDY_ll, dsDY_nunu});
+    Plotter::DataCollection jetPt(      "single", "jetsLVec(pt)",     {dsDY_ll, dsDY_nunu});
+    Plotter::DataCollection muMtw(      "single", "muonsMtw",         {dsDY_ll, dsDY_nunu});
+    Plotter::DataCollection nMuGenMatch("single", "genMatchMu(size)", {dsDY_ll, dsDY_nunu});
+    Plotter::DataCollection genZPt(     "single", "genZPt",           {dsDY_ll, dsDY_nunu});
+    Plotter::DataCollection genZEta(    "single", "genZEta",          {dsDY_ll, dsDY_nunu});
+    Plotter::DataCollection genZmass(   "single", "genZmass",         {dsDY_ll, dsDY_nunu});
+    Plotter::DataCollection cleanJetPt( "single", "cleanJetVec(pt)",  {dsDY_ll, dsDY_nunu});
+
+    Plotter::DataCollection cleanht(     "single", {{"ht", dsDY_ll},     {"cleanHt", dsDY_nunu},     {"cleanHt", dsDY_llclean}});
+    Plotter::DataCollection cleanmht(    "single", {{"mht", dsDY_ll},    {"cleanMHt", dsDY_nunu},    {"cleanMHt", dsDY_llclean}});
+    Plotter::DataCollection cleanmhtphi( "single", {{"mhtphi", dsDY_ll}, {"cleanMHtPhi", dsDY_nunu}, {"cleanMHtPhi", dsDY_llclean}});
+
+    Plotter::DataCollection dcDY_test(   "single", {{"mht", dsDY_ll}, {"jetsLVec(pt)", dsDY_nunu}, {"genZmass", dsDY_test}, {"genZPt", dsDY_test}});
+    Plotter::DataCollection dcDY_ratio(  "ratio",  {{"cleanJetVec(pt)", dsDY_ll}, {"jetsLVec(pt)", dsDY_ll}});
+    Plotter::DataCollection dcDY_stack(  "stack",  "mht", {dsDY_ll, dsDY_nunu});
 
     vector<Plotter::HistSummary> vh;
-    vh.push_back(PHS("mht",         {{dcDY_ll, "mht"},              {dcDY_nunu, "mht"}},              "", 100, 0, 1000, true,  true,  "M(H_{t}) [GeV]",     "Norm Events"));
-    vh.push_back(PHS("mt2",         {{dcDY_ll, "MT2"},              {dcDY_nunu, "MT2"}},              "", 100, 0, 1000, true,  true,  "MT2 [GeV]",          "Norm Events"));
-    vh.push_back(PHS("met",         {{dcDY_ll, "met"},              {dcDY_nunu, "met"}},              "", 100, 0, 1000, true,  true,  "MET [GeV]",          "Norm Events"));
-    vh.push_back(PHS("ht",          {{dcDY_ll, "ht"},               {dcDY_nunu, "ht"}},               "", 100, 0, 1000, true,  true,  "H_{T} [GeV]",        "Norm Events"));
-    vh.push_back(PHS("nMuons",      {{dcDY_ll, "cutMuVec(size)"},   {dcDY_nunu, "cutMuVec(size)"}},   "", 10,  0, 10,   true,  false, "N(#mu)",             "Events"));
-    vh.push_back(PHS("jetPt",       {{dcDY_ll, "jetsLVec(pt)"},     {dcDY_nunu, "jetsLVec(pt)"}},     "", 100, 0, 1000, true,  true,  "Jet p_{T} [GeV]",    "Norm Events"));
-    vh.push_back(PHS("cleanJetPt",  {{dcDY_ll, "cleanJetVec(pt)"},  {dcDY_nunu, "cleanJetVec(pt)"}},  "", 100, 0, 1000, true,  true,  "Cleaned Jet p_{T} [GeV]", "Norm Events"));
-    vh.push_back(PHS("muMtw",       {{dcDY_ll, "muonsMtw"},         {dcDY_nunu, "muonsMtw"}},         "", 100, 0, 200,  true,  false, "#mu M_{T}(W) [GeV]", "Events"));
-    vh.push_back(PHS("nMuGenMatch", {{dcDY_ll, "genMatchMu(size)"}, {dcDY_nunu, "genMatchMu(size)"}}, "", 10,  0, 10,   true,  false, "N(#mu) gen Matched", "Events"));
-    vh.push_back(PHS("genZPt",      {{dcDY_ll, "genZPt"},           {dcDY_nunu, "genZPt"}},           "", 100, 0, 600,  true,  true,  "gen Z p_{T} [GeV]",  "Norm Events"));
-    vh.push_back(PHS("genZEta",     {{dcDY_ll, "genZEta"},          {dcDY_nunu, "genZEta"}},          "", 100, -3, 3,   false, true,  "gen Z #eta",         "Norm Events"));
-    vh.push_back(PHS("genZmass",    {{dcDY_ll, "genZmass"},         {dcDY_nunu, "genZmass"}},         "", 100, 0, 500,  true,  true,  "gen M(Z) [GeV]",     "Norm Events"));
+    vh.push_back(PHS("mht",         {mht},          "", 100, 0, 400,  true,  true,  "M(H_{t}) [GeV]",     "Norm Events"));
+    vh.push_back(PHS("mt2",         {mt2},          "", 100, 0, 1000, true,  true,  "MT2 [GeV]",          "Norm Events"));
+    vh.push_back(PHS("met",         {met},          "", 100, 0, 400,  true,  true,  "MET [GeV]",          "Norm Events"));
+    vh.push_back(PHS("ht",          {ht},           "", 100, 0, 700,  true,  true,  "H_{T} [GeV]",        "Norm Events"));
+    vh.push_back(PHS("nMuons",      {nMuon},        "", 10,  0, 10,   true,  false, "N(#mu)",             "Events"));
+    vh.push_back(PHS("jetPt",       {jetPt},        "", 100, 0, 400,  true,  true,  "Jet p_{T} [GeV]",    "Norm Events"));
+    vh.push_back(PHS("cleanJetPt",  {cleanJetPt},   "", 100, 0, 400,  true,  true,  "Cleaned Jet p_{T} [GeV]", "Norm Events"));
+    vh.push_back(PHS("muMtw",       {muMtw},        "", 100, 0, 200,  true,  false, "#mu M_{T}(W) [GeV]", "Events"));
+    vh.push_back(PHS("nMuGenMatch", {nMuGenMatch},  "", 10,  0, 10,   true,  false, "N(#mu) gen Matched", "Events"));
+    vh.push_back(PHS("genZPt",      {genZPt},       "", 100, 0, 300,  true,  true,  "gen Z p_{T} [GeV]",  "Norm Events"));
+    vh.push_back(PHS("genZEta",     {genZEta},      "", 100, -3, 3,   false, true,  "gen Z #eta",         "Norm Events"));
+    vh.push_back(PHS("genZmass",    {genZmass},     "", 100, 0, 500,  true,  true,  "gen M(Z) [GeV]",     "Norm Events"));
 
-    vh.push_back(PHS("cleanmht",             {{dcDY_ll, "ht"},     {dcDY_nunu, "cleanHt"},     {dcDY_llclean, "cleanHt"}},      "",               100, 0,     1000, true, true,  "H_{T} [GeV]",         "Norm Events"));
-    vh.push_back(PHS("cleanmht_baseline",    {{dcDY_ll, "ht"},     {dcDY_nunu, "cleanHt"},     {dcDY_llclean, "cleanHt"}},      "passBaseline", 100, 0,     1000, true, true,  "H_{T} [GeV]",         "Norm Events"));
-    vh.push_back(PHS("cleanmhtphi",          {{dcDY_ll, "mht"},    {dcDY_nunu, "cleanMHt"},    {dcDY_llclean, "cleanMHt"}},     "",               100, 0,     1000, true, true,  "MH_{T} [GeV]",        "Norm Events"));
-    vh.push_back(PHS("cleanht",              {{dcDY_ll, "mhtphi"}, {dcDY_nunu, "cleanMHtPhi"}, {dcDY_llclean, "cleanMHtPhi"}},  "",               100, -3.14, 3.14, true, true,  "#phi(MH_{T})",        "Norm Events"));
+    vh.push_back(PHS("cleanht",          {cleanht},     "",             100, 0,     700,  true, true,  "H_{T} [GeV]",         "Norm Events"));
+    vh.push_back(PHS("cleanht_baseline", {cleanht},     "passBaseline", 100, 0,     700,  true, true,  "H_{T} [GeV]",         "Norm Events"));
+    vh.push_back(PHS("cleanmht",         {cleanmht},    "",             100, 0,     400, true, true,  "MH_{T} [GeV]",        "Norm Events"));
+    vh.push_back(PHS("cleanmhtphi",      {cleanmhtphi}, "",             100, -3.14, 3.14, true, true,  "#phi(MH_{T})",        "Norm Events"));
 
-    vh.push_back(PHS("test", {{dcDY_ll, "mht"}, {dcDY_nunu, "jetsLVec(pt)"}, {dcDY_test, "genZmass"}, {dcDY_test, "genZPt"}},  "genZmass>80", 100, 0, 1000,   true, true,  "???",         "Norm Events"));
+    vh.push_back(PHS("test",  {dcDY_stack, dcDY_test},  "genZmass>80", 100, 0, 1000,   true, true,  "???",         "Norm Events"));
+    vh.push_back(PHS("test2", {dcDY_ratio},  "", 100, 0, 500, true, false, "jpt???", "Ratio"));
 
     vector<vector<Plotter::FileSummary>> vvf = {vDY_ll, vDY_nunu};
 
