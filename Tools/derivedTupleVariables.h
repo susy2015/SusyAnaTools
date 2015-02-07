@@ -25,36 +25,34 @@ namespace plotterFunctions
         const std::vector<double>& muonsRelIso          = tr.getVec<double>("muonsRelIso");
         const std::vector<int>& W_emuVec                = tr.getVec<int>("W_emuVec");
 
-        std::vector<int>* genMatchMu = new std::vector<int>();
+        std::vector<const TLorentzVector*>* genMatchMu = new std::vector<const TLorentzVector*>();
         std::vector<TLorentzVector>* cutMuVec = new std::vector<TLorentzVector>();
 
         for(int i = 0; i < muonsLVec.size(); ++i)
         {
-            if(muonsRelIso[i] < 0.20 && muonsLVec[i].Pt() > 10)
+            if(muonsRelIso[i] < 0.20 && muonsLVec[i].Pt() > 5)
             {
                 cutMuVec->push_back(muonsLVec[i]);
             }
         }
 
-        for(int j = 0; j < cutMuVec->size(); ++j)
+        for(int i = 0; i < genDecayPdgIdVec.size() && i < genDecayLVec.size(); ++i)
         {
-            double dRMin = 999.9;
-
-            for(int i = 0; i < genDecayPdgIdVec.size() && i < genDecayLVec.size(); ++i)
+            if(abs(genDecayPdgIdVec[i]) == 13)
             {
-                double dR = ROOT::Math::VectorUtil::DeltaR(genDecayLVec[i], (*cutMuVec)[j]);
-                if(abs(genDecayPdgIdVec[i]) == 13)
+                double dRMin = 999.9;
+                for(int j = 0; j < cutMuVec->size(); ++j)
                 {
+                    double dR = ROOT::Math::VectorUtil::DeltaR(genDecayLVec[i], (*cutMuVec)[j]);
                     if(dR < dRMin)
                     {
                         dRMin = dR;
                     }
                 }
-         
-            }
-            if(dRMin < 0.02)
-            {
-                genMatchMu->push_back(j);
+                if(dRMin < 0.02)
+                {
+                    genMatchMu->push_back(&genDecayLVec[i]);
+                }
             }
         }
 
@@ -95,6 +93,9 @@ namespace plotterFunctions
         const std::vector<TLorentzVector>& muonsLVec = tr.getVec<TLorentzVector>("muonsLVec");
         const std::vector<double>& elesRelIso        = tr.getVec<double>("elesRelIso");
         const std::vector<double>& muonsRelIso       = tr.getVec<double>("muonsRelIso");
+
+        const double& met                            = tr.getVar<double>("met");
+        const double& metphi                         = tr.getVar<double>("metphi");
 
         if(elesLVec.size() != elesRelIso.size() || muonsLVec.size() != muonsRelIso.size())
         {
@@ -141,6 +142,37 @@ namespace plotterFunctions
             }
         }
 
+        const double zMassMin = 71.0;
+        const double zMass    = 91.0;
+        const double zMassMax = 111.0;
+
+        double zMassCurrent = 1.0e300;
+        TLorentzVector bestRecoZ;
+        for(int i = 0; i < muonsLVec.size() && i < muonsRelIso.size(); ++i)
+        {
+            if(muonsRelIso[i] > ldBetaMax || muonsLVec[i].Pt() < lPtMin) continue;
+            for(int j = 0; j < i && j < muonsLVec.size() && j < muonsRelIso.size(); ++j)
+            {
+                if(muonsRelIso[j] > ldBetaMax || muonsLVec[j].Pt() < lPtMin) continue;
+                double zm = (muonsLVec[i] + muonsLVec[j]).M();
+                if(zm > zMassMin && zm < zMassMax && fabs(zm - zMass) < fabs(zMassCurrent - zMass))
+                {
+                    bestRecoZ = muonsLVec[i] + muonsLVec[j];
+                    zMassCurrent = zm;
+                }
+            }
+        }
+
+        TLorentzVector metV, metZ;
+        metV.SetPtEtaPhiM(met, 0.0, metphi, 0.0);
+        metZ.SetPtEtaPhiM(bestRecoZ.Pt(), 0.0, bestRecoZ.Phi(), 0.0);
+        TLorentzVector cleanMet = metV + metZ;
+
+        double bestRecoZPt = bestRecoZ.Pt();
+        double cleanMetPt = cleanMet.Pt();
+        tr.registerDerivedVar("bestRecoZPt", bestRecoZPt);
+        tr.registerDerivedVar("bestRecoZM", bestRecoZ.M());
+        tr.registerDerivedVar("cleanMetPt", cleanMetPt);
         tr.registerDerivedVar("cleanHt", HT);
         tr.registerDerivedVar("cleanMHt", MHT.Pt());
         tr.registerDerivedVar("cleanMHtPhi", MHT.Phi());

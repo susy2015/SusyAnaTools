@@ -209,7 +209,6 @@ namespace AnaFunctions{
    }
 
    void prepareTopTagger(){
-       std::cout << "PREPAIR TOP TAGGER" << std::endl;
       if( !type3Ptr ) type3Ptr = new topTagger::type3TopTagger();
       type3Ptr->setnJetsSel(AnaConsts::nJetsSel);
    }

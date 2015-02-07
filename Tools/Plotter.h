@@ -16,6 +16,7 @@
 #include <memory>
 
 #include "NTupleReader.h"
+#include "samples.h"
 
 class Plotter
 {
@@ -69,27 +70,16 @@ private:
 
 public:
 
-    class FileSummary
-    {
-    public:
-        std::string name, treePath;
-        double xsec, lumi, kfactor, nEvts;
-        
-        FileSummary() {}
-        FileSummary(std::string nam, std::string tp, double x, double l, double k, double n);
-
-    };
-
     class DatasetSummary : public Cuttable
     {
     public:
         std::string label;
-        std::vector<FileSummary> files;
+        std::vector<AnaSamples::FileSummary> files;
         double kfactor;
 
         DatasetSummary() {}
 //        DatasetSummary(std::string lab, std::string nam, std::string tree, std::string cuts, double xs, double l, double k, double n);
-        DatasetSummary(std::string lab, std::vector<FileSummary>& f, std::string cuts = "", double k = 1.0);
+        DatasetSummary(std::string lab, std::vector<AnaSamples::FileSummary>& f, std::string cuts = "", double k = 1.0);
     };
 
     class DataCollection
@@ -111,9 +101,10 @@ public:
         double low, high;
         bool isLog, isNorm;
         std::string xAxisLabel, yAxisLabel;
+        std::pair<int, int> ratio;
         
         HistSummary() {}
-        HistSummary(std::string l,  std::vector<Plotter::DataCollection> ns, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal);
+        HistSummary(std::string l, std::vector<Plotter::DataCollection> ns, std::pair<int, int> ratio, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal);
         ~HistSummary();
 
         TH1* fhist(){if(hists.size()) return hists.front().hcsVec.front()->h;}
@@ -121,12 +112,12 @@ public:
         void parseName(std::vector<Plotter::DataCollection>& ns);
     };
 
-    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<FileSummary>>& t);
+    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t);
     void plot();
 
 private:
     std::vector<HistSummary> hists_;
-    std::vector<std::vector<FileSummary>> trees_;
+    std::vector<std::vector<AnaSamples::FileSummary>> trees_;
     std::set<std::string> activeBranches_;
 
     class HistCutSummary
@@ -186,7 +177,8 @@ private:
 };
 
 typedef Plotter::HistSummary PHS;
-typedef Plotter::FileSummary PFS;
+typedef AnaSamples::FileSummary PFS;
+typedef Plotter::DataCollection PDC;
 
 inline bool operator< (const Plotter::DataCollection& lhs, const Plotter::DataCollection& rhs)
 {
@@ -196,16 +188,6 @@ inline bool operator< (const Plotter::DataCollection& lhs, const Plotter::DataCo
 inline bool operator< (const Plotter::DatasetSummary& lhs, const Plotter::DatasetSummary& rhs)
 {
     return lhs.label < rhs.label || lhs.files < rhs.files;
-}
-
-inline bool operator< (const Plotter::FileSummary& lhs, const Plotter::FileSummary& rhs)
-{
-    return lhs.name < rhs.name || lhs.treePath < rhs.treePath;
-}
-
-inline bool operator== (const Plotter::FileSummary& lhs, const Plotter::FileSummary& rhs)
-{
-    return lhs.name == rhs.name && lhs.treePath == rhs.treePath && lhs.xsec == rhs.xsec && lhs.lumi == rhs.lumi && lhs.kfactor == rhs.kfactor && lhs.nEvts == rhs.nEvts;
 }
 
 #endif

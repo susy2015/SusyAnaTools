@@ -32,7 +32,7 @@ const int stackColors[] = {
 };
 const int NSTACKCOLORS = sizeof(stackColors) / sizeof(int);
 
-Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<FileSummary>>& t)
+Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t)
 {
     prepareTopTagger();
 
@@ -72,17 +72,8 @@ void Plotter::Cuttable::extractCuts(std::set<std::string>& ab)
     for(auto& cut : cutVec_) ab.insert(cut.name);
 }
 
-Plotter::HistSummary::HistSummary(std::string l, std::vector<Plotter::DataCollection> ns, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal) : Cuttable(cuts) 
+Plotter::HistSummary::HistSummary(std::string l, std::vector<Plotter::DataCollection> ns, std::pair<int, int> ratio, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal) : Cuttable(cuts), name(l), nBins(nb), low(ll), high(ul), isLog(log), isNorm(norm), xAxisLabel(xal), yAxisLabel(yal), ratio(ratio)
 {
-    name = l;
-    nBins = nb;
-    low = ll;
-    high = ul;
-    isLog = log;
-    isNorm = norm;
-    xAxisLabel = xal;
-    yAxisLabel = yal;
-
     parseName(ns);
 }
 
@@ -126,17 +117,7 @@ Plotter::HistCutSummary::~HistCutSummary()
     if(h) delete h;
 }
 
-Plotter::FileSummary::FileSummary(std::string nam, std::string tp, double x, double l, double k, double n)
-{
-    name = nam;
-    treePath = tp;
-    xsec = x;
-    lumi = l;
-    kfactor = k;
-    nEvts = n;
-}
-
-Plotter::DatasetSummary::DatasetSummary(std::string lab, std::vector<FileSummary>& f, std::string cuts, double k) : Cuttable(cuts)
+Plotter::DatasetSummary::DatasetSummary(std::string lab, std::vector<AnaSamples::FileSummary>& f, std::string cuts, double k) : Cuttable(cuts)
 {
     label = lab;
     files = f;
@@ -176,13 +157,13 @@ void Plotter::createHistsFromTuple()
             } 
         }
 
-        for(FileSummary& file : fileList)
+        for(AnaSamples::FileSummary& file : fileList)
         {
             //TFile *f = new TFile(file.name.c_str());
             //TTree *t = (TTree*)f->Get(file.treePath.c_str());
             TChain *t = new TChain(file.treePath.c_str());
-            t->Add(file.name.c_str());
-            std::cout << "Processing file(s): " << file.name << std::endl;
+            t->Add(file.filePath.c_str());
+            std::cout << "Processing file(s): " << file.filePath << std::endl;
 
             //file.extractCuts(activeBranches_);
             //plotterFunctions::activateBranches(activeBranches_);
@@ -306,10 +287,15 @@ void Plotter::plot()
     //gROOT->SetStyle("Plain");
     setTDRStyle();
 
-    const bool showRatio = true;
-    
     for(HistSummary& hist : hists_)
     {
+
+        bool showRatio = true;
+        if(hist.ratio.first == hist.ratio.second || hist.ratio.first < 1 || hist.ratio.second < 1)
+        {
+            showRatio = false;
+        }
+
         TCanvas *c;
         double fontScale;
         if(showRatio)
@@ -434,7 +420,7 @@ void Plotter::plot()
         }
         leg->Draw();
 
-        TH1 *dummy2;
+        TH1 *dummy2 = nullptr, *h1 = nullptr, *h2 = nullptr;
         if(showRatio)
         {
             c->cd(2);
@@ -447,7 +433,6 @@ void Plotter::plot()
             dummy2 = new TH1F("dummy2", "dummy2", 1000, hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
             dummy2->GetXaxis()->SetTitle(hist.xAxisLabel.c_str());
             dummy2->GetXaxis()->SetTitleOffset(1.05);
-            dummy2->GetYaxis()->SetRangeUser(0, 10);
             dummy2->GetYaxis()->SetTitle("Ratio");
             dummy2->GetYaxis()->SetTitleOffset(0.42);
             dummy2->GetYaxis()->SetNdivisions(3, 5, 0, true);
@@ -465,18 +450,46 @@ void Plotter::plot()
             fline->SetParameter(0, 1);
             fline->SetLineColor(kRed);
 
+            int iHist = 1;
+            if(hist.hists.size() == 1 && hist.hists.front().type.compare("single") == 0)
+            {
+                for(auto& h : hist.hists.front().hcsVec)
+                {
+                    if(     iHist == hist.ratio.first)  h1 = static_cast<TH1*>(h->h->Clone());
+                    else if(iHist == hist.ratio.second) h2 = static_cast<TH1*>(h->h->Clone());
+                    ++iHist;
+                }
+            }
+            else
+            {
+                for(auto& hvec : hist.hists)
+                {
+                    //if(iHist == hist.ratio.first)
+                }
+            }
 
+            if(h1 && h2)
+            {
+                h1->Divide(h2);
+                h1->SetLineColor(kBlack);
+                dummy2->GetYaxis()->SetRangeUser(0, std::min(10.0, 1.5*h1->GetMaximum()));
 
-            dummy2->Draw();
-            fline->Draw("same");
+                dummy2->Draw();
+                fline->Draw("same");
+                
+                h1->Draw("same E1");
+            }
+
         }
 
         c->Print((hist.name+".png").c_str());
 
         delete leg;
         delete dummy;
-        delete dummy2;
+        if(dummy2) delete dummy2;
         delete c;
+        if(h1) delete h1;
+        if(h2) delete h2;
     }    
 }
 
@@ -501,9 +514,10 @@ void Plotter::fillHist(TH1 * const h, const std::pair<std::string, std::string>&
     }
     else
     {
-        if     (type.find("double")       != std::string::npos) h->Fill(tr.getVar<double>(name.first), weight);
-        else if(type.find("unsigned int") != std::string::npos) h->Fill(tr.getVar<unsigned int>(name.first), weight);
-        else if(type.find("int")          != std::string::npos) h->Fill(tr.getVar<int>(name.first), weight);
+        if     (type.find("double")         != std::string::npos) h->Fill(tr.getVar<double>(name.first), weight);
+        else if(type.find("unsigned int")   != std::string::npos) h->Fill(tr.getVar<unsigned int>(name.first), weight);
+        else if(type.find("int")            != std::string::npos) h->Fill(tr.getVar<int>(name.first), weight);
+//        else if(type.find("TLorentzVector") != std::string::npos) h->Fill(tlvGetValue(name.second, tr.getVar<TLorentzVector>(name.first)));
     }
 }
 

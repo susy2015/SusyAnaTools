@@ -1,96 +1,83 @@
-#include <iostream>
-#include <cstdio>
-#include <string>
-#include <ctime>
-#include <vector>
-#include <map>
-#include <string>
-#include "TString.h"
+#ifndef ANASAMPLES_SAMPLES_H
+#define ANASAMPLES_SAMPLES_H
 
-nanespace AnaSamples
+#include <string>
+#include <map>
+#include <vector>
+#include "TColor.h"
+
+namespace AnaSamples
 {
     class FileSummary
     {
     public:
-        std::string name, filePath, treePath;
+        std::string filePath, treePath;
         double xsec, lumi, kfactor, nEvts;
         int color;
         
         FileSummary() {}
-        FileSummary(std::string name, std::string filePath, std::string treePath, double xsec, double lumi, double kfactor, double nEvts, int color = kBlack) : name(name), filePath(filePath), treePath(treePath), xsec(xsec), lumi(lumi), kfactor(kfactor), nEvts(nEvts), color(color)
+        FileSummary(std::string filePath, std::string treePath, double xsec, double lumi, double kfactor, double nEvts, int color = kBlack) : filePath(filePath), treePath(treePath), xsec(xsec), lumi(lumi), kfactor(kfactor), nEvts(nEvts), color(color)
         {
             weight_ = xsec * lumi * kfactor / nEvts;
         }
 
-        getWeight() {return weight_;}
+        double getWeight() {return weight_;}
 
     private:
-        weight_;
+        double weight_;
     };
 
-    std::map<std::String, Sample> samples;
+    bool operator< (const FileSummary& lhs, const FileSummary& rhs);
+    bool operator== (const FileSummary& lhs, const FileSummary& rhs);
 
-    void initSamples()
-    {
+    static const double lumi = 5000.0; // in pb-1
+
+    static std::map<std::string, FileSummary> samples = {
         //backgrounds
-        samples["TTbar"] =                   Samples("TTbar",                   "", "stopTreeMaker/AUX", 806.1,  25446993, kGreen));
-        samples["WJetsToLNu_HT_600toInf"] =  Samples("WJetsToLNu_HT_600toInf",  "", "stopTreeMaker/AUX", 18.81,  4581841,  kMagenta+1);
-        samples["WJetsToLNu_HT_400to600"] =  Samples("WJetsToLNu_HT_400to600",  "", "stopTreeMaker/AUX", 55.61,  4640594,  kMagenta+1);
-        samples["WJetsToLNu_HT_200to400"] =  Samples("WJetsToLNu_HT_200to400",  "", "stopTreeMaker/AUX", 471.6,  4686783,  kMagenta+1);
-        samples["WJetsToLNu_HT_100to200"] =  Samples("WJetsToLNu_HT_100to200",  "", "stopTreeMaker/AUX", 1817.0, 5262265,  kMagenta+1);
-        samples["ZJetsToNuNu_HT_600toInf"] = Samples("ZJetsToNuNu_HT_600toInf", "", "stopTreeMaker/AUX", 4.113,  4463806,  kTeal+4);
-        samples["ZJetsToNuNu_HT_400to600"] = Samples("ZJetsToNuNu_HT_400to600", "", "stopTreeMaker/AUX", 11.99,  4433784,  kTeal+4);
-        samples["ZJetsToNuNu_HT_200to400"] = Samples("ZJetsToNuNu_HT_200to400", "", "stopTreeMaker/AUX", 100.8,  4546470,  kTeal+4);
-        samples["ZJetsToNuNu_HT_100to200"] = Samples("ZJetsToNuNu_HT_100to200", "", "stopTreeMaker/AUX", 372.6,  4986424,  kTeal+4);
-        samples["DYJetsToLL_HT_600toInf"] =  Samples("DYJetsToLL_HT_600toInf",  "", "stopTreeMaker/AUX", 2.179,  4493574,  kYellow-7);
-        samples["DYJetsToLL_HT_400to600"] =  Samples("DYJetsToLL_HT_400to600",  "", "stopTreeMaker/AUX", 6.546,  4931372,  kYellow-7);
-        samples["DYJetsToLL_HT_200to400"] =  Samples("DYJetsToLL_HT_200to400",  "", "stopTreeMaker/AUX", 52.24,  4666496,  kYellow-7);
-        samples["DYJetsToLL_HT_100to200"] =  Samples("DYJetsToLL_HT_100to200",  "", "stopTreeMaker/AUX", 194.3,  4054159,  kYellow-7);
-        samples["QCD_HT_1000toInf"] =        Samples("QCD_HT_1000toInf",        "", "stopTreeMaker/AUX", 769.7,  1464453,  kBlue);
-        samples["QCD_HT_500to1000"] =        Samples("QCD_HT_500to1000",        "", "stopTreeMaker/AUX", 26740,  4063345,  kBlue);
-        samples["QCD_HT_250to500"] =         Samples("QCD_HT_250to500",         "", "stopTreeMaker/AUX", 670500, 2668172,  kBlue);
-        samples["T_tW"] =                    Samples("T_tW",                    "", "stopTreeMaker/AUX", 35.0,   986100,   kYellow);
-        samples["Tbar_tW"] =                 Samples("Tbar_tW",                 "", "stopTreeMaker/AUX", 35.0,   971800,   kYellow);
-        samples["TTZ"] =                     Samples("TTZ",                     "", "stopTreeMaker/AUX", 2.2320, 249275,   kGreen+2);
+        {"TTbar",                   FileSummary("", "stopTreeMaker/AUX", 806.1,  lumi, 25446993, kGreen)},
+        {"WJetsToLNu_HT_600toInf",  FileSummary("", "stopTreeMaker/AUX", 18.81,  lumi, 4581841,  kMagenta+1)},
+        {"WJetsToLNu_HT_400to600",  FileSummary("", "stopTreeMaker/AUX", 55.61,  lumi, 4640594,  kMagenta+1)},
+        {"WJetsToLNu_HT_200to400",  FileSummary("", "stopTreeMaker/AUX", 471.6,  lumi, 4686783,  kMagenta+1)},
+        {"WJetsToLNu_HT_100to200",  FileSummary("", "stopTreeMaker/AUX", 1817.0, lumi, 5262265,  kMagenta+1)},
+        {"ZJetsToNuNu_HT_600toInf", FileSummary("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/ZJetsToNuNu_HT-600toInf_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223010/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 4.113,  lumi, 4463806,  kTeal+4)},
+        {"ZJetsToNuNu_HT_400to600", FileSummary("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/lhx/PU20bx25_ZJetsToNuNu_HT-400to600-madgraph-tauola/ZJetsToNuNu_HT-400to600_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/150109_230130/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 11.99,  lumi, 4433784,  kTeal+4)},
+        {"ZJetsToNuNu_HT_200to400", FileSummary("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/ZJetsToNuNu_HT-200to400_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_222913/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 100.8,  lumi, 4546470,  kTeal+4)},
+        {"ZJetsToNuNu_HT_100to200", FileSummary("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/ZJetsToNuNu_HT-100to200_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_222641/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 372.6,  lumi, 4986424,  kTeal+4)},
+        {"DYJetsToLL_HT_600toInf",  FileSummary("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-600toInf_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_224252/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 2.179,  lumi, 4493574,  kYellow-7)},
+        {"DYJetsToLL_HT_400to600",  FileSummary("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-400to600_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_224040/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 6.546,  lumi, 4931372,  kYellow-7)},
+        {"DYJetsToLL_HT_200to400",  FileSummary("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-200to400_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223846/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 52.24,  lumi, 4666496,  kYellow-7)},
+        {"DYJetsToLL_HT_100to200",  FileSummary("/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_HT-100to200_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/150101_225307/0000/stopFlatNtuples_*.root", "stopTreeMaker/AUX", 194.3,  lumi, 4054159,  kYellow-7)},
+        {"QCD_HT_1000toInf",        FileSummary("", "stopTreeMaker/AUX", 769.7,  lumi, 1464453,  kBlue)},
+        {"QCD_HT_500to1000",        FileSummary("", "stopTreeMaker/AUX", 26740,  lumi, 4063345,  kBlue)},
+        {"QCD_HT_250to500",         FileSummary("", "stopTreeMaker/AUX", 670500, lumi, 2668172,  kBlue)},
+        {"T_tW",                    FileSummary("", "stopTreeMaker/AUX", 35.0,   lumi, 986100,   kYellow)},
+        {"Tbar_tW",                 FileSummary("", "stopTreeMaker/AUX", 35.0,   lumi, 971800,   kYellow)},
+        {"TTZ",                     FileSummary("", "stopTreeMaker/AUX", 2.2320, lumi, 249275,   kGreen+2)},
 
         //signal
-        samples["Signal_T1tttt_mGluino1200_mLSP800"] =          Samples("Signal_T1tttt_mGluino1200_mLSP800",          "", "stopTreeMaker/AUX", 0.0856418, 100322,  kRed);
-        samples["Signal_T1tttt_mGluino1500_mLSP100"] =          Samples("Signal_T1tttt_mGluino1500_mLSP100",          "", "stopTreeMaker/AUX", 0.0141903, 105679,  kRed);
-        samples["Signal_T5tttt_mGluino1300_mStop300_mChi280"] = Samples("Signal_T5tttt_mGluino1300_mStop300_mChi280", "", "stopTreeMaker/AUX", 0.0460525, 16360,   kRed);
-        samples["Signal_T5tttt_mGluino1300_mStop300_mCh285"] =  Samples("Signal_T5tttt_mGluino1300_mStop300_mCh285",  "", "stopTreeMaker/AUX", 0.0460525, 35288,   kRed);
-        samples["Signal_T1bbbb_mGluino1000_mLSP900"] =          Samples("Signal_T1bbbb_mGluino1000_mLSP900",          "", "stopTreeMaker/AUX", 0.325388,  97134,   kRed);
-        samples["Signal_T1bbbb_mGluino1500_mLSP100"] =          Samples("Signal_T1bbbb_mGluino1500_mLSP100",          "", "stopTreeMaker/AUX", 0.0141903, 105149,  kRed);
-        samples["Signal_T2tt_mStop425_mLSP325"] =               Samples("Signal_T2tt_mStop425_mLSP325",               "", "stopTreeMaker/AUX", 1.31169,   1039030, kRed);
-        samples["Signal_T2tt_mStop500_mLSP325"] =               Samples("Signal_T2tt_mStop500_mLSP325",               "", "stopTreeMaker/AUX", 0.51848,   109591,  kRed);
-        samples["Signal_T2tt_mStop650_mLSP325"] =               Samples("Signal_T2tt_mStop650_mLSP325",               "", "stopTreeMaker/AUX", 0.107045,  105672,  kRed);
-        samples["Signal_T2tt_mStop850_mLSP100"] =               Samples("Signal_T2tt_mStop850_mLSP100",               "", "stopTreeMaker/AUX", 0.0189612, 102839,  kRed);
-        samples["Signal_T2bb_mSbottom600_mLSP580"] =            Samples("Signal_T2bb_mSbottom600_mLSP580",            "", "stopTreeMaker/AUX", 0.174599,  107316,  kRed);
-        samples["Signal_T2bb_mSbottom900_mLSP100"] =            Samples("Signal_T2bb_mSbottom900_mLSP100",            "", "stopTreeMaker/AUX", 0.0128895, 102661,  kRed);
-    }
+        {"Signal_T1tttt_mGluino1200_mLSP800",          FileSummary("", "stopTreeMaker/AUX", 0.0856418, lumi, 100322,  kRed)},
+        {"Signal_T1tttt_mGluino1500_mLSP100",          FileSummary("", "stopTreeMaker/AUX", 0.0141903, lumi, 105679,  kRed)},
+        {"Signal_T5tttt_mGluino1300_mStop300_mChi280", FileSummary("", "stopTreeMaker/AUX", 0.0460525, lumi, 16360,   kRed)},
+        {"Signal_T5tttt_mGluino1300_mStop300_mCh285",  FileSummary("", "stopTreeMaker/AUX", 0.0460525, lumi, 35288,   kRed)},
+        {"Signal_T1bbbb_mGluino1000_mLSP900",          FileSummary("", "stopTreeMaker/AUX", 0.325388,  lumi, 97134,   kRed)},
+        {"Signal_T1bbbb_mGluino1500_mLSP100",          FileSummary("", "stopTreeMaker/AUX", 0.0141903, lumi, 105149,  kRed)},
+        {"Signal_T2tt_mStop425_mLSP325",               FileSummary("", "stopTreeMaker/AUX", 1.31169,   lumi, 1039030, kRed)},
+        {"Signal_T2tt_mStop500_mLSP325",               FileSummary("", "stopTreeMaker/AUX", 0.51848,   lumi, 109591,  kRed)},
+        {"Signal_T2tt_mStop650_mLSP325",               FileSummary("", "stopTreeMaker/AUX", 0.107045,  lumi, 105672,  kRed)},
+        {"Signal_T2tt_mStop850_mLSP100",               FileSummary("", "stopTreeMaker/AUX", 0.0189612, lumi, 102839,  kRed)},
+        {"Signal_T2bb_mSbottom600_mLSP580",            FileSummary("", "stopTreeMaker/AUX", 0.174599,  lumi, 107316,  kRed)},
+        {"Signal_T2bb_mSbottom900_mLSP100",            FileSummary("", "stopTreeMaker/AUX", 0.0128895, lumi, 102661,  kRed)}
+    };
 
-    static const double dataLumi = 5.0; // in fb-1
-    const double scaledToDataLumi = dataLumi; // in fb-1
-    
-    double dataScale = 1.0;
-    
-    std::vector<double> scalesVec;
-    
-// PU weights are currently empty...
-    std::vector<double> puWeights_;
-    
-    double weightTruNPV(int trunpv);
-    int initPUinput(const std::string &puDatafileName));
+    class SampleHolder
+    {
+    public:
+        SampleHolder();
+        std::vector<FileSummary>& operator[](std::string key) {return sampleSet_[key];}
+    private:
+        std::map<std::string, std::vector<FileSummary>> sampleSet_;
+    };
 
 }
 
-void initMCscales(){
-    
-    dataScale = scaledToDataLumi/dataLumi;
-    std::cout<<"\nscaledToDataLumi : "<<scaledToDataLumi<<"  dataLumi : "<<dataLumi<<"  dataScale : "<<dataScale<<std::endl;
-    for(int ib=0; ib<nMC; ib++){
-        double perScale = scaledToDataLumi/(nEvtArr[ib]/xSecArr[ib]/1000.);
-        scalesVec.push_back(perScale);
-        printf("%30s    xSec : %8.3e  nEvt : %10d  scale : %10.8f\n", mcStr[ib].c_str(), xSecArr[ib], nEvtArr[ib], perScale);
-    }
-    std::cout<<std::endl;
-}
+#endif
