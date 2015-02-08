@@ -26,11 +26,12 @@ namespace plotterFunctions
         const std::vector<int>& W_emuVec                = tr.getVec<int>("W_emuVec");
 
         std::vector<const TLorentzVector*>* genMatchMu = new std::vector<const TLorentzVector*>();
+        std::vector<const TLorentzVector*>* genMu = new std::vector<const TLorentzVector*>();
         std::vector<TLorentzVector>* cutMuVec = new std::vector<TLorentzVector>();
 
         for(int i = 0; i < muonsLVec.size(); ++i)
         {
-            if(muonsRelIso[i] < 0.20 && muonsLVec[i].Pt() > 5)
+            if(muonsRelIso[i] < 0.20 && muonsLVec[i].Pt() > 10)
             {
                 cutMuVec->push_back(muonsLVec[i]);
             }
@@ -40,6 +41,7 @@ namespace plotterFunctions
         {
             if(abs(genDecayPdgIdVec[i]) == 13)
             {
+                genMu->push_back(&genDecayLVec[i]);
                 double dRMin = 999.9;
                 for(int j = 0; j < cutMuVec->size(); ++j)
                 {
@@ -79,6 +81,7 @@ namespace plotterFunctions
         }
 
         tr.registerDerivedVec("cutMuVec", cutMuVec);
+        tr.registerDerivedVec("genMu", genMu);
         tr.registerDerivedVec("genMatchMu", genMatchMu);
         tr.registerDerivedVar("genZPt", genZPt);
         tr.registerDerivedVar("genZEta", genZEta);
@@ -155,7 +158,7 @@ namespace plotterFunctions
             {
                 if(muonsRelIso[j] > ldBetaMax || muonsLVec[j].Pt() < lPtMin) continue;
                 double zm = (muonsLVec[i] + muonsLVec[j]).M();
-                if(zm > zMassMin && zm < zMassMax && fabs(zm - zMass) < fabs(zMassCurrent - zMass))
+                if(/*zm > zMassMin && zm < zMassMax && */fabs(zm - zMass) < fabs(zMassCurrent - zMass))
                 {
                     bestRecoZ = muonsLVec[i] + muonsLVec[j];
                     zMassCurrent = zm;

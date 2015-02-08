@@ -325,8 +325,8 @@ void Plotter::plot()
         dummy->SetTitle(0);
         dummy->GetYaxis()->SetTitle(hist.yAxisLabel.c_str());
         dummy->GetYaxis()->SetTitleOffset(1.20);
-        if(showRatio) dummy->GetXaxis()->SetTitle(hist.xAxisLabel.c_str());
-        else          dummy->GetXaxis()->SetTitle("");
+        if(showRatio) dummy->GetXaxis()->SetTitle("");
+        else          dummy->GetXaxis()->SetTitle(hist.xAxisLabel.c_str());
         dummy->GetXaxis()->SetTitleOffset(1.05);
         dummy->GetXaxis()->SetTitleSize(0.04);
         dummy->GetXaxis()->SetLabelSize(0.04);
@@ -342,15 +342,15 @@ void Plotter::plot()
         leg->SetTextFont(42);
 
         double max = 0.0, min = 1.0e300, minAvgWgt = 1.0e300;
-        int i = 0, iStack = 0;
+        int iSingle = 0, iStack = 0;
         for(auto& hvec : hist.hists)
         {
             if(hvec.type.compare("single") == 0)
             {
                 for(auto& h : hvec.hcsVec)
                 {
-                    h->h->SetLineColor(colors[i%NCOLORS]);
-                    i++;
+                    h->h->SetLineColor(colors[iSingle%NCOLORS]);
+                    iSingle++;
                     if(hist.isNorm) h->h->Scale(hist.fhist()->Integral()/h->h->Integral());
                     leg->AddEntry(h->h, h->label.c_str());
                     max = std::max(max, h->h->GetMaximum());
@@ -364,7 +364,6 @@ void Plotter::plot()
                 TH1* hratio = static_cast<TH1*>((*hIter)->h->Clone());
                 hvec.h = static_cast<TNamed*>(hratio);
                 ++hIter;
-                if(hist.isNorm) hratio->Scale((*hIter)->h->Integral()/hratio->Integral());
                 hratio->Divide((*hIter)->h);
                 leg->AddEntry(hratio, hvec.flabel().c_str());
                 max = std::max(max, hratio->GetMaximum());
@@ -472,7 +471,16 @@ void Plotter::plot()
             {
                 h1->Divide(h2);
                 h1->SetLineColor(kBlack);
-                dummy2->GetYaxis()->SetRangeUser(0, std::min(10.0, 1.5*h1->GetMaximum()));
+                double d2ymin = 0.0;
+                double d2ymax = 1.5;
+                for(int iBin = 1; iBin <= h1->GetNbinsX(); ++iBin)
+                {
+                    if(h1->GetBinContent(iBin) < 10.0)
+                    {
+                        d2ymax = std::max(d2ymax, h1->GetBinContent(iBin));
+                    }
+                }
+                dummy2->GetYaxis()->SetRangeUser(d2ymin, 1.5*d2ymax);
 
                 dummy2->Draw();
                 fline->Draw("same");
