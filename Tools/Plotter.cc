@@ -306,7 +306,7 @@ bool Plotter::Cuttable::passCuts(const NTupleReader& tr) const
     {
         if(cut.vecVar.size() == 0)
         {
-            passCut = passCut && (cut.inverted)?(!cut.passCut(tr)):(cut.passCut(tr));
+            passCut = passCut && ((cut.inverted)?(!cut.passCut(tr)):(cut.passCut(tr)));
         }
     }
     return passCut;
@@ -364,7 +364,7 @@ void Plotter::plot()
         dummy->GetYaxis()->SetLabelSize(0.04);
         if(dummy->GetNdivisions() % 100 > 5) dummy->GetXaxis()->SetNdivisions(6, 5, 0);
 
-        TLegend *leg = new TLegend(0.45, 0.65, 0.89, 0.88);
+        TLegend *leg = new TLegend(0.50, 0.70, 0.89, 0.88);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
         leg->SetLineWidth(1);

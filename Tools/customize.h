@@ -43,7 +43,7 @@ namespace AnaConsts{
 //                                 minAbsEta, maxAbsEta, minPt, maxPt, maxrelIso, maxMtw
    const double     muonsArr[] = {   -1,       2.4,      5,     -1,       0.2,     -1  };
    const double      elesArr[] = {   -1,       2.5,      5,     -1,      0.15,     -1  };
-   const double   isoTrksArr[] = {   -1,        -1,     10,     -1,       0.1,    100  };
+   const double   isoTrksArr[] = {   -1,        -1,      10,     -1,       0.1,    100  };
 
    const double  dPhi0_CUT = 0.5, dPhi1_CUT = 0.5, dPhi2_CUT = 0.3;
 
@@ -189,7 +189,8 @@ namespace AnaFunctions{
             cntNIsoTrks ++;
          }
       }
-      return cntNIsoTrks;
+      //WARNING  HERE IS A HACK TO DEACTIVATE THIS CUT FOR NOW!!!
+      return 0;//cntNIsoTrks;
    }
 
    void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger){

@@ -126,9 +126,12 @@ namespace plotterFunctions
                     if(muEffPt)
                     {
                         double muEff1 = 0.0, muEff2 = 0.0;
-                        const double p0 = 0.952453;
-                        const double p1 = -9.32974e-05;
-
+// Eff without applying acceptance
+//                        const double p0 = 0.952453;
+//                        const double p1 = -9.32974e-05;
+// Eff with acceptance applied
+                        const double p0 = 0.976727;
+                        const double p1 = -0.000129567;
                         if((*cutMuVec)[i].Pt() > 400) muEff1 = p0 + (*cutMuVec)[i].Pt() * p1;
                         else                          muEff1 = muEffPt->GetBinContent(muEffPt->FindBin((*cutMuVec)[i].Pt()));
 
@@ -270,6 +273,7 @@ namespace plotterFunctions
         int nElectrons = AnaFunctions::countElectrons(tr.getVec<TLorentzVector>("elesLVec"), tr.getVec<double>("elesRelIso"), tr.getVec<double>("elesMtw"), AnaConsts::elesArr);
         int nIsoTrks = AnaFunctions::countIsoTrks(tr.getVec<TLorentzVector>("loose_isoTrksLVec"), tr.getVec<double>("loose_isoTrks_iso"), tr.getVec<double>("loose_isoTrks_mtw"), AnaConsts::isoTrksArr);
 
+
         // Pass cuts
 
         bool passZinvdPhis = true;
@@ -319,7 +323,8 @@ namespace plotterFunctions
         if( pickedRemainingCombfatJetIdx == -1 && zinvJetVec.size()>=6 )                             passZinvTagger = false;
         if( ! (bestTopJetMass > AnaConsts::lowTopCut_ && bestTopJetMass < AnaConsts::highTopCut_ ) ) passZinvTagger = false;
 
-        bool passZinvBaseline = passPreTTag;// && passZinvTagger;
+        bool passZinvBaseline =  passZinvLeptVeto && passZinvnJets && passZinvdPhis && passZinvBJets && passZinvMET && passZinvTagger;
+        bool passZinvBaselineNoTag = passZinvLeptVeto && passZinvnJets && passZinvdPhis && passZinvMET;
 
         tr.registerDerivedVar("bestTopJetIdxZinv", bestTopJetIdx);
         tr.registerDerivedVar("remainPassCSVSZinv", remainPassCSVS);
@@ -333,6 +338,7 @@ namespace plotterFunctions
         tr.registerDerivedVar("passZinvBJets", passZinvBJets);
         tr.registerDerivedVar("passZinvTagger", passZinvTagger);
         tr.registerDerivedVar("passZinvBaseline", passZinvBaseline);
+        tr.registerDerivedVar("passZinvBaselineNoTag", passZinvBaselineNoTag);
 
         tr.registerDerivedVar("cntNJetsPt30Eta24Zinv", cntNJetsPt30Eta24);
         tr.registerDerivedVar("cntCSVSZinv", cntCSVS);
