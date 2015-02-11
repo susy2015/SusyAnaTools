@@ -111,7 +111,7 @@ bool NTupleReader::getNextEvent()
 void NTupleReader::clearTuple()
 {
     // Do not initialize vector pointers here!
-
+    
 }
 
 void NTupleReader::disableUpdate()

@@ -33,9 +33,13 @@
    they shoud be initialized to an approperiate value in clearTuple().  
  */
 
+class NTupleReader;
+
+void baselineUpdate(NTupleReader& tr);
+
 class NTupleReader
 {
-
+    friend void baselineUpdate(NTupleReader& tr);
 public:
     // List of all variables used in tuple
 
@@ -64,27 +68,6 @@ public:
     void registerFunction(void (*f)(NTupleReader&));
 
     void getType(const std::string& name, std::string& type) const;
-
-    template<typename T> void updateTupleVar(std::string name, const T& var)
-    {
-        if(isFirstEvent_)
-        {
-            if(branchMap_.find(name) == branchMap_.end())
-            {
-                branchMap_[name] = new T();
-                std::string type;
-                demangle<T>(type);
-                typeMap_[name] = type;
-            }
-        }
-
-        auto tuple_iter = branchMap_.find(name);
-        if(tuple_iter != branchMap_.end())
-        {
-            *static_cast<T*>(tuple_iter->second) = var;
-        }
-        else printf("NTupleReader::updateTuple(...):  Variable not found: \"%s\"!!!\n", name.c_str());
-    }
 
     template<typename T> void registerDerivedVar(const std::string name, T var)
     {
@@ -123,7 +106,6 @@ public:
         T *vecptr = *static_cast<T**>(branchVecMap_[name]);
         if(vecptr != nullptr)
         {
-            //vecptr->clear();
             delete vecptr;
         }
         setDerived(var, vecloc);
@@ -182,7 +164,28 @@ private:
         demangle<std::vector<T>>(type);
         typeMap_[name] = type;
     }
-    
+
+    template<typename T> void updateTupleVar(std::string name, const T& var)
+    {
+        if(isFirstEvent_)
+        {
+            if(branchMap_.find(name) == branchMap_.end())
+            {
+                branchMap_[name] = new T();
+                std::string type;
+                demangle<T>(type);
+                typeMap_[name] = type;
+            }
+        }
+
+        auto tuple_iter = branchMap_.find(name);
+        if(tuple_iter != branchMap_.end())
+        {
+            *static_cast<T*>(tuple_iter->second) = var;
+        }
+        else printf("NTupleReader::updateTuple(...):  Variable not found: \"%s\"!!!\n", name.c_str());
+    }
+
     template<typename T, typename V> T getTupleObj(const std::string var, const V& v_tuple) const
     {
         auto tuple_iter = v_tuple.find(var);

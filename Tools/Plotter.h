@@ -73,13 +73,19 @@ public:
     class DatasetSummary : public Cuttable
     {
     public:
-        std::string label;
+        std::string label, weightStr;
         std::vector<AnaSamples::FileSummary> files;
         double kfactor;
 
         DatasetSummary() {}
 //        DatasetSummary(std::string lab, std::string nam, std::string tree, std::string cuts, double xs, double l, double k, double n);
-        DatasetSummary(std::string lab, std::vector<AnaSamples::FileSummary>& f, std::string cuts = "", double k = 1.0);
+        DatasetSummary(std::string lab, std::vector<AnaSamples::FileSummary>& f, std::string cuts = "", std::string weights = "", double k = 1.0);
+
+        double getWeight(const NTupleReader& tr) const;
+
+    private:
+        std::vector<std::string> weightVec_;
+        void parseWeights();
     };
 
     class DataCollection
@@ -113,12 +119,15 @@ public:
     };
 
     Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t);
+    ~Plotter();
+
     void plot();
 
 private:
     std::vector<HistSummary> hists_;
     std::vector<std::vector<AnaSamples::FileSummary>> trees_;
     std::set<std::string> activeBranches_;
+    TFile *fout_;
 
     class HistCutSummary
     {
@@ -177,7 +186,8 @@ private:
 };
 
 typedef Plotter::HistSummary PHS;
-typedef AnaSamples::FileSummary PFS;
+typedef AnaSamples::FileSummary AFS;
+typedef Plotter::DatasetSummary PDS;
 typedef Plotter::DataCollection PDC;
 
 inline bool operator< (const Plotter::DataCollection& lhs, const Plotter::DataCollection& rhs)

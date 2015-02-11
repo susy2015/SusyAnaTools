@@ -1,3 +1,6 @@
+#ifndef ANACONST_CUSTOMIZE_H
+#define ANACONST_CUSTOMIZE_H
+
 #include "recipeAUX/OxbridgeMT2/interface/Basic_Mt2_332_Calculator.h"
 #include "recipeAUX/OxbridgeMT2/interface/ChengHanBisect_Mt2_332_Calculator.h"
 
@@ -65,17 +68,20 @@ namespace AnaConsts{
 
 namespace AnaFunctions{
 
-   int countJets(const std::vector<TLorentzVector> &inputJets, const double *jetCutsArr){
-      const double minAbsEta = jetCutsArr[0], maxAbsEta = jetCutsArr[1], minPt = jetCutsArr[2], maxPt = jetCutsArr[3];
-      int cntNJets =0;
-      for(unsigned int ij=0; ij<inputJets.size(); ij++){
-         double perjetpt = inputJets[ij].Pt(), perjeteta = inputJets[ij].Eta();
-         if(   ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
+    bool jetPassCuts(const TLorentzVector& jet, const double *jetCutsArr)
+    {
+        const double minAbsEta = jetCutsArr[0], maxAbsEta = jetCutsArr[1], minPt = jetCutsArr[2], maxPt = jetCutsArr[3];
+        double perjetpt = jet.Pt(), perjeteta = jet.Eta();
+        return  ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
             && ( maxAbsEta == -1 || fabs(perjeteta) < maxAbsEta )
             && (     minPt == -1 || perjetpt >= minPt )
-            && (     maxPt == -1 || perjetpt < maxPt ) ){
-            cntNJets ++;
-         }
+            && (     maxPt == -1 || perjetpt < maxPt );
+    }       
+
+   int countJets(const std::vector<TLorentzVector> &inputJets, const double *jetCutsArr){
+      int cntNJets =0;
+      for(unsigned int ij=0; ij<inputJets.size(); ij++){
+          if(jetPassCuts(inputJets[ij], jetCutsArr)) cntNJets ++;
       }
       return cntNJets;
    }
@@ -116,22 +122,34 @@ namespace AnaFunctions{
       }
       return outDPhiVec;
    }
+   
+   bool passMuon(const TLorentzVector& muon, const double& muonRelIso, const double& muonMtw, const double *muonsArr)
+   {
+      const double minAbsEta = muonsArr[0], maxAbsEta = muonsArr[1], minPt = muonsArr[2], maxPt = muonsArr[3], maxRelIso = muonsArr[4], maxMtw = muonsArr[5]; 
+      double permuonpt = muon.Pt(), permuoneta = muon.Eta();
+      return ( minAbsEta == -1 || fabs(permuoneta) >= minAbsEta )
+          && ( maxAbsEta == -1 || fabs(permuoneta) < maxAbsEta )
+          && (     minPt == -1 || permuonpt >= minPt )
+          && (     maxPt == -1 || permuonpt < maxPt )
+          && !(maxRelIso != -1 && muonRelIso >= maxRelIso)
+          && !(maxMtw != -1 && muonMtw >= maxMtw);
+   }
 
+   bool passMuonAccOnly(const TLorentzVector& muon, const double *muonsArr)
+   {
+      const double minAbsEta = muonsArr[0], maxAbsEta = muonsArr[1], minPt = muonsArr[2], maxPt = muonsArr[3]; 
+      double permuonpt = muon.Pt(), permuoneta = muon.Eta();
+      return ( minAbsEta == -1 || fabs(permuoneta) >= minAbsEta )
+          && ( maxAbsEta == -1 || fabs(permuoneta) < maxAbsEta )
+          && (     minPt == -1 || permuonpt >= minPt )
+          && (     maxPt == -1 || permuonpt < maxPt );
+   }
+   
    int countMuons(const std::vector<TLorentzVector> &muonsLVec, const std::vector<double> &muonsRelIso, const std::vector<double> &muonsMtw, const double *muonsArr){
-      const double minAbsEta = muonsArr[0], maxAbsEta = muonsArr[1], minPt = muonsArr[2], maxPt = muonsArr[3], maxRelIso = muonsArr[4], maxMtw = muonsArr[5];
+      
       int cntNMuons = 0;
       for(unsigned int im=0; im<muonsLVec.size(); im++){
-         double permuonpt = muonsLVec[im].Pt(), permuoneta = muonsLVec[im].Eta();
-         if(   ( minAbsEta == -1 || fabs(permuoneta) >= minAbsEta )
-            && ( maxAbsEta == -1 || fabs(permuoneta) < maxAbsEta )
-            && (     minPt == -1 || permuonpt >= minPt )
-            && (     maxPt == -1 || permuonpt < maxPt ) ){
-
-            if( maxRelIso != -1 && muonsRelIso[im] >= maxRelIso ) continue;
-            if( maxMtw != -1 && muonsMtw[im] >= maxMtw ) continue;
-
-            cntNMuons ++;
-         }
+          if(passMuon(muonsLVec[im], muonsRelIso[im], muonsMtw[im], muonsArr)) cntNMuons ++;
       }
       return cntNMuons;
    }
@@ -218,3 +236,5 @@ namespace AnaFunctions{
    }
 
 }
+
+#endif

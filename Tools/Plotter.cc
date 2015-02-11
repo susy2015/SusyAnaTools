@@ -34,11 +34,22 @@ const int NSTACKCOLORS = sizeof(stackColors) / sizeof(int);
 
 Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t)
 {
-    prepareTopTagger();
+    AnaFunctions::prepareTopTagger();
 
     hists_ = h;
     trees_ = t;
     createHistsFromTuple();
+
+    fout_ = new TFile("histoutput.root", "RECREATE");
+}
+
+Plotter::~Plotter()
+{
+    if(fout_)
+    {
+        fout_->Close();
+        delete fout_;
+    }
 }
 
 Plotter::Cut::Cut(std::string s, char t, bool inv, double v, double v2)
@@ -117,11 +128,32 @@ Plotter::HistCutSummary::~HistCutSummary()
     if(h) delete h;
 }
 
-Plotter::DatasetSummary::DatasetSummary(std::string lab, std::vector<AnaSamples::FileSummary>& f, std::string cuts, double k) : Cuttable(cuts)
+Plotter::DatasetSummary::DatasetSummary(std::string lab, std::vector<AnaSamples::FileSummary>& f, std::string cuts, std::string weights, double k) : Cuttable(cuts), label(lab), files(f), kfactor(k), weightStr(weights)
 {
-    label = lab;
-    files = f;
-    kfactor = k;
+    parseWeights();
+}
+
+void Plotter::DatasetSummary::parseWeights()
+{
+    //parse which weights to use here.  
+    for(size_t pos = 0, npos = 0; npos < weightStr.size(); pos = npos + 1)
+    {
+        npos = weightStr.find(';', pos + 1);
+        if(npos == size_t(-1)) npos = weightStr.size();
+        std::string tmp = weightStr.substr(pos, npos - pos);
+     
+        weightVec_.push_back(tmp);
+    }
+}
+
+double Plotter::DatasetSummary::getWeight(const NTupleReader& tr) const
+{
+    double retval = 1.0;
+    for(auto& weight : weightVec_)
+    {
+        retval *= tr.getVar<double>(weight);
+    }
+    return retval;
 }
 
 Plotter::DataCollection::DataCollection(std::string type, std::string var, std::vector<DatasetSummary> ds) : type(type)
@@ -170,10 +202,8 @@ void Plotter::createHistsFromTuple()
             //activeBranches_.insert("evtWeight");
 
             NTupleReader tr(t, activeBranches_);
-            tr.registerFunction(&passBaselineFunc);
+            tr.registerFunction(&baselineUpdate);
             plotterFunctions::registerFunctions(tr);
-
-            double fweight = file.xsec * file.lumi * file.kfactor / file.nEvts;
 
             while(tr.getNextEvent())
             {
@@ -186,7 +216,7 @@ void Plotter::createHistsFromTuple()
                     if(!hist->hs->passCuts(tr)) continue;
 
                     //fill histograms here 
-                    double weight = fweight * tr.getVar<double>("evtWeight") * hist->dss.kfactor;
+                    double weight = file.getWeight() * hist->dss.getWeight(tr) * hist->dss.kfactor;
 
                     fillHist(hist->h, hist->variable, tr, weight);
                 }
@@ -350,6 +380,12 @@ void Plotter::plot()
                 for(auto& h : hvec.hcsVec)
                 {
                     h->h->SetLineColor(colors[iSingle%NCOLORS]);
+                    if(fout_)
+                    {
+                        fout_->cd();
+                        h->h->Write();
+                        gPad->cd();
+                    }
                     iSingle++;
                     if(hist.isNorm) h->h->Scale(hist.fhist()->Integral()/h->h->Integral());
                     leg->AddEntry(h->h, h->label.c_str());
@@ -365,6 +401,12 @@ void Plotter::plot()
                 hvec.h = static_cast<TNamed*>(hratio);
                 ++hIter;
                 hratio->Divide((*hIter)->h);
+                if(fout_)
+                {
+                    fout_->cd();
+                    hratio->Write();
+                    gPad->cd();
+                }
                 leg->AddEntry(hratio, hvec.flabel().c_str());
                 max = std::max(max, hratio->GetMaximum());
                 min = std::min(min, hratio->GetMaximum());
@@ -380,6 +422,12 @@ void Plotter::plot()
                 {
                     h->h->SetLineColor(stackColors[iStack%NSTACKCOLORS]);
                     h->h->SetFillColor(stackColors[iStack%NSTACKCOLORS]);
+                    if(fout_)
+                    {
+                        fout_->cd();
+                        h->h->Write();
+                        gPad->cd();
+                    }
                     iStack++;
                     stack->Add(h->h);
                     leg->AddEntry(h->h, h->label.c_str());
