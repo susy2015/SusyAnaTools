@@ -22,7 +22,7 @@ LIBS       = $(shell root-config --glibs)
 MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
 
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
-PROGRAMS = tupleTest makePlots #baselineDef
+PROGRAMS = harvestHists tupleTest makePlots #baselineDef
 
 all: $(PROGRAMS)
 
@@ -31,6 +31,9 @@ $(ODIR)/%.o : $(SDIR)/%.C
 
 $(ODIR)/%.o : $(SDIR)/%.cc
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
+
+harvestHists: $(ODIR)/harvestHists.o
+	$(LD) $^ $(LIBS) -o $@
 
 tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o 
 	$(LD) $^ $(LIBS) -o $@

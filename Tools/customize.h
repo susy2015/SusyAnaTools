@@ -131,8 +131,8 @@ namespace AnaFunctions{
           && ( maxAbsEta == -1 || fabs(permuoneta) < maxAbsEta )
           && (     minPt == -1 || permuonpt >= minPt )
           && (     maxPt == -1 || permuonpt < maxPt )
-          && !(maxRelIso != -1 && muonRelIso >= maxRelIso)
-          && !(maxMtw != -1 && muonMtw >= maxMtw);
+          && ( maxRelIso == -1 || muonRelIso < maxRelIso)
+          &&     (maxMtw == -1 || muonMtw < maxMtw);
    }
 
    bool passMuonAccOnly(const TLorentzVector& muon, const double *muonsArr)
@@ -154,21 +154,23 @@ namespace AnaFunctions{
       return cntNMuons;
    }
 
+   bool passElectron(const TLorentzVector& elec, const double electronRelIso, const double electronMtw, const double *elesArr)
+   {
+       const double minAbsEta = elesArr[0], maxAbsEta = elesArr[1], minPt = elesArr[2], maxPt = elesArr[3], maxRelIso = elesArr[4], maxMtw = elesArr[5];
+       double perelectronpt = elec.Pt(), perelectroneta = elec.Eta();
+       return ( minAbsEta == -1 || fabs(perelectroneta) >= minAbsEta )
+           && ( maxAbsEta == -1 || fabs(perelectroneta) < maxAbsEta )
+           && (     minPt == -1 || perelectronpt >= minPt )
+           && (     maxPt == -1 || perelectronpt < maxPt ) 
+           && ( maxRelIso == -1 || electronRelIso < maxRelIso )
+           && (    maxMtw == -1 || electronMtw < maxMtw );       
+   }
+
    int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const double *elesArr){
-      const double minAbsEta = elesArr[0], maxAbsEta = elesArr[1], minPt = elesArr[2], maxPt = elesArr[3], maxRelIso = elesArr[4], maxMtw = elesArr[5];
+
       int cntNElectrons = 0;
       for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
-         double perelectronpt = electronsLVec[ie].Pt(), perelectroneta = electronsLVec[ie].Eta();
-         if(   ( minAbsEta == -1 || fabs(perelectroneta) >= minAbsEta )
-            && ( maxAbsEta == -1 || fabs(perelectroneta) < maxAbsEta )
-            && (     minPt == -1 || perelectronpt >= minPt )
-            && (     maxPt == -1 || perelectronpt < maxPt ) ){
-
-            if( maxRelIso != -1 && electronsRelIso[ie] >= maxRelIso ) continue;
-            if( maxMtw != -1 && electronsMtw[ie] >= maxMtw ) continue;
-
-            cntNElectrons ++;
-         }
+          if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], elesArr))cntNElectrons ++;
       }
       return cntNElectrons;
    }

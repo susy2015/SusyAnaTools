@@ -13,6 +13,7 @@ namespace plotterFunctions
 {
     //Ugly global variables here
     static TH1* muEffPt;
+    static TH1* muAccPt;
 
     void generateWeight(NTupleReader& tr)
     {
@@ -110,7 +111,7 @@ namespace plotterFunctions
         const double zMass    = 91.0;
         const double zMassMax = 111.0;
 
-        double zMassCurrent = 1.0e300, zEff = 1.0e100;
+        double zMassCurrent = 1.0e300, zEff = 1.0e100, zAcc = 1.0e100;
         TLorentzVector bestRecoZ;
         for(int i = 0; i < cutMuVec->size(); ++i)
         {
@@ -125,11 +126,12 @@ namespace plotterFunctions
                     zMassCurrent = zm;
                     if(muEffPt)
                     {
+                        //Get mu efficiencies
                         double muEff1 = 0.0, muEff2 = 0.0;
-// Eff without applying acceptance
-//                        const double p0 = 0.952453;
-//                        const double p1 = -9.32974e-05;
-// Eff with acceptance applied
+                        // Eff without applying acceptance
+                        //const double p0 = 0.952453;
+                        //const double p1 = -9.32974e-05;
+                        // Eff with acceptance applied
                         const double p0 = 0.976727;
                         const double p1 = -0.000129567;
                         if((*cutMuVec)[i].Pt() > 400) muEff1 = p0 + (*cutMuVec)[i].Pt() * p1;
@@ -137,15 +139,35 @@ namespace plotterFunctions
 
                         if((*cutMuVec)[j].Pt() > 400) muEff2 = p0 + (*cutMuVec)[j].Pt() * p1;
                         else                          muEff2 = muEffPt->GetBinContent(muEffPt->FindBin((*cutMuVec)[j].Pt()));
-                
-                        if(muEff1 < 1.0e-5 || muEff2 < 1.0e-5) zEff = 1.0e-10;
-                        else                                   zEff = muEff1 * muEff2;
 
                         if(zEff < 0.1) 
                         {
                             std::cout << "WARNING: Z efficiency < 0.1, forcing weight to zero! Eff_Z: " << zEff << "\t Pt_mu1:" << (*cutMuVec)[i].Pt() <<  "\t Eff_mu1: " << muEff1 << "\t Pt_mu2: " << (*cutMuVec)[j].Pt() << "\t Eff_mu2: " << muEff2 << std::endl;
                             zEff = 1.0e101;
                         }
+
+                        if(muEff1 < 1.0e-5 || muEff2 < 1.0e-5) zEff = 1.0e-10;
+                        else                                   zEff = muEff1 * muEff2;
+
+                        //Get mu acceptance
+                        double muAcc1 = 0.0, muAcc2 = 0.0;
+
+                        if((*cutMuVec)[i].Pt() > 600) muAcc1 = 1.0;
+                        else                          muAcc1 = muAccPt->GetBinContent(muAccPt->FindBin((*cutMuVec)[i].Pt()));
+
+                        if((*cutMuVec)[j].Pt() > 600) muAcc2 = 1.0;
+                        else                          muAcc2 = muAccPt->GetBinContent(muAccPt->FindBin((*cutMuVec)[j].Pt()));
+                
+
+                        if(zAcc < 0.1) 
+                        {
+                            std::cout << "WARNING: Z efficiency < 0.1, forcing weight to zero! Eff_Z: " << zAcc << "\t Pt_mu1:" << (*cutMuVec)[i].Pt() <<  "\t Eff_mu1: " << muAcc1 << "\t Pt_mu2: " << (*cutMuVec)[j].Pt() << "\t Eff_mu2: " << muAcc2 << std::endl;
+                            zAcc = 1.0e101;
+                        }
+
+                        if(muAcc1 < 1.0e-5 || muAcc2 < 1.0e-5) zAcc = 1.0e-10;
+                        else                                   zAcc = muAcc1 * muAcc2;
+
                     }
                 }
             }
@@ -164,6 +186,8 @@ namespace plotterFunctions
         tr.registerDerivedVar("cleanMetPhi", cleanMet.Phi());
         tr.registerDerivedVar("zEff", zEff);
         tr.registerDerivedVar("zEffWgt", 1.0/zEff);
+        tr.registerDerivedVar("zAcc", zAcc);
+        tr.registerDerivedVar("zAccWgt", 1.0/zAcc);
 
         tr.registerDerivedVec("cutMuVec", cutMuVec);
         tr.registerDerivedVec("genMu", genMu);
@@ -183,6 +207,8 @@ namespace plotterFunctions
         const std::vector<TLorentzVector>& muonsLVec = tr.getVec<TLorentzVector>("muonsLVec");
         const std::vector<double>& elesRelIso        = tr.getVec<double>("elesRelIso");
         const std::vector<double>& muonsRelIso       = tr.getVec<double>("muonsRelIso");
+        const std::vector<double>& elesMtw           = tr.getVec<double>("elesMtw");
+        const std::vector<double>& muonsMtw          = tr.getVec<double>("muonsMtw");
         const std::vector<double>& recoJetsBtag_0    = tr.getVec<double>("recoJetsBtag_0");
 
         if(elesLVec.size() != elesRelIso.size() || muonsLVec.size() != muonsRelIso.size())
@@ -195,8 +221,6 @@ namespace plotterFunctions
         std::vector<TLorentzVector>* zinvJetVec = new std::vector<TLorentzVector>();
         std::vector<double>* zinvBTag = new std::vector<double>;
 
-        const double lPtMin = 5.0;
-        const double ldBetaMax = 0.2;
         const double jldRMax = 0.3;
 
         const double HT_jetPtMin = 50;
@@ -213,14 +237,14 @@ namespace plotterFunctions
 
             for(int i = 0; i < elesLVec.size() && i < elesRelIso.size(); ++i)
             {
-                if(elesRelIso[i] > ldBetaMax || elesLVec[i].Pt() < lPtMin) continue;
+                if(!AnaFunctions::passElectron(elesLVec[i], elesRelIso[i], elesMtw[i], AnaConsts::elesArr)) continue;
                 double dR = ROOT::Math::VectorUtil::DeltaR(jet, elesLVec[i]);
                 dRmin = std::min(dRmin, dR);
             }
 
             for(int i = 0; i < muonsLVec.size() && i < muonsRelIso.size(); ++i)
             {
-                if(muonsRelIso[i] > ldBetaMax || muonsLVec[i].Pt() < lPtMin) continue;
+                if(!AnaFunctions::passMuon(muonsLVec[i], muonsRelIso[i], muonsMtw[i], AnaConsts::muonsArr)) continue;
                 double dR = ROOT::Math::VectorUtil::DeltaR(jet, muonsLVec[i]);
                 dRmin = std::min(dRmin, dR);
             }
@@ -356,6 +380,7 @@ namespace plotterFunctions
         if(f)
         {
             muEffPt = static_cast<TH1*>(f->Get("muEffPt"));
+            muAccPt = static_cast<TH1*>(f->Get("muAccPt"));
             f->Close();
             delete f;
         }
