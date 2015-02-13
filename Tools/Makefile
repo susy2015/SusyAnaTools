@@ -19,7 +19,7 @@ LD         = g++
 LDFLAGS    =
 
 LIBS       = $(shell root-config --glibs)
-MT2LIB     = -L$(CMSSW_RELEASE_BASE)/../../../external/tbb/42_20131118oss/lib/libtbb.so.2 -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
+MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
 
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
 PROGRAMS = harvestHists tupleTest makePlots #baselineDef

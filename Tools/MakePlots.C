@@ -149,6 +149,7 @@ int main()
 
     vector<vector<AnaSamples::FileSummary>> vvf = {vDY_ll, vDY_nunu};
 
-    Plotter plotter(vh, vvf);
+    Plotter plotter(vh, vvf, false);
+    //plotter.saveHists();
     plotter.plot();
 }

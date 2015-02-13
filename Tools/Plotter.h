@@ -118,31 +118,34 @@ public:
         void parseName(std::vector<Plotter::DataCollection>& ns);
     };
 
-    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t);
+    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple = true);
     ~Plotter();
 
     void plot();
+    void saveHists();
 
 private:
     std::vector<HistSummary> hists_;
     std::vector<std::vector<AnaSamples::FileSummary>> trees_;
     std::set<std::string> activeBranches_;
     TFile *fout_;
+    bool readFromTuple_;
 
     class HistCutSummary
     {
     public:
-        std::string label;
+        std::string label, name;
         std::pair<std::string, std::string> variable;
         TH1 *h;
         const HistSummary *hs;
         DatasetSummary dss;
 
-        HistCutSummary(const std::string lab, TH1* hist, const std::pair<std::string, std::string> v, const HistSummary* hsum, const DatasetSummary& ds) : label(lab), h(hist), variable(v), hs(hsum), dss(ds) {}
+        HistCutSummary(const std::string& lab, const std::string& name, const std::pair<std::string, std::string> v, const HistSummary* hsum, const DatasetSummary& ds) : label(lab), name(name), h(nullptr), variable(v), hs(hsum), dss(ds) {}
         ~HistCutSummary();
     };
     
     void createHistsFromTuple();
+    void createHistsFromFile();
     void fillHist(TH1 * const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight);
 
     template<typename T> double tlvGetValue(std::string name, T v)

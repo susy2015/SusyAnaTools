@@ -32,15 +32,25 @@ const int stackColors[] = {
 };
 const int NSTACKCOLORS = sizeof(stackColors) / sizeof(int);
 
-Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t)
+Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple)
 {
+    TH1::AddDirectory(false);
+
     AnaFunctions::prepareTopTagger();
 
     hists_ = h;
     trees_ = t;
-    createHistsFromTuple();
-
-    fout_ = new TFile("histoutput.root", "RECREATE");
+    readFromTuple_ = readFromTuple;
+    if(readFromTuple) 
+    {
+        fout_ = new TFile("histoutput.root", "RECREATE");
+        createHistsFromTuple();
+    }
+    else
+    {
+        fout_ = new TFile("histoutput.root");
+        createHistsFromFile();
+    }
 }
 
 Plotter::~Plotter()
@@ -108,12 +118,9 @@ void Plotter::HistSummary::parseName(std::vector<Plotter::DataCollection>& ns)
                 hvecvar = "";
             }
 
-            TH1 *h = new TH1D((name + hname + hvecvar + dataset.first + dataset.second.label + n.type).c_str(), hname.c_str(), nBins, low, high);
-            h->Sumw2();
-            h->GetXaxis()->SetTitle(xAxisLabel.c_str());
-            h->GetYaxis()->SetTitle(yAxisLabel.c_str());
-           
-            tmphtp.push_back(std::shared_ptr<HistCutSummary>(new HistCutSummary(dataset.second.label, h, std::make_pair(hname, hvecvar), nullptr, dataset.second)));
+            std::string histname = name + hname + hvecvar + dataset.first + dataset.second.label + n.type;
+            
+            tmphtp.push_back(std::shared_ptr<HistCutSummary>(new HistCutSummary(dataset.second.label, histname, std::make_pair(hname, hvecvar), nullptr, dataset.second)));
         }
         hists.push_back(HistVecAndType(tmphtp, n.type));
     }
@@ -166,8 +173,6 @@ Plotter::DataCollection::DataCollection(std::string type, std::string var, std::
 
 void Plotter::createHistsFromTuple()
 {
-    TH1::AddDirectory(false);
-
     for(auto& fileList : trees_)
     {    
         //make vector of hists to fill
@@ -181,7 +186,16 @@ void Plotter::createHistsFromTuple()
                     if(hist->dss.files == fileList)
                     {
                         //annoying hack to fix vector pointer issue
-                        hist->hs = &hs;
+                        if(hist->hs == nullptr) hist->hs = &hs;
+
+                        // Make histogram if it is blank
+                        if(hist->h == nullptr)
+                        {
+                            hist->h = new TH1D(hist->name.c_str(), hist->variable.first.c_str(), hs.nBins, hs.low, hs.high);
+                            hist->h->Sumw2();
+                            hist->h->GetXaxis()->SetTitle(hs.xAxisLabel.c_str());
+                            hist->h->GetYaxis()->SetTitle(hs.yAxisLabel.c_str());
+                        }
 
                         histsToFill.push_back(hist);
                     }
@@ -222,6 +236,22 @@ void Plotter::createHistsFromTuple()
                 }
             }
         }
+    }
+}
+
+void Plotter::createHistsFromFile()
+{
+    for(auto& hs : hists_)
+    {
+        for(auto& histvec : hs.hists)
+        {
+            for(auto& hist : histvec.hcsVec)
+            {
+                if(fout_) hist->h = static_cast<TH1*>(fout_->Get(hist->name.c_str()));
+                else std::cout << "Inout file not found!!!!" << std::endl;
+                if(!hist->h) std::cout << "Histogram not found: \"" << hist->name << "\"!!!!!!" << std::endl;
+            }
+        } 
     }
 }
 
@@ -312,6 +342,25 @@ bool Plotter::Cuttable::passCuts(const NTupleReader& tr) const
     return passCut;
 }
 
+void Plotter::saveHists()
+{
+    fout_->cd();
+
+    for(HistSummary& hist : hists_)
+    {
+        for(auto& hvec : hist.hists)
+        {
+            if(readFromTuple_ && fout_)
+            {         
+                for(auto& h : hvec.hcsVec)
+                {
+                    h->h->Write();
+                 }
+            }
+        }
+    }
+}
+
 void Plotter::plot()
 {
     //gROOT->SetStyle("Plain");
@@ -380,12 +429,6 @@ void Plotter::plot()
                 for(auto& h : hvec.hcsVec)
                 {
                     h->h->SetLineColor(colors[iSingle%NCOLORS]);
-                    if(fout_)
-                    {
-                        fout_->cd();
-                        h->h->Write();
-                        gPad->cd();
-                    }
                     iSingle++;
                     if(hist.isNorm) h->h->Scale(hist.fhist()->Integral()/h->h->Integral());
                     leg->AddEntry(h->h, h->label.c_str());
@@ -401,12 +444,6 @@ void Plotter::plot()
                 hvec.h = static_cast<TNamed*>(hratio);
                 ++hIter;
                 hratio->Divide((*hIter)->h);
-                if(fout_)
-                {
-                    fout_->cd();
-                    hratio->Write();
-                    gPad->cd();
-                }
                 leg->AddEntry(hratio, hvec.flabel().c_str());
                 max = std::max(max, hratio->GetMaximum());
                 min = std::min(min, hratio->GetMaximum());
@@ -422,12 +459,6 @@ void Plotter::plot()
                 {
                     h->h->SetLineColor(stackColors[iStack%NSTACKCOLORS]);
                     h->h->SetFillColor(stackColors[iStack%NSTACKCOLORS]);
-                    if(fout_)
-                    {
-                        fout_->cd();
-                        h->h->Write();
-                        gPad->cd();
-                    }
                     iStack++;
                     stack->Add(h->h);
                     leg->AddEntry(h->h, h->label.c_str());
