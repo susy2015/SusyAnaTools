@@ -409,10 +409,16 @@ namespace plotterFunctions
         tr.registerFunction(&generateWeight);
         tr.registerFunction(&muInfo);
         tr.registerFunction(&zinvBaseline);
+        tr.registerFunction(&printInterestingEvents);
     }
 
     void activateBranches(std::set<std::string>& activeBranches)
     {
+        activeBranches.insert("ht");
+        activeBranches.insert("run");
+        activeBranches.insert("event");
+        activeBranches.insert("mht");
+        activeBranches.insert("mhtphi");
         activeBranches.insert("genDecayPdgIdVec");
         activeBranches.insert("genDecayLVec");
         activeBranches.insert("muonsLVec");
