@@ -207,8 +207,6 @@ namespace plotterFunctions
         const std::vector<TLorentzVector>& muonsLVec = tr.getVec<TLorentzVector>("muonsLVec");
         const std::vector<double>& elesRelIso        = tr.getVec<double>("elesRelIso");
         const std::vector<double>& muonsRelIso       = tr.getVec<double>("muonsRelIso");
-        const std::vector<double>& elesMtw           = tr.getVec<double>("elesMtw");
-        const std::vector<double>& muonsMtw          = tr.getVec<double>("muonsMtw");
         const std::vector<double>& recoJetsBtag_0    = tr.getVec<double>("recoJetsBtag_0");
 
         if(elesLVec.size() != elesRelIso.size() || muonsLVec.size() != muonsRelIso.size())
@@ -237,14 +235,14 @@ namespace plotterFunctions
 
             for(int i = 0; i < elesLVec.size() && i < elesRelIso.size(); ++i)
             {
-                if(!AnaFunctions::passElectron(elesLVec[i], elesRelIso[i], elesMtw[i], AnaConsts::elesArr)) continue;
+                if(!AnaFunctions::passElectron(elesLVec[i], elesRelIso[i], 0.0, AnaConsts::elesArr)) continue;
                 double dR = ROOT::Math::VectorUtil::DeltaR(jet, elesLVec[i]);
                 dRmin = std::min(dRmin, dR);
             }
 
             for(int i = 0; i < muonsLVec.size() && i < muonsRelIso.size(); ++i)
             {
-                if(!AnaFunctions::passMuon(muonsLVec[i], muonsRelIso[i], muonsMtw[i], AnaConsts::muonsArr)) continue;
+                if(!AnaFunctions::passMuon(muonsLVec[i], muonsRelIso[i], 0.0, AnaConsts::muonsArr)) continue;
                 double dR = ROOT::Math::VectorUtil::DeltaR(jet, muonsLVec[i]);
                 dRmin = std::min(dRmin, dR);
             }
@@ -371,6 +369,27 @@ namespace plotterFunctions
         tr.registerDerivedVar("MT2Zinv", MT2);
         tr.registerDerivedVar("mTcombZinv", mTcomb);
     }
+
+    void printInterestingEvents(NTupleReader& tr)
+    {
+        const unsigned int& run   = tr.getVar<unsigned int>("run");
+        const unsigned int& event = tr.getVar<unsigned int>("event");
+
+        const double& met                            = tr.getVar<double>("met");
+        const double& metphi                         = tr.getVar<double>("metphi");
+
+        const int& nMuons_CUT        = tr.getVar<int>("nMuons_CUT");
+        const int& nElectrons_CUT    = tr.getVar<int>("nElectrons_CUT");
+        const int& cntNJetsPt50Eta24 = tr.getVar<int>("cntNJetsPt50Eta24");
+        const int& cntNJetsPt30Eta24 = tr.getVar<int>("cntNJetsPt30Eta24");
+        const int& cntNJetsPt30      = tr.getVar<int>("cntNJetsPt30");
+
+        const double& mht    = tr.getVar<double>("mht");
+        const double& mhtphi = tr.getVar<double>("mhtphi");
+        const double& ht     = tr.getVar<double>("ht");
+
+        if(met > 1000) std::cout << "run: " << run << "\tevent: " << event << "\tmet: " << met << "\tmetphi: " << metphi << "\tnMuons_CUT: " << nMuons_CUT << "\t nElectrons_CUT: " << nElectrons_CUT << "\tcntNJetsPt30: " << cntNJetsPt30 << "\tcntNJetsPt30Eta24: " << cntNJetsPt30Eta24 << "\tcntNJetsPt50Eta24: " << cntNJetsPt50Eta24 << "\tmht: " << mht << "\tmhtphi: " << mhtphi << "\tht: " << ht << std::endl;
+    }
     
     void registerFunctions(NTupleReader& tr)
     {
@@ -385,7 +404,7 @@ namespace plotterFunctions
             delete f;
         }
 
-        //refister functions with NTupleReader
+        //register functions with NTupleReader
         tr.registerFunction(&cleanJets);
         tr.registerFunction(&generateWeight);
         tr.registerFunction(&muInfo);
@@ -398,8 +417,18 @@ namespace plotterFunctions
         activeBranches.insert("genDecayLVec");
         activeBranches.insert("muonsLVec");
         activeBranches.insert("muonsRelIso");
+        activeBranches.insert("W_emuVec");
+        activeBranches.insert("muonsCharge");
+        activeBranches.insert("muonsMtw");
+        activeBranches.insert("met");
+        activeBranches.insert("metphi");
+        activeBranches.insert("jetsLVec");
         activeBranches.insert("elesLVec");
         activeBranches.insert("elesRelIso");
-        activeBranches.insert("W_emuVec");
+        activeBranches.insert("recoJetsBtag_0");
+        activeBranches.insert("loose_isoTrks_mtw");
+        activeBranches.insert("elesMtw");
+        activeBranches.insert("loose_isoTrks_iso");
+        activeBranches.insert("loose_isoTrksLVec");
     }
 }

@@ -5,6 +5,8 @@
 #include "TObjArray.h"
 #include "TLeaf.h"
 
+#include <iostream>
+
 NTupleReader::NTupleReader(TTree * tree, std::set<std::string>& activeBranches) : activeBranches_(activeBranches)
 {
     tree_ = tree;

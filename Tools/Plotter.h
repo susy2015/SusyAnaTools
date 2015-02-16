@@ -3,7 +3,6 @@
 
 #include "TChain.h"
 #include "TFile.h"
-#include "TTree.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TGraph.h"
@@ -46,8 +45,8 @@ private:
         Cuttable(const std::string& c);
         bool passCuts(const NTupleReader& tr) const;
         void setCuts(const std::string& c);
-        void extractCuts(std::set<std::string>& ab);
-        std::string getCuts() {return cuts_;}
+        void extractCuts(std::set<std::string>& ab) const;
+        const std::string& getCuts() const {return cuts_;}
         
     private:
         std::string cuts_;
@@ -82,6 +81,7 @@ public:
         DatasetSummary(std::string lab, std::vector<AnaSamples::FileSummary>& f, std::string cuts = "", std::string weights = "", double k = 1.0);
 
         double getWeight(const NTupleReader& tr) const;
+        double extractWeightNames(std::set<std::string>& ab) const;
 
     private:
         std::vector<std::string> weightVec_;
@@ -118,7 +118,7 @@ public:
         void parseName(std::vector<Plotter::DataCollection>& ns);
     };
 
-    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple = true);
+    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple = true, const std::string ofname = "");
     ~Plotter();
 
     void plot();
@@ -127,7 +127,6 @@ public:
 private:
     std::vector<HistSummary> hists_;
     std::vector<std::vector<AnaSamples::FileSummary>> trees_;
-    std::set<std::string> activeBranches_;
     TFile *fout_;
     bool readFromTuple_;
 

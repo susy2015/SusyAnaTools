@@ -6,7 +6,8 @@
 #include "TROOT.h"
 #include "TLegend.h"
 #include "TCanvas.h"
-#include "TChain.h"
+#include "TTree.h"
+//#include "TChain.h"
 #include "TF1.h"
 #include "THStack.h"
 
@@ -32,7 +33,7 @@ const int stackColors[] = {
 };
 const int NSTACKCOLORS = sizeof(stackColors) / sizeof(int);
 
-Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple)
+Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple, std::string ofname)
 {
     TH1::AddDirectory(false);
 
@@ -41,14 +42,15 @@ Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples
     hists_ = h;
     trees_ = t;
     readFromTuple_ = readFromTuple;
+    if(ofname.size() == 0) ofname = "histoutput.root";
     if(readFromTuple) 
     {
-        fout_ = new TFile("histoutput.root", "RECREATE");
+        fout_ = new TFile(ofname.c_str(), "RECREATE");
         createHistsFromTuple();
     }
     else
     {
-        fout_ = new TFile("histoutput.root");
+        fout_ = new TFile(ofname.c_str());
         createHistsFromFile();
     }
 }
@@ -88,7 +90,7 @@ Plotter::Cuttable::Cuttable(const std::string& c)
     setCuts(c);
 }
 
-void Plotter::Cuttable::extractCuts(std::set<std::string>& ab)
+void Plotter::Cuttable::extractCuts(std::set<std::string>& ab) const
 {
     for(auto& cut : cutVec_) ab.insert(cut.name);
 }
@@ -163,6 +165,11 @@ double Plotter::DatasetSummary::getWeight(const NTupleReader& tr) const
     return retval;
 }
 
+double Plotter::DatasetSummary::extractWeightNames(std::set<std::string>& ab) const
+{
+    for(auto& w : weightVec_) ab.insert(w);
+}
+
 Plotter::DataCollection::DataCollection(std::string type, std::string var, std::vector<DatasetSummary> ds) : type(type)
 {
     for(auto& dataset : ds)
@@ -173,20 +180,26 @@ Plotter::DataCollection::DataCollection(std::string type, std::string var, std::
 
 void Plotter::createHistsFromTuple()
 {
-    for(auto& fileList : trees_)
-    {    
+    for(std::vector<AnaSamples::FileSummary>& fileList : trees_)
+    {
+        std::set<std::string> activeBranches;
+        
         //make vector of hists to fill
         std::vector<std::shared_ptr<HistCutSummary>> histsToFill;
-        for(auto& hs : hists_)
+        for(HistSummary& hs : hists_)
         {
-            for(auto& histvec : hs.hists)
+            for(HistVecAndType& histvec : hs.hists)
             {
-                for(auto& hist : histvec.hcsVec)
+                for(std::shared_ptr<HistCutSummary>& hist : histvec.hcsVec)
                 {
                     if(hist->dss.files == fileList)
                     {
                         //annoying hack to fix vector pointer issue
                         if(hist->hs == nullptr) hist->hs = &hs;
+
+                        hist->dss.extractCuts(activeBranches);
+                        hist->dss.extractWeightNames(activeBranches);
+                        hist->hs->extractCuts(activeBranches);
 
                         // Make histogram if it is blank
                         if(hist->h == nullptr)
@@ -205,35 +218,53 @@ void Plotter::createHistsFromTuple()
 
         for(AnaSamples::FileSummary& file : fileList)
         {
-            //TFile *f = new TFile(file.name.c_str());
-            //TTree *t = (TTree*)f->Get(file.treePath.c_str());
-            TChain *t = new TChain(file.treePath.c_str());
-            t->Add(file.filePath.c_str());
+            //TChain *t = new TChain(file.treePath.c_str());
+            //file.addFilesToChain(t);
             std::cout << "Processing file(s): " << file.filePath << std::endl;
 
-            //file.extractCuts(activeBranches_);
-            //plotterFunctions::activateBranches(activeBranches_);
-            //activeBranches_.insert("evtWeight");
-
-            NTupleReader tr(t, activeBranches_);
-            tr.registerFunction(&baselineUpdate);
-            plotterFunctions::registerFunctions(tr);
-
-            while(tr.getNextEvent())
+            for(std::string& fname : file.filelist_)
             {
-                for(auto& hist : histsToFill)
+                TFile *f = TFile::Open(fname.c_str());
+
+                if(!f)
                 {
-                    // tree level dynamical cuts are applied here
-                    if(!hist->dss.passCuts(tr)) continue;
-
-                    // parse hist level cuts here
-                    if(!hist->hs->passCuts(tr)) continue;
-
-                    //fill histograms here 
-                    double weight = file.getWeight() * hist->dss.getWeight(tr) * hist->dss.kfactor;
-
-                    fillHist(hist->h, hist->variable, tr, weight);
+                    std::cout << "File \"" << fname << "\" not found!!!!!!" << std::endl;
+                    continue;
                 }
+
+                TTree *t = (TTree*)f->Get(file.treePath.c_str());
+
+                if(!t)
+                {
+                    std::cout << "Tree \"" << file.treePath << "\" not found in file \"" << fname << "\"!!!!!!" << std::endl;
+                    continue;
+                }
+
+                std::cout << "\t" << fname << std::endl;
+
+                plotterFunctions::activateBranches(activeBranches);
+
+                NTupleReader tr(t, activeBranches);
+                tr.registerFunction(&baselineUpdate);
+                plotterFunctions::registerFunctions(tr);
+
+                while(tr.getNextEvent())
+                {
+                    for(auto& hist : histsToFill)
+                    {
+                        // tree level dynamical cuts are applied here
+                        if(!hist->dss.passCuts(tr)) continue;
+
+                        // parse hist level cuts here
+                        if(!hist->hs->passCuts(tr)) continue;
+
+                        //fill histograms here 
+                        double weight = file.getWeight() * hist->dss.getWeight(tr) * hist->dss.kfactor;
+
+                        fillHist(hist->h, hist->variable, tr, weight);
+                    }
+                }
+                f->Close();
             }
         }
     }
@@ -248,7 +279,7 @@ void Plotter::createHistsFromFile()
             for(auto& hist : histvec.hcsVec)
             {
                 if(fout_) hist->h = static_cast<TH1*>(fout_->Get(hist->name.c_str()));
-                else std::cout << "Inout file not found!!!!" << std::endl;
+                else std::cout << "Input file \"" << fout_ << "\" not found!!!!" << std::endl;
                 if(!hist->h) std::cout << "Histogram not found: \"" << hist->name << "\"!!!!!!" << std::endl;
             }
         } 

@@ -1,34 +1,115 @@
 #include "Plotter.h"
 #include "samples.h"
 
+#include <getopt.h>
 #include <iostream>
 
-int main()
+int main(int argc, char* argv[])
 {
     using namespace std;
 
-    AnaSamples::SampleHolder sample;
+    int opt;
+    int option_index = 0;
+    static struct option long_options[] = {
+        {"plot",            no_argument, 0, 'p'},
+        {"savehist",        no_argument, 0, 's'},
+        {"fromFile",        no_argument, 0, 'f'},
+        {"condor",          no_argument, 0, 'c'},
+        {"histFile",  required_argument, 0, 'H'},
+        {"dataSets",  required_argument, 0, 'D'},
+    };
 
-    const double zAcc = 0.5954;
+    bool doPlots = true, doSave = true, fromTuple = true, runOnCondor = false;
+    string histFile = "", dataSets = "", sampleloc = AnaSamples::fileDir;
+
+    while((opt = getopt_long(argc, argv, "psfcH:D:", long_options, &option_index)) != -1)
+    {
+        switch(opt)
+        {
+        case 'p':
+            if(doPlots) doSave  = false;
+            else        doPlots = true;
+            break;
+
+        case 's':
+            if(doSave) doPlots = false;
+            else       doSave  = true;
+            break;
+
+        case 'f':
+            fromTuple = false;
+            break;
+
+        case 'c':
+            runOnCondor = true;
+            break;
+
+        case 'H':
+            histFile = optarg;
+            break;
+
+        case 'D':
+            dataSets = optarg;
+            break;
+        }
+    }
+
+    //if running on condor override all optional settings
+    if(runOnCondor)
+    {
+        histFile = "histoutput_" + dataSets + ".root";
+        doSave = true;
+        doPlots = false;
+        fromTuple = true;
+        sampleloc = "";
+    }
+
+    AnaSamples::SampleSet        ss(sampleloc);
+    AnaSamples::SampleCollection sc(ss);
+
+    const double zAcc = 1.0;
+//    const double zAcc = 0.5954;
 //    const double zAcc = 0.855;
     const double znunu_mumu_ratio = 5.942;
 
-    vector<AnaSamples::FileSummary> vDY_ll = sample["DYJetsToLL"], vDY_nunu = sample["ZJetsToNuNu"];
+    map<string, vector<AnaSamples::FileSummary>> fileMap;
 
-    Plotter::DatasetSummary dsDY_ll(        "DY#rightarrow#mu#mu",                   vDY_ll,   "pdgIdZDec=13;passMuZinvSel", "");
-    Plotter::DatasetSummary dsDY_ll_zWeight("DY#rightarrow#mu#mu no #mu, Z eff",     vDY_ll,   "pdgIdZDec=13;passMuZinvSel", "zEffWgt");
-    Plotter::DatasetSummary dsDY_ll_zAcc(   "DY#rightarrow#mu#mu no #mu, Z eff+acc", vDY_ll,   "pdgIdZDec=13;passMuZinvSel", "zEffWgt;zAccWgt");
-    Plotter::DatasetSummary dsDY_ll_gen(    "DY#rightarrow#mu#mu Gen",               vDY_ll,   "pdgIdZDec=13;passMuZinvSel", "");
-    Plotter::DatasetSummary dsDY_llclean(   "DY#rightarrow#mu#mu no #mu",            vDY_ll,   "pdgIdZDec=13;passMuZinvSel", "");
+    //Select approperiate datasets here
+    if(dataSets.size() == 0)
+    {
+        fileMap["DYJetsToLL"]  = sc["DYJetsToLL"];
+        fileMap["ZJetsToNuNu"] = sc["ZJetsToNuNu"];
+    }
+    else if(sc[dataSets] != sc.null())
+    {
+        fileMap[dataSets] = sc[dataSets];
+    }
+    else if(ss[dataSets] != ss.null())
+    {
+        for(const auto& fsnp : sc)
+        {
+            if(dataSets.find(fsnp.first) !=std::string::npos)
+            {
+                fileMap[fsnp.first] = {ss[dataSets]};
+                break;
+            }
+        }
+    }
 
-    Plotter::DatasetSummary dsDY_ll_scaled(        "DY#rightarrow#mu#mu",                   vDY_ll,   "pdgIdZDec=13;passMuZinvSel", "",                znunu_mumu_ratio / zAcc);
-    Plotter::DatasetSummary dsDY_ll_zWeight_scaled("DY#rightarrow#mu#mu no #mu, Z eff",     vDY_ll,   "pdgIdZDec=13;passMuZinvSel", "zEffWgt",         znunu_mumu_ratio / zAcc);
-    Plotter::DatasetSummary dsDY_ll_zAcc_scaled(   "DY#rightarrow#mu#mu no #mu, Z eff+acc", vDY_ll,   "pdgIdZDec=13;passMuZinvSel", "zEffWgt;zAccWgt", znunu_mumu_ratio / zAcc);
-    Plotter::DatasetSummary dsDY_llclean_scaled(   "DY#rightarrow#mu#mu no #mu",            vDY_ll,   "pdgIdZDec=13;passMuZinvSel", "",                znunu_mumu_ratio / zAcc);
+    Plotter::DatasetSummary dsDY_ll(        "DY#rightarrow#mu#mu",                   fileMap["DYJetsToLL"],   "pdgIdZDec=13;passMuZinvSel", "");
+    Plotter::DatasetSummary dsDY_ll_zWeight("DY#rightarrow#mu#mu no #mu, Z eff",     fileMap["DYJetsToLL"],   "pdgIdZDec=13;passMuZinvSel", "zEffWgt");
+    Plotter::DatasetSummary dsDY_ll_zAcc(   "DY#rightarrow#mu#mu no #mu, Z eff+acc", fileMap["DYJetsToLL"],   "pdgIdZDec=13;passMuZinvSel", "zEffWgt;zAccWgt");
+    Plotter::DatasetSummary dsDY_ll_gen(    "DY#rightarrow#mu#mu Gen",               fileMap["DYJetsToLL"],   "pdgIdZDec=13;passMuZinvSel", "");
+    Plotter::DatasetSummary dsDY_llclean(   "DY#rightarrow#mu#mu no #mu",            fileMap["DYJetsToLL"],   "pdgIdZDec=13;passMuZinvSel", "");
 
-    Plotter::DatasetSummary dsDY_ll_forEff( "DY#rightarrow#mu#mu",               vDY_ll,   "pdgIdZDec=13", "");
-    Plotter::DatasetSummary dsDY_nunu(      "Z#rightarrow#nu#nu",                vDY_nunu, "passLeptVeto", "");
-    Plotter::DatasetSummary dsDY_test(      "test",                              vDY_nunu, "passLeptVeto", "");
+    Plotter::DatasetSummary dsDY_ll_scaled(        "DY#rightarrow#mu#mu",                   fileMap["DYJetsToLL"],   "pdgIdZDec=13;passMuZinvSel", "",                znunu_mumu_ratio / zAcc);
+    Plotter::DatasetSummary dsDY_ll_zWeight_scaled("DY#rightarrow#mu#mu no #mu, Z eff",     fileMap["DYJetsToLL"],   "pdgIdZDec=13;passMuZinvSel", "zEffWgt",         znunu_mumu_ratio / zAcc);
+    Plotter::DatasetSummary dsDY_ll_zAcc_scaled(   "DY#rightarrow#mu#mu no #mu, Z eff+acc", fileMap["DYJetsToLL"],   "pdgIdZDec=13;passMuZinvSel", "zEffWgt;zAccWgt", znunu_mumu_ratio / zAcc);
+    Plotter::DatasetSummary dsDY_llclean_scaled(   "DY#rightarrow#mu#mu no #mu",            fileMap["DYJetsToLL"],   "pdgIdZDec=13;passMuZinvSel", "",                znunu_mumu_ratio / zAcc);
+
+    Plotter::DatasetSummary dsDY_ll_forEff( "DY#rightarrow#mu#mu no Sel",               fileMap["DYJetsToLL"],  "pdgIdZDec=13", "");
+    Plotter::DatasetSummary dsDY_nunu(      "Z#rightarrow#nu#nu",                fileMap["ZJetsToNuNu"], "passLeptVeto", "");
+    Plotter::DatasetSummary dsDY_test(      "test",                              fileMap["ZJetsToNuNu"], "passLeptVeto", "");
 
     vector<Plotter::HistSummary> vh;
 
@@ -44,7 +125,7 @@ int main()
     vh.push_back(PHS("cleanJetPt",  {PDC("single", "cleanJetVec(pt)",       {dsDY_ll, dsDY_nunu})}, {1, 2}, "", 100, 0, 1500,  true,  true,  "Cleaned Jet p_{T} [GeV]", "Norm Events"));
     vh.push_back(PHS("muMtw",       {PDC("single", "muonsMtw",              {dsDY_ll, dsDY_nunu})}, {1, 2}, "", 100, 0, 600,   true,  false, "#mu M_{T}(W) [GeV]",      "Events"));
     vh.push_back(PHS("nMuGenMatch", {PDC("single", "genMatchMuInAcc(size)", {dsDY_ll, dsDY_nunu})}, {1, 2}, "", 10,  0, 10,    true,  false, "N(#mu) gen Matched",      "Events"));
-    vh.push_back(PHS("genZPt",      {PDC("single", "genZPt",                {dsDY_ll, dsDY_nunu})}, {1, 2}, "", 100, 0, 1500,  true,  true,  "gen Z p_{T} [GeV]",       "Norm Events"));
+    vh.push_back(PHS("genZPt",      {PDC("single", "genZPt",                {dsDY_ll, dsDY_nunu, dsDY_ll_forEff})}, {3, 2}, "", 100, 0, 1500,  true,  true,  "gen Z p_{T} [GeV]",       "Norm Events"));
     //vh.push_back(PHS("genMuPt",     {PDC("single", "genMu(pt)",             {dsDY_ll, dsDY_nunu})}, {1, 2}, "", 100, 0, 1500,  true,  true,  "gen #mu p_{T} [GeV]",     "Norm Events"));
     vh.push_back(PHS("genMuEta",    {PDC("single", "genMu(eta)",            {dsDY_ll, dsDY_nunu})}, {1, 2}, "", 100, -3, 3,    true,  true,  "gen #mu #eta",            "Norm Events"));
     vh.push_back(PHS("genZEta",     {PDC("single", "genZEta",               {dsDY_ll, dsDY_nunu})}, {1, 2}, "", 100, -3, 3,    false, true,  "gen Z #eta",              "Norm Events"));
@@ -147,9 +228,10 @@ int main()
     vh.push_back(PHS("test",  {dcDY_stack, dcDY_test},  {1, 2}, "genZmass>80", 100, 0, 1000,   true, true,  "???",         "Norm Events"));
     vh.push_back(PHS("test2", {dcDY_ratio},  {1, 1}, "", 100, 0, 500, true, false, "jpt???", "Ratio"));
 
-    vector<vector<AnaSamples::FileSummary>> vvf = {vDY_ll, vDY_nunu};
+    vector<vector<AnaSamples::FileSummary>> vvf;
+    for(auto& fsVec : fileMap) vvf.push_back(fsVec.second);
 
-    Plotter plotter(vh, vvf, false);
-    //plotter.saveHists();
-    plotter.plot();
+    Plotter plotter(vh, vvf, fromTuple, histFile);
+    if(doSave)  plotter.saveHists();
+    if(doPlots) plotter.plot();
 }
