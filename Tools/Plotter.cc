@@ -33,7 +33,7 @@ const int stackColors[] = {
 };
 const int NSTACKCOLORS = sizeof(stackColors) / sizeof(int);
 
-Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple, std::string ofname)
+Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple, std::string ofname, int nFile) : nFile_(nFile)
 {
     TH1::AddDirectory(false);
 
@@ -222,8 +222,10 @@ void Plotter::createHistsFromTuple()
             //file.addFilesToChain(t);
             std::cout << "Processing file(s): " << file.filePath << std::endl;
 
+            int fileCount = 0;
             for(std::string& fname : file.filelist_)
             {
+                if(nFile_ > 0 && fileCount++ >= nFile_) break;
                 TFile *f = TFile::Open(fname.c_str());
 
                 if(!f)
@@ -453,6 +455,7 @@ void Plotter::plot()
 
         double max = 0.0, min = 1.0e300, minAvgWgt = 1.0e300;
         int iSingle = 0, iStack = 0;
+        char legEntry[128];
         for(auto& hvec : hist.hists)
         {
             if(hvec.type.compare("single") == 0)
@@ -462,7 +465,11 @@ void Plotter::plot()
                     h->h->SetLineColor(colors[iSingle%NCOLORS]);
                     iSingle++;
                     if(hist.isNorm) h->h->Scale(hist.fhist()->Integral()/h->h->Integral());
-                    leg->AddEntry(h->h, h->label.c_str());
+                    double integral = h->h->Integral();
+                    if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", h->label.c_str(), integral);
+                    else if(integral < 1.0e5) sprintf(legEntry, "%s (%0.0lf)", h->label.c_str(), integral);
+                    else                      sprintf(legEntry, "%s (%0.2e)",  h->label.c_str(), integral);
+                    leg->AddEntry(h->h, legEntry);
                     max = std::max(max, h->h->GetMaximum());
                     min = std::min(min, h->h->GetMaximum());
                     minAvgWgt = std::min(minAvgWgt, h->h->GetSumOfWeights()/h->h->GetEntries());
@@ -492,7 +499,11 @@ void Plotter::plot()
                     h->h->SetFillColor(stackColors[iStack%NSTACKCOLORS]);
                     iStack++;
                     stack->Add(h->h);
-                    leg->AddEntry(h->h, h->label.c_str());
+                    double integral = h->h->Integral();
+                    if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", h->label.c_str(), integral);
+                    else if(integral < 1.0e5) sprintf(legEntry, "%s (%0.0lf)", h->label.c_str(), integral);
+                    else                      sprintf(legEntry, "%s (%0.2e)",  h->label.c_str(), integral);
+                    leg->AddEntry(h->h, legEntry);
                     sow += h->h->GetSumOfWeights();
                     te +=  h->h->GetEntries();
                 }

@@ -118,7 +118,7 @@ public:
         void parseName(std::vector<Plotter::DataCollection>& ns);
     };
 
-    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple = true, const std::string ofname = "");
+    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple = true, const std::string ofname = "", int nFile = -1);
     ~Plotter();
 
     void plot();
@@ -129,6 +129,7 @@ private:
     std::vector<std::vector<AnaSamples::FileSummary>> trees_;
     TFile *fout_;
     bool readFromTuple_;
+    const int nFile_;
 
     class HistCutSummary
     {

@@ -23,8 +23,8 @@ namespace AnaSamples
             readFileList();
         }
 
-        double getWeight() {return weight_;}
-        void addFilesToChain(TChain * const tc);
+        double getWeight() const {return weight_;}
+        void addFilesToChain(TChain * const tc) const;
         std::vector<std::string> filelist_;
 
     private:

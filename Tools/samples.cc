@@ -21,7 +21,7 @@ namespace AnaSamples
         else std::cout << "Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
     }
 
-    void FileSummary::addFilesToChain(TChain * const tc)
+    void FileSummary::addFilesToChain(TChain * const tc) const
     {
         for(auto& f : filelist_) tc->Add(f.c_str());
     }
@@ -38,6 +38,7 @@ namespace AnaSamples
         sampleSet_["ZJetsToNuNu_HT_400to600"] = FileSummary(fDir_ + "rootlist_ZJetsToNuNu_HT_400to600.txt", "stopTreeMaker/AUX", 11.99,  lumi, 4433784, 1.0,  kTeal+4);
         sampleSet_["ZJetsToNuNu_HT_200to400"] = FileSummary(fDir_ + "rootlist_ZJetsToNuNu_HT_200to400.txt", "stopTreeMaker/AUX", 100.8,  lumi, 4546470, 1.0,  kTeal+4);
         sampleSet_["ZJetsToNuNu_HT_100to200"] = FileSummary(fDir_ + "rootlist_ZJetsToNuNu_HT_100to200.txt", "stopTreeMaker/AUX", 372.6,  lumi, 4986424, 1.0,  kTeal+4);
+        sampleSet_["IncDYSampleSet"]                   = FileSummary(fDir_ + "rootlist_DYJetsToLL.txt", "stopTreeMaker/AUX", 4746,  lumi, 2829164, 1.0,  kYellow-4);
         sampleSet_["DYJetsToLL_HT_600toInf"]  = FileSummary(fDir_ + "rootlist_DYJetsToLL_HT_600toInf.txt", "stopTreeMaker/AUX", 2.179,  lumi, 4493574, 1.0,  kYellow-7);
         sampleSet_["DYJetsToLL_HT_400to600"]  = FileSummary(fDir_ + "rootlist_DYJetsToLL_HT_400to600.txt", "stopTreeMaker/AUX", 6.546,  lumi, 4931372, 1.0,  kYellow-7);
         sampleSet_["DYJetsToLL_HT_200to400"]  = FileSummary(fDir_ + "rootlist_DYJetsToLL_HT_200to400.txt", "stopTreeMaker/AUX", 52.24,  lumi, 4666496, 1.0,  kYellow-7);
@@ -71,6 +72,7 @@ namespace AnaSamples
         sampleSet_["WJetsToLNu"]         = {samples["WJetsToLNu_HT_600toInf"], samples["WJetsToLNu_HT_400to600"], samples["WJetsToLNu_HT_200to400"], samples["WJetsToLNu_HT_100to200"]};
         sampleSet_["ZJetsToNuNu"]        = {samples["ZJetsToNuNu_HT_600toInf"], samples["ZJetsToNuNu_HT_400to600"], samples["ZJetsToNuNu_HT_200to400"], samples["ZJetsToNuNu_HT_100to200"]};
         sampleSet_["DYJetsToLL"]         = {samples["DYJetsToLL_HT_600toInf"], samples["DYJetsToLL_HT_400to600"], samples["DYJetsToLL_HT_200to400"], samples["DYJetsToLL_HT_100to200"]};
+        sampleSet_["IncDY"]         = {samples["DYJetsToLL"]};
         sampleSet_["QCD"]                =  {samples["QCD_HT_1000toInf"], samples["QCD_HT_500to1000"], samples["QCD_HT_250to500"]};
         sampleSet_["T_tW"]               =  {samples["T_tW"], samples["Tbar_tW"]};
         sampleSet_["TTZ"]                = {samples["TTZ"]};
