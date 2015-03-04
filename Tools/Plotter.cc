@@ -464,12 +464,12 @@ void Plotter::plot()
                 {
                     h->h->SetLineColor(colors[iSingle%NCOLORS]);
                     iSingle++;
-                    if(hist.isNorm) h->h->Scale(hist.fhist()->Integral()/h->h->Integral());
                     double integral = h->h->Integral();
                     if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", h->label.c_str(), integral);
                     else if(integral < 1.0e5) sprintf(legEntry, "%s (%0.0lf)", h->label.c_str(), integral);
                     else                      sprintf(legEntry, "%s (%0.2e)",  h->label.c_str(), integral);
                     leg->AddEntry(h->h, legEntry);
+                    if(hist.isNorm) h->h->Scale(hist.fhist()->Integral()/h->h->Integral());
                     max = std::max(max, h->h->GetMaximum());
                     min = std::min(min, h->h->GetMaximum());
                     minAvgWgt = std::min(minAvgWgt, h->h->GetSumOfWeights()/h->h->GetEntries());
