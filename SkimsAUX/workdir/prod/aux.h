@@ -78,6 +78,8 @@ public :
    vector<double>  *loose_isoTrks_dz; // dz of the loose isolated tracks
    vector<double>  *loose_isoTrks_iso; // isolation values (divided by Pt to get relIso) for the loose isolated tracks
    vector<double>  *loose_isoTrks_mtw; // MT of the loose isolated tracks and MET
+   vector<double>  *recoJetschargedHadronEnergyFraction;
+   vector<double>  *recoJetschargedEmEnergyFraction;
    vector<int>     *recoJetsFlavor; // jets parton flavor (pat::Jet::partonFlavour)
    vector<int>     *genDecayIdxVec; // indices (pointing to the genParticles collection) of the gen particles in the decay chain
    vector<int>     *genDecayPdgIdVec; // pdg id of the gen particles
@@ -150,6 +152,8 @@ public :
    TBranch        *b_loose_isoTrks_dz;   //!
    TBranch        *b_loose_isoTrks_iso;   //!
    TBranch        *b_loose_isoTrks_mtw;   //!
+   TBranch        *b_recoJetschargedHadronEnergyFraction;
+   TBranch        *b_recoJetschargedEmEnergyFraction;
    TBranch        *b_recoJetsFlavor;   //!
    TBranch        *b_genDecayIdxVec;   //!
    TBranch        *b_genDecayPdgIdVec;   //!
@@ -249,6 +253,8 @@ void aux::Init(TTree *tree)
    loose_isoTrks_dz = 0;
    loose_isoTrks_iso = 0;
    loose_isoTrks_mtw = 0;
+   recoJetschargedHadronEnergyFraction = 0;
+   recoJetschargedEmEnergyFraction = 0;
    recoJetsFlavor = 0;
    genDecayIdxVec = 0;
    genDecayPdgIdVec = 0;
@@ -325,6 +331,8 @@ void aux::Init(TTree *tree)
    fChain->SetBranchAddress("loose_isoTrks_dz", &loose_isoTrks_dz, &b_loose_isoTrks_dz);
    fChain->SetBranchAddress("loose_isoTrks_iso", &loose_isoTrks_iso, &b_loose_isoTrks_iso);
    fChain->SetBranchAddress("loose_isoTrks_mtw", &loose_isoTrks_mtw, &b_loose_isoTrks_mtw);
+   fChain->SetBranchAddress("recoJetschargedHadronEnergyFraction", &recoJetschargedHadronEnergyFraction, &b_recoJetschargedHadronEnergyFraction);
+   fChain->SetBranchAddress("recoJetschargedEmEnergyFraction", &recoJetschargedEmEnergyFraction, &b_recoJetschargedEmEnergyFraction);
    fChain->SetBranchAddress("recoJetsFlavor", &recoJetsFlavor, &b_recoJetsFlavor);
    fChain->SetBranchAddress("genDecayIdxVec", &genDecayIdxVec, &b_genDecayIdxVec);
    fChain->SetBranchAddress("genDecayPdgIdVec", &genDecayPdgIdVec, &b_genDecayPdgIdVec);

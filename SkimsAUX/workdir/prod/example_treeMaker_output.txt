@@ -111,6 +111,8 @@ vectorDoubleTags :  i : 9  nameT : loose_isoTrks_charge
 vectorDoubleTags :  i : 10  nameT : loose_isoTrks_dz
 vectorDoubleTags :  i : 11  nameT : loose_isoTrks_iso
 vectorDoubleTags :  i : 12  nameT : loose_isoTrks_mtw
+vectorDoubleTags :  i : 13  nameT : recoJetsrecoJetschargedHadronEnergyFraction
+vectorDoubleTags :  i : 14  nameT : recoJetsrecoJetschargedEmEnergyFraction
 vectorIntTags :  i : 0  nameT : recoJetsFlavor
 vectorIntTags :  i : 1  nameT : genDecayIdxVec
 vectorIntTags :  i : 2  nameT : genDecayPdgIdVec

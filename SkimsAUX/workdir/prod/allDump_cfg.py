@@ -3,10 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SUSY")
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/Phys14DR/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/2281F34C-8475-E411-9E7D-00259073E450.root', 
-        '/store/mc/Phys14DR/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/A6D4FF88-8275-E411-9259-20CF305616F4.root', 
-        '/store/mc/Phys14DR/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/A6EFFE6A-9A75-E411-9218-002590D0B0D8.root', 
-        '/store/mc/Phys14DR/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/10000/E67905FE-8B75-E411-8D33-E0CB4E29C511.root')
+    fileNames = cms.untracked.vstring('/store/mc/Phys14DR/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/10000/BECC9036-E875-E411-95E3-0025901D4B22.root')
 )
 process.ak4GenJets = cms.EDProducer("FastjetJetProducer",
     Active_Area_Repeats = cms.int32(5),
@@ -2415,12 +2412,12 @@ process.stopTreeMaker = cms.EDProducer("stopTreeMaker",
         'prodIsoTrks:nIsoTrksForVeto|nIsoTrks_CUT', 
         'ak4nJetsForSkimsStop:nJets|nJets_CUT'),
     vectorDouble = cms.VInputTag(cms.InputTag("prodMuonsNoIso","muonsCharge"), cms.InputTag("prodMuonsNoIso","muonsMtw"), cms.InputTag("prodMuonsNoIso","muonsRelIso"), cms.InputTag("prodElectronsNoIso","elesCharge"), cms.InputTag("prodElectronsNoIso","elesMtw"), 
-        cms.InputTag("prodElectronsNoIso","elesRelIso"), cms.InputTag("prodJets","recoJetsBtag"), cms.InputTag("prodIsoTrks","trksForIsoVetocharge"), cms.InputTag("prodIsoTrks","trksForIsoVetodz"), cms.InputTag("prodIsoTrks","looseisoTrkscharge"), 
-        cms.InputTag("prodIsoTrks","looseisoTrksdz"), cms.InputTag("prodIsoTrks","looseisoTrksiso"), cms.InputTag("prodIsoTrks","looseisoTrksmtw")),
+        cms.InputTag("prodElectronsNoIso","elesRelIso"), cms.InputTag("prodJets","recoJetschargedHadronEnergyFraction"), cms.InputTag("prodJets","recoJetschargedEmEnergyFraction"), cms.InputTag("prodJets","recoJetsBtag"), cms.InputTag("prodIsoTrks","trksForIsoVetocharge"), 
+        cms.InputTag("prodIsoTrks","trksForIsoVetodz"), cms.InputTag("prodIsoTrks","looseisoTrkscharge"), cms.InputTag("prodIsoTrks","looseisoTrksdz"), cms.InputTag("prodIsoTrks","looseisoTrksiso"), cms.InputTag("prodIsoTrks","looseisoTrksmtw")),
     vectorStringNamesInTree = cms.vstring(),
     varsTLorentzVectorNamesInTree = cms.vstring(),
     vectorBool = cms.VInputTag(),
-    debug = cms.bool(True),
+    debug = cms.bool(False),
     varsInt = cms.VInputTag(cms.InputTag("prodMuons","nMuons"), cms.InputTag("prodMuonsNoIso","nMuons"), cms.InputTag("prodElectrons","nElectrons"), cms.InputTag("prodElectronsNoIso","nElectrons"), cms.InputTag("prodJets","nJets"), 
         cms.InputTag("prodIsoTrks","loosenIsoTrks"), cms.InputTag("prodIsoTrks","nIsoTrksForVeto"), cms.InputTag("ak4nJetsForSkimsStop","nJets"), cms.InputTag("prodEventInfo","vtxSize"), cms.InputTag("prodEventInfo","npv"), 
         cms.InputTag("prodEventInfo","nm1"), cms.InputTag("prodEventInfo","n0"), cms.InputTag("prodEventInfo","np1"), cms.InputTag("type3topTagger","bestTopJetIdx"), cms.InputTag("type3topTagger","pickedRemainingCombfatJetIdx"))
@@ -2925,7 +2922,7 @@ process.printDecay = cms.EDFilter("genDecayStringMaker",
         '~chi_1+', 
         '~chi_1-'),
     src = cms.InputTag("prunedGenParticles"),
-    printDecay = cms.untracked.bool(True)
+    printDecay = cms.untracked.bool(False)
 )
 
 
@@ -2936,7 +2933,7 @@ process.printDecayPythia8 = cms.EDFilter("genDecayStringMakerPythia8",
         '~chi_1+', 
         '~chi_1-'),
     src = cms.InputTag("prunedGenParticles"),
-    printDecay = cms.untracked.bool(True)
+    printDecay = cms.untracked.bool(False)
 )
 
 
@@ -3102,7 +3099,7 @@ process.simpleJetSelector = cms.EDFilter("simpleJetSelector",
 
 
 process.smsModelFilter = cms.EDFilter("SMSModelFilter",
-    Debug = cms.bool(True),
+    Debug = cms.bool(False),
     SusyScanTopology = cms.string('T1tttt'),
     SusyScanFracLSP = cms.double(0.0),
     SusyScanMotherMass = cms.double(-1),
@@ -3424,7 +3421,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         noTimeStamps = cms.untracked.bool(False),
         FwkReport = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
+            reportEvery = cms.untracked.int32(100),
             optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(10000000)
         ),
@@ -17295,7 +17292,7 @@ process.fieldScaling = cms.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
 )
 
 process.options = cms.untracked.PSet(

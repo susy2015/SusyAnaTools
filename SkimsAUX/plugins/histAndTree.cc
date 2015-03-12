@@ -208,7 +208,9 @@ class histAndTree : public edm::EDFilter{
     int externalBitToTree_TR;
 
     std::vector<int> *recoJetsFlavor_TR, *genJetsFlavor_TR;
+    std::vector<double> *recoJetschargedHadronEnergyFraction_TR, *recoJetschargedEmEnergyFraction_TR;
     std::vector<std::vector<double> > recoJetsBtag_TR;
+
 
     void setTreeDefaultVars();
 
@@ -393,6 +395,8 @@ histAndTree::histAndTree(const edm::ParameterSet & iConfig) {
    otherJetsRes_TR = new std::vector<double>;
 
    recoJetsFlavor_TR = new std::vector<int>; genJetsFlavor_TR = new std::vector<int>;
+   recoJetschargedHadronEnergyFraction_TR = new std::vector<double>;
+   recoJetschargedEmEnergyFraction_TR = new std::vector<double>;
 
    recoJetsBtag_TR.clear();
   
@@ -535,6 +539,8 @@ histAndTree::histAndTree(const edm::ParameterSet & iConfig) {
       outTree->Branch("externalBit", &externalBitToTree_TR, "externalBitToTree_TR/I");
 
       outTree->Branch("recoJetsFlavor", "std::vector<int>", &recoJetsFlavor_TR, 32000, 0);
+      outTree->Branch("recoJetschargedHadronEnergyFraction", "std::vector<double>", &recoJetschargedHadronEnergyFraction_TR, 32000, 0);
+      outTree->Branch("recoJetschargedEmEnergyFraction", "std::vector<double>", &recoJetschargedEmEnergyFraction_TR, 32000, 0);
 
       outTree->Branch("bTagKeyString", "std::vector<std::string>", &bTagKeyString_, 32000, 0);
       char treeBranchNameStr[200];
@@ -542,6 +548,8 @@ histAndTree::histAndTree(const edm::ParameterSet & iConfig) {
          sprintf(treeBranchNameStr, "recoJetsBtag_%d", ib);
          outTree->Branch(treeBranchNameStr, "std::vector<double>", &recoJetsBtag_TR[ib], 32000, 0);
       }
+
+      
 
       if( doFillGenTopInfo_ ){
          outTree->Branch("gentopLVec", "std::vector<TLorentzVector>", &gentopLVec_TR, 32000, 0);
@@ -650,6 +658,9 @@ void histAndTree::setTreeDefaultVars(){
    npv = -1; avg_npv = -1; nm1 = -1; n0 = -1; np1 = -1; tru_npv = -1;
 
    recoJetsFlavor_TR->clear(); genJetsFlavor_TR->clear();
+   recoJetschargedHadronEnergyFraction_TR->clear();
+   recoJetschargedEmEnergyFraction_TR->clear();
+
    for(size ib=0; ib<nbTagKeys; ib++){
       recoJetsBtag_TR[ib].clear();
    }
@@ -1014,13 +1025,22 @@ bool histAndTree::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
    }
 
-   if( isPatJet ){
-      for(size ij=0; ij<nJets; ij++){
+   if( isPatJet )
+   {
+      for(size ij=0; ij<nJets; ij++)
+      {
          const pat::Jet& jet = (*patjets)[ij];
          int flavor = jet.partonFlavour();
          recoJetsFlavor_TR->push_back(flavor);
-        
-         for(size ib=0; ib<nbTagKeys; ib++){
+      
+         double chargedHadronEnergyFraction = jet.chargedHadronEnergyFraction();
+         recoJetschargedHadronEnergyFraction_TR->push_back( chargedHadronEnergyFraction );
+
+         double chargedEmEnergyFraction = jet.chargedEmEnergyFraction();
+         recoJetschargedEmEnergyFraction_TR->push_back( chargedEmEnergyFraction );
+  
+         for(size ib=0; ib<nbTagKeys; ib++)
+         {
             double btag = jet.bDiscriminator(bTagKeyString_[ib].c_str());
             recoJetsBtag_TR[ib].push_back(btag);
          }
