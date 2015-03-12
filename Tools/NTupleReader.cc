@@ -5,6 +5,8 @@
 #include "TObjArray.h"
 #include "TLeaf.h"
 
+#include <iostream>
+
 NTupleReader::NTupleReader(TTree * tree, std::set<std::string>& activeBranches) : activeBranches_(activeBranches)
 {
     tree_ = tree;
@@ -103,7 +105,7 @@ bool NTupleReader::getNextEvent()
     //clearTuple();
     int status = tree_->GetEntry(nevt_);
     nevt_++;
-    if(!isUpdateDisabled_) updateTuple();
+//    if(!isUpdateDisabled_) updateTuple();
     calculateDerivedVariables();
     return status > 0;
 }
@@ -111,7 +113,7 @@ bool NTupleReader::getNextEvent()
 void NTupleReader::clearTuple()
 {
     // Do not initialize vector pointers here!
-
+    
 }
 
 void NTupleReader::disableUpdate()
@@ -143,11 +145,6 @@ void NTupleReader::getType(const std::string& name, std::string& type) const
     {
         type = typeIter->second;
     }
-}
-
-void NTupleReader::updateTuple()
-{
-    
 }
 
 void NTupleReader::printTupleMembers(FILE *f) const

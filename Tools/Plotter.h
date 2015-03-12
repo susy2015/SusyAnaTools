@@ -3,18 +3,21 @@
 
 #include "TChain.h"
 #include "TFile.h"
-#include "TTree.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TGraph.h"
 #include "TProfile.h"
+#include "TLegend.h"
+#include "TPad.h"
 
 #include <vector>
 #include <utility>
 #include <string>
 #include <set>
+#include <memory>
 
 #include "NTupleReader.h"
+#include "samples.h"
 
 class Plotter
 {
@@ -29,11 +32,12 @@ private:
         double val, val2;
         bool inverted;
 
-        Cut(std::string s, char t, double v, double v2 = 0);
+        Cut(std::string s, char t, bool inv, double v, double v2 = 0);
         bool passCut(const NTupleReader& tr) const;
     private:
         void parseName();
         double translateVar(const NTupleReader& tr) const;
+        bool boolReturn(const NTupleReader& tr) const;
     };
     
     class Cuttable
@@ -43,8 +47,8 @@ private:
         Cuttable(const std::string& c);
         bool passCuts(const NTupleReader& tr) const;
         void setCuts(const std::string& c);
-        void extractCuts(std::set<std::string>& ab);
-        std::string getCuts() {return cuts_;}
+        void extractCuts(std::set<std::string>& ab) const;
+        const std::string& getCuts() const {return cuts_;}
         
     private:
         std::string cuts_;
@@ -52,80 +56,100 @@ private:
         void parseCutString();
     };
 
-
-public:
-
-    class FileSummary
+    class HistVecAndType
     {
     public:
-        std::string name, treePath;
-        double xsec, lumi, kfactor, nEvts;
-        
-        FileSummary() {}
-        FileSummary(std::string nam, std::string tp, double x, double l, double k, double n);
+        TNamed* h;
+        std::vector<std::shared_ptr<HistCutSummary>> hcsVec;
+        std::string type;
 
+        HistVecAndType(std::vector<std::shared_ptr<HistCutSummary>> hcsVec, std::string type) : hcsVec(hcsVec), type(type) {h = nullptr;}
+        ~HistVecAndType() { if(h) delete h;}
+
+        const std::string& flabel() const {return hcsVec.front()->label;}
     };
+
+public:
 
     class DatasetSummary : public Cuttable
     {
     public:
-        std::string label;
-        std::vector<FileSummary> files;
+        std::string label, weightStr;
+        std::vector<AnaSamples::FileSummary> files;
         double kfactor;
 
         DatasetSummary() {}
 //        DatasetSummary(std::string lab, std::string nam, std::string tree, std::string cuts, double xs, double l, double k, double n);
-        DatasetSummary(std::string lab, std::vector<FileSummary>& f, std::string cuts = "", double k = 1.0);
+        DatasetSummary(std::string lab, std::vector<AnaSamples::FileSummary>& f, std::string cuts = "", std::string weights = "", double k = 1.0);
+
+        double getWeight(const NTupleReader& tr) const;
+        double extractWeightNames(std::set<std::string>& ab) const;
+
+    private:
+        std::vector<std::string> weightVec_;
+        void parseWeights();
     };
 
     class DataCollection
     {
     public:
-        std::vector<DatasetSummary> datasets;
+        std::string type;
+        std::vector<std::pair<std::string, DatasetSummary>> datasets;
 
-        DataCollection(std::vector<DatasetSummary> ds) : datasets(ds) {}
+        DataCollection(std::string type, std::vector<std::pair<std::string, DatasetSummary>> ds) : type(type), datasets(ds) {}
+        DataCollection(std::string type, std::string var, std::vector<DatasetSummary> ds);
     };
 
     class HistSummary : public Cuttable
     {
     public:
-        std::vector<HistCutSummary> hists;
+        std::vector<HistVecAndType> hists;
         std::string name;
         int nBins;
         double low, high;
         bool isLog, isNorm;
         std::string xAxisLabel, yAxisLabel;
+        std::pair<int, int> ratio;
         
         HistSummary() {}
-        HistSummary(std::string l,  std::vector<std::pair<Plotter::DataCollection, std::string>> ns, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal);
+        HistSummary(std::string l, std::vector<Plotter::DataCollection> ns, std::pair<int, int> ratio, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal);
+        ~HistSummary();
 
-        TH1* fhist(){if(hists.size()) return hists.front().h;}
+        TH1* fhist(){if(hists.size()) return hists.front().hcsVec.front()->h;}
     private:
-        void parseName(std::vector<std::pair<Plotter::DataCollection, std::string>>& ns);
+        void parseName(std::vector<Plotter::DataCollection>& ns);
     };
 
-    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<FileSummary>>& t);
+    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple = true, const std::string ofname = "", int nFile = -1);
+    ~Plotter();
+
     void plot();
+    void saveHists();
 
 private:
     std::vector<HistSummary> hists_;
-    std::vector<std::vector<FileSummary>> trees_;
-    std::set<std::string> activeBranches_;
+    std::vector<std::vector<AnaSamples::FileSummary>> trees_;
+    TFile *fout_;
+    bool readFromTuple_;
+    const int nFile_;
 
     class HistCutSummary
     {
     public:
-        std::string label;
+        std::string label, name;
         std::pair<std::string, std::string> variable;
         TH1 *h;
         const HistSummary *hs;
         DatasetSummary dss;
 
-        HistCutSummary(const std::string lab, TH1* hist, const std::pair<std::string, std::string> v, const HistSummary* hsum, const DatasetSummary& ds) : label(lab), h(hist), variable(v), hs(hsum), dss(ds) {}
+        HistCutSummary(const std::string& lab, const std::string& name, const std::pair<std::string, std::string> v, const HistSummary* hsum, const DatasetSummary& ds) : label(lab), name(name), h(nullptr), variable(v), hs(hsum), dss(ds) {}
+        ~HistCutSummary();
     };
     
     void createHistsFromTuple();
+    void createHistsFromFile();
     void fillHist(TH1 * const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight);
+    void smartMax(const TH1* const h, const TLegend* const l, const TPad* const p, double& gmin, double& gmax, double& gpThreshMax) const;
 
     template<typename T> double tlvGetValue(std::string name, T v)
     {
@@ -168,7 +192,9 @@ private:
 };
 
 typedef Plotter::HistSummary PHS;
-typedef Plotter::FileSummary PFS;
+typedef AnaSamples::FileSummary AFS;
+typedef Plotter::DatasetSummary PDS;
+typedef Plotter::DataCollection PDC;
 
 inline bool operator< (const Plotter::DataCollection& lhs, const Plotter::DataCollection& rhs)
 {
@@ -178,16 +204,6 @@ inline bool operator< (const Plotter::DataCollection& lhs, const Plotter::DataCo
 inline bool operator< (const Plotter::DatasetSummary& lhs, const Plotter::DatasetSummary& rhs)
 {
     return lhs.label < rhs.label || lhs.files < rhs.files;
-}
-
-inline bool operator< (const Plotter::FileSummary& lhs, const Plotter::FileSummary& rhs)
-{
-    return lhs.name < rhs.name || lhs.treePath < rhs.treePath;
-}
-
-inline bool operator== (const Plotter::FileSummary& lhs, const Plotter::FileSummary& rhs)
-{
-    return lhs.name == rhs.name && lhs.treePath == rhs.treePath && lhs.xsec == rhs.xsec && lhs.lumi == rhs.lumi && lhs.kfactor == rhs.kfactor && lhs.nEvts == rhs.nEvts;
 }
 
 #endif

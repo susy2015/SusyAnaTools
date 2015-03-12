@@ -126,9 +126,9 @@ void passBaselineFunc(NTupleReader &tr){
    if( debug ) std::cout<<"bestTopJetidx : "<<bestTopJetIdx<<"  remainPassCSVS : "<<remainPassCSVS<<"  pickedRemainingCombfatJetIdx : "<<pickedRemainingCombfatJetIdx<<"  bestTopJetMass : "<<bestTopJetMass<<"  passBaseline : "<<passBaseline<<std::endl;
 
 // Register all the calculated variables
-   tr.registerDerivedVar("nMuons_CUT", nMuons);
-   tr.registerDerivedVar("nElectrons_CUT", nElectrons);
-   tr.registerDerivedVar("nIsoTrks_CUT", nIsoTrks);
+   tr.updateTupleVar("nMuons_CUT", nMuons);
+   tr.updateTupleVar("nElectrons_CUT", nElectrons);
+   tr.updateTupleVar("nIsoTrks_CUT", nIsoTrks);
 
    tr.registerDerivedVar("cntNJetsPt50Eta24", cntNJetsPt50Eta24);
    tr.registerDerivedVar("cntNJetsPt30Eta24", cntNJetsPt30Eta24);
@@ -142,10 +142,10 @@ void passBaselineFunc(NTupleReader &tr){
 
    tr.registerDerivedVar("cntNJetsPt30", cntNJetsPt30);
 
-   tr.registerDerivedVar("bestTopJetIdx", bestTopJetIdx);
-   tr.registerDerivedVar("remainPassCSVS", remainPassCSVS);
-   tr.registerDerivedVar("pickedRemainingCombfatJetIdx", pickedRemainingCombfatJetIdx);
-   tr.registerDerivedVar("bestTopJetMass", bestTopJetMass);
+   tr.updateTupleVar("bestTopJetIdx", bestTopJetIdx);
+   tr.updateTupleVar("remainPassCSVS", remainPassCSVS);
+   tr.updateTupleVar("pickedRemainingCombfatJetIdx", pickedRemainingCombfatJetIdx);
+   tr.updateTupleVar("bestTopJetMass", bestTopJetMass);
 
 // All the pass booleans are stored/registered into the NTupleReader and can be used later
    tr.registerDerivedVar("passLeptVeto", passLeptVeto);
@@ -158,9 +158,9 @@ void passBaselineFunc(NTupleReader &tr){
 
    if( debug ) std::cout<<"nTopCandSortedCnt : "<<nTopCandSortedCnt<<"  MT2 : "<<MT2<<"  mTcomb : "<<mTcomb<<"  passBaseline : "<<passBaseline<<std::endl;
 
-   tr.registerDerivedVar("nTopCandSortedCnt", nTopCandSortedCnt);
-   tr.registerDerivedVar("MT2", MT2);
-   tr.registerDerivedVar("mTcomb", mTcomb);
+   tr.updateTupleVar("nTopCandSortedCnt", nTopCandSortedCnt);
+   tr.updateTupleVar("MT2", MT2);
+   tr.updateTupleVar("mTcomb", mTcomb);
 
    if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
 }

@@ -1,11 +1,14 @@
 #include "Plotter.h"
 #include "derivedTupleVariables.h"
+#include "baselineDef.h"
 #include "tdrstyle.h"
 
 #include "TROOT.h"
-#include "TLegend.h"
 #include "TCanvas.h"
-#include "TChain.h"
+#include "TTree.h"
+//#include "TChain.h"
+#include "TF1.h"
+#include "THStack.h"
 
 const int colors[] = {
     kRed,
@@ -17,17 +20,54 @@ const int colors[] = {
 };
 const int NCOLORS = sizeof(colors)/sizeof(int);
 
-Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<FileSummary>>& t)
+const int stackColors[] = {
+    kAzure,
+    kOrange + 7,
+    kGreen + 2,
+    kYellow + 4,
+    kMagenta - 1,
+    kRed,
+    kBlue,
+    kGreen
+};
+const int NSTACKCOLORS = sizeof(stackColors) / sizeof(int);
+
+Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple, std::string ofname, int nFile) : nFile_(nFile)
 {
+    TH1::AddDirectory(false);
+
+    AnaFunctions::prepareTopTagger();
+
     hists_ = h;
     trees_ = t;
-    createHistsFromTuple();
+    readFromTuple_ = readFromTuple;
+    if(ofname.size() == 0) ofname = "histoutput.root";
+    if(readFromTuple) 
+    {
+        fout_ = new TFile(ofname.c_str(), "RECREATE");
+        createHistsFromTuple();
+    }
+    else
+    {
+        fout_ = new TFile(ofname.c_str());
+        createHistsFromFile();
+    }
 }
 
-Plotter::Cut::Cut(std::string s, char t, double v, double v2)
+Plotter::~Plotter()
+{
+    if(fout_)
+    {
+        fout_->Close();
+        delete fout_;
+    }
+}
+
+Plotter::Cut::Cut(std::string s, char t, bool inv, double v, double v2)
 {
     name = s;
     type = t;
+    inverted = inv;
     val = v;
     val2 = v2;
     parseName();
@@ -49,125 +89,202 @@ Plotter::Cuttable::Cuttable(const std::string& c)
     setCuts(c);
 }
 
-void Plotter::Cuttable::extractCuts(std::set<std::string>& ab)
+void Plotter::Cuttable::extractCuts(std::set<std::string>& ab) const
 {
     for(auto& cut : cutVec_) ab.insert(cut.name);
 }
 
-Plotter::HistSummary::HistSummary(std::string l, std::vector<std::pair<Plotter::DataCollection, std::string>> ns, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal) : Cuttable(cuts) 
+Plotter::HistSummary::HistSummary(std::string l, std::vector<Plotter::DataCollection> ns, std::pair<int, int> ratio, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal) : Cuttable(cuts), name(l), nBins(nb), low(ll), high(ul), isLog(log), isNorm(norm), xAxisLabel(xal), yAxisLabel(yal), ratio(ratio)
 {
-    name = l;
-    nBins = nb;
-    low = ll;
-    high = ul;
-    isLog = log;
-    isNorm = norm;
-    xAxisLabel = xal;
-    yAxisLabel = yal;
-
     parseName(ns);
 }
 
-void Plotter::HistSummary::parseName(std::vector<std::pair<Plotter::DataCollection, std::string>>& ns)
+void Plotter::HistSummary::parseName(std::vector<Plotter::DataCollection>& ns)
 {
-
     for(auto& n : ns)
     {
-        size_t b1 = 0, b2 = 0;
-        //std::string hname = n.first.datasets.front().label + "_" + n.second;
-        std::string hname, hvecvar;
-        if((b1 = n.second.find("(")) != std::string::npos && (b2 = n.second.find(")")) != std::string::npos)
+        std::vector<std::shared_ptr<HistCutSummary>> tmphtp;
+        for(auto& dataset : n.datasets)
         {
-            hvecvar  = n.second.substr(b1+1, b2 - b1 - 1);
-            hname    = n.second.substr(0, b1);
-        }
-        else 
-        {
-            hname = n.second;
-            hvecvar = "";
-        }
+            size_t b1 = 0, b2 = 0;
+            std::string hname, hvecvar;
+            if((b1 = dataset.first.find("(")) != std::string::npos && (b2 = dataset.first.find(")")) != std::string::npos)
+            {
+                hvecvar = dataset.first.substr(b1+1, b2 - b1 - 1);
+                hname   = dataset.first.substr(0, b1);
+            }
+            else 
+            {
+                hname = dataset.first;
+                hvecvar = "";
+            }
 
-        for(auto& dataset : n.first.datasets)
-        {
-            TH1 *h = new TH1D((name + hname + hvecvar + dataset.label).c_str(), hname.c_str(), nBins, low, high);
-            h->GetXaxis()->SetTitle(xAxisLabel.c_str());
-            h->GetYaxis()->SetTitle(yAxisLabel.c_str());
-            hists.push_back(HistCutSummary(dataset.label, h, std::make_pair(hname, hvecvar), nullptr, dataset));
+            std::string histname = name + hname + hvecvar + dataset.first + dataset.second.label + n.type;
+            
+            tmphtp.push_back(std::shared_ptr<HistCutSummary>(new HistCutSummary(dataset.second.label, histname, std::make_pair(hname, hvecvar), nullptr, dataset.second)));
         }
+        hists.push_back(HistVecAndType(tmphtp, n.type));
     }
 }
 
-Plotter::FileSummary::FileSummary(std::string nam, std::string tp, double x, double l, double k, double n)
+Plotter::HistSummary::~HistSummary()
 {
-    name = nam;
-    treePath = tp;
-    xsec = x;
-    lumi = l;
-    kfactor = k;
-    nEvts = n;
 }
 
-Plotter::DatasetSummary::DatasetSummary(std::string lab, std::vector<FileSummary>& f, std::string cuts, double k) : Cuttable(cuts)
+Plotter::HistCutSummary::~HistCutSummary()
 {
-    label = lab;
-    files = f;
-    kfactor = k;
+    if(h) delete h;
+}
+
+Plotter::DatasetSummary::DatasetSummary(std::string lab, std::vector<AnaSamples::FileSummary>& f, std::string cuts, std::string weights, double k) : Cuttable(cuts), label(lab), files(f), kfactor(k), weightStr(weights)
+{
+    parseWeights();
+}
+
+void Plotter::DatasetSummary::parseWeights()
+{
+    //parse which weights to use here.  
+    for(size_t pos = 0, npos = 0; npos < weightStr.size(); pos = npos + 1)
+    {
+        npos = weightStr.find(';', pos + 1);
+        if(npos == size_t(-1)) npos = weightStr.size();
+        std::string tmp = weightStr.substr(pos, npos - pos);
+     
+        weightVec_.push_back(tmp);
+    }
+}
+
+double Plotter::DatasetSummary::getWeight(const NTupleReader& tr) const
+{
+    double retval = 1.0;
+    for(auto& weight : weightVec_)
+    {
+        if(tr.getVar<double>(weight) > 20) std::cout << weight << "\t" << tr.getVar<double>(weight) << std::endl;
+        retval *= tr.getVar<double>(weight);
+    }
+    return retval;
+}
+
+double Plotter::DatasetSummary::extractWeightNames(std::set<std::string>& ab) const
+{
+    for(auto& w : weightVec_) ab.insert(w);
+}
+
+Plotter::DataCollection::DataCollection(std::string type, std::string var, std::vector<DatasetSummary> ds) : type(type)
+{
+    for(auto& dataset : ds)
+    {
+        datasets.push_back(std::make_pair(var, dataset));
+    }
 }
 
 void Plotter::createHistsFromTuple()
 {
-    TH1::AddDirectory(false);
-
-    for(auto& fileList : trees_)
-    {    
+    for(std::vector<AnaSamples::FileSummary>& fileList : trees_)
+    {
+        std::set<std::string> activeBranches;
+        
         //make vector of hists to fill
-        std::vector<HistCutSummary*> histsToFill;
-        for(auto& hs : hists_)
+        std::vector<std::shared_ptr<HistCutSummary>> histsToFill;
+        for(HistSummary& hs : hists_)
         {
-            for(auto& hist : hs.hists)
+            for(HistVecAndType& histvec : hs.hists)
             {
-                if(hist.dss.files == fileList)
+                for(std::shared_ptr<HistCutSummary>& hist : histvec.hcsVec)
                 {
-                    //annoying hack to fix vector pointer issue
-                    hist.hs = &hs;
+                    if(hist->dss.files == fileList)
+                    {
+                        //annoying hack to fix vector pointer issue
+                        if(hist->hs == nullptr) hist->hs = &hs;
 
-                    histsToFill.push_back(&hist);
+                        hist->dss.extractCuts(activeBranches);
+                        hist->dss.extractWeightNames(activeBranches);
+                        hist->hs->extractCuts(activeBranches);
+
+                        // Make histogram if it is blank
+                        if(hist->h == nullptr)
+                        {
+                            hist->h = new TH1D(hist->name.c_str(), hist->variable.first.c_str(), hs.nBins, hs.low, hs.high);
+                            hist->h->Sumw2();
+                            hist->h->GetXaxis()->SetTitle(hs.xAxisLabel.c_str());
+                            hist->h->GetYaxis()->SetTitle(hs.yAxisLabel.c_str());
+                        }
+
+                        histsToFill.push_back(hist);
+                    }
                 }
             } 
         }
 
-        for(FileSummary& file : fileList)
+        for(AnaSamples::FileSummary& file : fileList)
         {
-            //TFile *f = new TFile(file.name.c_str());
-            //TTree *t = (TTree*)f->Get(file.treePath.c_str());
-            TChain *t = new TChain(file.treePath.c_str());
-            t->Add(file.name.c_str());
-            std::cout << "Processing file(s): " << file.name << std::endl;
+            //TChain *t = new TChain(file.treePath.c_str());
+            //file.addFilesToChain(t);
+            std::cout << "Processing file(s): " << file.filePath << std::endl;
 
-            //file.extractCuts(activeBranches_);
-            //plotterFunctions::activateBranches(activeBranches_);
-            //activeBranches_.insert("evtWeight");
-
-            NTupleReader tr(t, activeBranches_);
-            plotterFunctions::registerFunctions(tr);
-
-            while(tr.getNextEvent())
+            int fileCount = 0;
+            for(std::string& fname : file.filelist_)
             {
-                for(auto& hist : histsToFill)
+                if(nFile_ > 0 && fileCount++ >= nFile_) break;
+                TFile *f = TFile::Open(fname.c_str());
+
+                if(!f)
                 {
-                    // tree level dynamical cuts are applied here
-                    if(!hist->dss.passCuts(tr)) continue;
-
-                    // parse hist level cuts here
-                    if(!hist->hs->passCuts(tr)) continue;
-
-                    //fill histograms here 
-                    double weight = tr.getVar<double>("evtWeight") * file.xsec * file.lumi * file.kfactor * hist->dss.kfactor / file.nEvts;
-
-                    fillHist(hist->h, hist->variable, tr, weight);
+                    std::cout << "File \"" << fname << "\" not found!!!!!!" << std::endl;
+                    continue;
                 }
+
+                TTree *t = (TTree*)f->Get(file.treePath.c_str());
+
+                if(!t)
+                {
+                    std::cout << "Tree \"" << file.treePath << "\" not found in file \"" << fname << "\"!!!!!!" << std::endl;
+                    continue;
+                }
+
+                std::cout << "\t" << fname << std::endl;
+
+                plotterFunctions::activateBranches(activeBranches);
+
+                NTupleReader tr(t, activeBranches);
+                tr.registerFunction(&baselineUpdate);
+                plotterFunctions::registerFunctions(tr);
+
+                while(tr.getNextEvent())
+                {
+                    for(auto& hist : histsToFill)
+                    {
+                        // tree level dynamical cuts are applied here
+                        if(!hist->dss.passCuts(tr)) continue;
+
+                        // parse hist level cuts here
+                        if(!hist->hs->passCuts(tr)) continue;
+
+                        //fill histograms here 
+                        double weight = file.getWeight() * hist->dss.getWeight(tr) * hist->dss.kfactor;
+
+                        fillHist(hist->h, hist->variable, tr, weight);
+                    }
+                }
+                f->Close();
             }
         }
+    }
+}
+
+void Plotter::createHistsFromFile()
+{
+    for(auto& hs : hists_)
+    {
+        for(auto& histvec : hs.hists)
+        {
+            for(auto& hist : histvec.hcsVec)
+            {
+                if(fout_) hist->h = static_cast<TH1*>(fout_->Get(hist->name.c_str()));
+                else std::cout << "Input file \"" << fout_ << "\" not found!!!!" << std::endl;
+                if(!hist->h) std::cout << "Histogram not found: \"" << hist->name << "\"!!!!!!" << std::endl;
+            }
+        } 
     }
 }
 
@@ -187,10 +304,22 @@ void Plotter::Cuttable::parseCutString()
         std::string tmp = cuts_.substr(pos, npos - pos);
         size_t sepPos = 0;
         char cutType = ' ';
+        bool inverted = false;
+        if((sepPos = tmp.find("!")) != size_t(-1))
+        {
+            inverted = true;
+            tmp = tmp.substr(sepPos + 1, size_t(-1));
+        }
+        sepPos = 0;
         if(     (sepPos = tmp.find('>')) != size_t(-1)) cutType = '>';
         else if((sepPos = tmp.find('<')) != size_t(-1)) cutType = '<';
         else if((sepPos = tmp.find('=')) != size_t(-1)) cutType = '=';
-        else continue;
+        else 
+        {
+            cutType = 'B';
+            cutVec_.push_back(Cut(tmp, cutType, inverted, 0.0));
+            continue;
+        }
         std::string t1 = tmp.substr(0, sepPos), t2 = tmp.substr(sepPos + 1, (size_t(-1)));
         t1.erase(remove(t1.begin(),t1.end(),' '),t1.end());
         t2.erase(remove(t2.begin(),t2.end(),' '),t2.end());
@@ -199,7 +328,7 @@ void Plotter::Cuttable::parseCutString()
         tmp = vname;
         double cutvalue;
         sscanf(t2.c_str(), "%lf", &cutvalue);
-        Cut tmpCut(tmp, cutType, cutvalue);
+        Cut tmpCut(tmp, cutType, inverted, cutvalue);
         cutVec_.push_back(tmpCut);
     }
 }
@@ -210,6 +339,7 @@ bool Plotter::Cut::passCut(const NTupleReader& tr) const
     else if(type == '>') return translateVar(tr) > val;
     else if(type == '=') return translateVar(tr) == val;
     else if(type == '-') return translateVar(tr) > val && translateVar(tr) < val2;
+    else if(type == 'B') return boolReturn(tr);
     else printf("Unrecognized cut type, %c\n", type);
     return false;
 }
@@ -224,6 +354,14 @@ double Plotter::Cut::translateVar(const NTupleReader& tr) const
     else if(varType.find("int")          != std::string::npos) return static_cast<double>(tr.getVar<int>(name));
 }
 
+bool Plotter::Cut::boolReturn(const NTupleReader& tr) const
+{
+    // Functions here
+
+    // Booleans here
+    return tr.getVar<bool>(name);
+}
+
 bool Plotter::Cuttable::passCuts(const NTupleReader& tr) const
 {
     bool passCut = true;
@@ -231,29 +369,76 @@ bool Plotter::Cuttable::passCuts(const NTupleReader& tr) const
     {
         if(cut.vecVar.size() == 0)
         {
-            passCut = passCut && cut.passCut(tr);
+            passCut = passCut && ((cut.inverted)?(!cut.passCut(tr)):(cut.passCut(tr)));
         }
     }
     return passCut;
+}
+
+void Plotter::saveHists()
+{
+    fout_->cd();
+
+    for(HistSummary& hist : hists_)
+    {
+        for(auto& hvec : hist.hists)
+        {
+            if(readFromTuple_ && fout_)
+            {         
+                for(auto& h : hvec.hcsVec)
+                {
+                    h->h->Write();
+                 }
+            }
+        }
+    }
 }
 
 void Plotter::plot()
 {
     //gROOT->SetStyle("Plain");
     setTDRStyle();
-    
+
     for(HistSummary& hist : hists_)
     {
-        TCanvas *c = new TCanvas("c1", "c1", 800, 800);
-        c->cd();
-        c->SetMargin(0.15, 0.1, 0.1, 0.1);
+
+        bool showRatio = true;
+        if(hist.ratio.first == hist.ratio.second || hist.ratio.first < 1 || hist.ratio.second < 1)
+        {
+            showRatio = false;
+        }
+
+        TCanvas *c;
+        double fontScale;
+        if(showRatio)
+        {
+            c = new TCanvas("c1", "c1", 800, 900);
+            c->Divide(1, 2);
+            c->cd(1);
+            gPad->SetPad("p1", "p1", 0, 2.5 / 9.0, 1, 1, kWhite, 0, 0);
+            gPad->SetBottomMargin(0.01);
+            fontScale = 1.0;
+        }
+        else
+        {
+            c = new TCanvas("c1", "c1", 800, 800);
+            c->Divide(1, 1);
+            c->cd(1);
+            gPad->SetPad("p1", "p1", 0, 0, 1, 1, kWhite, 0, 0);
+            gPad->SetBottomMargin(0.12);
+            fontScale = 6.5 / 8;
+        }
+        gPad->SetLeftMargin(0.15);
+        gPad->SetRightMargin(0.06);
+        gPad->SetTopMargin(0.06 * (8.0 / 6.5) * fontScale);
 
         TH1 *dummy = new TH1F("dummy", "dummy", 1000, hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
         dummy->SetStats(0);
         dummy->SetTitle(0);
         dummy->GetYaxis()->SetTitle(hist.yAxisLabel.c_str());
         dummy->GetYaxis()->SetTitleOffset(1.20);
-        dummy->GetXaxis()->SetTitle(hist.xAxisLabel.c_str());
+        if(showRatio) dummy->GetXaxis()->SetTitle("");
+        else          dummy->GetXaxis()->SetTitle(hist.xAxisLabel.c_str());
         dummy->GetXaxis()->SetTitleOffset(1.05);
         dummy->GetXaxis()->SetTitleSize(0.04);
         dummy->GetXaxis()->SetLabelSize(0.04);
@@ -261,47 +446,183 @@ void Plotter::plot()
         dummy->GetYaxis()->SetLabelSize(0.04);
         if(dummy->GetNdivisions() % 100 > 5) dummy->GetXaxis()->SetNdivisions(6, 5, 0);
 
-        TLegend *leg = new TLegend(0.45, 0.65, 0.89, 0.88);
+        TLegend *leg = new TLegend(0.50, 0.70, 0.89, 0.88);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
         leg->SetLineWidth(1);
         leg->SetNColumns(1);
         leg->SetTextFont(42);
 
-        double max = 0.0, min = 1.0e300;
-        int i = 0;
-        for(auto& h : hist.hists)
+        double max = 0.0, lmax = 0.0, min = 1.0e300, minAvgWgt = 1.0e300;
+        int iSingle = 0, iStack = 0;
+        char legEntry[128];
+        for(auto& hvec : hist.hists)
         {
-            h.h->SetLineColor(colors[i%NCOLORS]);
-            i++;
-            leg->AddEntry(h.h, h.label.c_str());
-            max = std::max(max, h.h->GetMaximum());
-            min = std::min(min, h.h->GetMaximum());
+            if(hvec.type.compare("single") == 0)
+            {
+                for(auto& h : hvec.hcsVec)
+                {
+                    h->h->SetLineColor(colors[iSingle%NCOLORS]);
+                    iSingle++;
+                    double integral = h->h->Integral(0, h->h->GetNbinsX() + 1);
+                    if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", h->label.c_str(), integral);
+                    else if(integral < 1.0e5) sprintf(legEntry, "%s (%0.0lf)", h->label.c_str(), integral);
+                    else                      sprintf(legEntry, "%s (%0.2e)",  h->label.c_str(), integral);
+                    leg->AddEntry(h->h, legEntry);
+                    if(hist.isNorm) h->h->Scale(hist.fhist()->Integral()/h->h->Integral());
+                    smartMax(h->h, leg, static_cast<TPad*>(gPad), min, max, lmax);
+                    minAvgWgt = std::min(minAvgWgt, h->h->GetSumOfWeights()/h->h->GetEntries());
+                }
+            }
+            else if(hvec.type.compare("ratio") == 0 && hvec.hcsVec.size() >= 2)
+            {
+                auto hIter = hvec.hcsVec.begin();
+                TH1* hratio = static_cast<TH1*>((*hIter)->h->Clone());
+                hvec.h = static_cast<TNamed*>(hratio);
+                ++hIter;
+                hratio->Divide((*hIter)->h);
+                leg->AddEntry(hratio, hvec.flabel().c_str());
+                smartMax(hratio, leg, static_cast<TPad*>(gPad), min, max, lmax);
+                minAvgWgt = std::min(minAvgWgt, 1.0);
+            }
+            else if(hvec.type.compare("stack") == 0)
+            {
+                THStack *stack = new THStack((hist.name + hvec.hcsVec.front()->label).c_str(), "stack");
+                hvec.h = static_cast<TNamed*>(stack);
+
+                double sow = 0, te = 0;
+                for(auto& h : hvec.hcsVec)
+                {
+                    h->h->SetLineColor(stackColors[iStack%NSTACKCOLORS]);
+                    h->h->SetFillColor(stackColors[iStack%NSTACKCOLORS]);
+                    iStack++;
+                    stack->Add(h->h);
+                    double integral = h->h->Integral(0, h->h->GetNbinsX() + 1);
+                    if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", h->label.c_str(), integral);
+                    else if(integral < 1.0e5) sprintf(legEntry, "%s (%0.0lf)", h->label.c_str(), integral);
+                    else                      sprintf(legEntry, "%s (%0.2e)",  h->label.c_str(), integral);
+                    leg->AddEntry(h->h, legEntry);
+                    sow += h->h->GetSumOfWeights();
+                    te +=  h->h->GetEntries();
+                }
+                smartMax(static_cast<TH1*>(stack->GetHists()->Last()), leg, static_cast<TPad*>(gPad), min, max, lmax);
+                minAvgWgt = std::min(minAvgWgt, sow/te);
+            }
         }
         
-        c->SetLogy(hist.isLog);
+        gPad->SetLogy(hist.isLog);
         if(hist.isLog)
         {
-            dummy->GetYaxis()->SetRangeUser(std::min(1.0, std::max(0.0001, 0.2 * min)), 3*max);
+            double locMin = std::min(0.2*minAvgWgt, std::max(0.0001, 0.05 * min));
+            double legMin = (log10(3*max) - log10(locMin)) * (leg->GetY1NDC() - gPad->GetBottomMargin()) / ((1 - gPad->GetTopMargin()) - gPad->GetBottomMargin());
+            //if(log10(lmax) > (legMin + log10(locMin))) max = pow(10.0, log10(locMin) + (log10(max) - log10(locMin))/(log10(lmax)/(legMin + log10(locMin))));
+            dummy->GetYaxis()->SetRangeUser(locMin, 3*max);
+            //std::cout << pow(10.0, log10(lmax)/(legMin + log10(locMin))) << std::endl;
         }
         else
         {
+            double locMin = 0.0;
+            double legMin = (1.2*max - locMin) * (leg->GetY1() - gPad->GetBottomMargin()) / ((1 - gPad->GetTopMargin()) - gPad->GetBottomMargin());
+            if((lmax + locMin) > (legMin + locMin)) max *= (lmax - locMin)/(legMin - locMin);
             dummy->GetYaxis()->SetRangeUser(0.0, max*1.2);
         }
         dummy->Draw();
 
-        for(auto& h : hist.hists)
+        for(auto& hvec : hist.hists)
         {
-            if(hist.isNorm) h.h->Scale(hist.fhist()->Integral()/h.h->Integral());
-            h.h->Draw("same");
+            if(!hvec.h)
+            {
+                for(auto& h : hvec.hcsVec)
+                {
+                    h->h->Draw("hist same");
+                }
+            }
+            else
+            {
+                hvec.h->Draw("hist same");
+            }
         }
         leg->Draw();
 
+        TH1 *dummy2 = nullptr, *h1 = nullptr, *h2 = nullptr;
+        if(showRatio)
+        {
+            c->cd(2);
+            gPad->SetPad("p2", "p2", 0, 0, 1, 2.5 / 9.0, kWhite, 0, 0);
+            gPad->SetLeftMargin(0.15);
+            gPad->SetRightMargin(0.06);
+            gPad->SetTopMargin(0.01);
+            gPad->SetBottomMargin(0.37);
+
+            dummy2 = new TH1F("dummy2", "dummy2", 1000, hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
+            dummy2->GetXaxis()->SetTitle(hist.xAxisLabel.c_str());
+            dummy2->GetXaxis()->SetTitleOffset(1.05);
+            dummy2->GetYaxis()->SetTitle("Ratio");
+            dummy2->GetYaxis()->SetTitleOffset(0.42);
+            dummy2->GetYaxis()->SetNdivisions(3, 5, 0, true);
+
+            dummy2->GetYaxis()->SetTitleSize(0.16 * 2 / 2.5);
+            dummy2->GetYaxis()->SetLabelSize(0.20 * 2 / 2.5);
+            dummy2->GetXaxis()->SetTitleSize(0.20 * 2 / 2.5);
+            dummy2->GetXaxis()->SetLabelSize(0.20 * 2 / 2.5);
+
+            dummy2->SetStats(0);
+            dummy2->SetTitle(0);
+            if(dummy2->GetNdivisions() % 100 > 5) dummy2->GetXaxis()->SetNdivisions(6, 5, 0);
+
+            int iHist = 1;
+            if(hist.hists.size() == 1 && hist.hists.front().type.compare("single") == 0)
+            {
+                for(auto& h : hist.hists.front().hcsVec)
+                {
+                    if(     iHist == hist.ratio.first)  h1 = static_cast<TH1*>(h->h->Clone());
+                    else if(iHist == hist.ratio.second) h2 = static_cast<TH1*>(h->h->Clone());
+                    ++iHist;
+                }
+            }
+            else
+            {
+                for(auto& hvec : hist.hists)
+                {
+                    //if(iHist == hist.ratio.first)
+                }
+            }
+
+            TF1 * fline = new TF1("line", "pol0", hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
+            fline->SetParameter(0, 1);
+
+            if(h1 && h2)
+            {
+                fline->SetLineColor(h2->GetLineColor());
+
+                h1->Divide(h2);
+                //h1->SetLineColor(kBlack);
+                double d2ymin = 0.0;
+                double d2ymax = 1.5;
+                for(int iBin = 1; iBin <= h1->GetNbinsX(); ++iBin)
+                {
+                    if(h1->GetBinContent(iBin) < 10.0)
+                    {
+                        d2ymax = std::max(d2ymax, h1->GetBinContent(iBin));
+                    }
+                }
+                dummy2->GetYaxis()->SetRangeUser(d2ymin, 1.5*d2ymax);
+
+                dummy2->Draw();
+                fline->Draw("same");
+                
+                h1->Draw("same E1");
+            }
+        }
+
         c->Print((hist.name+".png").c_str());
 
-        leg->~TLegend();
-        dummy->~TH1();
-        c->~TCanvas();
+        delete leg;
+        delete dummy;
+        if(dummy2) delete dummy2;
+        delete c;
+        if(h1) delete h1;
+        if(h2) delete h2;
     }    
 }
 
@@ -326,13 +647,35 @@ void Plotter::fillHist(TH1 * const h, const std::pair<std::string, std::string>&
     }
     else
     {
-        if     (type.find("double")       != std::string::npos) h->Fill(tr.getVar<double>(name.first), weight);
-        else if(type.find("unsigned int") != std::string::npos) h->Fill(tr.getVar<unsigned int>(name.first), weight);
-        else if(type.find("int")          != std::string::npos) h->Fill(tr.getVar<int>(name.first), weight);
+        if     (type.find("double")         != std::string::npos) h->Fill(tr.getVar<double>(name.first), weight);
+        else if(type.find("unsigned int")   != std::string::npos) h->Fill(tr.getVar<unsigned int>(name.first), weight);
+        else if(type.find("int")            != std::string::npos) h->Fill(tr.getVar<int>(name.first), weight);
+//        else if(type.find("TLorentzVector") != std::string::npos) h->Fill(tlvGetValue(name.second, tr.getVar<TLorentzVector>(name.first)));
     }
 }
 
 template<> inline void Plotter::vectorFill(TH1 * const h, const std::pair<std::string, std::string>& name, const TLorentzVector& obj, const double weight)
 {
     h->Fill(tlvGetValue(name.second, obj), weight);;
+}
+
+void Plotter::smartMax(const TH1* const h, const TLegend* const l, const TPad* const p, double& gmin, double& gmax, double& gpThreshMax) const
+{
+    const bool isLog = p->GetLogy();
+    double min = 9e99;
+    double max = -9e99;
+    double pThreshMax = -9e99;
+    int threshold = static_cast<int>(h->GetNbinsX()*(l->GetX1() - p->GetLeftMargin())/((1 - p->GetRightMargin()) - p->GetLeftMargin()));
+    
+    for(int i = 1; i <= h->GetNbinsX(); ++i)
+    {
+        double bin = h->GetBinContent(i);
+        if(bin > max) max = bin;
+        else if(bin > 1e-10 && bin < min) min = bin;
+        if(i >= threshold && bin > pThreshMax) pThreshMax = bin;
+    }
+
+    gpThreshMax = std::max(gpThreshMax, pThreshMax);
+    gmax = std::max(gmax, max);
+    gmin = std::min(gmin, min);
 }

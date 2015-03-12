@@ -9,6 +9,11 @@
 *.jpeg
 *.eps
 
+#condor log files
+*.log
+*.stderr
+*.stdout
+
 #Root
 *.root
 

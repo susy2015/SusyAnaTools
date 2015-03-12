@@ -19,9 +19,10 @@ LD         = g++
 LDFLAGS    =
 
 LIBS       = $(shell root-config --glibs)
+MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
 
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
-PROGRAMS = tupleTest makePlots baselineDef
+PROGRAMS = tupleTest baselineDef
 
 all: $(PROGRAMS)
 
@@ -31,14 +32,11 @@ $(ODIR)/%.o : $(SDIR)/%.C
 $(ODIR)/%.o : $(SDIR)/%.cc
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
 
-tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o
-	$(LD) $^ $(LIBS) -o $@
-
-makePlots: $(ODIR)/NTupleReader.o $(ODIR)/Plotter.o $(ODIR)/MakePlots.o
+tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o 
 	$(LD) $^ $(LIBS) -o $@
 
 baselineDef: $(ODIR)/NTupleReader.o $(ODIR)/baselineDef.o
-	$(LD) $^ $(LIBS) -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2 -o $@
+	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 clean:
 	rm -f $(ODIR)/*.o $(ODIR)/*.d $(PROGRAMS) core 
