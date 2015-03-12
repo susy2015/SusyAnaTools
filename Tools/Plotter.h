@@ -7,6 +7,8 @@
 #include "TH2.h"
 #include "TGraph.h"
 #include "TProfile.h"
+#include "TLegend.h"
+#include "TPad.h"
 
 #include <vector>
 #include <utility>
@@ -147,6 +149,7 @@ private:
     void createHistsFromTuple();
     void createHistsFromFile();
     void fillHist(TH1 * const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight);
+    void smartMax(const TH1* const h, const TLegend* const l, const TPad* const p, double& gmin, double& gmax, double& gpThreshMax) const;
 
     template<typename T> double tlvGetValue(std::string name, T v)
     {

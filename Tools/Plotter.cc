@@ -4,7 +4,6 @@
 #include "tdrstyle.h"
 
 #include "TROOT.h"
-#include "TLegend.h"
 #include "TCanvas.h"
 #include "TTree.h"
 //#include "TChain.h"
@@ -160,6 +159,7 @@ double Plotter::DatasetSummary::getWeight(const NTupleReader& tr) const
     double retval = 1.0;
     for(auto& weight : weightVec_)
     {
+        if(tr.getVar<double>(weight) > 20) std::cout << weight << "\t" << tr.getVar<double>(weight) << std::endl;
         retval *= tr.getVar<double>(weight);
     }
     return retval;
@@ -453,7 +453,7 @@ void Plotter::plot()
         leg->SetNColumns(1);
         leg->SetTextFont(42);
 
-        double max = 0.0, min = 1.0e300, minAvgWgt = 1.0e300;
+        double max = 0.0, lmax = 0.0, min = 1.0e300, minAvgWgt = 1.0e300;
         int iSingle = 0, iStack = 0;
         char legEntry[128];
         for(auto& hvec : hist.hists)
@@ -464,14 +464,13 @@ void Plotter::plot()
                 {
                     h->h->SetLineColor(colors[iSingle%NCOLORS]);
                     iSingle++;
-                    double integral = h->h->Integral();
+                    double integral = h->h->Integral(0, h->h->GetNbinsX() + 1);
                     if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", h->label.c_str(), integral);
                     else if(integral < 1.0e5) sprintf(legEntry, "%s (%0.0lf)", h->label.c_str(), integral);
                     else                      sprintf(legEntry, "%s (%0.2e)",  h->label.c_str(), integral);
                     leg->AddEntry(h->h, legEntry);
                     if(hist.isNorm) h->h->Scale(hist.fhist()->Integral()/h->h->Integral());
-                    max = std::max(max, h->h->GetMaximum());
-                    min = std::min(min, h->h->GetMaximum());
+                    smartMax(h->h, leg, static_cast<TPad*>(gPad), min, max, lmax);
                     minAvgWgt = std::min(minAvgWgt, h->h->GetSumOfWeights()/h->h->GetEntries());
                 }
             }
@@ -483,8 +482,7 @@ void Plotter::plot()
                 ++hIter;
                 hratio->Divide((*hIter)->h);
                 leg->AddEntry(hratio, hvec.flabel().c_str());
-                max = std::max(max, hratio->GetMaximum());
-                min = std::min(min, hratio->GetMaximum());
+                smartMax(hratio, leg, static_cast<TPad*>(gPad), min, max, lmax);
                 minAvgWgt = std::min(minAvgWgt, 1.0);
             }
             else if(hvec.type.compare("stack") == 0)
@@ -499,7 +497,7 @@ void Plotter::plot()
                     h->h->SetFillColor(stackColors[iStack%NSTACKCOLORS]);
                     iStack++;
                     stack->Add(h->h);
-                    double integral = h->h->Integral();
+                    double integral = h->h->Integral(0, h->h->GetNbinsX() + 1);
                     if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", h->label.c_str(), integral);
                     else if(integral < 1.0e5) sprintf(legEntry, "%s (%0.0lf)", h->label.c_str(), integral);
                     else                      sprintf(legEntry, "%s (%0.2e)",  h->label.c_str(), integral);
@@ -507,8 +505,7 @@ void Plotter::plot()
                     sow += h->h->GetSumOfWeights();
                     te +=  h->h->GetEntries();
                 }
-                max = std::max(max, stack->GetMaximum());
-                min = std::min(min, stack->GetMaximum());
+                smartMax(static_cast<TH1*>(stack->GetHists()->Last()), leg, static_cast<TPad*>(gPad), min, max, lmax);
                 minAvgWgt = std::min(minAvgWgt, sow/te);
             }
         }
@@ -516,10 +513,17 @@ void Plotter::plot()
         gPad->SetLogy(hist.isLog);
         if(hist.isLog)
         {
-            dummy->GetYaxis()->SetRangeUser(std::min(0.2*minAvgWgt, std::max(0.0001, 0.05 * min)), 3*max);
+            double locMin = std::min(0.2*minAvgWgt, std::max(0.0001, 0.05 * min));
+            double legMin = (log10(3*max) - log10(locMin)) * (leg->GetY1NDC() - gPad->GetBottomMargin()) / ((1 - gPad->GetTopMargin()) - gPad->GetBottomMargin());
+            //if(log10(lmax) > (legMin + log10(locMin))) max = pow(10.0, log10(locMin) + (log10(max) - log10(locMin))/(log10(lmax)/(legMin + log10(locMin))));
+            dummy->GetYaxis()->SetRangeUser(locMin, 3*max);
+            //std::cout << pow(10.0, log10(lmax)/(legMin + log10(locMin))) << std::endl;
         }
         else
         {
+            double locMin = 0.0;
+            double legMin = (1.2*max - locMin) * (leg->GetY1() - gPad->GetBottomMargin()) / ((1 - gPad->GetTopMargin()) - gPad->GetBottomMargin());
+            if((lmax + locMin) > (legMin + locMin)) max *= (lmax - locMin)/(legMin - locMin);
             dummy->GetYaxis()->SetRangeUser(0.0, max*1.2);
         }
         dummy->Draw();
@@ -566,10 +570,6 @@ void Plotter::plot()
             dummy2->SetTitle(0);
             if(dummy2->GetNdivisions() % 100 > 5) dummy2->GetXaxis()->SetNdivisions(6, 5, 0);
 
-            TF1 * fline = new TF1("line", "pol0", hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
-            fline->SetParameter(0, 1);
-            fline->SetLineColor(kRed);
-
             int iHist = 1;
             if(hist.hists.size() == 1 && hist.hists.front().type.compare("single") == 0)
             {
@@ -588,10 +588,15 @@ void Plotter::plot()
                 }
             }
 
+            TF1 * fline = new TF1("line", "pol0", hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
+            fline->SetParameter(0, 1);
+
             if(h1 && h2)
             {
+                fline->SetLineColor(h2->GetLineColor());
+
                 h1->Divide(h2);
-                h1->SetLineColor(kBlack);
+                //h1->SetLineColor(kBlack);
                 double d2ymin = 0.0;
                 double d2ymax = 1.5;
                 for(int iBin = 1; iBin <= h1->GetNbinsX(); ++iBin)
@@ -608,7 +613,6 @@ void Plotter::plot()
                 
                 h1->Draw("same E1");
             }
-
         }
 
         c->Print((hist.name+".png").c_str());
@@ -653,4 +657,25 @@ void Plotter::fillHist(TH1 * const h, const std::pair<std::string, std::string>&
 template<> inline void Plotter::vectorFill(TH1 * const h, const std::pair<std::string, std::string>& name, const TLorentzVector& obj, const double weight)
 {
     h->Fill(tlvGetValue(name.second, obj), weight);;
+}
+
+void Plotter::smartMax(const TH1* const h, const TLegend* const l, const TPad* const p, double& gmin, double& gmax, double& gpThreshMax) const
+{
+    const bool isLog = p->GetLogy();
+    double min = 9e99;
+    double max = -9e99;
+    double pThreshMax = -9e99;
+    int threshold = static_cast<int>(h->GetNbinsX()*(l->GetX1() - p->GetLeftMargin())/((1 - p->GetRightMargin()) - p->GetLeftMargin()));
+    
+    for(int i = 1; i <= h->GetNbinsX(); ++i)
+    {
+        double bin = h->GetBinContent(i);
+        if(bin > max) max = bin;
+        else if(bin > 1e-10 && bin < min) min = bin;
+        if(i >= threshold && bin > pThreshMax) pThreshMax = bin;
+    }
+
+    gpThreshMax = std::max(gpThreshMax, pThreshMax);
+    gmax = std::max(gmax, max);
+    gmin = std::min(gmin, min);
 }
