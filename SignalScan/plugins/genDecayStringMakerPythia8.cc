@@ -86,7 +86,14 @@ bool genDecayStringMakerPythia8::select( const reco::Candidate & c ) const {
 // For "u, d, s, c, b" quarks
   if( abs(c.pdgId()) >= 1 && abs(c.pdgId()) <= 5 ){
      if( c.numberOfMothers() == 1 && c.status() == 23 ){
-        if( selectExtra( (*c.mother(0)) ) ) selected = true;
+        int momid = c.mother(0)->pdgId();
+        const reco::Candidate * mom = c.mother(0);
+        while( mom->pdgId() == momid ){
+           if( selectExtra( (*mom) ) ){ selected = true; break; }
+           if( mom->numberOfMothers() >=1 ){
+              mom = mom->mother(0);
+           }else break;
+        }
      }
   }
 
