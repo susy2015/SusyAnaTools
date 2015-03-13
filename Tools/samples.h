@@ -3,6 +3,9 @@
 
 #include <string>
 #include <map>
+#include <vector>
+
+#include "TChain.h"
 
 namespace AnaSamples
 {
