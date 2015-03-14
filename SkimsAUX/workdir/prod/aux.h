@@ -68,9 +68,11 @@ public :
    vector<double>  *muonsCharge; // charge of muons
    vector<double>  *muonsMtw; // MT of muon and MET
    vector<double>  *muonsRelIso; // relIso of muons
+   vector<double>  *muonsMiniIso; // mini isolation of muons
    vector<double>  *elesCharge; // charge of electrons
    vector<double>  *elesMtw; // MT of electron and MET
    vector<double>  *elesRelIso; // relIso of electrons
+   vector<double>  *elesMiniIso; // mini isolation of eles
    vector<double>  *recoJetsBtag_0; // b-tagging CSV values. In PHYS14 sample, it's combinedInclusiveSecondaryVertexV2BJetTags
    vector<double>  *trksForIsoVeto_charge; // charges of the charged tracks for isolated veto studies
    vector<double>  *trksForIsoVeto_dz; // dz of the charged tracks for isolated veto studies
@@ -92,6 +94,7 @@ public :
    vector<int>     *loose_isoTrks_pdgId; // pdg id of the loose isolated tracks
    vector<int>     *loose_isoTrks_idx; // indices of the loose isolated tracks (pointing to pfCandidate collection)
    vector<int>     *forVetoIsoTrksidx; // indices of the isolated tracks (see nIsoTrks_CUT) (pointing to pfCandidate collection)
+   vector<unsigned int> *elesisEB; // electrons is EB or not
    vector<string>  *genDecayStrVec; // decay string (for printout)
    vector<string>  *fileNameStr; // file names that the event belongs to (can be used to map signals to root files)
    vector<string>  *smsModelStr; // string of SMS model identifier
