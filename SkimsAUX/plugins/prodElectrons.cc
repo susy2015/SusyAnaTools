@@ -27,6 +27,8 @@
 
 #include "TLorentzVector.h"
 
+#include "SusyAnaTools/SkimsAUX/plugins/common.h"
+
 typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > >   IsoDepositMaps;
 typedef std::vector< edm::Handle< edm::ValueMap<double> > >             IsoDepositVals;
 
@@ -46,6 +48,7 @@ class prodElectrons : public edm::EDFilter {
     edm::InputTag vtxSrc_;
     edm::InputTag metSrc_;
     edm::InputTag beamSpotSrc_;
+    edm::InputTag pfCandsSrc_;
     bool   doEleVeto_, doEleIso_;
     double minElePt_, maxEleEta_;
     bool debug_;
@@ -63,6 +66,7 @@ prodElectrons::prodElectrons(const edm::ParameterSet & iConfig) {
   vtxSrc_        = iConfig.getParameter<edm::InputTag>("VertexSource");
   metSrc_        = iConfig.getParameter<edm::InputTag>("metSource");
   beamSpotSrc_   = iConfig.getParameter<edm::InputTag>("BeamSpotSource");
+  pfCandsSrc_    = iConfig.getParameter<edm::InputTag>("packedPFCandidates");
   minElePt_      = iConfig.getParameter<double>("MinElePt");
   maxEleEta_     = iConfig.getParameter<double>("MaxEleEta");
   doEleVeto_     = iConfig.getParameter<bool>("DoElectronVeto");
@@ -74,6 +78,7 @@ prodElectrons::prodElectrons(const edm::ParameterSet & iConfig) {
   produces<std::vector<double> >("elesCharge");
   produces<std::vector<double> >("elesMtw");
   produces<std::vector<double> >("elesRelIso");
+  produces<std::vector<double> >("elesMiniIso");
   produces<int>("nElectrons");
 }
 
@@ -103,6 +108,9 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<edm::View<reco::MET> > met;
   iEvent.getByLabel(metSrc_, met);
+
+  edm::Handle<pat::PackedCandidateCollection> pfcands;
+  iEvent.getByLabel(pfCandsSrc_, pfcands);
 
   float cut_dEtaIn[2]         = {999.9, 999.9};
   float cut_dPhiIn[2]         = {999.9, 999.9};
@@ -134,6 +142,7 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<double> > elesCharge(new std::vector<double>());
   std::auto_ptr<std::vector<double> > elesMtw(new std::vector<double>());
   std::auto_ptr<std::vector<double> > elesRelIso(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > elesMiniIso(new std::vector<double>());
 
   // loop on electrons
   for( edm::View<pat::Electron>::const_iterator ele = electrons->begin(); ele != electrons->end(); ele++ ){
@@ -209,6 +218,7 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // compute final isolation
     double iso = absiso/pt;
+    double miniIso = commonFunctions::getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), 0.05, 0.2, 10., false, false);
 
     if (doEleIso_) {
       if(iso > cut_iso[idx]) continue;
@@ -225,6 +235,7 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        elesCharge->push_back(ele->charge());
        elesMtw->push_back(mtw);
        elesRelIso->push_back(iso);
+       elesMiniIso->push_back(miniIso);
     }
 
   }
@@ -243,6 +254,7 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(elesCharge, "elesCharge");
   iEvent.put(elesMtw, "elesMtw");
   iEvent.put(elesRelIso, "elesRelIso");
+  iEvent.put(elesMiniIso, "elesMiniIso");
   iEvent.put(nElectrons, "nElectrons");
 
   return result;
