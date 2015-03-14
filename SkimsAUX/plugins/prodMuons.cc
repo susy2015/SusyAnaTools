@@ -15,6 +15,8 @@
 
 #include "TLorentzVector.h"
 
+#include "SusyAnaTools/SkimsAUX/plugins/common.h"
+
 class prodMuons : public edm::EDFilter {
 
   public:
@@ -29,6 +31,7 @@ class prodMuons : public edm::EDFilter {
     edm::InputTag muonSrc_;
     edm::InputTag vtxSrc_;
     edm::InputTag metSrc_;
+    edm::InputTag pfCandsSrc_;
     bool debug_;
     bool doMuonVeto_, doMuonID_, doMuonVtx_, doMuonIso_;
     double minMuPt_, maxMuEta_, maxMuD0_, maxMuDz_, maxMuRelIso_, minMuNumHit_;
@@ -40,6 +43,7 @@ prodMuons::prodMuons(const edm::ParameterSet & iConfig) {
   muonSrc_     = iConfig.getParameter<edm::InputTag>("MuonSource");
   vtxSrc_      = iConfig.getParameter<edm::InputTag>("VertexSource");
   metSrc_      = iConfig.getParameter<edm::InputTag>("metSource");
+  pfCandsSrc_  = iConfig.getParameter<edm::InputTag>("packedPFCandidates");
   minMuPt_     = iConfig.getParameter<double>("MinMuPt");
   maxMuEta_    = iConfig.getParameter<double>("MaxMuEta");
   maxMuD0_     = iConfig.getParameter<double>("MaxMuD0");
@@ -56,6 +60,7 @@ prodMuons::prodMuons(const edm::ParameterSet & iConfig) {
   produces<std::vector<double> >("muonsCharge");
   produces<std::vector<double> >("muonsMtw");
   produces<std::vector<double> >("muonsRelIso");
+  produces<std::vector<double> >("muonsMiniIso");
   produces<int>("nMuons");
 }
 
@@ -75,12 +80,16 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<reco::MET> > met;
   iEvent.getByLabel(metSrc_, met);
 
+  edm::Handle<pat::PackedCandidateCollection> pfcands;
+  iEvent.getByLabel(pfCandsSrc_, pfcands);
+
   // check which ones to keep
   std::auto_ptr<std::vector<pat::Muon> > prod(new std::vector<pat::Muon>());
   std::auto_ptr<std::vector<TLorentzVector> > muonsLVec(new std::vector<TLorentzVector>());
   std::auto_ptr<std::vector<double> > muonsCharge(new std::vector<double>());
   std::auto_ptr<std::vector<double> > muonsMtw(new std::vector<double>());
   std::auto_ptr<std::vector<double> > muonsRelIso(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > muonsMiniIso(new std::vector<double>());
 
   int imuon =0;
 
@@ -140,6 +149,8 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	if(debug_) {std::cout << "PassedMuon Isolation" << std::endl;}
       }
 
+      double miniIso = commonFunctions::getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*m)), 0.05, 0.2, 10., false, false);
+
       // muon is ID'd and isolated! - only accept if vertex present
       if (vertices->size() > 0){
          prod->push_back(pat::Muon(*m));
@@ -151,6 +162,7 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
          muonsCharge->push_back(m->charge());
          muonsMtw->push_back(mtw);
          muonsRelIso->push_back(muRelIso);
+         muonsMiniIso->push_back(miniIso);
       }
     }
   }
@@ -168,6 +180,7 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(muonsCharge, "muonsCharge");
   iEvent.put(muonsMtw, "muonsMtw");
   iEvent.put(muonsRelIso, "muonsRelIso");
+  iEvent.put(muonsMiniIso, "muonsMiniIso");
   iEvent.put(nMuons, "nMuons");
 
   return result;
