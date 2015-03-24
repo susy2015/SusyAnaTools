@@ -34,20 +34,27 @@ namespace AnaSamples
         sampleSet_["WJetsToLNu_HT_400to600"]  = FileSummary(fDir_ + "rootlist_WJetsToLNu_HT_400to600.txt", "stopTreeMaker/AUX", 55.61,  lumi, 4640594,  1.0, kMagenta+1);
         sampleSet_["WJetsToLNu_HT_200to400"]  = FileSummary(fDir_ + "rootlist_WJetsToLNu_HT_200to400.txt", "stopTreeMaker/AUX", 471.6,  lumi, 4686783,  1.0, kMagenta+1);
         sampleSet_["WJetsToLNu_HT_100to200"]  = FileSummary(fDir_ + "rootlist_WJetsToLNu_HT_100to200.txt", "stopTreeMaker/AUX", 1817.0, lumi, 5262265,  1.0, kMagenta+1);
+
         sampleSet_["ZJetsToNuNu_HT_600toInf"] = FileSummary(fDir_ + "rootlist_ZJetsToNuNu_HT_600toInf.txt", "stopTreeMaker/AUX", 4.113,  lumi, 4463806, 1.0,  kTeal+4);
         sampleSet_["ZJetsToNuNu_HT_400to600"] = FileSummary(fDir_ + "rootlist_ZJetsToNuNu_HT_400to600.txt", "stopTreeMaker/AUX", 11.99,  lumi, 4433784, 1.0,  kTeal+4);
         sampleSet_["ZJetsToNuNu_HT_200to400"] = FileSummary(fDir_ + "rootlist_ZJetsToNuNu_HT_200to400.txt", "stopTreeMaker/AUX", 100.8,  lumi, 4546470, 1.0,  kTeal+4);
         sampleSet_["ZJetsToNuNu_HT_100to200"] = FileSummary(fDir_ + "rootlist_ZJetsToNuNu_HT_100to200.txt", "stopTreeMaker/AUX", 372.6,  lumi, 4986424, 1.0,  kTeal+4);
+
         sampleSet_["IncDYSampleSet"]                   = FileSummary(fDir_ + "rootlist_DYJetsToLL.txt", "stopTreeMaker/AUX", 4746,  lumi, 2829164, 1.0,  kYellow-4);
+
         sampleSet_["DYJetsToLL_HT_600toInf"]  = FileSummary(fDir_ + "rootlist_DYJetsToLL_HT_600toInf.txt", "stopTreeMaker/AUX", 2.179,  lumi, 4493574, 1.0,  kYellow-7);
         sampleSet_["DYJetsToLL_HT_400to600"]  = FileSummary(fDir_ + "rootlist_DYJetsToLL_HT_400to600.txt", "stopTreeMaker/AUX", 6.546,  lumi, 4931372, 1.0,  kYellow-7);
         sampleSet_["DYJetsToLL_HT_200to400"]  = FileSummary(fDir_ + "rootlist_DYJetsToLL_HT_200to400.txt", "stopTreeMaker/AUX", 52.24,  lumi, 4666496, 1.0,  kYellow-7);
         sampleSet_["DYJetsToLL_HT_100to200"]  = FileSummary(fDir_ + "rootlist_DYJetsToLL_HT_100to200.txt", "stopTreeMaker/AUX", 194.3,  lumi, 4054159, 1.0,  kYellow-7);
+
         sampleSet_["QCD_HT_1000toInf"]        = FileSummary(fDir_ + "rootlist_QCD_HT_1000toInf.txt", "stopTreeMaker/AUX", 769.7,  lumi, 1464453, 1.0,  kBlue);
         sampleSet_["QCD_HT_500to1000"]        = FileSummary(fDir_ + "rootlist_QCD_HT_500to1000.txt", "stopTreeMaker/AUX", 26740,  lumi, 4063345, 1.0,  kBlue);
         sampleSet_["QCD_HT_250to500"]         = FileSummary(fDir_ + "rootlist_QCD_HT_250to500.txt", "stopTreeMaker/AUX", 670500, lumi, 2668172, 1.0,  kBlue);
+
         sampleSet_["T_tW"]                    = FileSummary(fDir_ + "", "stopTreeMaker/AUX", 35.0,   lumi, 986100,  1.0,  kYellow);
+
         sampleSet_["Tbar_tW"]                 = FileSummary(fDir_ + "", "stopTreeMaker/AUX", 35.0,   lumi, 971800,  1.0,  kYellow);
+
         sampleSet_["TTZ"]                     = FileSummary(fDir_ + "", "stopTreeMaker/AUX", 2.2320, lumi, 249275,  1.0,  kGreen+2);
 
             //signal

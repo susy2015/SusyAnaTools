@@ -32,7 +32,7 @@ const int stackColors[] = {
 };
 const int NSTACKCOLORS = sizeof(stackColors) / sizeof(int);
 
-Plotter::Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple, std::string ofname, int nFile) : nFile_(nFile)
+Plotter::Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple, std::string ofname, int nFile) : nFile_(nFile)
 {
     TH1::AddDirectory(false);
 
@@ -180,7 +180,7 @@ Plotter::DataCollection::DataCollection(std::string type, std::string var, std::
 
 void Plotter::createHistsFromTuple()
 {
-    for(std::vector<AnaSamples::FileSummary>& fileList : trees_)
+    for(const AnaSamples::FileSummary& file : trees_)
     {
         std::set<std::string> activeBranches;
         
@@ -192,82 +192,82 @@ void Plotter::createHistsFromTuple()
             {
                 for(std::shared_ptr<HistCutSummary>& hist : histvec.hcsVec)
                 {
-                    if(hist->dss.files == fileList)
+                    //annoying hack to fix vector pointer issue
+                    if(hist->hs == nullptr) hist->hs = &hs;
+
+                    // Make histogram if it is blank
+                    if(hist->h == nullptr)
                     {
-                        //annoying hack to fix vector pointer issue
-                        if(hist->hs == nullptr) hist->hs = &hs;
+                        hist->h = new TH1D(hist->name.c_str(), hist->variable.first.c_str(), hs.nBins, hs.low, hs.high);
+                        hist->h->Sumw2();
+                        hist->h->GetXaxis()->SetTitle(hs.xAxisLabel.c_str());
+                        hist->h->GetYaxis()->SetTitle(hs.yAxisLabel.c_str());
+                    }
 
-                        hist->dss.extractCuts(activeBranches);
-                        hist->dss.extractWeightNames(activeBranches);
-                        hist->hs->extractCuts(activeBranches);
+                    hist->dss.extractCuts(activeBranches);
+                    hist->dss.extractWeightNames(activeBranches);
+                    hist->hs->extractCuts(activeBranches);
 
-                        // Make histogram if it is blank
-                        if(hist->h == nullptr)
+                    for(AnaSamples::FileSummary& fileToComp : hist->dss.files)
+                    {
+                        if(file == fileToComp)
                         {
-                            hist->h = new TH1D(hist->name.c_str(), hist->variable.first.c_str(), hs.nBins, hs.low, hs.high);
-                            hist->h->Sumw2();
-                            hist->h->GetXaxis()->SetTitle(hs.xAxisLabel.c_str());
-                            hist->h->GetYaxis()->SetTitle(hs.yAxisLabel.c_str());
+                            histsToFill.push_back(hist);
                         }
-
-                        histsToFill.push_back(hist);
                     }
                 }
             } 
         }
 
-        for(AnaSamples::FileSummary& file : fileList)
+        //TChain *t = new TChain(file.treePath.c_str());
+        //file.addFilesToChain(t);
+        std::cout << "Processing file(s): " << file.filePath << std::endl;
+
+        int fileCount = 0;
+        for(const std::string& fname : file.filelist_)
         {
-            //TChain *t = new TChain(file.treePath.c_str());
-            //file.addFilesToChain(t);
-            std::cout << "Processing file(s): " << file.filePath << std::endl;
+            if(nFile_ > 0 && fileCount++ >= nFile_) break;
+            TFile *f = TFile::Open(fname.c_str());
 
-            int fileCount = 0;
-            for(std::string& fname : file.filelist_)
+            if(!f)
             {
-                if(nFile_ > 0 && fileCount++ >= nFile_) break;
-                TFile *f = TFile::Open(fname.c_str());
-
-                if(!f)
-                {
-                    std::cout << "File \"" << fname << "\" not found!!!!!!" << std::endl;
-                    continue;
-                }
-
-                TTree *t = (TTree*)f->Get(file.treePath.c_str());
-
-                if(!t)
-                {
-                    std::cout << "Tree \"" << file.treePath << "\" not found in file \"" << fname << "\"!!!!!!" << std::endl;
-                    continue;
-                }
-
-                std::cout << "\t" << fname << std::endl;
-
-                plotterFunctions::activateBranches(activeBranches);
-
-                NTupleReader tr(t, activeBranches);
-                tr.registerFunction(&baselineUpdate);
-                plotterFunctions::registerFunctions(tr);
-
-                while(tr.getNextEvent())
-                {
-                    for(auto& hist : histsToFill)
-                    {
-                        // tree level dynamical cuts are applied here
-                        if(!hist->dss.passCuts(tr)) continue;
-
-                        // parse hist level cuts here
-                        if(!hist->hs->passCuts(tr)) continue;
-
-                        //fill histograms here 
-                        double weight = file.getWeight() * hist->dss.getWeight(tr) * hist->dss.kfactor;
-
-                        fillHist(hist->h, hist->variable, tr, weight);
-                    }
-                }
-                f->Close();
+                std::cout << "File \"" << fname << "\" not found!!!!!!" << std::endl;
+                continue;
             }
+
+            TTree *t = (TTree*)f->Get(file.treePath.c_str());
+
+            if(!t)
+            {
+                std::cout << "Tree \"" << file.treePath << "\" not found in file \"" << fname << "\"!!!!!!" << std::endl;
+                continue;
+            }
+
+            std::cout << "\t" << fname << std::endl;
+
+            plotterFunctions::activateBranches(activeBranches);
+
+            NTupleReader tr(t, activeBranches);
+            tr.registerFunction(&baselineUpdate);
+            plotterFunctions::registerFunctions(tr);
+
+            while(tr.getNextEvent())
+            {
+                for(auto& hist : histsToFill)
+                {
+                    // tree level dynamical cuts are applied here
+                    if(!hist->dss.passCuts(tr)) continue;
+
+                    // parse hist level cuts here
+                    if(!hist->hs->passCuts(tr)) continue;
+
+                    //fill histograms here 
+                    double weight = file.getWeight() * hist->dss.getWeight(tr) * hist->dss.kfactor;
+
+                    fillHist(hist->h, hist->variable, tr, weight);
+                }
+            }
+            f->Close();
         }
     }
 }
@@ -388,7 +388,7 @@ void Plotter::saveHists()
                 for(auto& h : hvec.hcsVec)
                 {
                     h->h->Write();
-                 }
+                }
             }
         }
     }
@@ -491,8 +491,19 @@ void Plotter::plot()
                 hvec.h = static_cast<TNamed*>(stack);
 
                 double sow = 0, te = 0;
+                bool firstHIS = true;
+                TH1* thstacksucks;
                 for(auto& h : hvec.hcsVec)
                 {
+                    if(firstHIS)
+                    {
+                        firstHIS = false;
+                        thstacksucks = static_cast<TH1*>(h->h->Clone());
+                    }
+                    else
+                    {
+                        thstacksucks->Add(h->h);
+                    }
                     h->h->SetLineColor(stackColors[iStack%NSTACKCOLORS]);
                     h->h->SetFillColor(stackColors[iStack%NSTACKCOLORS]);
                     iStack++;
@@ -505,8 +516,9 @@ void Plotter::plot()
                     sow += h->h->GetSumOfWeights();
                     te +=  h->h->GetEntries();
                 }
-                smartMax(static_cast<TH1*>(stack->GetHists()->Last()), leg, static_cast<TPad*>(gPad), min, max, lmax);
+                smartMax(thstacksucks, leg, static_cast<TPad*>(gPad), min, max, lmax);
                 minAvgWgt = std::min(minAvgWgt, sow/te);
+                if(thstacksucks) delete thstacksucks;
             }
         }
         
@@ -514,16 +526,20 @@ void Plotter::plot()
         if(hist.isLog)
         {
             double locMin = std::min(0.2*minAvgWgt, std::max(0.0001, 0.05 * min));
-            double legMin = (log10(3*max) - log10(locMin)) * (leg->GetY1NDC() - gPad->GetBottomMargin()) / ((1 - gPad->GetTopMargin()) - gPad->GetBottomMargin());
-            //if(log10(lmax) > (legMin + log10(locMin))) max = pow(10.0, log10(locMin) + (log10(max) - log10(locMin))/(log10(lmax)/(legMin + log10(locMin))));
+            double legSpan = (log10(3*max) - log10(locMin)) * (leg->GetY1() - gPad->GetBottomMargin()) / ((1 - gPad->GetTopMargin()) - gPad->GetBottomMargin());
+            double legMin = legSpan + log10(locMin);
+            if(log10(lmax) > legMin) 
+            {
+                double scale = (log10(lmax) - log10(locMin)) / (legMin - log10(locMin));
+                max = pow(max/locMin, scale)*locMin;
+            }
             dummy->GetYaxis()->SetRangeUser(locMin, 3*max);
-            //std::cout << pow(10.0, log10(lmax)/(legMin + log10(locMin))) << std::endl;
         }
         else
         {
             double locMin = 0.0;
             double legMin = (1.2*max - locMin) * (leg->GetY1() - gPad->GetBottomMargin()) / ((1 - gPad->GetTopMargin()) - gPad->GetBottomMargin());
-            if((lmax + locMin) > (legMin + locMin)) max *= (lmax - locMin)/(legMin - locMin);
+            if(lmax > legMin) max *= (lmax - locMin)/(legMin - locMin);
             dummy->GetYaxis()->SetRangeUser(0.0, max*1.2);
         }
         dummy->Draw();
@@ -543,6 +559,8 @@ void Plotter::plot()
             }
         }
         leg->Draw();
+
+        fixOverlay();
 
         TH1 *dummy2 = nullptr, *h1 = nullptr, *h2 = nullptr;
         if(showRatio)
@@ -584,7 +602,35 @@ void Plotter::plot()
             {
                 for(auto& hvec : hist.hists)
                 {
-                    //if(iHist == hist.ratio.first)
+                    if(hvec.type.compare("single") == 0)
+                    {
+                        if(iHist == hist.ratio.first)  h1 = static_cast<TH1*>(hvec.hcsVec.front()->h->Clone());
+                        if(iHist == hist.ratio.second) h2 = static_cast<TH1*>(hvec.hcsVec.front()->h->Clone());
+                    }
+                    else if(hvec.type.compare("stack") == 0)
+                    {
+                        bool firstHIS = true;
+                        TH1* thstacksucks;
+                        if(iHist == hist.ratio.first || iHist == hist.ratio.second)
+                        {
+                            for(auto& h : hvec.hcsVec)
+                            {
+                                if(firstHIS)
+                                {
+                                    firstHIS = false;
+                                    thstacksucks = static_cast<TH1*>(h->h->Clone());
+                                }
+                                else
+                                {
+                                    thstacksucks->Add(h->h);
+                                }
+                            }
+                            if(iHist == hist.ratio.first)  h1 = static_cast<TH1*>(thstacksucks->Clone());
+                            if(iHist == hist.ratio.second) h2 = static_cast<TH1*>(thstacksucks->Clone());
+                        }
+                        if(thstacksucks) delete thstacksucks;
+                    }
+                    ++iHist;
                 }
             }
 
@@ -601,7 +647,7 @@ void Plotter::plot()
                 double d2ymax = 1.5;
                 for(int iBin = 1; iBin <= h1->GetNbinsX(); ++iBin)
                 {
-                    if(h1->GetBinContent(iBin) < 10.0)
+                    if(h1->GetBinContent(iBin) < 5.0)
                     {
                         d2ymax = std::max(d2ymax, h1->GetBinContent(iBin));
                     }
@@ -612,6 +658,8 @@ void Plotter::plot()
                 fline->Draw("same");
                 
                 h1->Draw("same E1");
+
+                fixOverlay();
             }
         }
 
