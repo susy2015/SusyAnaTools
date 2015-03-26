@@ -40,7 +40,7 @@ class prodGenInfo : public edm::EDFilter {
     int find_idx(int genIdx, const std::vector<int> &genDecayIdxVec);
 
     void find_mother(std::vector<int> & momIdxVec, int dauIdx, const std::vector<int> &genDecayIdxVec, const std::vector<int> &genDecayMomIdxVec);
-    void find_W_emu_tauprongs(std::vector<int> &W_emuVec, std::vector<int> &W_tau_emuVec, std::vector<int> &W_tau_prongsVec, const std::vector<int> &genDecayIdxVec, const std::vector<int> &genDecayMomIdxVec, const std::vector<int> &genDecayPdgIdVec);
+    void find_W_emu_tauprongs(std::vector<int> &W_emuVec, std::vector<int> &W_tauVec, std::vector<int> &W_tau_emuVec, std::vector<int> &W_tau_prongsVec, std::vector<int> &W_tau_nuVec, const std::vector<int> &genDecayIdxVec, const std::vector<int> &genDecayMomIdxVec, const std::vector<int> &genDecayPdgIdVec);
 };
 
 
@@ -58,10 +58,13 @@ prodGenInfo::prodGenInfo(const edm::ParameterSet & iConfig) {
   produces<std::vector<int> >("genDecayPdgIdVec");
   produces<std::vector<int> >("genDecayMomIdxVec");
   produces<std::vector<TLorentzVector> >("genDecayLVec");
+  produces<std::vector<int> >("genDecayMomRefVec");
 
   produces<std::vector<int> >("WemuVec");
+  produces<std::vector<int> >("WtauVec");
   produces<std::vector<int> >("WtauemuVec");
   produces<std::vector<int> >("WtauprongsVec");
+  produces<std::vector<int> >("WtaunuVec");
 }
 
 
@@ -80,10 +83,13 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> > genDecayPdgIdVec(new std::vector<int>());
   std::auto_ptr<std::vector<int> > genDecayMomIdxVec(new std::vector<int>());
   std::auto_ptr<std::vector<std::string> > genDecayStrVec(new std::vector<std::string>());
+  std::auto_ptr<std::vector<int> > genDecayMomRefVec(new std::vector<int>());
 
   std::auto_ptr<std::vector<int> > W_emuVec(new std::vector<int>());
+  std::auto_ptr<std::vector<int> > W_tauVec(new std::vector<int>());
   std::auto_ptr<std::vector<int> > W_tau_emuVec(new std::vector<int>());
   std::auto_ptr<std::vector<int> > W_tau_prongsVec(new std::vector<int>());
+  std::auto_ptr<std::vector<int> > W_tau_nuVec(new std::vector<int>());
 
   for(unsigned int id=0; id<genDecayStrVec_->size(); id++){
      genDecayStrVec->push_back( (*genDecayStrVec_)[id] );
@@ -125,31 +131,46 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
      genDecayPdgIdVec->push_back(pdgId);
      genDecayLVec->push_back(genPartLVec);
   }
+  for(unsigned int id=0; id<genDecayMomIdxVec->size(); id++){
+     int momIdx = genDecayMomIdxVec->at(id);
+     genDecayMomRefVec->push_back(find_idx(momIdx, (*genDecayIdxVec)));
+  }
+
   if( debug_ ){
-     std::cout<<"\nidxGen/pdgId/momIdx : ";
+     std::cout<<"\nord/idxGen/pdgId/momIdx/momRef : ";
      for(unsigned int ig=0; ig<genDecayIdxVec->size(); ig++){
-        std::cout<<"  "<<genDecayIdxVec->at(ig)<<"/"<<genDecayPdgIdVec->at(ig)<<"/"<<genDecayMomIdxVec->at(ig);
+        std::cout<<"  "<<ig<<"/"<<genDecayIdxVec->at(ig)<<"/"<<genDecayPdgIdVec->at(ig)<<"/"<<genDecayMomIdxVec->at(ig)<<"/"<<genDecayMomRefVec->at(ig);
      }
      std::cout<<std::endl;
   }
 
-  find_W_emu_tauprongs((*W_emuVec), (*W_tau_emuVec), (*W_tau_prongsVec), (*genDecayIdxVec), (*genDecayMomIdxVec), (*genDecayPdgIdVec));
+  find_W_emu_tauprongs((*W_emuVec), (*W_tauVec), (*W_tau_emuVec), (*W_tau_prongsVec), (*W_tau_nuVec), (*genDecayIdxVec), (*genDecayMomIdxVec), (*genDecayPdgIdVec));
   if( debug_ ){
-     std::cout<<"\nW_emu (idx: idxGen/pdgId/momIdx) : ";
+     std::cout<<"\nW_emu (idx: idxGen/pdgId/momRef) : ";
      for(unsigned int id=0; id<W_emuVec->size(); id++){
-        std::cout<<"  "<<"("<<W_emuVec->at(id)<<": "<<genDecayIdxVec->at(W_emuVec->at(id))<<"/"<<genDecayPdgIdVec->at(W_emuVec->at(id))<<"/"<<genDecayMomIdxVec->at(W_emuVec->at(id))<<")";
+        std::cout<<"  "<<"("<<W_emuVec->at(id)<<": "<<genDecayIdxVec->at(W_emuVec->at(id))<<"/"<<genDecayPdgIdVec->at(W_emuVec->at(id))<<"/"<<genDecayMomRefVec->at(W_emuVec->at(id))<<")";
      }
      std::cout<<std::endl;
-     std::cout<<"\nW_tau_emu (idx: idxGen/pdgId/momIdx) : ";
+     std::cout<<"\nW_tau (idx: idxGen/pdgId/momRef) : ";
+     for(unsigned int id=0; id<W_tauVec->size(); id++){
+        std::cout<<"  "<<"("<<W_tauVec->at(id)<<": "<<genDecayIdxVec->at(W_tauVec->at(id))<<"/"<<genDecayPdgIdVec->at(W_tauVec->at(id))<<"/"<<genDecayMomRefVec->at(W_tauVec->at(id))<<")";
+     }
+     std::cout<<std::endl;
+     std::cout<<"\nW_tau_emu (idx: idxGen/pdgId/momRef) : ";
      for(unsigned int id=0; id<W_tau_emuVec->size(); id++){
-        std::cout<<"  "<<"("<<W_tau_emuVec->at(id)<<": "<<genDecayIdxVec->at(W_tau_emuVec->at(id))<<"/"<<genDecayPdgIdVec->at(W_tau_emuVec->at(id))<<"/"<<genDecayMomIdxVec->at(W_tau_emuVec->at(id))<<")";
+        std::cout<<"  "<<"("<<W_tau_emuVec->at(id)<<": "<<genDecayIdxVec->at(W_tau_emuVec->at(id))<<"/"<<genDecayPdgIdVec->at(W_tau_emuVec->at(id))<<"/"<<genDecayMomRefVec->at(W_tau_emuVec->at(id))<<")";
      }
      std::cout<<std::endl;
-     std::cout<<"\nW_tau_prongs (idx: idxGen/pdgId/momIdx) : ";
+     std::cout<<"\nW_tau_prongs (idx: idxGen/pdgId/momRef) : ";
      for(unsigned int id=0; id<W_tau_prongsVec->size(); id++){
-        std::cout<<"  "<<"("<<W_tau_prongsVec->at(id)<<": "<<genDecayIdxVec->at(W_tau_prongsVec->at(id))<<"/"<<genDecayPdgIdVec->at(W_tau_prongsVec->at(id))<<"/"<<genDecayMomIdxVec->at(W_tau_prongsVec->at(id))<<")";
+        std::cout<<"  "<<"("<<W_tau_prongsVec->at(id)<<": "<<genDecayIdxVec->at(W_tau_prongsVec->at(id))<<"/"<<genDecayPdgIdVec->at(W_tau_prongsVec->at(id))<<"/"<<genDecayMomRefVec->at(W_tau_prongsVec->at(id))<<")";
      }
      std::cout<<std::endl;
+     std::cout<<"\nW_tau_nu (idx: idxGen/pdgId/momRef) : ";
+     for(unsigned int id=0; id<W_tau_nuVec->size(); id++){
+        std::cout<<"  "<<"("<<W_tau_nuVec->at(id)<<": "<<genDecayIdxVec->at(W_tau_nuVec->at(id))<<"/"<<genDecayPdgIdVec->at(W_tau_nuVec->at(id))<<"/"<<genDecayMomRefVec->at(W_tau_nuVec->at(id))<<")";
+     }
+     std::cout<<std::endl<<std::endl;
   }
 
   // store in the event
@@ -159,10 +180,13 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(genDecayIdxVec, "genDecayIdxVec");
   iEvent.put(genDecayPdgIdVec, "genDecayPdgIdVec");
   iEvent.put(genDecayMomIdxVec, "genDecayMomIdxVec");
+  iEvent.put(genDecayMomRefVec, "genDecayMomRefVec");
 
+  iEvent.put(W_tauVec, "WtauVec");
   iEvent.put(W_emuVec, "WemuVec");
   iEvent.put(W_tau_emuVec, "WtauemuVec");
   iEvent.put(W_tau_prongsVec, "WtauprongsVec");
+  iEvent.put(W_tau_nuVec, "WtaunuVec");
 
   return true;
 }
@@ -198,12 +222,12 @@ void prodGenInfo::find_mother(std::vector<int> & momIdxVec, int dauIdx, const st
    return;
 }
 
-void prodGenInfo::find_W_emu_tauprongs(std::vector<int> &W_emuVec, std::vector<int> &W_tau_emuVec, std::vector<int> &W_tau_prongsVec, const std::vector<int> &genDecayIdxVec, const std::vector<int> &genDecayMomIdxVec, const std::vector<int> &genDecayPdgIdVec){
-   W_emuVec.clear(); W_tau_emuVec.clear(); W_tau_prongsVec.clear();
+void prodGenInfo::find_W_emu_tauprongs(std::vector<int> &W_emuVec, std::vector<int> &W_tauVec, std::vector<int> &W_tau_emuVec, std::vector<int> &W_tau_prongsVec, std::vector<int> &W_tau_nuVec, const std::vector<int> &genDecayIdxVec, const std::vector<int> &genDecayMomIdxVec, const std::vector<int> &genDecayPdgIdVec){
+   W_emuVec.clear(); W_tauVec.clear(), W_tau_emuVec.clear(); W_tau_prongsVec.clear(); W_tau_nuVec.clear();
    if( !genDecayPdgIdVec.empty() ){
       for(unsigned int ig=0; ig<genDecayPdgIdVec.size(); ig++){
          int pdgId = genDecayPdgIdVec.at(ig);
-         if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 211 || abs(pdgId) == 321 ){
+         if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15 || abs(pdgId) == 211 || abs(pdgId) == 321 || abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16 ){
             std::vector<int> momIdxVec;
             find_mother(momIdxVec, ig, genDecayIdxVec, genDecayMomIdxVec);
             int cntMomW = 0, cntMomTau = 0;
@@ -215,9 +239,11 @@ void prodGenInfo::find_W_emu_tauprongs(std::vector<int> &W_emuVec, std::vector<i
                if( abs(genDecayPdgIdVec[momIdxVec[im]]) == 15 ) cntMomTau ++;
             }
             if( cntMomW ){
+               if( abs(pdgId) == 15 ) W_tauVec.push_back(ig);
                if( cntMomTau ){
                   if( abs(pdgId) == 11 || abs(pdgId) == 13 ) W_tau_emuVec.push_back(ig);
-                  else W_tau_prongsVec.push_back(ig);
+                  else if( abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16 ) W_tau_nuVec.push_back(ig);
+                  else if( abs(pdgId) != 15 ) W_tau_prongsVec.push_back(ig);
                }else{
                   if( abs(pdgId) == 11 || abs(pdgId) == 13 ) W_emuVec.push_back(ig);
                }
