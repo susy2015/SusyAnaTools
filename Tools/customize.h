@@ -47,9 +47,11 @@ namespace AnaConsts{
    const double defaultMETcut = 200;
 
 //                                 minAbsEta, maxAbsEta, minPt, maxPt, maxrelIso, maxMtw
-   const double     muonsArr[] = {   -1,       2.4,      5,     -1,       0.2,     -1  };
-   const double      elesArr[] = {   -1,       2.5,      5,     -1,      0.15,     -1  };
-   const double   isoTrksArr[] = {   -1,        -1,      10,     -1,       0.1,    100  };
+   const double     muonsArr[] =    {   -1,       2.4,      5,     -1,       0.2,     -1  };
+   const double muonsMiniIsoArr[] = {   -1,       2.4,      5,     -1,       0.1,     -1  };
+   const double muonsTrigArr[] =    {   -1,       2.4,      5,     -1,       0.4,     -1  };
+   const double      elesArr[] =    {   -1,       2.5,      5,     -1,      0.15,     -1  };
+   const double   isoTrksArr[] =    {   -1,        -1,      10,     -1,       0.1,    100 };
 
    const double  dPhi0_CUT = 0.5, dPhi1_CUT = 0.5, dPhi2_CUT = 0.3;
 

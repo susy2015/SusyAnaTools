@@ -39,7 +39,7 @@ namespace AnaSamples
 
     static const double lumi = 5000.0; // in pb-1
     //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/";
-    static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Mar14_2014_v1/";
+    static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Mar14_2014_v2/";
 
     template<class T>
     class SampleBase

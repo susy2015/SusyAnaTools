@@ -16,7 +16,10 @@ const int colors[] = {
     kGreen-2,
     kBlack,
     kOrange,
-    kYellow
+    kYellow,
+    kGreen,
+    kCyan,
+    kMagenta
 };
 const int NCOLORS = sizeof(colors)/sizeof(int);
 
@@ -401,6 +404,9 @@ void Plotter::plot()
 
     for(HistSummary& hist : hists_)
     {
+        bool skip = false;
+        for(auto& hvec : hist.hists)  for(auto& h : hvec.hcsVec) if(!h->h) skip = true;
+        if(skip) continue;
 
         bool showRatio = true;
         if(hist.ratio.first == hist.ratio.second || hist.ratio.first < 1 || hist.ratio.second < 1)

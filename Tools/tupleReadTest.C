@@ -29,7 +29,7 @@ int main()
 {
     //char nBase[] = "root://cmsxrootd-site.fnal.gov//store/user/pastika/DYJetsToLL_M-50_13TeV-madgraph-pythia8/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223539/0000/stopFlatNtuples_%d.root";
     //char nBase[] = "/eos/uscms/store/user/pastika/DYJetsToLL_M-50_13TeV-madgraph-pythia8/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223539/0000/stopFlatNtuples_%d.root";
-    char nBase[] = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_13TeV-madgraph-pythia8/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223539/0000/stopFlatNtuples_%d.root";
+    char nBase[] = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Mar14_2014_v2/pastika/DYJetsToLL_M-50_HT-400to600_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/150328_003540/0000/stopFlatNtuples_%d.root";
     //char nBase[] = "root://cmsxrootd-site.fnal.gov//store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_13TeV-madgraph-pythia8/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223539/0000/stopFlatNtuples_%d.root";
 
     TChain *f = new TChain("stopTreeMaker/AUX");
@@ -37,7 +37,7 @@ int main()
     size_t t0 = clock();
 
     char fname[512];
-    for(int i = 0; i < 1; ++i)
+    for(int i = 1; i <= 1; ++i)
     {
         sprintf(fname, nBase, i);
         f->Add(fname);
@@ -61,6 +61,6 @@ int main()
         //std::cout << tr.getVar<double>("met") << "\t" << tr.getVar<double>("mht") << "\t" << tr.getVar<double>("joe") << "\t" << tr.getVar<int>("five") << "\t" << tr.getVec<double>("muonsMtw").size() << "\t" << tr.getVec<double>("threeNum")[2] << std::endl;
     }
 
-    const unsigned int& run = tr.getVar<unsigned int>("run");
+    //const unsigned int& run = tr.getVar<unsigned int>("run");
 
 }
