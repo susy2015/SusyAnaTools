@@ -23,14 +23,10 @@
    NTupleReader tr(tree);
    while(tr.getNextEvent())
    {
-       int run = tr.run;
+       const int& run = tr.getVar<int>("run");
    }
-   
-   
-   To add a variable to the reader it should be declared in the public section of the class definition,
-   and added to the branchMap_ map in the populateBranchList().  Vectors they must be declared
-   as pointers and initialized to zero in the constructor but not in clearTuple().  For simple variables 
-   they shoud be initialized to an approperiate value in clearTuple().  
+
+   and so on.  
  */
 
 class NTupleReader;

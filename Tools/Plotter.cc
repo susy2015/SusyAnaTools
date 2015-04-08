@@ -9,6 +9,7 @@
 //#include "TChain.h"
 #include "TF1.h"
 #include "THStack.h"
+#include "TLatex.h"
 
 const int colors[] = {
     kRed,
@@ -16,10 +17,10 @@ const int colors[] = {
     kGreen-2,
     kBlack,
     kOrange,
-    kYellow,
-    kGreen,
     kCyan,
-    kMagenta
+    kMagenta,
+    kYellow,
+    kGreen
 };
 const int NCOLORS = sizeof(colors)/sizeof(int);
 
@@ -252,6 +253,7 @@ void Plotter::createHistsFromTuple()
 
             NTupleReader tr(t, activeBranches);
             tr.registerFunction(&baselineUpdate);
+            tr.registerFunction(&stopFunctions::cleanJets);
             plotterFunctions::registerFunctions(tr);
 
             while(tr.getNextEvent())
@@ -442,14 +444,14 @@ void Plotter::plot()
         dummy->SetStats(0);
         dummy->SetTitle(0);
         dummy->GetYaxis()->SetTitle(hist.yAxisLabel.c_str());
-        dummy->GetYaxis()->SetTitleOffset(1.20);
+        dummy->GetYaxis()->SetTitleOffset(1.1*1.05 / (fontScale));
+        dummy->GetXaxis()->SetTitleOffset(1.05);
         if(showRatio) dummy->GetXaxis()->SetTitle("");
         else          dummy->GetXaxis()->SetTitle(hist.xAxisLabel.c_str());
-        dummy->GetXaxis()->SetTitleOffset(1.05);
-        dummy->GetXaxis()->SetTitleSize(0.04);
-        dummy->GetXaxis()->SetLabelSize(0.04);
-        dummy->GetYaxis()->SetTitleSize(0.04);
-        dummy->GetYaxis()->SetLabelSize(0.04);
+        dummy->GetXaxis()->SetTitleSize(0.20 * 2 / 6.5 * fontScale);
+        dummy->GetXaxis()->SetLabelSize(0.20 * 2 / 6.5 * fontScale);
+        dummy->GetYaxis()->SetTitleSize(0.20 * 2 / 6.5 * fontScale);
+        dummy->GetYaxis()->SetLabelSize(0.20 * 2 / 6.5 * fontScale);
         if(dummy->GetNdivisions() % 100 > 5) dummy->GetXaxis()->SetNdivisions(6, 5, 0);
 
         TLegend *leg = new TLegend(0.50, 0.70, 0.89, 0.88);
@@ -460,7 +462,7 @@ void Plotter::plot()
         leg->SetTextFont(42);
 
         double max = 0.0, lmax = 0.0, min = 1.0e300, minAvgWgt = 1.0e300;
-        int iSingle = 0, iStack = 0;
+        int iSingle = 0, iStack = 0, iRatio = 0;
         char legEntry[128];
         for(auto& hvec : hist.hists)
         {
@@ -484,8 +486,11 @@ void Plotter::plot()
             {
                 auto hIter = hvec.hcsVec.begin();
                 TH1* hratio = static_cast<TH1*>((*hIter)->h->Clone());
+                hratio->SetLineColor(colors[iRatio%NCOLORS]);
+                ++iRatio;
                 hvec.h = static_cast<TNamed*>(hratio);
                 ++hIter;
+                if(hist.isNorm) hratio->Scale((*hIter)->h->Integral()/hratio->Integral());
                 hratio->Divide((*hIter)->h);
                 leg->AddEntry(hratio, hvec.flabel().c_str());
                 smartMax(hratio, leg, static_cast<TPad*>(gPad), min, max, lmax);
@@ -561,7 +566,8 @@ void Plotter::plot()
             }
             else
             {
-                hvec.h->Draw("hist same");
+                if(hvec.type.compare("ratio") == 0) hvec.h->Draw("hist same E1");
+                else                                hvec.h->Draw("hist same");
             }
         }
         leg->Draw();
@@ -669,6 +675,18 @@ void Plotter::plot()
             }
         }
 
+        c->cd(1);
+        char lumistamp[128];
+        sprintf(lumistamp, "%.1f fb^{-1} at 13 TeV", 5000.0 / 1000.0);
+        TLatex mark;
+        mark.SetTextSize(0.042 * fontScale);
+        mark.SetTextFont(42);
+        mark.SetNDC(true);
+        mark.DrawLatex(gPad->GetLeftMargin(), 0.95, "CMS Preliminary");
+        mark.SetTextAlign(31);
+        mark.DrawLatex(1 - gPad->GetRightMargin(), 0.95, lumistamp);
+
+        fixOverlay();
         c->Print((hist.name+".png").c_str());
 
         delete leg;
