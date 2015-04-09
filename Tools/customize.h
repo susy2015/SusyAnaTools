@@ -40,6 +40,11 @@ namespace AnaConsts{
         double minAbsEta, maxAbsEta, minPt, maxPt, maxIso, maxMtw;
     };
 
+    struct ElecIsoAccRec
+    {
+        double minAbsEta, maxAbsEta, minPt, maxPt, maxIsoEB, maxIsoEE, maxMtw;
+    };
+
     struct ActRec
     {
         double minAbsEta, maxAbsEta, minPt, maxPt, mindR, maxdR;
@@ -68,8 +73,11 @@ namespace AnaConsts{
    const IsoAccRec     muonsArr =    {   -1,       2.4,      5,     -1,       0.2,     -1  };
    const IsoAccRec muonsMiniIsoArr = {   -1,       2.4,      5,     -1,       0.1,     -1  };
    const IsoAccRec muonsTrigArr =    {   -1,       2.4,      5,     -1,       0.4,     -1  };
-   const IsoAccRec      elesArr =    {   -1,       2.5,      5,     -1,      0.15,     -1  };
    const IsoAccRec   isoTrksArr =    {   -1,        -1,      10,     -1,       0.1,    100 };
+
+//                                    minAbsEta, maxAbsEta, minPt, maxPt, maxIsoEB, maxIsoEE,  maxMtw
+   const ElecIsoAccRec  elesArr =    {   -1,       2.5,      5,     -1,  0.164369, 0.1212604,    -1  };
+
 
 //                                  minAbsEta, maxAbsEta, minPt, maxPt,   mindR,   maxdR
    const ActRec     muonsAct =    {   -1,       -1,        10,    -1,       -1,     1.0  };
@@ -184,9 +192,9 @@ namespace AnaFunctions{
       return cntNMuons;
    }
 
-   bool passElectron(const TLorentzVector& elec, const double electronIso, const double electronMtw, const AnaConsts::IsoAccRec& elesArr)
+   bool passElectron(const TLorentzVector& elec, const double electronIso, const double electronMtw, bool isEB, const AnaConsts::ElecIsoAccRec& elesArr)
    {
-       const double minAbsEta = elesArr.minAbsEta, maxAbsEta = elesArr.maxAbsEta, minPt = elesArr.minPt, maxPt = elesArr.maxPt, maxIso = elesArr.maxIso, maxMtw = elesArr.maxMtw;
+       const double minAbsEta = elesArr.minAbsEta, maxAbsEta = elesArr.maxAbsEta, minPt = elesArr.minPt, maxPt = elesArr.maxPt, maxIso = (isEB)?(elesArr.maxIsoEB):(elesArr.maxIsoEE), maxMtw = elesArr.maxMtw;
        double perelectronpt = elec.Pt(), perelectroneta = elec.Eta();
        return ( minAbsEta == -1 || fabs(perelectroneta) >= minAbsEta )
            && ( maxAbsEta == -1 || fabs(perelectroneta) < maxAbsEta )
@@ -196,11 +204,11 @@ namespace AnaFunctions{
            && (    maxMtw == -1 || electronMtw < maxMtw );       
    }
 
-   int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const AnaConsts::IsoAccRec& elesArr){
+   int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<unsigned int>& isEBVec, const AnaConsts::ElecIsoAccRec& elesArr){
 
       int cntNElectrons = 0;
       for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
-          if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], elesArr))cntNElectrons ++;
+          if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], isEBVec[ie], elesArr)) cntNElectrons ++;
       }
       return cntNElectrons;
    }
@@ -299,6 +307,25 @@ namespace AnaFunctions{
 
    bool passBaseline(){
 
+   }
+
+   int jetLepdRMatch(const TLorentzVector& lep, const std::vector<TLorentzVector>& jetsLVec, const double jldRMax)
+   {
+       double dRmin = 999.0;
+       int minJMatch = -1;
+                
+       for(int iJet = 0; iJet < jetsLVec.size(); ++iJet)
+       {
+           double dR = ROOT::Math::VectorUtil::DeltaR(jetsLVec[iJet], lep);
+           if(dR < dRmin)
+           {
+               dRmin = dR;
+               minJMatch = iJet;
+           }
+       }
+
+       if(dRmin < jldRMax) return minJMatch;
+       else                return -1;
    }
 
 }

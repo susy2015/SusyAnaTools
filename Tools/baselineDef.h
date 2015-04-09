@@ -19,7 +19,7 @@ void baselineUpdate(NTupleReader &tr)
 
 // Calculate number of leptons
     int nMuons = AnaFunctions::countMuons(tr.getVec<TLorentzVector>("muonsLVec"), tr.getVec<double>("muonsRelIso"), tr.getVec<double>("muonsMtw"), AnaConsts::muonsArr);
-    int nElectrons = AnaFunctions::countElectrons(tr.getVec<TLorentzVector>("elesLVec"), tr.getVec<double>("elesRelIso"), tr.getVec<double>("elesMtw"), AnaConsts::elesArr);
+    int nElectrons = AnaFunctions::countElectrons(tr.getVec<TLorentzVector>("elesLVec"), tr.getVec<double>("elesRelIso"), tr.getVec<double>("elesMtw"), tr.getVec<unsigned int>("elesisEB"), AnaConsts::elesArr);
     int nIsoTrks = AnaFunctions::countIsoTrks(tr.getVec<TLorentzVector>("loose_isoTrksLVec"), tr.getVec<double>("loose_isoTrks_iso"), tr.getVec<double>("loose_isoTrks_mtw"), AnaConsts::isoTrksArr);
 
 // Calculate number of jets and b-tagged jets
@@ -153,124 +153,163 @@ void baselineUpdate(NTupleReader &tr)
 
 namespace stopFunctions
 {
-    void cleanJets(NTupleReader& tr)
+    class CleanJets
     {
-        const std::vector<TLorentzVector>& jetsLVec         = tr.getVec<TLorentzVector>("jetsLVec");
-        const std::vector<TLorentzVector>& elesLVec         = tr.getVec<TLorentzVector>("elesLVec");
-        const std::vector<TLorentzVector>& muonsLVec        = tr.getVec<TLorentzVector>("muonsLVec");
-        const std::vector<double>&         elesRelIso       = tr.getVec<double>("elesRelIso");
-        const std::vector<double>&         muonsMiniIso     = tr.getVec<double>("muonsMiniIso");
-        const std::vector<double>&         recoJetsBtag_0   = tr.getVec<double>("recoJetsBtag_0");
-        const std::vector<int>&            muMatchedJetIdx  = tr.getVec<int>("muMatchedJetIdx");
-        const std::vector<int>&            eleMatchedJetIdx = tr.getVec<int>("eleMatchedJetIdx");
+    public:        
+        void operator()(NTupleReader& tr) {internalCleanJets(tr);}
 
-        if(elesLVec.size() != elesRelIso.size() 
-           || elesLVec.size() != eleMatchedJetIdx.size()
-           || muonsLVec.size() != muonsMiniIso.size()
-           || muonsLVec.size() != muMatchedJetIdx.size()
-           || jetsLVec.size() != recoJetsBtag_0.size())
+        void setMuonIso(const std::string muIsoFlag) 
         {
-            std::cout << "MISMATCH IN VECTOR SIZE!!!!! Aborting jet cleaning algorithm!!!!!!" << std::endl;
-            return;
-        }
-
-        std::vector<TLorentzVector>* cleanJetVec        = new std::vector<TLorentzVector>();
-        std::vector<double>* cleanJetBTag               = new std::vector<double>;
-        std::vector<TLorentzVector>* cleanJetpt30ArrVec = new std::vector<TLorentzVector>();
-        std::vector<double>* cleanJetpt30ArrBTag        = new std::vector<double>;
-
-        const double jldRMax = 0.15;
-
-        const double HT_jetPtMin = 50;
-        const double HT_jetEtaMax = 2.4;
-        const double MTH_jetPtMin = 30.0;
-
-        double HT = 0.0, HTNoIso = 0.0;
-        TLorentzVector MHT;
-
-        std::vector<bool> keepJetPFCandMatch(jetsLVec.size(), true);
-
-        for(int iM = 0; iM < muonsLVec.size() && iM < muonsMiniIso.size() && iM < muMatchedJetIdx.size(); ++iM)
-        {
-            if(!AnaFunctions::passMuon(muonsLVec[iM], muonsMiniIso[iM], 0.0, AnaConsts::muonsMiniIsoArr)) continue;
-
-            if(muMatchedJetIdx[iM] >= 0) keepJetPFCandMatch[muMatchedJetIdx[iM]] = false;
-            else                         
+            if(muIsoFlag.compare("mini") == 0)
             {
-                //If muon matching to PF candidate has failed, use dR matching as fallback
-                double dRmin = 999.0;
-                int minJMatch = -1;
-                
-                for(int iJet = 0; iJet < jetsLVec.size(); ++iJet)
-                {
-                    if(!keepJetPFCandMatch[iJet]) continue;
-
-                    double dR = ROOT::Math::VectorUtil::DeltaR(jetsLVec[iJet], muonsLVec[iM]);
-                    if(dR < dRmin)
-                    {
-                        dRmin = dR;
-                        minJMatch = iJet;
-                    }
-                }
-
-                if(dRmin < jldRMax) keepJetPFCandMatch[minJMatch] = false;
+                muIsoStr_ = "muonsMiniIso";
+                muIsoReq_ = AnaConsts::muonsMiniIsoArr;
             }
-
-        }
-
-        for(int iE = 0; iE < elesLVec.size() && iE < elesRelIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
-        {
-            if(!AnaFunctions::passElectron(elesLVec[iE], elesRelIso[iE], 0.0, AnaConsts::elesArr)) continue;
-
-            if(eleMatchedJetIdx[iE] >= 0) keepJetPFCandMatch[eleMatchedJetIdx[iE]] = false;
+            else if(muIsoFlag.compare("rel") == 0)
+            {
+                muIsoStr_ = "muonsRelIso";
+                muIsoReq_ = AnaConsts::muonsArr;
+            }
             else
             {
-                //If electron matching to PF candidate has failed, use dR matching as fallback
-                double dRmin = 999.0;
-                int minJMatch = -1;
-
-                for(int iJet = 0; iJet < jetsLVec.size(); ++iJet)
-                {
-                    if(!keepJetPFCandMatch[iJet]) continue;
-
-                    double dR = ROOT::Math::VectorUtil::DeltaR(jetsLVec[iJet], elesLVec[iE]);
-                    if(dR < dRmin)
-                    {
-                        dRmin = dR;
-                        minJMatch = iJet;
-                    }
-                }
-
-                if(dRmin < jldRMax) keepJetPFCandMatch[minJMatch] = false;
+                std::cout << "cleanJets(...):  muon iso mode not recognized!!!  Using \"rel iso\" settings." << std::endl;
+                muIsoStr_ = "muonsRelIso";
+                muIsoReq_ = AnaConsts::muonsArr;
             }
         }
 
-        int jetsKept = 0;
-        for(int iJet = 0; iJet < jetsLVec.size(); ++iJet)
+        void setElecIso(const std::string elecIsoFlag) 
         {
-            if(keepJetPFCandMatch[iJet])
+            if(elecIsoFlag.compare("mini") == 0)
             {
-                ++jetsKept;
-                cleanJetVec->push_back(jetsLVec[iJet]);
-                cleanJetBTag->push_back(recoJetsBtag_0[iJet]);
-                if(AnaFunctions::jetPassCuts(jetsLVec[iJet], AnaConsts::pt30Arr))
-                {
-                    cleanJetpt30ArrVec->push_back(jetsLVec[iJet]);
-                    cleanJetpt30ArrBTag->push_back(recoJetsBtag_0[iJet]);
-                }
-                if(jetsLVec[iJet].Pt() > HT_jetPtMin && fabs(jetsLVec[iJet].Eta()) < HT_jetEtaMax) HT += jetsLVec[iJet].Pt();
-                if(jetsLVec[iJet].Pt() > MTH_jetPtMin) MHT += jetsLVec[iJet];
+                std::cout << "cleanJets(...):  electron mini iso mode not implemented yet!!! Using \"rel iso\" settings." << std::endl;
+                //elecIsoStr = "elesMiniIso";
+                //elecIsoReq = AnaConsts::elessMiniIsoArr;
+                elecIsoStr_ = "elesRelIso";
+                elecIsoReq_ = AnaConsts::elesArr;
+            }
+            else if(elecIsoFlag.compare("rel") == 0)
+            {
+                elecIsoStr_ = "elesRelIso";
+                elecIsoReq_ = AnaConsts::elesArr;
+            }
+            else
+            {
+                std::cout << "cleanJets(...):  muon iso mode not recognized!!!  Using \"rel iso\" settings." << std::endl;
+                elecIsoStr_ = "elesRelIso";
+                elecIsoReq_ = AnaConsts::elesArr;
             }
         }
 
-        tr.registerDerivedVar("nJetsRemoved", static_cast<int>(jetsLVec.size() - jetsKept));
-        tr.registerDerivedVar("cleanHt", HT);
-        tr.registerDerivedVar("cleanMHt", MHT.Pt());
-        tr.registerDerivedVar("cleanMHtPhi", MHT.Phi());
-        tr.registerDerivedVec("cleanJetVec", cleanJetVec);
-        tr.registerDerivedVec("cleanJetBTag", cleanJetBTag);
-        tr.registerDerivedVec("cleanJetpt30ArrVec", cleanJetpt30ArrVec);
-        tr.registerDerivedVec("cleanJetpt30ArrBTag", cleanJetpt30ArrBTag);
+        CleanJets()
+        {
+            setMuonIso("rel");
+            setElecIso("rel");
+        }
+        
+    private:
+        std::string muIsoStr_, elecIsoStr_;
+        AnaConsts::IsoAccRec muIsoReq_;
+        AnaConsts::ElecIsoAccRec elecIsoReq_;
+
+        void internalCleanJets(NTupleReader& tr)
+        {
+            const std::vector<TLorentzVector>& jetsLVec         = tr.getVec<TLorentzVector>("jetsLVec");
+            const std::vector<TLorentzVector>& elesLVec         = tr.getVec<TLorentzVector>("elesLVec");
+            const std::vector<TLorentzVector>& muonsLVec        = tr.getVec<TLorentzVector>("muonsLVec");
+            const std::vector<double>&         elesIso          = tr.getVec<double>(elecIsoStr_);
+            const std::vector<double>&         muonsIso         = tr.getVec<double>(muIsoStr_);
+            const std::vector<double>&         recoJetsBtag_0   = tr.getVec<double>("recoJetsBtag_0");
+            const std::vector<int>&            muMatchedJetIdx  = tr.getVec<int>("muMatchedJetIdx");
+            const std::vector<int>&            eleMatchedJetIdx = tr.getVec<int>("eleMatchedJetIdx");
+            const std::vector<unsigned int>&   elesisEB         = tr.getVec<unsigned int>("elesisEB");
+
+            if(elesLVec.size() != elesIso.size() 
+               || elesLVec.size() != eleMatchedJetIdx.size()
+               || elesLVec.size() != elesisEB.size()
+               || muonsLVec.size() != muonsIso.size()
+               || muonsLVec.size() != muMatchedJetIdx.size()
+               || jetsLVec.size() != recoJetsBtag_0.size())
+            {
+                std::cout << "MISMATCH IN VECTOR SIZE!!!!! Aborting jet cleaning algorithm!!!!!!" << std::endl;
+                return;
+            }
+
+            std::vector<TLorentzVector>* cleanJetVec        = new std::vector<TLorentzVector>();
+            std::vector<double>* cleanJetBTag               = new std::vector<double>;
+            std::vector<TLorentzVector>* cleanJetpt30ArrVec = new std::vector<TLorentzVector>();
+            std::vector<double>* cleanJetpt30ArrBTag        = new std::vector<double>;
+
+            const double jldRMax = 0.15;
+
+            const double HT_jetPtMin = 50;
+            const double HT_jetEtaMax = 2.4;
+            const double MTH_jetPtMin = 30.0;
+
+            double HT = 0.0, HTNoIso = 0.0;
+            TLorentzVector MHT;
+
+            std::vector<bool> keepJetPFCandMatch(jetsLVec.size(), true);
+
+            for(int iM = 0; iM < muonsLVec.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
+            {
+                if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_)) continue;
+
+                if(muMatchedJetIdx[iM] >= 0) keepJetPFCandMatch[muMatchedJetIdx[iM]] = false;
+                else                         
+                {
+                    //If muon matching to PF candidate has failed, use dR matching as fallback
+                    int match = AnaFunctions::jetLepdRMatch(muonsLVec[iM], jetsLVec, jldRMax);
+                    if(match >= 0) keepJetPFCandMatch[match] = false;
+                }
+
+            }
+
+            for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
+            {
+                if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elecIsoReq_)) continue;
+
+                if(eleMatchedJetIdx[iE] >= 0) keepJetPFCandMatch[eleMatchedJetIdx[iE]] = false;
+                else
+                {
+                    //If electron matching to PF candidate has failed, use dR matching as fallback
+                    int match = AnaFunctions::jetLepdRMatch(elesLVec[iE], jetsLVec, jldRMax);
+                    if(match >= 0) keepJetPFCandMatch[match] = false;
+                }
+            }
+
+            int jetsKept = 0;
+            for(int iJet = 0; iJet < jetsLVec.size(); ++iJet)
+            {
+                if(keepJetPFCandMatch[iJet])
+                {
+                    ++jetsKept;
+                    cleanJetVec->push_back(jetsLVec[iJet]);
+                    cleanJetBTag->push_back(recoJetsBtag_0[iJet]);
+                    if(AnaFunctions::jetPassCuts(jetsLVec[iJet], AnaConsts::pt30Arr))
+                    {
+                        cleanJetpt30ArrVec->push_back(jetsLVec[iJet]);
+                        cleanJetpt30ArrBTag->push_back(recoJetsBtag_0[iJet]);
+                    }
+                    if(jetsLVec[iJet].Pt() > HT_jetPtMin && fabs(jetsLVec[iJet].Eta()) < HT_jetEtaMax) HT += jetsLVec[iJet].Pt();
+                    if(jetsLVec[iJet].Pt() > MTH_jetPtMin) MHT += jetsLVec[iJet];
+                }
+            }
+
+            tr.registerDerivedVar("nJetsRemoved", static_cast<int>(jetsLVec.size() - jetsKept));
+            tr.registerDerivedVar("cleanHt", HT);
+            tr.registerDerivedVar("cleanMHt", MHT.Pt());
+            tr.registerDerivedVar("cleanMHtPhi", MHT.Phi());
+            tr.registerDerivedVec("cleanJetVec", cleanJetVec);
+            tr.registerDerivedVec("cleanJetBTag", cleanJetBTag);
+            tr.registerDerivedVec("cleanJetpt30ArrVec", cleanJetpt30ArrVec);
+            tr.registerDerivedVec("cleanJetpt30ArrBTag", cleanJetpt30ArrBTag);
+        }
+    } cjh;
+
+    void cleanJets(NTupleReader& tr)
+    {
+        cjh(tr);
     }
 }
 
