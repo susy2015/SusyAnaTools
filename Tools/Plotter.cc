@@ -254,6 +254,7 @@ void Plotter::createHistsFromTuple()
             NTupleReader tr(t, activeBranches);
             tr.registerFunction(&baselineUpdate);
             stopFunctions::cjh.setMuonIso("mini");
+            stopFunctions::cjh.setRemove(false);
             tr.registerFunction(&stopFunctions::cleanJets);
             plotterFunctions::registerFunctions(tr);
 

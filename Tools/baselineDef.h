@@ -4,6 +4,8 @@
 #include "NTupleReader.h"
 #include "customize.h"
 
+#include "Math/VectorUtil.h"
+
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -201,16 +203,45 @@ namespace stopFunctions
             }
         }
 
+        void setRemove(bool remove)
+        {
+            remove_ = remove;
+        }
+
         CleanJets()
         {
             setMuonIso("rel");
             setElecIso("rel");
+            setRemove(true);
         }
         
     private:
         std::string muIsoStr_, elecIsoStr_;
         AnaConsts::IsoAccRec muIsoReq_;
         AnaConsts::ElecIsoAccRec elecIsoReq_;
+        bool remove_;
+
+        void cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax)
+        {
+            int match = lepMatchedJetIdx;
+            if(match < 0)
+            {
+                //If muon matching to PF candidate has failed, use dR matching as fallback
+                match = AnaFunctions::jetLepdRMatch(lep, jetsLVec, jldRMax);
+            }
+
+            if(match >= 0)
+            {
+                if(remove_)
+                {
+                    keepJet[match] = false;
+                }
+                else
+                {
+                    (*cleanJetVec)[match] -= lep;
+                }
+            }
+        }
 
         void internalCleanJets(NTupleReader& tr)
         {
@@ -235,8 +266,8 @@ namespace stopFunctions
                 return;
             }
 
-            std::vector<TLorentzVector>* cleanJetVec        = new std::vector<TLorentzVector>();
-            std::vector<double>* cleanJetBTag               = new std::vector<double>;
+            std::vector<TLorentzVector>* cleanJetVec        = new std::vector<TLorentzVector>(jetsLVec);
+            std::vector<double>* cleanJetBTag               = new std::vector<double>(recoJetsBtag_0);
             std::vector<TLorentzVector>* cleanJetpt30ArrVec = new std::vector<TLorentzVector>();
             std::vector<double>* cleanJetpt30ArrBTag        = new std::vector<double>;
 
@@ -255,45 +286,44 @@ namespace stopFunctions
             {
                 if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_)) continue;
 
-                if(muMatchedJetIdx[iM] >= 0) keepJetPFCandMatch[muMatchedJetIdx[iM]] = false;
-                else                         
-                {
-                    //If muon matching to PF candidate has failed, use dR matching as fallback
-                    int match = AnaFunctions::jetLepdRMatch(muonsLVec[iM], jetsLVec, jldRMax);
-                    if(match >= 0) keepJetPFCandMatch[match] = false;
-                }
-
+                cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
             }
 
             for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
             {
                 if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elecIsoReq_)) continue;
 
-                if(eleMatchedJetIdx[iE] >= 0) keepJetPFCandMatch[eleMatchedJetIdx[iE]] = false;
-                else
-                {
-                    //If electron matching to PF candidate has failed, use dR matching as fallback
-                    int match = AnaFunctions::jetLepdRMatch(elesLVec[iE], jetsLVec, jldRMax);
-                    if(match >= 0) keepJetPFCandMatch[match] = false;
-                }
+                cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
             }
 
             int jetsKept = 0;
-            for(int iJet = 0; iJet < jetsLVec.size(); ++iJet)
+            auto iJet = cleanJetVec->begin();
+            auto iOrigJet = jetsLVec.begin();
+            auto iBTag = cleanJetBTag->begin();
+            auto iKeep = keepJetPFCandMatch.begin();
+            for(; iJet != cleanJetVec->end() && iBTag != cleanJetBTag->end() && iKeep != keepJetPFCandMatch.end() && iOrigJet != jetsLVec.end(); ++iKeep, ++iOrigJet)
             {
-                if(keepJetPFCandMatch[iJet])
+                double deltaR = 0.0;
+                if(!remove_) deltaR = ROOT::Math::VectorUtil::DeltaR(*iJet, *iOrigJet);
+
+                if((deltaR > 0.4) || !(*iKeep))
                 {
-                    ++jetsKept;
-                    cleanJetVec->push_back(jetsLVec[iJet]);
-                    cleanJetBTag->push_back(recoJetsBtag_0[iJet]);
-                    if(AnaFunctions::jetPassCuts(jetsLVec[iJet], AnaConsts::pt30Arr))
-                    {
-                        cleanJetpt30ArrVec->push_back(jetsLVec[iJet]);
-                        cleanJetpt30ArrBTag->push_back(recoJetsBtag_0[iJet]);
-                    }
-                    if(jetsLVec[iJet].Pt() > HT_jetPtMin && fabs(jetsLVec[iJet].Eta()) < HT_jetEtaMax) HT += jetsLVec[iJet].Pt();
-                    if(jetsLVec[iJet].Pt() > MTH_jetPtMin) MHT += jetsLVec[iJet];
+                    iJet = cleanJetVec->erase(iJet);
+                    iBTag = cleanJetBTag->erase(iBTag);
+                    continue;
                 }
+
+                ++jetsKept;
+                if(AnaFunctions::jetPassCuts(*iJet, AnaConsts::pt30Arr))
+                {
+                    cleanJetpt30ArrVec->push_back(*iJet);
+                    cleanJetpt30ArrBTag->push_back(*iBTag);
+                }
+                if(iJet->Pt() > HT_jetPtMin && fabs(iJet->Eta()) < HT_jetEtaMax) HT += iJet->Pt();
+                if(iJet->Pt() > MTH_jetPtMin) MHT += *iJet;
+
+                ++iJet;
+                ++iBTag;
             }
 
             tr.registerDerivedVar("nJetsRemoved", static_cast<int>(jetsLVec.size() - jetsKept));
@@ -305,6 +335,7 @@ namespace stopFunctions
             tr.registerDerivedVec("cleanJetpt30ArrVec", cleanJetpt30ArrVec);
             tr.registerDerivedVec("cleanJetpt30ArrBTag", cleanJetpt30ArrBTag);
         }
+
     } cjh;
 
     void cleanJets(NTupleReader& tr)
