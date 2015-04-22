@@ -208,20 +208,34 @@ namespace stopFunctions
             remove_ = remove;
         }
 
+        void setElecPtThresh(double minPt)
+        {
+            elecPtThresh_ = minPt;
+        }
+
+        void setMuonPtThresh(double minPt)
+        {
+            muonPtThresh_ = minPt;
+        }
+
         CleanJets()
         {
             setMuonIso("rel");
             setElecIso("rel");
             setRemove(true);
+            setElecPtThresh(0.0);
+            setMuonPtThresh(0.0);
         }
         
     private:
         std::string muIsoStr_, elecIsoStr_;
         AnaConsts::IsoAccRec muIsoReq_;
         AnaConsts::ElecIsoAccRec elecIsoReq_;
+        double elecPtThresh_;
+        double muonPtThresh_;
         bool remove_;
 
-        void cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax)
+        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax)
         {
             int match = lepMatchedJetIdx;
             if(match < 0)
@@ -241,6 +255,8 @@ namespace stopFunctions
                     (*cleanJetVec)[match] -= lep;
                 }
             }
+
+            return match;
         }
 
         void internalCleanJets(NTupleReader& tr)
@@ -254,6 +270,10 @@ namespace stopFunctions
             const std::vector<int>&            muMatchedJetIdx  = tr.getVec<int>("muMatchedJetIdx");
             const std::vector<int>&            eleMatchedJetIdx = tr.getVec<int>("eleMatchedJetIdx");
             const std::vector<unsigned int>&   elesisEB         = tr.getVec<unsigned int>("elesisEB");
+
+            const unsigned int& run   = tr.getVar<unsigned int>("run");
+            const unsigned int& lumi  = tr.getVar<unsigned int>("lumi");
+            const unsigned int& event = tr.getVar<unsigned int>("event");
 
             if(elesLVec.size() != elesIso.size() 
                || elesLVec.size() != eleMatchedJetIdx.size()
@@ -284,14 +304,14 @@ namespace stopFunctions
 
             for(int iM = 0; iM < muonsLVec.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
             {
-                if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_)) continue;
+                if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_) && muonsLVec[iM].Pt() > muonPtThresh_) continue;
 
-                cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
+                int match = cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
             }
 
             for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
             {
-                if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elecIsoReq_)) continue;
+                if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) continue;
 
                 cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
             }
@@ -301,8 +321,11 @@ namespace stopFunctions
             auto iOrigJet = jetsLVec.begin();
             auto iBTag = cleanJetBTag->begin();
             auto iKeep = keepJetPFCandMatch.begin();
+            const bool& passMuZinvSel = tr.getVar<bool>("passMuZinvSel");
             for(; iJet != cleanJetVec->end() && iBTag != cleanJetBTag->end() && iKeep != keepJetPFCandMatch.end() && iOrigJet != jetsLVec.end(); ++iKeep, ++iOrigJet)
             {
+                if(passMuZinvSel && fabs(iJet->Pt() - iOrigJet->Pt()) > 100 && iJet->Pt() > 300) std::cout << "HELLO TEHRE!!! \t" << (*iOrigJet - *iJet).Pt() << "\t" << iOrigJet->Pt() << "\t" << run << "\t" << lumi << "\t" << event << std::endl;
+
                 double deltaR = 0.0;
                 if(!remove_) deltaR = ROOT::Math::VectorUtil::DeltaR(*iJet, *iOrigJet);
 

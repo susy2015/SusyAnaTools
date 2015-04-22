@@ -253,9 +253,6 @@ void Plotter::createHistsFromTuple()
 
             NTupleReader tr(t, activeBranches);
             tr.registerFunction(&baselineUpdate);
-            stopFunctions::cjh.setMuonIso("mini");
-            stopFunctions::cjh.setRemove(false);
-            tr.registerFunction(&stopFunctions::cleanJets);
             plotterFunctions::registerFunctions(tr);
 
             while(tr.getNextEvent())
@@ -713,9 +710,9 @@ void Plotter::fillHist(TH1 * const h, const std::pair<std::string, std::string>&
         }
         else
         {
-            if     (type.find("double")         != std::string::npos) fillHistFromVec<double>(h, name, tr, weight);
-            else if(type.find("unsigned int")   != std::string::npos) fillHistFromVec<unsigned int>(h, name, tr, weight);
-            else if(type.find("int")            != std::string::npos) fillHistFromVec<int>(h, name, tr, weight);
+            if     (type.find("double")         != std::string::npos) fillHistFromPrimVec<double>(h, name, tr, weight);
+            else if(type.find("unsigned int")   != std::string::npos) fillHistFromPrimVec<unsigned int>(h, name, tr, weight);
+            else if(type.find("int")            != std::string::npos) fillHistFromPrimVec<int>(h, name, tr, weight);
             else if(type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector>(h, name, tr, weight);
         }
     }

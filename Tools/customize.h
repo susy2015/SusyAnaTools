@@ -323,7 +323,6 @@ namespace AnaFunctions{
                minJMatch = iJet;
            }
        }
-
        if(dRmin < jldRMax) return minJMatch;
        else                return -1;
    }
