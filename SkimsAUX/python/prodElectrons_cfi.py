@@ -7,6 +7,7 @@ prodElectrons = cms.EDFilter(
   ConversionsSource = cms.InputTag("reducedEgamma", "reducedConversions"), #not used for WP VETO
   VertexSource      = cms.InputTag('goodVertices'),
   metSource         = cms.InputTag('slimmedMETs'),
+  PFCandSource = cms.InputTag('packedPFCandidates'),
   BeamSpotSource    = cms.InputTag("offlineBeamSpot"),
   MinElePt       = cms.double(5),
   MaxEleEta      = cms.double(2.5),

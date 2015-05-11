@@ -18,7 +18,7 @@ config.Data.publication = False
 config.Data.publishDBS = 'https://cmsweb.cern.ch/dbs/prod/phys03/DBSWriter/'
 config.Data.publishDataName = 'PHYS14_PU20bx25_PHYS14_25_V1-FLAT'
 #Use your own username instead of the "lhx". Keep branch tag in the directory name, e.g., PHYS14_720_Dec23_2014.
-config.Data.outLFN = '/store/group/lpcsusyhad/PHYS14_720_Dec23_2014/lhx/PU20bx25_TTJets_MSDecaysCKM_madgraph-tauola/'
+config.Data.outLFN = '/store/group/lpcsusyhad/PHYS14_720_Mar14_2014_v2/lhx/PU20bx25_TTJets_MSDecaysCKM_madgraph-tauola/'
 
 config.Data.ignoreLocality = False
 
