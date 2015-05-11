@@ -120,7 +120,7 @@ public:
         void parseName(std::vector<Plotter::DataCollection>& ns);
     };
 
-    Plotter(std::vector<HistSummary>& h, std::vector<std::vector<AnaSamples::FileSummary>>& t, const bool readFromTuple = true, const std::string ofname = "", int nFile = -1);
+    Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple = true, const std::string ofname = "", int nFile = -1);
     ~Plotter();
 
     void plot();
@@ -128,7 +128,7 @@ public:
 
 private:
     std::vector<HistSummary> hists_;
-    std::vector<std::vector<AnaSamples::FileSummary>> trees_;
+    std::set<AnaSamples::FileSummary> trees_;
     TFile *fout_;
     bool readFromTuple_;
     const int nFile_;
@@ -181,6 +181,28 @@ private:
             for(auto& obj : vec)
             {
                 vectorFill(h, name, pointerDeref(obj), weight);
+            }
+        }
+    }
+
+    template<typename T> void fillHistFromPrimVec(TH1* const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight)
+    {
+        const auto& vec = tr.getVec<T>(name.first);
+        
+        if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
+        else
+        {
+            int index = -1;
+            if(name.second.size() > 0 && sscanf(name.second.c_str(), "%d", &index) == 1 && index < vec.size())
+            {
+                vectorFill(h, name, pointerDeref(vec.at(index)), weight);
+            }
+            else
+            {
+                for(auto& obj : vec)
+                {
+                    vectorFill(h, name, pointerDeref(obj), weight);
+                }
             }
         }
     }

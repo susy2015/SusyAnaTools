@@ -30,9 +30,6 @@ void NTupleReader::init()
     isFirstEvent_ = true;
     clearTuple();
 
-    //vectors must be initialized to 0 here to avoid segfaults.  This cannot be done 
-    //in clearTuple() as it will cause memory leaks.
-
     activateBranches();    
 }
 
