@@ -71,21 +71,20 @@ namespace AnaConsts{
 
 //                                    minAbsEta, maxAbsEta, minPt, maxPt,   maxIso,  maxMtw
    const IsoAccRec     muonsArr =    {   -1,       2.4,      5,     -1,       0.2,     -1  };
-   const IsoAccRec muonsMiniIsoArr = {   -1,       2.4,      5,     -1,       0.1,     -1  };
+   const IsoAccRec muonsMiniIsoArr = {   -1,       2.4,      5,     -1,       0.2,     -1  };
    const IsoAccRec muonsTrigArr =    {   -1,       2.4,      5,     -1,       0.4,     -1  };
-   const IsoAccRec   isoTrksArr =    {   -1,        -1,      10,     -1,       0.1,    100 };
+   const IsoAccRec   isoTrksArr =    {   -1,        -1,     10,     -1,       0.1,    100  };
 
-//                                    minAbsEta, maxAbsEta, minPt, maxPt, maxIsoEB, maxIsoEE,  maxMtw
-   const ElecIsoAccRec  elesArr =    {   -1,       2.5,      5,     -1,  0.164369, 0.1212604,    -1  };
-
+//                                       minAbsEta, maxAbsEta, minPt, maxPt, maxIsoEB, maxIsoEE,  maxMtw
+   const ElecIsoAccRec     elesArr =    {   -1,       2.5,      5,     -1,  0.164369, 0.212604,    -1  };
+   const ElecIsoAccRec elesMiniIsoArr = {   -1,       2.5,      5,     -1,     0.10,     0.10,     -1  };
+   const ElecIsoAccRec  oldelesArr =    {   -1,       2.5,      5,     -1,     0.15,     0.15,     -1  };
 
 //                                  minAbsEta, maxAbsEta, minPt, maxPt,   mindR,   maxdR
    const ActRec     muonsAct =    {   -1,       -1,        10,    -1,       -1,     1.0  };
    const ActRec      elesAct =    {   -1,       -1,        10,    -1,       -1,     1.0  };
 
    const double  dPhi0_CUT = 0.5, dPhi1_CUT = 0.5, dPhi2_CUT = 0.3;
-
-   const double lowTopCut_ = 80, highTopCut_ = 270, lowWCut_ = 50, highWCut_ = 120;
 
    const double MT2cut_ = 300, mTcombcut_ = 500;
 
@@ -94,9 +93,9 @@ namespace AnaConsts{
                                                   "W_emuVec", "W_tau_emuVec", "W_tau_prongsVec", 
                                                   "jetsLVec", "recoJetsBtag_0", 
 //                                                  "muonsCharge", "muonsLVec", "muonsMtw", "muonsRelIso", 
-                                                  "muonsLVec", "muonsMtw", "muonsRelIso", 
+                                                  "muonsLVec", "muonsMtw", "muonsRelIso", "muonsMiniIso",
 //                                                  "elesCharge", "elesLVec", "elesMtw", "elesRelIso", 
-                                                  "elesLVec", "elesMtw", "elesRelIso", 
+                                                  "elesLVec", "elesMtw", "elesRelIso", "elesMiniIso", "elesisEB",
 //                                                  "loose_isoTrksLVec", "loose_isoTrks_charge", "loose_isoTrks_dz", "loose_isoTrks_iso", "loose_isoTrks_mtw", 
                                                   "loose_isoTrksLVec", "loose_isoTrks_iso", "loose_isoTrks_mtw", 
                                                   "met", "metphi", 
@@ -204,6 +203,15 @@ namespace AnaFunctions{
            && (    maxMtw == -1 || electronMtw < maxMtw );       
    }
 
+   int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const AnaConsts::ElecIsoAccRec& elesArr){
+
+      int cntNElectrons = 0;
+      for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
+          if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], true, elesArr)) cntNElectrons ++;
+      }
+      return cntNElectrons;
+   }
+
    int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<unsigned int>& isEBVec, const AnaConsts::ElecIsoAccRec& elesArr){
 
       int cntNElectrons = 0;
@@ -262,8 +270,7 @@ namespace AnaFunctions{
             cntNIsoTrks ++;
          }
       }
-      //WARNING  HERE IS A HACK TO DEACTIVATE THIS CUT FOR NOW!!!
-      return 0;//cntNIsoTrks;
+      return cntNIsoTrks;
    }
 
    void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger){
@@ -303,6 +310,24 @@ namespace AnaFunctions{
    void prepareTopTagger(){
       if( !type3Ptr ) type3Ptr = new topTagger::type3TopTagger();
       type3Ptr->setnJetsSel(AnaConsts::nJetsSel);
+   }
+
+   double calcHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr){
+
+      const double minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
+
+      double ht = 0;
+      for(unsigned int ij=0; ij<inputJets.size(); ij++){
+         double perjetpt = inputJets[ij].Pt(), perjeteta = inputJets[ij].Eta();
+         if(   ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
+            && ( maxAbsEta == -1 || fabs(perjeteta) < maxAbsEta )
+            && (     minPt == -1 || perjetpt >= minPt )
+            && (     maxPt == -1 || perjetpt < maxPt ) ){
+
+            ht += perjetpt;
+         }
+      }
+      return ht;
    }
 
    bool passBaseline(){

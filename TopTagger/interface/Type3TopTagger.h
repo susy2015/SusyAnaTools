@@ -55,7 +55,7 @@ namespace topTagger{
 
          vector<int> allCombPassCriteriaVec;
          
-         double bestTopJetMass;
+         double bestTopJetMass, bestTopJetEta;
          vector<int> bestTopJetComb;
          vector<vector<int> > bestTopJetSubStruc;
          vector<int> remainTopJetComb;
@@ -112,10 +112,19 @@ namespace topTagger{
          std::vector<TLorentzVector> groomedJetsVec_;
 
 // For top candidate counting
-         std::map<double, std::vector<int> > topJetCand_deltaM_idx123Map;
+         std::map<double, std::vector<int> > topJetCand_deltaM_idx123Map; 
+         std::vector<std::vector<int> > topJetCand_idx123Vec;
+// 0: mass ordered
+// 1: pt ordered
+         int topCandOrderMethod_;
          std::vector<int> allIdxCacheVec;
-         std::vector<int> pickedTopCandSortedVec;
+         std::vector<int> pickedTopCandSortedVec, ori_pickedTopCandSortedVec;
          int nTopCandSortedCnt;
+// New variables
+         double best_lept_brJet_MT, best_had_brJet_MT, best_had_brJet_MT2, best_had_brJet_mTcomb;
+         std::map<double, std::vector<int> > lept_brJetIdxMap;
+         std::map<double, std::vector<int> > had_brJetIdxMap;
+         std::map<double, TLorentzVector> lept_brJetLVecMap, had_brJetLVecMap;
 // End of internal and/or intermediate variables
 
 /* 
@@ -150,7 +159,7 @@ namespace topTagger{
         // It is the same as dobVetoCS==true where no b jets are defined. The only difference is that both the b jet CSV and 
         // _eta_ requirement are relaxed.
          void runOnlyTopTaggerPart(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS);
-         int findnTopCands(const std::vector<TLorentzVector> &oriJetsVec);
+         int findnTopCands(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS);
          bool processEvent(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS, const TLorentzVector &metLVec);
          bool processEvent(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS, const TLorentzVector &metLVec, const std::vector<std::vector<TLorentzVector> > &hepTaggerJetsVec);
 
@@ -190,8 +199,12 @@ namespace topTagger{
             setdefaultJetCone(2.0);
             setsimuCAdeltaR(1.5);
             setsimuCALargerdeltaR(-1);
-            setlowTopCut(80);
-            sethighTopCut(270);
+            setlowTopCut(110);
+            sethighTopCut(240);
+            setlowTopEtaCut(-2.0);
+            sethighTopEtaCut(2.0);
+            setlooselowTopCutforCount(80);
+            setloosehighTopCutforCount(270);
             setlowWCut(50);
             sethighWCut(120);
             setCSVS(0.814);
@@ -213,21 +226,32 @@ namespace topTagger{
             setWjetMassRanges(70, 110);
             setdoWjetfatJets(true);
 
-            setTopjetMassRanges(130, 220);
+            setTopjetMassRanges(110, 220);
             setdoTopjetfatJets(true);
  
             setdoCombTopTagger(false);
             setlowTopPtToComb(150);
 
+            const std::vector<double> lowTopCutforCountVec = { 110, 110, 100 };
+            const std::vector<double> highTopCutforCountVec = { 240, 250, 250 };
+            const std::vector<double> lowTopEtaCutforCountVec = { -2, -2, -2};
+            const std::vector<double> highTopEtaCutforCountVec = { 2, 2, 2};
+            
+            setlowTopCutforCountVec(lowTopCutforCountVec);
+            sethighTopCutforCountVec(highTopCutforCountVec);
+            setlowTopEtaCutforCountVec(lowTopEtaCutforCountVec);
+            sethighTopEtaCutforCountVec(highTopEtaCutforCountVec);
+
             setDefaultVars();
 
             groomedJetsVec_.clear();
+
+            settopCandOrderMethod(0);
          }
 
          void setDefaultVars(){
 
             isTopEvent = false;
-
             finalCombfatJets.clear(); finalRemaining.clear(); finalCombJetSubStruc.clear();
             fatJetMassVec.clear(); fatJetSubMassVec.clear();
             finalCombMaxDR.clear();
@@ -240,7 +264,7 @@ namespace topTagger{
  
             allCombPassCriteriaVec.clear();
                
-            bestTopJetMass = -1;
+            bestTopJetMass = -1; bestTopJetEta = 0;
             bestTopJetComb.clear(); bestTopJetSubStruc.clear();
             remainTopJetComb.clear();
             remainJetNum = -1;
@@ -284,9 +308,13 @@ namespace topTagger{
             modiforiJetsVec.clear(); modifrecoJetsBtagCSVS.clear();
 
             topJetCand_deltaM_idx123Map.clear();
+            topJetCand_idx123Vec.clear();
             allIdxCacheVec.clear();
-            pickedTopCandSortedVec.clear();
+            pickedTopCandSortedVec.clear(); ori_pickedTopCandSortedVec.clear();
             nTopCandSortedCnt = 0;
+
+            lept_brJetIdxMap.clear(); had_brJetIdxMap.clear(); lept_brJetLVecMap.clear(); had_brJetLVecMap.clear();
+            best_lept_brJet_MT = -1; best_had_brJet_MT = -1; best_had_brJet_MT2 = -1; best_had_brJet_mTcomb = -1;
          }
 
          void buildOneFatJetsIndexComb(vector<int> indexVec, vector<int> &iniIndexComb, vector<vector<int> > &tmpFinalCombJets, vector<vector<int> > &tmpFinalRemaining){
@@ -771,9 +799,6 @@ namespace topTagger{
                if( isTopJet ){
                   isTopEvent = true;
                   nTopJetCandCnt ++;
-                  if( fatJetm123 > lowTopCut_ && fatJetm123 < highTopCut_ ){
-                     topJetCand_deltaM_idx123Map[std::abs(fatJetm123-mTop_)] = finalCombfatJets[ic];
-                  }
                }  
 
                int cntTopCandPassCSVS = 0;
@@ -954,7 +979,7 @@ namespace topTagger{
                
             bestTopJetLVec = buildLVec(oriJetsVec, bestTopJetComb);
 
-            bestTopJetMass = bestTopJetLVec.M();
+            bestTopJetMass = bestTopJetLVec.M(); bestTopJetEta = bestTopJetLVec.Eta();
                
             calcSubStrucMass(oriJetsVec, bestTopJetSubStruc, bestSubMassVec);
 
@@ -1300,7 +1325,7 @@ namespace topTagger{
             if( !taggingMode_ && bestTopJetIdx == -1 ) pass = false;
 
 // Some mass cuts on the fat top jet
-            if( !taggingMode_ && !(bestTopJetMass > lowTopCut_ && bestTopJetMass < highTopCut_) ) pass = false;
+            if( !taggingMode_ && !(bestTopJetMass > lowTopCut_ && bestTopJetMass < highTopCut_ && bestTopJetEta > lowTopEtaCut_ && bestTopJetEta < highTopEtaCut_ ) ) pass = false;
 
 // Must have a jet b-tagged!
             if( !taggingMode_ && !remainPassCSVS ) pass = false;
@@ -1314,46 +1339,291 @@ namespace topTagger{
             return pass;
          }
 
-         int findnTopCands(const std::vector<TLorentzVector> &oriJetsVec){
+         bool passNewTaggerReq(){
+            bool pass = true;
+
+            if( nTopCandSortedCnt ==1 ){
+// Must have a fat top jet
+               if( !taggingMode_ && bestTopJetIdx == -1 ) pass = false;
+// Some mass cuts on the fat top jet
+               if( !taggingMode_ && !(bestTopJetMass > lowTopCut_ && bestTopJetMass < highTopCut_ && bestTopJetEta > lowTopEtaCut_ && bestTopJetEta < highTopEtaCut_ ) ) pass = false;
+// Must have a jet b-tagged!
+               if( !taggingMode_ && !remainPassCSVS ) pass = false;
+            }
+
+            return pass;
+         }
+
+         bool passNewCuts(){
+            bool pass = true;
+            
+            if( nTopCandSortedCnt == 1 || nTopCandSortedCnt == 2 ){
+               if( !taggingMode_ && !(best_had_brJet_MT >=200 && best_had_brJet_mTcomb >= 400 && (best_lept_brJet_MT >= 200 || best_had_brJet_mTcomb >= 450) && best_had_brJet_MT2 >= 200) ) pass = false;
+            }
+
+            return pass;
+         }
+
+         bool applyNewCuts(){
+            return passNewTaggerReq() && passNewCuts();
+         }
+
+         int findnTopCands(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS){
             nTopCandSortedCnt =0;
 
             allIdxCacheVec.clear(); pickedTopCandSortedVec.clear();
+            topJetCand_deltaM_idx123Map.clear(); topJetCand_idx123Vec.clear();
 
-            if( bestTopJetIdx != -1 ){
+// Disable the m23/m123 that is used to against QCD!
+// This is not needed anymore after it's considered in the first tagger, i.e., the one with bestTopJetIdx!
+            bool cached_doTopVetoSel = doTopVetoSel_;
+            doTopVetoSel_ = true;
+            for(int ic=0; ic<combSize; ic++){
+         // Find a top fat jet passing at least one of the three criteria
+               vector<int> fatJetPassStatusVec;
+               int isTopJet = checkTopCriteria(finalCombfatJets[ic], oriJetsVec, recoJetsBtagCSVS, fatJetSubMassVec[ic], fatJetMassVec[ic], fatJetPassStatusVec);
+               if( isTopJet ){
+                  if( fatJetMassVec[ic] > looselowTopCutforCount_ && fatJetMassVec[ic] < loosehighTopCutforCount_ ){
+                     topJetCand_deltaM_idx123Map[std::abs(fatJetMassVec[ic]-mTop_)] = finalCombfatJets[ic];
+                     topJetCand_idx123Vec.push_back(finalCombfatJets[ic]);
+                  }
+               }
+            }
+            doTopVetoSel_ = cached_doTopVetoSel;
+
+            std::vector<double> pickedTopCandValueVec;
+
+            std::map<double, vector<int> >::iterator mapIter;
+            if( bestTopJetIdx != -1 && bestTopJetMass > lowTopCut_ && bestTopJetMass < highTopCut_ && bestTopJetEta > lowTopEtaCut_ && bestTopJetEta < highTopEtaCut_ ){
                for(unsigned int it=0; it< bestTopJetComb.size(); it++){
                   allIdxCacheVec.push_back(bestTopJetComb.at(it));
                }
                nTopCandSortedCnt++;
                pickedTopCandSortedVec.push_back(bestTopJetIdx);
+               if( topCandOrderMethod_ == 0 ){
+                  for(mapIter = topJetCand_deltaM_idx123Map.begin(); mapIter != topJetCand_deltaM_idx123Map.end(); mapIter++){
+                     if( finalCombfatJets[bestTopJetIdx] == mapIter->second ){ pickedTopCandValueVec.push_back(mapIter->first); }
+                  }
+               }else if( topCandOrderMethod_ == 1 ){
+                  pickedTopCandValueVec.push_back(bestTopJetLVec.Pt());
+               }
             }
 
             double minDeltaM = -1;
 //            bool foundThePickedTop = false;
-            std::map<double, vector<int> >::iterator mapIter;
-            for(mapIter = topJetCand_deltaM_idx123Map.begin(); mapIter != topJetCand_deltaM_idx123Map.end(); mapIter++){
-
-               if( minDeltaM != -1 && minDeltaM >= mapIter->first ){ std::cout<<"WARNING ... Type3TopTagger ... map not sorted correctly as what I want?!"<<std::endl; }
-               minDeltaM = mapIter->first;
-
-//               if( mapIter->second == bestTopJetComb ) foundThePickedTop = true;
+            std::vector<double> valueFromMapVec;
+            if( topCandOrderMethod_ == 0 ) {
+               topJetCand_idx123Vec.clear();
+               for(mapIter = topJetCand_deltaM_idx123Map.begin(); mapIter != topJetCand_deltaM_idx123Map.end(); mapIter++){ topJetCand_idx123Vec.push_back(mapIter->second); valueFromMapVec.push_back(mapIter->first); }
+            }
+            for(unsigned int it=0; it<topJetCand_idx123Vec.size(); it++){
+               if( topCandOrderMethod_ ==0 ){
+                  if( minDeltaM != -1 && minDeltaM >= valueFromMapVec[it] ){ std::cout<<"WARNING ... Type3TopTagger ... map not sorted correctly as what I want?!"<<std::endl; }
+                  minDeltaM = valueFromMapVec[it];
+               }
 
                bool isFound = false;
-               for(unsigned int ii=0; ii<mapIter->second.size(); ii++){
-                  if( std::find(allIdxCacheVec.begin(), allIdxCacheVec.end(), mapIter->second.at(ii)) != allIdxCacheVec.end() ){
+               for(unsigned int ii=0; ii<topJetCand_idx123Vec[it].size(); ii++){
+                  if( std::find(allIdxCacheVec.begin(), allIdxCacheVec.end(), topJetCand_idx123Vec[it].at(ii)) != allIdxCacheVec.end() ){
                      isFound = true;
                   }
                }
                if( !isFound ){
-                  for(unsigned int ii=0; ii<mapIter->second.size(); ii++) allIdxCacheVec.push_back(mapIter->second.at(ii));
-                  nTopCandSortedCnt ++;
                   int pickedCombIdx = -1;
-                  for(int ic=0; ic<combSize; ic++){ if( finalCombfatJets[ic] == mapIter->second ) pickedCombIdx = ic; }
-                  if( pickedCombIdx == -1 ){ std::cout<<"WARNING ... Type3TopTagger ... mis-matching between topJetCand_deltaM_idx123Map and finalCombfatJets?!"<<std::endl; }
+                  for(int ic=0; ic<combSize; ic++){ if( finalCombfatJets[ic] == topJetCand_idx123Vec[it] ) pickedCombIdx = ic; }
+                  if( pickedCombIdx == -1 ){ std::cout<<"WARNING ... Type3TopTagger ... mis-matching between topJetCand_idx123Vec and finalCombfatJets?!"<<std::endl; }
+                  TLorentzVector perCombLVec = buildLVec(oriJetsVec, finalCombfatJets[pickedCombIdx]);
+                  if( (int)lowTopCutforCountVec_.size() > nTopCandSortedCnt ){
+                     if( lowTopCutforCountVec_[nTopCandSortedCnt] != -1 && perCombLVec.M() <= lowTopCutforCountVec_[nTopCandSortedCnt] ) continue;
+                  }
+                  if( (int)highTopCutforCountVec_.size() > nTopCandSortedCnt ){
+                     if( highTopCutforCountVec_[nTopCandSortedCnt] != -1 && perCombLVec.M() >= highTopCutforCountVec_[nTopCandSortedCnt] ) continue;
+                  }
+                  if( (int)lowTopEtaCutforCountVec_.size() > nTopCandSortedCnt ){
+                     if( perCombLVec.Eta() <= lowTopEtaCutforCountVec_[nTopCandSortedCnt] ) continue;
+                  }
+                  if( (int)highTopEtaCutforCountVec_.size() > nTopCandSortedCnt ){
+                     if( perCombLVec.Eta() >= highTopEtaCutforCountVec_[nTopCandSortedCnt] ) continue;
+                  }
+                  for(unsigned int ii=0; ii<topJetCand_idx123Vec[it].size(); ii++) allIdxCacheVec.push_back(topJetCand_idx123Vec[it].at(ii));
+                  nTopCandSortedCnt ++;
                   if( std::find(pickedTopCandSortedVec.begin(), pickedTopCandSortedVec.end(), pickedCombIdx) != pickedTopCandSortedVec.end() ) std::cout<<"WARNING ... Type3TopTagger ... double counting top candidates?!"<<std::endl;
-                  else pickedTopCandSortedVec.push_back( pickedCombIdx );
+                  else{
+                     pickedTopCandSortedVec.push_back( pickedCombIdx );
+                     if( topCandOrderMethod_ == 0 ){
+                        pickedTopCandValueVec.push_back( valueFromMapVec[it] );
+                     }else if( topCandOrderMethod_ == 1 ){
+                        pickedTopCandValueVec.push_back( perCombLVec.Pt() );
+                     }
+                  }
                }
             }
+            if( pickedTopCandSortedVec.size() != pickedTopCandValueVec.size() ) std::cout<<"WARNING ... mis-matching between pickedTopCandSortedVec and pickedTopCandValueVec!"<<std::endl;
+            ori_pickedTopCandSortedVec = pickedTopCandSortedVec;
+
+            std::vector<int> tmpTopCandSortedVec;
+            std::vector<double> tmppickedTopCandPtVec;
+            for(unsigned int ip=0; ip<pickedTopCandSortedVec.size(); ip++){
+               tmppickedTopCandPtVec.push_back(buildLVec(oriJetsVec, finalCombfatJets[pickedTopCandSortedVec[ip]]).Pt());
+            }
+            std::vector<size_t> ptindexes;
+            argsort(tmppickedTopCandPtVec.begin(), tmppickedTopCandPtVec.end(), std::greater<double>(), ptindexes);
+            for(unsigned int ii=0; ii<ptindexes.size(); ii++){
+               unsigned int indexMapped = ptindexes[ii];
+               tmpTopCandSortedVec.push_back( pickedTopCandSortedVec[indexMapped] );
+            }
+            pickedTopCandSortedVec.swap(tmpTopCandSortedVec);
+
             return nTopCandSortedCnt;
+         }
+
+         void new_tuned_variables(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS, const TLorentzVector &metLVec){
+
+            lept_brJetIdxMap.clear(); had_brJetIdxMap.clear(); lept_brJetLVecMap.clear(); had_brJetLVecMap.clear();
+            best_lept_brJet_MT = -1; best_had_brJet_MT = -1; best_had_brJet_MT2 = -1; best_had_brJet_mTcomb = -1;
+
+// Need find a way to fake the top if there are no top candidates, like the 0-b control region?
+            if( ori_pickedTopCandSortedVec.empty() ) return;
+
+// The first one because it should be the best one (smallest mass difference to top quark mass in current setup)
+// We ignore the second and more (if any) top candidates, because we'd like to reject ttbar and for leptonic ttbar
+// we do NOT expect more than one top candidate anyway.
+            const int combIdx = ori_pickedTopCandSortedVec[0];
+            const std::vector<int> & topCombIdxVec = finalCombfatJets[combIdx];
+//            const std::vector<int> & passStatusVec = finalCombfatJetsPassStatusVec[combIdx];
+            const TLorentzVector topLVec = buildLVec(oriJetsVec, topCombIdxVec);
+            double top_MT = calcMT(topLVec, metLVec);
+
+            std::vector<TLorentzVector> remainJetsLVec; std::vector<double> remainJetsCSVS;
+            std::vector<TLorentzVector> remainbJetsLVec; std::vector<double> remainbJetsCSVS;
+            std::vector<int> remainbJetsIdxVec;
+            int isFaked_b = 0;
+            double fake_maxCSVS_LT_Mpt = -1; int fake_pickedfakebJet_idx = -1;
+            for(unsigned int ij=0; ij<oriJetsVec.size(); ij++){
+               if( std::find(topCombIdxVec.begin(), topCombIdxVec.end(), ij) != topCombIdxVec.end() ) continue;
+
+               if( fabs(oriJetsVec[ij].Eta())<maxEtaForbJets_ ){
+                  if( recoJetsBtagCSVS.at(ij) < CSVS_ ){
+                     if( fake_maxCSVS_LT_Mpt ==-1 || fake_maxCSVS_LT_Mpt < recoJetsBtagCSVS.at(ij) ){
+                        fake_pickedfakebJet_idx = ij; fake_maxCSVS_LT_Mpt = recoJetsBtagCSVS.at(ij);
+                     }
+                  }
+               }
+               if( recoJetsBtagCSVS[ij] > CSVS_ && fabs(oriJetsVec[ij].Eta())<maxEtaForbJets_ ){
+                  remainbJetsLVec.push_back(oriJetsVec.at(ij));
+                  remainbJetsCSVS.push_back(recoJetsBtagCSVS.at(ij));
+                  remainbJetsIdxVec.push_back(ij);
+               }else{
+                  remainJetsLVec.push_back(oriJetsVec.at(ij));
+                  remainJetsCSVS.push_back(recoJetsBtagCSVS.at(ij));
+               }
+            }
+            if( fake_pickedfakebJet_idx == -1 && remainbJetsLVec.empty() ) std::cout<<"WARNING ... cannot fake b jet?!"<<std::endl;
+
+// no b jets in the remaining system, then fake one
+            if( remainbJetsLVec.empty() ){
+               isFaked_b ++;
+               remainJetsLVec.clear(); remainJetsCSVS.clear();
+               for(unsigned int ij=0; ij<oriJetsVec.size(); ij++){
+                  if( std::find(topCombIdxVec.begin(), topCombIdxVec.end(), ij) != topCombIdxVec.end() ) continue;
+                  if( fake_pickedfakebJet_idx == (int)ij ){ remainbJetsLVec.push_back(oriJetsVec.at(ij)); remainbJetsCSVS.push_back(recoJetsBtagCSVS.at(ij)); }
+                  else{
+                     remainJetsLVec.push_back(oriJetsVec.at(ij));
+                     remainJetsCSVS.push_back(recoJetsBtagCSVS.at(ij));
+                  }
+               }
+            }
+
+            int cntbJet = 0;
+            for(unsigned int ib=0; ib<remainbJetsLVec.size(); ib++){
+               cntbJet++;
+               TLorentzVector bJet = remainbJetsLVec.at(ib);
+               for(unsigned int ir=0; ir<remainJetsLVec.size(); ir++){
+                  TLorentzVector rJet = remainJetsLVec.at(ir);
+                  TLorentzVector brJet = bJet+rJet;
+                  std::vector<int> brIdxVec; brIdxVec.push_back(ib); brIdxVec.push_back(ir);
+                  double dPhi_rJet_MET = rJet.DeltaPhi(metLVec);
+                  double dR_brJet = bJet.DeltaR(rJet);
+                  double perMT = calcMT(brJet, metLVec);
+                  if( std::abs(dPhi_rJet_MET) < 1.0 ){
+                     if( brJet.M() < mTop_ ){
+                        lept_brJetIdxMap[perMT] = brIdxVec;
+                        lept_brJetLVecMap[perMT] = brJet;
+                     }
+                  }
+                  if( brJet.M() > 50 && brJet.M() < mTop_ ){
+                     had_brJetIdxMap[dR_brJet] = brIdxVec;
+                     had_brJetLVecMap[dR_brJet] = brJet;
+                  }
+               }
+            }
+            if( lept_brJetLVecMap.empty() ){
+               double min_dPhi_b_MET = 999.0;
+               TLorentzVector pickedbLVec;
+               for(unsigned int ib=0; ib<remainbJetsLVec.size(); ib++){
+                  double dPhi_b_MET = remainbJetsLVec.at(ib).DeltaPhi(metLVec);
+                  if( min_dPhi_b_MET > std::abs(dPhi_b_MET) ){
+                     min_dPhi_b_MET = std::abs(dPhi_b_MET);
+                     pickedbLVec = remainbJetsLVec.at(ib);
+                  }
+               }
+               lept_brJetLVecMap[0] = pickedbLVec;
+            }
+            if( had_brJetLVecMap.empty() ){
+               double min_dPhi_b_MET = 999.0;
+               TLorentzVector pickedbLVec;
+               for(unsigned int ib=0; ib<remainbJetsLVec.size(); ib++){
+                  double dPhi_b_MET = remainbJetsLVec.at(ib).DeltaPhi(metLVec);
+                  if( min_dPhi_b_MET > std::abs(dPhi_b_MET) ){
+                     min_dPhi_b_MET = std::abs(dPhi_b_MET);
+                     pickedbLVec = remainbJetsLVec.at(ib);
+                  }
+               }
+               had_brJetLVecMap[0] = pickedbLVec;
+            }
+
+            if( !lept_brJetLVecMap.empty() ){
+               TLorentzVector best_lept_brJet = lept_brJetLVecMap.begin()->second;
+               best_lept_brJet_MT = calcMT(best_lept_brJet, metLVec);
+            }
+            if( !had_brJetLVecMap.empty() ){
+               TLorentzVector best_had_brJet = had_brJetLVecMap.begin()->second;
+               best_had_brJet_MT = calcMT(best_had_brJet, metLVec);
+               best_had_brJet_MT2 = calcMT2(topLVec, best_had_brJet, metLVec);
+               best_had_brJet_mTcomb = 0.5*best_had_brJet_MT + 0.5 * top_MT;
+            }
+
+            if( ori_pickedTopCandSortedVec.size() >= 2 ){
+               double minMT2 = 1e10; std::vector<int> pickedminMT2IdxVec(2, -1);
+               double maxMT2 = -99; std::vector<int> pickedmaxMT2IdxVec(2, -1); 
+               for(unsigned int it=0; it<ori_pickedTopCandSortedVec.size(); it++){
+                  const int combIdx0 = ori_pickedTopCandSortedVec[it];
+                  const std::vector<int> & topCombIdxVec0 = finalCombfatJets[combIdx0];
+                  const TLorentzVector topLVec0 = buildLVec(oriJetsVec, topCombIdxVec0);
+                  for(unsigned int jt=it+1; jt<ori_pickedTopCandSortedVec.size(); jt++){
+                     const int combIdx1 = ori_pickedTopCandSortedVec[jt];
+                     const std::vector<int> & topCombIdxVec1 = finalCombfatJets[combIdx1];
+                     const TLorentzVector topLVec1 = buildLVec(oriJetsVec, topCombIdxVec1);
+
+                     double perMT2 = calcMT2(topLVec0, topLVec1, metLVec);
+
+                     if( minMT2 > perMT2 ){
+                        minMT2 = perMT2;
+                        pickedminMT2IdxVec[0] = it; pickedminMT2IdxVec[1] = jt; 
+                     }
+
+                     if( maxMT2 < perMT2 ){
+                        maxMT2 = perMT2;
+                        pickedmaxMT2IdxVec[0] = it; pickedmaxMT2IdxVec[1] = jt;
+                     }
+                  }
+               }
+               if( minMT2 == 1e10 ){ std::cout<<"WARNING ... minMT2 is NOT updated and still "<<minMT2<<"?"<<std::endl; }
+               if( maxMT2 ==  -99 ){ std::cout<<"WARNING ... maxMT2 is NOT updated and still "<<maxMT2<<"?"<<std::endl; }
+               best_had_brJet_MT2 = minMT2;
+//               best_had_brJet_MT2 = maxMT2;
+            }
+            return;
          }
 
          bool processEvent(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS, const TLorentzVector &metLVec){
@@ -1378,7 +1648,7 @@ namespace topTagger{
 // XXX: Make sure the findDiTopCandidates function does NOT interfere with the major/main topTagger part, i.e., the "top + b" cases.
 //      --> No override of any global variables related to the main tagger results
 //      --> No override of the pass decision
-               findDiTopCandidates(oriJetsVec, recoJetsBtagCSVS);
+//               findDiTopCandidates(oriJetsVec, recoJetsBtagCSVS);
 
 // The number 6 is because we need 3 jets for each triplet
                if( noriJets >= 6 ){
@@ -1391,9 +1661,13 @@ namespace topTagger{
 
                prepareCutVariables(oriJetsVec, recoJetsBtagCSVS, metLVec);
 
-               pass = applyCuts();
+               findnTopCands(oriJetsVec, recoJetsBtagCSVS);
 
-               findnTopCands(oriJetsVec);
+               new_tuned_variables(oriJetsVec, recoJetsBtagCSVS, metLVec);
+
+               pass = applyNewCuts();
+
+//               pass = applyCuts();
 
             }else{
                pass = false;
@@ -1763,6 +2037,14 @@ namespace topTagger{
          void setsimuCALargerdeltaR( const double simuCALargerdeltaR ){ simuCALargerdeltaR_ = simuCALargerdeltaR; }
          void setlowTopCut( const double lowTopCut ){ lowTopCut_ = lowTopCut; }
          void sethighTopCut( const double highTopCut ){ highTopCut_ = highTopCut; }
+         void setlowTopEtaCut( const double lowTopEtaCut ){ lowTopEtaCut_ = lowTopEtaCut; }
+         void sethighTopEtaCut( const double highTopEtaCut ){ highTopEtaCut_ = highTopEtaCut; }
+         void setlooselowTopCutforCount( const double lowTopCut) { looselowTopCutforCount_ = lowTopCut; }
+         void setloosehighTopCutforCount( const double highTopCut) { loosehighTopCutforCount_ = highTopCut; }
+         void setlowTopCutforCountVec(const std::vector<double> & lowTopCutforCountVec){ lowTopCutforCountVec_ = lowTopCutforCountVec; }
+         void sethighTopCutforCountVec(const std::vector<double> & highTopCutforCountVec){ highTopCutforCountVec_ = highTopCutforCountVec; }
+         void setlowTopEtaCutforCountVec(const std::vector<double> & lowTopEtaCutforCountVec){ lowTopEtaCutforCountVec_ = lowTopEtaCutforCountVec; }
+         void sethighTopEtaCutforCountVec(const std::vector<double> & highTopEtaCutforCountVec){ highTopEtaCutforCountVec_ = highTopEtaCutforCountVec; }
          void setlowWCut( const double lowWCut ){ lowWCut_ = lowWCut; }
          void sethighWCut( const double highWCut ){ highWCut_ = highWCut; }
          void setCSVS( const double CSVS ){ CSVS_ = CSVS; globalCachedCSVS_ = CSVS_; oriCSVScut_ = CSVS_; }
@@ -1810,6 +2092,8 @@ namespace topTagger{
 
          void setgroomedJetsVec( const std::vector<TLorentzVector> groomedJetsVec ){ groomedJetsVec_ = groomedJetsVec; }
 
+         void settopCandOrderMethod( const int orderMethod ){ topCandOrderMethod_ = orderMethod; }
+
       private:
 
 // doExtraCuts: extra cuts other than the top tagger related, e.g., dphi cuts, HT cut and so on.
@@ -1839,7 +2123,16 @@ namespace topTagger{
          double simuCALargerdeltaR_; // -1 means no deltaR requirement
 
          double lowTopCut_, highTopCut_;
+         double looselowTopCutforCount_, loosehighTopCutforCount_;
          double lowWCut_, highWCut_;
+         double lowTopEtaCut_, highTopEtaCut_;
+
+// -1 or not set means using looselowTopCut or loosehighTopCut
+// Exceptions: if bestTopJetIdx != -1, mass cuts follow the lowTopCut_ and highTopCut_
+// (whatever cuts set in the 0th index will be ingored). This is to make sure consistency between counting and the best one used in reconstructions!
+// However if bestTopJetIdx == -1, the 0th index setup will be used anyway.
+         std::vector<double> lowTopCutforCountVec_, highTopCutforCountVec_;
+         std::vector<double> lowTopEtaCutforCountVec_, highTopEtaCutforCountVec_;
 
 // Choose CSVM point for now
 // --> A good top fat jet might indicate a b-jet already,
