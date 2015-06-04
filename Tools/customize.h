@@ -242,6 +242,7 @@ namespace AnaFunctions{
 
    bool passBaseline(){
 
+     return true;
    }
 
 }

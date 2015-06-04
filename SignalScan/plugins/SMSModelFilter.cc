@@ -16,6 +16,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
