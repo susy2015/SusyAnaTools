@@ -687,6 +687,7 @@ void Plotter::plot()
 
         fixOverlay();
         c->Print((hist.name+".png").c_str());
+        c->Print((hist.name+".pdf").c_str());
 
         delete leg;
         delete dummy;
