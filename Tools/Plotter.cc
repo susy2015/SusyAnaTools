@@ -208,9 +208,9 @@ void Plotter::createHistsFromTuple()
                         hist->h->GetYaxis()->SetTitle(hs.yAxisLabel.c_str());
                     }
 
-                    hist->dss.extractCuts(activeBranches);
-                    hist->dss.extractWeightNames(activeBranches);
-                    hist->hs->extractCuts(activeBranches);
+                    //hist->dss.extractCuts(activeBranches);
+                    //hist->dss.extractWeightNames(activeBranches);
+                    //hist->hs->extractCuts(activeBranches);
 
                     for(AnaSamples::FileSummary& fileToComp : hist->dss.files)
                     {
@@ -252,7 +252,7 @@ void Plotter::createHistsFromTuple()
             plotterFunctions::activateBranches(activeBranches);
 
             NTupleReader tr(t, activeBranches);
-            tr.registerFunction(&baselineUpdate);
+            tr.registerFunction(&passBaselineFunc);
             plotterFunctions::registerFunctions(tr);
 
             while(tr.getNextEvent())
