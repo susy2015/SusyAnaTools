@@ -34,28 +34,30 @@ class prodMuons : public edm::EDFilter {
     edm::InputTag pfCandsSrc_;
     bool debug_;
     bool doMuonVeto_, doMuonID_, doMuonVtx_, doMuonIso_;
-    double minMuPt_, maxMuEta_, maxMuD0_, maxMuDz_, maxMuRelIso_, minMuNumHit_;
+    double minMuPt_, maxMuEta_, maxMuD0_, maxMuDz_, maxMuRelIso_, maxMuMiniIso_, minMuNumHit_;
 
 };
 
 
 prodMuons::prodMuons(const edm::ParameterSet & iConfig) {
-  muonSrc_     = iConfig.getParameter<edm::InputTag>("MuonSource");
-  vtxSrc_      = iConfig.getParameter<edm::InputTag>("VertexSource");
-  metSrc_      = iConfig.getParameter<edm::InputTag>("metSource");
-  pfCandsSrc_  = iConfig.getParameter<edm::InputTag>("PFCandSource");
-  minMuPt_     = iConfig.getParameter<double>("MinMuPt");
-  maxMuEta_    = iConfig.getParameter<double>("MaxMuEta");
-  maxMuD0_     = iConfig.getParameter<double>("MaxMuD0");
-  maxMuDz_     = iConfig.getParameter<double>("MaxMuDz");
-  maxMuRelIso_ = iConfig.getParameter<double>("MaxMuRelIso");
-  minMuNumHit_ = iConfig.getParameter<double>("MinMuNumHit");
-  doMuonVeto_  = iConfig.getParameter<bool>("DoMuonVeto");
-  doMuonID_    = iConfig.getParameter<bool>("DoMuonID");
-  doMuonVtx_   = iConfig.getParameter<bool>("DoMuonVtxAssociation");
-  doMuonIso_   = iConfig.getParameter<bool>("DoMuonIsolation");
-  debug_       = iConfig.getParameter<bool>("Debug");
+  muonSrc_      = iConfig.getParameter<edm::InputTag>("MuonSource");
+  vtxSrc_       = iConfig.getParameter<edm::InputTag>("VertexSource");
+  metSrc_       = iConfig.getParameter<edm::InputTag>("metSource");
+  pfCandsSrc_   = iConfig.getParameter<edm::InputTag>("PFCandSource");
+  minMuPt_      = iConfig.getParameter<double>("MinMuPt");
+  maxMuEta_     = iConfig.getParameter<double>("MaxMuEta");
+  maxMuD0_      = iConfig.getParameter<double>("MaxMuD0");
+  maxMuDz_      = iConfig.getParameter<double>("MaxMuDz");
+  maxMuRelIso_  = iConfig.getParameter<double>("MaxMuRelIso");
+  maxMuMiniIso_ = iConfig.getParameter<double>("MaxMuMiniIso");
+  minMuNumHit_  = iConfig.getParameter<double>("MinMuNumHit");
+  doMuonVeto_   = iConfig.getParameter<bool>("DoMuonVeto");
+  doMuonID_     = iConfig.getParameter<bool>("DoMuonID");
+  doMuonVtx_    = iConfig.getParameter<bool>("DoMuonVtxAssociation");
+  doMuonIso_    = iConfig.getParameter<bool>("DoMuonIsolation");
+  debug_        = iConfig.getParameter<bool>("Debug");
   produces<std::vector<pat::Muon> >("");
+  produces<std::vector<pat::Muon> >("mu2Clean");
   produces<std::vector<TLorentzVector> >("muonsLVec");
   produces<std::vector<double> >("muonsCharge");
   produces<std::vector<double> >("muonsMtw");
@@ -85,6 +87,7 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // check which ones to keep
   std::auto_ptr<std::vector<pat::Muon> > prod(new std::vector<pat::Muon>());
+  std::auto_ptr<std::vector<pat::Muon> > mu2Clean(new std::vector<pat::Muon>());
   std::auto_ptr<std::vector<TLorentzVector> > muonsLVec(new std::vector<TLorentzVector>());
   std::auto_ptr<std::vector<double> > muonsCharge(new std::vector<double>());
   std::auto_ptr<std::vector<double> > muonsMtw(new std::vector<double>());
@@ -164,6 +167,9 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
          muonsRelIso->push_back(muRelIso);
          muonsMiniIso->push_back(miniIso);
       }
+
+      //add muons to clean from jets 
+      if(miniIso < maxMuMiniIso_ && m->pt() > 20) mu2Clean->push_back(*m);
     }
   }
     
@@ -176,6 +182,7 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // store in the event
   iEvent.put(prod);
+  iEvent.put(mu2Clean, "mu2Clean");
   iEvent.put(muonsLVec, "muonsLVec");
   iEvent.put(muonsCharge, "muonsCharge");
   iEvent.put(muonsMtw, "muonsMtw");

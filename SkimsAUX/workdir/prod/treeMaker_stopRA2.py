@@ -171,6 +171,11 @@ process.ak4GenJets = ak4GenJets.clone(src = 'packedGenParticles', rParam = 0.4)
 process.pfMet = pfMet.clone(src = "packedPFCandidates")
 process.pfMet.calculateSignificance = False # this can't be easily implemented on packed PF candidates at the moment
 
+
+process.pfNoMuonCHSNoMu =  cms.EDProducer("CandPtrProjector", src = cms.InputTag("pfCHS"), veto = cms.InputTag("prodMuons", "mu2Clean"))
+process.ak4PFJetsCHSNoMu = ak4PFJets.clone(src = 'pfNoMuonCHSNoMu', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
+
+
 #from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
 process.load('PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi')
 #from JetMETCorrections.Type1MET.pfMETCorrections_cff import *
@@ -196,6 +201,22 @@ addJetCollection(
    algo = 'AK', rParam = 0.4
 )
 
+addJetCollection(
+   process,
+   postfix = "",
+   labelName = 'AK4PFCHSNoMu',
+   jetSource = cms.InputTag('ak4PFJetsCHSNoMu'),
+   trackSource = cms.InputTag('unpackedTracksAndVertices'),
+   pvSource = cms.InputTag('unpackedTracksAndVertices'),
+   svSource = cms.InputTag('unpackedTracksAndVertices','secondary'),
+#   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+#   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+   btagDiscriminators = [ 'combinedInclusiveSecondaryVertexV2BJetTags' ],
+   genJetCollection = cms.InputTag('ak4GenJets'),
+   algo = 'AK', rParam = 0.4
+)
+
 #adjust MC matching
 process.patJetGenJetMatchAK4PFCHS.matched = "ak4GenJets"
 process.patJetPartonMatchAK4PFCHS.matched = "prunedGenParticles"
@@ -203,8 +224,12 @@ process.patJetPartons.particles = "prunedGenParticles"
 process.patJetPartons.skipFirstN = cms.uint32(0) # do not skip first 6 particles, we already pruned some!
 process.patJetPartons.acceptNoDaughters = cms.bool(True) # as we drop intermediate stuff, we need to accept quarks with no siblings
 
+process.patJetGenJetMatchAK4PFCHSNoMu.matched = "ak4GenJets"
+process.patJetPartonMatchAK4PFCHSNoMu.matched = "prunedGenParticles"
+
 #adjust PV used for Jet Corrections
 process.patJetCorrFactorsAK4PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
+process.patJetCorrFactorsAK4PFCHSNoMu.primaryVertices = "offlineSlimmedPrimaryVertices"
 
 #recreate tracks and pv for btagging
 process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
@@ -246,6 +271,10 @@ process.ak4patJetsPFchsPt50Eta25.pfJetCut = cms.string('pt > 50 & abs(eta) < 2.5
 process.patJetsAK4PFCHSPt10 = process.selectedPatJetsRA2.clone()
 process.patJetsAK4PFCHSPt10.jetSrc = cms.InputTag("patJetsAK4PFCHS")
 process.patJetsAK4PFCHSPt10.pfJetCut = cms.string('pt >= 10')
+
+process.patJetsAK4PFCHSPt10NoMu = process.selectedPatJetsRA2.clone()
+process.patJetsAK4PFCHSPt10NoMu.jetSrc = cms.InputTag("patJetsAK4PFCHSNoMu")
+process.patJetsAK4PFCHSPt10NoMu.pfJetCut = cms.string('pt >= 10')
 
 # PFJets - filters
 process.countak4JetsPFchsPt50Eta25           = process.countPatJets.clone()
@@ -501,6 +530,10 @@ process.load("SusyAnaTools.SkimsAUX.prodEventInfo_cfi")
 
 process.prodJets.jetOtherSrc = cms.InputTag('patJetsAK4PFCHS')
 
+process.prodJetsNoMu = process.prodJets.clone()
+process.prodJetsNoMu.jetSrc = cms.InputTag('patJetsAK4PFCHSPt10NoMu')
+process.prodJets.jetOtherSrc = cms.InputTag('patJetsAK4PFCHSNoMu')
+
 process.prodMuonsNoIso = process.prodMuons.clone()
 process.prodMuonsNoIso.DoMuonIsolation = cms.bool(False)
 
@@ -527,6 +560,9 @@ process.stopTreeMaker.vectorBool.extend([cms.InputTag("prodElectronsNoIso", "ele
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodJets", "nJets"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "jetsLVec"))
 #process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "lowptjetsLVec"))
+process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoMu", "jetsLVec"))
+process.stopTreeMaker.varsTLorentzVectorNamesInTree.append("prodJetsNoMu_jetsLVec|jetsLVecMuCleaned")
+process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "lowptjetsLVec"))
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "recoJetsFlavor"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedHadronEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedEmEnergyFraction"))

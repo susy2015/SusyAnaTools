@@ -23,6 +23,64 @@ process.AK4PFchsForAK4PFCHSJetMETcorr = cms.EDProducer("PFJetMETcorrInputProduce
 )
 
 
+process.AK4PFchsForAK4PFCHSNoMuCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
+    src = cms.InputTag("AK4PFchsForAK4PFCHSNoMupfCandsNotInJetsForMetCorr")
+)
+
+
+process.AK4PFchsForAK4PFCHSNoMuJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
+    src = cms.InputTag("ak4PFJetsCHSNoMu"),
+    type1JetPtThreshold = cms.double(10.0),
+    skipEMfractionThreshold = cms.double(0.9),
+    skipEM = cms.bool(True),
+    offsetCorrLabel = cms.string('AK4PFchsL1FastJet'),
+    skipMuons = cms.bool(True),
+    skipMuonSelection = cms.string('isGlobalMuon | isStandAloneMuon'),
+    jetCorrEtaMax = cms.double(9.9),
+    jetCorrLabel = cms.string('ak4PFL1FastL2L3')
+)
+
+
+process.AK4PFchsForAK4PFCHSNoMuType1CorMet = cms.EDProducer("AddCorrectionsToPFMET",
+    src = cms.InputTag("pfMet"),
+    srcCorrections = cms.VInputTag(cms.InputTag("AK4PFchsForAK4PFCHSNoMuJetMETcorr","type1"))
+)
+
+
+process.AK4PFchsForAK4PFCHSNoMuType1p2CorMet = cms.EDProducer("AddCorrectionsToPFMET",
+    src = cms.InputTag("pfMet"),
+    srcCorrections = cms.VInputTag(cms.InputTag("AK4PFchsForAK4PFCHSNoMuJetMETcorr","type1"), "AK4PFchsForAK4PFCHSNoMucorrPfMetType2")
+)
+
+
+process.AK4PFchsForAK4PFCHSNoMucorrPfMetType2 = cms.EDProducer("Type2CorrectionProducer",
+    type2CorrFormula = cms.string('A'),
+    type2CorrParameter = cms.PSet(
+        A = cms.double(1.4)
+    ),
+    srcUnclEnergySums = cms.VInputTag(cms.InputTag("AK4PFchsForAK4PFCHSNoMuJetMETcorr","type2"), cms.InputTag("AK4PFchsForAK4PFCHSNoMuJetMETcorr","offset"), cms.InputTag("AK4PFchsForAK4PFCHSNoMuCandMETcorr"))
+)
+
+
+process.AK4PFchsForAK4PFCHSNoMupfCandsNotInJetsForMetCorr = cms.EDProducer("PFCandidateFromFwdPtrProducer",
+    src = cms.InputTag("AK4PFchsForAK4PFCHSNoMupfCandsNotInJetsPtrForMetCorr")
+)
+
+
+process.AK4PFchsForAK4PFCHSNoMupfCandsNotInJetsPtrForMetCorr = cms.EDProducer("TPPFJetsOnPFCandidates",
+    bottomCollection = cms.InputTag("particleFlowPtrs"),
+    enable = cms.bool(True),
+    topCollection = cms.InputTag("AK4PFchsForAK4PFCHSNoMupfJetsPtrForMetCorr"),
+    name = cms.untracked.string('noJet'),
+    verbose = cms.untracked.bool(False)
+)
+
+
+process.AK4PFchsForAK4PFCHSNoMupfJetsPtrForMetCorr = cms.EDProducer("PFJetFwdPtrProducer",
+    src = cms.InputTag("ak4PFJetsCHSNoMu")
+)
+
+
 process.AK4PFchsForAK4PFCHSType1CorMet = cms.EDProducer("AddCorrectionsToPFMET",
     src = cms.InputTag("pfMet"),
     srcCorrections = cms.VInputTag(cms.InputTag("AK4PFchsForAK4PFCHSJetMETcorr","type1"))
@@ -126,6 +184,39 @@ process.ak4PFJetsCHS = cms.EDProducer("FastjetJetProducer",
 )
 
 
+process.ak4PFJetsCHSNoMu = cms.EDProducer("FastjetJetProducer",
+    Active_Area_Repeats = cms.int32(1),
+    doAreaFastjet = cms.bool(True),
+    voronoiRfact = cms.double(-0.9),
+    maxBadHcalCells = cms.uint32(9999999),
+    doAreaDiskApprox = cms.bool(False),
+    maxRecoveredEcalCells = cms.uint32(9999999),
+    jetType = cms.string('PFJet'),
+    minSeed = cms.uint32(14327),
+    Ghost_EtaMax = cms.double(5.0),
+    doRhoFastjet = cms.bool(False),
+    jetAlgorithm = cms.string('AntiKt'),
+    nSigmaPU = cms.double(1.0),
+    GhostArea = cms.double(0.01),
+    Rho_EtaMax = cms.double(4.4),
+    maxBadEcalCells = cms.uint32(9999999),
+    useDeterministicSeed = cms.bool(True),
+    doPVCorrection = cms.bool(False),
+    maxRecoveredHcalCells = cms.uint32(9999999),
+    rParam = cms.double(0.4),
+    maxProblematicHcalCells = cms.uint32(9999999),
+    doOutputJets = cms.bool(True),
+    src = cms.InputTag("pfNoMuonCHSNoMu"),
+    inputEtMin = cms.double(0.0),
+    srcPVs = cms.InputTag(""),
+    jetPtMin = cms.double(3.0),
+    radiusPU = cms.double(0.5),
+    maxProblematicEcalCells = cms.uint32(9999999),
+    doPUOffsetCorr = cms.bool(False),
+    inputEMin = cms.double(0.0)
+)
+
+
 process.ak4PFJetschsL1FastL2L3 = cms.EDProducer("PFJetCorrectionProducer",
     src = cms.InputTag("slimmedJets"),
     correctors = cms.vstring('ak4PFL1FastL2L3'),
@@ -203,6 +294,12 @@ process.combinedInclusiveSecondaryVertexV2BJetTags = cms.EDProducer("JetTagProdu
 process.combinedInclusiveSecondaryVertexV2BJetTagsAK4PFCHS = cms.EDProducer("JetTagProducer",
     jetTagComputer = cms.string('combinedSecondaryVertexV2'),
     tagInfos = cms.VInputTag(cms.InputTag("impactParameterTagInfosAK4PFCHS"), cms.InputTag("inclusiveSecondaryVertexFinderTagInfosAK4PFCHS"))
+)
+
+
+process.combinedInclusiveSecondaryVertexV2BJetTagsAK4PFCHSNoMu = cms.EDProducer("JetTagProducer",
+    jetTagComputer = cms.string('combinedSecondaryVertexV2'),
+    tagInfos = cms.VInputTag(cms.InputTag("impactParameterTagInfosAK4PFCHSNoMu"), cms.InputTag("inclusiveSecondaryVertexFinderTagInfosAK4PFCHSNoMu"))
 )
 
 
@@ -847,6 +944,24 @@ process.impactParameterTagInfosAK4PFCHS = cms.EDProducer("TrackIPProducer",
 )
 
 
+process.impactParameterTagInfosAK4PFCHSNoMu = cms.EDProducer("TrackIPProducer",
+    maximumTransverseImpactParameter = cms.double(0.2),
+    minimumNumberOfHits = cms.int32(8),
+    minimumTransverseMomentum = cms.double(1.0),
+    primaryVertex = cms.InputTag("unpackedTracksAndVertices"),
+    maximumLongitudinalImpactParameter = cms.double(17.0),
+    computeGhostTrack = cms.bool(True),
+    ghostTrackPriorDeltaR = cms.double(0.03),
+    jetTracks = cms.InputTag("jetTracksAssociatorAtVertexAK4PFCHSNoMu"),
+    jetDirectionUsingGhostTrack = cms.bool(False),
+    minimumNumberOfPixelHits = cms.int32(2),
+    jetDirectionUsingTracks = cms.bool(False),
+    computeProbabilities = cms.bool(True),
+    useTrackQuality = cms.bool(False),
+    maximumChiSquared = cms.double(5.0)
+)
+
+
 process.inclusiveSecondaryVertexFinderFilteredNegativeTagInfos = cms.EDProducer("SecondaryVertexProducer",
     extSVDeltaRToJet = cms.double(-0.5),
     beamSpotTag = cms.InputTag("offlineBeamSpot"),
@@ -1202,6 +1317,77 @@ process.inclusiveSecondaryVertexFinderTagInfosAK4PFCHS = cms.EDProducer("Seconda
 )
 
 
+process.inclusiveSecondaryVertexFinderTagInfosAK4PFCHSNoMu = cms.EDProducer("SecondaryVertexProducer",
+    extSVDeltaRToJet = cms.double(0.3),
+    beamSpotTag = cms.InputTag("offlineBeamSpot"),
+    vertexReco = cms.PSet(
+        seccut = cms.double(6.0),
+        primcut = cms.double(1.8),
+        smoothing = cms.bool(False),
+        weightthreshold = cms.double(0.001),
+        minweight = cms.double(0.5),
+        finder = cms.string('avr')
+    ),
+    constraint = cms.string('BeamSpot'),
+    vertexSelection = cms.PSet(
+        sortCriterium = cms.string('dist3dError')
+    ),
+    useExternalSV = cms.bool(True),
+    vertexCuts = cms.PSet(
+        distSig3dMax = cms.double(99999.9),
+        fracPV = cms.double(0.79),
+        distVal2dMax = cms.double(2.5),
+        useTrackWeights = cms.bool(True),
+        maxDeltaRToJetAxis = cms.double(0.5),
+        v0Filter = cms.PSet(
+            k0sMassWindow = cms.double(0.05)
+        ),
+        distSig2dMin = cms.double(2.0),
+        multiplicityMin = cms.uint32(2),
+        massMax = cms.double(6.5),
+        distSig2dMax = cms.double(99999.9),
+        distVal3dMax = cms.double(99999.9),
+        minimumTrackWeight = cms.double(0.5),
+        distVal3dMin = cms.double(-99999.9),
+        distVal2dMin = cms.double(0.01),
+        distSig3dMin = cms.double(-99999.9)
+    ),
+    trackIPTagInfos = cms.InputTag("impactParameterTagInfosAK4PFCHSNoMu"),
+    minimumTrackWeight = cms.double(0.5),
+    usePVError = cms.bool(True),
+    trackSelection = cms.PSet(
+        b_pT = cms.double(0.3684),
+        a_dR = cms.double(-0.001053),
+        min_pT = cms.double(120),
+        max_pT = cms.double(500),
+        min_pT_dRcut = cms.double(0.5),
+        max_pT_trackPTcut = cms.double(3),
+        max_pT_dRcut = cms.double(0.1),
+        b_dR = cms.double(0.6263),
+        a_pT = cms.double(0.005263),
+        totalHitsMin = cms.uint32(8),
+        jetDeltaRMax = cms.double(0.3),
+        qualityClass = cms.string('any'),
+        pixelHitsMin = cms.uint32(2),
+        sip3dSigMin = cms.double(-99999.9),
+        sip3dSigMax = cms.double(99999.9),
+        maxDistToAxis = cms.double(0.2),
+        useVariableJTA = cms.bool(False),
+        sip2dValMax = cms.double(99999.9),
+        maxDecayLen = cms.double(99999.9),
+        ptMin = cms.double(1.0),
+        sip2dSigMax = cms.double(99999.9),
+        sip2dSigMin = cms.double(-99999.9),
+        sip3dValMax = cms.double(99999.9),
+        sip3dValMin = cms.double(-99999.9),
+        sip2dValMin = cms.double(-99999.9),
+        normChi2Max = cms.double(99999.9)
+    ),
+    trackSort = cms.string('sip3dSig'),
+    extSVCollection = cms.InputTag("unpackedTracksAndVertices","secondary")
+)
+
+
 process.inclusiveSecondaryVertices = cms.EDProducer("VertexMerger",
     minSignificance = cms.double(10.0),
     secondaryVertices = cms.InputTag("trackVertexArbitrator"),
@@ -1274,6 +1460,15 @@ process.jetProbabilityBJetTags = cms.EDProducer("JetTagProducer",
 
 process.jetTracksAssociatorAtVertexAK4PFCHS = cms.EDProducer("JetTracksAssociatorAtVertex",
     jets = cms.InputTag("ak4PFJetsCHS"),
+    tracks = cms.InputTag("unpackedTracksAndVertices"),
+    useAssigned = cms.bool(False),
+    coneSize = cms.double(0.4),
+    pvSrc = cms.InputTag("unpackedTracksAndVertices")
+)
+
+
+process.jetTracksAssociatorAtVertexAK4PFCHSNoMu = cms.EDProducer("JetTracksAssociatorAtVertex",
+    jets = cms.InputTag("ak4PFJetsCHSNoMu"),
     tracks = cms.InputTag("unpackedTracksAndVertices"),
     useAssigned = cms.bool(False),
     coneSize = cms.double(0.4),
@@ -2274,6 +2469,13 @@ process.patJetChargeAK4PFCHS = cms.EDProducer("JetChargeProducer",
 )
 
 
+process.patJetChargeAK4PFCHSNoMu = cms.EDProducer("JetChargeProducer",
+    var = cms.string('Pt'),
+    src = cms.InputTag("jetTracksAssociatorAtVertexAK4PFCHSNoMu"),
+    exp = cms.double(1.0)
+)
+
+
 process.patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
     src = cms.InputTag("ak4PFJetsCHS"),
     emf = cms.bool(False),
@@ -2292,6 +2494,22 @@ process.patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
 
 process.patJetCorrFactorsAK4PFCHS = cms.EDProducer("JetCorrFactorsProducer",
     src = cms.InputTag("ak4PFJetsCHS"),
+    emf = cms.bool(False),
+    extraJPTOffset = cms.string('L1FastJet'),
+    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    levels = cms.vstring('L1FastJet', 
+        'L2Relative', 
+        'L3Absolute'),
+    useNPV = cms.bool(True),
+    rho = cms.InputTag("fixedGridRhoFastjetAll"),
+    useRho = cms.bool(True),
+    payload = cms.string('AK4PFchs'),
+    flavorType = cms.string('J')
+)
+
+
+process.patJetCorrFactorsAK4PFCHSNoMu = cms.EDProducer("JetCorrFactorsProducer",
+    src = cms.InputTag("ak4PFJetsCHSNoMu"),
     emf = cms.bool(False),
     extraJPTOffset = cms.string('L1FastJet'),
     primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -2330,6 +2548,18 @@ process.patJetFlavourAssociationAK4PFCHS = cms.EDProducer("JetFlavourClustering"
 )
 
 
+process.patJetFlavourAssociationAK4PFCHSNoMu = cms.EDProducer("JetFlavourClustering",
+    ghostRescaling = cms.double(1e-18),
+    partons = cms.InputTag("patJetPartons","partons"),
+    jetAlgorithm = cms.string('AntiKt'),
+    bHadrons = cms.InputTag("patJetPartons","bHadrons"),
+    rParam = cms.double(0.4),
+    jets = cms.InputTag("ak4PFJetsCHSNoMu"),
+    hadronFlavourHasPriority = cms.bool(True),
+    cHadrons = cms.InputTag("patJetPartons","cHadrons")
+)
+
+
 process.patJetFlavourAssociationLegacy = cms.EDProducer("JetFlavourIdentifier",
     srcByReference = cms.InputTag("patJetPartonAssociationLegacy"),
     physicsDefinition = cms.bool(False)
@@ -2338,6 +2568,12 @@ process.patJetFlavourAssociationLegacy = cms.EDProducer("JetFlavourIdentifier",
 
 process.patJetFlavourAssociationLegacyAK4PFCHS = cms.EDProducer("JetFlavourIdentifier",
     srcByReference = cms.InputTag("patJetPartonAssociationLegacyAK4PFCHS"),
+    physicsDefinition = cms.bool(False)
+)
+
+
+process.patJetFlavourAssociationLegacyAK4PFCHSNoMu = cms.EDProducer("JetFlavourIdentifier",
+    srcByReference = cms.InputTag("patJetPartonAssociationLegacyAK4PFCHSNoMu"),
     physicsDefinition = cms.bool(False)
 )
 
@@ -2366,6 +2602,18 @@ process.patJetGenJetMatchAK4PFCHS = cms.EDProducer("GenJetMatcher",
 )
 
 
+process.patJetGenJetMatchAK4PFCHSNoMu = cms.EDProducer("GenJetMatcher",
+    src = cms.InputTag("ak4PFJetsCHSNoMu"),
+    mcPdgId = cms.vint32(),
+    mcStatus = cms.vint32(),
+    resolveByMatchQuality = cms.bool(False),
+    maxDeltaR = cms.double(0.4),
+    checkCharge = cms.bool(False),
+    resolveAmbiguities = cms.bool(True),
+    matched = cms.InputTag("ak4GenJets")
+)
+
+
 process.patJetPartonAssociationLegacy = cms.EDProducer("JetPartonMatcher",
     jets = cms.InputTag("ak4PFJetsCHS"),
     coneSizeToAssociate = cms.double(0.3),
@@ -2375,6 +2623,13 @@ process.patJetPartonAssociationLegacy = cms.EDProducer("JetPartonMatcher",
 
 process.patJetPartonAssociationLegacyAK4PFCHS = cms.EDProducer("JetPartonMatcher",
     jets = cms.InputTag("ak4PFJetsCHS"),
+    coneSizeToAssociate = cms.double(0.3),
+    partons = cms.InputTag("patJetPartonsLegacy")
+)
+
+
+process.patJetPartonAssociationLegacyAK4PFCHSNoMu = cms.EDProducer("JetPartonMatcher",
+    jets = cms.InputTag("ak4PFJetsCHSNoMu"),
     coneSizeToAssociate = cms.double(0.3),
     partons = cms.InputTag("patJetPartonsLegacy")
 )
@@ -2396,6 +2651,20 @@ process.patJetPartonMatch = cms.EDProducer("MCMatcher",
 
 process.patJetPartonMatchAK4PFCHS = cms.EDProducer("MCMatcher",
     src = cms.InputTag("ak4PFJetsCHS"),
+    maxDPtRel = cms.double(3.0),
+    mcPdgId = cms.vint32(1, 2, 3, 4, 5, 
+        21),
+    mcStatus = cms.vint32(3),
+    resolveByMatchQuality = cms.bool(False),
+    maxDeltaR = cms.double(0.4),
+    checkCharge = cms.bool(False),
+    resolveAmbiguities = cms.bool(True),
+    matched = cms.InputTag("prunedGenParticles")
+)
+
+
+process.patJetPartonMatchAK4PFCHSNoMu = cms.EDProducer("MCMatcher",
+    src = cms.InputTag("ak4PFJetsCHSNoMu"),
     maxDPtRel = cms.double(3.0),
     mcPdgId = cms.vint32(1, 2, 3, 4, 5, 
         21),
@@ -2536,6 +2805,62 @@ process.patJetsAK4PFCHS = cms.EDProducer("PATJetProducer",
 )
 
 
+process.patJetsAK4PFCHSNoMu = cms.EDProducer("PATJetProducer",
+    addJetCharge = cms.bool(True),
+    addGenJetMatch = cms.bool(True),
+    embedGenJetMatch = cms.bool(True),
+    addAssociatedTracks = cms.bool(True),
+    addBTagInfo = cms.bool(True),
+    partonJetSource = cms.InputTag("NOT_IMPLEMENTED"),
+    addGenPartonMatch = cms.bool(True),
+    JetPartonMapSource = cms.InputTag("patJetFlavourAssociationLegacyAK4PFCHSNoMu"),
+    resolutions = cms.PSet(
+
+    ),
+    genPartonMatch = cms.InputTag("patJetPartonMatchAK4PFCHSNoMu"),
+    addTagInfos = cms.bool(False),
+    addPartonJetMatch = cms.bool(False),
+    embedGenPartonMatch = cms.bool(True),
+    efficiencies = cms.PSet(
+
+    ),
+    genJetMatch = cms.InputTag("patJetGenJetMatchAK4PFCHSNoMu"),
+    useLegacyJetMCFlavour = cms.bool(False),
+    userData = cms.PSet(
+        userCands = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userInts = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFloats = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userClasses = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFunctionLabels = cms.vstring(),
+        userFunctions = cms.vstring()
+    ),
+    jetSource = cms.InputTag("ak4PFJetsCHSNoMu"),
+    addEfficiencies = cms.bool(False),
+    discriminatorSources = cms.VInputTag(cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTagsAK4PFCHSNoMu")),
+    trackAssociationSource = cms.InputTag("jetTracksAssociatorAtVertexAK4PFCHSNoMu"),
+    tagInfoSources = cms.VInputTag(cms.InputTag("impactParameterTagInfosAK4PFCHSNoMu"), cms.InputTag("inclusiveSecondaryVertexFinderTagInfosAK4PFCHSNoMu")),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsAK4PFCHSNoMu")),
+    embedPFCandidates = cms.bool(False),
+    addJetFlavourInfo = cms.bool(False),
+    addResolutions = cms.bool(False),
+    getJetMCFlavour = cms.bool(True),
+    addDiscriminators = cms.bool(True),
+    jetChargeSource = cms.InputTag("patJetChargeAK4PFCHSNoMu"),
+    JetFlavourInfoSource = cms.InputTag("patJetFlavourAssociationAK4PFCHSNoMu"),
+    addJetCorrFactors = cms.bool(True),
+    jetIDMap = cms.InputTag("ak4JetID"),
+    addJetID = cms.bool(False)
+)
+
+
 process.patMETs = cms.EDProducer("PATMETProducer",
     metSource = cms.InputTag("pfMetT1"),
     userData = cms.PSet(
@@ -2571,6 +2896,39 @@ process.patMETs = cms.EDProducer("PATMETProducer",
 
 process.patMETsAK4PFCHS = cms.EDProducer("PATMETProducer",
     metSource = cms.InputTag("AK4PFchsForAK4PFCHSType1p2CorMet"),
+    userData = cms.PSet(
+        userCands = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userInts = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFloats = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userClasses = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFunctionLabels = cms.vstring(),
+        userFunctions = cms.vstring()
+    ),
+    addResolutions = cms.bool(False),
+    muonSource = cms.InputTag("muons"),
+    addEfficiencies = cms.bool(False),
+    genMETSource = cms.InputTag("genMetTrue"),
+    efficiencies = cms.PSet(
+
+    ),
+    addGenMET = cms.bool(False),
+    addMuonCorrections = cms.bool(False),
+    resolutions = cms.PSet(
+
+    )
+)
+
+
+process.patMETsAK4PFCHSNoMu = cms.EDProducer("PATMETProducer",
+    metSource = cms.InputTag("AK4PFchsForAK4PFCHSNoMuType1p2CorMet"),
     userData = cms.PSet(
         userCands = cms.PSet(
             src = cms.VInputTag("")
@@ -3068,6 +3426,12 @@ process.pfNoMuon = cms.EDProducer("CandPtrProjector",
 
 process.pfNoMuonCHS = cms.EDProducer("CandPtrProjector",
     veto = cms.InputTag("selectedMuons"),
+    src = cms.InputTag("pfCHS")
+)
+
+
+process.pfNoMuonCHSNoMu = cms.EDProducer("CandPtrProjector",
+    veto = cms.InputTag("prodMuons","mu2Clean"),
     src = cms.InputTag("pfCHS")
 )
 
@@ -3777,8 +4141,8 @@ process.stopTreeMaker = cms.EDProducer("stopTreeMaker",
         cms.InputTag("prodGenInfo","WtauprongsVec"), cms.InputTag("prodGenInfo","WtaunuVec"), cms.InputTag("prodIsoTrks","trksForIsoVetopdgId"), cms.InputTag("prodIsoTrks","trksForIsoVetoidx"), cms.InputTag("prodIsoTrks","looseisoTrkspdgId"), 
         cms.InputTag("prodIsoTrks","looseisoTrksidx"), cms.InputTag("prodIsoTrks","forVetoIsoTrksidx")),
     vectorString = cms.VInputTag(cms.InputTag("prodGenInfo","genDecayStrVec")),
-    vectorTLorentzVector = cms.VInputTag(cms.InputTag("prodMuonsNoIso","muonsLVec"), cms.InputTag("prodElectronsNoIso","elesLVec"), cms.InputTag("prodJets","jetsLVec"), cms.InputTag("prodGenInfo","genDecayLVec"), cms.InputTag("prodIsoTrks","trksForIsoVetoLVec"), 
-        cms.InputTag("prodIsoTrks","looseisoTrksLVec")),
+    vectorTLorentzVector = cms.VInputTag(cms.InputTag("prodMuonsNoIso","muonsLVec"), cms.InputTag("prodElectronsNoIso","elesLVec"), cms.InputTag("prodJets","jetsLVec"), cms.InputTag("prodJetsNoMu","jetsLVec"), cms.InputTag("prodJets","lowptjetsLVec"), 
+        cms.InputTag("prodGenInfo","genDecayLVec"), cms.InputTag("prodIsoTrks","trksForIsoVetoLVec"), cms.InputTag("prodIsoTrks","looseisoTrksLVec")),
     vectorIntNamesInTree = cms.vstring('prodGenInfo:WemuVec|W_emuVec', 
         'prodGenInfo:WtauVec|W_tauVec', 
         'prodGenInfo:WtauemuVec|W_tau_emuVec', 
@@ -3805,9 +4169,9 @@ process.stopTreeMaker = cms.EDProducer("stopTreeMaker",
         cms.InputTag("prodJets","recoJetsBtag"), cms.InputTag("prodIsoTrks","trksForIsoVetocharge"), cms.InputTag("prodIsoTrks","trksForIsoVetodz"), cms.InputTag("prodIsoTrks","looseisoTrkscharge"), cms.InputTag("prodIsoTrks","looseisoTrksdz"), 
         cms.InputTag("prodIsoTrks","looseisoTrksiso"), cms.InputTag("prodIsoTrks","looseisoTrksmtw")),
     vectorStringNamesInTree = cms.vstring(),
-    varsTLorentzVectorNamesInTree = cms.vstring(),
+    varsTLorentzVectorNamesInTree = cms.vstring('prodJetsNoMu_jetsLVec|jetsLVecMuCleaned'),
     vectorBool = cms.VInputTag(cms.InputTag("prodElectronsNoIso","elesisEB")),
-    debug = cms.bool(True),
+    debug = cms.bool(False),
     varsInt = cms.VInputTag(cms.InputTag("prodMuons","nMuons"), cms.InputTag("prodMuonsNoIso","nMuons"), cms.InputTag("prodElectrons","nElectrons"), cms.InputTag("prodElectronsNoIso","nElectrons"), cms.InputTag("prodJets","nJets"), 
         cms.InputTag("prodIsoTrks","loosenIsoTrks"), cms.InputTag("prodIsoTrks","nIsoTrksForVeto"), cms.InputTag("ak4nJetsForSkimsStop","nJets"), cms.InputTag("prodEventInfo","vtxSize"), cms.InputTag("prodEventInfo","npv"), 
         cms.InputTag("prodEventInfo","nm1"), cms.InputTag("prodEventInfo","n0"), cms.InputTag("prodEventInfo","np1"), cms.InputTag("type3topTagger","bestTopJetIdx"), cms.InputTag("type3topTagger","pickedRemainingCombfatJetIdx"))
@@ -4343,6 +4707,12 @@ process.patJetsAK4PFCHSPt10 = cms.EDFilter("simpleJetSelector",
 )
 
 
+process.patJetsAK4PFCHSPt10NoMu = cms.EDFilter("simpleJetSelector",
+    jetSrc = cms.InputTag("patJetsAK4PFCHSNoMu"),
+    pfJetCut = cms.string('pt >= 10')
+)
+
+
 process.pfAllChargedHadrons = cms.EDFilter("PFCandidateFwdPtrCollectionPdgIdFilter",
     pdgId = cms.vint32(211, -211, 321, -321, 999211, 
         2212, -2212),
@@ -4417,7 +4787,7 @@ process.printDecay = cms.EDFilter("genDecayStringMaker",
         '~chi_1+', 
         '~chi_1-'),
     src = cms.InputTag("prunedGenParticles"),
-    printDecay = cms.untracked.bool(True)
+    printDecay = cms.untracked.bool(False)
 )
 
 
@@ -4428,7 +4798,7 @@ process.printDecayPythia8 = cms.EDFilter("genDecayStringMakerPythia8",
         '~chi_1+', 
         '~chi_1-'),
     src = cms.InputTag("prunedGenParticles"),
-    printDecay = cms.untracked.bool(True)
+    printDecay = cms.untracked.bool(False)
 )
 
 
@@ -4473,7 +4843,7 @@ process.prodEventInfo = cms.EDFilter("prodEventInfo",
 
 
 process.prodGenInfo = cms.EDFilter("prodGenInfo",
-    debug = cms.bool(True),
+    debug = cms.bool(False),
     genParticleSrc = cms.InputTag("prunedGenParticles"),
     genDecayStrVecSrc = cms.InputTag("printDecayPythia8","decayStr"),
     genDecayChainPartIdxVecSrc = cms.InputTag("printDecayPythia8","decayChainPartIdxVec")
@@ -4502,7 +4872,7 @@ process.prodJets = cms.EDFilter("prodJets",
     W_tau_emuVec = cms.InputTag("prodGenInfo","WtauemuVec"),
     muLVec = cms.InputTag("prodMuonsNoIso","muonsLVec"),
     W_tau_prongsVec = cms.InputTag("prodGenInfo","WtauprongsVec"),
-    jetOtherSrc = cms.InputTag("patJetsAK4PFCHS"),
+    jetOtherSrc = cms.InputTag("patJetsAK4PFCHSNoMu"),
     eleLVec = cms.InputTag("prodElectronsNoIso","elesLVec"),
     vtxSrc = cms.InputTag("goodVertices"),
     genDecayMomRefVec = cms.InputTag("prodGenInfo","genDecayMomRefVec"),
@@ -4510,6 +4880,25 @@ process.prodJets = cms.EDFilter("prodJets",
     W_emuVec = cms.InputTag("prodGenInfo","WemuVec"),
     W_tauVec = cms.InputTag("prodGenInfo","WtauVec"),
     jetSrc = cms.InputTag("slimmedJets"),
+    debug = cms.bool(False),
+    W_tau_nuVec = cms.InputTag("prodGenInfo","WtaunuVec"),
+    bTagKeyString = cms.string('combinedInclusiveSecondaryVertexV2BJetTags'),
+    genDecayLVec = cms.InputTag("prodGenInfo","genDecayLVec")
+)
+
+
+process.prodJetsNoMu = cms.EDFilter("prodJets",
+    W_tau_emuVec = cms.InputTag("prodGenInfo","WtauemuVec"),
+    muLVec = cms.InputTag("prodMuonsNoIso","muonsLVec"),
+    W_tau_prongsVec = cms.InputTag("prodGenInfo","WtauprongsVec"),
+    jetOtherSrc = cms.InputTag("patJetsAK4PFCHS"),
+    eleLVec = cms.InputTag("prodElectronsNoIso","elesLVec"),
+    vtxSrc = cms.InputTag("goodVertices"),
+    genDecayMomRefVec = cms.InputTag("prodGenInfo","genDecayMomRefVec"),
+    metSrc = cms.InputTag("slimmedMETs"),
+    W_emuVec = cms.InputTag("prodGenInfo","WemuVec"),
+    W_tauVec = cms.InputTag("prodGenInfo","WtauVec"),
+    jetSrc = cms.InputTag("patJetsAK4PFCHSPt10NoMu"),
     debug = cms.bool(False),
     W_tau_nuVec = cms.InputTag("prodGenInfo","WtaunuVec"),
     bTagKeyString = cms.string('combinedInclusiveSecondaryVertexV2BJetTags'),
@@ -4535,9 +4924,10 @@ process.prodMuons = cms.EDFilter("prodMuons",
     VertexSource = cms.InputTag("goodVertices"),
     MaxMuD0 = cms.double(0.2),
     Debug = cms.bool(False),
-    MuonSource = cms.InputTag("slimmedMuons"),
+    MaxMuMiniIso = cms.double(0.2),
     MaxMuRelIso = cms.double(0.2),
     MaxMuDz = cms.double(0.5),
+    MuonSource = cms.InputTag("slimmedMuons"),
     MinMuPt = cms.double(5)
 )
 
@@ -4554,9 +4944,10 @@ process.prodMuonsNoIso = cms.EDFilter("prodMuons",
     MaxMuDz = cms.double(0.5),
     PFCandSource = cms.InputTag("packedPFCandidates"),
     Debug = cms.bool(False),
-    MuonSource = cms.InputTag("slimmedMuons"),
+    MaxMuMiniIso = cms.double(0.2),
     MaxMuRelIso = cms.double(0.2),
     VertexSource = cms.InputTag("goodVertices"),
+    MuonSource = cms.InputTag("slimmedMuons"),
     MinMuPt = cms.double(5)
 )
 
@@ -4603,6 +4994,12 @@ process.selectedPatJetsAK4PFCHS = cms.EDFilter("PATJetSelector",
 )
 
 
+process.selectedPatJetsAK4PFCHSNoMu = cms.EDFilter("PATJetSelector",
+    src = cms.InputTag("patJetsAK4PFCHSNoMu"),
+    cut = cms.string('')
+)
+
+
 process.selectedPatJetsRA2 = cms.EDFilter("simpleJetSelector",
     jetSrc = cms.InputTag("patJetsAK5PFPt30")
 )
@@ -4614,7 +5011,7 @@ process.simpleJetSelector = cms.EDFilter("simpleJetSelector",
 
 
 process.smsModelFilter = cms.EDFilter("SMSModelFilter",
-    Debug = cms.bool(True),
+    Debug = cms.bool(False),
     SusyScanTopology = cms.string('T1tttt'),
     SusyScanFracLSP = cms.double(0.0),
     SusyScanMotherMass = cms.double(-1),
@@ -4942,7 +5339,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         noTimeStamps = cms.untracked.bool(False),
         FwkReport = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
+            reportEvery = cms.untracked.int32(100),
             optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(10000000)
         ),
@@ -20193,7 +20590,7 @@ process.ghostTrackVertexRecoBlock = cms.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
 )
 
 process.options = cms.untracked.PSet(
