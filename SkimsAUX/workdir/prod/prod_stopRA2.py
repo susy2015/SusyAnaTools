@@ -19,10 +19,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # The following is make patJets, but EI is done with the above
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
-process.load("Configuration.EventContent.EventContent_cff")
-process.load('Configuration.StandardSequences.Geometry_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi') 
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 import os
 import sys

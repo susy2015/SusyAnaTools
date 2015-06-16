@@ -60,8 +60,8 @@ namespace AnaSamples
             //signal
         sampleSet_["Signal_T1tttt_mGluino1200_mLSP800"]          = FileSummary(fDir_ + "T1tttt_2J_mGl-1200_mLSP-800_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.0856418, lumi, 100322, 1.0,  kRed);
         sampleSet_["Signal_T1tttt_mGluino1500_mLSP100"]          = FileSummary(fDir_ + "T1tttt_2J_mGl-1500_mLSP-100_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.0141903, lumi, 105679, 1.0,  kRed);
-        sampleSet_["Signal_T5tttt_mGluino1300_mStop300_mChi280"] = FileSummary(fDir_ + "", "stopTreeMaker/AUX", 0.0460525, lumi, 16360,  1.0,  kRed);
-        sampleSet_["Signal_T5tttt_mGluino1300_mStop300_mCh285"]  = FileSummary(fDir_ + "", "stopTreeMaker/AUX", 0.0460525, lumi, 35288,  1.0,  kRed);
+        sampleSet_["Signal_T5tttt_mGluino1300_mStop300_mChi280"] = FileSummary(fDir_ + "", "stopTreeMaker/AUX", 0.0460525, lumi, 44011,  1.0,  kRed);
+        sampleSet_["Signal_T5tttt_mGluino1300_mStop300_mCh285"]  = FileSummary(fDir_ + "", "stopTreeMaker/AUX", 0.0460525, lumi, 43818,  1.0,  kRed);
         sampleSet_["Signal_T1bbbb_mGluino1000_mLSP900"]          = FileSummary(fDir_ + "T1bbbb_2J_mGl-1000_mLSP-900_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.325388,  lumi, 97134,  1.0,  kRed);
         sampleSet_["Signal_T1bbbb_mGluino1500_mLSP100"]          = FileSummary(fDir_ + "T1bbbb_2J_mGl-1500_mLSP-100_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.0141903, lumi, 105149, 1.0,  kRed);
         sampleSet_["Signal_T2tt_mStop425_mLSP325"]               = FileSummary(fDir_ + "T2tt_2J_mStop-425_mLSP-325_madgraph-tauola.txt", "stopTreeMaker/AUX", 1.31169,   lumi, 1039030,1.0,  kRed);
@@ -70,6 +70,8 @@ namespace AnaSamples
         sampleSet_["Signal_T2tt_mStop850_mLSP100"]               = FileSummary(fDir_ + "T2tt_2J_mStop-850_mLSP-100_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.0189612, lumi, 102839, 1.0,  kRed);
         sampleSet_["Signal_T2bb_mSbottom600_mLSP580"]            = FileSummary(fDir_ + "T2bb_2J_mStop-600_mLSP-580_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.174599,  lumi, 107316, 1.0,  kRed);
         sampleSet_["Signal_T2bb_mSbottom900_mLSP100"]            = FileSummary(fDir_ + "T2bb_2J_mStop-900_mLSP-100_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.0128895, lumi, 102661, 1.0,  kRed);    
+        sampleSet_["Signal_TTDMDMJets_M600GeV"]                  = FileSummary(fDir_ + "TTDMDMJets_M600GeV.txt", "stopTreeMaker/AUX", 0.1038, lumi, 126547, 1.0,  kRed);    
+        sampleSet_["Signal_TTDMDMJets_M1000GeV"]                 = FileSummary(fDir_ + "TTDMDMJets_M1000GeV.txt", "stopTreeMaker/AUX", 0.01585, lumi, 121817, 1.0,  kRed);    
     }
 
     SampleCollection::SampleCollection(SampleSet samples)

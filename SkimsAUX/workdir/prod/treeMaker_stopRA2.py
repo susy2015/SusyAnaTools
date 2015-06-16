@@ -19,10 +19,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # The following is make patJets, but EI is done with the above
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
-process.load("Configuration.EventContent.EventContent_cff")
-process.load('Configuration.StandardSequences.Geometry_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 import os
 import sys
@@ -31,7 +33,7 @@ import re
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 
-options.register('GlobalTag', "PHYS14_25_V1::All", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobaTTag to use (otherwise default Pat GT is used)")
+options.register('GlobalTag', "MCRUN2_74_V9", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobaTTag to use (otherwise default Pat GT is used)")
 options.register('mcInfo', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process MonteCarlo data, default is data")
 options.register('jetCorrections', 'L2Relative', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Level of jet corrections to use: Note the factors are read from DB via GlobalTag")
 options.jetCorrections.append('L3Absolute')
@@ -105,9 +107,12 @@ else:
 
 process.maxEvents.input = options.maxEvents
 
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+
 #-- Calibration tag -----------------------------------------------------------
 if options.GlobalTag:
-   process.GlobalTag.globaltag = options.GlobalTag
+#   process.GlobalTag.globaltag = options.GlobalTag
+   process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 
 if options.mcInfo == False: options.jetCorrections.append('L2L3Residual')
 options.jetCorrections.insert(0, 'L1FastJet')
@@ -190,14 +195,13 @@ addJetCollection(
    postfix = "",
    labelName = 'AK4PFCHS',
    jetSource = cms.InputTag('ak4PFJetsCHS'),
-   trackSource = cms.InputTag('unpackedTracksAndVertices'),
-   pvSource = cms.InputTag('unpackedTracksAndVertices'),
-   svSource = cms.InputTag('unpackedTracksAndVertices','secondary'),
-#   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+   pfCandidates = cms.InputTag('packedPFCandidates'),
+   svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
-#   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-   btagDiscriminators = [ 'combinedInclusiveSecondaryVertexV2BJetTags' ],
+   btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
    genJetCollection = cms.InputTag('ak4GenJets'),
+   genParticles = cms.InputTag('prunedGenParticles'),
    algo = 'AK', rParam = 0.4
 )
 
@@ -206,26 +210,20 @@ addJetCollection(
    postfix = "",
    labelName = 'AK4PFCHSNoMu',
    jetSource = cms.InputTag('ak4PFJetsCHSNoMu'),
-   trackSource = cms.InputTag('unpackedTracksAndVertices'),
-   pvSource = cms.InputTag('unpackedTracksAndVertices'),
-   svSource = cms.InputTag('unpackedTracksAndVertices','secondary'),
-#   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+   pfCandidates = cms.InputTag('packedPFCandidates'),
+   svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
-#   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-   btagDiscriminators = [ 'combinedInclusiveSecondaryVertexV2BJetTags' ],
+   btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
    genJetCollection = cms.InputTag('ak4GenJets'),
+   genParticles = cms.InputTag('prunedGenParticles'),
    algo = 'AK', rParam = 0.4
 )
 
 #adjust MC matching
-process.patJetGenJetMatchAK4PFCHS.matched = "ak4GenJets"
-process.patJetPartonMatchAK4PFCHS.matched = "prunedGenParticles"
 process.patJetPartons.particles = "prunedGenParticles"
 process.patJetPartons.skipFirstN = cms.uint32(0) # do not skip first 6 particles, we already pruned some!
 process.patJetPartons.acceptNoDaughters = cms.bool(True) # as we drop intermediate stuff, we need to accept quarks with no siblings
-
-process.patJetGenJetMatchAK4PFCHSNoMu.matched = "ak4GenJets"
-process.patJetPartonMatchAK4PFCHSNoMu.matched = "prunedGenParticles"
 
 #adjust PV used for Jet Corrections
 process.patJetCorrFactorsAK4PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
