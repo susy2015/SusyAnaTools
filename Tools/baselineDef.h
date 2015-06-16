@@ -33,8 +33,8 @@ public:
         std::string METPhiLabel = "metphi";
         if(spec.compare("Zinv") == 0) 
         {
-            jetVecLabel = "jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "recoJetsBtag_0";
+            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
+            CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
@@ -56,7 +56,7 @@ public:
 
         // Calculate deltaPhi
         std::vector<double> * dPhiVec = new std::vector<double>();
-        (*dPhiVec) = AnaFunctions::calcDPhi(tr.getVec<TLorentzVector>(jetVecLabel), tr.getVar<double>("metphi"), 3, AnaConsts::dphiArr);
+        (*dPhiVec) = AnaFunctions::calcDPhi(tr.getVec<TLorentzVector>(jetVecLabel), metLVec.Phi(), 3, AnaConsts::dphiArr);
 
         // Prepare jets and b-tag working points for top tagger
         std::vector<TLorentzVector> *jetsLVec_forTagger = new std::vector<TLorentzVector>(); std::vector<double> *recoJetsBtag_forTagger = new std::vector<double>();
