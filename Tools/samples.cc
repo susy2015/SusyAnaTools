@@ -29,7 +29,7 @@ namespace AnaSamples
     SampleSet::SampleSet(std::string fDir) : fDir_(fDir)
     {
             //backgrounds
-        sampleSet_["TTbar"]                   = FileSummary(fDir_ + "TTJets_madgraph-tauola.txt", "stopTreeMaker/AUX", 806.1,  lumi, 25446993, 1.0, kGreen);
+        sampleSet_["TTbar"]                   = FileSummary(fDir_ + "TTJets_MSDecaysCKM_madgraph-tauola.txt", "stopTreeMaker/AUX", 806.1,  lumi, 25446993, 1.0, kGreen);
         sampleSet_["WJetsToLNu_HT_600toInf"]  = FileSummary(fDir_ + "WJetsToLNu_HT-600toInf_madgraph-tauola.txt", "stopTreeMaker/AUX", 23.14,  lumi, 4581841,  1.0, kMagenta+1);
         sampleSet_["WJetsToLNu_HT_400to600"]  = FileSummary(fDir_ + "WJetsToLNu_HT-400to600_madgraph-tauola.txt", "stopTreeMaker/AUX", 68.40,  lumi, 4640594,  1.0, kMagenta+1);
         sampleSet_["WJetsToLNu_HT_200to400"]  = FileSummary(fDir_ + "WJetsToLNu_HT-200to400_madgraph-tauola.txt", "stopTreeMaker/AUX", 580.1,  lumi, 4936077,  1.0, kMagenta+1);
