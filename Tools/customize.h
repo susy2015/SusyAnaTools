@@ -308,7 +308,7 @@ namespace AnaFunctions{
       jetsLVec_forTagger.clear(); recoJetsBtag_forTagger.clear();
 
       for(unsigned int ij=0; ij<inijetsLVec.size(); ij++){
-         if( !jetPassCuts(inputJets[ij], AnaConsts::pt30Arr) ) continue; 
+         if( !jetPassCuts(inijetsLVec[ij], AnaConsts::pt30Arr) ) continue; 
          jetsLVec_forTagger.push_back(inijetsLVec.at(ij));
          recoJetsBtag_forTagger.push_back(inirecoJetsBtag.at(ij));
       }
