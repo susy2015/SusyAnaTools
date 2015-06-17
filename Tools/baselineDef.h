@@ -21,8 +21,9 @@ public:
     void passBaseline(NTupleReader &tr)
     {
         bool debug = false;
-        bool doIsoTrksVeto = false;
+        bool doIsoTrksVeto = true;
         bool doMuonVeto = true;
+        bool incZEROtop = false;
 
         bool passBaseline = true;
         bool passBaselineNoTag = true;
@@ -31,6 +32,22 @@ public:
         std::string CSVVecLabel = "recoJetsBtag_0";
         std::string METLabel    = "met";
         std::string METPhiLabel = "metphi";
+        if( spec.compare("noIsoTrksVeto") == 0)
+        {
+           doIsoTrksVeto = false;
+        }
+        if( spec.compare("incZEROtop") == 0)
+        {
+           incZEROtop = true;
+        }
+        if( spec.compare("hadtau") == 0)
+        {
+           doMuonVeto = false;
+        }
+        if( spec.compare("lostlept") == 0)
+        {
+           doMuonVeto = false;
+        }
         if(spec.compare("Zinv") == 0) 
         {
             jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
@@ -46,7 +63,7 @@ public:
         // Calculate number of leptons
         int nMuons = AnaFunctions::countMuons(tr.getVec<TLorentzVector>("muonsLVec"), tr.getVec<double>("muonsMiniIso"), tr.getVec<double>("muonsMtw"), AnaConsts::muonsMiniIsoArr);
         int nElectrons = AnaFunctions::countElectrons(tr.getVec<TLorentzVector>("elesLVec"), tr.getVec<double>("elesMiniIso"), tr.getVec<double>("elesMtw"), tr.getVec<unsigned int>("elesisEB"), AnaConsts::elesMiniIsoArr);
-        int nIsoTrks = AnaFunctions::countIsoTrks(tr.getVec<TLorentzVector>("loose_isoTrksLVec"), tr.getVec<double>("loose_isoTrks_iso"), tr.getVec<double>("loose_isoTrks_mtw"), AnaConsts::isoTrksArr);
+        int nIsoTrks = AnaFunctions::countIsoTrks(tr.getVec<TLorentzVector>("loose_isoTrksLVec"), tr.getVec<double>("loose_isoTrks_iso"), tr.getVec<double>("loose_isoTrks_mtw"), tr.getVec<int>("loose_isoTrks_pdgId"));
 
         // Calculate number of jets and b-tagged jets
         int cntCSVS = AnaFunctions::countCSVS(tr.getVec<TLorentzVector>(jetVecLabel), tr.getVec<double>(CSVVecLabel), AnaConsts::cutCSVS, AnaConsts::bTagArr);
@@ -102,7 +119,7 @@ public:
         }
 
         // Pass top tagger requirement?
-        bool passTagger = type3Ptr->passNewTaggerReq() && nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel;
+        bool passTagger = type3Ptr->passNewTaggerReq() && (incZEROtop || nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel);
 
         if( !passTagger ) passBaseline = false;
 

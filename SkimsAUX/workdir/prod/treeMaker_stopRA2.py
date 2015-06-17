@@ -97,11 +97,18 @@ elif options.fileslist:
    process.source.fileNames = inputfiles
 else:
    process.source.fileNames = [
+       '/store/mc/RunIISpring15DR74/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/06B5178E-F008-E511-A2CF-00261894390B.root',
+       '/store/mc/RunIISpring15DR74/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/0836FE64-0F09-E511-9B0D-0025905B8572.root',
+       '/store/mc/RunIISpring15DR74/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/0AF33010-F508-E511-808B-782BCB27F1F0.root',
+       '/store/mc/RunIISpring15DR74/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/0C22259A-F008-E511-B7A9-003048FFCB84.root',
+       '/store/mc/RunIISpring15DR74/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/108964AF-EF08-E511-8347-0025905A6080.root',
+       '/store/mc/RunIISpring15DR74/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/129BA9CC-0009-E511-A0D7-842B2B185476.root',
+       '/store/mc/RunIISpring15DR74/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/143F5E2F-F308-E511-9B9D-782BCB717588.root',
 #       '/store/mc/Phys14DR/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/2281F34C-8475-E411-9E7D-00259073E450.root',
 #       '/store/mc/Phys14DR/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/A6D4FF88-8275-E411-9259-20CF305616F4.root',
 #       '/store/mc/Phys14DR/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/A6EFFE6A-9A75-E411-9218-002590D0B0D8.root',
 #       '/store/mc/Phys14DR/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/10000/E67905FE-8B75-E411-8D33-E0CB4E29C511.root', 
-      '/store/mc/Phys14DR/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/7CCE517B-0575-E411-877E-002590DB9214.root',
+#      '/store/mc/Phys14DR/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/7CCE517B-0575-E411-877E-002590DB9214.root',
 #      '/store/mc/Phys14DR/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/10000/BECC9036-E875-E411-95E3-0025901D4B22.root'
    ]
 
@@ -162,6 +169,12 @@ process.selectedIDElectrons = cms.EDFilter("CandPtrSelector", src = cms.InputTag
    gsfTrack.isAvailable() &&
    gsfTrack.hitPattern().numberOfLostHits('MISSING_INNER_HITS')<2'''))
 
+## Filter out neutrinos from packed GenParticles
+process.packedGenParticlesForJetsNoNu = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedGenParticles"), cut = cms.string("abs(pdgId) != 12 && abs(pdgId) != 14 && abs(pdgId) != 16"))
+## Define GenJets
+from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
+process.ak4GenJetsNoNu = ak4GenJets.clone(src = 'packedGenParticlesForJetsNoNu')
+
 #do projections
 process.pfCHS = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))
 process.pfNoMuonCHS =  cms.EDProducer("CandPtrProjector", src = cms.InputTag("pfCHS"), veto = cms.InputTag("selectedMuons"))
@@ -198,9 +211,10 @@ addJetCollection(
    pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
    pfCandidates = cms.InputTag('packedPFCandidates'),
    svSource = cms.InputTag('slimmedSecondaryVertices'),
-   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
    btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
-   genJetCollection = cms.InputTag('ak4GenJets'),
+#   btagDiscriminators = [ 'combinedInclusiveSecondaryVertexV2BJetTags' ],
+   genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
    genParticles = cms.InputTag('prunedGenParticles'),
    algo = 'AK', rParam = 0.4
 )
@@ -213,9 +227,10 @@ addJetCollection(
    pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
    pfCandidates = cms.InputTag('packedPFCandidates'),
    svSource = cms.InputTag('slimmedSecondaryVertices'),
-   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
    btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
-   genJetCollection = cms.InputTag('ak4GenJets'),
+#   btagDiscriminators = [ 'combinedInclusiveSecondaryVertexV2BJetTags' ],
+   genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
    genParticles = cms.InputTag('prunedGenParticles'),
    algo = 'AK', rParam = 0.4
 )
@@ -530,7 +545,7 @@ process.prodJets.jetOtherSrc = cms.InputTag('patJetsAK4PFCHS')
 
 process.prodJetsNoMu = process.prodJets.clone()
 process.prodJetsNoMu.jetSrc = cms.InputTag('patJetsAK4PFCHSPt10NoMu')
-process.prodJets.jetOtherSrc = cms.InputTag('patJetsAK4PFCHSNoMu')
+process.prodJetsNoMu.jetOtherSrc = cms.InputTag('patJetsAK4PFCHSPt10NoMu')
 
 process.prodMuonsNoIso = process.prodMuons.clone()
 process.prodMuonsNoIso.DoMuonIsolation = cms.bool(False)
@@ -557,11 +572,8 @@ process.stopTreeMaker.vectorBool.extend([cms.InputTag("prodElectronsNoIso", "ele
 
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodJets", "nJets"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "jetsLVec"))
-#process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "lowptjetsLVec"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoMu", "jetsLVec"))
 process.stopTreeMaker.varsTLorentzVectorNamesInTree.append("prodJetsNoMu:jetsLVec|jetsLVecMuCleaned")
-
-process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "lowptjetsLVec"))
 
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "recoJetsFlavor"))
 
