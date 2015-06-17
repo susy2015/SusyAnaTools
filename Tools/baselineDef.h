@@ -123,7 +123,7 @@ public:
 
         if( !passTagger ) passBaseline = false;
 
-        bool passNewCuts = type3Ptr->passNewCuts();
+//        bool passNewCuts = type3Ptr->passNewCuts();
 
         // Register all the calculated variables
         tr.registerDerivedVar("nMuons_CUT" + spec, nMuons);
@@ -153,7 +153,7 @@ public:
         tr.registerDerivedVar("passTagger" + spec, passTagger);
         tr.registerDerivedVar("passBaseline" + spec, passBaseline);
         tr.registerDerivedVar("passBaselineNoTag" + spec, passBaselineNoTag);
-        tr.registerDerivedVar("passNewCuts" + spec, passNewCuts);
+//        tr.registerDerivedVar("passNewCuts" + spec, passNewCuts);
 
         tr.registerDerivedVar("nTopCandSortedCnt" + spec, nTopCandSortedCnt);
 
