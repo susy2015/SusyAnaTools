@@ -145,6 +145,14 @@ public:
         tr.registerDerivedVar("best_had_brJet_mTcomb" + spec, type3Ptr->best_had_brJet_mTcomb);
         tr.registerDerivedVar("best_had_brJet_MT2" + spec, type3Ptr->best_had_brJet_MT2);
 
+        double j1pt = -1.0, j2pt = -1.0, j3pt = -1.0;
+        if(tr.getVec<TLorentzVector>(jetVecLabel).size() >= 1) j1pt = tr.getVec<TLorentzVector>(jetVecLabel)[0].Pt();
+        if(tr.getVec<TLorentzVector>(jetVecLabel).size() >= 2) j1pt = tr.getVec<TLorentzVector>(jetVecLabel)[1].Pt();
+        if(tr.getVec<TLorentzVector>(jetVecLabel).size() >= 3) j1pt = tr.getVec<TLorentzVector>(jetVecLabel)[2].Pt();
+        tr.registerDerivedVar("cleanJet1pt" + spec, j1pt);
+        tr.registerDerivedVar("cleanJet2pt" + spec, j2pt);
+        tr.registerDerivedVar("cleanJet3pt" + spec, j3pt);
+
         double HT = AnaFunctions::calcHT(tr.getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt50Eta24Arr);
         tr.registerDerivedVar("HT" + spec, HT);
 
@@ -301,11 +309,13 @@ namespace stopFunctions
             std::vector<TLorentzVector>* cleanJetpt30ArrVec = new std::vector<TLorentzVector>();
             std::vector<double>* cleanJetpt30ArrBTag        = new std::vector<double>;
 
+            std::vector<TLorentzVector>* removedJetVec      = new std::vector<TLorentzVector>();
+
             const double jldRMax = 0.15;
 
             const double HT_jetPtMin = 50;
             const double HT_jetEtaMax = 2.4;
-            const double MTH_jetPtMin = 30.0;
+            const double MHT_jetPtMin = 30.0;
 
             double HT = 0.0, HTNoIso = 0.0;
             TLorentzVector MHT;
@@ -341,6 +351,7 @@ namespace stopFunctions
 
                 if((deltaR > 0.4) || !(*iKeep))
                 {
+                    removedJetVec->push_back(*iJet);
                     iJet = cleanJetVec->erase(iJet);
                     iBTag = cleanJetBTag->erase(iBTag);
                     continue;
@@ -353,7 +364,7 @@ namespace stopFunctions
                     cleanJetpt30ArrBTag->push_back(*iBTag);
                 }
                 if(iJet->Pt() > HT_jetPtMin && fabs(iJet->Eta()) < HT_jetEtaMax) HT += iJet->Pt();
-                if(iJet->Pt() > MTH_jetPtMin) MHT += *iJet;
+                if(iJet->Pt() > MHT_jetPtMin) MHT += *iJet;
 
                 ++iJet;
                 ++iBTag;
@@ -363,6 +374,7 @@ namespace stopFunctions
             tr.registerDerivedVar("cleanHt", HT);
             tr.registerDerivedVar("cleanMHt", MHT.Pt());
             tr.registerDerivedVar("cleanMHtPhi", MHT.Phi());
+            tr.registerDerivedVec("removedJetVec", removedJetVec);
             tr.registerDerivedVec("cleanJetVec", cleanJetVec);
             tr.registerDerivedVec("cleanJetBTag", cleanJetBTag);
             tr.registerDerivedVec("cleanJetpt30ArrVec", cleanJetpt30ArrVec);

@@ -36,7 +36,7 @@ const int stackColors[] = {
 };
 const int NSTACKCOLORS = sizeof(stackColors) / sizeof(int);
 
-Plotter::Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple, std::string ofname, int nFile) : nFile_(nFile)
+Plotter::Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple, std::string ofname, int nFile, int startFile) : nFile_(nFile), startFile_(startFile)
 {
     TH1::AddDirectory(false);
 
@@ -227,9 +227,10 @@ void Plotter::createHistsFromTuple()
         //file.addFilesToChain(t);
         std::cout << "Processing file(s): " << file.filePath << std::endl;
 
-        int fileCount = 0;
+        int fileCount = 0, startCount = 0;
         for(const std::string& fname : file.filelist_)
         {
+            if(startCount++ < startFile_) continue;
             if(nFile_ > 0 && fileCount++ >= nFile_) break;
             TFile *f = TFile::Open(fname.c_str());
 
