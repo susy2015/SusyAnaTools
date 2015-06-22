@@ -35,7 +35,10 @@ const std::string      mcStr[] = {   "TTbar",
                                 "Signal_T2tt_mStop850_mLSP100",
 /*Sbottom 13TeV*/
                                 "Signal_T2bb_mSbottom600_mLSP580",
-                                "Signal_T2bb_mSbottom900_mLSP100"
+                                "Signal_T2bb_mSbottom900_mLSP100",
+/*TTDMDM 13TeV*/
+                                "Signal_TTDMDMJets_M600GeV",
+                                "Signal_TTDMDMJets_M1000GeV"
 };
 
 const double    xSecArr[] = {     806.1,        
@@ -60,6 +63,9 @@ const double    xSecArr[] = {     806.1,
 /*Sbottom 13TeV*/
                                          0.174599,
                                         0.0128895, 
+/*TTDMDM 13TeV*/
+                                           0.1038,
+                                          0.01585 
 };
 
 const int       nEvtArr[] = {   25446993,
@@ -72,10 +78,10 @@ const int       nEvtArr[] = {   25446993,
                                        100322,
                                        105679,
 /*T5tttt 13TeV*/
-                                        16360,                    35288,
+                                        44011,                    43818,
 /*T1bbbb 13TeV*/
                                         97134,
-                                       210298,
+                                       105149,
 /*Stop 13TeV*/
                                       1039030,
                                        109591,
@@ -84,6 +90,9 @@ const int       nEvtArr[] = {   25446993,
 /*Sbottom 13TeV*/
                                        107316,
                                        102661,
+/*TTDMDM 13TeV*/
+                                       126547,
+                                       121817
 };
 
 static const int colors[] = {    kGreen,
@@ -107,12 +116,16 @@ static const int colors[] = {    kGreen,
                                         kRed,
 /*Sbottom 13TeV*/
                                         kRed,
+                                        kRed,
+/*TTDMDM 13TeV*/
+                                        kRed,
                                         kRed
 };
 
 const int nMC = sizeof(mcStr)/sizeof(mcStr[0]);
 
-static const double dataLumi = 5.0; // in fb-1
+//static const double dataLumi = 5.0; // in fb-1
+static const double dataLumi = 10.0; // in fb-1
 const double scaledToDataLumi = dataLumi; // in fb-1
 
 double dataScale = 1.0;
