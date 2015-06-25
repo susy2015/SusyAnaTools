@@ -471,6 +471,7 @@ void Plotter::plot()
                 for(auto& h : hvec.hcsVec)
                 {
                     h->h->SetLineColor(colors[iSingle%NCOLORS]);
+                    h->h->SetLineWidth(3);
                     iSingle++;
                     double integral = h->h->Integral(0, h->h->GetNbinsX() + 1);
                     if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", h->label.c_str(), integral);
@@ -487,6 +488,7 @@ void Plotter::plot()
                 auto hIter = hvec.hcsVec.begin();
                 TH1* hratio = static_cast<TH1*>((*hIter)->h->Clone());
                 hratio->SetLineColor(colors[iRatio%NCOLORS]);
+                hratio->SetLineWidth(3);
                 ++iRatio;
                 hvec.h = static_cast<TNamed*>(hratio);
                 ++hIter;
@@ -552,6 +554,7 @@ void Plotter::plot()
             double legMin = (1.2*max - locMin) * (leg->GetY1() - gPad->GetBottomMargin()) / ((1 - gPad->GetTopMargin()) - gPad->GetBottomMargin());
             if(lmax > legMin) max *= (lmax - locMin)/(legMin - locMin);
             dummy->GetYaxis()->SetRangeUser(0.0, max*1.2);
+            if(hist.hists.front().type.compare("ratio") == 0 && max > 5) dummy->GetYaxis()->SetRangeUser(0.0, 5*1.2);
         }
         dummy->Draw();
 
@@ -677,7 +680,7 @@ void Plotter::plot()
 
         c->cd(1);
         char lumistamp[128];
-        sprintf(lumistamp, "%.1f fb^{-1} at 13 TeV", 5000.0 / 1000.0);
+        sprintf(lumistamp, "%.1f fb^{-1} at 13 TeV", AnaSamples::lumi / 1000.0);
         TLatex mark;
         mark.SetTextSize(0.042 * fontScale);
         mark.SetTextFont(42);
@@ -712,10 +715,11 @@ void Plotter::fillHist(TH1 * const h, const std::pair<std::string, std::string>&
         }
         else
         {
-            if     (type.find("double")         != std::string::npos) fillHistFromPrimVec<double>(h, name, tr, weight);
+            if     (type.find("pair")           != std::string::npos) fillHistFromVec<std::pair<double, double> >(h, name, tr, weight);
+            else if(type.find("double")         != std::string::npos) fillHistFromPrimVec<double>(h, name, tr, weight);
             else if(type.find("unsigned int")   != std::string::npos) fillHistFromPrimVec<unsigned int>(h, name, tr, weight);
             else if(type.find("int")            != std::string::npos) fillHistFromPrimVec<int>(h, name, tr, weight);
-            else if(type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector>(h, name, tr, weight);
+            else if(type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector>(h, name, tr, weight);         
         }
     }
     else
@@ -729,7 +733,12 @@ void Plotter::fillHist(TH1 * const h, const std::pair<std::string, std::string>&
 
 template<> inline void Plotter::vectorFill(TH1 * const h, const std::pair<std::string, std::string>& name, const TLorentzVector& obj, const double weight)
 {
-    h->Fill(tlvGetValue(name.second, obj), weight);;
+    h->Fill(tlvGetValue(name.second, obj), weight);
+}
+
+template<> inline void Plotter::vectorFill(TH1 * const h, const std::pair<std::string, std::string>& name, const std::pair<double, double>& obj, const double weight)
+{
+    h->Fill(obj.first, obj.second * weight);
 }
 
 void Plotter::smartMax(const TH1* const h, const TLegend* const l, const TPad* const p, double& gmin, double& gmax, double& gpThreshMax) const

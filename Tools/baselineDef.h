@@ -55,6 +55,7 @@ public:
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
+            doIsoTrksVeto = false;
         }
 
         // Form TLorentzVector of MET
@@ -238,6 +239,11 @@ namespace stopFunctions
             }
         }
 
+        void setDisable(bool disable)
+        {
+            disable_ = disable;
+        }
+
         void setRemove(bool remove)
         {
             remove_ = remove;
@@ -258,6 +264,7 @@ namespace stopFunctions
             setMuonIso("rel");
             setElecIso("rel");
             setRemove(true);
+            setDisable(false);
             setElecPtThresh(0.0);
             setMuonPtThresh(0.0);
         }
@@ -269,6 +276,7 @@ namespace stopFunctions
         double elecPtThresh_;
         double muonPtThresh_;
         bool remove_;
+        bool disable_;
 
         int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax)
         {
@@ -339,18 +347,21 @@ namespace stopFunctions
 
             std::vector<bool> keepJetPFCandMatch(jetsLVec.size(), true);
 
-            for(int iM = 0; iM < muonsLVec.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
+            if(!disable_)
             {
-                if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_) && muonsLVec[iM].Pt() > muonPtThresh_) continue;
+                for(int iM = 0; iM < muonsLVec.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
+                {
+                    if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_) && muonsLVec[iM].Pt() > muonPtThresh_) continue;
 
-                int match = cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
-            }
+                    int match = cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
+                }
 
-            for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
-            {
-                if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) continue;
+                for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
+                {
+                    if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) continue;
 
-                cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
+                    cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
+                }
             }
 
             int jetsKept = 0;
@@ -368,7 +379,7 @@ namespace stopFunctions
 
                 if((deltaR > 0.4) || !(*iKeep))
                 {
-                    removedJetVec->push_back(*iJet);
+                    removedJetVec->push_back(*iOrigJet);
                     iJet = cleanJetVec->erase(iJet);
                     iBTag = cleanJetBTag->erase(iBTag);
                     continue;
