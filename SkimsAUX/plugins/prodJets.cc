@@ -1,3 +1,4 @@
+
 #include <memory>
 #include <algorithm>
 
@@ -100,6 +101,7 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   //produce variables needed for Lost Lepton study, added by hua.wei@cern.ch
   produces<std::vector<double> >("recoJetschargedHadronEnergyFraction");
   produces<std::vector<double> >("recoJetschargedEmEnergyFraction");
+  produces<std::vector<double> >("recoJetsEmEnergyFraction");
 
   produces<std::vector<int> >("muMatchedJetIdx");
   produces<std::vector<int> >("eleMatchedJetIdx");
@@ -145,6 +147,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::auto_ptr<std::vector<double> > recoJetschargedHadronEnergyFraction(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetschargedEmEnergyFraction(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > recoJetsEmEnergyFraction(new std::vector<double>());
 
   std::auto_ptr<std::vector<int> > muMatchedJetIdx(new std::vector<int>(muLVec_->size(), -1));
   std::auto_ptr<std::vector<int> > eleMatchedJetIdx(new std::vector<int>(eleLVec_->size(), -1));
@@ -267,6 +270,9 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double chargedEmEnergyFraction = jet.chargedEmEnergyFraction();
     recoJetschargedEmEnergyFraction->push_back( chargedEmEnergyFraction );
 
+    double emEnergyFraction = jet.emEnergyFraction();
+    recoJetsEmEnergyFraction->push_back( emEnergyFraction );
+
     //std::cout << chargedEmEnergyFraction << std::endl;
 
 //    const std::vector<reco::PFCandidatePtr> & constituents = jet.getPFConstituents();
@@ -317,6 +323,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   iEvent.put(recoJetschargedHadronEnergyFraction, "recoJetschargedHadronEnergyFraction");
   iEvent.put(recoJetschargedEmEnergyFraction, "recoJetschargedEmEnergyFraction");
+  iEvent.put(recoJetsEmEnergyFraction, "recoJetsEmEnergyFraction");
 
   iEvent.put(muMatchedJetIdx, "muMatchedJetIdx");
   iEvent.put(eleMatchedJetIdx, "eleMatchedJetIdx");

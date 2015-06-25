@@ -577,9 +577,13 @@ process.stopTreeMaker.varsTLorentzVectorNamesInTree.append("prodJetsNoMu:jetsLVe
 
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "recoJetsFlavor"))
 
+
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedHadronEnergyFraction"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsHadronEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetschargedHadronEnergyFraction"))
 process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetschargedHadronEnergyFraction|recoJetschargedHadronEnergyFractionMuCleaned")
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetsHadronEnergyFraction"))
+process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetsHadronEnergyFraction|recoJetsHadronEnergyFractionMuCleaned")
 
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedEmEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetschargedEmEnergyFraction"))
