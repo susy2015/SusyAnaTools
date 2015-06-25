@@ -579,11 +579,15 @@ process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "recoJetsFlavor"
 
 
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedHadronEnergyFraction"))
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsHadronEnergyFraction"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedEmEnergyFraction"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsneutralEmEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetschargedHadronEnergyFraction"))
 process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetschargedHadronEnergyFraction|recoJetschargedHadronEnergyFractionMuCleaned")
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetsHadronEnergyFraction"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetschargedEmEnergyFraction"))
 process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetsHadronEnergyFraction|recoJetsHadronEnergyFractionMuCleaned")
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetsneutralEmEnergyFraction"))
+process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetsneutralEmEnergyFraction|recoJetsneutralEmEnergyFractionMuCleaned")
+
 
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedEmEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetschargedEmEnergyFraction"))
