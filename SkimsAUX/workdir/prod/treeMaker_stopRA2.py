@@ -15,7 +15,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 ## Maximal Number of Events
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 # The following is make patJets, but EI is done with the above
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
@@ -541,6 +541,37 @@ process.load("SusyAnaTools.SkimsAUX.prodGenInfo_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodIsoTrks_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodEventInfo_cfi")
 
+#Addition of Filter Decision Bits and Trigger Results
+process.load("SusyAnaTools.SkimsAUX.prodTriggerResults_cfi")
+process.load("SusyAnaTools.SkimsAUX.prodFilterFlags_cfi")
+
+process.METFilters = process.filterDecisionProducer.clone(
+        trigTagArg1  = cms.string('TriggerResults'),
+        trigTagArg2  = cms.string(''),
+        trigTagArg3  = cms.string('PAT'),
+        filterName  =   cms.string("Flag_METFilters"),
+        )
+
+process.CSCTightHaloFilter = process.filterDecisionProducer.clone(
+        trigTagArg1  = cms.string('TriggerResults'),
+        trigTagArg2  = cms.string(''),
+        trigTagArg3  = cms.string('PAT'),
+        filterName  =   cms.string("Flag_CSCTightHaloFilter"),
+        )
+
+process.HBHENoiseFilter = process.filterDecisionProducer.clone(
+        trigTagArg1  = cms.string('TriggerResults'),
+        trigTagArg2  = cms.string(''),
+        trigTagArg3  = cms.string('PAT'),
+        filterName  =   cms.string("Flag_HBHENoiseFilter"),
+        )
+
+process.EcalDeadCellTriggerPrimitiveFilter = process.filterDecisionProducer.clone(
+        trigTagArg1  = cms.string('TriggerResults'),
+        trigTagArg2  = cms.string(''),
+        trigTagArg3  = cms.string('PAT'),
+        filterName  =   cms.string("Flag_EcalDeadCellTriggerPrimitiveFilter"),
+        )
 process.prodJets.jetOtherSrc = cms.InputTag('patJetsAK4PFCHS')
 
 process.prodJetsNoMu = process.prodJets.clone()
@@ -556,6 +587,15 @@ process.prodElectronsNoIso.DoElectronIsolation = cms.bool(False)
 process.load("SusyAnaTools.StopTreeMaker.stopTreeMaker_cfi")
 process.stopTreeMaker.debug = cms.bool(options.debug)
 process.stopTreeMaker.TreeName = cms.string("AUX")
+
+
+process.stopTreeMaker.vectorInt.append(cms.InputTag("triggerProducer", "PassTrigger"))
+process.stopTreeMaker.vectorString.append(cms.InputTag("triggerProducer", "TriggerNames"))
+
+process.stopTreeMaker.varsInt.append(cms.InputTag("METFilters"))
+process.stopTreeMaker.varsInt.append(cms.InputTag("CSCTightHaloFilter"))
+process.stopTreeMaker.varsInt.append(cms.InputTag("HBHENoiseFilter"))
+process.stopTreeMaker.varsInt.append(cms.InputTag("EcalDeadCellTriggerPrimitiveFilter"))
 
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodMuons", "nMuons"))
 process.stopTreeMaker.varsIntNamesInTree.append("prodMuons:nMuons|nMuons_CUT")
@@ -650,7 +690,7 @@ if options.selSMSpts == True:
 process.ak4Stop_Path = cms.Path(
                                    process.comb_seq * 
                                    process.printDecayPythia8 * process.prodGenInfo * 
-                                   process.prodMuons * process.prodMuonsNoIso * process.prodElectrons * process.prodElectronsNoIso * process.prodJets * process.prodMET * process.prodIsoTrks * process.prodEventInfo *
+                                   process.prodMuons * process.prodMuonsNoIso * process.prodElectrons * process.prodElectronsNoIso * process.prodJets * process.prodMET * process.prodIsoTrks * process.prodEventInfo * process.triggerProducer * process.METFilters * process.CSCTightHaloFilter * process.HBHENoiseFilter * process.EcalDeadCellTriggerPrimitiveFilter *
                                    process.type3topTagger *
                                    process.stopTreeMaker
 )
