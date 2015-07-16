@@ -400,16 +400,16 @@ process.cleanpatseq = cms.Sequence(
 
 process.dummyCounter = cms.EDProducer("EventCountProducer")
 
-process.load('RecoMET.METFilters.jetIDFailureFilter_cfi')
-process.jetIDFailure.JetSource = cms.InputTag("slimmedJets")
-process.jetIDFailure.MinJetPt  = cms.double(30.0)
-process.jetIDFailure.MaxJetEta = cms.double(999.0)
-# Adjust jets due to JEC in jetIDFailure filter
-if options.mcInfo == True:
-   process.jetIDFailure.JECLevel = cms.untracked.string('ak4PFJetsL1FastL2L3')
-else:
-   process.jetIDFailure.JECLevel = cms.untracked.string('ak4PFJetsL1FastL2L3Residual')
-# End of the adjusting in the jetIDFailure filter
+process.load('SusyAnaTools.SkimsAUX.prodJetIDEventFilter_cfi')
+process.prodJetIDEventFilter.JetSource = cms.InputTag("slimmedJets")
+process.prodJetIDEventFilter.MinJetPt  = cms.double(30.0)
+process.prodJetIDEventFilter.MaxJetEta = cms.double(999.0)
+# Adjust jets due to JEC in prodJetIDEventFilter filter
+#if options.mcInfo == True:
+#   process.prodJetIDEventFilter.JECLevel = cms.untracked.string('ak4PFJetsL1FastL2L3')
+#else:
+#   process.prodJetIDEventFilter.JECLevel = cms.untracked.string('ak4PFJetsL1FastL2L3Residual')
+# End of the adjusting in the prodJetIDEventFilter filter
 
 process.load('SusyAnaTools.SkimsAUX.weightProducer_cfi')
 process.weightProducer.inputPUfileMC   = cms.untracked.string("")
@@ -594,6 +594,7 @@ process.stopTreeMaker.vectorString.append(cms.InputTag("triggerProducer", "Trigg
 # prodGoodVertices has the same as vtxSize in prodEventInfo...
 #process.stopTreeMaker.varsInt.append(cms.InputTag("prodGoodVertices"))
 #process.stopTreeMaker.varsInt.append(cms.InputTag("prodFilterOutScraping"))
+process.stopTreeMaker.varsInt.append(cms.InputTag("prodJetIDEventFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("METFilters"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("CSCTightHaloFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("HBHENoiseFilter"))
