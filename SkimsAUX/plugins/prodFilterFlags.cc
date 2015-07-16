@@ -58,12 +58,8 @@ private:
   virtual void endRun(edm::Run&, edm::EventSetup const&);
   virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-  edm::InputTag trigResultsTag_;
-  std::string trigTagArg1_;
-  std::string trigTagArg2_;
-  std::string trigTagArg3_;
+  edm::InputTag trigTagSrc_;
   std::string filterName_;
-	
 	
   // ----------member data ---------------------------
 };
@@ -82,27 +78,10 @@ private:
 //
 prodFilterFlags::prodFilterFlags(const edm::ParameterSet& iConfig)
 {
-  filterName_ = iConfig.getParameter <std::string> ("filterName");
-  trigTagArg1_ = iConfig.getParameter <std::string> ("trigTagArg1");
-  trigTagArg2_ = iConfig.getParameter <std::string> ("trigTagArg2");
-  trigTagArg3_ = iConfig.getParameter <std::string> ("trigTagArg3");
-  trigResultsTag_ = edm::InputTag(trigTagArg1_,trigTagArg2_,trigTagArg3_);
-
+  filterName_ = iConfig.getParameter<std::string>("filterName");
+  trigTagSrc_ = iConfig.getParameter<edm::InputTag>("trigTagSrc");
 
   produces<int>("");
-
-
-  /* Examples
-   *   produces<ExampleData2>();
-   * 
-   *   //if do put with a label
-   *   produces<ExampleData2>("label");
-   * 
-   *   //if you want to put into the Run
-   *   produces<ExampleData2,InRun>();
-   */
-  //now do what ever other initialization is needed
-	
 }
 
 
@@ -126,15 +105,13 @@ prodFilterFlags::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   int passesTrigger = -1;
   edm::Handle<edm::TriggerResults> trigResults; //our trigger result object
-  trigResults = trigResults;
-  iEvent.getByLabel(trigResultsTag_,trigResults);
+  iEvent.getByLabel(trigTagSrc_, trigResults);
   const edm::TriggerNames& trigNames = iEvent.triggerNames(*trigResults); 
   if(trigNames.triggerIndex(filterName_) < trigResults->size())
     passesTrigger=trigResults->accept(trigNames.triggerIndex(filterName_));
 
   std::auto_ptr<int> htp(new int(passesTrigger));
   iEvent.put(htp);
-	
 }
 
 // ------------ method called once each job just before starting event loop  ------------

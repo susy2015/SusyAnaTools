@@ -44,6 +44,8 @@ class prodJets : public edm::EDFilter
   bool isPatJet;
   bool debug_;
 
+  bool isData_;
+
   double jetPtCut_miniAOD_, genMatch_dR_;
   double relPt_for_xCheck_, dR_for_xCheck_;
 
@@ -65,6 +67,8 @@ class prodJets : public edm::EDFilter
 
 prodJets::prodJets(const edm::ParameterSet & iConfig) 
 {
+  isData_ = true;
+
   jetSrc_      = iConfig.getParameter<edm::InputTag>("jetSrc");
   jetOtherSrc_ = iConfig.getParameter<edm::InputTag>("jetOtherSrc");
   vtxSrc_      = iConfig.getParameter<edm::InputTag>("vtxSrc");
@@ -115,17 +119,21 @@ prodJets::~prodJets()
 
 bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
+  if( !iEvent.isRealData() ) isData_ = false;
+
   iEvent.getByLabel(jetSrc_, jets);
 
-  iEvent.getByLabel(jetOtherSrc_, otherjets);
-  iEvent.getByLabel(W_emuVec_Src_, W_emuVec_);
-  iEvent.getByLabel(W_tauVec_Src_, W_tauVec_);
-  iEvent.getByLabel(W_tau_emuVec_Src_, W_tau_emuVec_);
-  iEvent.getByLabel(W_tau_prongsVec_Src_, W_tau_prongsVec_);
-  iEvent.getByLabel(W_tau_nuVec_Src_, W_tau_nuVec_);
+  if( !isData_ ){
+     iEvent.getByLabel(jetOtherSrc_, otherjets);
+     iEvent.getByLabel(W_emuVec_Src_, W_emuVec_);
+     iEvent.getByLabel(W_tauVec_Src_, W_tauVec_);
+     iEvent.getByLabel(W_tau_emuVec_Src_, W_tau_emuVec_);
+     iEvent.getByLabel(W_tau_prongsVec_Src_, W_tau_prongsVec_);
+     iEvent.getByLabel(W_tau_nuVec_Src_, W_tau_nuVec_);
 
-  iEvent.getByLabel(genDecayLVec_Src_, genDecayLVec_);
-  iEvent.getByLabel(genDecayMomRefVec_Src_, genDecayMomRefVec_);
+     iEvent.getByLabel(genDecayLVec_Src_, genDecayLVec_);
+     iEvent.getByLabel(genDecayMomRefVec_Src_, genDecayMomRefVec_);
+  }
 
   iEvent.getByLabel(eleLVec_Src_, eleLVec_);
   iEvent.getByLabel(muLVec_Src_, muLVec_);
@@ -152,99 +160,101 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<int> > muMatchedJetIdx(new std::vector<int>(muLVec_->size(), -1));
   std::auto_ptr<std::vector<int> > eleMatchedJetIdx(new std::vector<int>(eleLVec_->size(), -1));
 
-  int cntJetPassPtCut = 0;
-  for(unsigned int io=0; io < otherjets->size(); io++){
-     const double otjet_pt = otherjets->at(io).pt(), otjet_eta = otherjets->at(io).eta(), otjet_phi = otherjets->at(io).phi();
-     TLorentzVector perLVec; perLVec.SetPtEtaPhiE(otjet_pt, otjet_eta, otjet_phi, otherjets->at(io).energy());
-     int cntFound = 0, matchedIdx = -1;
-     double minDR = 999.0;
-     for(unsigned int ij=0; ij< jets->size(); ij++){
-        const double jet_eta = jets->at(ij).eta(), jet_phi = jets->at(ij).phi();
-        const double dR = reco::deltaR(otjet_eta, otjet_phi, jet_eta, jet_phi);
-        if( minDR > dR ){
-           minDR = dR; matchedIdx = ij;
+  if( !isData_ ){
+     int cntJetPassPtCut = 0;
+     for(unsigned int io=0; io < otherjets->size(); io++){
+        const double otjet_pt = otherjets->at(io).pt(), otjet_eta = otherjets->at(io).eta(), otjet_phi = otherjets->at(io).phi();
+        TLorentzVector perLVec; perLVec.SetPtEtaPhiE(otjet_pt, otjet_eta, otjet_phi, otherjets->at(io).energy());
+        int cntFound = 0, matchedIdx = -1;
+        double minDR = 999.0;
+        for(unsigned int ij=0; ij< jets->size(); ij++){
+           const double jet_eta = jets->at(ij).eta(), jet_phi = jets->at(ij).phi();
+           const double dR = reco::deltaR(otjet_eta, otjet_phi, jet_eta, jet_phi);
+           if( minDR > dR ){
+              minDR = dR; matchedIdx = ij;
+           }
         }
-     }
-     if( matchedIdx != -1 ){
-        if( minDR < dR_for_xCheck_ && std::abs(otjet_pt - jets->at(matchedIdx).pt())/jets->at(matchedIdx).pt() < relPt_for_xCheck_ ){
-           cntFound ++;
+        if( matchedIdx != -1 ){
+           if( minDR < dR_for_xCheck_ && std::abs(otjet_pt - jets->at(matchedIdx).pt())/jets->at(matchedIdx).pt() < relPt_for_xCheck_ ){
+              cntFound ++;
+           }
         }
-     }
-     if( otjet_pt >= jetPtCut_miniAOD_ ){
-        cntJetPassPtCut ++;
-        if( cntFound != 1 && debug_ ){
-           std::cout<<"WARNING ... jet mis-matching between otherjets and jets for pt > "<<jetPtCut_miniAOD_<<"  matchedIdx : "<<matchedIdx<<"  cntFound : "<<cntFound<<std::endl;
-           std::cout<<"otjet_pt : "<<otjet_pt<<"  otjet_eta : "<<otjet_eta<<"  otjet_phi : "<<otjet_phi<<std::endl;
-           if( matchedIdx != -1 ) std::cout<<"  jet_pt : "<<jets->at(matchedIdx).pt()<<"    jet_eta : "<<jets->at(matchedIdx).eta()<<"    jet_phi : "<<jets->at(matchedIdx).phi()<<std::endl;
-        }
-     }else{
-        if( cntFound && debug_ ){
-           std::cout<<"WARNING ... otjet with pt : "<<otjet_pt<<"  matching to one of the jets for pt > "<<jetPtCut_miniAOD_<<" ?!"<<std::endl;
-           std::cout<<"otjet_pt : "<<otjet_pt<<"  otjet_eta : "<<otjet_eta<<"  otjet_phi : "<<otjet_phi<<std::endl;
-           std::cout<<"  jet_pt : "<<jets->at(matchedIdx).pt()<<"    jet_eta : "<<jets->at(matchedIdx).eta()<<"    jet_phi : "<<jets->at(matchedIdx).phi()<<std::endl;
+        if( otjet_pt >= jetPtCut_miniAOD_ ){
+           cntJetPassPtCut ++;
+           if( cntFound != 1 && debug_ ){
+              std::cout<<"WARNING ... jet mis-matching between otherjets and jets for pt > "<<jetPtCut_miniAOD_<<"  matchedIdx : "<<matchedIdx<<"  cntFound : "<<cntFound<<std::endl;
+              std::cout<<"otjet_pt : "<<otjet_pt<<"  otjet_eta : "<<otjet_eta<<"  otjet_phi : "<<otjet_phi<<std::endl;
+              if( matchedIdx != -1 ) std::cout<<"  jet_pt : "<<jets->at(matchedIdx).pt()<<"    jet_eta : "<<jets->at(matchedIdx).eta()<<"    jet_phi : "<<jets->at(matchedIdx).phi()<<std::endl;
+           }
         }else{
-           int cntgenMatch = 0;
-           for(unsigned int ig=0; ig<W_emuVec_->size(); ig++){
-              int perIdx = W_emuVec_->at(ig);
-              TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-              double perdeltaR = perLVec.DeltaR(genLVec);
-              if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-           }
-           for(unsigned int ig=0; ig<W_tauVec_->size(); ig++){
-              int perIdx = W_tauVec_->at(ig);
-              TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-              double perdeltaR = perLVec.DeltaR(genLVec);
-              if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-           }
-           for(unsigned int ig=0; ig<W_tau_emuVec_->size(); ig++){
-              int perIdx = W_tau_emuVec_->at(ig);
-              TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-              double perdeltaR = perLVec.DeltaR(genLVec);
-              if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-           }
-           for(unsigned int ig=0; ig<W_tau_prongsVec_->size(); ig++){
-              int perIdx = W_tau_prongsVec_->at(ig);
-              TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-              double perdeltaR = perLVec.DeltaR(genLVec);
-              if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-           }
-           for(unsigned int ig=0; ig<W_tauVec_->size(); ig++){
-              int perIdx = W_tauVec_->at(ig);
-              TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-              for(unsigned int in=0; in<W_tau_nuVec_->size(); in++){
-                 int perJdx = W_tau_nuVec_->at(in);
-                 TLorentzVector gennuLVec = genDecayLVec_->at(perJdx);
-
-                 int momIdx = perJdx;
-                 bool isFound = false;
-                 while( momIdx != -1 ){
-                    momIdx = genDecayMomRefVec_->at(momIdx);
-                    if( momIdx == perIdx ){ isFound = true; break; }
-                 }
-                 if( isFound ) genLVec -= gennuLVec;
+           if( cntFound && debug_ ){
+              std::cout<<"WARNING ... otjet with pt : "<<otjet_pt<<"  matching to one of the jets for pt > "<<jetPtCut_miniAOD_<<" ?!"<<std::endl;
+              std::cout<<"otjet_pt : "<<otjet_pt<<"  otjet_eta : "<<otjet_eta<<"  otjet_phi : "<<otjet_phi<<std::endl;
+              std::cout<<"  jet_pt : "<<jets->at(matchedIdx).pt()<<"    jet_eta : "<<jets->at(matchedIdx).eta()<<"    jet_phi : "<<jets->at(matchedIdx).phi()<<std::endl;
+           }else{
+              int cntgenMatch = 0;
+              for(unsigned int ig=0; ig<W_emuVec_->size(); ig++){
+                 int perIdx = W_emuVec_->at(ig);
+                 TLorentzVector genLVec = genDecayLVec_->at(perIdx);
+                 double perdeltaR = perLVec.DeltaR(genLVec);
+                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
               }
-              double perdeltaR = perLVec.DeltaR(genLVec);
-              if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-           }
-           for(unsigned int im=0; im<muLVec_->size(); im++){
-              double perdeltaR = perLVec.DeltaR(muLVec_->at(im));
-              if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-           }
-           for(unsigned int ie=0; ie<eleLVec_->size(); ie++){
-              double perdeltaR = perLVec.DeltaR(eleLVec_->at(ie));
-              if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-           }
-           if( cntgenMatch ){
-              extJets.push_back(otherjets->at(io));
+              for(unsigned int ig=0; ig<W_tauVec_->size(); ig++){
+                 int perIdx = W_tauVec_->at(ig);
+                 TLorentzVector genLVec = genDecayLVec_->at(perIdx);
+                 double perdeltaR = perLVec.DeltaR(genLVec);
+                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
+              }
+              for(unsigned int ig=0; ig<W_tau_emuVec_->size(); ig++){
+                 int perIdx = W_tau_emuVec_->at(ig);
+                 TLorentzVector genLVec = genDecayLVec_->at(perIdx);
+                 double perdeltaR = perLVec.DeltaR(genLVec);
+                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
+              }
+              for(unsigned int ig=0; ig<W_tau_prongsVec_->size(); ig++){
+                 int perIdx = W_tau_prongsVec_->at(ig);
+                 TLorentzVector genLVec = genDecayLVec_->at(perIdx);
+                 double perdeltaR = perLVec.DeltaR(genLVec);
+                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
+              }
+              for(unsigned int ig=0; ig<W_tauVec_->size(); ig++){
+                 int perIdx = W_tauVec_->at(ig);
+                 TLorentzVector genLVec = genDecayLVec_->at(perIdx);
+                 for(unsigned int in=0; in<W_tau_nuVec_->size(); in++){
+                    int perJdx = W_tau_nuVec_->at(in);
+                    TLorentzVector gennuLVec = genDecayLVec_->at(perJdx);
+   
+                    int momIdx = perJdx;
+                    bool isFound = false;
+                    while( momIdx != -1 ){
+                       momIdx = genDecayMomRefVec_->at(momIdx);
+                       if( momIdx == perIdx ){ isFound = true; break; }
+                    }
+                    if( isFound ) genLVec -= gennuLVec;
+                 }
+                 double perdeltaR = perLVec.DeltaR(genLVec);
+                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
+              }
+              for(unsigned int im=0; im<muLVec_->size(); im++){
+                 double perdeltaR = perLVec.DeltaR(muLVec_->at(im));
+                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
+              }
+              for(unsigned int ie=0; ie<eleLVec_->size(); ie++){
+                 double perdeltaR = perLVec.DeltaR(eleLVec_->at(ie));
+                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
+              }
+              if( cntgenMatch ){
+                 extJets.push_back(otherjets->at(io));
+              }
            }
         }
+     } 
+   
+     if( cntJetPassPtCut != (int)jets->size() && debug_ ) std::cout<<"WARNING ... cntJetPassPtCut : "<<cntJetPassPtCut<<"  NOT EQUAL jets->size : "<<jets->size()<<std::endl;
+     if( (int)jets->size() > 10 && std::abs(cntJetPassPtCut - jets->size())/(1.0*jets->size()) > 0.3 ){
+        std::cout<<"\nWARNING ... cntJetPassPtCut : "<<cntJetPassPtCut<<"  slimmedJets.size : "<<jets->size()<<std::endl;
+        std::cout<<"Please checking if global tag used for re-clustering the jets is the same as used to produce the miniAOD!"<<std::endl<<std::endl;
      }
-  } 
-
-  if( cntJetPassPtCut != (int)jets->size() && debug_ ) std::cout<<"WARNING ... cntJetPassPtCut : "<<cntJetPassPtCut<<"  NOT EQUAL jets->size : "<<jets->size()<<std::endl;
-  if( (int)jets->size() > 10 && std::abs(cntJetPassPtCut - jets->size())/(1.0*jets->size()) > 0.3 ){
-     std::cout<<"\nWARNING ... cntJetPassPtCut : "<<cntJetPassPtCut<<"  slimmedJets.size : "<<jets->size()<<std::endl;
-     std::cout<<"Please checking if global tag used for re-clustering the jets is the same as used to produce the miniAOD!"<<std::endl<<std::endl;
   }
 
   int cntJetLowPt = 0;

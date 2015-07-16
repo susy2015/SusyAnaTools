@@ -33,18 +33,23 @@ import re
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 
-options.register('GlobalTag', "MCRUN2_74_V9", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobaTTag to use (otherwise default Pat GT is used)")
+options.register('ntpVersion', "Ntp_74X_16Jul2015_v1", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "ntpVersion: to be same as the tag of the release. But can be used to produce 72X ntuple as well!")
+options.register('GlobalTag', "MCRUN2_74_V9", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "74X PromptReco: 74X_dataRun2_Prompt_v0")
+options.register('cmsswVersion', '74X', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific MC fix")
+options.register('specialFix', 'None', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "special fixes ==>   JEC : use external JEC; IVF : fix IVF")
+options.register('hltName', 'HLT', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT menu to use for trigger matching")
+
 options.register('mcInfo', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process MonteCarlo data, default is data")
+
 options.register('jetCorrections', 'L2Relative', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Level of jet corrections to use: Note the factors are read from DB via GlobalTag")
 options.jetCorrections.append('L3Absolute')
 
-options.register('hltName', 'HLT', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT menu to use for trigger matching")
 options.register('mcVersion', '', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific MC fix")
+options.register('dataVersion', '', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific DATA fix")
+
 options.register('jetTypes', 'AK4PF', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Additional jet types that will be produced (AK4Calo and AK4PF, cross cleaned in PF2PAT, are included anyway)")
 options.register('hltSelection', '*', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "hlTriggers (OR) used to filter events. for data: ''HLT_Mu9', 'HLT_IsoMu9', 'HLT_IsoMu13_v*''; for MC, HLT_Mu9")
 options.register('addKeep', '', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Additional keep and drop statements to trim the event content")
-
-options.register('dataVersion', '', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific DATA fix")
 
 options.register('debug', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "switch on/off debug mode")
 
@@ -124,50 +129,17 @@ if options.GlobalTag:
 if options.mcInfo == False: options.jetCorrections.append('L2L3Residual')
 options.jetCorrections.insert(0, 'L1FastJet')
 
-print "jetCorrections: "
-print options.jetCorrections
+#print "jetCorrections: "
+#print options.jetCorrections
 
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
 from RecoMET.METProducers.PFMET_cfi import pfMet
 
-#select isolated collections
-process.selectedMuons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedMuons"), cut = cms.string('''abs(eta)<2.5 && pt>5. &&
-   (pfIsolationR04().sumChargedHadronPt+
-    max(0.,pfIsolationR04().sumNeutralHadronEt+
-    pfIsolationR04().sumPhotonEt-
-    0.50*pfIsolationR04().sumPUPt))/pt < 0.20 && 
-    (isPFMuon && (isGlobalMuon || isTrackerMuon) )'''))
-process.selectedElectrons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedElectrons"), cut = cms.string('''abs(eta)<2.5 && pt>5. &&
-    gsfTrack.isAvailable() &&
-    gsfTrack.hitPattern().numberOfLostHits('MISSING_INNER_HITS')<2 && 
-    (pfIsolationVariables().sumChargedHadronPt+
-    max(0.,pfIsolationVariables().sumNeutralHadronEt+
-    pfIsolationVariables().sumPhotonEt-
-    0.5*pfIsolationVariables().sumPUPt))/pt < 0.20'''))
-
 ## --- Selection sequences ---------------------------------------------
 # leptons
 process.load("PhysicsTools.PatAlgos.selectionLayer1.muonCountFilter_cfi")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.electronCountFilter_cfi")
-process.selectedIDIsoMuons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedMuons"), cut = cms.string('''abs(eta)<2.5 && pt>5. &&
-   (pfIsolationR04().sumChargedHadronPt+
-   max(0.,pfIsolationR04().sumNeutralHadronEt+
-   pfIsolationR04().sumPhotonEt-
-   0.50*pfIsolationR04().sumPUPt))/pt < 0.20 &&
-   (isPFMuon && (isGlobalMuon || isTrackerMuon) )'''))
-process.selectedIDMuons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedMuons"), cut = cms.string('''abs(eta)<2.5 && pt>5. &&
-   (isPFMuon && (isGlobalMuon || isTrackerMuon) )'''))
-process.selectedIDIsoElectrons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedElectrons"), cut = cms.string('''abs(eta)<2.5 && pt>5. &&
-   gsfTrack.isAvailable() &&
-   gsfTrack.hitPattern().numberOfLostHits('MISSING_INNER_HITS')<2 &&
-   (pfIsolationVariables().sumChargedHadronPt+
-   max(0.,pfIsolationVariables().sumNeutralHadronEt+
-   pfIsolationVariables().sumPhotonEt-
-   0.5*pfIsolationVariables().sumPUPt))/pt < 0.20'''))
-process.selectedIDElectrons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedElectrons"), cut = cms.string('''abs(eta)<2.5 && pt>5. &&
-   gsfTrack.isAvailable() &&
-   gsfTrack.hitPattern().numberOfLostHits('MISSING_INNER_HITS')<2'''))
 
 ## Filter out neutrinos from packed GenParticles
 process.packedGenParticlesForJetsNoNu = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedGenParticles"), cut = cms.string("abs(pdgId) != 12 && abs(pdgId) != 14 && abs(pdgId) != 16"))
@@ -177,11 +149,6 @@ process.ak4GenJetsNoNu = ak4GenJets.clone(src = 'packedGenParticlesForJetsNoNu')
 
 #do projections
 process.pfCHS = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))
-process.pfNoMuonCHS =  cms.EDProducer("CandPtrProjector", src = cms.InputTag("pfCHS"), veto = cms.InputTag("selectedMuons"))
-process.pfNoElectronsCHS = cms.EDProducer("CandPtrProjector", src = cms.InputTag("pfNoMuonCHS"), veto =  cms.InputTag("selectedElectrons"))
-
-process.pfNoMuon =  cms.EDProducer("CandPtrProjector", src = cms.InputTag("packedPFCandidates"), veto = cms.InputTag("selectedMuons"))
-process.pfNoElectrons = cms.EDProducer("CandPtrProjector", src = cms.InputTag("pfNoMuon"), veto =  cms.InputTag("selectedElectrons"))
 
 process.ak4PFJetsCHS = ak4PFJets.clone(src = 'pfCHS', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
 process.ak4GenJets = ak4GenJets.clone(src = 'packedGenParticles', rParam = 0.4)
@@ -189,7 +156,8 @@ process.ak4GenJets = ak4GenJets.clone(src = 'packedGenParticles', rParam = 0.4)
 process.pfMet = pfMet.clone(src = "packedPFCandidates")
 process.pfMet.calculateSignificance = False # this can't be easily implemented on packed PF candidates at the moment
 
-
+process.load("SusyAnaTools.SkimsAUX.prodMuons_cfi")
+process.load("SusyAnaTools.SkimsAUX.prodElectrons_cfi")
 process.pfNoMuonCHSNoMu =  cms.EDProducer("CandPtrProjector", src = cms.InputTag("pfCHS"), veto = cms.InputTag("prodMuons", "mu2Clean"))
 process.ak4PFJetsCHSNoMu = ak4PFJets.clone(src = 'pfNoMuonCHSNoMu', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
 
@@ -203,37 +171,66 @@ from PhysicsTools.PatUtils.patPFMETCorrections_cff import patPFJetMETtype1p2Corr
 process.patMETs.addGenMET = cms.bool(False)
 
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-addJetCollection(
-   process,
-   postfix = "",
-   labelName = 'AK4PFCHS',
-   jetSource = cms.InputTag('ak4PFJetsCHS'),
-   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
-   pfCandidates = cms.InputTag('packedPFCandidates'),
-   svSource = cms.InputTag('slimmedSecondaryVertices'),
-   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-   btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
-#   btagDiscriminators = [ 'combinedInclusiveSecondaryVertexV2BJetTags' ],
-   genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
-   genParticles = cms.InputTag('prunedGenParticles'),
-   algo = 'AK', rParam = 0.4
-)
 
-addJetCollection(
-   process,
-   postfix = "",
-   labelName = 'AK4PFCHSNoMu',
-   jetSource = cms.InputTag('ak4PFJetsCHSNoMu'),
-   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
-   pfCandidates = cms.InputTag('packedPFCandidates'),
-   svSource = cms.InputTag('slimmedSecondaryVertices'),
-   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-   btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
-#   btagDiscriminators = [ 'combinedInclusiveSecondaryVertexV2BJetTags' ],
-   genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
-   genParticles = cms.InputTag('prunedGenParticles'),
-   algo = 'AK', rParam = 0.4
-)
+if options.cmsswVersion == "72X":
+   addJetCollection(
+      process,
+      postfix = "",
+      labelName = 'AK4PFCHS',
+      jetSource = cms.InputTag('ak4PFJetsCHS'),
+      pvSource = cms.InputTag('unpackedTracksAndVertices'),
+      trackSource = cms.InputTag('unpackedTracksAndVertices'),
+      svSource = cms.InputTag('unpackedTracksAndVertices','secondary'),
+      jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+      btagDiscriminators = [ 'combinedInclusiveSecondaryVertexV2BJetTags' ],
+      genJetCollection = cms.InputTag('ak4GenJets'),
+      algo = 'AK', rParam = 0.4
+   )
+
+   addJetCollection(
+      process,
+      postfix = "",
+      labelName = 'AK4PFCHSNoMu',
+      jetSource = cms.InputTag('ak4PFJetsCHSNoMu'),
+      pvSource = cms.InputTag('unpackedTracksAndVertices'),
+      trackSource = cms.InputTag('unpackedTracksAndVertices'),
+      svSource = cms.InputTag('unpackedTracksAndVertices','secondary'),
+      jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+      btagDiscriminators = [ 'combinedInclusiveSecondaryVertexV2BJetTags' ],
+      genJetCollection = cms.InputTag('ak4GenJets'),
+      algo = 'AK', rParam = 0.4
+   )
+
+elif options.cmsswVersion == "74X":
+   addJetCollection(
+      process,
+      postfix = "",
+      labelName = 'AK4PFCHS',
+      jetSource = cms.InputTag('ak4PFJetsCHS'),
+      pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+      pfCandidates = cms.InputTag('packedPFCandidates'),
+      svSource = cms.InputTag('slimmedSecondaryVertices'),
+      jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+      btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
+      genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
+      genParticles = cms.InputTag('prunedGenParticles'),
+      algo = 'AK', rParam = 0.4
+   )
+   
+   addJetCollection(
+      process,
+      postfix = "",
+      labelName = 'AK4PFCHSNoMu',
+      jetSource = cms.InputTag('ak4PFJetsCHSNoMu'),
+      pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+      pfCandidates = cms.InputTag('packedPFCandidates'),
+      svSource = cms.InputTag('slimmedSecondaryVertices'),
+      jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+      btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
+      genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
+      genParticles = cms.InputTag('prunedGenParticles'),
+      algo = 'AK', rParam = 0.4
+   )
 
 #adjust MC matching
 process.patJetPartons.particles = "prunedGenParticles"
@@ -244,9 +241,50 @@ process.patJetPartons.acceptNoDaughters = cms.bool(True) # as we drop intermedia
 process.patJetCorrFactorsAK4PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
 process.patJetCorrFactorsAK4PFCHSNoMu.primaryVertices = "offlineSlimmedPrimaryVertices"
 
+if options.specialFix == "JEC" and options.cmsswVersion == "74X":
+   print "\nApplying fix to JEC issues in 74X ...\n"
+
+   process.load("CondCore.DBCommon.CondDBCommon_cfi")
+   from CondCore.DBCommon.CondDBSetup_cfi import *
+   process.jec = cms.ESSource("PoolDBESSource",
+      DBParameters = cms.PSet(
+         messageLevel = cms.untracked.int32(0)
+      ),
+      timetype = cms.string('runnumber'),
+      toGet = cms.VPSet(
+         cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_PY8_RunIISpring15DR74_bx25_MC_AK4PFchs'),
+            label  = cms.untracked.string('AK4PFchs')
+         ),
+      ## here you add as many jet types as you need
+      ## note that the tag name is specific for the particular sqlite file 
+      ),
+      # from page 19 on slides https://indico.cern.ch/event/405326/contribution/2/attachments/811719/1112498/Pythia8.pdf
+#      connect = cms.string('sqlite:SusyAnaTools/SkimsAUX/data/PY8_RunIISpring15DR74_bx25_MC.db')
+      connect = cms.string('sqlite:PY8_RunIISpring15DR74_bx25_MC.db')
+     # uncomment above tag lines and this comment to use MC JEC
+   )
+## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
+   process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+
+   from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
+   process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+      src = cms.InputTag("slimmedJets"),
+      levels = ['L1FastJet', 
+           'L2Relative', 
+           'L3Absolute'],
+      payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
+
+   from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+   process.patJetsReapplyJEC = patJetsUpdated.clone(
+      jetSource = cms.InputTag("slimmedJets"),
+      jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+   )
+   process.fix74XJEC = cms.Sequence( process.patJetCorrFactorsReapplyJEC + process. patJetsReapplyJEC )
+ 
 #recreate tracks and pv for btagging
 process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
-#process.combinedSecondaryVertex.trackMultiplicityMin = 1 #needed for CMSSW < 71X. silly sv, uses un filtered tracks.. i.e. any pt
 
 process.MessageLogger.suppressWarning = cms.untracked.vstring('ecalLaserCorrFilter','manystripclus53X','toomanystripclus53X')
 process.options.allowUnscheduled = cms.untracked.bool(True)
@@ -324,52 +362,39 @@ process.ak4jetMHTPFchsDPhiFilter.MHTSource = cms.InputTag("mhtPFchs")
 process.ra2Objects = cms.Sequence( 
                                    process.ra2PFchsJets *
                                    process.htPFchs *
-                                   process.mhtPFchs *
-                                   process.selectedMuons *
-                                   process.selectedElectrons *
-                                   process.selectedIDIsoMuons * process.selectedIDMuons *
-                                   process.selectedIDIsoElectrons * process.selectedIDElectrons
+                                   process.mhtPFchs
                                  )
 
 process.load("PhysicsTools.PatAlgos.selectionLayer1.muonCountFilter_cfi")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.electronCountFilter_cfi")
-
-process.countPFMuonsIDIso = process.countPatMuons.clone()
-process.countPFMuonsIDIso.src = cms.InputTag('selectedIDIsoMuons')
-process.countPFMuonsIDIso.minNumber = cms.uint32(1)
-
-process.countPFElectronsIDIso = process.countPatElectrons.clone()
-process.countPFElectronsIDIso.src = cms.InputTag('selectedIDIsoElectrons')
-process.countPFElectronsIDIso.minNumber = cms.uint32(1)
-
-process.ra2PFMuonVeto = cms.Sequence( ~process.countPFMuonsIDIso )
-process.ra2PFElectronVeto = cms.Sequence( ~process.countPFElectronsIDIso )
 
 ############################# START SUSYPAT specifics ####################################
 process.prefilterCounter        = cms.EDProducer("EventCountProducer")
 process.postStdCleaningCounter  = cms.EDProducer("EventCountProducer")
 
 # Standard Event cleaning 
-process.load("SusyAnaTools.Skims.noscraping_cfi")
-process.load("SusyAnaTools.Skims.vertex_cfi")
+process.load("SusyAnaTools.SkimsAUX.prodFilterOutScraping_cfi")
+process.load("SusyAnaTools.SkimsAUX.prodGoodVertices_cfi")
+#process.load("SusyAnaTools.Skims.noscraping_cfi")
+#process.load("SusyAnaTools.Skims.vertex_cfi")
 
-process.goodVertices = cms.EDFilter(
-  "VertexSelector",
-  filter = cms.bool(False),
-  src = cms.InputTag("offlineSlimmedPrimaryVertices"),
-  cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
-)
+# The goodVertices is now moved in the prodGoodVertices_cfi for consistent maintainance!
+#process.goodVertices = cms.EDFilter(
+#  "VertexSelector",
+#  filter = cms.bool(False),
+#  src = cms.InputTag("offlineSlimmedPrimaryVertices"),
+#  cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
+#)
 
-process.ra2StdCleaning = cms.Sequence(
+#process.ra2StdCleaning = cms.Sequence(
 #                 process.noscraping *
-                 process.oneGoodVertex
-)
+#                 process.oneGoodVertex
+#)
 
 # an example sequence to create skimmed susypat-tuples
 process.cleanpatseq = cms.Sequence(
 #                      process.ra2StdCleaning          *
-                      process.postStdCleaningCounter  *
-                      process.ra2Objects
+                      process.postStdCleaningCounter  #*
                       )
 ############################# EDN SUSYPAT specifics ####################################
 
@@ -444,9 +469,11 @@ process.comb_seq = cms.Sequence(
    process.cleanpatseq *
 # hlt requirement
    process.hltFilter *
+   process.prodMuons * process.prodElectrons * 
    process.weightProducer *
    process.trackIsolation * process.loosetrackIsolation *
    process.stopPFJets * process.stopBJets *
+   process.ra2Objects *
    process.prepareCutvars_seq
 )
 
@@ -491,23 +518,6 @@ process.TFileService = cms.Service("TFileService",
    fileName = cms.string('stopFlatNtuples.root')
 )
 
-process.load("SusyAnaTools.SkimsAUX.myGenJetsPartSelector_cfi")
-process.myGenParticlesForJets.src = cms.InputTag("packedGenParticles")
-
-process.myGenParticlesForJetsNoNu = process.myGenParticlesForJets.clone()
-process.myGenParticlesForJetsNoNu.ignoreParticleIDs += cms.vuint32( 12,14,16)
-
-process.myGenParticlesForJetsNoNuNoStopDecays = process.myGenParticlesForJetsNoNu.clone()
-process.myGenParticlesForJetsNoNuNoStopDecays.ignoreParticleDecayIDs = cms.vint32(1000006, -1000006)
-
-process.myGenParticlesForJetsNoNuOnlyStopDecays = process.myGenParticlesForJetsNoNu.clone()
-process.myGenParticlesForJetsNoNuOnlyStopDecays.ignoreParticleDecayIDs = cms.vint32(1000006, -1000006)
-process.myGenParticlesForJetsNoNuOnlyStopDecays.invertignoreParticleDecay = cms.bool(True)
-
-process.myak4GenJetsNoNu = process.ak4GenJets.clone( src = cms.InputTag("myGenParticlesForJetsNoNu") )
-process.myak4GenJetsNoNuNoStopDecays = process.ak4GenJets.clone( src = cms.InputTag("myGenParticlesForJetsNoNuNoStopDecays") )
-process.myak4GenJetsNoNuOnlyStopDecays = process.ak4GenJets.clone( src = cms.InputTag("myGenParticlesForJetsNoNuOnlyStopDecays") )
-
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("SusyAnaTools.SignalScan.genDecayStringMaker_cfi")
@@ -533,8 +543,6 @@ process.groomProdak4.jetSrc = cms.InputTag("ak4patJetsPFchsPt10")
 process.groomProdak4.groomingOpt = cms.untracked.int32(1)
 #process.groomProdak4.debug = cms.untracked.bool(options.debug)
 
-process.load("SusyAnaTools.SkimsAUX.prodMuons_cfi")
-process.load("SusyAnaTools.SkimsAUX.prodElectrons_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodJets_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodMET_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodGenInfo_cfi")
@@ -545,33 +553,18 @@ process.load("SusyAnaTools.SkimsAUX.prodEventInfo_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodTriggerResults_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodFilterFlags_cfi")
 
-process.METFilters = process.filterDecisionProducer.clone(
-        trigTagArg1  = cms.string('TriggerResults'),
-        trigTagArg2  = cms.string(''),
-        trigTagArg3  = cms.string('PAT'),
-        filterName  =   cms.string("Flag_METFilters"),
-        )
+process.triggerProducer.trigTagSrc = cms.InputTag("TriggerResults","",options.hltName)
 
-process.CSCTightHaloFilter = process.filterDecisionProducer.clone(
-        trigTagArg1  = cms.string('TriggerResults'),
-        trigTagArg2  = cms.string(''),
-        trigTagArg3  = cms.string('PAT'),
-        filterName  =   cms.string("Flag_CSCTightHaloFilter"),
-        )
+process.METFilters = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_METFilters") )
+process.CSCTightHaloFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_CSCTightHaloFilter") )
+process.HBHENoiseFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_HBHENoiseFilter") )
+process.EcalDeadCellTriggerPrimitiveFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_EcalDeadCellTriggerPrimitiveFilter") )
 
-process.HBHENoiseFilter = process.filterDecisionProducer.clone(
-        trigTagArg1  = cms.string('TriggerResults'),
-        trigTagArg2  = cms.string(''),
-        trigTagArg3  = cms.string('PAT'),
-        filterName  =   cms.string("Flag_HBHENoiseFilter"),
-        )
+if options.cmsswVersion == "72X":
+   process.prodJets.bTagKeyString = cms.string('combinedInclusiveSecondaryVertexV2BJetTags')
+else:
+   process.prodJets.bTagKeyString = cms.string('pfCombinedInclusiveSecondaryVertexV2BJetTags')
 
-process.EcalDeadCellTriggerPrimitiveFilter = process.filterDecisionProducer.clone(
-        trigTagArg1  = cms.string('TriggerResults'),
-        trigTagArg2  = cms.string(''),
-        trigTagArg3  = cms.string('PAT'),
-        filterName  =   cms.string("Flag_EcalDeadCellTriggerPrimitiveFilter"),
-        )
 process.prodJets.jetOtherSrc = cms.InputTag('patJetsAK4PFCHS')
 
 process.prodJetsNoMu = process.prodJets.clone()
@@ -588,10 +581,19 @@ process.load("SusyAnaTools.StopTreeMaker.stopTreeMaker_cfi")
 process.stopTreeMaker.debug = cms.bool(options.debug)
 process.stopTreeMaker.TreeName = cms.string("AUX")
 
+process.ntpVersion = cms.EDFilter(
+   "prodNtupleVersionString", 
+   inputStr = cms.vstring(options.ntpVersion, options.GlobalTag, options.cmsswVersion, options.specialFix, options.hltName)
+)
+
+process.stopTreeMaker.vectorString.append(cms.InputTag("ntpVersion"))
 
 process.stopTreeMaker.vectorInt.append(cms.InputTag("triggerProducer", "PassTrigger"))
 process.stopTreeMaker.vectorString.append(cms.InputTag("triggerProducer", "TriggerNames"))
 
+# prodGoodVertices has the same as vtxSize in prodEventInfo...
+#process.stopTreeMaker.varsInt.append(cms.InputTag("prodGoodVertices"))
+#process.stopTreeMaker.varsInt.append(cms.InputTag("prodFilterOutScraping"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("METFilters"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("CSCTightHaloFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("HBHENoiseFilter"))
@@ -641,11 +643,12 @@ process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetsBtag|re
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "muMatchedJetIdx"))
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "eleMatchedJetIdx"))
 
-process.prodGenInfo.debug = cms.bool(options.debug)
-process.stopTreeMaker.vectorString.append(cms.InputTag("prodGenInfo", "genDecayStrVec"))
-process.stopTreeMaker.vectorInt.extend([cms.InputTag("prodGenInfo", "genDecayIdxVec"), cms.InputTag("prodGenInfo", "genDecayPdgIdVec"), cms.InputTag("prodGenInfo", "genDecayMomIdxVec"), cms.InputTag("prodGenInfo", "genDecayMomRefVec"), cms.InputTag("prodGenInfo", "WemuVec"), cms.InputTag("prodGenInfo", "WtauVec"), cms.InputTag("prodGenInfo", "WtauemuVec"), cms.InputTag("prodGenInfo", "WtauprongsVec"), cms.InputTag("prodGenInfo", "WtaunuVec")])
-process.stopTreeMaker.vectorIntNamesInTree.extend(["prodGenInfo:WemuVec|W_emuVec", "prodGenInfo:WtauVec|W_tauVec", "prodGenInfo:WtauemuVec|W_tau_emuVec", "prodGenInfo:WtauprongsVec|W_tau_prongsVec", "prodGenInfo:WtaunuVec|W_tau_nuVec"])
-process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenInfo", "genDecayLVec"))
+if options.mcInfo == True:
+   process.prodGenInfo.debug = cms.bool(options.debug)
+   process.stopTreeMaker.vectorString.append(cms.InputTag("prodGenInfo", "genDecayStrVec"))
+   process.stopTreeMaker.vectorInt.extend([cms.InputTag("prodGenInfo", "genDecayIdxVec"), cms.InputTag("prodGenInfo", "genDecayPdgIdVec"), cms.InputTag("prodGenInfo", "genDecayMomIdxVec"), cms.InputTag("prodGenInfo", "genDecayMomRefVec"), cms.InputTag("prodGenInfo", "WemuVec"), cms.InputTag("prodGenInfo", "WtauVec"), cms.InputTag("prodGenInfo", "WtauemuVec"), cms.InputTag("prodGenInfo", "WtauprongsVec"), cms.InputTag("prodGenInfo", "WtaunuVec")])
+   process.stopTreeMaker.vectorIntNamesInTree.extend(["prodGenInfo:WemuVec|W_emuVec", "prodGenInfo:WtauVec|W_tauVec", "prodGenInfo:WtauemuVec|W_tau_emuVec", "prodGenInfo:WtauprongsVec|W_tau_prongsVec", "prodGenInfo:WtaunuVec|W_tau_nuVec"])
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenInfo", "genDecayLVec"))
 
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodIsoTrks:trksForIsoVetoLVec"))
 process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodIsoTrks:trksForIsoVetocharge"), cms.InputTag("prodIsoTrks:trksForIsoVetodz"), cms.InputTag("prodIsoTrks:looseisoTrkscharge"), cms.InputTag("prodIsoTrks:looseisoTrksdz"), cms.InputTag("prodIsoTrks:looseisoTrksiso"), cms.InputTag("prodIsoTrks:looseisoTrksmtw")])
@@ -667,8 +670,6 @@ process.stopTreeMaker.varsIntNamesInTree.append("ak4nJetsForSkimsStop:nJets|nJet
 
 process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:met"), cms.InputTag("prodMET:metphi")])
 
-#process.stopTreeMaker.vectorDouble.append(cms.InputTag("ak4jetMHTDPhiForSkimsStop:jetMHTDPhiVec"))
-#process.stopTreeMaker.vectorDoubleNamesInTree.append("ak4jetMHTDPhiForSkimsStop:jetMHTDPhiVec|dPhis_CUT")
 process.stopTreeMaker.varsDouble.extend([cms.InputTag("ak4jetMHTDPhiForSkimsStop:dPhi0"), cms.InputTag("ak4jetMHTDPhiForSkimsStop:dPhi1"), cms.InputTag("ak4jetMHTDPhiForSkimsStop:dPhi2")])
 process.stopTreeMaker.varsDoubleNamesInTree.extend(["ak4jetMHTDPhiForSkimsStop:dPhi0|dPhi0_CUT", "ak4jetMHTDPhiForSkimsStop:dPhi1|dPhi1_CUT", "ak4jetMHTDPhiForSkimsStop:dPhi2|dPhi2_CUT"])
 
@@ -683,6 +684,8 @@ process.stopTreeMaker.varsBool.append(cms.InputTag("type3topTagger:remainPassCSV
 process.stopTreeMaker.varsDouble.append(cms.InputTag("weightProducer:weight"))
 process.stopTreeMaker.varsDoubleNamesInTree.append("weightProducer:weight|evtWeight")
 
+process.trig_filter_seq = cms.Sequence( process.triggerProducer * process.METFilters * process.CSCTightHaloFilter * process.HBHENoiseFilter * process.EcalDeadCellTriggerPrimitiveFilter )
+
 if options.selSMSpts == True:
    process.stopTreeMaker.vectorString.extend([cms.InputTag("smsModelFilter:fileNameStr"), cms.InputTag("smsModelFilter:smsModelStr")])
    process.stopTreeMaker.varsDouble.extend([cms.InputTag("smsModelFilter:smsMotherMass"), cms.InputTag("smsModelFilter:smsDaughterMass")])
@@ -690,15 +693,37 @@ if options.selSMSpts == True:
 process.ak4Stop_Path = cms.Path(
                                    process.comb_seq * 
                                    process.printDecayPythia8 * process.prodGenInfo * 
-                                   process.prodMuons * process.prodMuonsNoIso * process.prodElectrons * process.prodElectronsNoIso * process.prodJets * process.prodMET * process.prodIsoTrks * process.prodEventInfo * process.triggerProducer * process.METFilters * process.CSCTightHaloFilter * process.HBHENoiseFilter * process.EcalDeadCellTriggerPrimitiveFilter *
+                                   process.prodMuonsNoIso * process.prodElectronsNoIso *  
+                                   process.prodJets * process.prodMET * process.prodIsoTrks * process.prodEventInfo * process.trig_filter_seq * 
                                    process.type3topTagger *
                                    process.stopTreeMaker
 )
 
+if options.mcInfo == False:
+   process.ak4Stop_Path.remove(process.prodGenInfo)
+   process.ak4Stop_Path.remove(process.printDecayPythia8)
+
 if options.selSMSpts == True:
    process.ak4Stop_Path.replace(process.hltFilter, process.hltFilter*process.smsModelFilter)
 
+if options.specialFix == "JEC" and options.cmsswVersion == "74X":
+   process.comb_seq.replace(process.weightProducer, process.fix74XJEC*process.weightProducer)
+
+   process.patJetsReapplyJECPt10 = process.selectedPatJetsRA2.clone()
+   process.patJetsReapplyJECPt10.jetSrc = cms.InputTag("patJetsReapplyJEC")
+   process.patJetsReapplyJECPt10.pfJetCut = cms.string('pt >= 10')
+
+   process.prodJets.jetSrc = cms.InputTag('patJetsReapplyJECPt10')
+
+   process.ak4patJetsPFchsPt10.jetSrc = cms.InputTag('patJetsReapplyJEC')
+   process.ak4patJetsPFchsPt30.jetSrc = cms.InputTag('patJetsReapplyJEC')
+   process.ak4patJetsPFchsPt50Eta25.jetSrc = cms.InputTag('patJetsReapplyJEC')
+   process.jetIDFailure.JetSource = cms.InputTag("patJetsReapplyJEC")
+   process.ak4stopJetsPFchsPt30.jetSrc = cms.InputTag("patJetsReapplyJEC")
+   process.ak4stopJetsPFchsPt50Eta24.jetSrc = cms.InputTag("patJetsReapplyJEC")
+
 ###-- Dump config ------------------------------------------------------------
-file = open('allDump_cfg.py','w')
-file.write(str(process.dumpPython()))
-file.close()
+if options.debug:
+   file = open('allDump_cfg.py','w')
+   file.write(str(process.dumpPython()))
+   file.close()

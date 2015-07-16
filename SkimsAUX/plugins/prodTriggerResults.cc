@@ -44,13 +44,10 @@ private:
   virtual void endRun(edm::Run&, edm::EventSetup const&);
   virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-  edm::InputTag trigResultsTag_;
-  std::string trigTagArg1_;
-  std::string trigTagArg2_;
-  std::string trigTagArg3_;
-  std::string triggerNameList_;
-  std::vector<std::string> parsedTrigNamesVec;
-	
+  edm::InputTag trigTagSrc_;
+  std::vector<std::string> parsedTrigNamesVec_;
+
+  bool debug_;
   // ----------member data ---------------------------
 };
 
@@ -67,11 +64,14 @@ private:
 //
 prodTriggerResults::prodTriggerResults(const edm::ParameterSet& iConfig)
 {
-  triggerNameList_ = iConfig.getParameter <std::string> ("triggerNameList");
-  trigTagArg1_ = iConfig.getParameter <std::string> ("trigTagArg1");
-  trigTagArg2_ = iConfig.getParameter <std::string> ("trigTagArg2");
-  trigTagArg3_ = iConfig.getParameter <std::string> ("trigTagArg3");
-  trigResultsTag_ = edm::InputTag(trigTagArg1_,trigTagArg2_,trigTagArg3_);
+  parsedTrigNamesVec_ = iConfig.getParameter <std::vector<std::string> > ("triggerNameList");
+  trigTagSrc_ = iConfig.getParameter<edm::InputTag> ("trigTagSrc");
+
+  debug_ = iConfig.getParameter<bool>("debug");
+
+  if( debug_ ){
+     std::cout << "will store trigger information for..." << std::endl;
+  }
 
   produces<std::vector<std::string> >("TriggerNames");
   produces<std::vector<int> >("PassTrigger");
@@ -94,20 +94,20 @@ prodTriggerResults::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   int passesTrigger;
   edm::Handle<edm::TriggerResults> trigResults; //our trigger result object
-  trigResults = trigResults;
-  iEvent.getByLabel(trigResultsTag_,trigResults);
-  const edm::TriggerNames& trigNames = iEvent.triggerNames(*trigResults); 
+  iEvent.getByLabel(trigTagSrc_,trigResults);
+  const edm::TriggerNames& trigNames = iEvent.triggerNames(*trigResults);
 
-  for(unsigned int i = 0; i < parsedTrigNamesVec.size(); i++)
-    {
-      passesTrigger = -1;
-      trigNamesVec->push_back(parsedTrigNamesVec.at(i).c_str());
-      if((trigNames.triggerIndex(parsedTrigNamesVec.at(i)) < trigResults->size())) 
-	{
-	  passesTrigger=trigResults->accept(trigNames.triggerIndex(parsedTrigNamesVec.at(i).c_str()));
-	}
-	  passTrigVec->push_back(passesTrigger);
-    }
+  const std::vector<std::string> & allNames = trigNames.triggerNames();
+  for(unsigned int ip = 0; ip < parsedTrigNamesVec_.size(); ip++){
+     for(unsigned int ia=0; ia<allNames.size(); ia++){
+        if(allNames.at(ia).find(parsedTrigNamesVec_.at(ip)) != std::string::npos) trigNamesVec->push_back(allNames.at(ia));
+     }
+  }
+
+  for(unsigned int it=0; it<trigNamesVec->size(); it++){
+     passesTrigger = trigResults->accept(trigNames.triggerIndex(trigNamesVec->at(it)));
+     passTrigVec->push_back(passesTrigger);
+  }
 
   // for (int iHLT = 0 ; iHLT<static_cast<int>(trigResults->size()); ++iHLT) 
   // {	
@@ -125,6 +125,7 @@ prodTriggerResults::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 prodTriggerResults::beginJob()
 {
+/*
   std::cout << "will store trigger information for..." << std::endl;
   std::stringstream ss(triggerNameList_);
   std::istream_iterator<std::string> begin(ss);
@@ -133,6 +134,7 @@ prodTriggerResults::beginJob()
   std::copy(vstrings.begin(), vstrings.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
   for(unsigned int i = 0; i< vstrings.size(); i++)
     parsedTrigNamesVec.push_back(vstrings.at(i));
+*/
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

@@ -111,7 +111,7 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   edm::Handle<edm::View<reco::Vertex> > vertices;
   iEvent.getByLabel(vertexInputTag_, vertices);
-  reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
+//  reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
 
   vtxSize = vertices->size();
   
@@ -171,12 +171,7 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
               if( dR > dR_ ) continue;
 
 	      // cut on the PFCandidate dz
-	      double dz_other = 100;
-
-	      if ( pf_other->bestTrack() ) {
-	         dz_other = pf_other->bestTrack()->dz(vtxpos);
-//	         dz_other = pf_other->pseudoTrack().dz(vtxpos);
-	      }
+	      double dz_other = pf_other->dz();
 
 	      if( fabs(dz_other) > dzcut_ ) continue;
 
@@ -184,12 +179,7 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
            }
 
            // calculate the dz of this candidate
-           double dz_it = 100; //
-
-           if ( pf_it->bestTrack() ){
-              dz_it = pf_it->bestTrack()->dz(vtxpos);
-//              dz_it = pf_it->pseudoTrack().dz(vtxpos);
-           }
+           double dz_it = pf_it->dz();
 
            if( trkiso/pf_it->pt() > isoCut_ ) continue;
            if( std::abs(dz_it) > dzcut_ ) continue;

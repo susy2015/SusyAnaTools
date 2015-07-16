@@ -18,5 +18,5 @@ prodMuons = cms.EDFilter(
   DoMuonID             = cms.bool(True),
   DoMuonVtxAssociation = cms.bool(True),
   DoMuonIsolation      = cms.bool(True),
-  Debug                = cms.bool(False)
+  Debug                = cms.bool(False),
 )

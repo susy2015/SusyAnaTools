@@ -62,10 +62,14 @@ class prodIsoTrks : public edm::EDFilter {
 
     int find_idx(const reco::Candidate & target);
     int find_idx(int genIdx, const std::vector<int> &genDecayIdxVec);
+
+    bool isData_;
 };
 
 
 prodIsoTrks::prodIsoTrks(const edm::ParameterSet & iConfig) {
+
+  isData_ = true;
 
   vtxSrc_      = iConfig.getParameter<edm::InputTag>("vtxSrc");
 
@@ -117,6 +121,8 @@ prodIsoTrks::~prodIsoTrks() {
 
 bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  if( !iEvent.isRealData() ) isData_ = false;
+
   std::auto_ptr<std::vector<TLorentzVector> > trksForIsoVetoLVec(new std::vector<TLorentzVector>());
   std::auto_ptr<std::vector<double> > trksForIsoVeto_charge(new std::vector<double>());
   std::auto_ptr<std::vector<double> > trksForIsoVeto_dz(new std::vector<double>());
@@ -133,14 +139,16 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   std::auto_ptr<std::vector<int> > forVetoIsoTrks_idx(new std::vector<int>());
 
-  iEvent.getByLabel(W_emuVec_Src_, W_emuVec_);
-  iEvent.getByLabel(W_tau_emuVec_Src_, W_tau_emuVec_);
-  iEvent.getByLabel(W_tau_prongsVec_Src_, W_tau_prongsVec_);
-  iEvent.getByLabel(genDecayLVec_Src_, genDecayLVec_);
+  if( !isData_ ){
+     iEvent.getByLabel(W_emuVec_Src_, W_emuVec_);
+     iEvent.getByLabel(W_tau_emuVec_Src_, W_tau_emuVec_);
+     iEvent.getByLabel(W_tau_prongsVec_Src_, W_tau_prongsVec_);
+     iEvent.getByLabel(genDecayLVec_Src_, genDecayLVec_);
+  }
 
   edm::Handle< std::vector<reco::Vertex> > vertices;
   iEvent.getByLabel(vtxSrc_, vertices);
-  reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
+//  reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
 
   edm::Handle<edm::View<reco::MET> > met;
   iEvent.getByLabel(metSrc_, met);
@@ -196,10 +204,7 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         int perCharge = pfCandHandle_->at(ip).charge();
         if( perCharge ==0 ) continue;
 
-        double dz = 100.;
-        if( (*pfCandHandle_)[ip].bestTrack() ){
-           dz = (*pfCandHandle_)[ip].bestTrack()->dz(vtxpos);
-        }
+        double dz = (*pfCandHandle_)[ip].dz();
         if( fabs(dz) > isotrk_dz_ ) continue;
 
         int matched = 0;
@@ -210,25 +215,27 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
               loose_isoTrks_idx->push_back(ip);
            }
         }
-        for(unsigned int ig=0; ig<W_emuVec_->size(); ig++){
-           int perIdx = W_emuVec_->at(ig);
-           TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-           double perdeltaR = perLVec.DeltaR(genLVec);
-           if( perdeltaR < isotrk_dR_ ) matched ++;
-        }
-
-        for(unsigned int ig=0; ig<W_tau_emuVec_->size(); ig++){
-           int perIdx = W_tau_emuVec_->at(ig);
-           TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-           double perdeltaR = perLVec.DeltaR(genLVec);
-           if( perdeltaR < isotrk_dR_ ) matched ++;
-        }
-
-        for(unsigned int ig=0; ig<W_tau_prongsVec_->size(); ig++){
-           int perIdx = W_tau_prongsVec_->at(ig);
-           TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-           double perdeltaR = perLVec.DeltaR(genLVec);
-           if( perdeltaR < isotrk_dR_ ) matched ++;
+        if( !isData_ ){
+           for(unsigned int ig=0; ig<W_emuVec_->size(); ig++){
+              int perIdx = W_emuVec_->at(ig);
+              TLorentzVector genLVec = genDecayLVec_->at(perIdx);
+              double perdeltaR = perLVec.DeltaR(genLVec);
+              if( perdeltaR < isotrk_dR_ ) matched ++;
+           }
+   
+           for(unsigned int ig=0; ig<W_tau_emuVec_->size(); ig++){
+              int perIdx = W_tau_emuVec_->at(ig);
+              TLorentzVector genLVec = genDecayLVec_->at(perIdx);
+              double perdeltaR = perLVec.DeltaR(genLVec);
+              if( perdeltaR < isotrk_dR_ ) matched ++;
+           }
+   
+           for(unsigned int ig=0; ig<W_tau_prongsVec_->size(); ig++){
+              int perIdx = W_tau_prongsVec_->at(ig);
+              TLorentzVector genLVec = genDecayLVec_->at(perIdx);
+              double perdeltaR = perLVec.DeltaR(genLVec);
+              if( perdeltaR < isotrk_dR_ ) matched ++;
+           }
         }
 
         if( !matched ) continue;
