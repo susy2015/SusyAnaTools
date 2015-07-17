@@ -20,6 +20,8 @@
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 #include "TLorentzVector.h"
 
 class prodEventInfo : public edm::EDFilter {
@@ -54,6 +56,7 @@ prodEventInfo::prodEventInfo(const edm::ParameterSet & iConfig) {
   produces<int>("nm1");
   produces<int>("n0");
   produces<int>("np1");
+  produces<double>("storedWeight");
 }
 
 
@@ -80,6 +83,9 @@ bool prodEventInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   std::auto_ptr<int> nm1(new int), n0(new int), np1(new int), npv(new int);
   *nm1 = -1; *n0 = -1; *np1 = -1; *npv = -1;
+
+  std::auto_ptr<double> storedWeight(new double);
+  *storedWeight = -1.0;
 
   if( !isData_ ){
      iEvent.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
@@ -108,6 +114,12 @@ bool prodEventInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         }
      }
      *avg_npv /= 3.0;
+
+     edm::Handle<GenEventInfoProduct> genEvtInfoHandle;
+     iEvent.getByLabel("generator", genEvtInfoHandle);
+     if (genEvtInfoHandle.isValid()) {
+        *storedWeight = genEvtInfoHandle->weight();
+     }
   }
 
   iEvent.put(vtxSize, "vtxSize");
@@ -117,6 +129,7 @@ bool prodEventInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(nm1, "nm1");
   iEvent.put(n0, "n0");
   iEvent.put(np1, "np1");
+  iEvent.put(storedWeight, "storedWeight");
 
   return true;
 }

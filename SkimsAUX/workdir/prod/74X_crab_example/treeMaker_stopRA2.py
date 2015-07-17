@@ -41,6 +41,8 @@ options.register('hltName', 'HLT', VarParsing.VarParsing.multiplicity.singleton,
 
 options.register('mcInfo', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process MonteCarlo data, default is data")
 
+options.register('addJetsForZinv', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "switch to add top projected jets for Zinv")
+
 options.register('jetCorrections', 'L2Relative', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Level of jet corrections to use: Note the factors are read from DB via GlobalTag")
 options.jetCorrections.append('L3Absolute')
 
@@ -61,7 +63,7 @@ options.register('fileslist', '', VarParsing.VarParsing.multiplicity.singleton, 
 
 options.register('fastsim', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "fastsim sample or not, default is False")
 
-options.register('doTopTagger', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "do top tagger or not, default is True")
+options.register('doTopTagger', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "do top tagger or not, default is True")
 
 options.register('usePhiCorrMET', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "use phi corrected MET or not, default is False")
 
@@ -625,34 +627,29 @@ process.stopTreeMaker.vectorBool.extend([cms.InputTag("prodElectronsNoIso", "ele
 
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodJets", "nJets"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "jetsLVec"))
-process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoMu", "jetsLVec"))
-process.stopTreeMaker.varsTLorentzVectorNamesInTree.append("prodJetsNoMu:jetsLVec|jetsLVecMuCleaned")
-
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "recoJetsFlavor"))
-
 
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedHadronEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedEmEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsneutralEmEnergyFraction"))
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetschargedHadronEnergyFraction"))
-process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetschargedHadronEnergyFraction|recoJetschargedHadronEnergyFractionMuCleaned")
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetschargedEmEnergyFraction"))
-process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetsHadronEnergyFraction|recoJetsHadronEnergyFractionMuCleaned")
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetsneutralEmEnergyFraction"))
-process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetsneutralEmEnergyFraction|recoJetsneutralEmEnergyFractionMuCleaned")
-
-
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedEmEnergyFraction"))
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetschargedEmEnergyFraction"))
-process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetschargedEmEnergyFraction|recoJetschargedEmEnergyFractionMuCleaned")
 
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsBtag"))
 process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJets:recoJetsBtag|recoJetsBtag_0")
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetsBtag"))
-process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetsBtag|recoJetsBtag_0_MuCleaned")
 
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "muMatchedJetIdx"))
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "eleMatchedJetIdx"))
+
+if options.addJetsForZinv == True: 
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoMu", "jetsLVec"))
+   process.stopTreeMaker.varsTLorentzVectorNamesInTree.append("prodJetsNoMu:jetsLVec|jetsLVecMuCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetschargedHadronEnergyFraction"))
+   process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetschargedHadronEnergyFraction|recoJetschargedHadronEnergyFractionMuCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetsneutralEmEnergyFraction"))
+   process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetsneutralEmEnergyFraction|recoJetsneutralEmEnergyFractionMuCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetschargedEmEnergyFraction"))
+   process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetschargedEmEnergyFraction|recoJetschargedEmEnergyFractionMuCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoMu", "recoJetsBtag"))
+   process.stopTreeMaker.varsDoubleNamesInTree.append("prodJetsNoMu:recoJetsBtag|recoJetsBtag_0_MuCleaned")
 
 if options.mcInfo == True:
    process.prodGenInfo.debug = cms.bool(options.debug)
@@ -685,12 +682,13 @@ process.stopTreeMaker.varsDouble.extend([cms.InputTag("ak4jetMHTDPhiForSkimsStop
 process.stopTreeMaker.varsDoubleNamesInTree.extend(["ak4jetMHTDPhiForSkimsStop:dPhi0|dPhi0_CUT", "ak4jetMHTDPhiForSkimsStop:dPhi1|dPhi1_CUT", "ak4jetMHTDPhiForSkimsStop:dPhi2|dPhi2_CUT"])
 
 process.stopTreeMaker.varsInt.extend([cms.InputTag("prodEventInfo:vtxSize"), cms.InputTag("prodEventInfo:npv"), cms.InputTag("prodEventInfo:nm1"), cms.InputTag("prodEventInfo:n0"), cms.InputTag("prodEventInfo:np1")])
-process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodEventInfo:trunpv"), cms.InputTag("prodEventInfo:avgnpv")])
-process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodEventInfo:trunpv|tru_npv", "prodEventInfo:avgnpv|avg_npv"])
+process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodEventInfo:trunpv"), cms.InputTag("prodEventInfo:avgnpv"), cms.InputTag("prodEventInfo:storedWeight")])
+process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodEventInfo:trunpv|tru_npv", "prodEventInfo:avgnpv|avg_npv", "prodEventInfo:storedWeight|stored_weight"])
 
-process.stopTreeMaker.varsInt.extend([cms.InputTag("type3topTagger:bestTopJetIdx"), cms.InputTag("type3topTagger:pickedRemainingCombfatJetIdx")])
-process.stopTreeMaker.varsDouble.extend([cms.InputTag("type3topTagger:bestTopJetMass"), cms.InputTag("type3topTagger:MT2"), cms.InputTag("type3topTagger:mTbestTopJet"), cms.InputTag("type3topTagger:mTbJet"), cms.InputTag("type3topTagger:linearCombmTbJetPlusmTbestTopJet"), cms.InputTag("type3topTagger:mTbestWJet"), cms.InputTag("type3topTagger:mTbestbJet"), cms.InputTag("type3topTagger:mTremainingTopJet")])
-process.stopTreeMaker.varsBool.append(cms.InputTag("type3topTagger:remainPassCSVS"))
+if options.doTopTagger == True:
+   process.stopTreeMaker.varsInt.extend([cms.InputTag("type3topTagger:bestTopJetIdx"), cms.InputTag("type3topTagger:pickedRemainingCombfatJetIdx")])
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("type3topTagger:bestTopJetMass"), cms.InputTag("type3topTagger:MT2"), cms.InputTag("type3topTagger:mTbestTopJet"), cms.InputTag("type3topTagger:mTbJet"), cms.InputTag("type3topTagger:linearCombmTbJetPlusmTbestTopJet"), cms.InputTag("type3topTagger:mTbestWJet"), cms.InputTag("type3topTagger:mTbestbJet"), cms.InputTag("type3topTagger:mTremainingTopJet")])
+   process.stopTreeMaker.varsBool.append(cms.InputTag("type3topTagger:remainPassCSVS"))
 
 process.stopTreeMaker.varsDouble.append(cms.InputTag("weightProducer:weight"))
 process.stopTreeMaker.varsDoubleNamesInTree.append("weightProducer:weight|evtWeight")
@@ -709,6 +707,9 @@ process.ak4Stop_Path = cms.Path(
                                    process.type3topTagger *
                                    process.stopTreeMaker
 )
+
+if options.doTopTagger == False:
+   process.ak4Stop_Path.remove(process.type3topTagger)
 
 if options.mcInfo == False:
    process.ak4Stop_Path.remove(process.prodGenInfo)

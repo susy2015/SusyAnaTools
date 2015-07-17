@@ -12,6 +12,10 @@ config.JobType.allowNonProductionCMSSW = False
 config.section_("Data")
 config.Data.inputDataset = '/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM'
 config.Data.inputDBS = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader/'
+#Example config for data
+#config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions12/8TeV/Prompt/Cert_190456-208686_8TeV_PromptReco_Collisions12_JSON.txt'
+#config.Data.runRange = '193093-193999'
+#config.Data.splitting = 'LumiBased'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 5
 config.Data.publication = False

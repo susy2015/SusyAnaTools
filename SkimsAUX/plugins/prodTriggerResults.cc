@@ -104,6 +104,9 @@ prodTriggerResults::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
   }
 
+  std::sort(trigNamesVec->begin(), trigNamesVec->end());
+  trigNamesVec->erase( std::unique( trigNamesVec->begin(), trigNamesVec->end() ), trigNamesVec->end() );
+
   for(unsigned int it=0; it<trigNamesVec->size(); it++){
      passesTrigger = trigResults->accept(trigNames.triggerIndex(trigNamesVec->at(it)));
      passTrigVec->push_back(passesTrigger);
