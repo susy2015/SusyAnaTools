@@ -104,6 +104,11 @@ bool genDecayStringMakerPythia8::select( const reco::Candidate & c ) const {
      }
   }
 
+// For SUSY particles, e.g., ~chi_10
+  if( abs(c.pdgId() ) >= 1000000 && c.numberOfMothers() == 1 && (c.status() ==23 || c.status() ==1 || c.status()==2) ){
+     if( selectExtra( (*c.mother(0)) ) ) selected = true;
+  }
+
 // For tau decay products
   if( c.numberOfMothers() == 1 ){
      const reco::Candidate * momCand = c.mother(0);
@@ -131,10 +136,13 @@ bool genDecayStringMakerPythia8::select( const reco::Candidate & c ) const {
 // To catch resonance, top quark and others than the "u, d, s, c, b" and leptons
 bool genDecayStringMakerPythia8::selectExtra( const reco::Candidate & c ) const {
   bool selected = false;
-  if( c.status() == 62 && c.numberOfDaughters() >=2 && c.numberOfMothers() >=1 ) selected = true; // top
-  if( (c.status() == 52 || c.status() == 22) && c.numberOfDaughters() >=2 && c.numberOfMothers() >=1 ) selected = true; // W, Z(? to be confirmed)
-//  if( c.status() == 23 && c.numberOfDaughters() >=2 && ( abs(c.pdgId())>=1 && abs(c.pdgId())<=5 ) ) selected = true; // u, d, s, c, b
-//  if( c.status() == 2 && c.numberOfDaughters() >=2 && abs(c.pdgId()) ==15 ) selected = true;
+  if( ( c.status() == 22 || c.status() == 51 || c.status() == 52 || c.status() == 62 ) && c.numberOfDaughters() >=2 && c.numberOfMothers() >=1 ){
+     int foundSameDauAsMom = 0;
+     for(size_t id=0; id< c.numberOfDaughters(); id++){
+        if( c.daughter(id)->pdgId() == c.pdgId() ) foundSameDauAsMom ++;
+     }
+     if( !foundSameDauAsMom ) selected = true;
+  }
   return selected;
 }
 

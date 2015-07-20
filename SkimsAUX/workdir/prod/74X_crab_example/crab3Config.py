@@ -7,22 +7,23 @@ config.General.requestName = 'Spring15DR74_Asympt25ns_TTJets'
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'treeMaker_stopRA2.py'
-config.JobType.allowNonProductionCMSSW = False
+config.JobType.allowUndistributedCMSSW = False
+#config.JobType.pyCfgParams = ['GlobalTag=GR_P_V56', 'mcInfo=0']
 
 config.section_("Data")
 config.Data.inputDataset = '/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM'
 config.Data.inputDBS = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader/'
 #Example config for data
-#config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions12/8TeV/Prompt/Cert_190456-208686_8TeV_PromptReco_Collisions12_JSON.txt'
-#config.Data.runRange = '193093-193999'
+#config.Data.lumiMask = 'json_DCSONLY_Run2015B.txt'
+##config.Data.runRange = '193093-193999'
 #config.Data.splitting = 'LumiBased'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 5
 config.Data.publication = False
 config.Data.publishDBS = 'https://cmsweb.cern.ch/dbs/prod/phys03/DBSWriter/'
-config.Data.publishDataName = 'Spring15DR74_Asympt25ns_V1'
+config.Data.publishDataName = 'Spring15DR74_Asympt25ns_V1.1'
 #Use your own username instead of the "lhx". Keep branch tag in the directory name, e.g., Spring15_720_Dec23_2014.
-config.Data.outLFN = '/store/group/lpcsusyhad/Spring15_74X_July_2015_v1/lhx/TTJets_madgraphMLM-pythia8/'
+config.Data.outLFNDirBase = '/store/group/lpcsusyhad/Spring15_74X_July_2015_v1.1/lhx/TTJets_madgraphMLM-pythia8/'
 
 config.Data.ignoreLocality = False
 

@@ -33,7 +33,7 @@ import re
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 
-options.register('ntpVersion', "Ntp_74X_16Jul2015_v1", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "ntpVersion: to be same as the tag of the release. But can be used to produce 72X ntuple as well!")
+options.register('ntpVersion', "Ntp_74X_20Jul2015_v1.1", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "ntpVersion: to be same as the tag of the release. But can be used to produce 72X ntuple as well!")
 options.register('GlobalTag', "MCRUN2_74_V9", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "74X PromptReco: 74X_dataRun2_Prompt_v0")
 options.register('cmsswVersion', '74X', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific MC fix")
 options.register('specialFix', 'None', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "special fixes ==>   JEC : use external JEC; IVF : fix IVF")
@@ -253,7 +253,7 @@ process.patJetCorrFactorsAK4PFCHSNoMu.primaryVertices = "offlineSlimmedPrimaryVe
 if options.specialFix == "JEC" and options.cmsswVersion == "74X":
    print "\nApplying fix to JEC issues in 74X ...\n"
 
-#   inputDB = "sqlite:" + os.environ['CMSSW_BASE'] + "/src/SusyAnaTools/SkimsAUX/data/PY8_RunIISpring15DR74_bx25_MC.db"
+   inputDB = "sqlite_file:" + os.environ['CMSSW_BASE'] + "/src/SusyAnaTools/SkimsAUX/data/PY8_RunIISpring15DR74_bx25_MC.db"
 #   print inputDB
 
    process.load("CondCore.DBCommon.CondDBCommon_cfi")
@@ -273,8 +273,8 @@ if options.specialFix == "JEC" and options.cmsswVersion == "74X":
       ## note that the tag name is specific for the particular sqlite file 
       ),
       # from page 19 on slides https://indico.cern.ch/event/405326/contribution/2/attachments/811719/1112498/Pythia8.pdf
-      connect = cms.string('sqlite:PY8_RunIISpring15DR74_bx25_MC.db')
-#      connect = cms.string(inputDB)
+#      connect = cms.string('sqlite:PY8_RunIISpring15DR74_bx25_MC.db')
+      connect = cms.string(inputDB)
      # uncomment above tag lines and this comment to use MC JEC
    )
 ## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
