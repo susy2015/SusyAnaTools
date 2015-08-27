@@ -192,6 +192,9 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByLabel(pfCandSrc_, pfCandHandle_);
   if( pfCandHandle_.isValid() ){
      for(unsigned int ip=0; ip<pfCandHandle_->size(); ip++){
+
+        if( std::isnan((*pfCandHandle_)[ip].pt()) ) continue;
+
         TLorentzVector perLVec;
         perLVec.SetPtEtaPhiE( (*pfCandHandle_)[ip].pt(), (*pfCandHandle_)[ip].eta(), (*pfCandHandle_)[ip].phi(), (*pfCandHandle_)[ip].energy() );
 

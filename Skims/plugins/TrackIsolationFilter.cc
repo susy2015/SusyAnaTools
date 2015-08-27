@@ -136,6 +136,8 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
            pfcands_chg->push_back(pf_it->charge());
         }
 
+        if( std::isnan(pf_it->pt()) ) continue;
+
         if( pf_it->pt() < minPt_ ) continue;
 
         //-------------------------------------------------------------------------------------
