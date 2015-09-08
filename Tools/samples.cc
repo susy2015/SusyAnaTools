@@ -28,7 +28,7 @@ namespace AnaSamples
 
     SampleSet::SampleSet(std::string fDir) : fDir_(fDir)
     {
-        static const std::string fileDir2 = "/eos/uscms/store/user/pastika/PHYS14_720_May19_2015_v1/";
+        //static const std::string fileDir2 = "/eos/uscms/store/user/pastika/PHYS14_720_May19_2015_v1/";
 
             //backgrounds
         sampleSet_["TTbar"]                   = FileSummary(fDir_ + "TTJets_MSDecaysCKM_madgraph-tauola.txt", "stopTreeMaker/AUX", 806.1,  lumi, 25446993, 1.0, kGreen);
@@ -37,17 +37,17 @@ namespace AnaSamples
         sampleSet_["WJetsToLNu_HT_200to400"]  = FileSummary(fDir_ + "WJetsToLNu_HT-200to400_madgraph-tauola.txt", "stopTreeMaker/AUX", 580.1,  lumi, 4936077,  1.0, kMagenta+1);
         sampleSet_["WJetsToLNu_HT_100to200"]  = FileSummary(fDir_ + "WJetsToLNu_HT-100to200_madgraph-tauola.txt", "stopTreeMaker/AUX", 2235.0, lumi, 5262265,  1.0, kMagenta+1);
 
-        sampleSet_["ZJetsToNuNu_HT_600toInf"] = FileSummary(fDir_ + "ZJetsToNuNu_HT-600toInf_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 5.224,  lumi, 4463806, 1.0,  kTeal+4);
-        sampleSet_["ZJetsToNuNu_HT_400to600"] = FileSummary(fDir_ + "ZJetsToNuNu_HT-400to600_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 15.23,  lumi, 4433784, 1.0,  kTeal+4);
+        sampleSet_["ZJetsToNuNu_HT_600toInf"] = FileSummary(fDir_ + "ZJetsToNuNu_HT-600toInf_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 5.224,  lumi, 4472528, 1.0,  kTeal+4);
+        sampleSet_["ZJetsToNuNu_HT_400to600"] = FileSummary(fDir_ + "ZJetsToNuNu_HT-400to600_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 15.23,  lumi, 4453366, 1.0,  kTeal+4);
         sampleSet_["ZJetsToNuNu_HT_200to400"] = FileSummary(fDir_ + "ZJetsToNuNu_HT-200to400_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 128.0,  lumi, 4546470, 1.0,  kTeal+4);
         sampleSet_["ZJetsToNuNu_HT_100to200"] = FileSummary(fDir_ + "ZJetsToNuNu_HT-100to200_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 473.2,  lumi, 4986424, 1.0,  kTeal+4);
 
         sampleSet_["IncDYSampleSet"]                   = FileSummary(fDir_ + "DYJetsToLL_M-50_13TeV-madgraph-pythia8.txt", "stopTreeMaker/AUX", 4746,  lumi, 2829164, 1.0,  kYellow-4);
 
-        sampleSet_["DYJetsToLL_HT_600toInf"]  = FileSummary(fileDir2 + "DYJetsToLL_M-50_HT-600toInf_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 2.767,  lumi, 4493574, 1.0,  kYellow-7);
-        sampleSet_["DYJetsToLL_HT_400to600"]  = FileSummary(fileDir2 + "DYJetsToLL_M-50_HT-400to600_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 8.313,  lumi, 4931372, 1.0,  kYellow-7);
-        sampleSet_["DYJetsToLL_HT_200to400"]  = FileSummary(fileDir2 + "DYJetsToLL_M-50_HT-200to400_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 66.34,  lumi, 4666496, 1.0,  kYellow-7);
-        sampleSet_["DYJetsToLL_HT_100to200"]  = FileSummary(fileDir2 + "DYJetsToLL_M-50_HT-100to200_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 246.8,  lumi, 4054159, 1.0,  kYellow-7);
+        sampleSet_["DYJetsToLL_HT_600toInf"]  = FileSummary(fDir_ + "DYJetsToLL_M-50_HT-600toInf_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 2.767,  lumi, 4493574, 1.0,  kYellow-7);
+        sampleSet_["DYJetsToLL_HT_400to600"]  = FileSummary(fDir_ + "DYJetsToLL_M-50_HT-400to600_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 8.313,  lumi, 4782178, 1.0,  kYellow-7);
+        sampleSet_["DYJetsToLL_HT_200to400"]  = FileSummary(fDir_ + "DYJetsToLL_M-50_HT-200to400_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 66.34,  lumi, 4666496, 1.0,  kYellow-7);
+        sampleSet_["DYJetsToLL_HT_100to200"]  = FileSummary(fDir_ + "DYJetsToLL_M-50_HT-100to200_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 246.8,  lumi, 4054159, 1.0,  kYellow-7);
 
         sampleSet_["QCD_HT_1000toInf"]        = FileSummary(fDir_ + "QCD_HT_1000ToInf_13TeV-madgraph.txt", "stopTreeMaker/AUX", 769.7,  lumi, 1464453, 1.0,  kBlue);
         sampleSet_["QCD_HT_500to1000"]        = FileSummary(fDir_ + "QCD_HT_500To1000_13TeV-madgraph.txt", "stopTreeMaker/AUX", 26740,  lumi, 4063345, 1.0,  kBlue);

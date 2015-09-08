@@ -239,6 +239,21 @@ namespace stopFunctions
             }
         }
 
+        void setJetCollection(std::string jetVecLabel)
+        {
+            jetVecLabel_ = jetVecLabel;
+        }
+
+        void setBTagCollection(std::string bTagLabel)
+        {
+            bTagLabel_ = bTagLabel;
+        }
+
+        void setForceDr(bool forceDr)
+        {
+            forceDr_ = forceDr;
+        }
+
         void setDisable(bool disable)
         {
             disable_ = disable;
@@ -263,6 +278,9 @@ namespace stopFunctions
         {
             setMuonIso("rel");
             setElecIso("rel");
+            setJetCollection("jetsLVec");
+            setBTagCollection("recoJetsBtag_0");
+            setForceDr(false);
             setRemove(true);
             setDisable(false);
             setElecPtThresh(0.0);
@@ -270,13 +288,14 @@ namespace stopFunctions
         }
         
     private:
-        std::string muIsoStr_, elecIsoStr_;
+        std::string muIsoStr_, elecIsoStr_, jetVecLabel_, bTagLabel_;
         AnaConsts::IsoAccRec muIsoReq_;
         AnaConsts::ElecIsoAccRec elecIsoReq_;
         double elecPtThresh_;
         double muonPtThresh_;
         bool remove_;
         bool disable_;
+        bool forceDr_;
 
         int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax)
         {
@@ -286,7 +305,7 @@ namespace stopFunctions
                 //If muon matching to PF candidate has failed, use dR matching as fallback
                 match = AnaFunctions::jetLepdRMatch(lep, jetsLVec, jldRMax);
             }
-
+            
             if(match >= 0)
             {
                 if(remove_)
@@ -304,12 +323,12 @@ namespace stopFunctions
 
         void internalCleanJets(NTupleReader& tr)
         {
-            const std::vector<TLorentzVector>& jetsLVec         = tr.getVec<TLorentzVector>("jetsLVec");
+            const std::vector<TLorentzVector>& jetsLVec         = tr.getVec<TLorentzVector>(jetVecLabel_);
             const std::vector<TLorentzVector>& elesLVec         = tr.getVec<TLorentzVector>("elesLVec");
             const std::vector<TLorentzVector>& muonsLVec        = tr.getVec<TLorentzVector>("muonsLVec");
             const std::vector<double>&         elesIso          = tr.getVec<double>(elecIsoStr_);
             const std::vector<double>&         muonsIso         = tr.getVec<double>(muIsoStr_);
-            const std::vector<double>&         recoJetsBtag_0   = tr.getVec<double>("recoJetsBtag_0");
+            const std::vector<double>&         recoJetsBtag_0   = tr.getVec<double>(bTagLabel_);
             const std::vector<int>&            muMatchedJetIdx  = tr.getVec<int>("muMatchedJetIdx");
             const std::vector<int>&            eleMatchedJetIdx = tr.getVec<int>("eleMatchedJetIdx");
             const std::vector<unsigned int>&   elesisEB         = tr.getVec<unsigned int>("elesisEB");
@@ -353,14 +372,16 @@ namespace stopFunctions
                 {
                     if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_) && muonsLVec[iM].Pt() > muonPtThresh_) continue;
 
-                    int match = cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
+                    if(forceDr_) cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
+                    else         cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
                 }
 
                 for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
                 {
                     if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) continue;
 
-                    cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
+                    if(forceDr_) cleanLeptonFromJet(elesLVec[iE],                   -1, jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
+                    else         cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
                 }
             }
 
