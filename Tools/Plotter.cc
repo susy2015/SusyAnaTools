@@ -399,6 +399,11 @@ void Plotter::saveHists()
     }
 }
 
+void Plotter::setPlotDir(std::string plotDir)
+{
+    plotDir_ = plotDir + "/";
+}
+
 void Plotter::plot()
 {
     //gROOT->SetStyle("Plain");
@@ -690,8 +695,8 @@ void Plotter::plot()
         mark.DrawLatex(1 - gPad->GetRightMargin(), 0.95, lumistamp);
 
         fixOverlay();
-        c->Print((hist.name+".png").c_str());
-        c->Print((hist.name+".pdf").c_str());
+        c->Print((plotDir_ + hist.name+".png").c_str());
+        c->Print((plotDir_ + hist.name+".pdf").c_str());
 
         delete leg;
         delete dummy;
