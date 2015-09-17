@@ -471,7 +471,24 @@ void Plotter::plot()
         char legEntry[128];
         for(auto& hvec : hist.hists)
         {
-            if(hvec.type.compare("single") == 0)
+            if(hvec.type.compare("data") == 0)
+            {
+                if(hvec.hcsVec.size())
+                {
+                    hvec.hcsVec.front()->h->SetLineColor(kBlack);
+                    hvec.hcsVec.front()->h->SetLineWidth(3);
+                    hvec.hcsVec.front()->h->SetMarkerColor(kBlack);
+                    hvec.hcsVec.front()->h->SetMarkerStyle(22);
+                    double integral = hvec.hcsVec.front()->h->Integral(0, hvec.hcsVec.front()->h->GetNbinsX() + 1);
+                    if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", hvec.hcsVec.front()->label.c_str(), integral);
+                    else if(integral < 1.0e5) sprintf(legEntry, "%s (%0.0lf)", hvec.hcsVec.front()->label.c_str(), integral);
+                    else                      sprintf(legEntry, "%s (%0.2e)",  hvec.hcsVec.front()->label.c_str(), integral);
+                    leg->AddEntry(hvec.hcsVec.front()->h, legEntry);
+                    if(hist.isNorm) hvec.hcsVec.front()->h->Scale(hist.fhist()->Integral()/hvec.hcsVec.front()->h->Integral());
+                    smartMax(hvec.hcsVec.front()->h, leg, static_cast<TPad*>(gPad), min, max, lmax);
+                }
+            }
+            else if(hvec.type.compare("single") == 0)
             {
                 for(auto& h : hvec.hcsVec)
                 {
@@ -622,7 +639,7 @@ void Plotter::plot()
             {
                 for(auto& hvec : hist.hists)
                 {
-                    if(hvec.type.compare("single") == 0)
+                    if(hvec.type.compare("single") == 0 || hvec.type.compare("data") == 0)
                     {
                         if(iHist == hist.ratio.first)  h1 = static_cast<TH1*>(hvec.hcsVec.front()->h->Clone());
                         if(iHist == hist.ratio.second) h2 = static_cast<TH1*>(hvec.hcsVec.front()->h->Clone());
@@ -630,7 +647,7 @@ void Plotter::plot()
                     else if(hvec.type.compare("stack") == 0)
                     {
                         bool firstHIS = true;
-                        TH1* thstacksucks;
+                        TH1* thstacksucks = 0;
                         if(iHist == hist.ratio.first || iHist == hist.ratio.second)
                         {
                             for(auto& h : hvec.hcsVec)
