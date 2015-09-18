@@ -258,6 +258,7 @@ void Plotter::createHistsFromTuple()
 
             while(tr.getNextEvent())
             {
+                if(tr.getEvtNum() %1000 == 0) std::cout << "Event #: " << tr.getEvtNum() << std::endl;
                 for(auto& hist : histsToFill)
                 {
                     // tree level dynamical cuts are applied here

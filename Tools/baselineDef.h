@@ -158,10 +158,10 @@ public:
 
         tr.registerDerivedVar("nTopCandSortedCnt" + spec, nTopCandSortedCnt);
 
-        tr.registerDerivedVar("best_lept_brJet_MT" + spec, type3Ptr->best_lept_brJet_MT);
-        tr.registerDerivedVar("best_had_brJet_MT" + spec, type3Ptr->best_had_brJet_MT);
+        tr.registerDerivedVar("best_lept_brJet_MT" + spec,    type3Ptr->best_lept_brJet_MT);
+        tr.registerDerivedVar("best_had_brJet_MT" + spec,     type3Ptr->best_had_brJet_MT);
         tr.registerDerivedVar("best_had_brJet_mTcomb" + spec, type3Ptr->best_had_brJet_mTcomb);
-        tr.registerDerivedVar("best_had_brJet_MT2" + spec, type3Ptr->best_had_brJet_MT2);
+        tr.registerDerivedVar("best_had_brJet_MT2" + spec,    type3Ptr->best_had_brJet_MT2);
 
         double j1pt = -1.0, j2pt = -1.0, j3pt = -1.0;
         if(tr.getVec<TLorentzVector>(jetVecLabel).size() >= 1) j1pt = tr.getVec<TLorentzVector>(jetVecLabel)[0].Pt();
@@ -274,6 +274,13 @@ namespace stopFunctions
             muonPtThresh_ = minPt;
         }
 
+        //This option is used to clean up to 1 jet in the minDr cone around the muon if the jet is lower pt than the muon
+        //It is designed only for use with the z->inv background to remove muon related radiation from the event
+        void setSoftClean(bool softClean)
+        {
+            softClean_ = softClean;
+        }
+
         CleanJets()
         {
             setMuonIso("rel");
@@ -285,6 +292,7 @@ namespace stopFunctions
             setDisable(false);
             setElecPtThresh(0.0);
             setMuonPtThresh(0.0);
+            setSoftClean(false);
         }
         
     private:
@@ -296,8 +304,9 @@ namespace stopFunctions
         bool remove_;
         bool disable_;
         bool forceDr_;
+        bool softClean_;
 
-        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax)
+        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const bool softClean = false)
         {
             int match = lepMatchedJetIdx;
             if(match < 0)
@@ -308,7 +317,7 @@ namespace stopFunctions
             
             if(match >= 0)
             {
-                if(remove_)
+                if(remove_ || (softClean && jetsLVec[match].Pt() < lep.Pt()) )
                 {
                     keepJet[match] = false;
                 }
@@ -372,8 +381,8 @@ namespace stopFunctions
                 {
                     if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_) && muonsLVec[iM].Pt() > muonPtThresh_) continue;
 
-                    if(forceDr_) cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
-                    else         cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
+                    if(forceDr_) cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax, softClean_);
+                    else         cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax, softClean_);
                 }
 
                 for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
@@ -393,12 +402,10 @@ namespace stopFunctions
             const bool& passMuZinvSel = tr.getVar<bool>("passMuZinvSel");
             for(; iJet != cleanJetVec->end() && iBTag != cleanJetBTag->end() && iKeep != keepJetPFCandMatch.end() && iOrigJet != jetsLVec.end(); ++iKeep, ++iOrigJet)
             {
-                //if(passMuZinvSel && fabs(iJet->Pt() - iOrigJet->Pt()) > 100 && iJet->Pt() > 300) std::cout << "HELLO TEHRE!!! \t" << (*iOrigJet - *iJet).Pt() << "\t" << iOrigJet->Pt() << "\t" << run << "\t" << lumi << "\t" << event << std::endl;
+                //double deltaR = 0.0;
+                //if(!remove_) deltaR = ROOT::Math::VectorUtil::DeltaR(*iJet, *iOrigJet);
 
-                double deltaR = 0.0;
-                if(!remove_) deltaR = ROOT::Math::VectorUtil::DeltaR(*iJet, *iOrigJet);
-
-                if((deltaR > 0.4) || !(*iKeep))
+                if(/*(deltaR > 0.4) || */!(*iKeep))
                 {
                     removedJetVec->push_back(*iOrigJet);
                     iJet = cleanJetVec->erase(iJet);
