@@ -479,14 +479,16 @@ void Plotter::plot()
                     hvec.hcsVec.front()->h->SetLineColor(kBlack);
                     hvec.hcsVec.front()->h->SetLineWidth(3);
                     hvec.hcsVec.front()->h->SetMarkerColor(kBlack);
-                    hvec.hcsVec.front()->h->SetMarkerStyle(22);
+                    hvec.hcsVec.front()->h->SetMarkerStyle(20);
                     double integral = hvec.hcsVec.front()->h->Integral(0, hvec.hcsVec.front()->h->GetNbinsX() + 1);
                     if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", hvec.hcsVec.front()->label.c_str(), integral);
                     else if(integral < 1.0e5) sprintf(legEntry, "%s (%0.0lf)", hvec.hcsVec.front()->label.c_str(), integral);
                     else                      sprintf(legEntry, "%s (%0.2e)",  hvec.hcsVec.front()->label.c_str(), integral);
-                    leg->AddEntry(hvec.hcsVec.front()->h, legEntry);
+                    leg->AddEntry(hvec.hcsVec.front()->h, legEntry, "PE");
                     if(hist.isNorm) hvec.hcsVec.front()->h->Scale(hist.fhist()->Integral()/hvec.hcsVec.front()->h->Integral());
                     smartMax(hvec.hcsVec.front()->h, leg, static_cast<TPad*>(gPad), min, max, lmax);
+
+                    hvec.h = static_cast<TNamed*>(hvec.hcsVec.front()->h->Clone());
                 }
             }
             else if(hvec.type.compare("single") == 0)
@@ -592,8 +594,9 @@ void Plotter::plot()
             }
             else
             {
-                if(hvec.type.compare("ratio") == 0) hvec.h->Draw("hist same E1");
-                else                                hvec.h->Draw("hist same");
+                if(     hvec.type.compare("ratio") == 0) hvec.h->Draw("hist same E1");
+                else if(hvec.type.compare("data") == 0)  {hvec.h->Draw("same"); std::cout << "HI THERE!" << std::endl;}
+                else                                     hvec.h->Draw("hist same");
             }
         }
         leg->Draw();

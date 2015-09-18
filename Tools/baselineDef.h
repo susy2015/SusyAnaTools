@@ -281,6 +281,8 @@ namespace stopFunctions
             softClean_ = softClean;
         }
 
+        //NOTE!!! Must add Hadron and EM fraction vectors here
+
         CleanJets()
         {
             setMuonIso("rel");
