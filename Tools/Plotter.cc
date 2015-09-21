@@ -258,6 +258,7 @@ void Plotter::createHistsFromTuple()
 
             while(tr.getNextEvent())
             {
+                if(tr.getEvtNum() %1000 == 0) std::cout << "Event #: " << tr.getEvtNum() << std::endl;
                 for(auto& hist : histsToFill)
                 {
                     // tree level dynamical cuts are applied here
@@ -399,6 +400,11 @@ void Plotter::saveHists()
     }
 }
 
+void Plotter::setPlotDir(std::string plotDir)
+{
+    plotDir_ = plotDir + "/";
+}
+
 void Plotter::plot()
 {
     //gROOT->SetStyle("Plain");
@@ -466,7 +472,26 @@ void Plotter::plot()
         char legEntry[128];
         for(auto& hvec : hist.hists)
         {
-            if(hvec.type.compare("single") == 0)
+            if(hvec.type.compare("data") == 0)
+            {
+                if(hvec.hcsVec.size())
+                {
+                    hvec.hcsVec.front()->h->SetLineColor(kBlack);
+                    hvec.hcsVec.front()->h->SetLineWidth(3);
+                    hvec.hcsVec.front()->h->SetMarkerColor(kBlack);
+                    hvec.hcsVec.front()->h->SetMarkerStyle(20);
+                    double integral = hvec.hcsVec.front()->h->Integral(0, hvec.hcsVec.front()->h->GetNbinsX() + 1);
+                    if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", hvec.hcsVec.front()->label.c_str(), integral);
+                    else if(integral < 1.0e5) sprintf(legEntry, "%s (%0.0lf)", hvec.hcsVec.front()->label.c_str(), integral);
+                    else                      sprintf(legEntry, "%s (%0.2e)",  hvec.hcsVec.front()->label.c_str(), integral);
+                    leg->AddEntry(hvec.hcsVec.front()->h, legEntry, "PE");
+                    if(hist.isNorm) hvec.hcsVec.front()->h->Scale(hist.fhist()->Integral()/hvec.hcsVec.front()->h->Integral());
+                    smartMax(hvec.hcsVec.front()->h, leg, static_cast<TPad*>(gPad), min, max, lmax);
+
+                    hvec.h = static_cast<TNamed*>(hvec.hcsVec.front()->h->Clone());
+                }
+            }
+            else if(hvec.type.compare("single") == 0)
             {
                 for(auto& h : hvec.hcsVec)
                 {
@@ -569,8 +594,9 @@ void Plotter::plot()
             }
             else
             {
-                if(hvec.type.compare("ratio") == 0) hvec.h->Draw("hist same E1");
-                else                                hvec.h->Draw("hist same");
+                if(     hvec.type.compare("ratio") == 0) hvec.h->Draw("hist same E1");
+                else if(hvec.type.compare("data") == 0)  hvec.h->Draw("same");
+                else                                     hvec.h->Draw("hist same");
             }
         }
         leg->Draw();
@@ -617,7 +643,7 @@ void Plotter::plot()
             {
                 for(auto& hvec : hist.hists)
                 {
-                    if(hvec.type.compare("single") == 0)
+                    if(hvec.type.compare("single") == 0 || hvec.type.compare("data") == 0)
                     {
                         if(iHist == hist.ratio.first)  h1 = static_cast<TH1*>(hvec.hcsVec.front()->h->Clone());
                         if(iHist == hist.ratio.second) h2 = static_cast<TH1*>(hvec.hcsVec.front()->h->Clone());
@@ -625,7 +651,7 @@ void Plotter::plot()
                     else if(hvec.type.compare("stack") == 0)
                     {
                         bool firstHIS = true;
-                        TH1* thstacksucks;
+                        TH1* thstacksucks = 0;
                         if(iHist == hist.ratio.first || iHist == hist.ratio.second)
                         {
                             for(auto& h : hvec.hcsVec)
@@ -690,8 +716,8 @@ void Plotter::plot()
         mark.DrawLatex(1 - gPad->GetRightMargin(), 0.95, lumistamp);
 
         fixOverlay();
-        c->Print((hist.name+".png").c_str());
-        c->Print((hist.name+".pdf").c_str());
+        c->Print((plotDir_ + hist.name+".png").c_str());
+        c->Print((plotDir_ + hist.name+".pdf").c_str());
 
         delete leg;
         delete dummy;

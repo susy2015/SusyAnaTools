@@ -123,12 +123,15 @@ public:
     Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple = true, const std::string ofname = "", int nFile = -1, int startFile = 0);
     ~Plotter();
 
+    void setPlotDir(std::string plotDir);
+
     void plot();
     void saveHists();
 
 private:
     std::vector<HistSummary> hists_;
     std::set<AnaSamples::FileSummary> trees_;
+    std::string plotDir_;
     TFile *fout_;
     bool readFromTuple_;
     const int nFile_;
