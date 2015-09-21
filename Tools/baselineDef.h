@@ -382,9 +382,9 @@ namespace stopFunctions
             std::vector<double>* cleanChargedEMEFrac        = new std::vector<double>(chargedEmEnergyFrac);
 
             std::vector<TLorentzVector>* removedJetVec      = new std::vector<TLorentzVector>();
-            std::vector<double>* removedChargedHadEFrac       = new std::vector<double>();
-            std::vector<double>* removedNeutralEMEFrac        = new std::vector<double>();
-            std::vector<double>* removedChargedEMEFrac        = new std::vector<double>();
+            std::vector<double>* removedChargedHadEFrac     = new std::vector<double>();
+            std::vector<double>* removedNeutralEMEFrac      = new std::vector<double>();
+            std::vector<double>* removedChargedEMEFrac      = new std::vector<double>();
 
             const double jldRMax = 0.15;
 
@@ -469,9 +469,9 @@ namespace stopFunctions
             tr.registerDerivedVec("cleanChargedHadEFrac", cleanChargedHadEFrac);
             tr.registerDerivedVec("cleanNeutralEMEFrac", cleanNeutralEMEFrac);
             tr.registerDerivedVec("cleanChargedEMEFrac", cleanChargedEMEFrac);
-            tr.registerDerivedVec("removedChargedHadEFrac", cleanChargedHadEFrac);
-            tr.registerDerivedVec("removedNeutralEMEFrac", cleanNeutralEMEFrac);
-            tr.registerDerivedVec("removedChargedEMEFrac", cleanChargedEMEFrac);
+            tr.registerDerivedVec("removedChargedHadEFrac", removedChargedHadEFrac);
+            tr.registerDerivedVec("removedNeutralEMEFrac",  removedNeutralEMEFrac);
+            tr.registerDerivedVec("removedChargedEMEFrac",  removedChargedEMEFrac);
         }
 
     } cjh;
