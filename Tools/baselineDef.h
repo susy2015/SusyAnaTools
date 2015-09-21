@@ -364,7 +364,10 @@ namespace stopFunctions
                || elesLVec.size() != elesisEB.size()
                || muonsLVec.size() != muonsIso.size()
                || muonsLVec.size() != muMatchedJetIdx.size()
-               || jetsLVec.size() != recoJetsBtag_0.size())
+               || jetsLVec.size() != recoJetsBtag_0.size()
+               || jetsLVec.size() != chargedHadronEnergyFrac.size()
+               || jetsLVec.size() != neutralEmEnergyFrac.size()
+               || jetsLVec.size() != chargedEmEnergyFrac.size())
             {
                 std::cout << "MISMATCH IN VECTOR SIZE!!!!! Aborting jet cleaning algorithm!!!!!!" << std::endl;
                 return;
@@ -379,6 +382,9 @@ namespace stopFunctions
             std::vector<double>* cleanChargedEMEFrac        = new std::vector<double>(chargedEmEnergyFrac);
 
             std::vector<TLorentzVector>* removedJetVec      = new std::vector<TLorentzVector>();
+            std::vector<double>* removedChargedHadEFrac       = new std::vector<double>();
+            std::vector<double>* removedNeutralEMEFrac        = new std::vector<double>();
+            std::vector<double>* removedChargedEMEFrac        = new std::vector<double>();
 
             const double jldRMax = 0.15;
 
@@ -424,6 +430,9 @@ namespace stopFunctions
                 if(!(*iKeep))
                 {
                     removedJetVec->push_back(*iOrigJet);
+                    removedChargedHadEFrac->push_back(*iCHF);
+                    removedNeutralEMEFrac->push_back(*iNEMF);
+                    removedChargedEMEFrac->push_back(*iCEMF);
                     iJet = cleanJetVec->erase(iJet);
                     iBTag = cleanJetBTag->erase(iBTag);
                     iCHF = cleanChargedHadEFrac->erase(iCHF);
@@ -460,6 +469,9 @@ namespace stopFunctions
             tr.registerDerivedVec("cleanChargedHadEFrac", cleanChargedHadEFrac);
             tr.registerDerivedVec("cleanNeutralEMEFrac", cleanNeutralEMEFrac);
             tr.registerDerivedVec("cleanChargedEMEFrac", cleanChargedEMEFrac);
+            tr.registerDerivedVec("removedChargedHadEFrac", cleanChargedHadEFrac);
+            tr.registerDerivedVec("removedNeutralEMEFrac", cleanNeutralEMEFrac);
+            tr.registerDerivedVec("removedChargedEMEFrac", cleanChargedEMEFrac);
         }
 
     } cjh;

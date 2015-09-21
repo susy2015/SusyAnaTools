@@ -595,7 +595,7 @@ void Plotter::plot()
             else
             {
                 if(     hvec.type.compare("ratio") == 0) hvec.h->Draw("hist same E1");
-                else if(hvec.type.compare("data") == 0)  {hvec.h->Draw("same"); std::cout << "HI THERE!" << std::endl;}
+                else if(hvec.type.compare("data") == 0)  hvec.h->Draw("same");
                 else                                     hvec.h->Draw("hist same");
             }
         }
