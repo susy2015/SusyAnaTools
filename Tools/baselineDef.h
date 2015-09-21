@@ -216,7 +216,7 @@ namespace stopFunctions
             }
         }
 
-        void setElecIso(const std::string elecIsoFlag) 
+        void setElecIso(const std::string elecIsoFlag)
         {
             if(elecIsoFlag.compare("mini") == 0)
             {
@@ -247,6 +247,13 @@ namespace stopFunctions
         void setBTagCollection(std::string bTagLabel)
         {
             bTagLabel_ = bTagLabel;
+        }
+
+        void setEnergyFractionCollections(std::string chargedEMfrac, std::string neutralEMfrac, std::string chargedHadfrac)
+        {
+            chargedEMFracLabel_ = chargedEMfrac;
+            neutralEMFracLabel_ = neutralEMfrac;
+            chargedHadFracLabel_ = chargedHadfrac;
         }
 
         void setForceDr(bool forceDr)
@@ -289,6 +296,7 @@ namespace stopFunctions
             setElecIso("rel");
             setJetCollection("jetsLVec");
             setBTagCollection("recoJetsBtag_0");
+            setEnergyFractionCollections("recoJetschargedHadronEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedEmEnergyFraction");    
             setForceDr(false);
             setRemove(true);
             setDisable(false);
@@ -298,7 +306,7 @@ namespace stopFunctions
         }
         
     private:
-        std::string muIsoStr_, elecIsoStr_, jetVecLabel_, bTagLabel_;
+        std::string muIsoStr_, elecIsoStr_, jetVecLabel_, bTagLabel_, chargedEMFracLabel_, neutralEMFracLabel_, chargedHadFracLabel_;
         AnaConsts::IsoAccRec muIsoReq_;
         AnaConsts::ElecIsoAccRec elecIsoReq_;
         double elecPtThresh_;
@@ -340,6 +348,9 @@ namespace stopFunctions
             const std::vector<double>&         elesIso          = tr.getVec<double>(elecIsoStr_);
             const std::vector<double>&         muonsIso         = tr.getVec<double>(muIsoStr_);
             const std::vector<double>&         recoJetsBtag_0   = tr.getVec<double>(bTagLabel_);
+            const std::vector<double>& chargedHadronEnergyFrac  = tr.getVec<double>(chargedHadFracLabel_);
+            const std::vector<double>&     neutralEmEnergyFrac  = tr.getVec<double>(neutralEMFracLabel_);
+            const std::vector<double>&     chargedEmEnergyFrac  = tr.getVec<double>(chargedEMFracLabel_);
             const std::vector<int>&            muMatchedJetIdx  = tr.getVec<int>("muMatchedJetIdx");
             const std::vector<int>&            eleMatchedJetIdx = tr.getVec<int>("eleMatchedJetIdx");
             const std::vector<unsigned int>&   elesisEB         = tr.getVec<unsigned int>("elesisEB");
@@ -363,6 +374,9 @@ namespace stopFunctions
             std::vector<double>* cleanJetBTag               = new std::vector<double>(recoJetsBtag_0);
             std::vector<TLorentzVector>* cleanJetpt30ArrVec = new std::vector<TLorentzVector>();
             std::vector<double>* cleanJetpt30ArrBTag        = new std::vector<double>;
+            std::vector<double>* cleanChargedHadEFrac       = new std::vector<double>(chargedHadronEnergyFrac);
+            std::vector<double>* cleanNeutralEMEFrac        = new std::vector<double>(neutralEmEnergyFrac);
+            std::vector<double>* cleanChargedEMEFrac        = new std::vector<double>(chargedEmEnergyFrac);
 
             std::vector<TLorentzVector>* removedJetVec      = new std::vector<TLorentzVector>();
 
@@ -401,17 +415,20 @@ namespace stopFunctions
             auto iOrigJet = jetsLVec.begin();
             auto iBTag = cleanJetBTag->begin();
             auto iKeep = keepJetPFCandMatch.begin();
+            auto iCHF = cleanChargedHadEFrac->begin();
+            auto iNEMF = cleanNeutralEMEFrac->begin();
+            auto iCEMF = cleanChargedEMEFrac->begin();
             const bool& passMuZinvSel = tr.getVar<bool>("passMuZinvSel");
             for(; iJet != cleanJetVec->end() && iBTag != cleanJetBTag->end() && iKeep != keepJetPFCandMatch.end() && iOrigJet != jetsLVec.end(); ++iKeep, ++iOrigJet)
             {
-                //double deltaR = 0.0;
-                //if(!remove_) deltaR = ROOT::Math::VectorUtil::DeltaR(*iJet, *iOrigJet);
-
-                if(/*(deltaR > 0.4) || */!(*iKeep))
+                if(!(*iKeep))
                 {
                     removedJetVec->push_back(*iOrigJet);
                     iJet = cleanJetVec->erase(iJet);
                     iBTag = cleanJetBTag->erase(iBTag);
+                    iCHF = cleanChargedHadEFrac->erase(iCHF);
+                    iNEMF = cleanNeutralEMEFrac->erase(iNEMF);
+                    iCEMF = cleanChargedEMEFrac->erase(iCEMF);
                     continue;
                 }
 
@@ -426,6 +443,9 @@ namespace stopFunctions
 
                 ++iJet;
                 ++iBTag;
+                ++iCHF;
+                ++iNEMF;
+                ++iCEMF;
             }
 
             tr.registerDerivedVar("nJetsRemoved", static_cast<int>(jetsLVec.size() - jetsKept));
@@ -437,6 +457,9 @@ namespace stopFunctions
             tr.registerDerivedVec("cleanJetBTag", cleanJetBTag);
             tr.registerDerivedVec("cleanJetpt30ArrVec", cleanJetpt30ArrVec);
             tr.registerDerivedVec("cleanJetpt30ArrBTag", cleanJetpt30ArrBTag);
+            tr.registerDerivedVec("cleanChargedHadEFrac", cleanChargedHadEFrac);
+            tr.registerDerivedVec("cleanNeutralEMEFrac", cleanNeutralEMEFrac);
+            tr.registerDerivedVec("cleanChargedEMEFrac", cleanChargedEMEFrac);
         }
 
     } cjh;
