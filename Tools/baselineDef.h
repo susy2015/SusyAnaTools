@@ -28,6 +28,8 @@ public:
         bool passBaseline = true;
         bool passBaselineNoTag = true;
 
+        int bToFake = 1;
+
         std::string jetVecLabel = "jetsLVec";
         std::string CSVVecLabel = "recoJetsBtag_0";
         std::string METLabel    = "met";
@@ -36,19 +38,19 @@ public:
         {
            doIsoTrksVeto = false;
         }
-        if( spec.compare("incZEROtop") == 0)
+        else if( spec.compare("incZEROtop") == 0)
         {
            incZEROtop = true;
         }
-        if( spec.compare("hadtau") == 0)
+        else if( spec.compare("hadtau") == 0)
         {
            doMuonVeto = false;
         }
-        if( spec.compare("lostlept") == 0)
+        else if( spec.compare("lostlept") == 0)
         {
            doMuonVeto = false;
         }
-        if(spec.compare("Zinv") == 0) 
+        else if(spec.compare("Zinv") == 0) 
         {
             jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
             CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
@@ -56,6 +58,26 @@ public:
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
             doIsoTrksVeto = false;
+        }
+        else if(spec.compare("Zinv2b") == 0) 
+        {
+            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
+            CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
+            METLabel    = "cleanMetPt";
+            METPhiLabel = "cleanMetPhi";
+            doMuonVeto  = false;
+            doIsoTrksVeto = false;
+            bToFake = 2;
+        }
+        else if(spec.compare("Zinv3b") == 0) 
+        {
+            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
+            CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
+            METLabel    = "cleanMetPt";
+            METPhiLabel = "cleanMetPhi";
+            doMuonVeto  = false;
+            doIsoTrksVeto = false;
+            bToFake = 3;
         }
 
         // Form TLorentzVector of MET
@@ -115,6 +137,7 @@ public:
         int nTopCandSortedCnt = -1;
 
         if( passnJets && cntNJetsPt30 >= AnaConsts::nJetsSel ){
+            type3Ptr->setCSVToFake(bToFake);
             type3Ptr->processEvent((*jetsLVec_forTagger), (*recoJetsBtag_forTagger), metLVec);
             nTopCandSortedCnt = type3Ptr->nTopCandSortedCnt;
         }
@@ -283,9 +306,9 @@ namespace stopFunctions
 
         //This option is used to clean up to 1 jet in the minDr cone around the muon if the jet is lower pt than the muon
         //It is designed only for use with the z->inv background to remove muon related radiation from the event
-        void setSoftClean(bool softClean)
+        void setPhotoCleanThresh(double photoCleanThresh)
         {
-            softClean_ = softClean;
+            photoCleanThresh_ = photoCleanThresh;
         }
 
         //NOTE!!! Must add Hadron and EM fraction vectors here
@@ -302,7 +325,7 @@ namespace stopFunctions
             setDisable(false);
             setElecPtThresh(0.0);
             setMuonPtThresh(0.0);
-            setSoftClean(false);
+            setPhotoCleanThresh(-999.9);
         }
         
     private:
@@ -311,12 +334,12 @@ namespace stopFunctions
         AnaConsts::ElecIsoAccRec elecIsoReq_;
         double elecPtThresh_;
         double muonPtThresh_;
+        double photoCleanThresh_;
         bool remove_;
         bool disable_;
         bool forceDr_;
-        bool softClean_;
 
-        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const bool softClean = false)
+        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, const std::vector<double>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const double photoCleanThresh = -999.9)
         {
             int match = lepMatchedJetIdx;
             if(match < 0)
@@ -327,7 +350,7 @@ namespace stopFunctions
             
             if(match >= 0)
             {
-                if(remove_ || (softClean && jetsLVec[match].Pt() < lep.Pt()) )
+                if(remove_ || (photoCleanThresh > 0.0 && neutralEmEnergyFrac[match] > photoCleanThresh) )
                 {
                     keepJet[match] = false;
                 }
@@ -403,16 +426,16 @@ namespace stopFunctions
                 {
                     if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_) && muonsLVec[iM].Pt() > muonPtThresh_) continue;
 
-                    if(forceDr_) cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax, softClean_);
-                    else         cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax, softClean_);
+                    if(forceDr_) cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
+                    else         cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
                 }
 
                 for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
                 {
                     if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) continue;
 
-                    if(forceDr_) cleanLeptonFromJet(elesLVec[iE],                   -1, jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
-                    else         cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, keepJetPFCandMatch, cleanJetVec, jldRMax);
+                    if(forceDr_) cleanLeptonFromJet(elesLVec[iE],                   -1, jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
+                    else         cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
                 }
             }
 
