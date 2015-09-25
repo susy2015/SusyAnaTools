@@ -64,7 +64,7 @@ namespace AnaSamples
         sampleSet_["Tbar_tW"]                 = FileSummary(fDir_ + "Tbar_tW-channel-DR_powheg-tauola.txt", "stopTreeMaker/AUX", 35.0,   lumi, 971800,  1.0,  kYellow);
 
 
-        sampleSet_["TTZ"]                     = FileSummary(fDir_ + "nstrobbe/TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8", "stopTreeMaker/AUX", 0.2529, lumi, 398000,  1.0,  kGreen+2);
+        sampleSet_["TTZ"]                     = FileSummary(fDir_ + "nstrobbe/TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.2529, lumi, 398000,  1.0,  kGreen+2);
 
 
         // ----------
