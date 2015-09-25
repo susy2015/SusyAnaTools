@@ -133,13 +133,13 @@ private:
     std::vector<void (*)(NTupleReader&)> functionVec_;
     std::map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
+    //Hack to get around segfault
+    std::map<std::string, void *> inactiveBranchMap_;
 
     void activateBranches();
     void populateBranchList();
     
     void calculateDerivedVariables();
-
-    void clearTuple();
 
     void init();
 
@@ -190,8 +190,8 @@ private:
             return *static_cast<T*>(tuple_iter->second);
         }
 
-        printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
-        return T(0);
+        if(isFirstEvent_) printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
+        return static_cast<T>(0);
     }
 
     template<typename T> inline static void setDerived(const T& retval, void* const loc)

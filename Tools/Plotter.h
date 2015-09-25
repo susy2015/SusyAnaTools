@@ -179,12 +179,15 @@ private:
     {
         const auto& vec = tr.getVec<T>(name.first);
         
-        if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
-        else
+        if(&vec != nullptr)
         {
-            for(auto& obj : vec)
+            if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
+            else
             {
-                vectorFill(h, name, pointerDeref(obj), weight);
+                for(auto& obj : vec)
+                {
+                    vectorFill(h, name, pointerDeref(obj), weight);
+                }
             }
         }
     }
@@ -193,19 +196,22 @@ private:
     {
         const auto& vec = tr.getVec<T>(name.first);
         
-        if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
-        else
+        if(&vec != nullptr)
         {
-            int index = -1;
-            if(name.second.size() > 0 && sscanf(name.second.c_str(), "%d", &index) == 1 && index < vec.size())
-            {
-                vectorFill(h, name, pointerDeref(vec.at(index)), weight);
-            }
+            if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
             else
             {
-                for(auto& obj : vec)
+                int index = -1;
+                if(name.second.size() > 0 && sscanf(name.second.c_str(), "%d", &index) == 1 && index < vec.size())
                 {
-                    vectorFill(h, name, pointerDeref(obj), weight);
+                    vectorFill(h, name, pointerDeref(vec.at(index)), weight);
+                }
+                else
+                {
+                    for(auto& obj : vec)
+                    {
+                        vectorFill(h, name, pointerDeref(obj), weight);
+                    }
                 }
             }
         }
