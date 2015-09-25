@@ -61,6 +61,8 @@ class prodJets : public edm::EDFilter
   edm::InputTag eleLVec_Src_, muLVec_Src_;
   edm::Handle<std::vector<TLorentzVector> > eleLVec_, muLVec_;
 
+  edm::InputTag trksForIsoVetoLVec_Src_, looseisoTrksLVec_Src_;
+  edm::Handle<std::vector<TLorentzVector> > trksForIsoVetoLVec_, looseisoTrksLVec_;
   double deltaRcon_;
 };
 
@@ -94,6 +96,10 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
 
   eleLVec_Src_ = iConfig.getParameter<edm::InputTag>("eleLVec");
   muLVec_Src_ = iConfig.getParameter<edm::InputTag>("muLVec");
+  
+  trksForIsoVetoLVec_Src_ = iConfig.getParameter<edm::InputTag>("trksForIsoVetoLVec");
+  looseisoTrksLVec_Src_ = iConfig.getParameter<edm::InputTag>("looseisoTrksLVec");
+
   deltaRcon_ = iConfig.getUntrackedParameter<double>("deltaRcon", 0.01);
 
   //produces<std::vector<pat::Jet> >("");
@@ -109,6 +115,9 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
 
   produces<std::vector<int> >("muMatchedJetIdx");
   produces<std::vector<int> >("eleMatchedJetIdx");
+
+  produces<std::vector<int> >("trksForIsoVetoMatchedJetIdx");
+  produces<std::vector<int> >("looseisoTrksMatchedJetIdx");
 }
 
 
@@ -138,6 +147,9 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(eleLVec_Src_, eleLVec_);
   iEvent.getByLabel(muLVec_Src_, muLVec_);
 
+  iEvent.getByLabel(trksForIsoVetoLVec_Src_, trksForIsoVetoLVec_);
+  iEvent.getByLabel(looseisoTrksLVec_Src_,looseisoTrksLVec_);
+
   // read in the objects
   edm::Handle< std::vector<reco::Vertex> > vertices;
   iEvent.getByLabel(vtxSrc_, vertices);
@@ -159,6 +171,9 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::auto_ptr<std::vector<int> > muMatchedJetIdx(new std::vector<int>(muLVec_->size(), -1));
   std::auto_ptr<std::vector<int> > eleMatchedJetIdx(new std::vector<int>(eleLVec_->size(), -1));
+
+  std::auto_ptr<std::vector<int> > trksForIsoVetoMatchedJetIdx(new std::vector<int>(trksForIsoVetoLVec_->size(), -1));
+  std::auto_ptr<std::vector<int> > looseisoTrksMatchedJetIdx(new std::vector<int>(looseisoTrksLVec_->size(), -1));
 
   if( !isData_ ){
      int cntJetPassPtCut = 0;
@@ -316,6 +331,35 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
        if( mindReleCon < deltaRcon_ ) (*eleMatchedJetIdx)[ie] = ij;
     }
+
+    for(unsigned int it=0; it < trksForIsoVetoLVec_->size(); it++){
+      double trkEta = trksForIsoVetoLVec_->at(it).Eta(), trkPhi = trksForIsoVetoLVec_->at(it).Phi();
+      double mindRtrkCon = 999.;
+      for (unsigned int iCon = 0; iCon < numConstituents; ++iCon){
+	//          const reco::PFCandidatePtr& constituent = constituents[iCon];
+	const reco::Candidate * constituent = jet.daughter(iCon);
+	const double dRtrkCon = reco::deltaR(constituent->eta(), constituent->phi(), trkEta, trkPhi);
+	if( mindRtrkCon > dRtrkCon ){
+	  mindRtrkCon = dRtrkCon;
+	}
+      }
+      if( mindRtrkCon < deltaRcon_ ) (*trksForIsoVetoMatchedJetIdx)[it] = ij;
+    }
+
+    for(unsigned int ist=0; ist < looseisoTrksLVec_->size(); ist++){
+      double isotrkEta = looseisoTrksLVec_->at(ist).Eta(), isotrkPhi = looseisoTrksLVec_->at(ist).Phi();
+      double mindRisotrkCon = 999.;
+      for (unsigned int iCon = 0; iCon < numConstituents; ++iCon){
+        //          const reco::PFCandidatePtr& constituent = constituents[iCon];
+        const reco::Candidate * constituent = jet.daughter(iCon);
+        const double dRisotrkCon = reco::deltaR(constituent->eta(), constituent->phi(), isotrkEta, isotrkPhi);
+        if( mindRisotrkCon > dRisotrkCon ){
+          mindRisotrkCon = dRisotrkCon;
+        }
+      }
+      if( mindRisotrkCon < deltaRcon_ ) (*looseisoTrksMatchedJetIdx)[ist] = ij;
+    }
+
   }
 
   if( cntJetLowPt ) std::cout<<"WARNING ... NON ZERO ("<<cntJetLowPt<<") number of jets with pt < "<<jetPtCut_miniAOD_<<std::endl;
@@ -337,6 +381,9 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   iEvent.put(muMatchedJetIdx, "muMatchedJetIdx");
   iEvent.put(eleMatchedJetIdx, "eleMatchedJetIdx");
+
+  iEvent.put(trksForIsoVetoMatchedJetIdx, "trksForIsoVetoMatchedJetIdx");
+  iEvent.put(looseisoTrksMatchedJetIdx, "looseisoTrksMatchedJetIdx");
 
   return true;
 }

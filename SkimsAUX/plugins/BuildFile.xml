@@ -23,6 +23,7 @@
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/VertexReco"/>
   <use   name="DataFormats/HepMCCandidate"/>
+  <use   name="lhapdf"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <export>

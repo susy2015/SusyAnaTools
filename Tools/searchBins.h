@@ -227,3 +227,25 @@ void find_BinBoundaries(int inputIdx, searchBinDef & outBinDef){
       }
    }
 }
+
+void print_searchBins(){
+   std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning;
+   build_MT2_met_Binning(out_MT2_met_Binning);
+   printf("%6s        %12s        %12s        %12s        %12s\n", "binIdx", "nTops", "nbJets", "MT2", "met");
+   int preiSR = 0;
+   for(int ib=0; ib<nTotBins; ib++){
+      struct searchBinDef sbDef;
+      find_BinBoundaries(ib, sbDef);
+      if( preiSR != sbDef.idx_SR ){
+         std::cout<<std::endl<<std::endl;
+         preiSR = sbDef.idx_SR;
+      }
+      char tmpnbJetStr[20], tmpnTopStr[20], tmpMT2Str[20], tmpmetStr[20];
+      if( sbDef.top_hi != -1 ) sprintf(tmpnTopStr, "=%1.0f", sbDef.top_lo); else sprintf(tmpnTopStr, ">=%1.0f", sbDef.top_lo);
+      if( sbDef.bJet_hi != -1 ) sprintf(tmpnbJetStr, "=%1.0f", sbDef.bJet_lo); else sprintf(tmpnbJetStr, ">=%1.0f", sbDef.bJet_lo);
+      if( sbDef.MT2_hi != -1 ) sprintf(tmpMT2Str, "[%3.0f, %3.0f)", sbDef.MT2_lo, sbDef.MT2_hi); else sprintf(tmpMT2Str, "[%3.0f, inf)", sbDef.MT2_lo);
+      if( sbDef.met_hi != -1 ) sprintf(tmpmetStr, "[%3.0f, %3.0f)", sbDef.met_lo, sbDef.met_hi); else sprintf(tmpmetStr, "[%3.0f, inf)", sbDef.met_lo);
+      printf("%6d        %12s        %12s        %12s        %12s\n", ib, tmpnTopStr, tmpnbJetStr, tmpMT2Str, tmpmetStr);
+      if( sbDef.met_hi == -1 ) std::cout<<std::endl;
+   }
+}
