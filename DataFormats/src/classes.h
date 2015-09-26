@@ -29,10 +29,10 @@ namespace {
      edm::Wrapper<edm::ValueMap<key_type> >    ky;
 
      std::vector<edm::ProductID> vvpd;
-     std::vector<key_type> vvky;
+//     std::vector<key_type> vvky;
 
      edm::Wrapper<std::vector<edm::ProductID> > wvvpd;
-     edm::Wrapper<std::vector<key_type> > wvvky;
+//     edm::Wrapper<std::vector<key_type> > wvvky;
 
      pat::UserHolder<edm::ProductID> uhpd;
      edm::Wrapper<pat::UserHolder<edm::ProductID> > wuhpd;
@@ -47,8 +47,8 @@ namespace {
      std::vector<std::vector<std::vector<double> > > vvvd;
      edm::Wrapper<std::vector<std::vector<std::vector<double> > > > wvvvd;
 
-     std::vector<std::vector<int> > vvi;
-     edm::Wrapper<std::vector<std::vector<int> > > wvvi;
+//     std::vector<std::vector<int> > vvi;
+//     edm::Wrapper<std::vector<std::vector<int> > > wvvi;
 
      std::vector<std::vector<std::vector<int> > > vvvi;
      edm::Wrapper<std::vector<std::vector<std::vector<int> > > > wvvvi;
