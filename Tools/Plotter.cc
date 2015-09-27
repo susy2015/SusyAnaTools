@@ -36,7 +36,7 @@ const int stackColors[] = {
 };
 const int NSTACKCOLORS = sizeof(stackColors) / sizeof(int);
 
-Plotter::Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple, std::string ofname, int nFile) : nFile_(nFile)
+Plotter::Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple, std::string ofname, int nFile, int startFile) : nFile_(nFile), startFile_(startFile)
 {
     TH1::AddDirectory(false);
 
@@ -227,9 +227,10 @@ void Plotter::createHistsFromTuple()
         //file.addFilesToChain(t);
         std::cout << "Processing file(s): " << file.filePath << std::endl;
 
-        int fileCount = 0;
+        int fileCount = 0, startCount = 0;
         for(const std::string& fname : file.filelist_)
         {
+            if(startCount++ < startFile_) continue;
             if(nFile_ > 0 && fileCount++ >= nFile_) break;
             TFile *f = TFile::Open(fname.c_str());
 
@@ -257,6 +258,7 @@ void Plotter::createHistsFromTuple()
 
             while(tr.getNextEvent())
             {
+                if(tr.getEvtNum() %1000 == 0) std::cout << "Event #: " << tr.getEvtNum() << std::endl;
                 for(auto& hist : histsToFill)
                 {
                     // tree level dynamical cuts are applied here
@@ -398,6 +400,11 @@ void Plotter::saveHists()
     }
 }
 
+void Plotter::setPlotDir(std::string plotDir)
+{
+    plotDir_ = plotDir + "/";
+}
+
 void Plotter::plot()
 {
     //gROOT->SetStyle("Plain");
@@ -465,11 +472,31 @@ void Plotter::plot()
         char legEntry[128];
         for(auto& hvec : hist.hists)
         {
-            if(hvec.type.compare("single") == 0)
+            if(hvec.type.compare("data") == 0)
+            {
+                if(hvec.hcsVec.size())
+                {
+                    hvec.hcsVec.front()->h->SetLineColor(kBlack);
+                    hvec.hcsVec.front()->h->SetLineWidth(3);
+                    hvec.hcsVec.front()->h->SetMarkerColor(kBlack);
+                    hvec.hcsVec.front()->h->SetMarkerStyle(20);
+                    double integral = hvec.hcsVec.front()->h->Integral(0, hvec.hcsVec.front()->h->GetNbinsX() + 1);
+                    if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", hvec.hcsVec.front()->label.c_str(), integral);
+                    else if(integral < 1.0e5) sprintf(legEntry, "%s (%0.0lf)", hvec.hcsVec.front()->label.c_str(), integral);
+                    else                      sprintf(legEntry, "%s (%0.2e)",  hvec.hcsVec.front()->label.c_str(), integral);
+                    leg->AddEntry(hvec.hcsVec.front()->h, legEntry, "PE");
+                    if(hist.isNorm) hvec.hcsVec.front()->h->Scale(hist.fhist()->Integral()/hvec.hcsVec.front()->h->Integral());
+                    smartMax(hvec.hcsVec.front()->h, leg, static_cast<TPad*>(gPad), min, max, lmax);
+
+                    hvec.h = static_cast<TNamed*>(hvec.hcsVec.front()->h->Clone());
+                }
+            }
+            else if(hvec.type.compare("single") == 0)
             {
                 for(auto& h : hvec.hcsVec)
                 {
                     h->h->SetLineColor(colors[iSingle%NCOLORS]);
+                    h->h->SetLineWidth(3);
                     iSingle++;
                     double integral = h->h->Integral(0, h->h->GetNbinsX() + 1);
                     if(     integral < 3.0)   sprintf(legEntry, "%s (%0.2lf)", h->label.c_str(), integral);
@@ -486,6 +513,7 @@ void Plotter::plot()
                 auto hIter = hvec.hcsVec.begin();
                 TH1* hratio = static_cast<TH1*>((*hIter)->h->Clone());
                 hratio->SetLineColor(colors[iRatio%NCOLORS]);
+                hratio->SetLineWidth(3);
                 ++iRatio;
                 hvec.h = static_cast<TNamed*>(hratio);
                 ++hIter;
@@ -551,6 +579,7 @@ void Plotter::plot()
             double legMin = (1.2*max - locMin) * (leg->GetY1() - gPad->GetBottomMargin()) / ((1 - gPad->GetTopMargin()) - gPad->GetBottomMargin());
             if(lmax > legMin) max *= (lmax - locMin)/(legMin - locMin);
             dummy->GetYaxis()->SetRangeUser(0.0, max*1.2);
+            if(hist.hists.front().type.compare("ratio") == 0 && max > 5) dummy->GetYaxis()->SetRangeUser(0.0, 5*1.2);
         }
         dummy->Draw();
 
@@ -565,8 +594,9 @@ void Plotter::plot()
             }
             else
             {
-                if(hvec.type.compare("ratio") == 0) hvec.h->Draw("hist same E1");
-                else                                hvec.h->Draw("hist same");
+                if(     hvec.type.compare("ratio") == 0) hvec.h->Draw("hist same E1");
+                else if(hvec.type.compare("data") == 0)  hvec.h->Draw("same");
+                else                                     hvec.h->Draw("hist same");
             }
         }
         leg->Draw();
@@ -613,7 +643,7 @@ void Plotter::plot()
             {
                 for(auto& hvec : hist.hists)
                 {
-                    if(hvec.type.compare("single") == 0)
+                    if(hvec.type.compare("single") == 0 || hvec.type.compare("data") == 0)
                     {
                         if(iHist == hist.ratio.first)  h1 = static_cast<TH1*>(hvec.hcsVec.front()->h->Clone());
                         if(iHist == hist.ratio.second) h2 = static_cast<TH1*>(hvec.hcsVec.front()->h->Clone());
@@ -621,7 +651,7 @@ void Plotter::plot()
                     else if(hvec.type.compare("stack") == 0)
                     {
                         bool firstHIS = true;
-                        TH1* thstacksucks;
+                        TH1* thstacksucks = 0;
                         if(iHist == hist.ratio.first || iHist == hist.ratio.second)
                         {
                             for(auto& h : hvec.hcsVec)
@@ -676,7 +706,7 @@ void Plotter::plot()
 
         c->cd(1);
         char lumistamp[128];
-        sprintf(lumistamp, "%.1f fb^{-1} at 13 TeV", 5000.0 / 1000.0);
+        sprintf(lumistamp, "%.1f fb^{-1} at 13 TeV", AnaSamples::lumi / 1000.0);
         TLatex mark;
         mark.SetTextSize(0.042 * fontScale);
         mark.SetTextFont(42);
@@ -686,8 +716,8 @@ void Plotter::plot()
         mark.DrawLatex(1 - gPad->GetRightMargin(), 0.95, lumistamp);
 
         fixOverlay();
-        c->Print((hist.name+".png").c_str());
-        c->Print((hist.name+".pdf").c_str());
+        c->Print((plotDir_ + hist.name+".png").c_str());
+        c->Print((plotDir_ + hist.name+".pdf").c_str());
 
         delete leg;
         delete dummy;
@@ -711,10 +741,11 @@ void Plotter::fillHist(TH1 * const h, const std::pair<std::string, std::string>&
         }
         else
         {
-            if     (type.find("double")         != std::string::npos) fillHistFromPrimVec<double>(h, name, tr, weight);
+            if     (type.find("pair")           != std::string::npos) fillHistFromVec<std::pair<double, double> >(h, name, tr, weight);
+            else if(type.find("double")         != std::string::npos) fillHistFromPrimVec<double>(h, name, tr, weight);
             else if(type.find("unsigned int")   != std::string::npos) fillHistFromPrimVec<unsigned int>(h, name, tr, weight);
             else if(type.find("int")            != std::string::npos) fillHistFromPrimVec<int>(h, name, tr, weight);
-            else if(type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector>(h, name, tr, weight);
+            else if(type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector>(h, name, tr, weight);         
         }
     }
     else
@@ -728,7 +759,12 @@ void Plotter::fillHist(TH1 * const h, const std::pair<std::string, std::string>&
 
 template<> inline void Plotter::vectorFill(TH1 * const h, const std::pair<std::string, std::string>& name, const TLorentzVector& obj, const double weight)
 {
-    h->Fill(tlvGetValue(name.second, obj), weight);;
+    h->Fill(tlvGetValue(name.second, obj), weight);
+}
+
+template<> inline void Plotter::vectorFill(TH1 * const h, const std::pair<std::string, std::string>& name, const std::pair<double, double>& obj, const double weight)
+{
+    h->Fill(obj.first, obj.second * weight);
 }
 
 void Plotter::smartMax(const TH1* const h, const TLegend* const l, const TPad* const p, double& gmin, double& gmax, double& gpThreshMax) const

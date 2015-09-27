@@ -28,7 +28,6 @@ void NTupleReader::init()
     nevt_ = 0;
     isUpdateDisabled_ = false;
     isFirstEvent_ = true;
-    clearTuple();
 
     activateBranches();    
 }
@@ -58,6 +57,7 @@ void NTupleReader::populateBranchList()
     TObjArray *lob = tree_->GetListOfBranches();
     TIter next(lob);
     TBranch *branch;
+
     while(branch = (TBranch*)next()) 
     {
         std::string type(branch->GetTitle());
@@ -95,22 +95,12 @@ void NTupleReader::populateBranchList()
 
 bool NTupleReader::getNextEvent()
 {
-    if(nevt_ >= nEvtTotal_)
-    {
-        return false;
-    }
-    //clearTuple();
+    if(nevt_ >= nEvtTotal_) return false;
     int status = tree_->GetEntry(nevt_);
     nevt_++;
-//    if(!isUpdateDisabled_) updateTuple();
+    if(nevt_ >= 2) isFirstEvent_ = false;
     calculateDerivedVariables();
     return status > 0;
-}
-
-void NTupleReader::clearTuple()
-{
-    // Do not initialize vector pointers here!
-    
 }
 
 void NTupleReader::disableUpdate()
@@ -125,8 +115,6 @@ void NTupleReader::calculateDerivedVariables()
     {
         func(*this);
     }
-
-    isFirstEvent_ = false;
 }
 
 void NTupleReader::registerFunction(void (*f)(NTupleReader&))

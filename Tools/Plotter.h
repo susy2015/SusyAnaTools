@@ -120,8 +120,10 @@ public:
         void parseName(std::vector<Plotter::DataCollection>& ns);
     };
 
-    Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple = true, const std::string ofname = "", int nFile = -1);
+    Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple = true, const std::string ofname = "", int nFile = -1, int startFile = 0);
     ~Plotter();
+
+    void setPlotDir(std::string plotDir);
 
     void plot();
     void saveHists();
@@ -129,9 +131,11 @@ public:
 private:
     std::vector<HistSummary> hists_;
     std::set<AnaSamples::FileSummary> trees_;
+    std::string plotDir_;
     TFile *fout_;
     bool readFromTuple_;
     const int nFile_;
+    const int startFile_;
 
     class HistCutSummary
     {
@@ -175,12 +179,15 @@ private:
     {
         const auto& vec = tr.getVec<T>(name.first);
         
-        if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
-        else
+        if(&vec != nullptr)
         {
-            for(auto& obj : vec)
+            if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
+            else
             {
-                vectorFill(h, name, pointerDeref(obj), weight);
+                for(auto& obj : vec)
+                {
+                    vectorFill(h, name, pointerDeref(obj), weight);
+                }
             }
         }
     }
@@ -189,19 +196,22 @@ private:
     {
         const auto& vec = tr.getVec<T>(name.first);
         
-        if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
-        else
+        if(&vec != nullptr)
         {
-            int index = -1;
-            if(name.second.size() > 0 && sscanf(name.second.c_str(), "%d", &index) == 1 && index < vec.size())
-            {
-                vectorFill(h, name, pointerDeref(vec.at(index)), weight);
-            }
+            if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
             else
             {
-                for(auto& obj : vec)
+                int index = -1;
+                if(name.second.size() > 0 && sscanf(name.second.c_str(), "%d", &index) == 1 && index < vec.size())
                 {
-                    vectorFill(h, name, pointerDeref(obj), weight);
+                    vectorFill(h, name, pointerDeref(vec.at(index)), weight);
+                }
+                else
+                {
+                    for(auto& obj : vec)
+                    {
+                        vectorFill(h, name, pointerDeref(obj), weight);
+                    }
                 }
             }
         }
