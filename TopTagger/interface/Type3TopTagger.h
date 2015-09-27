@@ -723,17 +723,17 @@ namespace topTagger{
             {
                if( cntnbJetsCSVS == 0 )
                {
-                   std::vector<double> maxCSVS;
+                   std::vector<double> maxCSVSvec;
                    for(size ij=0; ij<oriJetsVec.size(); ij++)
                    {
                        if( fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ )
                        {
-                           maxCSVS.push_back(recoJetsBtagCSVS[ij]);
+                           maxCSVSvec.push_back(recoJetsBtagCSVS[ij]);
                        }
                    }
-                   std::sort(maxCSVS.begin(), maxCSVS.end(), std::greater<decltype(maxCSVS.front())>());
-                   if( maxCSVS.size() > 1 && maxCSVS.size() > CSVToFake_ ) CSVS_ = 0.5*(maxCSVS[CSVToFake_ - 1] + maxCSVS[CSVToFake_]);
-                   else if(maxCSVS.size() > 0)                             CSVS_ = maxCSVS.back() - 1e5;
+                   std::sort(maxCSVSvec.begin(), maxCSVSvec.end(), std::greater<decltype(maxCSVSvec.front())>());
+                   if( maxCSVSvec.size() > 1 && (int)maxCSVSvec.size() > CSVToFake_ ) CSVS_ = 0.5*(maxCSVSvec[CSVToFake_ - 1] + maxCSVSvec[CSVToFake_]);
+                   else if(maxCSVSvec.size() > 0)                             CSVS_ = maxCSVSvec.back() - 1e-5;
                    for(size ij=0; ij<oriJetsVec.size(); ij++)
                    {
                        if( recoJetsBtagCSVS[ij] > CSVS_ && fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ ) cntnbJetsCSVS ++;
