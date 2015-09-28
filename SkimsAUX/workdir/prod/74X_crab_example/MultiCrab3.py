@@ -127,7 +127,6 @@ if __name__ == "__main__":
 
         tempconfig.Data.inputDataset = value[1].strip()
         tempconfig.Data.unitsPerJob = value[2]
-        tempconfig.Data.totalUnits = 1
 
         if value[0] and len(value) > 3:
             tempconfig.Data.lumiMask = value[3]
