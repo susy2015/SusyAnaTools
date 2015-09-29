@@ -39,6 +39,8 @@ triggerProducer = cms.EDProducer('prodTriggerResults',
             'HLT_Mu20_v',
             'HLT_QuadJet45_TripleCSV0p5_v',
             'HLT_DoubleJet90_Double30_TripleCSV0p5_v',
+            'HLT_Ele15_IsoVVVL_PFHT350_v',
+            'HLT_Mu15_IsoVVVL_PFHT350_v',
 # Additional to RA2/b triggers
             'HLT_PFMET100_PFMHT100_IDTight_v',
             'HLT_PFMET110_PFMHT110_IDTight_v',
