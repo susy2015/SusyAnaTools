@@ -59,25 +59,35 @@ public:
             doMuonVeto  = false;
             doIsoTrksVeto = false;
         }
-        else if(spec.compare("Zinv2b") == 0) 
+        else if(spec.compare("Zinv1b") == 0) 
         {
             jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
+            CSVVecLabel = "cleanJetpt30ArrBTag1fake";//"recoJetsBtag_0";
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
             doIsoTrksVeto = false;
-            bToFake = 2;
+            bToFake = 1;
+        }
+        else if(spec.compare("Zinv2b") == 0) 
+        {
+            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
+            CSVVecLabel = "cleanJetpt30ArrBTag2fake";//"recoJetsBtag_0";
+            METLabel    = "cleanMetPt";
+            METPhiLabel = "cleanMetPhi";
+            doMuonVeto  = false;
+            doIsoTrksVeto = false;
+            bToFake = 1;
         }
         else if(spec.compare("Zinv3b") == 0) 
         {
             jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
+            CSVVecLabel = "cleanJetpt30ArrBTag3fake";//"recoJetsBtag_0";
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
             doIsoTrksVeto = false;
-            bToFake = 3;
+            bToFake = 1;
         }
 
         // Form TLorentzVector of MET
