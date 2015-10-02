@@ -120,7 +120,7 @@ public:
         void parseName(std::vector<Plotter::DataCollection>& ns);
     };
 
-    Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple = true, const std::string ofname = "", int nFile = -1, int startFile = 0);
+    Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple = true, std::string ofname = "", const int nFile = -1, const int startFile = 0, const int nEvts = -1);
     ~Plotter();
 
     void setPlotDir(std::string plotDir);
@@ -136,6 +136,7 @@ private:
     bool readFromTuple_;
     const int nFile_;
     const int startFile_;
+    const int maxEvts_;
 
     class HistCutSummary
     {
