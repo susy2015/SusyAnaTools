@@ -9,17 +9,24 @@
 # Description :
 
 
-import copy, os, time
+import copy, os, time, sys
 
 from CRABAPI.RawCommand import crabCommand
+from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
 
-workArea = 'CrabTest/Testv0'
+workArea = 'crabProdv2p1'
 outDir =  '/store/group/lpcsusyhad/Spring15_74X_Oct_2015_Ntp_v2X'
-RunSript = '../treeMaker_stopRA2.py'
-Pubname = 'Spring15DR74_Asympt25ns_Ntp_v2'
+Pubname = 'Spring15_74X_Oct_2015_Ntp_v2p1'
+json = 'Cert_246908-257599_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
+# Use the common keyword to select the samples you'd like to submit
+# ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config
+# TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleElectron
+# Can be any of the combinations
+selSubmitKey = 'TEST ALL'
+#selSubmitKey = 'NONE'
 
-## Format: keyword : IsData, fulldatasetname, unitperjob, json
+## Format: keyword : IsData, fulldatasetname, unitperjob
 jobslist = {
     # TTbar
     'TTJets'                                 : [False, '/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM', 5],
@@ -85,7 +92,35 @@ jobslist = {
     'ST_tW_top_5f_inclusiveDecays'           : [False, '/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 5],
     'ST_tW_antitop_5f_inclusiveDecays'       : [False, '/ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 5],
     # Signals
+    'SMS-T1tttt_mGluino-1200_mLSP-800'       : [False, '/SMS-T1tttt_mGluino-1200_mLSP-800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 5],
+    'SMS-T1tttt_mGluino-1500_mLSP-100'       : [False, '/SMS-T1tttt_mGluino-1500_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 5],
+    'SMS-T1bbbb_mGluino-1000_mLSP-900'       : [False, '/SMS-T1bbbb_mGluino-1000_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 5],
+    'SMS-T1bbbb_mGluino-1500_mLSP-100'       : [False, '/SMS-T1bbbb_mGluino-1500_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 5],
     # Data
+    'HTMHT-Run2015B-17Jul2015'               : [True, '/HTMHT/Run2015B-17Jul2015-v1/MINIAOD', 1],
+    'HTMHT-Run2015B-PromptReco'              : [True, '/HTMHT/Run2015B-PromptReco-v1/MINIAOD', 1],
+    'HTMHT-Run2015C-PromptReco'              : [True, '/HTMHT/Run2015C-PromptReco-v1/MINIAOD', 1],
+    'HTMHT-Run2015D-PromptReco'              : [True, '/HTMHT/Run2015D-PromptReco-v3/MINIAOD', 1],
+
+    'SingleMuon-Run2015B-17Jul2015'          : [True, '/SingleMuon/Run2015B-17Jul2015-v1/MINIAOD', 1],
+    'SingleMuon-Run2015B-PromptReco'         : [True, '/SingleMuon/Run2015B-PromptReco-v1/MINIAOD', 1],
+    'SingleMuon-Run2015C-PromptReco'         : [True, '/SingleMuon/Run2015C-PromptReco-v1/MINIAOD', 1],
+    'SingleMuon-Run2015D-PromptReco'         : [True, '/SingleMuon/Run2015D-PromptReco-v3/MINIAOD', 1],
+
+    'SingleElectron-Run2015B-17Jul2015'      : [True, '/SingleElectron/Run2015B-17Jul2015-v1/MINIAOD', 1],
+    'SingleElectron-Run2015B-PromptReco'     : [True, '/SingleElectron/Run2015B-PromptReco-v1/MINIAOD', 1],
+    'SingleElectron-Run2015C-PromptReco'     : [True, '/SingleElectron/Run2015C-PromptReco-v1/MINIAOD', 1],
+    'SingleElectron-Run2015D-PromptReco'     : [True, '/SingleElectron/Run2015D-PromptReco-v3/MINIAOD', 1],
+
+    'DoubleMuon-Run2015B-17Jul2015'          : [True, '/DoubleMuon/Run2015B-17Jul2015-v1/MINIAOD', 1],
+    'DoubleMuon-Run2015B-PromptReco'         : [True, '/DoubleMuon/Run2015B-PromptReco-v1/MINIAOD', 1],
+    'DoubleMuon-Run2015C-PromptReco'         : [True, '/DoubleMuon/Run2015C-PromptReco-v1/MINIAOD', 1],
+    'DoubleMuon-Run2015D-PromptReco'         : [True, '/DoubleMuon/Run2015D-PromptReco-v3/MINIAOD', 1],
+
+    'DoubleElectron-Run2015B-17Jul2015'      : [True, '/DoubleElectron/Run2015B-17Jul2015-v1/MINIAOD', 1],
+    'DoubleElectron-Run2015B-PromptReco'     : [True, '/DoubleElectron/Run2015B-PromptReco-v1/MINIAOD', 1],
+    'DoubleElectron-Run2015C-PromptReco'     : [True, '/DoubleElectron/Run2015C-PromptReco-v1/MINIAOD', 1],
+    'DoubleElectron-Run2015D-PromptReco'     : [True, '/DoubleElectron/Run2015D-PromptReco-v3/MINIAOD', 1],
 }
 tasklist = {}
 
@@ -103,7 +138,37 @@ def MonitoringJobs(tasklist):
 
 
 if __name__ == "__main__":
+
+    if not os.path.exists(workArea):
+       os.makedirs(workArea)
+       os.makedirs(workArea+"/test")
+
+    doAll = False
+    doTest = False
+
+    allSelKeys = selSubmitKey.split()
+
+    if selSubmitKey.find('NONE') != -1:
+       print "Nothing to be done!" 
+       sys.exit()
+    if selSubmitKey.find('ALL') != -1:
+       doAll = True
+    if selSubmitKey.find('TEST') != -1:
+       doTest = True 
+
     for key, value in jobslist.items():
+
+        doThis = doAll
+
+        if not doAll:
+           for selKey in allSelKeys:
+              if key.find(selKey) != -1:
+                 doThis = True
+                 break;
+
+        if not doThis:
+           continue
+
         tempconfig = copy.deepcopy(config)
         tempconfig.General.requestName = key
         tempconfig.General.workArea = workArea
@@ -114,16 +179,32 @@ if __name__ == "__main__":
             print "Not enough argument for %s" % key
             raise  AssertionError()
         if value[0]: # Data
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_Prompt_v1', 'specialFix=JEC', 'jecDBname=Summer15_25nsV2_DATA']
-            tempconfig.JobType.inputFiles = ['Summer15_25nsV2_DATA.db']
-            tempconfig.Data.splitting = 'LumiBased'
-            if len(value) < 4:
-                print "Missing the Json file"
-                raise  AssertionError()
+            if key.find('Run2015B') != -1:
+               tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_Prompt_v1', 'specialFix=JEC', 'jecDBname=Summer15_50nsV5_DATA']
+               tempconfig.JobType.inputFiles = ['Summer15_50nsV5_DATA.db', json]
+               tempconfig.Data.splitting = 'LumiBased'
+               tempconfig.Data.lumiMask = json
+            elif key.find('Run2015C') != -1:
+               tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_Prompt_v1', 'specialFix=JEC', 'jecDBname=Summer15_25nsV5_DATA']
+               tempconfig.JobType.inputFiles = ['Summer15_25nsV5_DATA.db', json]
+               tempconfig.Data.splitting = 'LumiBased'
+               tempconfig.Data.lumiMask = json
+            elif key.find('Run2015D') != -1:
+               tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_Prompt_v2', 'specialFix=JEC', 'jecDBname=Summer15_25nsV5_DATA']
+               tempconfig.JobType.inputFiles = ['Summer15_25nsV5_DATA.db', json]
+               tempconfig.Data.splitting = 'LumiBased'
+               tempconfig.Data.lumiMask = json
+            else:
+               pass
         else:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=MCRUN2_74_V9', 'specialFix=JEC', 'jecDBname=Summer15_25nsV2_MC', 'doPDFs=1']
-            tempconfig.JobType.inputFiles = ['Summer15_25nsV2_MC.db']
-            tempconfig.Data.splitting = 'FileBased'
+           if key.find('DYJetsToLL') != -1:
+              tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=MCRUN2_74_V9', 'specialFix=JEC', 'jecDBname=Summer15_25nsV2_MC', 'doPDFs=1', 'addJetsForZinv=1']
+              tempconfig.JobType.inputFiles = ['Summer15_25nsV2_MC.db']
+              tempconfig.Data.splitting = 'FileBased'
+           else:
+              tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=MCRUN2_74_V9', 'specialFix=JEC', 'jecDBname=Summer15_25nsV2_MC', 'doPDFs=1']
+              tempconfig.JobType.inputFiles = ['Summer15_25nsV2_MC.db']
+              tempconfig.Data.splitting = 'FileBased'
 
         tempconfig.Data.inputDataset = value[1].strip()
         tempconfig.Data.unitsPerJob = value[2]
@@ -132,8 +213,11 @@ if __name__ == "__main__":
             tempconfig.Data.lumiMask = value[3]
 
         # Submitting jobs
-        results = crabCommand('submit', config = tempconfig)
-        tasklist[results['uniquerequestname']] = key
-        del tempconfig
-    MonitoringJobs(tasklist)
-
+        if doTest:
+           saveConfigurationFile(tempconfig, workArea+"/test/"+key+"_test_cfg.py")
+        else:
+           results = crabCommand('submit', config = tempconfig)
+           tasklist[results['uniquerequestname']] = key
+           del tempconfig
+    if not doTest:     
+       MonitoringJobs(tasklist)
