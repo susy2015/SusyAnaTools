@@ -22,7 +22,7 @@ json_25ns = 'Cert_246908-257599_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
 json_50ns = 'Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config
-# TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleElectron
+# TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleEG
 # Can be any of the combinations
 selSubmitKey = 'TEST ALL'
 #selSubmitKey = 'NONE'
@@ -118,10 +118,10 @@ jobslist = {
     'DoubleMuon-Run2015C-PromptReco'         : [True, '/DoubleMuon/Run2015C-PromptReco-v1/MINIAOD', 100],
     'DoubleMuon-Run2015D-PromptReco'         : [True, '/DoubleMuon/Run2015D-PromptReco-v3/MINIAOD', 100],
 
-    'DoubleElectron-Run2015B-17Jul2015'      : [True, '/DoubleElectron/Run2015B-17Jul2015-v1/MINIAOD', 100],
-    'DoubleElectron-Run2015B-PromptReco'     : [True, '/DoubleElectron/Run2015B-PromptReco-v1/MINIAOD', 100],
-    'DoubleElectron-Run2015C-PromptReco'     : [True, '/DoubleElectron/Run2015C-PromptReco-v1/MINIAOD', 100],
-    'DoubleElectron-Run2015D-PromptReco'     : [True, '/DoubleElectron/Run2015D-PromptReco-v3/MINIAOD', 100],
+    'DoubleEG-Run2015B-17Jul2015'            : [True, '/DoubleEG/Run2015B-17Jul2015-v1/MINIAOD', 100],
+    'DoubleEG-Run2015B-PromptReco'           : [True, '/DoubleEG/Run2015B-PromptReco-v1/MINIAOD', 100],
+    'DoubleEG-Run2015C-PromptReco'           : [True, '/DoubleEG/Run2015C-PromptReco-v1/MINIAOD', 100],
+    'DoubleEG-Run2015D-PromptReco'           : [True, '/DoubleEG/Run2015D-PromptReco-v3/MINIAOD', 100],
 }
 tasklist = {}
 
