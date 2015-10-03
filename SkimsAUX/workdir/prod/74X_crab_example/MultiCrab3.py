@@ -140,8 +140,8 @@ def MonitoringJobs(tasklist):
 
 def CreateMonitorList(tasklist):
     monList = open("monList_"+workArea+".txt", 'w')
-    for request, name in tasklist.items():
-       dirname = './%s/crab_%s' % (workArea, name)
+    for key in sorted(tasklist):
+       dirname = './%s/crab_%s' % (workArea, tasklist[key])
        fulldir = os.path.abspath(dirname)
        monList.write("crab status "+fulldir+"\n")
     monList.close()
