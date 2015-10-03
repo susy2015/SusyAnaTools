@@ -18,7 +18,8 @@ from crab3Config import config as config
 workArea = 'crabProdv2p1'
 outDir =  '/store/group/lpcsusyhad/Spring15_74X_Oct_2015_Ntp_v2X'
 Pubname = 'Spring15_74X_Oct_2015_Ntp_v2p1'
-json = 'Cert_246908-257599_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
+json_25ns = 'Cert_246908-257599_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
+json_50ns = 'Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config
 # TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleElectron
@@ -97,30 +98,30 @@ jobslist = {
     'SMS-T1bbbb_mGluino-1000_mLSP-900'       : [False, '/SMS-T1bbbb_mGluino-1000_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 5],
     'SMS-T1bbbb_mGluino-1500_mLSP-100'       : [False, '/SMS-T1bbbb_mGluino-1500_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 5],
     # Data
-    'HTMHT-Run2015B-17Jul2015'               : [True, '/HTMHT/Run2015B-17Jul2015-v1/MINIAOD', 1],
-    'HTMHT-Run2015B-PromptReco'              : [True, '/HTMHT/Run2015B-PromptReco-v1/MINIAOD', 1],
-    'HTMHT-Run2015C-PromptReco'              : [True, '/HTMHT/Run2015C-PromptReco-v1/MINIAOD', 1],
-    'HTMHT-Run2015D-PromptReco'              : [True, '/HTMHT/Run2015D-PromptReco-v3/MINIAOD', 1],
+    'HTMHT-Run2015B-17Jul2015'               : [True, '/HTMHT/Run2015B-17Jul2015-v1/MINIAOD', 100],
+    'HTMHT-Run2015B-PromptReco'              : [True, '/HTMHT/Run2015B-PromptReco-v1/MINIAOD', 100],
+    'HTMHT-Run2015C-PromptReco'              : [True, '/HTMHT/Run2015C-PromptReco-v1/MINIAOD', 100],
+    'HTMHT-Run2015D-PromptReco'              : [True, '/HTMHT/Run2015D-PromptReco-v3/MINIAOD', 100],
 
-    'SingleMuon-Run2015B-17Jul2015'          : [True, '/SingleMuon/Run2015B-17Jul2015-v1/MINIAOD', 1],
-    'SingleMuon-Run2015B-PromptReco'         : [True, '/SingleMuon/Run2015B-PromptReco-v1/MINIAOD', 1],
-    'SingleMuon-Run2015C-PromptReco'         : [True, '/SingleMuon/Run2015C-PromptReco-v1/MINIAOD', 1],
-    'SingleMuon-Run2015D-PromptReco'         : [True, '/SingleMuon/Run2015D-PromptReco-v3/MINIAOD', 1],
+    'SingleMuon-Run2015B-17Jul2015'          : [True, '/SingleMuon/Run2015B-17Jul2015-v1/MINIAOD', 100],
+    'SingleMuon-Run2015B-PromptReco'         : [True, '/SingleMuon/Run2015B-PromptReco-v1/MINIAOD', 100],
+    'SingleMuon-Run2015C-PromptReco'         : [True, '/SingleMuon/Run2015C-PromptReco-v1/MINIAOD', 100],
+    'SingleMuon-Run2015D-PromptReco'         : [True, '/SingleMuon/Run2015D-PromptReco-v3/MINIAOD', 100],
 
-    'SingleElectron-Run2015B-17Jul2015'      : [True, '/SingleElectron/Run2015B-17Jul2015-v1/MINIAOD', 1],
-    'SingleElectron-Run2015B-PromptReco'     : [True, '/SingleElectron/Run2015B-PromptReco-v1/MINIAOD', 1],
-    'SingleElectron-Run2015C-PromptReco'     : [True, '/SingleElectron/Run2015C-PromptReco-v1/MINIAOD', 1],
-    'SingleElectron-Run2015D-PromptReco'     : [True, '/SingleElectron/Run2015D-PromptReco-v3/MINIAOD', 1],
+    'SingleElectron-Run2015B-17Jul2015'      : [True, '/SingleElectron/Run2015B-17Jul2015-v1/MINIAOD', 100],
+    'SingleElectron-Run2015B-PromptReco'     : [True, '/SingleElectron/Run2015B-PromptReco-v1/MINIAOD', 100],
+    'SingleElectron-Run2015C-PromptReco'     : [True, '/SingleElectron/Run2015C-PromptReco-v1/MINIAOD', 100],
+    'SingleElectron-Run2015D-PromptReco'     : [True, '/SingleElectron/Run2015D-PromptReco-v3/MINIAOD', 100],
 
-    'DoubleMuon-Run2015B-17Jul2015'          : [True, '/DoubleMuon/Run2015B-17Jul2015-v1/MINIAOD', 1],
-    'DoubleMuon-Run2015B-PromptReco'         : [True, '/DoubleMuon/Run2015B-PromptReco-v1/MINIAOD', 1],
-    'DoubleMuon-Run2015C-PromptReco'         : [True, '/DoubleMuon/Run2015C-PromptReco-v1/MINIAOD', 1],
-    'DoubleMuon-Run2015D-PromptReco'         : [True, '/DoubleMuon/Run2015D-PromptReco-v3/MINIAOD', 1],
+    'DoubleMuon-Run2015B-17Jul2015'          : [True, '/DoubleMuon/Run2015B-17Jul2015-v1/MINIAOD', 100],
+    'DoubleMuon-Run2015B-PromptReco'         : [True, '/DoubleMuon/Run2015B-PromptReco-v1/MINIAOD', 100],
+    'DoubleMuon-Run2015C-PromptReco'         : [True, '/DoubleMuon/Run2015C-PromptReco-v1/MINIAOD', 100],
+    'DoubleMuon-Run2015D-PromptReco'         : [True, '/DoubleMuon/Run2015D-PromptReco-v3/MINIAOD', 100],
 
-    'DoubleElectron-Run2015B-17Jul2015'      : [True, '/DoubleElectron/Run2015B-17Jul2015-v1/MINIAOD', 1],
-    'DoubleElectron-Run2015B-PromptReco'     : [True, '/DoubleElectron/Run2015B-PromptReco-v1/MINIAOD', 1],
-    'DoubleElectron-Run2015C-PromptReco'     : [True, '/DoubleElectron/Run2015C-PromptReco-v1/MINIAOD', 1],
-    'DoubleElectron-Run2015D-PromptReco'     : [True, '/DoubleElectron/Run2015D-PromptReco-v3/MINIAOD', 1],
+    'DoubleElectron-Run2015B-17Jul2015'      : [True, '/DoubleElectron/Run2015B-17Jul2015-v1/MINIAOD', 100],
+    'DoubleElectron-Run2015B-PromptReco'     : [True, '/DoubleElectron/Run2015B-PromptReco-v1/MINIAOD', 100],
+    'DoubleElectron-Run2015C-PromptReco'     : [True, '/DoubleElectron/Run2015C-PromptReco-v1/MINIAOD', 100],
+    'DoubleElectron-Run2015D-PromptReco'     : [True, '/DoubleElectron/Run2015D-PromptReco-v3/MINIAOD', 100],
 }
 tasklist = {}
 
@@ -134,7 +135,7 @@ def MonitoringJobs(tasklist):
                 print "For task", request, "the job states are", results['jobsPerStatus']
             except:
                 pass
-            time.sleep(120)
+            time.sleep(60)
 
 
 if __name__ == "__main__":
@@ -181,19 +182,19 @@ if __name__ == "__main__":
         if value[0]: # Data
             if key.find('Run2015B') != -1:
                tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_Prompt_v1', 'specialFix=JEC', 'jecDBname=Summer15_50nsV5_DATA']
-               tempconfig.JobType.inputFiles = ['Summer15_50nsV5_DATA.db', json]
+               tempconfig.JobType.inputFiles = ['Summer15_50nsV5_DATA.db', json_50ns]
                tempconfig.Data.splitting = 'LumiBased'
-               tempconfig.Data.lumiMask = json
+               tempconfig.Data.lumiMask = json_50ns
             elif key.find('Run2015C') != -1:
                tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_Prompt_v1', 'specialFix=JEC', 'jecDBname=Summer15_25nsV5_DATA']
-               tempconfig.JobType.inputFiles = ['Summer15_25nsV5_DATA.db', json]
+               tempconfig.JobType.inputFiles = ['Summer15_25nsV5_DATA.db', json_25ns]
                tempconfig.Data.splitting = 'LumiBased'
-               tempconfig.Data.lumiMask = json
+               tempconfig.Data.lumiMask = json_25ns
             elif key.find('Run2015D') != -1:
                tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_Prompt_v2', 'specialFix=JEC', 'jecDBname=Summer15_25nsV5_DATA']
-               tempconfig.JobType.inputFiles = ['Summer15_25nsV5_DATA.db', json]
+               tempconfig.JobType.inputFiles = ['Summer15_25nsV5_DATA.db', json_25ns]
                tempconfig.Data.splitting = 'LumiBased'
-               tempconfig.Data.lumiMask = json
+               tempconfig.Data.lumiMask = json_25ns
             else:
                pass
         else:
