@@ -26,6 +26,7 @@ json_50ns = 'Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON.txt'
 # Can be any of the combinations
 selSubmitKey = 'TEST ALL'
 #selSubmitKey = 'NONE'
+doAutoMonitor = False
 
 ## Format: keyword : IsData, fulldatasetname, unitperjob
 jobslist = {
@@ -137,6 +138,14 @@ def MonitoringJobs(tasklist):
                 pass
             time.sleep(60)
 
+def CreateMonitorList(tasklist):
+    monList = open("monList_"+workArea+".txt", 'w')
+    for request, name in tasklist.items():
+       dirname = './%s/crab_%s' % (workArea, name)
+       fulldir = os.path.abspath(dirname)
+       monList.write("crab status "+fulldir+"\n")
+    monList.close()
+
 
 if __name__ == "__main__":
 
@@ -216,9 +225,11 @@ if __name__ == "__main__":
         # Submitting jobs
         if doTest:
            saveConfigurationFile(tempconfig, workArea+"/test/"+key+"_test_cfg.py")
+           tasklist["crab_"+key] = key
         else:
            results = crabCommand('submit', config = tempconfig)
            tasklist[results['uniquerequestname']] = key
            del tempconfig
-    if not doTest:     
+    CreateMonitorList(tasklist)
+    if not doTest and doAutoMonitor:     
        MonitoringJobs(tasklist)
