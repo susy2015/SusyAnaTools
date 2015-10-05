@@ -59,25 +59,35 @@ public:
             doMuonVeto  = false;
             doIsoTrksVeto = false;
         }
-        else if(spec.compare("Zinv2b") == 0) 
+        else if(spec.compare("Zinv1b") == 0) 
         {
             jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
+            CSVVecLabel = "cleanJetpt30ArrBTag1fake";//"recoJetsBtag_0";
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
             doIsoTrksVeto = false;
-            bToFake = 2;
+            bToFake = 1;
+        }
+        else if(spec.compare("Zinv2b") == 0) 
+        {
+            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
+            CSVVecLabel = "cleanJetpt30ArrBTag2fake";//"recoJetsBtag_0";
+            METLabel    = "cleanMetPt";
+            METPhiLabel = "cleanMetPhi";
+            doMuonVeto  = false;
+            doIsoTrksVeto = false;
+            bToFake = 1;
         }
         else if(spec.compare("Zinv3b") == 0) 
         {
             jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
+            CSVVecLabel = "cleanJetpt30ArrBTag3fake";//"recoJetsBtag_0";
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
             doIsoTrksVeto = false;
-            bToFake = 3;
+            bToFake = 1;
         }
 
         // Form TLorentzVector of MET
@@ -408,6 +418,9 @@ namespace stopFunctions
             std::vector<double>* removedChargedHadEFrac     = new std::vector<double>();
             std::vector<double>* removedNeutralEMEFrac      = new std::vector<double>();
             std::vector<double>* removedChargedEMEFrac      = new std::vector<double>();
+            
+            std::vector<int>* rejectJetIdx_formuVec = new std::vector<int>();
+            std::vector<int>* rejectJetIdx_foreleVec = new std::vector<int>();
 
             const double jldRMax = 0.15;
 
@@ -424,18 +437,34 @@ namespace stopFunctions
             {
                 for(int iM = 0; iM < muonsLVec.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
                 {
-                    if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_) && muonsLVec[iM].Pt() > muonPtThresh_) continue;
+                    if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_) && muonsLVec[iM].Pt() > muonPtThresh_) 
+                    {
+                        rejectJetIdx_formuVec->push_back(-1);
+                        continue;
+                    }
+                    
+                    int match = -1;
+                    if(forceDr_) match = cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
+                    else         match = cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
 
-                    if(forceDr_) cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
-                    else         cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
+                    if( match >= 0 ) rejectJetIdx_formuVec->push_back(match);
+                    else rejectJetIdx_formuVec->push_back(-1);
                 }
 
                 for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
                 {
-                    if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) continue;
+                    if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) 
+                    {
+                        rejectJetIdx_foreleVec->push_back(-1);
+                        continue;
+                    }
 
-                    if(forceDr_) cleanLeptonFromJet(elesLVec[iE],                   -1, jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
-                    else         cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
+                    int match = -1;
+                    if(forceDr_) match = cleanLeptonFromJet(elesLVec[iE],                   -1, jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
+                    else         match = cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
+                    
+                    if( match >= 0 ) rejectJetIdx_foreleVec->push_back(match);
+                    else rejectJetIdx_foreleVec->push_back(-1);
                 }
             }
 
@@ -495,6 +524,8 @@ namespace stopFunctions
             tr.registerDerivedVec("removedChargedHadEFrac", removedChargedHadEFrac);
             tr.registerDerivedVec("removedNeutralEMEFrac",  removedNeutralEMEFrac);
             tr.registerDerivedVec("removedChargedEMEFrac",  removedChargedEMEFrac);
+            tr.registerDerivedVec("rejectJetIdx_formuVec", rejectJetIdx_formuVec);
+            tr.registerDerivedVec("rejectJetIdx_foreleVec", rejectJetIdx_foreleVec);
         }
 
     } cjh;
