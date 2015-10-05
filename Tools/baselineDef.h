@@ -325,13 +325,13 @@ namespace stopFunctions
 
         CleanJets()
         {
-            setMuonIso("rel");
-            setElecIso("rel");
+            setMuonIso("mini");
+            setElecIso("mini");
             setJetCollection("jetsLVec");
             setBTagCollection("recoJetsBtag_0");
             setEnergyFractionCollections("recoJetschargedHadronEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedEmEnergyFraction");    
             setForceDr(false);
-            setRemove(true);
+            setRemove(false);
             setDisable(false);
             setElecPtThresh(0.0);
             setMuonPtThresh(0.0);
