@@ -105,7 +105,7 @@ namespace AnaConsts{
                                                   "loose_isoTrksLVec", "loose_isoTrks_iso", "loose_isoTrks_mtw", "loose_isoTrks_pdgId",
                                                   "met", "metphi", 
                                                   "tru_npv", "vtxSize",
-                                                  "prodJetsNoMu_jetsLVec", "recoJetsBtag",
+                                                  "prodJetsNoMu_jetsLVec", "recoJetsBtag_0_MuCleaned",
                                                   "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction"
                                                 };
 }
