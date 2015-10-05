@@ -17,5 +17,7 @@ prodJets = cms.EDFilter(
   genDecayMomRefVec = cms.InputTag("prodGenInfo:genDecayMomRefVec"),
   eleLVec = cms.InputTag("prodElectronsNoIso:elesLVec"), 
   muLVec = cms.InputTag("prodMuonsNoIso:muonsLVec"), 
+  trksForIsoVetoLVec = cms.InputTag("prodIsoTrks:trksForIsoVetoLVec"),
+  looseisoTrksLVec = cms.InputTag("prodIsoTrks:looseisoTrksLVec"),
   debug  = cms.bool(False)
 )

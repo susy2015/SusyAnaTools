@@ -28,36 +28,50 @@ namespace AnaSamples
 
     SampleSet::SampleSet(std::string fDir) : fDir_(fDir)
     {
-            //backgrounds
-        sampleSet_["TTbar"]                   = FileSummary(fDir_ + "TTJets_MSDecaysCKM_madgraph-tauola.txt", "stopTreeMaker/AUX", 806.1,  lumi, 25446993, 1.0, kGreen);
-        sampleSet_["WJetsToLNu_HT_600toInf"]  = FileSummary(fDir_ + "WJetsToLNu_HT-600toInf_madgraph-tauola.txt", "stopTreeMaker/AUX", 23.14,  lumi, 4581841,  1.0, kMagenta+1);
+        // ---------------
+        // - backgrounds -
+        // ---------------
+
+        sampleSet_["TTbar"]                   = FileSummary(fDir_ + "lhx/TTJets_madgraphMLM-pythia8_with_JEC_fix.txt", "stopTreeMaker/AUX", 831.76,  lumi, 11339232, 1.0, kGreen);
+        
+	// WJets to be updated
+	sampleSet_["WJetsToLNu_HT_600toInf"]  = FileSummary(fDir_ + "WJetsToLNu_HT-600toInf_madgraph-tauola.txt", "stopTreeMaker/AUX", 23.14,  lumi, 4581841,  1.0, kMagenta+1);
         sampleSet_["WJetsToLNu_HT_400to600"]  = FileSummary(fDir_ + "WJetsToLNu_HT-400to600_madgraph-tauola.txt", "stopTreeMaker/AUX", 68.40,  lumi, 4640594,  1.0, kMagenta+1);
         sampleSet_["WJetsToLNu_HT_200to400"]  = FileSummary(fDir_ + "WJetsToLNu_HT-200to400_madgraph-tauola.txt", "stopTreeMaker/AUX", 580.1,  lumi, 4936077,  1.0, kMagenta+1);
         sampleSet_["WJetsToLNu_HT_100to200"]  = FileSummary(fDir_ + "WJetsToLNu_HT-100to200_madgraph-tauola.txt", "stopTreeMaker/AUX", 2235.0, lumi, 5262265,  1.0, kMagenta+1);
 
-        sampleSet_["ZJetsToNuNu_HT_600toInf"] = FileSummary(fDir_ + "ZJetsToNuNu_HT-600toInf_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 5.224,  lumi, 4463806, 1.0,  kTeal+4);
-        sampleSet_["ZJetsToNuNu_HT_400to600"] = FileSummary(fDir_ + "ZJetsToNuNu_HT-400to600_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 15.23,  lumi, 4433784, 1.0,  kTeal+4);
-        sampleSet_["ZJetsToNuNu_HT_200to400"] = FileSummary(fDir_ + "ZJetsToNuNu_HT-200to400_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 128.0,  lumi, 4546470, 1.0,  kTeal+4);
-        sampleSet_["ZJetsToNuNu_HT_100to200"] = FileSummary(fDir_ + "ZJetsToNuNu_HT-100to200_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 473.2,  lumi, 4986424, 1.0,  kTeal+4);
+        sampleSet_["ZJetsToNuNu_HT_600toInf"] = FileSummary(fDir_ + "nstrobbe/ZJetsToNuNu_HT-600ToInf_13TeV-madgraph.txt", "stopTreeMaker/AUX", 4.203,  lumi, 1015904, 1.0,  kTeal+4);
+        sampleSet_["ZJetsToNuNu_HT_400to600"] = FileSummary(fDir_ + "nstrobbe/ZJetsToNuNu_HT-400To600_13TeV-madgraph.txt", "stopTreeMaker/AUX", 10.944, lumi, 1014139, 1.0,  kTeal+4);
+        sampleSet_["ZJetsToNuNu_HT_200to400"] = FileSummary(fDir_ + "nstrobbe/ZJetsToNuNu_HT-200To400_13TeV-madgraph.txt", "stopTreeMaker/AUX", 78.36,  lumi, 5032927, 1.0,  kTeal+4);
+        sampleSet_["ZJetsToNuNu_HT_100to200"] = FileSummary(fDir_ + "nstrobbe/ZJetsToNuNu_HT-100To200_13TeV-madgraph.txt", "stopTreeMaker/AUX", 280.47, lumi, 5148193, 1.0,  kTeal+4);
 
+
+        sampleSet_["DYJetsToLL_HT_600toInf"]  = FileSummary(fDir_ + "nstrobbe/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 2.21,  lumi, 987977, 1.0,  kYellow-7);
+        sampleSet_["DYJetsToLL_HT_400to600"]  = FileSummary(fDir_ + "nstrobbe/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 5.497,  lumi, 1048047, 1.0,  kYellow-7);
+        sampleSet_["DYJetsToLL_HT_200to400"]  = FileSummary(fDir_ + "nstrobbe/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 42.75,  lumi, 955972, 1.0,  kYellow-7);
+        sampleSet_["DYJetsToLL_HT_100to200"]  = FileSummary(fDir_ + "nstrobbe/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 139.4,  lumi, 2625679, 1.0,  kYellow-7);
+
+
+	// To be updated
         sampleSet_["IncDYSampleSet"]                   = FileSummary(fDir_ + "DYJetsToLL_M-50_13TeV-madgraph-pythia8.txt", "stopTreeMaker/AUX", 4746,  lumi, 2829164, 1.0,  kYellow-4);
 
-        sampleSet_["DYJetsToLL_HT_600toInf"]  = FileSummary(fDir_ + "DYJetsToLL_M-50_HT-600toInf_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 2.767,  lumi, 4493574, 1.0,  kYellow-7);
-        sampleSet_["DYJetsToLL_HT_400to600"]  = FileSummary(fDir_ + "DYJetsToLL_M-50_HT-400to600_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 8.313,  lumi, 4931372, 1.0,  kYellow-7);
-        sampleSet_["DYJetsToLL_HT_200to400"]  = FileSummary(fDir_ + "DYJetsToLL_M-50_HT-200to400_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 66.34,  lumi, 4666496, 1.0,  kYellow-7);
-        sampleSet_["DYJetsToLL_HT_100to200"]  = FileSummary(fDir_ + "DYJetsToLL_M-50_HT-100to200_Tune4C_13TeV-madgraph-tauola.txt", "stopTreeMaker/AUX", 246.8,  lumi, 4054159, 1.0,  kYellow-7);
 
+	// To be updated
         sampleSet_["QCD_HT_1000toInf"]        = FileSummary(fDir_ + "QCD_HT_1000ToInf_13TeV-madgraph.txt", "stopTreeMaker/AUX", 769.7,  lumi, 1464453, 1.0,  kBlue);
         sampleSet_["QCD_HT_500to1000"]        = FileSummary(fDir_ + "QCD_HT_500To1000_13TeV-madgraph.txt", "stopTreeMaker/AUX", 26740,  lumi, 4063345, 1.0,  kBlue);
         sampleSet_["QCD_HT_250to500"]         = FileSummary(fDir_ + "QCD_HT_250To500_13TeV-madgraph.txt", "stopTreeMaker/AUX", 670500, lumi, 2668172, 1.0,  kBlue);
-
         sampleSet_["T_tW"]                    = FileSummary(fDir_ + "T_tW-channel-DR_powheg-tauola.txt", "stopTreeMaker/AUX", 35.0,   lumi, 986100,  1.0,  kYellow);
-
         sampleSet_["Tbar_tW"]                 = FileSummary(fDir_ + "Tbar_tW-channel-DR_powheg-tauola.txt", "stopTreeMaker/AUX", 35.0,   lumi, 971800,  1.0,  kYellow);
 
-        sampleSet_["TTZ"]                     = FileSummary(fDir_ + "TTZJets_madgraph-tauola.txt", "stopTreeMaker/AUX", 2.2320, lumi, 249275,  1.0,  kGreen+2);
 
-            //signal
+        sampleSet_["TTZ"]                     = FileSummary(fDir_ + "nstrobbe/TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.2529, lumi, 398000,  1.0,  kGreen+2);
+
+
+        // ----------
+	// - signal -
+        // ----------
+
+	// To be updated
         sampleSet_["Signal_T1tttt_mGluino1200_mLSP800"]          = FileSummary(fDir_ + "T1tttt_2J_mGl-1200_mLSP-800_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.0856418, lumi, 100322, 1.0,  kRed);
         sampleSet_["Signal_T1tttt_mGluino1500_mLSP100"]          = FileSummary(fDir_ + "T1tttt_2J_mGl-1500_mLSP-100_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.0141903, lumi, 105679, 1.0,  kRed);
         sampleSet_["Signal_T5tttt_mGluino1300_mStop300_mChi280"] = FileSummary(fDir_ + "", "stopTreeMaker/AUX", 0.0460525, lumi, 44011,  1.0,  kRed);
@@ -81,9 +95,9 @@ namespace AnaSamples
         sampleSet_["WJetsToLNu"]         = {samples["WJetsToLNu_HT_600toInf"], samples["WJetsToLNu_HT_400to600"], samples["WJetsToLNu_HT_200to400"], samples["WJetsToLNu_HT_100to200"]};
         sampleSet_["ZJetsToNuNu"]        = {samples["ZJetsToNuNu_HT_600toInf"], samples["ZJetsToNuNu_HT_400to600"], samples["ZJetsToNuNu_HT_200to400"], samples["ZJetsToNuNu_HT_100to200"]};
         sampleSet_["DYJetsToLL"]         = {samples["DYJetsToLL_HT_600toInf"], samples["DYJetsToLL_HT_400to600"], samples["DYJetsToLL_HT_200to400"], samples["DYJetsToLL_HT_100to200"]};
-        sampleSet_["IncDY"]         = {samples["DYJetsToLL"]};
-        sampleSet_["QCD"]                =  {samples["QCD_HT_1000toInf"], samples["QCD_HT_500to1000"], samples["QCD_HT_250to500"]};
-        sampleSet_["T_tW"]               =  {samples["T_tW"], samples["Tbar_tW"]};
+        sampleSet_["IncDY"]              = {samples["DYJetsToLL"]};
+        sampleSet_["QCD"]                = {samples["QCD_HT_1000toInf"], samples["QCD_HT_500to1000"], samples["QCD_HT_250to500"]};
+        sampleSet_["T_tW"]               = {samples["T_tW"], samples["Tbar_tW"]};
         sampleSet_["TTZ"]                = {samples["TTZ"]};
     }
 

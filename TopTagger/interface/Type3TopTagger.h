@@ -208,6 +208,7 @@ namespace topTagger{
             setlowWCut(50);
             sethighWCut(120);
             setCSVS(0.814);
+            setCSVToFake(1);
             setnSubJetsDiv(3);
             setnJetsSel(5);
             setmaxEtaForbJets(2.4);
@@ -718,43 +719,44 @@ namespace topTagger{
                if( recoJetsBtagCSVS[ij] > globalCachedCSVS_ && fabs(oriJetsVec[ij].Eta())<maxEtaForbJets_ ) cntnbJetsCSVS ++;
             }
 
-            if( bVetoMethod_ == 0 ){
-               if( cntnbJetsCSVS == 0 ){
-                  int adjustedmaxJetIdx = -1;
-                  double adjustedmaxCSVS = -1;
-                  for(size ij=0; ij<oriJetsVec.size(); ij++){
-                     if( fabs(oriJetsVec[ij].Eta())<maxEtaForbJets_ ){
-                        if( adjustedmaxJetIdx == -1 ){ adjustedmaxCSVS = recoJetsBtagCSVS[ij]; adjustedmaxJetIdx = ij; }
-                        else if( adjustedmaxCSVS < recoJetsBtagCSVS[ij] ){ adjustedmaxCSVS = recoJetsBtagCSVS[ij]; adjustedmaxJetIdx = ij; }
-                     }
-                  }
-                  int adjustedsecJetIdx = -1; // second CSVS in order 
-                  double adjustedsecCSVS = -1;
-                  for(size ij=0; ij<oriJetsVec.size(); ij++){
-                     if( fabs(oriJetsVec[ij].Eta())<maxEtaForbJets_ ){
-                        if( recoJetsBtagCSVS[ij] == adjustedmaxCSVS ) continue;
-                        if( adjustedsecJetIdx == -1 ){ adjustedsecCSVS = recoJetsBtagCSVS[ij]; adjustedsecJetIdx = ij; }
-                        else if( adjustedsecCSVS < recoJetsBtagCSVS[ij] ){ adjustedsecCSVS = recoJetsBtagCSVS[ij]; adjustedsecJetIdx = ij; }
-                     }
-                  }
-                  if( adjustedmaxJetIdx != -1 ){
-                     CSVS_ = adjustedmaxCSVS - 1e10;
-                     if( adjustedsecJetIdx != -1 ) CSVS_ = 0.5*(adjustedmaxCSVS + adjustedsecCSVS);
-                  }
-                  for(size ij=0; ij<oriJetsVec.size(); ij++){
-                     if( recoJetsBtagCSVS[ij] > CSVS_ && fabs(oriJetsVec[ij].Eta())<maxEtaForbJets_ ) cntnbJetsCSVS ++;
-                  }
-               }else{
+            if( bVetoMethod_ == 0 )
+            {
+               if( cntnbJetsCSVS == 0 )
+               {
+                   std::vector<double> maxCSVSvec;
+                   for(size ij=0; ij<oriJetsVec.size(); ij++)
+                   {
+                       if( fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ )
+                       {
+                           maxCSVSvec.push_back(recoJetsBtagCSVS[ij]);
+                       }
+                   }
+                   std::sort(maxCSVSvec.begin(), maxCSVSvec.end(), std::greater<decltype(maxCSVSvec.front())>());
+                   if( maxCSVSvec.size() > 1 && (int)maxCSVSvec.size() > CSVToFake_ ) CSVS_ = 0.5*(maxCSVSvec[CSVToFake_ - 1] + maxCSVSvec[CSVToFake_]);
+                   else if(maxCSVSvec.size() > 0)                             CSVS_ = maxCSVSvec.back() - 1e-5;
+                   for(size ij=0; ij<oriJetsVec.size(); ij++)
+                   {
+                       if( recoJetsBtagCSVS[ij] > CSVS_ && fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ ) cntnbJetsCSVS ++;
+                   }
+               }
+               else
+               {
                    CSVS_ = globalCachedCSVS_;
                }
-            }else if( bVetoMethod_ == 1 ){
-               if( cntnbJetsCSVS == 0 ){
+            }
+            else if( bVetoMethod_ == 1 )
+            {
+               if( cntnbJetsCSVS == 0 )
+               {
                   CSVS_ = minCSVS_disablebtag;
                   dobVetoCS_ = true;
-                  for(size ij=0; ij<oriJetsVec.size(); ij++){
-                     if( recoJetsBtagCSVS[ij] > CSVS_ && fabs(oriJetsVec[ij].Eta())<maxEtaForbJets_ ) cntnbJetsCSVS ++;
+                  for(size ij=0; ij<oriJetsVec.size(); ij++)
+                  {
+                     if( recoJetsBtagCSVS[ij] > CSVS_ && fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ ) cntnbJetsCSVS ++;
                   }
-               }else{
+               }
+               else
+               {
                   CSVS_ = globalCachedCSVS_;
                   dobVetoCS_ = globalCacheddobVetoCS_;
                }
@@ -2048,6 +2050,7 @@ namespace topTagger{
          void setlowWCut( const double lowWCut ){ lowWCut_ = lowWCut; }
          void sethighWCut( const double highWCut ){ highWCut_ = highWCut; }
          void setCSVS( const double CSVS ){ CSVS_ = CSVS; globalCachedCSVS_ = CSVS_; oriCSVScut_ = CSVS_; }
+         void setCSVToFake( const int CSVToFake ){ CSVToFake_ = CSVToFake; }
          void setnSubJetsDiv( const int nSubJetsDiv ){ nSubJetsDiv_ = nSubJetsDiv; }
          void setnJetsSel ( const int nJetsSel ){ nJetsSel_ = nJetsSel; }
          void setmaxEtaForbJets( const double maxEtaForbJets ){ maxEtaForbJets_ = maxEtaForbJets; orimaxEtaForbJets_ = maxEtaForbJets_; }
@@ -2139,6 +2142,7 @@ namespace topTagger{
 // so requiring another tight b-jet is NOT good. (TODO: to be studied)
 //    double CSVL = 0.244, CSVM = 0.679, CSVT = 0.898;
          double CSVS_, globalCachedCSVS_;
+         int CSVToFake_;
 
          double oriCSVScut_, orimaxEtaForbJets_;
 

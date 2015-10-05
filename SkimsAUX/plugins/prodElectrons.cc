@@ -80,6 +80,7 @@ prodElectrons::prodElectrons(const edm::ParameterSet & iConfig) {
   produces<std::vector<double> >("elesRelIso");
   produces<std::vector<bool> >("elesisEB");
   produces<std::vector<double> >("elesMiniIso");
+  produces<std::vector<double> >("elespfActivity");
   produces<int>("nElectrons");
 }
 
@@ -113,6 +114,10 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<pat::PackedCandidateCollection> pfcands;
   iEvent.getByLabel(pfCandsSrc_, pfcands);
 
+  edm::Handle< double > rho_;
+  iEvent.getByLabel("fixedGridRhoFastjetAll", rho_);
+  double rho = *rho_;
+
   float cut_sigmaIEtaIEta[2]  = {999.9, 999.9};
   float cut_dEtaIn[2]         = {999.9, 999.9};
   float cut_dPhiIn[2]         = {999.9, 999.9};
@@ -123,18 +128,31 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   float cut_dzvtx[2]          = {999.9, 999.9};
   unsigned int cut_mHits[2]   = {999, 999};
   bool cut_convVeto[2]          = {false, false};
-    
-  cut_sigmaIEtaIEta[0] = 0.011100; cut_sigmaIEtaIEta[1] = 0.033987;
-  cut_dEtaIn[0]        = 0.016315; cut_dEtaIn[1]        = 0.010671;
-  cut_dPhiIn[0]        = 0.252044; cut_dPhiIn[1]        = 0.245263;
-  cut_hoe[0]           = 0.345843; cut_hoe[1]           = 0.134691;
-  cut_iso[0]           = 0.164369; cut_iso[1]           = 0.212604;
-  cut_ooemoop[0]       = 0.248070; cut_ooemoop[1]       = 0.157160;
-  cut_d0vtx[0]         = 0.060279; cut_d0vtx[1]         = 0.273097;
-  cut_dzvtx[0]         = 0.800538; cut_dzvtx[1]         = 0.885860;
+
+//In sync with RA2b    
+  cut_sigmaIEtaIEta[0] = 0.011586; cut_sigmaIEtaIEta[1] = 0.031849;
+  cut_dEtaIn[0]        = 0.013625; cut_dEtaIn[1]        = 0.011932;
+  cut_dPhiIn[0]        = 0.230374; cut_dPhiIn[1]        = 0.255450;
+  cut_hoe[0]           = 0.181130; cut_hoe[1]           = 0.223870;
+  cut_iso[0]           = 0.158721; cut_iso[1]           = 0.177032;
+  cut_ooemoop[0]       = 0.295751; cut_ooemoop[1]       = 0.155501;
+  cut_d0vtx[0]         = 0.094095; cut_d0vtx[1]         = 0.342293;
+  cut_dzvtx[0]         = 0.713070; cut_dzvtx[1]         = 0.953461;
   cut_mHits[0]         = 2;        cut_mHits[1]         = 3;
   cut_convVeto[0]      = true;     cut_convVeto[1]      = true;
 
+/* From latest twiki...
+  cut_sigmaIEtaIEta[0] = 0.011400; cut_sigmaIEtaIEta[1] = 0.035200;
+  cut_dEtaIn[0]        = 0.015200; cut_dEtaIn[1]        = 0.011300;
+  cut_dPhiIn[0]        = 0.216000; cut_dPhiIn[1]        = 0.237000;
+  cut_hoe[0]           = 0.181000; cut_hoe[1]           = 0.116000;
+  cut_iso[0]           = 0.126000; cut_iso[1]           = 0.144000;
+  cut_ooemoop[0]       = 0.207000; cut_ooemoop[1]       = 0.174000;
+  cut_d0vtx[0]         = 0.056400; cut_d0vtx[1]         = 0.222000;
+  cut_dzvtx[0]         = 0.472000; cut_dzvtx[1]         = 0.921000;
+  cut_mHits[0]         = 2;        cut_mHits[1]         = 3;
+  cut_convVeto[0]      = true;     cut_convVeto[1]      = true;
+*/
   // check which ones to keep
   std::auto_ptr<std::vector<pat::Electron> > prod(new std::vector<pat::Electron>());
   std::auto_ptr<std::vector<TLorentzVector> > elesLVec(new std::vector<TLorentzVector>());
@@ -143,6 +161,7 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<double> > elesRelIso(new std::vector<double>());
   std::auto_ptr<std::vector<bool> > elesisEB(new std::vector<bool>());
   std::auto_ptr<std::vector<double> > elesMiniIso(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > elespfActivity(new std::vector<double>());
 
   // loop on electrons
   for( edm::View<pat::Electron>::const_iterator ele = electrons->begin(); ele != electrons->end(); ele++ ){
@@ -213,11 +232,13 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // isolation cuts                                                                                                                                        
     reco::GsfElectron::PflowIsolationVariables pfIso = ele->pfIsolationVariables();
-    float absiso = pfIso.sumChargedHadronPt + std::max(0.0 , pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5 * pfIso.sumPUPt );
+    double absiso = pfIso.sumChargedHadronPt + std::max(0.0 , pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5 * pfIso.sumPUPt );
 
     // compute final isolation
     double iso = absiso/pt;
-    double miniIso = commonFunctions::getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), 0.05, 0.2, 10., false, false);
+//    double miniIso = commonFunctions::getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), 0.05, 0.2, 10., false, false);
+    double miniIso = commonFunctions::GetMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), "electron", rho);
+    double pfActivity = commonFunctions::GetMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), "electron", rho, true);
 
     if (doEleIso_) {
       if(iso >= cut_iso[idx]) continue;
@@ -236,6 +257,8 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        elesRelIso->push_back(iso);
        elesisEB->push_back(isEB);
        elesMiniIso->push_back(miniIso);
+
+       elespfActivity->push_back(pfActivity);
     }
   }
 
@@ -255,6 +278,7 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(elesRelIso, "elesRelIso");
   iEvent.put(elesisEB, "elesisEB");
   iEvent.put(elesMiniIso, "elesMiniIso");
+  iEvent.put(elespfActivity, "elespfActivity");
   iEvent.put(nElectrons, "nElectrons");
 
   return result;
