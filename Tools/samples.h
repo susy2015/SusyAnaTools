@@ -22,6 +22,14 @@ namespace AnaSamples
             weight_ = xsec * lumi * kfactor / nEvts;
             readFileList();
         }
+	
+	// Constructor which doesn't make a xsec*lumi weighted sample, e.g. for use with data.
+	//Initialize xsec, lumi, nEvts to 1 so that the comparison operators still work
+        FileSummary(std::string filePath, std::string treePath, double kfactor, int color = kBlack) : filePath(filePath), treePath(treePath), xsec(1), lumi(1), kfactor(kfactor), nEvts(1), color(color)
+        {
+            weight_ = kfactor;
+            readFileList();
+        }
 
         double getWeight() const {return weight_;}
         void addFilesToChain(TChain * const tc) const;
@@ -37,12 +45,13 @@ namespace AnaSamples
     bool operator== (const FileSummary& lhs, const FileSummary& rhs);
     bool operator!= (const FileSummary& lhs, const FileSummary& rhs);
 
-    static const double lumi = 10000.0; // in pb-1
+    static const double luminosity = 10000.0; // in pb-1
     //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/";
     //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Mar14_2014_v2/";
     //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_72X_July_2015_v1.1/";
     //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/Spring15_74X_July_2015_v1.1/";
-    static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/Spring15_74X_Oct_2015_Ntp_v2X/";
+    //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/Spring15_74X_Oct_2015_Ntp_v2X/";
+    static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/";
 
     template<class T>
     class SampleBase
@@ -69,9 +78,10 @@ namespace AnaSamples
     class SampleSet : public SampleBase<FileSummary>
     {
     public:
-        SampleSet(std::string fDir = fileDir);
+        SampleSet(std::string fDir = fileDir, double lumi = luminosity);
     private:
         std::string fDir_;
+	double lumi_;
     };
 
     class SampleCollection : public SampleBase<std::vector<FileSummary>>

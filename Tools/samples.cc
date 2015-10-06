@@ -26,7 +26,7 @@ namespace AnaSamples
         for(auto& f : filelist_) tc->Add(f.c_str());
     }
 
-    SampleSet::SampleSet(std::string fDir) : fDir_(fDir)
+    SampleSet::SampleSet(std::string fDir, double lumi) : fDir_(fDir), lumi_(lumi)
     {
         // ---------------
         // - backgrounds -
