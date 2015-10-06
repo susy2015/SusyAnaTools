@@ -22,9 +22,13 @@ LIBS       = $(shell root-config --glibs)
 MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
 
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
-PROGRAMS = tupleTest
+PROGRAMS = tupleTest nEvts
 
-all: $(PROGRAMS)
+all: mkobj $(PROGRAMS)
+
+
+mkobj:
+	@mkdir -p obj
 
 $(ODIR)/%.o : $(SDIR)/%.C
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
@@ -33,6 +37,9 @@ $(ODIR)/%.o : $(SDIR)/%.cc
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
 
 tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o 
+	$(LD) $^ $(LIBS) -o $@
+
+nEvts: $(ODIR)/samples.o $(ODIR)/nEvts.o
 	$(LD) $^ $(LIBS) -o $@
 
 clean:
