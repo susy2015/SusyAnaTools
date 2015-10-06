@@ -707,7 +707,7 @@ void Plotter::plot()
 
         c->cd(1);
         char lumistamp[128];
-        sprintf(lumistamp, "%.1f fb^{-1} at 13 TeV", AnaSamples::lumi / 1000.0);
+        sprintf(lumistamp, "%.1f fb^{-1} at 13 TeV", AnaSamples::luminosity / 1000.0);
         TLatex mark;
         mark.SetTextSize(0.042 * fontScale);
         mark.SetTextFont(42);
