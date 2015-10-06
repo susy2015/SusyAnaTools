@@ -227,11 +227,11 @@ namespace AnaFunctions{
            && flagID );
    }
 
-   int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const AnaConsts::ElecIsoAccRec& elesArr){
+   int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr){
 
       int cntNElectrons = 0;
       for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
-          if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], true, elesArr)) cntNElectrons ++;
+          if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], true, electronsFlagID[ie], elesArr)) cntNElectrons ++;
       }
       return cntNElectrons;
    }

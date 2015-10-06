@@ -34,6 +34,10 @@ public:
         std::string CSVVecLabel = "recoJetsBtag_0";
         std::string METLabel    = "met";
         std::string METPhiLabel = "metphi";
+
+        std::string muonsFlagIDLabel = "muonsFlagMedium";
+        std::string elesFlagIDLabel = "";
+
         if( spec.compare("noIsoTrksVeto") == 0)
         {
            doIsoTrksVeto = false;
@@ -94,8 +98,10 @@ public:
         TLorentzVector metLVec; metLVec.SetPtEtaPhiM(tr.getVar<double>(METLabel), 0, tr.getVar<double>(METPhiLabel), 0);
 
         // Calculate number of leptons
-        int nMuons = AnaFunctions::countMuons(tr.getVec<TLorentzVector>("muonsLVec"), tr.getVec<double>("muonsMiniIso"), tr.getVec<double>("muonsMtw"), AnaConsts::muonsMiniIsoArr);
-        int nElectrons = AnaFunctions::countElectrons(tr.getVec<TLorentzVector>("elesLVec"), tr.getVec<double>("elesMiniIso"), tr.getVec<double>("elesMtw"), tr.getVec<unsigned int>("elesisEB"), AnaConsts::elesMiniIsoArr);
+        const std::vector<int> & muonsFlagIDVec = muonsFlagIDLabel.empty()? std::vector<int>(tr.getVec<double>("muonsMiniIso").size(), 1):tr.getVec<int>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
+        const std::vector<int> & elesFlagIDVec = elesFlagIDLabel.empty()? std::vector<int>(tr.getVec<double>("elesMiniIso").size(), 1):tr.getVec<int>(elesFlagIDLabel.c_str()); // Fake electrons since we don't have different ID for electrons now, but maybe later
+        int nMuons = AnaFunctions::countMuons(tr.getVec<TLorentzVector>("muonsLVec"), tr.getVec<double>("muonsMiniIso"), tr.getVec<double>("muonsMtw"), muonsFlagIDVec, AnaConsts::muonsMiniIsoArr);
+        int nElectrons = AnaFunctions::countElectrons(tr.getVec<TLorentzVector>("elesLVec"), tr.getVec<double>("elesMiniIso"), tr.getVec<double>("elesMtw"), tr.getVec<unsigned int>("elesisEB"), elesFlagIDVec, AnaConsts::elesMiniIsoArr);
         int nIsoTrks = AnaFunctions::countIsoTrks(tr.getVec<TLorentzVector>("loose_isoTrksLVec"), tr.getVec<double>("loose_isoTrks_iso"), tr.getVec<double>("loose_isoTrks_mtw"), tr.getVec<int>("loose_isoTrks_pdgId"));
 
         // Calculate number of jets and b-tagged jets
@@ -282,6 +288,16 @@ namespace stopFunctions
             bTagLabel_ = bTagLabel;
         }
 
+        void setMuonsFlagID(std::string muonsFlagIDLabel)
+        {
+            muonsFlagIDLabel_ = muonsFlagIDLabel;
+        }
+
+        void setElesFlagID(std::string elesFlagIDLabel)
+        {
+            elesFlagIDLabel_ = elesFlagIDLabel;
+        }
+
         void setEnergyFractionCollections(std::string chargedEMfrac, std::string neutralEMfrac, std::string chargedHadfrac)
         {
             chargedEMFracLabel_ = chargedEMfrac;
@@ -329,6 +345,8 @@ namespace stopFunctions
             setElecIso("mini");
             setJetCollection("jetsLVec");
             setBTagCollection("recoJetsBtag_0");
+            setMuonsFlagID("muonsFlagMedium");
+            setElesFlagID("");
             setEnergyFractionCollections("recoJetschargedHadronEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedEmEnergyFraction");    
             setForceDr(false);
             setRemove(false);
@@ -340,6 +358,7 @@ namespace stopFunctions
         
     private:
         std::string muIsoStr_, elecIsoStr_, jetVecLabel_, bTagLabel_, chargedEMFracLabel_, neutralEMFracLabel_, chargedHadFracLabel_;
+        std::string muonsFlagIDLabel_, elesFlagIDLabel_;
         AnaConsts::IsoAccRec muIsoReq_;
         AnaConsts::ElecIsoAccRec elecIsoReq_;
         double elecPtThresh_;
@@ -380,6 +399,8 @@ namespace stopFunctions
             const std::vector<TLorentzVector>& muonsLVec        = tr.getVec<TLorentzVector>("muonsLVec");
             const std::vector<double>&         elesIso          = tr.getVec<double>(elecIsoStr_);
             const std::vector<double>&         muonsIso         = tr.getVec<double>(muIsoStr_);
+            const std::vector<int>&            muonsFlagIDVec   = muonsFlagIDLabel_.empty()? std::vector<int>(muonsIso.size(), 1):tr.getVec<int>(muonsFlagIDLabel_.c_str());
+            const std::vector<int>&            elesFlagIDVec    = elesFlagIDLabel_.empty()? std::vector<int>(elesIso.size(), 1):tr.getVec<int>(elesFlagIDLabel_.c_str());
             const std::vector<double>&         recoJetsBtag_0   = tr.getVec<double>(bTagLabel_);
             const std::vector<double>& chargedHadronEnergyFrac  = tr.getVec<double>(chargedHadFracLabel_);
             const std::vector<double>&     neutralEmEnergyFrac  = tr.getVec<double>(neutralEMFracLabel_);
@@ -437,7 +458,7 @@ namespace stopFunctions
             {
                 for(int iM = 0; iM < muonsLVec.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
                 {
-                    if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muIsoReq_) && muonsLVec[iM].Pt() > muonPtThresh_) 
+                    if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muonsFlagIDVec[iM], muIsoReq_) && muonsLVec[iM].Pt() > muonPtThresh_) 
                     {
                         rejectJetIdx_formuVec->push_back(-1);
                         continue;
@@ -453,7 +474,7 @@ namespace stopFunctions
 
                 for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
                 {
-                    if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) 
+                    if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elesFlagIDVec[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) 
                     {
                         rejectJetIdx_foreleVec->push_back(-1);
                         continue;
