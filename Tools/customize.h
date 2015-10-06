@@ -96,16 +96,13 @@ namespace AnaConsts{
    std::set<std::string> activatedBranchNames = { "run", "lumi", "event", "evtWeight", 
                                                   "genDecayIdxVec", "genDecayLVec", "genDecayMomIdxVec", "genDecayPdgIdVec", "genDecayStrVec", "genDecayMomRefVec",
                                                   "W_emuVec", "W_tau_emuVec", "W_tau_prongsVec", "W_tau_nuVec",
-                                                  "jetsLVec", "recoJetsBtag_0", 
-//                                                  "muonsCharge", "muonsLVec", "muonsMtw", "muonsRelIso", 
-                                                  "muonsLVec", "muonsMtw", "muonsRelIso", "muonsMiniIso",
-//                                                  "elesCharge", "elesLVec", "elesMtw", "elesRelIso", 
+                                                  "jetsLVec", "recoJetsBtag_0", "muMatchedJetIdx", "eleMatchedJetIdx", "looseisoTrksMatchedJetIdx", "trksForIsoVetoMatchedJetIdx",
+                                                  "muonsLVec", "muonsMtw", "muonsRelIso", "muonsMiniIso", "muonsFlagMedium", "muonsFlagTight",
                                                   "elesLVec", "elesMtw", "elesRelIso", "elesMiniIso", "elesisEB",
-//                                                  "loose_isoTrksLVec", "loose_isoTrks_charge", "loose_isoTrks_dz", "loose_isoTrks_iso", "loose_isoTrks_mtw", 
                                                   "loose_isoTrksLVec", "loose_isoTrks_iso", "loose_isoTrks_mtw", "loose_isoTrks_pdgId",
                                                   "met", "metphi", 
                                                   "tru_npv", "vtxSize",
-                                                  "prodJetsNoMu_jetsLVec", "recoJetsBtag",
+                                                  "prodJetsNoMu_jetsLVec", "recoJetsBtag_0_MuCleaned",
                                                   "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction"
                                                 };
 }
@@ -185,7 +182,7 @@ namespace AnaFunctions{
       return outDPhiVec;
    }
 
-   bool passMuon(const TLorentzVector& muon, const double& muonIso, const double& muonMtw, const AnaConsts::IsoAccRec& muonsArr)
+   bool passMuon(const TLorentzVector& muon, const double& muonIso, const double& muonMtw, int flagID, const AnaConsts::IsoAccRec& muonsArr)
    {
       const double minAbsEta = muonsArr.minAbsEta, maxAbsEta = muonsArr.maxAbsEta, minPt = muonsArr.minPt, maxPt = muonsArr.maxPt, maxIso = muonsArr.maxIso, maxMtw = muonsArr.maxMtw; 
       double permuonpt = muon.Pt(), permuoneta = muon.Eta();
@@ -194,7 +191,8 @@ namespace AnaFunctions{
           && (     minPt == -1 || permuonpt >= minPt )
           && (     maxPt == -1 || permuonpt < maxPt )
           && (    maxIso == -1 || muonIso < maxIso)
-          &&     (maxMtw == -1 || muonMtw < maxMtw);
+          &&     (maxMtw == -1 || muonMtw < maxMtw
+          && flagID );
    }
 
    bool passMuonAccOnly(const TLorentzVector& muon, const AnaConsts::IsoAccRec& muonsArr)
@@ -207,16 +205,16 @@ namespace AnaFunctions{
           && (     maxPt == -1 || permuonpt < maxPt );
    }
    
-   int countMuons(const std::vector<TLorentzVector> &muonsLVec, const std::vector<double> &muonsRelIso, const std::vector<double> &muonsMtw, const AnaConsts::IsoAccRec& muonsArr){
+   int countMuons(const std::vector<TLorentzVector> &muonsLVec, const std::vector<double> &muonsRelIso, const std::vector<double> &muonsMtw, const std::vector<int> &muonsFlagID, const AnaConsts::IsoAccRec& muonsArr){
       
       int cntNMuons = 0;
       for(unsigned int im=0; im<muonsLVec.size(); im++){
-          if(passMuon(muonsLVec[im], muonsRelIso[im], muonsMtw[im], muonsArr)) cntNMuons ++;
+          if(passMuon(muonsLVec[im], muonsRelIso[im], muonsMtw[im], muonsFlagID[im], muonsArr)) cntNMuons ++;
       }
       return cntNMuons;
    }
 
-   bool passElectron(const TLorentzVector& elec, const double electronIso, const double electronMtw, bool isEB, const AnaConsts::ElecIsoAccRec& elesArr)
+   bool passElectron(const TLorentzVector& elec, const double electronIso, const double electronMtw, bool isEB, int flagID, const AnaConsts::ElecIsoAccRec& elesArr)
    {
        const double minAbsEta = elesArr.minAbsEta, maxAbsEta = elesArr.maxAbsEta, minPt = elesArr.minPt, maxPt = elesArr.maxPt, maxIso = (isEB)?(elesArr.maxIsoEB):(elesArr.maxIsoEE), maxMtw = elesArr.maxMtw;
        double perelectronpt = elec.Pt(), perelectroneta = elec.Eta();
@@ -225,7 +223,8 @@ namespace AnaFunctions{
            && (     minPt == -1 || perelectronpt >= minPt )
            && (     maxPt == -1 || perelectronpt < maxPt ) 
            && (    maxIso == -1 || electronIso < maxIso )
-           && (    maxMtw == -1 || electronMtw < maxMtw );       
+           && (    maxMtw == -1 || electronMtw < maxMtw 
+           && flagID );
    }
 
    int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const AnaConsts::ElecIsoAccRec& elesArr){
@@ -237,11 +236,11 @@ namespace AnaFunctions{
       return cntNElectrons;
    }
 
-   int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<unsigned int>& isEBVec, const AnaConsts::ElecIsoAccRec& elesArr){
+   int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<unsigned int>& isEBVec, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr){
 
       int cntNElectrons = 0;
       for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
-          if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], isEBVec[ie], elesArr)) cntNElectrons ++;
+          if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], isEBVec[ie], electronsFlagID[ie], elesArr)) cntNElectrons ++;
       }
       return cntNElectrons;
    }
