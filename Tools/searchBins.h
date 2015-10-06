@@ -240,9 +240,9 @@ int find_Binning_Index(int ibJet, int iTop, double MT2, double met){
             && (nTops_SR_lo[iSR] == -1 || iTop >= nTops_SR_lo[iSR])
             && (nTops_SR_hi[iSR] == -1 || iTop  < nTops_SR_hi[iSR])
             && (MT2_lo == -1 || MT2 >= MT2_lo )
-            && (MT2_hi == -1 || MT2 < MT2_hi )
+            && (MT2_hi == -1 || MT2  < MT2_hi )
             && (met_lo == -1 || met >= met_lo )
-            && (met_hi == -1 || met < met_hi ) ){
+            && (met_hi == -1 || met  < met_hi ) ){
             pickedIdx = idx;
             break;
          }
