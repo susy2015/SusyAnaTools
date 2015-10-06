@@ -205,6 +205,7 @@ int find_Binning_Index(int ibJet, int iTop, double MT2, double met){
 struct searchBinDef{
    double bJet_lo, top_lo, met_lo, MT2_lo;
    double bJet_hi, top_hi, met_hi, MT2_hi;
+   int idx_SR;
 };
 
 void find_BinBoundaries(int inputIdx, searchBinDef & outBinDef){
@@ -222,6 +223,7 @@ void find_BinBoundaries(int inputIdx, searchBinDef & outBinDef){
             outBinDef.top_lo = nTops_SR_lo[iSR]; outBinDef.top_hi = nTops_SR_hi[iSR];
             outBinDef.MT2_lo = vMT2_vs_met_per_SR[0].at(ib); outBinDef.MT2_hi = vMT2_vs_met_per_SR[1].at(ib);
             outBinDef.met_lo = vMT2_vs_met_per_SR[2].at(ib); outBinDef.met_hi = vMT2_vs_met_per_SR[3].at(ib); 
+	    outBinDef.idx_SR = inputIdx;
             return;
          }
       }
