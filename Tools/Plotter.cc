@@ -36,7 +36,7 @@ const int stackColors[] = {
 };
 const int NSTACKCOLORS = sizeof(stackColors) / sizeof(int);
 
-Plotter::Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple, std::string ofname, int nFile, int startFile) : nFile_(nFile), startFile_(startFile)
+Plotter::Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple, std::string ofname, const int nFile, const int startFile, const int nEvts) : nFile_(nFile), startFile_(startFile), maxEvts_(nEvts)
 {
     TH1::AddDirectory(false);
 
@@ -163,7 +163,7 @@ double Plotter::DatasetSummary::getWeight(const NTupleReader& tr) const
     double retval = 1.0;
     for(auto& weight : weightVec_)
     {
-        if(tr.getVar<double>(weight) > 25) std::cout << weight << "\t" << tr.getVar<double>(weight) << std::endl;
+        if(tr.getVar<double>(weight) > 250) std::cout << weight << "\t" << tr.getVar<double>(weight) << std::endl;
         retval *= tr.getVar<double>(weight);
     }
     return retval;
@@ -258,6 +258,7 @@ void Plotter::createHistsFromTuple()
 
             while(tr.getNextEvent())
             {
+                if(maxEvts_ > 0 && tr.getEvtNum() > maxEvts_) break;
                 if(tr.getEvtNum() %1000 == 0) std::cout << "Event #: " << tr.getEvtNum() << std::endl;
                 for(auto& hist : histsToFill)
                 {
