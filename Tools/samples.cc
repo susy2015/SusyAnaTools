@@ -126,21 +126,25 @@ namespace AnaSamples
         // - data -
         // --------
 	
-	sampleSet_["SingleMuon_2015B"] = FileSummary(fDir_ + "Data_50ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015B-PromptReco-v1.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["SingleMuon_2015C"] = FileSummary(fDir_ + "Data_25ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015C-PromptReco-v1.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["SingleMuon_2015D"] = FileSummary(fDir_ + "Data_25ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015D-PromptReco-v3.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015B"] = FileSummary(fDir_ + "Data_50ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015B-PromptReco-v1.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015C"] = FileSummary(fDir_ + "Data_25ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015C-PromptReco-v1.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015D"] = FileSummary(fDir_ + "Data_25ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015D-PromptReco-v3.txt","stopTreeMaker/AUX", 1.0,  kBlack);
 
-	sampleSet_["SingleElectron_2015B"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["SingleElectron_2015C"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["SingleElectron_2015D"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_SingleElectron_2015B"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_SingleElectron_2015C"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_SingleElectron_2015D"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
 
-	sampleSet_["DoubleMuon_2015B"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["DoubleMuon_2015C"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["DoubleMuon_2015D"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_DoubleMuon_2015B"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_DoubleMuon_2015C"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_DoubleMuon_2015D"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
 
-	sampleSet_["DoubleEG_2015B"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["DoubleEG_2015C"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["DoubleEG_2015D"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015B"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015C"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015D"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+
+	sampleSet_["Data_HTMHT_2015B"] = FileSummary(fDir_ + MCloc + "HTMHT/Spring15_74X_Oct_2015_Ntp_v2p1_HTMHT-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015C"] = FileSummary(fDir_ + MCloc + "HTMHT/Spring15_74X_Oct_2015_Ntp_v2p1_HTMHT-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015D"] = FileSummary(fDir_ + MCloc + "HTMHT/Spring15_74X_Oct_2015_Ntp_v2p1_HTMHT-Run2015D-PromptReco_FIX.txt","stopTreeMaker/AUX", 1.0,  kBlack);
 
         // ----------
 	// - signal -
@@ -170,14 +174,19 @@ namespace AnaSamples
         //sampleSet_["WJetsToLNu"]         = {samples["WJetsToLNu_HT_600toInf"], samples["WJetsToLNu_HT_400to600"], samples["WJetsToLNu_HT_200to400"], samples["WJetsToLNu_HT_100to200"]};
         addSampleSet(samples, "ZJetsToNuNu", {"ZJetsToNuNu_HT_600toInf", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200"});
         addSampleSet(samples, "DYJetsToLL", {"DYJetsToLL_HT_600toInf", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200"});
+        sampleSet_["TTbar"]              = {samples["TTbarInc"]};
         sampleSet_["TTbarSingleLep"]     = {samples["TTbarSingleLepT"], samples["TTbarSingleLepTbar"]};
+        sampleSet_["TTbarDiLep"]         = {samples["TTbarDiLep"]};
+        sampleSet_["TTbarHT"]            = {samples["TTbar_HT-600to800"], samples["TTbar_HT-800to1200"], samples["TTbar_HT-1200to2500"], samples["TTbar_HT-2500toInf"]};
         sampleSet_["TTbarNoHad"]         = {samples["TTbarSingleLepT"], samples["TTbarSingleLepTbar"], samples["TTbarDiLep"]};
         // Only all had. part of TTbarInc
         sampleSet_["TTbarAll"]           = {samples["TTbarInc"], samples["TTbarSingleLepT"], samples["TTbarSingleLepTbar"], samples["TTbarDiLep"]};
         // Only all had. part of TTbarInc & HT cuts on inclusive samples
         sampleSet_["TTbarExt"]           = {samples["TTbarInc"], samples["TTbarSingleLepT"], samples["TTbarSingleLepTbar"], samples["TTbarDiLep"], samples["TTbar_HT-600to800"], samples["TTbar_HT-800to1200"], samples["TTbar_HT-1200to2500"], samples["TTbar_HT-2500toInf"]};
+
         sampleSet_["WJetsToLNu_LESS"]    = {samples["WJetsToLNu_HT_600toInf"], samples["WJetsToLNu_HT_400to600"], samples["WJetsToLNu_HT_200to400"], samples["WJetsToLNu_HT_100to200"]};
         sampleSet_["WJetsToLNu"]         = {samples["WJetsToLNu_HT_2500toInf"], samples["WJetsToLNu_HT_1200to2500"], samples["WJetsToLNu_HT_800to1200"], samples["WJetsToLNu_HT_600to800"], samples["WJetsToLNu_HT_400to600"], samples["WJetsToLNu_HT_200to400"], samples["WJetsToLNu_HT_100to200"]};
+
         sampleSet_["ZJetsToNuNu"]        = {samples["ZJetsToNuNu_HT_600toInf"], samples["ZJetsToNuNu_HT_400to600"], samples["ZJetsToNuNu_HT_200to400"], samples["ZJetsToNuNu_HT_100to200"]};
         sampleSet_["DYJetsToLL"]         = {samples["DYJetsToLL_HT_600toInf"], samples["DYJetsToLL_HT_400to600"], samples["DYJetsToLL_HT_200to400"], samples["DYJetsToLL_HT_100to200"]};
         sampleSet_["IncDY"]              = {samples["DYJetsToLL"]};
@@ -186,6 +195,27 @@ namespace AnaSamples
         //sampleSet_["TTZ"]                = {samples["TTZ"]};
         addSampleSet(samples, "SingleMuon50ns", {"SingleMuon_2015B"});
         addSampleSet(samples, "SingleMuon25ns", {"SingleMuon_2015C", "SingleMuon_2015D"});
+        sampleSet_["QCD"]                = {samples["QCD_HT2000toInf"], samples["QCD_HT1500to2000"], samples["QCD_HT1000to1500"], samples["QCD_HT700to1000"], samples["QCD_HT500to700"], samples["QCD_HT300to500"], samples["QCD_HT200to300"], samples["QCD_HT100to200"]};
+
+        sampleSet_["tW"]                 = {samples["tW_top"], samples["tW_antitop"]};
+        sampleSet_["TTZ"]                = {samples["TTZToLLNuNu"], samples["TTZToQQ"]};
+        sampleSet_["TTW"]                = {samples["TTWJetsToLNu"], samples["TTWJetsToQQ"]};
+
+	sampleSet_["Data_SingleMuon50ns"]     = {samples["Data_SingleMuon_2015B"]};
+	sampleSet_["Data_SingleMuon25ns"]     = {samples["Data_SingleMuon_2015C"], samples["Data_SingleMuon_2015D"]};
+
+	sampleSet_["Data_SingleElectron50ns"] = {samples["Data_SingleElectron_2015B"]};
+	sampleSet_["Data_SingleElectron25ns"] = {samples["Data_SingleElectron_2015C"], samples["Data_SingleElectron_2015D"]};
+
+	sampleSet_["Data_DoubleMuon50ns"]     = {samples["Data_DoubleMuon_2015B"]};
+	sampleSet_["Data_DoubleMuon25ns"]     = {samples["Data_DoubleMuon_2015C"], samples["Data_DoubleMuon_2015D"]};
+
+	sampleSet_["Data_DoubleEG50ns"]       = {samples["Data_DoubleEG_2015B"]};
+	sampleSet_["Data_DoubleEG25ns"]       = {samples["Data_DoubleEG_2015C"], samples["Data_DoubleEG_2015D"]};
+
+	sampleSet_["Data_HTMHT50ns"]          = {samples["Data_HTMHT_2015B"]};
+	sampleSet_["Data_HTMHT25ns"]          = {samples["Data_HTMHT_2015C"], samples["Data_HTMHT_2015D"]};
+
     }
 
     void SampleCollection::addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss)

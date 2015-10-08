@@ -69,6 +69,8 @@ namespace AnaConsts{
 
    const double cutCSVS = 0.814, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
    const double defaultMETcut = 200;
+   const double defaultMT2cut = 200;
+   const double defaultHTcut = 500;
 
 //                                    minAbsEta, maxAbsEta, minPt, maxPt,   maxIso,  maxMtw
    const IsoAccRec     muonsArr =    {   -1,       2.4,      10,     -1,       0.2,     -1  };
@@ -93,9 +95,7 @@ namespace AnaConsts{
 
    const double MT2cut_ = 300, mTcombcut_ = 500;
 
-   std::set<std::string> activatedBranchNames = { "run", "lumi", "event", "evtWeight", 
-                                                  "genDecayIdxVec", "genDecayLVec", "genDecayMomIdxVec", "genDecayPdgIdVec", "genDecayStrVec", "genDecayMomRefVec",
-                                                  "W_emuVec", "W_tau_emuVec", "W_tau_prongsVec", "W_tau_nuVec",
+   std::set<std::string> activatedBranchNames_DataOnly = { "run", "lumi", "event", "evtWeight", 
                                                   "jetsLVec", "recoJetsBtag_0", "muMatchedJetIdx", "eleMatchedJetIdx", "looseisoTrksMatchedJetIdx", "trksForIsoVetoMatchedJetIdx",
                                                   "muonsLVec", "muonsMtw", "muonsRelIso", "muonsMiniIso", "muonsFlagMedium", "muonsFlagTight",
                                                   "elesLVec", "elesMtw", "elesRelIso", "elesMiniIso", "elesisEB",
@@ -103,8 +103,18 @@ namespace AnaConsts{
                                                   "met", "metphi", 
                                                   "tru_npv", "vtxSize",
                                                   "prodJetsNoMu_jetsLVec", "recoJetsBtag_0_MuCleaned",
-                                                  "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction"
+                                                  "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction",
+                                                  "prodJetIDEventFilter", "CSCTightHaloFilter", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter",
+                                                  "TriggerNames", "PassTrigger"
                                                 };
+
+   std::set<std::string> activatedBranchNames = {
+                                                  // Only exist in MC samples
+                                                  "genDecayIdxVec", "genDecayLVec", "genDecayMomIdxVec", "genDecayPdgIdVec", "genDecayStrVec", "genDecayMomRefVec",
+                                                  "W_emuVec", "W_tau_emuVec", "W_tau_prongsVec", "W_tau_nuVec",
+                                                  "genHT", "PDFweights", "PDFids"
+                                                };
+
 }
 
 namespace AnaFunctions{
@@ -338,6 +348,11 @@ namespace AnaFunctions{
    void prepareTopTagger(){
       if( !type3Ptr ) type3Ptr = new topTagger::type3TopTagger();
       type3Ptr->setnJetsSel(AnaConsts::nJetsSel);
+   }
+
+   void prepareForNtupleReader(){
+      using namespace AnaConsts;
+      activatedBranchNames.insert(activatedBranchNames_DataOnly.begin(), activatedBranchNames_DataOnly.end());
    }
 
    double calcHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr){
