@@ -169,52 +169,46 @@ namespace AnaSamples
 
     SampleCollection::SampleCollection(SampleSet samples)
     {
-        //Define sets of samples for later use 
-        //sampleSet_["TTbar"]              = {samples["TTbar"]};
-        //sampleSet_["WJetsToLNu"]         = {samples["WJetsToLNu_HT_600toInf"], samples["WJetsToLNu_HT_400to600"], samples["WJetsToLNu_HT_200to400"], samples["WJetsToLNu_HT_100to200"]};
+        //Define sets of samples for later use
+        addSampleSet(samples, "TTbar", {"TTbarInc"});
+        addSampleSet(samples, "TTbarSingleLep", {"TTbarSingleLepT", "TTbarSingleLepTbar"});
+        addSampleSet(samples, "TTbarDiLep", {"TTbarDiLep"});
+        addSampleSet(samples, "TTbarHT", {"TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
+        addSampleSet(samples, "TTbarNoHad", {"TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
+
+        // Only all had. part of TTbarInc
+        addSampleSet(samples, "TTbarAll", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
+
+        // Only all had. part of TTbarInc & HT cuts on inclusive samples
+        addSampleSet(samples, "TTbarExt", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", "TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
+
+        addSampleSet(samples, "WJetsToLNu_LESS", {"WJetsToLNu_HT_600toInf", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
+        addSampleSet(samples, "WJetsToLNu", {"WJetsToLNu_HT_2500toInf", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
+
         addSampleSet(samples, "ZJetsToNuNu", {"ZJetsToNuNu_HT_600toInf", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200"});
         addSampleSet(samples, "DYJetsToLL", {"DYJetsToLL_HT_600toInf", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200"});
-        sampleSet_["TTbar"]              = {samples["TTbarInc"]};
-        sampleSet_["TTbarSingleLep"]     = {samples["TTbarSingleLepT"], samples["TTbarSingleLepTbar"]};
-        sampleSet_["TTbarDiLep"]         = {samples["TTbarDiLep"]};
-        sampleSet_["TTbarHT"]            = {samples["TTbar_HT-600to800"], samples["TTbar_HT-800to1200"], samples["TTbar_HT-1200to2500"], samples["TTbar_HT-2500toInf"]};
-        sampleSet_["TTbarNoHad"]         = {samples["TTbarSingleLepT"], samples["TTbarSingleLepTbar"], samples["TTbarDiLep"]};
-        // Only all had. part of TTbarInc
-        sampleSet_["TTbarAll"]           = {samples["TTbarInc"], samples["TTbarSingleLepT"], samples["TTbarSingleLepTbar"], samples["TTbarDiLep"]};
-        // Only all had. part of TTbarInc & HT cuts on inclusive samples
-        sampleSet_["TTbarExt"]           = {samples["TTbarInc"], samples["TTbarSingleLepT"], samples["TTbarSingleLepTbar"], samples["TTbarDiLep"], samples["TTbar_HT-600to800"], samples["TTbar_HT-800to1200"], samples["TTbar_HT-1200to2500"], samples["TTbar_HT-2500toInf"]};
+        addSampleSet(samples, "IncDY", {"DYJetsToLL"});
 
-        sampleSet_["WJetsToLNu_LESS"]    = {samples["WJetsToLNu_HT_600toInf"], samples["WJetsToLNu_HT_400to600"], samples["WJetsToLNu_HT_200to400"], samples["WJetsToLNu_HT_100to200"]};
-        sampleSet_["WJetsToLNu"]         = {samples["WJetsToLNu_HT_2500toInf"], samples["WJetsToLNu_HT_1200to2500"], samples["WJetsToLNu_HT_800to1200"], samples["WJetsToLNu_HT_600to800"], samples["WJetsToLNu_HT_400to600"], samples["WJetsToLNu_HT_200to400"], samples["WJetsToLNu_HT_100to200"]};
+        addSampleSet(samples, "QCD", {"QCD_HT2000toInf", "QCD_HT1500to2000", "QCD_HT1000to1500", "QCD_HT700to1000", "QCD_HT500to700", "QCD_HT300to500", "QCD_HT200to300", "QCD_HT100to200"});
 
-        sampleSet_["ZJetsToNuNu"]        = {samples["ZJetsToNuNu_HT_600toInf"], samples["ZJetsToNuNu_HT_400to600"], samples["ZJetsToNuNu_HT_200to400"], samples["ZJetsToNuNu_HT_100to200"]};
-        sampleSet_["DYJetsToLL"]         = {samples["DYJetsToLL_HT_600toInf"], samples["DYJetsToLL_HT_400to600"], samples["DYJetsToLL_HT_200to400"], samples["DYJetsToLL_HT_100to200"]};
-        sampleSet_["IncDY"]              = {samples["DYJetsToLL"]};
-        //sampleSet_["QCD"]                = {samples["QCD_HT_1000toInf"], samples["QCD_HT_500to1000"], samples["QCD_HT_250to500"]};
-        //sampleSet_["T_tW"]               = {samples["T_tW"], samples["Tbar_tW"]};
-        //sampleSet_["TTZ"]                = {samples["TTZ"]};
-        addSampleSet(samples, "SingleMuon50ns", {"SingleMuon_2015B"});
-        addSampleSet(samples, "SingleMuon25ns", {"SingleMuon_2015C", "SingleMuon_2015D"});
-        sampleSet_["QCD"]                = {samples["QCD_HT2000toInf"], samples["QCD_HT1500to2000"], samples["QCD_HT1000to1500"], samples["QCD_HT700to1000"], samples["QCD_HT500to700"], samples["QCD_HT300to500"], samples["QCD_HT200to300"], samples["QCD_HT100to200"]};
+        addSampleSet(samples, "tW", {"tW_top", "tW_antitop"});
+        addSampleSet(samples, "TTZ", {"TTZToLLNuNu", "TTZToQQ"});
+        addSampleSet(samples, "TTW", {"TTWJetsToLNu", "TTWJetsToQQ"});
 
-        sampleSet_["tW"]                 = {samples["tW_top"], samples["tW_antitop"]};
-        sampleSet_["TTZ"]                = {samples["TTZToLLNuNu"], samples["TTZToQQ"]};
-        sampleSet_["TTW"]                = {samples["TTWJetsToLNu"], samples["TTWJetsToQQ"]};
+        addSampleSet(samples, "Data_SingleMuon50ns", {"Data_SingleMuon_2015B"});
+        addSampleSet(samples, "Data_SingleMuon25ns", {"Data_SingleMuon_2015C", "Data_SingleMuon_2015D"});
 
-	sampleSet_["Data_SingleMuon50ns"]     = {samples["Data_SingleMuon_2015B"]};
-	sampleSet_["Data_SingleMuon25ns"]     = {samples["Data_SingleMuon_2015C"], samples["Data_SingleMuon_2015D"]};
+        addSampleSet(samples, "Data_SingleElectron50ns", {"Data_SingleElectron_2015B"});
+        addSampleSet(samples, "Data_SingleElectron25ns", {"Data_SingleElectron_2015C", "Data_SingleElectron_2015D"});
 
-	sampleSet_["Data_SingleElectron50ns"] = {samples["Data_SingleElectron_2015B"]};
-	sampleSet_["Data_SingleElectron25ns"] = {samples["Data_SingleElectron_2015C"], samples["Data_SingleElectron_2015D"]};
+        addSampleSet(samples, "Data_DoubleMuon50ns", {"Data_DoubleMuon_2015B"});
+        addSampleSet(samples, "Data_DoubleMuon25ns", {"Data_DoubleMuon_2015C", "Data_DoubleMuon_2015D"});
 
-	sampleSet_["Data_DoubleMuon50ns"]     = {samples["Data_DoubleMuon_2015B"]};
-	sampleSet_["Data_DoubleMuon25ns"]     = {samples["Data_DoubleMuon_2015C"], samples["Data_DoubleMuon_2015D"]};
+        addSampleSet(samples, "Data_DoubleEG50ns", {"Data_DoubleEG_2015B"});
+        addSampleSet(samples, "Data_DoubleEG25ns", {"Data_DoubleEG_2015C", "Data_DoubleEG_2015D"});
 
-	sampleSet_["Data_DoubleEG50ns"]       = {samples["Data_DoubleEG_2015B"]};
-	sampleSet_["Data_DoubleEG25ns"]       = {samples["Data_DoubleEG_2015C"], samples["Data_DoubleEG_2015D"]};
-
-	sampleSet_["Data_HTMHT50ns"]          = {samples["Data_HTMHT_2015B"]};
-	sampleSet_["Data_HTMHT25ns"]          = {samples["Data_HTMHT_2015C"], samples["Data_HTMHT_2015D"]};
+        addSampleSet(samples, "Data_HTMHT50ns", {"Data_HTMHT_2015B"});
+        addSampleSet(samples, "Data_HTMHT25ns", {"Data_HTMHT_2015C", "Data_HTMHT_2015D"});
 
     }
 

@@ -2,6 +2,7 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TChain.h"
 
 #include <iostream>
 #include <sstream>
@@ -33,7 +34,10 @@ int main(int argc, char *argv[])
         }
 
         TChain *t = new TChain(file.second.treePath.c_str());
-        file.second.addFilesToChain(t);
+        for(const auto& fn : file.second.getFilelist())
+        {
+            t->Add(fn.c_str());
+        }
      
         std::cout << "Processing file(s): " << file.second.filePath << "\t" << t->GetEntries() << std::endl;
     }
