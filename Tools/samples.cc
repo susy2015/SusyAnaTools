@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cstdio>
+#include <cstring>
 
 namespace AnaSamples
 {
@@ -19,11 +20,6 @@ namespace AnaSamples
             fclose(f);
         }
         else std::cout << "Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
-    }
-
-    void FileSummary::addFilesToChain(TChain * const tc) const
-    {
-        for(auto& f : filelist_) tc->Add(f.c_str());
     }
 
     SampleSet::SampleSet(std::string fDir, double lumi) : fDir_(fDir), lumi_(lumi)
@@ -161,14 +157,27 @@ namespace AnaSamples
         //Define sets of samples for later use 
         //sampleSet_["TTbar"]              = {samples["TTbar"]};
         //sampleSet_["WJetsToLNu"]         = {samples["WJetsToLNu_HT_600toInf"], samples["WJetsToLNu_HT_400to600"], samples["WJetsToLNu_HT_200to400"], samples["WJetsToLNu_HT_100to200"]};
-        sampleSet_["ZJetsToNuNu"]        = {samples["ZJetsToNuNu_HT_600toInf"], samples["ZJetsToNuNu_HT_400to600"], samples["ZJetsToNuNu_HT_200to400"], samples["ZJetsToNuNu_HT_100to200"]};
-        sampleSet_["DYJetsToLL"]         = {samples["DYJetsToLL_HT_600toInf"], samples["DYJetsToLL_HT_400to600"], samples["DYJetsToLL_HT_200to400"], samples["DYJetsToLL_HT_100to200"]};
-        sampleSet_["IncDY"]              = {samples["DYJetsToLL"]};
+        addSampleSet(samples, "ZJetsToNuNu", {"ZJetsToNuNu_HT_600toInf", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200"});
+        addSampleSet(samples, "DYJetsToLL", {"DYJetsToLL_HT_600toInf", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200"});
         //sampleSet_["QCD"]                = {samples["QCD_HT_1000toInf"], samples["QCD_HT_500to1000"], samples["QCD_HT_250to500"]};
         //sampleSet_["T_tW"]               = {samples["T_tW"], samples["Tbar_tW"]};
         //sampleSet_["TTZ"]                = {samples["TTZ"]};
-	sampleSet_["SingleMuon50ns"]           = {samples["SingleMuon_2015B"]};
-	sampleSet_["SingleMuon25ns"]           = {samples["SingleMuon_2015C"], samples["SingleMuon_2015D"]};
+        addSampleSet(samples, "SingleMuon50ns", {"SingleMuon_2015B"});
+        addSampleSet(samples, "SingleMuon25ns", {"SingleMuon_2015C", "SingleMuon_2015D"});
+    }
+
+    void SampleCollection::addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss)
+    {
+        for(std::string& sn : vss)
+        {
+            sampleSet_[name].push_back(samples[sn]);
+            nameVec_[name].push_back(sn);
+        }
+    }
+
+    std::vector<std::string>& SampleCollection::getSampleLabels(std::string name)
+    {
+        return nameVec_[name];
     }
 
     bool operator< (const FileSummary& lhs, const FileSummary& rhs)

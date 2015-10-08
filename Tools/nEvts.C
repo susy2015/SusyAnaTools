@@ -1,7 +1,7 @@
 #include "../../SusyAnaTools/Tools/samples.h"
 
 #include "TFile.h"
-#include "TChain.h"
+#include "TTree.h"
 
 #include <iostream>
 
@@ -10,15 +10,19 @@ int main()
     AnaSamples::SampleSet        ss;
     AnaSamples::SampleCollection sc(ss);
 
-//    for(auto& filelist : sc)
-//    {
-        for(auto& file : ss) 
+    for(auto& filelist : ss) 
+    {
+        auto fileVec = filelist.second.getFilelist();
+        int nEvts = 0;
+        for(auto& filename : fileVec)
         {
-            TChain *t = new TChain(file.second.treePath.c_str());
-            file.second.addFilesToChain(t);
-     
-            std::cout << "Processing file(s): " << file.second.filePath << "\t" << t->GetEntries() << std::endl;
+            TFile *f = TFile::Open(filename.c_str());
+            TTree *t = (TTree*)f->Get(filelist.second.treePath.c_str());
+            nEvts += t->GetEntries();
+            f->Close();
         }
-//    }
+     
+        std::cout << "Processing file(s): " << filelist.second.filePath << "\t" << nEvts << std::endl;
+    }
 
 }
