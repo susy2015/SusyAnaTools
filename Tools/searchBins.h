@@ -64,15 +64,16 @@ const std::vector<std::vector<double> > vMT2_vs_met_SR_2 { // nb>=3, ntop=0
                                                            {300,  -1},
                                                          };
 */
+
 const std::vector<std::vector<double> > vMT2_vs_met_SR_3 { // nb=1, ntop=1
                                                            // MT2 lo 
-                                                           {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400, 400, 400},
+                                                           {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400, 400},
                                                            // MT2 hi 
-                                                           {300, 300, 300, 300, /**/ 400, 400, 400, 400, /**/  -1,  -1,  -1,  -1},
+                                                           {300, 300, 300, 300, /**/ 400, 400, 400, 400, /**/  -1,  -1,  -1},
                                                            // met lo 
-                                                           {200, 300, 400, 500, /**/ 200, 300, 400, 500, /**/ 200, 300, 400, 525},
+                                                           {200, 275, 350, 450, /**/ 200, 275, 350, 450, /**/ 200, 350, 450},
                                                            // met hi 
-                                                           {300, 400, 500,  -1, /**/ 300, 400, 500,  -1, /**/ 300, 400, 525,  -1}
+                                                           {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 350, 450,  -1}
                                                          };
 
 
@@ -82,9 +83,9 @@ const std::vector<std::vector<double> > vMT2_vs_met_SR_4 { // nb=2, ntop=1
                                                            // MT2 hi 
                                                            {300, 300, 300, 300, /**/ 400, 400, 400, 400, /**/  -1,  -1},
                                                            // met lo 
-                                                           {200, 300, 375, 475, /**/ 200, 300, 375, 475, /**/ 200, 500},
+                                                           {200, 275, 350, 450, /**/ 200, 275, 350, 450, /**/ 200, 450},
                                                            // met hi 
-                                                           {300, 375, 475,  -1, /**/ 300, 375, 475,  -1, /**/ 500,  -1}
+                                                           {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 450,  -1}
                                                          };
 
 const std::vector<std::vector<double> > vMT2_vs_met_SR_5 { // nb>=3, ntop=1
@@ -104,9 +105,9 @@ const std::vector<std::vector<double> > vMT2_vs_met_SR_6 { // nb=1, ntop=2
                                                            // MT2 hi 
                                                            {300, 300, 300, /**/ 400, 400, 400, /**/  -1,  -1},
                                                            // met lo 
-                                                           {200, 300, 400, /**/ 200, 300, 400, /**/ 200, 400},
+                                                           {200, 275, 350, /**/ 200, 275, 350, /**/ 200, 350},
                                                            // met hi 
-                                                           {300, 400,  -1, /**/ 300, 400,  -1, /**/ 400,  -1}
+                                                           {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1}
                                                          };
 
 const std::vector<std::vector<double> > vMT2_vs_met_SR_7 { // nb=2, ntop=2
@@ -115,44 +116,44 @@ const std::vector<std::vector<double> > vMT2_vs_met_SR_7 { // nb=2, ntop=2
                                                            // MT2 hi 
                                                            {300, 300, 300, /**/ 400, 400, 400, /**/  -1,  -1},
                                                            // met lo 
-                                                           {200, 300, 400, /**/ 200, 300, 400, /**/ 200, 400},
+                                                           {200, 275, 350, /**/ 200, 275, 350, /**/ 200, 350},
                                                            // met hi 
-                                                           {300, 400,  -1, /**/ 300, 400,  -1, /**/ 400,  -1}
+                                                           {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1}
                                                          };
 
 
 const std::vector<std::vector<double> > vMT2_vs_met_SR_8 { // nb>=3, ntop=2
                                                            // MT2 lo 
-                                                           {200, 200, 200},
+                                                           {200, 200},
                                                            // MT2 hi 
-                                                           { -1,  -1,  -1},
+                                                           { -1,  -1},
                                                            // met lo 
-                                                           {200, 275, 350},
+                                                           {200, 300},
                                                            // met hi 
-                                                           {275, 350,  -1}
+                                                           {300,  -1}
                                                          };
 
 
 const std::vector<std::vector<double> > vMT2_vs_met_SR_9 { // nb=1, ntop=3
                                                            // MT2 lo 
-                                                           {200, 200},
+                                                           {200},
                                                            // MT2 hi 
-                                                           { -1,  -1},
+                                                           { -1},
                                                            // met lo 
-                                                           {200, 250},
+                                                           {200},
                                                            // met hi 
-                                                           {250,  -1}
+                                                           { -1}
                                                          };
 
 const std::vector<std::vector<double> > vMT2_vs_met_SR_10 { // nb=2, ntop=3
                                                            // MT2 lo 
-                                                           {200, 200},
+                                                           {200},
                                                            // MT2 hi 
-                                                           { -1,  -1},
+                                                           { -1},
                                                            // met lo 
-                                                           {200, 275},
+                                                           {200},
                                                            // met hi 
-                                                           {275,  -1}
+                                                           { -1}
                                                          };
 
 const std::vector<std::vector<double> > vMT2_vs_met_SR_11 { // nb>=3, ntop=3
@@ -202,7 +203,7 @@ void build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::vector<double
       }
       outBinning.push_back(perBinning);
    }
-   std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
+//   std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
 }
 
 void build_MT2_met_Binning(std::vector<std::vector<std::vector<double> > > & outBinning){
