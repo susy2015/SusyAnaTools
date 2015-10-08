@@ -203,7 +203,7 @@ void build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::vector<double
       }
       outBinning.push_back(perBinning);
    }
-   std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
+//   std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
 }
 
 void build_MT2_met_Binning(std::vector<std::vector<std::vector<double> > > & outBinning){

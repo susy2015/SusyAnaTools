@@ -23,6 +23,7 @@ public:
         bool debug = false;
         bool doIsoTrksVeto = true;
         bool doMuonVeto = true;
+        bool doEleVeto = true;
         bool incZEROtop = false;
 
         bool passBaseline = true;
@@ -49,10 +50,17 @@ public:
         else if( spec.compare("hadtau") == 0)
         {
            doMuonVeto = false;
+           doIsoTrksVeto = false;
+           METLabel = "met_hadtau";
+           METPhiLabel = "metphi_hadtau";
+           jetVecLabel = "jetsLVec_hadtau";
+           CSVVecLabel = "recoJetsBtag_0_hadtau";
         }
         else if( spec.compare("lostlept") == 0)
         {
            doMuonVeto = false;
+           doEleVeto = false; 
+           doIsoTrksVeto = false;
         }
         else if(spec.compare("Zinv") == 0) 
         {
@@ -122,7 +130,7 @@ public:
         // Pass lepton veto?
         bool passLeptVeto = true, passMuonVeto = true, passEleVeto = true, passIsoTrkVeto = true;
         if( doMuonVeto && nMuons != AnaConsts::nMuonsSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passMuonVeto = false; }
-        if( nElectrons != AnaConsts::nElectronsSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passEleVeto = false; }
+        if( doEleVeto && nElectrons != AnaConsts::nElectronsSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passEleVeto = false; }
         // Isolated track veto is disabled for now
         if( doIsoTrksVeto && nIsoTrks != AnaConsts::nIsoTrksSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passIsoTrkVeto = false; }
         if( debug ) std::cout<<"nMuons : "<<nMuons<<"  nElectrons : "<<nElectrons<<"  nIsoTrks : "<<nIsoTrks<<"  passBaseline : "<<passBaseline<<std::endl;
@@ -148,6 +156,12 @@ public:
         if( metLVec.Pt() < AnaConsts::defaultMETcut ){ passBaseline = false; passBaselineNoTag = false; passMET = false; }
         if( debug ) std::cout<<"met : "<<tr.getVar<double>("met")<<"  defaultMETcut : "<<AnaConsts::defaultMETcut<<"  passBaseline : "<<passBaseline<<std::endl;
 
+        // Pass the HT cut for trigger?
+        double HT = AnaFunctions::calcHT(tr.getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt30Eta24Arr);
+        bool passHT = true;
+        if( HT < AnaConsts::defaultHTcut ){ passHT = false; passBaseline = false; passBaselineNoTag = false; }
+        if( debug ) std::cout<<"HT : "<<HT<<"  defaultHTcut : "<<AnaConsts::defaultHTcut<<"  passHT : "<<passHT<<"  passBaseline : "<<passBaseline<<std::endl;
+
         // Calculate top tagger related variables. 
         // Note that to save speed, only do the calculation after previous base line requirements.
         int nTopCandSortedCnt = -1;
@@ -158,12 +172,19 @@ public:
             nTopCandSortedCnt = type3Ptr->nTopCandSortedCnt;
         }
 
+        // Pass the baseline MT2 requirement?
+        bool passMT2 = true;
+        if( type3Ptr->best_had_brJet_MT2 < AnaConsts::defaultMT2cut ){ passBaseline = false; passBaselineNoTag = false; passMT2 = false; }
+        if( debug ) std::cout<<"MT2 : "<<type3Ptr->best_had_brJet_MT2<<"  defaultMT2cut : "<<AnaConsts::defaultMT2cut<<"  passBaseline : "<<passBaseline<<std::endl;
+
         // Pass top tagger requirement?
         bool passTagger = type3Ptr->passNewTaggerReq() && (incZEROtop || nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel);
 
         if( !passTagger ) passBaseline = false;
 
-//        bool passNewCuts = type3Ptr->passNewCuts();
+        bool passNoiseEventFilter = true;
+        if( !passNoiseEventFilterFunc(tr) ) { passNoiseEventFilter = false; passBaseline = false; passBaselineNoTag = false; }
+        if( debug ) std::cout<<"passNoiseEventFilterFunc : "<<passNoiseEventFilterFunc(tr)<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Register all the calculated variables
         tr.registerDerivedVar("nMuons_CUT" + spec, nMuons);
@@ -190,10 +211,12 @@ public:
         tr.registerDerivedVar("passdPhis" + spec, passdPhis);
         tr.registerDerivedVar("passBJets" + spec, passBJets);
         tr.registerDerivedVar("passMET" + spec, passMET);
+        tr.registerDerivedVar("passMT2" + spec, passMT2);
+        tr.registerDerivedVar("passHT" + spec, passHT);
         tr.registerDerivedVar("passTagger" + spec, passTagger);
+        tr.registerDerivedVar("passNoiseEventFilter" + spec, passNoiseEventFilter);
         tr.registerDerivedVar("passBaseline" + spec, passBaseline);
         tr.registerDerivedVar("passBaselineNoTag" + spec, passBaselineNoTag);
-//        tr.registerDerivedVar("passNewCuts" + spec, passNewCuts);
 
         tr.registerDerivedVar("nTopCandSortedCnt" + spec, nTopCandSortedCnt);
 
@@ -201,6 +224,8 @@ public:
         tr.registerDerivedVar("best_had_brJet_MT" + spec,     type3Ptr->best_had_brJet_MT);
         tr.registerDerivedVar("best_had_brJet_mTcomb" + spec, type3Ptr->best_had_brJet_mTcomb);
         tr.registerDerivedVar("best_had_brJet_MT2" + spec,    type3Ptr->best_had_brJet_MT2);
+
+        tr.registerDerivedVar("HT" + spec, HT);
 
         double j1pt = -1.0, j2pt = -1.0, j3pt = -1.0;
         if(tr.getVec<TLorentzVector>(jetVecLabel).size() >= 1) j1pt = tr.getVec<TLorentzVector>(jetVecLabel)[0].Pt();
@@ -210,12 +235,20 @@ public:
         tr.registerDerivedVar("cleanJet2pt" + spec, j2pt);
         tr.registerDerivedVar("cleanJet3pt" + spec, j3pt);
 
-        double HT = AnaFunctions::calcHT(tr.getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt50Eta24Arr);
-        tr.registerDerivedVar("HT" + spec, HT);
-
         if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
 
     } 
+
+    bool passNoiseEventFilterFunc(NTupleReader &tr){
+       int jetIDFilter = tr.getVar<int>("prodJetIDEventFilter");
+       int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
+       int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
+       bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
+       int vtxSize = tr.getVar<int>("vtxSize");
+
+//       return jetIDFilter && beamHaloFilter && ecalTPFilter && hbheNoiseFilter;
+       return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter;
+    }
 
     void operator()(NTupleReader &tr)
     {
@@ -259,11 +292,11 @@ namespace stopFunctions
         {
             if(elecIsoFlag.compare("mini") == 0)
             {
-                std::cout << "cleanJets(...):  electron mini iso mode not implemented yet!!! Using \"rel iso\" settings." << std::endl;
-                //elecIsoStr = "elesMiniIso";
-                //elecIsoReq = AnaConsts::elessMiniIsoArr;
-                elecIsoStr_ = "elesRelIso";
-                elecIsoReq_ = AnaConsts::elesArr;
+//                std::cout << "cleanJets(...):  electron mini iso mode not implemented yet!!! Using \"rel iso\" settings." << std::endl;
+                elecIsoStr_ = "elesMiniIso";
+                elecIsoReq_ = AnaConsts::elesMiniIsoArr;
+//                elecIsoStr_ = "elesRelIso";
+//                elecIsoReq_ = AnaConsts::elesArr;
             }
             else if(elecIsoFlag.compare("rel") == 0)
             {
