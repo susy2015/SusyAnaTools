@@ -5,10 +5,12 @@
 #include <map>
 #include <vector>
 
-#include "TChain.h"
+//#include "TChain.h"
 
 namespace AnaSamples
 {
+    enum COLORS{kRed = 632, kGreen = 416, kBlack = 1, kMagenta = 616, kBlue = 600, kYellow = 400, kTeal = 840, kPink = 900, kOrange = 800, kSpring = 820, kWhite = 0, kGray = 0, kCyan = 432, kAzure = 860, kViolet = 880};
+
     class FileSummary
     {
     public:
@@ -32,7 +34,7 @@ namespace AnaSamples
         }
 
         double getWeight() const {return weight_;}
-        void addFilesToChain(TChain * const tc) const;
+        const std::vector<std::string>& getFilelist() const {return filelist_;}
         std::vector<std::string> filelist_;
 
     private:
@@ -89,6 +91,10 @@ namespace AnaSamples
     {
     public:
         SampleCollection(SampleSet samples);
+        std::vector<std::string>& getSampleLabels(std::string name);
+    private:
+        std::map<std::string, std::vector<std::string>> nameVec_;
+        void addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss);
     };
 }
 
