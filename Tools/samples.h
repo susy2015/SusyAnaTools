@@ -67,7 +67,7 @@ namespace AnaSamples
             if(iter != sampleSet_.end()) return iter->second;
             else                         return nullT_;
         }
-        
+
         const T& null() const {return nullT_;}
     protected:
         std::map<std::string, T> sampleSet_;

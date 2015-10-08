@@ -1,28 +1,45 @@
-#include "../../SusyAnaTools/Tools/samples.h"
+#include "samples.h"
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TChain.h"
 
 #include <iostream>
+#include <sstream>
 
-int main()
+int main(int argc, char *argv[])
 {
     AnaSamples::SampleSet        ss;
     AnaSamples::SampleCollection sc(ss);
 
-    for(auto& filelist : ss) 
-    {
-        auto fileVec = filelist.second.getFilelist();
-        int nEvts = 0;
-        for(auto& filename : fileVec)
-        {
-            TFile *f = TFile::Open(filename.c_str());
-            TTree *t = (TTree*)f->Get(filelist.second.treePath.c_str());
-            nEvts += t->GetEntries();
-            f->Close();
-        }
-     
-        std::cout << "Processing file(s): " << filelist.second.filePath << "\t" << nEvts << std::endl;
+    std::string selKeyStr;
+    if( argc ==2 ){
+       selKeyStr = argv[1];
+       std::cout<<"selKeyStr : "<<selKeyStr<<std::endl;
     }
 
+    std::stringstream ssSelKey(selKeyStr);
+
+    std::string buf;
+    std::vector<std::string> keyStrVec;
+    
+    while(ssSelKey >> buf) keyStrVec.push_back(buf);
+
+    for(auto& file : ss) 
+    {
+        if( !keyStrVec.empty() ){
+            bool found = false;
+            for(auto& str : keyStrVec ){ if( file.first.find(str) !=std::string::npos ) found = true; }
+            if( !found ) continue;
+        }
+
+        TChain *t = new TChain(file.second.treePath.c_str());
+        for(const auto& fn : file.second.getFilelist())
+        {
+            t->Add(fn.c_str());
+        }
+     
+        std::cout << "Processing file(s): " << file.second.filePath << "\t" << t->GetEntries() << std::endl;
+    }
+     
 }
