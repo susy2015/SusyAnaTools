@@ -135,14 +135,12 @@ public:
         if( debug ) std::cout<<"\njetsLVec_forTagger->size : "<<jetsLVec_forTagger->size()<<"  recoJetsBtag_forTagger->size : "<<recoJetsBtag_forTagger->size()<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass lepton veto?
-        bool passLeptVeto = true, passMuonVeto = true, passEleVeto = true, passIsoTrkVeto = true;
-        if( doMuonVeto && nMuons != AnaConsts::nMuonsSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passMuonVeto = false; }
-        if( nMuons != AnaConsts::nMuonsSel ){ passMuonVeto = false; }
-        if( doEleVeto && nElectrons != AnaConsts::nElectronsSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passEleVeto = false; }
-        if( nElectrons != AnaConsts::nElectronsSel ){ passEleVeto = false; }
+        bool passMuonVeto = (nMuons == AnaConsts::nMuonsSel), passEleVeto = (nElectrons == AnaConsts::nElectronsSel), passIsoTrkVeto = (nIsoTrks == AnaConsts::nIsoTrksSel);
+        bool passLeptVeto = passMuonVeto && passEleVeto && passIsoTrkVeto;
+        if( doMuonVeto && !passMuonVeto ){ passBaseline = false; passBaselineNoTag = false; }
+        if( doEleVeto && !passEleVeto ){ passBaseline = false; passBaselineNoTag = false; }
         // Isolated track veto is disabled for now
-        if( doIsoTrksVeto && nIsoTrks != AnaConsts::nIsoTrksSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passIsoTrkVeto = false; }
-        if( nIsoTrks != AnaConsts::nIsoTrksSel ){ passIsoTrkVeto = false; }
+        if( doIsoTrksVeto && !passIsoTrkVeto ){ passBaseline = false; passBaselineNoTag = false; }
 
         if( debug ) std::cout<<"nMuons : "<<nMuons<<"  nElectrons : "<<nElectrons<<"  nIsoTrks : "<<nIsoTrks<<"  passBaseline : "<<passBaseline<<std::endl;
 
@@ -153,9 +151,8 @@ public:
         if( debug ) std::cout<<"cntNJetsPt50Eta24 : "<<cntNJetsPt50Eta24<<"  cntNJetsPt30Eta24 : "<<cntNJetsPt30Eta24<<"  cntNJetsPt30 : "<<cntNJetsPt30<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass deltaPhi?
-        bool passdPhis = true;
-        if( dodPhis && (dPhiVec->at(0) < AnaConsts::dPhi0_CUT || dPhiVec->at(1) < AnaConsts::dPhi1_CUT || dPhiVec->at(2) < AnaConsts::dPhi2_CUT) ){ passBaseline = false; passBaselineNoTag = false; passdPhis = false; }
-        if( dPhiVec->at(0) < AnaConsts::dPhi0_CUT || dPhiVec->at(1) < AnaConsts::dPhi1_CUT || dPhiVec->at(2) < AnaConsts::dPhi2_CUT ){ passdPhis = false; }
+        bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
+        if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTag = false; }
         if( debug ) std::cout<<"dPhi0 : "<<dPhiVec->at(0)<<"  dPhi1 : "<<dPhiVec->at(1)<<"  dPhi2 : "<<dPhiVec->at(2)<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass number of b-tagged jets?
@@ -164,9 +161,8 @@ public:
         if( debug ) std::cout<<"cntCSVS : "<<cntCSVS<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass the baseline MET requirement?
-        bool passMET = true;
-        if( doMET && metLVec.Pt() < AnaConsts::defaultMETcut ){ passBaseline = false; passBaselineNoTag = false; passMET = false; }
-        if( metLVec.Pt() < AnaConsts::defaultMETcut ){ passMET = false; }
+        bool passMET = (metLVec.Pt() >= AnaConsts::defaultMETcut);
+        if( doMET && !passMET ){ passBaseline = false; passBaselineNoTag = false; }
         if( debug ) std::cout<<"met : "<<tr.getVar<double>("met")<<"  defaultMETcut : "<<AnaConsts::defaultMETcut<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass the HT cut for trigger?
