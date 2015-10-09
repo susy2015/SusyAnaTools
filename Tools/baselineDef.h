@@ -137,9 +137,13 @@ public:
         // Pass lepton veto?
         bool passLeptVeto = true, passMuonVeto = true, passEleVeto = true, passIsoTrkVeto = true;
         if( doMuonVeto && nMuons != AnaConsts::nMuonsSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passMuonVeto = false; }
+        if( nMuons != AnaConsts::nMuonsSel ){ passMuonVeto = false; }
         if( doEleVeto && nElectrons != AnaConsts::nElectronsSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passEleVeto = false; }
+        if( nElectrons != AnaConsts::nElectronsSel ){ passEleVeto = false; }
         // Isolated track veto is disabled for now
         if( doIsoTrksVeto && nIsoTrks != AnaConsts::nIsoTrksSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passIsoTrkVeto = false; }
+        if( nIsoTrks != AnaConsts::nIsoTrksSel ){ passIsoTrkVeto = false; }
+
         if( debug ) std::cout<<"nMuons : "<<nMuons<<"  nElectrons : "<<nElectrons<<"  nIsoTrks : "<<nIsoTrks<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass number of jets?
@@ -162,6 +166,7 @@ public:
         // Pass the baseline MET requirement?
         bool passMET = true;
         if( doMET && metLVec.Pt() < AnaConsts::defaultMETcut ){ passBaseline = false; passBaselineNoTag = false; passMET = false; }
+        if( metLVec.Pt() < AnaConsts::defaultMETcut ){ passMET = false; }
         if( debug ) std::cout<<"met : "<<tr.getVar<double>("met")<<"  defaultMETcut : "<<AnaConsts::defaultMETcut<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass the HT cut for trigger?
