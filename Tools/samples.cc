@@ -115,12 +115,13 @@ namespace AnaSamples
         sampleSet_["tW_antitop"]                 = FileSummary(fDir_ + MCloc + "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 35.6, lumi, 995600,  1.0,  kYellow);
 
         // NLO --> negative weights!
-        sampleSet_["TTZToLLNuNu"]                     = FileSummary(fDir_ + MCloc + "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.5297, lumi, 398000,  1.0,  kGreen+2);
-        sampleSet_["TTZToQQ"]                     = FileSummary(fDir_ + MCloc + "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.2529, lumi, 749800,  1.0,  kGreen+2);
+        // (sign of gen weight) * (lumi*xsec)/(effective number of events): effective number of events = N(evt) with positive weight - N(evt) with negative weight
+        sampleSet_["TTZToLLNuNu"]                     = FileSummary(fDir_ + MCloc + "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.5297, lumi, 291495 - 106505,  1.0,  kGreen+2);
+        sampleSet_["TTZToQQ"]                     = FileSummary(fDir_ + MCloc + "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.2529, lumi, 550599 - 199201,  1.0,  kGreen+2);
 
         // NLO --> negative weights!
-        sampleSet_["TTWJetsToLNu"]                     = FileSummary(fDir_ + MCloc + "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.2043, lumi, 252908,  1.0,  kGreen+2);
-        sampleSet_["TTWJetsToQQ"]                     = FileSummary(fDir_ + MCloc + "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.4062, lumi, 833964,  1.0,  kGreen+2);
+        sampleSet_["TTWJetsToLNu"]                     = FileSummary(fDir_ + MCloc + "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.2043, lumi, 191379 - 61529,  1.0,  kGreen+2);
+        sampleSet_["TTWJetsToQQ"]                     = FileSummary(fDir_ + MCloc + "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.4062, lumi, 632147 - 201817,  1.0,  kGreen+2);
 
         // --------
         // - data -

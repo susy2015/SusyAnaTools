@@ -189,8 +189,14 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         // Internal evtWeight in the sample: default is 1.0 execept for MC samples with intrinsic weight, e.g., QCD flat sample.
         double iniWeight = tr->getVar<double>("evtWeight");
         double puWeight = 1.0; // currently set to be 1.0
+
+        double stored_weight = tr->getVar<double>("stored_weight");
+        int sign_of_stored_weight = (stored_weight > 0 || keyStringT.Contains("Data")) ? 1 : ((stored_weight < 0) ? -1 : 0);
+        if( sign_of_stored_weight == 1 ) h1_cutFlow_auxVec.back()->Fill("posSign", 1);
+        if( sign_of_stored_weight == -1 ) h1_cutFlow_auxVec.back()->Fill("negSign", 1);
+        if( sign_of_stored_weight == 0 ) h1_cutFlow_auxVec.back()->Fill("zero", 1);
         
-        double evtWeight = iniWeight * puWeight;
+        double evtWeight = iniWeight * puWeight * sign_of_stored_weight;
 
 // Get branches out directly from what stored in the tree
         const double met = tr->getVar<double>("met");
@@ -240,26 +246,73 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 // Can directly use passBaseline to get to baseline distribution, but can also configure this
         h1_cutFlowVec.back()->Fill("original", evtWeight * scaleMC);
 
-        if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
+//        if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
+
+        if( !passnJets ) continue; h1_cutFlowVec.back()->Fill("passnJets", evtWeight * scaleMC);
 
         if( !passMuonVeto ) continue; h1_cutFlowVec.back()->Fill("passMuonVeto", evtWeight * scaleMC);
         if( !passEleVeto ) continue; h1_cutFlowVec.back()->Fill("passEleVeto", evtWeight * scaleMC);
         if( !passIsoTrkVeto ) continue; h1_cutFlowVec.back()->Fill("passIsoTrkVeto", evtWeight * scaleMC);
 
-        if( !passnJets ) continue; h1_cutFlowVec.back()->Fill("passnJets", evtWeight * scaleMC);
+        if( !passdPhis ) continue; h1_cutFlowVec.back()->Fill("passdPhis", evtWeight * scaleMC);
+
         if( !passBJets ) continue; h1_cutFlowVec.back()->Fill("passBJets", evtWeight * scaleMC);
 
         if( !passMET ) continue; h1_cutFlowVec.back()->Fill("passMET", evtWeight * scaleMC);
-        if( !passdPhis ) continue; h1_cutFlowVec.back()->Fill("passdPhis", evtWeight * scaleMC);
 
         if( !passTagger ) continue; h1_cutFlowVec.back()->Fill("passTagger", evtWeight * scaleMC);
          
+        if( !(nTops>=1) ) continue; h1_cutFlowVec.back()->Fill("passnTopsLE1", evtWeight * scaleMC);
+
         if( !passMT2 ) continue; h1_cutFlowVec.back()->Fill("passMT2", evtWeight * scaleMC);
+
         if( !passHT ) continue; h1_cutFlowVec.back()->Fill("passHT", evtWeight * scaleMC);
 
 
 // Not need, but ensure it does pass baseline
-        if( !passBaseline ) continue; h1_cutFlowVec.back()->Fill("passBaseline", evtWeight * scaleMC);
+//        if( !passBaseline ) continue; h1_cutFlowVec.back()->Fill("passBaseline", evtWeight * scaleMC);
+
+        h1_nJets_baselineVec.back()->Fill(nJets, evtWeight * scaleMC);
+        h1_nTops_baselineVec.back()->Fill(nTops, evtWeight * scaleMC);
+        h1_nbJets_baselineVec.back()->Fill(nbJets, evtWeight * scaleMC);
+
+        h1_met_baselineVec.back()->Fill(met, evtWeight * scaleMC);
+        h1_metphi_baselineVec.back()->Fill(metLVec.Phi(), evtWeight * scaleMC);
+
+        h1_MT2_baselineVec.back()->Fill(MT2, evtWeight * scaleMC);
+        h1_HT_baselineVec.back()->Fill(HT, evtWeight * scaleMC);
+
+        h1_dphi1_baselineVec.back()->Fill(dPhiVec[1], evtWeight * scaleMC);
+        h1_dphi2_baselineVec.back()->Fill(dPhiVec[2], evtWeight * scaleMC);
+        h1_dphi3_baselineVec.back()->Fill(dPhiVec[3], evtWeight * scaleMC);
+
+        h1_vtxSize_baselineVec.back()->Fill(tr->getVar<int>("vtxSize"), evtWeight * scaleMC);
+
+        for(unsigned int ij=0; ij<jetsLVec_forTagger.size(); ij++){
+           h1_allJetPt_baselineVec.back()->Fill(jetsLVec_forTagger.at(ij).Pt(), evtWeight * scaleMC);
+           h1_allJetEta_baselineVec.back()->Fill(jetsLVec_forTagger.at(ij).Eta(), evtWeight * scaleMC);
+           h1_allJetPhi_baselineVec.back()->Fill(jetsLVec_forTagger.at(ij).Phi(), evtWeight * scaleMC);
+           h1_allJetM_baselineVec.back()->Fill(jetsLVec_forTagger.at(ij).M(), evtWeight * scaleMC);
+
+           if( ij == 0 ){
+              h1_leadJetPt_baselineVec.back()->Fill(jetsLVec_forTagger.at(ij).Pt(), evtWeight * scaleMC);
+              h1_leadJetEta_baselineVec.back()->Fill(jetsLVec_forTagger.at(ij).Eta(), evtWeight * scaleMC);
+              h1_leadJetPhi_baselineVec.back()->Fill(jetsLVec_forTagger.at(ij).Phi(), evtWeight * scaleMC);
+              h1_leadJetM_baselineVec.back()->Fill(jetsLVec_forTagger.at(ij).M(), evtWeight * scaleMC);
+           }
+        }
+
+        for(unsigned int im=0; im<muonsLVec.size(); im++){
+           h1_muPt_baselineVec.back()->Fill(muonsLVec.at(im).Pt(), evtWeight * scaleMC);
+           h1_muEta_baselineVec.back()->Fill(muonsLVec.at(im).Eta(), evtWeight * scaleMC);
+           h1_muPhi_baselineVec.back()->Fill(muonsLVec.at(im).Phi(), evtWeight * scaleMC);
+        }
+
+        for(unsigned int ie=0; ie<elesLVec.size(); ie++){
+           h1_elePt_baselineVec.back()->Fill(elesLVec.at(ie).Pt(), evtWeight * scaleMC);
+           h1_eleEta_baselineVec.back()->Fill(elesLVec.at(ie).Eta(), evtWeight * scaleMC);
+           h1_elePhi_baselineVec.back()->Fill(elesLVec.at(ie).Phi(), evtWeight * scaleMC);
+        }
 
         double copymet = met, copyMT2 = MT2;
 
@@ -424,6 +477,7 @@ void basicCheck(int argc, char *argv[]){
    for(unsigned int ic=0; ic<h1_cutFlowVec.size(); ic++){ h1_cutFlowVec[ic]->LabelsDeflate(); h1_cutFlowVec[ic]->LabelsOption("v"); h1_cutFlowVec[ic]->SetMarkerSize(h1_cutFlowVec[ic]->GetMarkerSize()*1.5); }
    for(unsigned int ic=0; ic<h1_cutFlow_auxVec.size(); ic++){ h1_cutFlow_auxVec[ic]->LabelsDeflate(); h1_cutFlow_auxVec[ic]->LabelsOption("v"); h1_cutFlow_auxVec[ic]->SetMarkerSize(h1_cutFlow_auxVec[ic]->GetMarkerSize()*1.5); }
    draw1DallINone(cs, divW*divH, h1_cutFlowVec, 1, "text e"); cs->Print("basicCheck_allINone.pdf");
+   draw1DallINone(cs, divW*divH, h1_cutFlow_auxVec, 1, "text e"); cs->Print("basicCheck_allINone.pdf");
 
    for(unsigned int ic=0; ic<h2_evtCnt_nbJets_vs_nTopsVec.size(); ic++){ h2_evtCnt_nbJets_vs_nTopsVec[ic]->SetMarkerSize(h2_evtCnt_nbJets_vs_nTopsVec[ic]->GetMarkerSize()*2.0); }
    draw2DallINone(cs, divW*divH, h2_evtCnt_nbJets_vs_nTopsVec, "colz text e"); cs->Print("basicCheck_allINone.pdf");
@@ -445,6 +499,15 @@ void basicCheck(int argc, char *argv[]){
       for(int iSR = 0; iSR < nSR; iSR++){
          h2_poly_MT2_vs_metVec[iSR][ih]->Write();
       }
+
+      h1_nJets_baselineVec[ih]->Write(); h1_nTops_baselineVec[ih]->Write(); h1_nbJets_baselineVec[ih]->Write();
+      h1_met_baselineVec[ih]->Write(); h1_MT2_baselineVec[ih]->Write(); h1_HT_baselineVec[ih]->Write(); h1_metphi_baselineVec[ih]->Write();
+      h1_dphi1_baselineVec[ih]->Write(); h1_dphi2_baselineVec[ih]->Write(); h1_dphi3_baselineVec[ih]->Write();
+      h1_vtxSize_baselineVec[ih]->Write();
+      h1_allJetPt_baselineVec[ih]->Write(); h1_allJetEta_baselineVec[ih]->Write(); h1_allJetPhi_baselineVec[ih]->Write(); h1_allJetM_baselineVec[ih]->Write();
+      h1_leadJetPt_baselineVec[ih]->Write(); h1_leadJetEta_baselineVec[ih]->Write(); h1_leadJetPhi_baselineVec[ih]->Write(); h1_leadJetM_baselineVec[ih]->Write();
+      h1_muPt_baselineVec[ih]->Write(); h1_muEta_baselineVec[ih]->Write(); h1_muPhi_baselineVec[ih]->Write();
+      h1_elePt_baselineVec[ih]->Write(); h1_eleEta_baselineVec[ih]->Write(); h1_elePhi_baselineVec[ih]->Write();
    }
    basicCheckFile->Write(); basicCheckFile->Close();
 

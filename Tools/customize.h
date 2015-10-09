@@ -112,7 +112,7 @@ namespace AnaConsts{
                                                   // Only exist in MC samples
                                                   "genDecayIdxVec", "genDecayLVec", "genDecayMomIdxVec", "genDecayPdgIdVec", "genDecayStrVec", "genDecayMomRefVec",
                                                   "W_emuVec", "W_tau_emuVec", "W_tau_prongsVec", "W_tau_nuVec",
-                                                  "genHT", "PDFweights", "PDFids"
+                                                  "genHT", "PDFweights", "PDFids", "stored_weight"
                                                 };
 
 }
@@ -200,9 +200,9 @@ namespace AnaFunctions{
           && ( maxAbsEta == -1 || fabs(permuoneta) < maxAbsEta )
           && (     minPt == -1 || permuonpt >= minPt )
           && (     maxPt == -1 || permuonpt < maxPt )
-          && (    maxIso == -1 || muonIso < maxIso)
-          &&     (maxMtw == -1 || muonMtw < maxMtw
-          && flagID );
+          && (    maxIso == -1 || muonIso < maxIso )
+          && (    maxMtw == -1 || muonMtw < maxMtw )
+          && flagID;
    }
 
    bool passMuonAccOnly(const TLorentzVector& muon, const AnaConsts::IsoAccRec& muonsArr)
@@ -233,8 +233,8 @@ namespace AnaFunctions{
            && (     minPt == -1 || perelectronpt >= minPt )
            && (     maxPt == -1 || perelectronpt < maxPt ) 
            && (    maxIso == -1 || electronIso < maxIso )
-           && (    maxMtw == -1 || electronMtw < maxMtw 
-           && flagID );
+           && (    maxMtw == -1 || electronMtw < maxMtw )
+           && flagID;
    }
 
    int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr){
