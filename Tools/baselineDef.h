@@ -25,6 +25,8 @@ public:
         bool doMuonVeto = true;
         bool doEleVeto = true;
         bool incZEROtop = false;
+        bool doMET = true;
+        bool dodPhis = true;
 
         bool passBaseline = true;
         bool passBaselineNoTag = true;
@@ -101,6 +103,11 @@ public:
             doIsoTrksVeto = false;
             bToFake = 1;
         }
+        else if(spec.compare("QCD") == 0)
+        {
+            doMET = false;
+            dodPhis = false;
+        }
 
         // Form TLorentzVector of MET
         TLorentzVector metLVec; metLVec.SetPtEtaPhiM(tr.getVar<double>(METLabel), 0, tr.getVar<double>(METPhiLabel), 0);
@@ -130,9 +137,13 @@ public:
         // Pass lepton veto?
         bool passLeptVeto = true, passMuonVeto = true, passEleVeto = true, passIsoTrkVeto = true;
         if( doMuonVeto && nMuons != AnaConsts::nMuonsSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passMuonVeto = false; }
+        if( nMuons != AnaConsts::nMuonsSel ){ passMuonVeto = false; }
         if( doEleVeto && nElectrons != AnaConsts::nElectronsSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passEleVeto = false; }
+        if( nElectrons != AnaConsts::nElectronsSel ){ passEleVeto = false; }
         // Isolated track veto is disabled for now
         if( doIsoTrksVeto && nIsoTrks != AnaConsts::nIsoTrksSel ){ passBaseline = false; passBaselineNoTag = false; passLeptVeto = false; passIsoTrkVeto = false; }
+        if( nIsoTrks != AnaConsts::nIsoTrksSel ){ passIsoTrkVeto = false; }
+
         if( debug ) std::cout<<"nMuons : "<<nMuons<<"  nElectrons : "<<nElectrons<<"  nIsoTrks : "<<nIsoTrks<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass number of jets?
@@ -143,7 +154,8 @@ public:
 
         // Pass deltaPhi?
         bool passdPhis = true;
-        if( dPhiVec->at(0) < AnaConsts::dPhi0_CUT || dPhiVec->at(1) < AnaConsts::dPhi1_CUT || dPhiVec->at(2) < AnaConsts::dPhi2_CUT ){ passBaseline = false; passBaselineNoTag = false; passdPhis = false; }
+        if( dodPhis && (dPhiVec->at(0) < AnaConsts::dPhi0_CUT || dPhiVec->at(1) < AnaConsts::dPhi1_CUT || dPhiVec->at(2) < AnaConsts::dPhi2_CUT) ){ passBaseline = false; passBaselineNoTag = false; passdPhis = false; }
+        if( dPhiVec->at(0) < AnaConsts::dPhi0_CUT || dPhiVec->at(1) < AnaConsts::dPhi1_CUT || dPhiVec->at(2) < AnaConsts::dPhi2_CUT ){ passdPhis = false; }
         if( debug ) std::cout<<"dPhi0 : "<<dPhiVec->at(0)<<"  dPhi1 : "<<dPhiVec->at(1)<<"  dPhi2 : "<<dPhiVec->at(2)<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass number of b-tagged jets?
@@ -153,7 +165,8 @@ public:
 
         // Pass the baseline MET requirement?
         bool passMET = true;
-        if( metLVec.Pt() < AnaConsts::defaultMETcut ){ passBaseline = false; passBaselineNoTag = false; passMET = false; }
+        if( doMET && metLVec.Pt() < AnaConsts::defaultMETcut ){ passBaseline = false; passBaselineNoTag = false; passMET = false; }
+        if( metLVec.Pt() < AnaConsts::defaultMETcut ){ passMET = false; }
         if( debug ) std::cout<<"met : "<<tr.getVar<double>("met")<<"  defaultMETcut : "<<AnaConsts::defaultMETcut<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass the HT cut for trigger?
