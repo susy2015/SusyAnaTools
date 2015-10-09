@@ -246,7 +246,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 // Can directly use passBaseline to get to baseline distribution, but can also configure this
         h1_cutFlowVec.back()->Fill("original", evtWeight * scaleMC);
 
-//        if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
+        if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
 
         if( !passnJets ) continue; h1_cutFlowVec.back()->Fill("passnJets", evtWeight * scaleMC);
 
@@ -270,7 +270,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 
 
 // Not need, but ensure it does pass baseline
-//        if( !passBaseline ) continue; h1_cutFlowVec.back()->Fill("passBaseline", evtWeight * scaleMC);
+        if( !passBaseline ) continue; h1_cutFlowVec.back()->Fill("passBaseline", evtWeight * scaleMC);
 
         h1_nJets_baselineVec.back()->Fill(nJets, evtWeight * scaleMC);
         h1_nTops_baselineVec.back()->Fill(nTops, evtWeight * scaleMC);
