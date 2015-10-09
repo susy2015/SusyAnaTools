@@ -231,7 +231,7 @@ namespace topTagger{
             setdoTopjetfatJets(true);
 
             setBhadjetMassRanges(20, 170);
-            setdoBhadjetfatJets(true);
+            setdoBhadjetfatJets(false);
  
             setdoCombTopTagger(false);
             setlowTopPtToComb(150);
