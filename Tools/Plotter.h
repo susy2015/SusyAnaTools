@@ -23,11 +23,12 @@ class Plotter
 {
 private:
     class HistCutSummary;
+    class Triplet;
 
     class Cut
     {
     public:
-        std::string name, vecVar;
+        Triplet name;
         char type;
         double val, val2;
         bool inverted;
@@ -70,6 +71,14 @@ private:
     };
 
 public:
+
+    template<class A, class B, class C> class Triplet
+    {
+    public:
+        A first;
+        B second;
+        C third;
+    };
 
     class DatasetSummary : public Cuttable
     {
@@ -177,6 +186,23 @@ private:
     }
     
     template<typename T> void fillHistFromVec(TH1* const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight)
+    {
+        const auto& vec = tr.getVec<T>(name.first);
+        
+        if(&vec != nullptr)
+        {
+            if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
+            else
+            {
+                for(auto& obj : vec)
+                {
+                    vectorFill(h, name, pointerDeref(obj), weight);
+                }
+            }
+        }
+    }
+
+    template<typename T> T getObjFromVec(TH1* const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight)
     {
         const auto& vec = tr.getVec<T>(name.first);
         

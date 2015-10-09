@@ -69,7 +69,7 @@ Plotter::~Plotter()
 
 Plotter::Cut::Cut(std::string s, char t, bool inv, double v, double v2)
 {
-    name = s;
+    name.first = s;
     type = t;
     inverted = inv;
     val = v;
@@ -79,13 +79,24 @@ Plotter::Cut::Cut(std::string s, char t, bool inv, double v, double v2)
 
 void Plotter::Cut::parseName()
 {
+    size_t a1 = 0, a2 = 0;
     size_t b1 = 0, b2 = 0;
-    if((b1 = name.find("(")) != std::string::npos && (b2 = name.find(")")) != std::string::npos)
+    a1 = name.find("[");
+    a2 = name.find("]");
+    b1 = name.find("(");
+    b2 = name.find(")");
+    if(a1 != std::string::npos && a2 != std::string::npos)
     {
-        vecVar = name.substr(b1+1, b2 - b1 - 1);
-        name = name.substr(0, b1);
+        name.second = name.substr(a1+1, a2 - a1 - 1);
     }
-    else vecVar = "";
+    if(b1 != std::string::npos && b2 != std::string::npos)
+    {
+        name.third = name.substr(b1+1, b2 - b1 - 1);
+    }
+    if(name.second.size() || name.third.size())
+    {
+        name.first = b2 = name.first.substr(0, std::min(a1, b1));
+    }
 }
 
 Plotter::Cuttable::Cuttable(const std::string& c)
