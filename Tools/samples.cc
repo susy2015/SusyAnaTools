@@ -47,8 +47,10 @@ namespace AnaSamples
         // 0.00143 * kt
         sampleSet_["TTbar_HT-2500toInf"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 0.002368413,  lumi, 507842, 1.0, kGreen);
 
+
         // Calculated from PDG BRs'. Not from the kt * xSec in McM.
-        sampleSet_["TTbarDiLep"]  = FileSummary(fDir_ + MCloc + "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 831.76*TTbar_DiLept_BR,  lumi, 30245565, 1.0, kGreen);
+        //sampleSet_["TTbarDiLep"]  = FileSummary(fDir_ + MCloc + "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 831.76*TTbar_DiLept_BR,  lumi, 30245565, 1.0, kGreen);
+        sampleSet_["TTbarDiLep"]  = FileSummary(fDir_ + MCloc + "addJetsForZinv/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/TTJets_DiLept_ext1_Spring15DR74_Asympt25ns_Ntp_v2_try2.txt", "stopTreeMaker/AUX", 831.76*TTbar_DiLept_BR,  lumi, 21336209, 1.0, kGreen);
         sampleSet_["TTbarSingleLepT"]  = FileSummary(fDir_ + MCloc + "TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR,  lumi, 58191088, 1.0, kGreen);
         sampleSet_["TTbarSingleLepTbar"]  = FileSummary(fDir_ + MCloc + "TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR,  lumi, 60166355, 1.0, kGreen);
 
