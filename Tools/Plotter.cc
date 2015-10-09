@@ -69,7 +69,7 @@ Plotter::~Plotter()
 
 Plotter::Cut::Cut(std::string s, char t, bool inv, double v, double v2)
 {
-    name.first = s;
+    name = s;
     type = t;
     inverted = inv;
     val = v;
@@ -79,24 +79,13 @@ Plotter::Cut::Cut(std::string s, char t, bool inv, double v, double v2)
 
 void Plotter::Cut::parseName()
 {
-    size_t a1 = 0, a2 = 0;
     size_t b1 = 0, b2 = 0;
-    a1 = name.find("[");
-    a2 = name.find("]");
-    b1 = name.find("(");
-    b2 = name.find(")");
-    if(a1 != std::string::npos && a2 != std::string::npos)
+    if((b1 = name.find("(")) != std::string::npos && (b2 = name.find(")")) != std::string::npos)
     {
-        name.second = name.substr(a1+1, a2 - a1 - 1);
+        vecVar = name.substr(b1+1, b2 - b1 - 1);
+        name = name.substr(0, b1);
     }
-    if(b1 != std::string::npos && b2 != std::string::npos)
-    {
-        name.third = name.substr(b1+1, b2 - b1 - 1);
-    }
-    if(name.second.size() || name.third.size())
-    {
-        name.first = b2 = name.first.substr(0, std::min(a1, b1));
-    }
+    else vecVar = "";
 }
 
 Plotter::Cuttable::Cuttable(const std::string& c)
@@ -141,6 +130,8 @@ void Plotter::HistSummary::parseName(std::vector<Plotter::DataCollection>& ns)
         hists.push_back(HistVecAndType(tmphtp, n.type));
     }
 }
+
+
 
 Plotter::HistSummary::~HistSummary()
 {
@@ -412,7 +403,7 @@ void Plotter::saveHists()
     }
 }
 
-void Plotter::setPlotDir(std::string plotDir)
+void Plotter::setPlotDir(const std::string plotDir)
 {
     plotDir_ = plotDir + "/";
 }
@@ -747,25 +738,17 @@ void Plotter::fillHist(TH1 * const h, const std::pair<std::string, std::string>&
 
     if(type.find("vector") != std::string::npos)
     {
-        if(type.find("*") != std::string::npos)
-        {
-            if     (type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector*>(h, name, tr, weight);
-        }
-        else
-        {
-            if     (type.find("pair")           != std::string::npos) fillHistFromVec<std::pair<double, double> >(h, name, tr, weight);
-            else if(type.find("double")         != std::string::npos) fillHistFromPrimVec<double>(h, name, tr, weight);
-            else if(type.find("unsigned int")   != std::string::npos) fillHistFromPrimVec<unsigned int>(h, name, tr, weight);
-            else if(type.find("int")            != std::string::npos) fillHistFromPrimVec<int>(h, name, tr, weight);
-            else if(type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector>(h, name, tr, weight);         
-        }
+        if     (type.find("pair")           != std::string::npos) fillHistFromVec<std::pair<double, double>>(h, name, tr, weight);
+        else if(type.find("double")         != std::string::npos) fillHistFromVec<double>(h, name, tr, weight);
+        else if(type.find("unsigned int")   != std::string::npos) fillHistFromVec<unsigned int>(h, name, tr, weight);
+        else if(type.find("int")            != std::string::npos) fillHistFromVec<int>(h, name, tr, weight);
+        else if(type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector>(h, name, tr, weight);         
     }
     else
     {
         if     (type.find("double")         != std::string::npos) h->Fill(tr.getVar<double>(name.first), weight);
         else if(type.find("unsigned int")   != std::string::npos) h->Fill(tr.getVar<unsigned int>(name.first), weight);
         else if(type.find("int")            != std::string::npos) h->Fill(tr.getVar<int>(name.first), weight);
-//        else if(type.find("TLorentzVector") != std::string::npos) h->Fill(tlvGetValue(name.second, tr.getVar<TLorentzVector>(name.first)));
     }
 }
 
@@ -778,6 +761,12 @@ template<> inline void Plotter::vectorFill(TH1 * const h, const std::pair<std::s
 {
     h->Fill(obj.first, obj.second * weight);
 }
+
+template<> inline const double& Plotter::vectorReturn(const std::pair<std::string, std::string>& name, const TLorentzVector& obj) const
+{
+    return tlvGetValue(name.second, obj);
+}
+
 
 void Plotter::smartMax(const TH1* const h, const TLegend* const l, const TPad* const p, double& gmin, double& gmax, double& gpThreshMax) const
 {

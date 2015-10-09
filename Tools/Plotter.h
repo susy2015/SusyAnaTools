@@ -23,12 +23,21 @@ class Plotter
 {
 private:
     class HistCutSummary;
-    class Triplet;
+    
+    class VarName
+    {
+    public:
+        std::string name;
+        std::string var;
+        int index;
+
+        VarName() {index = -1;}
+    };
 
     class Cut
     {
     public:
-        Triplet name;
+        std::string name, vecVar;
         char type;
         double val, val2;
         bool inverted;
@@ -71,14 +80,6 @@ private:
     };
 
 public:
-
-    template<class A, class B, class C> class Triplet
-    {
-    public:
-        A first;
-        B second;
-        C third;
-    };
 
     class DatasetSummary : public Cuttable
     {
@@ -132,7 +133,7 @@ public:
     Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple = true, std::string ofname = "", const int nFile = -1, const int startFile = 0, const int nEvts = -1);
     ~Plotter();
 
-    void setPlotDir(std::string plotDir);
+    void setPlotDir(const std::string plotDir);
 
     void plot();
     void saveHists();
@@ -165,14 +166,38 @@ private:
     void fillHist(TH1 * const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight);
     void smartMax(const TH1* const h, const TLegend* const l, const TPad* const p, double& gmin, double& gmax, double& gpThreshMax) const;
 
-    template<typename T> double tlvGetValue(std::string name, T v)
+    template<typename T> const double& tlvGetValue(const std::string& name, const T& v) const
     {
-        if     (name.find("pt")  != std::string::npos) return v.Pt();
-        else if(name.find("eta") != std::string::npos) return v.Eta();
-        else if(name.find("phi") != std::string::npos) return v.Phi();
-        else if(name.find("E")   != std::string::npos) return v.E();
-        else if(name.find("M")   != std::string::npos) return v.M();
-        else if(name.find("Mt")  != std::string::npos) return v.Mt();
+        if     (name.find("pt")  != std::string::npos) 
+        {
+            const auto& retval = v.Pt();
+            return retval;
+        }
+        else if(name.find("eta") != std::string::npos) 
+        {
+            const auto& retval = v.Eta();
+            return retval;
+        }
+        else if(name.find("phi") != std::string::npos) 
+        {
+            const auto& retval = v.Phi();
+            return retval;
+        }
+        else if(name.find("E")   != std::string::npos) 
+        {
+            const auto& retval = v.E();
+            return retval;
+        }
+        else if(name.find("M")   != std::string::npos) 
+        {
+            const auto& retval = v.M();
+            return retval;
+        }
+        else if(name.find("Mt")  != std::string::npos) 
+        {
+            const auto& retval = v.Mt();
+            return retval;
+        }
     }
 
     template<typename T> inline const T pointerDeref(T obj) const
@@ -187,67 +212,48 @@ private:
     
     template<typename T> void fillHistFromVec(TH1* const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight)
     {
-        const auto& vec = tr.getVec<T>(name.first);
-        
-        if(&vec != nullptr)
+        if(name.second.compare("size") == 0) 
         {
-            if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
+            const auto& vec = tr.getVec<T>(name.first);
+            if(&vec != nullptr) h->Fill(vec.size(), weight);
+        }
+        else
+        {
+            if(name.second.size())
+            {
+                auto& var = getVarFromVec<T>(name, tr);
+                if(&var != nullptr) vectorFill(h, name, var, weight);
+            }
             else
             {
-                for(auto& obj : vec)
-                {
-                    vectorFill(h, name, pointerDeref(obj), weight);
-                }
+                const auto& vec = tr.getVec<T>(name.first);
+                for(auto& var : vec) vectorFill(h, name, var, weight);
             }
         }
     }
 
-    template<typename T> T getObjFromVec(TH1* const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight)
+    template<typename T> const T& getVarFromVec(const std::pair<std::string, std::string>& name, const NTupleReader& tr) const 
     {
         const auto& vec = tr.getVec<T>(name.first);
         
         if(&vec != nullptr)
         {
-            if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
-            else
-            {
-                for(auto& obj : vec)
-                {
-                    vectorFill(h, name, pointerDeref(obj), weight);
-                }
-            }
+            int i = static_cast<int>(atoi(name.second.c_str()));
+            if(i < vec.size()) return vec.at(i);
         }
-    }
-
-    template<typename T> void fillHistFromPrimVec(TH1* const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight)
-    {
-        const auto& vec = tr.getVec<T>(name.first);
-        
-        if(&vec != nullptr)
-        {
-            if(name.second.compare("size") == 0) h->Fill(vec.size(), weight);
-            else
-            {
-                int index = -1;
-                if(name.second.size() > 0 && sscanf(name.second.c_str(), "%d", &index) == 1 && index < vec.size())
-                {
-                    vectorFill(h, name, pointerDeref(vec.at(index)), weight);
-                }
-                else
-                {
-                    for(auto& obj : vec)
-                    {
-                        vectorFill(h, name, pointerDeref(obj), weight);
-                    }
-                }
-            }
-        }
+        return *static_cast<T*>(nullptr);
     }
 
     template<typename T> inline void vectorFill(TH1 * const h, const std::pair<std::string, std::string>& name, const T& obj, const double weight)
     {
         h->Fill(obj, weight);
     }
+
+    template<typename T, typename R = T> inline const R& vectorReturn(const std::pair<std::string, std::string>& name, const T& obj) const
+    {
+        return obj;
+    }
+
 };
 
 typedef Plotter::HistSummary PHS;
