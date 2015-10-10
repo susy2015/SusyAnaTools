@@ -133,6 +133,8 @@ public:
     Plotter(std::vector<HistSummary>& h, std::set<AnaSamples::FileSummary>& t, const bool readFromTuple = true, std::string ofname = "", const int nFile = -1, const int startFile = 0, const int nEvts = -1);
     ~Plotter();
 
+    static void parseSingleVar(const std::string& name, VarName& var);
+
     void setPlotDir(const std::string plotDir);
 
     void plot();
@@ -166,7 +168,7 @@ private:
     void fillHist(TH1 * const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight);
     void smartMax(const TH1* const h, const TLegend* const l, const TPad* const p, double& gmin, double& gmax, double& gpThreshMax) const;
 
-    template<typename T> const double& tlvGetValue(const std::string& name, const T& v) const
+    template<typename T> static const double& tlvGetValue(const std::string& name, const T& v)
     {
         if     (name.find("pt")  != std::string::npos) 
         {
@@ -232,7 +234,7 @@ private:
         }
     }
 
-    template<typename T> const T& getVarFromVec(const std::pair<std::string, std::string>& name, const NTupleReader& tr) const 
+    template<typename T, typename R = T> static const R& getVarFromVec(const std::pair<std::string, std::string>& name, const NTupleReader& tr)
     {
         const auto& vec = tr.getVec<T>(name.first);
         
@@ -240,8 +242,9 @@ private:
         {
             int i = static_cast<int>(atoi(name.second.c_str()));
             if(i < vec.size()) return vec.at(i);
+            else return *static_cast<R*>(nullptr);
         }
-        return *static_cast<T*>(nullptr);
+        return *static_cast<R*>(nullptr);
     }
 
     template<typename T> inline void vectorFill(TH1 * const h, const std::pair<std::string, std::string>& name, const T& obj, const double weight)
@@ -249,9 +252,8 @@ private:
         h->Fill(obj, weight);
     }
 
-    template<typename T, typename R = T> inline const R& vectorReturn(const std::pair<std::string, std::string>& name, const T& obj) const
+    template<typename T, typename R = T> inline const R& vectorReturn(const std::pair<std::string, std::string>& name, const std::vector<T>& vec) const
     {
-        return obj;
     }
 
 };

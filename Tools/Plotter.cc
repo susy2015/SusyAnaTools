@@ -79,13 +79,10 @@ Plotter::Cut::Cut(std::string s, char t, bool inv, double v, double v2)
 
 void Plotter::Cut::parseName()
 {
-    size_t b1 = 0, b2 = 0;
-    if((b1 = name.find("(")) != std::string::npos && (b2 = name.find(")")) != std::string::npos)
-    {
-        vecVar = name.substr(b1+1, b2 - b1 - 1);
-        name = name.substr(0, b1);
-    }
-    else vecVar = "";
+    VarName var;
+    Plotter::parseSingleVar(name, var);
+    vecVar = var.var;
+    name = var.name;
 }
 
 Plotter::Cuttable::Cuttable(const std::string& c)
@@ -112,16 +109,10 @@ void Plotter::HistSummary::parseName(std::vector<Plotter::DataCollection>& ns)
         {
             size_t b1 = 0, b2 = 0;
             std::string hname, hvecvar;
-            if((b1 = dataset.first.find("(")) != std::string::npos && (b2 = dataset.first.find(")")) != std::string::npos)
-            {
-                hvecvar = dataset.first.substr(b1+1, b2 - b1 - 1);
-                hname   = dataset.first.substr(0, b1);
-            }
-            else 
-            {
-                hname = dataset.first;
-                hvecvar = "";
-            }
+            VarName var;
+            Plotter::parseSingleVar(dataset.first, var);
+            hname = var.name;
+            hvecvar = var.var;
 
             std::string histname = name + hname + hvecvar + dataset.first + dataset.second.label + n.type;
             
@@ -131,7 +122,30 @@ void Plotter::HistSummary::parseName(std::vector<Plotter::DataCollection>& ns)
     }
 }
 
+void Plotter::parseSingleVar(const std::string& name, VarName& var)
+{
+    size_t a1 = name.find("[");
+    size_t a2 = name.find("]");
+    size_t b1 = name.find("(");
+    size_t b2 = name.find(")");
 
+    if(a1 != std::string::npos && a2 != std::string::npos)
+    {
+        var.index = static_cast<int>(atoi(name.substr(a1+1, a2 - a1 - 1).c_str()));
+    }
+    if(b1 != std::string::npos && b2 != std::string::npos)
+    {
+        var.var = name.substr(b1+1, b2 - b1 - 1);
+    }
+    if(a1 != std::string::npos || b1 != std::string::npos)
+    {
+        var.name = name.substr(0, std::min(a1, b1));
+    }
+    else
+    {
+        var.name = name;
+    }
+}
 
 Plotter::HistSummary::~HistSummary()
 {
@@ -353,14 +367,38 @@ bool Plotter::Cut::passCut(const NTupleReader& tr) const
     return false;
 }
 
+template<> const double& Plotter::getVarFromVec<TLorentzVector, double>(const std::pair<std::string, std::string>& name, const NTupleReader& tr)
+{
+    const auto& vec = tr.getVec<TLorentzVector>(name.first);
+        
+    if(&vec != nullptr)
+    {
+        int i = static_cast<int>(atoi(name.second.c_str()));
+        if(i < vec.size()) return tlvGetValue(name.second, vec.at(i));
+        else return *static_cast<double*>(nullptr);
+    }
+    return *static_cast<double*>(nullptr);
+}
+
 double Plotter::Cut::translateVar(const NTupleReader& tr) const 
 {
-    std::string varType;
-    tr.getType(name, varType);
-    
-    if     (varType.find("double")       != std::string::npos) return tr.getVar<double>(name);
-    else if(varType.find("unsigned int") != std::string::npos) return static_cast<double>(tr.getVar<unsigned int>(name));
-    else if(varType.find("int")          != std::string::npos) return static_cast<double>(tr.getVar<int>(name));
+    std::string type;
+    tr.getType(name, type);
+
+    if(type.find("vector") != std::string::npos)
+    {
+        if     (type.find("pair")           != std::string::npos) return Plotter::getVarFromVec<std::pair<double, double>>(std::make_pair(name, vecVar), tr).first;
+        else if(type.find("double")         != std::string::npos) return static_cast<double>(Plotter::getVarFromVec<double>(std::make_pair(name, vecVar), tr));
+        else if(type.find("unsigned int")   != std::string::npos) return static_cast<double>(Plotter::getVarFromVec<unsigned int>(std::make_pair(name, vecVar), tr));
+        else if(type.find("int")            != std::string::npos) return static_cast<double>(Plotter::getVarFromVec<int>(std::make_pair(name, vecVar), tr));
+        else if(type.find("TLorentzVector") != std::string::npos) return Plotter::getVarFromVec<TLorentzVector, double>(std::make_pair(name, vecVar), tr);
+    }
+    else
+    {    
+        if     (type.find("double")       != std::string::npos) return tr.getVar<double>(name);
+        else if(type.find("unsigned int") != std::string::npos) return static_cast<double>(tr.getVar<unsigned int>(name));
+        else if(type.find("int")          != std::string::npos) return static_cast<double>(tr.getVar<int>(name));
+    }
 }
 
 bool Plotter::Cut::boolReturn(const NTupleReader& tr) const
@@ -761,12 +799,6 @@ template<> inline void Plotter::vectorFill(TH1 * const h, const std::pair<std::s
 {
     h->Fill(obj.first, obj.second * weight);
 }
-
-template<> inline const double& Plotter::vectorReturn(const std::pair<std::string, std::string>& name, const TLorentzVector& obj) const
-{
-    return tlvGetValue(name.second, obj);
-}
-
 
 void Plotter::smartMax(const TH1* const h, const TLegend* const l, const TPad* const p, double& gmin, double& gmax, double& gpThreshMax) const
 {
