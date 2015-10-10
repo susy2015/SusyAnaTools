@@ -397,10 +397,7 @@ void basicCheck(int argc, char *argv[]){
          if(filelist.first == "QCD" && (perSubStr == "QCD_HT100to200" || perSubStr == "QCD_HT200to300" || perSubStr == "QCD_HT300to500") ) continue;
 
          TChain *aux = new TChain(file.treePath.c_str());  
-         for(const auto& fn : file.getFilelist())
-         {
-             aux->Add(fn.c_str());
-         }
+         file.addFilesToChain(aux);
          treeVec.push_back(aux);
 
          subSampleKeysVec.push_back(perSubStr);
