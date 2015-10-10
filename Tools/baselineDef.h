@@ -255,7 +255,7 @@ public:
        bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
        int vtxSize = tr.getVar<int>("vtxSize");
 
-//       return jetIDFilter && beamHaloFilter && ecalTPFilter && hbheNoiseFilter;
+//       return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
        return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter;
     }
 

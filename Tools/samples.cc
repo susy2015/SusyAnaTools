@@ -116,36 +116,36 @@ namespace AnaSamples
 
         // NLO --> negative weights!
         // (sign of gen weight) * (lumi*xsec)/(effective number of events): effective number of events = N(evt) with positive weight - N(evt) with negative weight
-        sampleSet_["TTZToLLNuNu"]                     = FileSummary(fDir_ + MCloc + "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.5297, lumi, 291495 - 106505,  1.0,  kGreen+2);
-        sampleSet_["TTZToQQ"]                     = FileSummary(fDir_ + MCloc + "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.2529, lumi, 550599 - 199201,  1.0,  kGreen+2);
+        sampleSet_["TTZToLLNuNu"]                     = FileSummary(fDir_ + MCloc + "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.5297, lumi, 291495 - 106505,  1.0,  kOrange+2);
+        sampleSet_["TTZToQQ"]                     = FileSummary(fDir_ + MCloc + "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.2529, lumi, 550599 - 199201,  1.0,  kOrange+2);
 
         // NLO --> negative weights!
-        sampleSet_["TTWJetsToLNu"]                     = FileSummary(fDir_ + MCloc + "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.2043, lumi, 191379 - 61529,  1.0,  kGreen+2);
-        sampleSet_["TTWJetsToQQ"]                     = FileSummary(fDir_ + MCloc + "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.4062, lumi, 632147 - 201817,  1.0,  kGreen+2);
+        sampleSet_["TTWJetsToLNu"]                     = FileSummary(fDir_ + MCloc + "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.2043, lumi, 191379 - 61529,  1.0,  kSpring+2);
+        sampleSet_["TTWJetsToQQ"]                     = FileSummary(fDir_ + MCloc + "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.4062, lumi, 632147 - 201817,  1.0,  kSpring+2);
 
         // --------
         // - data -
         // --------
 	
-	sampleSet_["Data_SingleMuon_2015B"] = FileSummary(fDir_ + "Data_50ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015B-PromptReco-v1.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["Data_SingleMuon_2015C"] = FileSummary(fDir_ + "Data_25ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015C-PromptReco-v1.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["Data_SingleMuon_2015D"] = FileSummary(fDir_ + "Data_25ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015D-PromptReco-v3.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015B"] = FileSummary(fDir_ + "Data_50ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015B-PromptReco-v1.txt","stopTreeMaker/AUX", 45.01, 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015C"] = FileSummary(fDir_ + "Data_25ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015C-PromptReco-v1.txt","stopTreeMaker/AUX", 16.34, 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015D"] = FileSummary(fDir_ + "Data_25ns_Ntp_74X_03Oct2015_v2.1/pastika/crab_SingleMuon_Run2015D-PromptReco-v3.txt","stopTreeMaker/AUX", 209.23, 1.0,  kBlack);
 
-	sampleSet_["Data_SingleElectron_2015B"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["Data_SingleElectron_2015C"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["Data_SingleElectron_2015D"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_SingleElectron_2015B"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 45.03, 1.0,  kBlack);
+	sampleSet_["Data_SingleElectron_2015C"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 16.34, 1.0,  kBlack);
+	sampleSet_["Data_SingleElectron_2015D"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Oct_2015_Ntp_v2p1_SingleElectron-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 209.23, 1.0,  kBlack);
 
-	sampleSet_["Data_DoubleMuon_2015B"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["Data_DoubleMuon_2015C"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["Data_DoubleMuon_2015D"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_DoubleMuon_2015B"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 45.01, 1.0,  kBlack);
+	sampleSet_["Data_DoubleMuon_2015C"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 16.34, 1.0,  kBlack);
+	sampleSet_["Data_DoubleMuon_2015D"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 209.23, 1.0,  kBlack);
 
-	sampleSet_["Data_DoubleEG_2015B"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["Data_DoubleEG_2015C"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["Data_DoubleEG_2015D"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015B"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 45.03, 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015C"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 16.34, 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015D"] = FileSummary(fDir_ + MCloc + "DoubleEG/Spring15_74X_Oct_2015_Ntp_v2p1_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 209.23, 1.0,  kBlack);
 
-	sampleSet_["Data_HTMHT_2015B"] = FileSummary(fDir_ + MCloc + "HTMHT/Spring15_74X_Oct_2015_Ntp_v2p1_HTMHT-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["Data_HTMHT_2015C"] = FileSummary(fDir_ + MCloc + "HTMHT/Spring15_74X_Oct_2015_Ntp_v2p1_HTMHT-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 1.0,  kBlack);
-	sampleSet_["Data_HTMHT_2015D"] = FileSummary(fDir_ + MCloc + "HTMHT/Spring15_74X_Oct_2015_Ntp_v2p1_HTMHT-Run2015D-PromptReco_FIX.txt","stopTreeMaker/AUX", 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015B"] = FileSummary(fDir_ + MCloc + "HTMHT/Spring15_74X_Oct_2015_Ntp_v2p1_HTMHT-Run2015B-PromptReco.txt","stopTreeMaker/AUX", 45.01, 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015C"] = FileSummary(fDir_ + MCloc + "HTMHT/Spring15_74X_Oct_2015_Ntp_v2p1_HTMHT-Run2015C-PromptReco.txt","stopTreeMaker/AUX", 16.34, 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015D"] = FileSummary(fDir_ + MCloc + "HTMHT/Spring15_74X_Oct_2015_Ntp_v2p1_HTMHT-Run2015D-PromptReco_FIX.txt","stopTreeMaker/AUX", 208.16, 1.0,  kBlack);
 
         // ----------
 	// - signal -

@@ -215,7 +215,7 @@ namespace topTagger{
             setorderingOptArr();
             setmaxIndexForOrderingArr();
             setmaxDRjetMatch(0.3);
-            setdebug(true);
+            setdebug(false);
             settaggingMode(false);
 
             setdobVetoCS(false);
@@ -797,7 +797,7 @@ namespace topTagger{
                    std::vector<double> maxCSVSvec;
                    for(size ij=0; ij<oriJetsVec.size(); ij++)
                    {
-                       if( fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ )
+                       if( fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ && !std::isnan(recoJetsBtagCSVS[ij]) )
                        {
                            maxCSVSvec.push_back(recoJetsBtagCSVS[ij]);
                        }
@@ -805,6 +805,7 @@ namespace topTagger{
                    std::sort(maxCSVSvec.begin(), maxCSVSvec.end(), std::greater<decltype(maxCSVSvec.front())>());
                    if( maxCSVSvec.size() > 1 && (int)maxCSVSvec.size() > CSVToFake_ ) CSVS_ = 0.5*(maxCSVSvec[CSVToFake_ - 1] + maxCSVSvec[CSVToFake_]);
                    else if(maxCSVSvec.size() > 0)                             CSVS_ = maxCSVSvec.back() - 1e-5;
+                   if( maxCSVSvec.size() == 0 ){ CSVS_ = -999; std::cout<<"No b to fake for 0 b case! Check NaN of CSV values of jets!  CSVS_ is set to be "<<CSVS_<<std::endl; }
                    for(size ij=0; ij<oriJetsVec.size(); ij++)
                    {
                        if( recoJetsBtagCSVS[ij] > CSVS_ && fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ ) cntnbJetsCSVS ++;
@@ -1568,10 +1569,12 @@ namespace topTagger{
             std::vector<int> remainbJetsIdxVec;
             int isFaked_b = 0;
             double fake_maxCSVS_LT_Mpt = -1; int fake_pickedfakebJet_idx = -1;
+            int cntCSVnan = 0, pickedNaNIdx = -1;
             for(unsigned int ij=0; ij<oriJetsVec.size(); ij++){
                if( std::find(topCombIdxVec.begin(), topCombIdxVec.end(), ij) != topCombIdxVec.end() ) continue;
 
                if( fabs(oriJetsVec[ij].Eta())<maxEtaForbJets_ ){
+                  if( std::isnan(recoJetsBtagCSVS.at(ij)) ){ cntCSVnan++; pickedNaNIdx = ij; }
                   if( recoJetsBtagCSVS.at(ij) <= CSVS_ ){
                      if( fake_maxCSVS_LT_Mpt ==-1 || fake_maxCSVS_LT_Mpt < recoJetsBtagCSVS.at(ij) ){
                         fake_pickedfakebJet_idx = ij; fake_maxCSVS_LT_Mpt = recoJetsBtagCSVS.at(ij);
@@ -1587,7 +1590,19 @@ namespace topTagger{
                   remainJetsCSVS.push_back(recoJetsBtagCSVS.at(ij));
                }
             }
-            if( fake_pickedfakebJet_idx == -1 && remainbJetsLVec.empty() ) std::cout<<"WARNING ... cannot fake b jet?!"<<std::endl;
+            if( fake_pickedfakebJet_idx == -1 && remainbJetsLVec.empty() ){
+               std::cout<<"WARNING ... cannot fake b jet?! (hint: check NaN of CSV value)"<<std::endl;
+
+               int cntKinPassbReq = 0, cntKinPassbReq_inTop = 0; 
+               for(unsigned int ij=0; ij<oriJetsVec.size(); ij++){ 
+                  if( fabs(oriJetsVec[ij].Eta())<maxEtaForbJets_ ){
+                     cntKinPassbReq++; 
+                     if( std::find(topCombIdxVec.begin(), topCombIdxVec.end(), ij) != topCombIdxVec.end() ) cntKinPassbReq_inTop ++;
+                  }
+               };
+               if( debug_ ) std::cout<<"cntCSVnan : "<<cntCSVnan<<"  pickedNaNIdx : "<<pickedNaNIdx<<"  topCombIdxVec.size : "<<topCombIdxVec.size()<<"  oriJetsVec.size : "<<oriJetsVec.size()<<"  cntKinPassbReq : "<<cntKinPassbReq<<"  cntKinPassbReq_inTop : "<<cntKinPassbReq_inTop<<std::endl;
+               if( cntCSVnan + cntKinPassbReq_inTop == cntKinPassbReq && pickedNaNIdx != -1 ) fake_pickedfakebJet_idx = pickedNaNIdx;
+            }
 
 // no b jets in the remaining system, then fake one
             if( remainbJetsLVec.empty() ){
