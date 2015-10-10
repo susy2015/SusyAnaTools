@@ -1,3 +1,6 @@
+#ifndef SEARCH_BINS_H
+#define SEARCH_BINS_H
+
 /*
 const double nTops_SR_lo[]   = { 0,  0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  3 };
 const double nTops_SR_hi[]   = { 1,  1,  1,  2,  2,  2,  3,  3,  3, -1, -1, -1 };
@@ -302,3 +305,5 @@ void print_searchBins(){
       if( sbDef.met_hi == -1 ) std::cout<<std::endl;
    }
 }
+
+#endif

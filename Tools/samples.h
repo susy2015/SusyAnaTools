@@ -27,7 +27,8 @@ namespace AnaSamples
 	
 	// Constructor which doesn't make a xsec*lumi weighted sample, e.g. for use with data.
 	//Initialize xsec, lumi, nEvts to 1 so that the comparison operators still work
-        FileSummary(std::string filePath, std::string treePath, double kfactor, int color = kBlack) : filePath(filePath), treePath(treePath), xsec(1), lumi(1), kfactor(kfactor), nEvts(1), color(color)
+        //Need a record of the actual data lumi!
+        FileSummary(std::string filePath, std::string treePath, double lumi, double kfactor, int color = kBlack) : filePath(filePath), treePath(treePath), xsec(1), lumi(lumi), kfactor(kfactor), nEvts(1), color(color)
         {
             weight_ = kfactor;
             readFileList();

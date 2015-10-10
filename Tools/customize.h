@@ -142,6 +142,7 @@ namespace AnaFunctions{
       int cntNJets =0;
       for(unsigned int ij=0; ij<inputJets.size(); ij++){
          if( !jetPassCuts(inputJets[ij], jetCutsArr) ) continue;
+         if( std::isnan(inputCSVS[ij]) ) continue;
          if( inputCSVS[ij] > cutCSVS ) cntNJets ++;
       }
       return cntNJets;
