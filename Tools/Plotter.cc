@@ -11,6 +11,8 @@
 #include "THStack.h"
 #include "TLatex.h"
 
+#include <sstream>
+
 const int colors[] = {
     kRed,
     kBlue,
@@ -69,7 +71,7 @@ Plotter::~Plotter()
 
 Plotter::Cut::Cut(std::string s, char t, bool inv, double v, double v2)
 {
-    name = s;
+    rawName = s;
     type = t;
     inverted = inv;
     val = v;
@@ -79,10 +81,7 @@ Plotter::Cut::Cut(std::string s, char t, bool inv, double v, double v2)
 
 void Plotter::Cut::parseName()
 {
-    VarName var;
-    Plotter::parseSingleVar(name, var);
-    vecVar = var.var;
-    name = var.name;
+    Plotter::parseSingleVar(rawName, name);
 }
 
 Plotter::Cuttable::Cuttable(const std::string& c)
@@ -92,7 +91,7 @@ Plotter::Cuttable::Cuttable(const std::string& c)
 
 void Plotter::Cuttable::extractCuts(std::set<std::string>& ab) const
 {
-    for(auto& cut : cutVec_) ab.insert(cut.name);
+    for(auto& cut : cutVec_) ab.insert(cut.rawName);
 }
 
 Plotter::HistSummary::HistSummary(std::string l, std::vector<Plotter::DataCollection> ns, std::pair<int, int> ratio, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal) : Cuttable(cuts), name(l), nBins(nb), low(ll), high(ul), isLog(log), isNorm(norm), xAxisLabel(xal), yAxisLabel(yal), ratio(ratio)
@@ -108,15 +107,14 @@ void Plotter::HistSummary::parseName(std::vector<Plotter::DataCollection>& ns)
         for(auto& dataset : n.datasets)
         {
             size_t b1 = 0, b2 = 0;
-            std::string hname, hvecvar;
             VarName var;
             Plotter::parseSingleVar(dataset.first, var);
-            hname = var.name;
-            hvecvar = var.var;
 
-            std::string histname = name + hname + hvecvar + dataset.first + dataset.second.label + n.type;
+            std::stringstream sint;
+            sint << var.index;
+            std::string histname = name + var.name + ((var.index >= 0)?(sint.str()):("")) + var.var + dataset.first + dataset.second.label + n.type;
             
-            tmphtp.push_back(std::shared_ptr<HistCutSummary>(new HistCutSummary(dataset.second.label, histname, std::make_pair(hname, hvecvar), nullptr, dataset.second)));
+            tmphtp.push_back(std::shared_ptr<HistCutSummary>(new HistCutSummary(dataset.second.label, histname, var, nullptr, dataset.second)));
         }
         hists.push_back(HistVecAndType(tmphtp, n.type));
     }
@@ -218,7 +216,7 @@ void Plotter::createHistsFromTuple()
                     // Make histogram if it is blank
                     if(hist->h == nullptr)
                     {
-                        hist->h = new TH1D(hist->name.c_str(), hist->variable.first.c_str(), hs.nBins, hs.low, hs.high);
+                        hist->h = new TH1D(hist->name.c_str(), hist->variable.name.c_str(), hs.nBins, hs.low, hs.high);
                         hist->h->Sumw2();
                         hist->h->GetXaxis()->SetTitle(hs.xAxisLabel.c_str());
                         hist->h->GetYaxis()->SetTitle(hs.yAxisLabel.c_str());
@@ -367,14 +365,14 @@ bool Plotter::Cut::passCut(const NTupleReader& tr) const
     return false;
 }
 
-template<> const double& Plotter::getVarFromVec<TLorentzVector, double>(const std::pair<std::string, std::string>& name, const NTupleReader& tr)
+template<> const double& Plotter::getVarFromVec<TLorentzVector, double>(const VarName& name, const NTupleReader& tr)
 {
-    const auto& vec = tr.getVec<TLorentzVector>(name.first);
+    const auto& vec = tr.getVec<TLorentzVector>(name.name);
         
     if(&vec != nullptr)
     {
-        int i = static_cast<int>(atoi(name.second.c_str()));
-        if(i < vec.size()) return tlvGetValue(name.second, vec.at(i));
+        const int& i = name.index;
+        if(i < vec.size()) return tlvGetValue(name.var, vec.at(i));
         else return *static_cast<double*>(nullptr);
     }
     return *static_cast<double*>(nullptr);
@@ -383,21 +381,21 @@ template<> const double& Plotter::getVarFromVec<TLorentzVector, double>(const st
 double Plotter::Cut::translateVar(const NTupleReader& tr) const 
 {
     std::string type;
-    tr.getType(name, type);
+    tr.getType(name.name, type);
 
     if(type.find("vector") != std::string::npos)
     {
-        if     (type.find("pair")           != std::string::npos) return Plotter::getVarFromVec<std::pair<double, double>>(std::make_pair(name, vecVar), tr).first;
-        else if(type.find("double")         != std::string::npos) return static_cast<double>(Plotter::getVarFromVec<double>(std::make_pair(name, vecVar), tr));
-        else if(type.find("unsigned int")   != std::string::npos) return static_cast<double>(Plotter::getVarFromVec<unsigned int>(std::make_pair(name, vecVar), tr));
-        else if(type.find("int")            != std::string::npos) return static_cast<double>(Plotter::getVarFromVec<int>(std::make_pair(name, vecVar), tr));
-        else if(type.find("TLorentzVector") != std::string::npos) return Plotter::getVarFromVec<TLorentzVector, double>(std::make_pair(name, vecVar), tr);
+        if     (type.find("pair")           != std::string::npos) return Plotter::getVarFromVec<std::pair<double, double>>(name, tr).first;
+        else if(type.find("double")         != std::string::npos) return static_cast<double>(Plotter::getVarFromVec<double>(name, tr));
+        else if(type.find("unsigned int")   != std::string::npos) return static_cast<double>(Plotter::getVarFromVec<unsigned int>(name, tr));
+        else if(type.find("int")            != std::string::npos) return static_cast<double>(Plotter::getVarFromVec<int>(name, tr));
+        else if(type.find("TLorentzVector") != std::string::npos) return Plotter::getVarFromVec<TLorentzVector, double>(name, tr);
     }
     else
     {    
-        if     (type.find("double")       != std::string::npos) return tr.getVar<double>(name);
-        else if(type.find("unsigned int") != std::string::npos) return static_cast<double>(tr.getVar<unsigned int>(name));
-        else if(type.find("int")          != std::string::npos) return static_cast<double>(tr.getVar<int>(name));
+        if     (type.find("double")       != std::string::npos) return tr.getVar<double>(name.name);
+        else if(type.find("unsigned int") != std::string::npos) return static_cast<double>(tr.getVar<unsigned int>(name.name));
+        else if(type.find("int")          != std::string::npos) return static_cast<double>(tr.getVar<int>(name.name));
     }
 }
 
@@ -406,7 +404,7 @@ bool Plotter::Cut::boolReturn(const NTupleReader& tr) const
     // Functions here
 
     // Booleans here
-    return tr.getVar<bool>(name);
+    return tr.getVar<bool>(name.name);
 }
 
 bool Plotter::Cuttable::passCuts(const NTupleReader& tr) const
@@ -414,7 +412,7 @@ bool Plotter::Cuttable::passCuts(const NTupleReader& tr) const
     bool passCut = true;
     for(const Cut& cut : cutVec_)
     {
-        if(cut.vecVar.size() == 0)
+        if(cut.name.var.size() == 0)
         {
             passCut = passCut && ((cut.inverted)?(!cut.passCut(tr)):(cut.passCut(tr)));
         }
@@ -769,33 +767,40 @@ void Plotter::plot()
     }    
 }
 
-void Plotter::fillHist(TH1 * const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight)
+void Plotter::fillHist(TH1 * const h, const VarName& name, const NTupleReader& tr, const double weight)
 {
     std::string type;
-    tr.getType(name.first, type);
+    tr.getType(name.name, type);
 
     if(type.find("vector") != std::string::npos)
     {
-        if     (type.find("pair")           != std::string::npos) fillHistFromVec<std::pair<double, double>>(h, name, tr, weight);
-        else if(type.find("double")         != std::string::npos) fillHistFromVec<double>(h, name, tr, weight);
-        else if(type.find("unsigned int")   != std::string::npos) fillHistFromVec<unsigned int>(h, name, tr, weight);
-        else if(type.find("int")            != std::string::npos) fillHistFromVec<int>(h, name, tr, weight);
-        else if(type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector>(h, name, tr, weight);         
+        if(type.find("*") != std::string::npos)
+        {
+            if(type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector*>(h, name, tr, weight);     
+        }
+        else
+        {
+            if     (type.find("pair")           != std::string::npos) fillHistFromVec<std::pair<double, double>>(h, name, tr, weight);
+            else if(type.find("double")         != std::string::npos) fillHistFromVec<double>(h, name, tr, weight);
+            else if(type.find("unsigned int")   != std::string::npos) fillHistFromVec<unsigned int>(h, name, tr, weight);
+            else if(type.find("int")            != std::string::npos) fillHistFromVec<int>(h, name, tr, weight);
+            else if(type.find("TLorentzVector") != std::string::npos) fillHistFromVec<TLorentzVector>(h, name, tr, weight);     
+        }    
     }
     else
     {
-        if     (type.find("double")         != std::string::npos) h->Fill(tr.getVar<double>(name.first), weight);
-        else if(type.find("unsigned int")   != std::string::npos) h->Fill(tr.getVar<unsigned int>(name.first), weight);
-        else if(type.find("int")            != std::string::npos) h->Fill(tr.getVar<int>(name.first), weight);
+        if     (type.find("double")         != std::string::npos) h->Fill(tr.getVar<double>(name.name), weight);
+        else if(type.find("unsigned int")   != std::string::npos) h->Fill(tr.getVar<unsigned int>(name.name), weight);
+        else if(type.find("int")            != std::string::npos) h->Fill(tr.getVar<int>(name.name), weight);
     }
 }
 
-template<> inline void Plotter::vectorFill(TH1 * const h, const std::pair<std::string, std::string>& name, const TLorentzVector& obj, const double weight)
+template<> inline void Plotter::vectorFill(TH1 * const h, const VarName& name, const TLorentzVector& obj, const double weight)
 {
-    h->Fill(tlvGetValue(name.second, obj), weight);
+    h->Fill(tlvGetValue(name.var, obj), weight);
 }
 
-template<> inline void Plotter::vectorFill(TH1 * const h, const std::pair<std::string, std::string>& name, const std::pair<double, double>& obj, const double weight)
+template<> inline void Plotter::vectorFill(TH1 * const h, const VarName& name, const std::pair<double, double>& obj, const double weight)
 {
     h->Fill(obj.first, obj.second * weight);
 }

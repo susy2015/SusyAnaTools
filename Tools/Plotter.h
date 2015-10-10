@@ -37,7 +37,8 @@ private:
     class Cut
     {
     public:
-        std::string name, vecVar;
+        std::string rawName;
+        VarName name;
         char type;
         double val, val2;
         bool inverted;
@@ -154,22 +155,25 @@ private:
     {
     public:
         std::string label, name;
-        std::pair<std::string, std::string> variable;
+        VarName variable;
         TH1 *h;
         const HistSummary *hs;
         DatasetSummary dss;
 
-        HistCutSummary(const std::string& lab, const std::string& name, const std::pair<std::string, std::string> v, const HistSummary* hsum, const DatasetSummary& ds) : label(lab), name(name), h(nullptr), variable(v), hs(hsum), dss(ds) {}
+        HistCutSummary(const std::string& lab, const std::string& name, const VarName v, const HistSummary* hsum, const DatasetSummary& ds) : label(lab), name(name), h(nullptr), variable(v), hs(hsum), dss(ds) {}
         ~HistCutSummary();
     };
     
     void createHistsFromTuple();
     void createHistsFromFile();
-    void fillHist(TH1 * const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight);
+    void fillHist(TH1 * const h, const VarName& name, const NTupleReader& tr, const double weight);
     void smartMax(const TH1* const h, const TLegend* const l, const TPad* const p, double& gmin, double& gmax, double& gpThreshMax) const;
 
     template<typename T> static const double& tlvGetValue(const std::string& name, const T& v)
     {
+        printf("%s %i!!!\n", name.c_str(), &v);
+        fflush(stdin);
+        
         if     (name.find("pt")  != std::string::npos) 
         {
             const auto& retval = v.Pt();
@@ -200,6 +204,12 @@ private:
             const auto& retval = v.Mt();
             return retval;
         }
+        else
+        {
+            printf("Invalid lorentz variable: %s returning nullptr segfault incoming!!!\n", name.c_str());
+            fflush(stdin);
+            return *static_cast<double*>(nullptr);
+        }
     }
 
     template<typename T> inline const T pointerDeref(T obj) const
@@ -212,50 +222,45 @@ private:
         return *obj;
     }
     
-    template<typename T> void fillHistFromVec(TH1* const h, const std::pair<std::string, std::string>& name, const NTupleReader& tr, const double weight)
+    template<typename T> void fillHistFromVec(TH1* const h, const VarName& name, const NTupleReader& tr, const double weight)
     {
-        if(name.second.compare("size") == 0) 
+        if(name.var.compare("size") == 0) 
         {
-            const auto& vec = tr.getVec<T>(name.first);
+            const auto& vec = tr.getVec<T>(name.name);
             if(&vec != nullptr) h->Fill(vec.size(), weight);
         }
         else
         {
-            if(name.second.size())
+            if(name.index >= 0)
             {
                 auto& var = getVarFromVec<T>(name, tr);
-                if(&var != nullptr) vectorFill(h, name, var, weight);
+                if(&var != nullptr) vectorFill(h, name, pointerDeref(var), weight);
             }
             else
             {
-                const auto& vec = tr.getVec<T>(name.first);
-                for(auto& var : vec) vectorFill(h, name, var, weight);
+                const auto& vec = tr.getVec<T>(name.name);
+                for(auto& var : vec) vectorFill(h, name, pointerDeref(var), weight);
             }
         }
     }
 
-    template<typename T, typename R = T> static const R& getVarFromVec(const std::pair<std::string, std::string>& name, const NTupleReader& tr)
+    template<typename T, typename R = T> static const R& getVarFromVec(const VarName& name, const NTupleReader& tr)
     {
-        const auto& vec = tr.getVec<T>(name.first);
+        const auto& vec = tr.getVec<T>(name.name);
         
         if(&vec != nullptr)
         {
-            int i = static_cast<int>(atoi(name.second.c_str()));
+            const int& i = name.index;
             if(i < vec.size()) return vec.at(i);
             else return *static_cast<R*>(nullptr);
         }
         return *static_cast<R*>(nullptr);
     }
 
-    template<typename T> inline void vectorFill(TH1 * const h, const std::pair<std::string, std::string>& name, const T& obj, const double weight)
+    template<typename T> inline void vectorFill(TH1 * const h, const VarName& name, const T& obj, const double weight)
     {
         h->Fill(obj, weight);
     }
-
-    template<typename T, typename R = T> inline const R& vectorReturn(const std::pair<std::string, std::string>& name, const std::vector<T>& vec) const
-    {
-    }
-
 };
 
 typedef Plotter::HistSummary PHS;
