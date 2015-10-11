@@ -43,21 +43,21 @@ void drawOverFlowBin(TH1 *histToAdjust){
    histToAdjust->SetBinContent(nbins, overflow+lastCont);
 }
 
-std::vector<std::string> todraw_h1_keyStrVec = {"nJets", "nbJets", "nTops", "met", "metphi", "HT", "MT2", "vtxSize", "allJetPt", "allJetM", "leadJetPt", "leadJetM"};
-std::vector<int>         todraw_h1_rebinVec  = {      1,        1,       1,    5,        5,     5,     5,         1,          5,         5,           5,          5};
+std::vector<std::string> todraw_h1_keyStrVec = {"nJets", "nbJets", "nTops", "met", "metphi", "HT", "MT2", "vtxSize", "allJetPt", "allJetM", "leadJetPt", "leadJetM", "topMass"};
+std::vector<int>         todraw_h1_rebinVec  = {      1,        1,       1,    5,        5,     5,     5,         1,          5,         5,           5,          5,         5};
+std::vector<std::string> todraw_h1_xLabelVec = {"N_{jets}", "N_{b}", "N_{t}", "E_{T}^{miss} (GeV)", "#phi_{E_{T}^{miss}}", "H_{T} (GeV)", "M_{T2} (GeV)", "N_{vtx}", "P_{T}(all jets) (GeV)", "M(all jets) (GeV)", "P_{T}(lead jet) (GeV)", "M(lead jet) (GeV)", "M(top) (GeV)"};
 
 std::vector<std::vector<TH1D*> > cached_h1Vec(todraw_h1_keyStrVec.size());
 std::vector<std::string> cached_sampleStrVec;
 std::vector<int> cached_sampleColorVec;
 
-const double scaleToSameYield = 1./1.5;
 
 void makeCombPlots(const std::string cutLev="baseline"){
 
    double dataLumi = 0;
 
    for(const auto & file : allCollections["Data_HTMHT25ns"]) dataLumi += file.lumi;
-   double scaleMCtoData = dataLumi/AnaSamples::luminosity * scaleToSameYield;
+   double scaleMCtoData = dataLumi/AnaSamples::luminosity;
    std::cout<<"\ndataLumi : "<<dataLumi<<"  mc assumed lumi : "<<AnaSamples::luminosity<<"  scaleMCtoData : "<<scaleMCtoData<<std::endl<<std::endl;
 
    TFile * TTbar_file = new TFile("basicCheck_TTbar.root");
@@ -203,6 +203,32 @@ void makeCombPlots(const std::string cutLev="baseline"){
 
    tdrStyle->SetTitleXOffset(5.50); tdrStyle->SetTitleYOffset(6.50);
 
+// tmp_hs_sum_nJets used for auto scale
+   double scaleToSameYield = 1.0;
+   for(unsigned int ip=0; ip<todraw_h1_keyStrVec.size(); ip++){
+      if( todraw_h1_keyStrVec[ip] != "nJets" ) continue;
+
+      THStack * tmp_hs_sum_nJets = new THStack("tmp_hs_sum_nJets", "");
+      TH1D * tmp_data = 0;
+
+      for(unsigned int is=0; is<cached_h1Vec[ip].size(); is++){
+         TH1D * tmp_any = (TH1D*) cached_h1Vec[ip][is]->Clone();
+
+         if( cached_sampleStrVec[is].find("Data") != std::string::npos ){
+            tmp_data = (TH1D*)tmp_any->Clone();
+            tmp_data->Rebin(todraw_h1_rebinVec[ip]);
+            continue;
+         }
+         tmp_any->Rebin(todraw_h1_rebinVec[ip]);
+         tmp_any->Scale(scaleMCtoData);
+         tmp_hs_sum_nJets->Add(tmp_any);
+      }
+
+      TH1D * last = (TH1D*)tmp_hs_sum_nJets->GetStack()->Last();
+      scaleToSameYield = tmp_data->Integral()/last->Integral();
+      std::cout<<"\ndata : "<<tmp_data->Integral()<<"  MC : "<<last->Integral()<<"  scaleToSameYield : "<<scaleToSameYield<<std::endl<<std::endl;
+   }
+
    for(unsigned int ip=0; ip<todraw_h1_keyStrVec.size(); ip++){
       ct->cd(); catLeg1->Clear();
 
@@ -220,21 +246,21 @@ void makeCombPlots(const std::string cutLev="baseline"){
          }
 
          tmp_any->Rebin(todraw_h1_rebinVec[ip]);
-         tmp_any->Scale(scaleMCtoData); 
+         tmp_any->Scale(scaleMCtoData*scaleToSameYield); 
          tmp_any->SetFillColor(cached_sampleColorVec[is]); tmp_any->SetLineColor(cached_sampleColorVec[is]); tmp_any->SetMarkerColor(cached_sampleColorVec[is]);
          hs_sum_SM->Add(tmp_any);
          catLeg1->AddEntry(tmp_any, cached_sampleStrVec[is].c_str());
       }
 
-      hs_sum_SM->Draw("hist");
+      tmp_data->GetXaxis()->SetTitle(todraw_h1_xLabelVec[ip].c_str());
+      if( todraw_h1_keyStrVec[ip] == "HT" ) tmp_data->GetXaxis()->SetRangeUser(400, tmp_data->GetXaxis()->GetXmax());
+      tmp_data->Draw("");
+
+      hs_sum_SM->Draw("hist same");
       hs_sum_SM->SetMaximum(hs_sum_SM->GetMaximum()*1.5);
       if( todraw_h1_keyStrVec[ip] == "HT" ) hs_sum_SM->GetXaxis()->SetRangeUser(400, hs_sum_SM->GetXaxis()->GetXmax());
-      tmp_data->Draw("same");
 
-      if( todraw_h1_keyStrVec[ip] == "nJets" ){
-         TH1D * last = (TH1D*)hs_sum_SM->GetStack()->Last();
-         std::cout<<"\ndata : "<<tmp_data->Integral()<<"  MC : "<<last->Integral()<<std::endl<<std::endl;
-      }
+      tmp_data->Draw("same");
 
       catLeg1->SetFillColor(kWhite);
       catLeg1->SetBorderSize(0);

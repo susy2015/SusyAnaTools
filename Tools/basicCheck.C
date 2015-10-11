@@ -169,18 +169,8 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         if( !passEleVeto ) continue; h1_cutFlowVec.back()->Fill("passEleVeto", evtWeight * scaleMC);
         if( !passIsoTrkVeto ) continue; h1_cutFlowVec.back()->Fill("passIsoTrkVeto", evtWeight * scaleMC);
 
-        if( !passdPhis ) continue; h1_cutFlowVec.back()->Fill("passdPhis", evtWeight * scaleMC);
-
-        if( !passBJets ) continue; h1_cutFlowVec.back()->Fill("passBJets", evtWeight * scaleMC);
-
-        if( !passMET ) continue; h1_cutFlowVec.back()->Fill("passMET", evtWeight * scaleMC);
-
-        if( !passTagger ) continue; h1_cutFlowVec.back()->Fill("passTagger", evtWeight * scaleMC);
-         
-        if( !(nTops>=1) ) continue; h1_cutFlowVec.back()->Fill("passnTopsLE1", evtWeight * scaleMC);
-
 // Fill histograms with looser requirement -> trigger req. for data...
-        if( passHT ){
+        if( passHT && passMET && passBJets ){
            h1_nJets_looseVec.back()->Fill(nJets, evtWeight * scaleMC);
            h1_nTops_looseVec.back()->Fill(nTops, evtWeight * scaleMC);
            h1_nbJets_looseVec.back()->Fill(nbJets, evtWeight * scaleMC);
@@ -190,6 +180,11 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
    
            h1_MT2_looseVec.back()->Fill(MT2, evtWeight * scaleMC);
            h1_HT_looseVec.back()->Fill(HT, evtWeight * scaleMC);
+
+           for(unsigned int it=0; it<nTops; it++){
+              TLorentzVector topLVec = type3Ptr->buildLVec(jetsLVec_forTagger, type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
+              h1_topMass_looseVec.back()->Fill(topLVec.M(), evtWeight * scaleMC);
+           }
    
            h1_dphi1_looseVec.back()->Fill(dPhiVec[1], evtWeight * scaleMC);
            h1_dphi2_looseVec.back()->Fill(dPhiVec[2], evtWeight * scaleMC);
@@ -225,6 +220,16 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         }
 // End of filling histograms with loose requirement
 
+        if( !passdPhis ) continue; h1_cutFlowVec.back()->Fill("passdPhis", evtWeight * scaleMC);
+
+        if( !passBJets ) continue; h1_cutFlowVec.back()->Fill("passBJets", evtWeight * scaleMC);
+
+        if( !passMET ) continue; h1_cutFlowVec.back()->Fill("passMET", evtWeight * scaleMC);
+
+        if( !passTagger ) continue; h1_cutFlowVec.back()->Fill("passTagger", evtWeight * scaleMC);
+         
+        if( !(nTops>=1) ) continue; h1_cutFlowVec.back()->Fill("passnTopsLE1", evtWeight * scaleMC);
+
         if( !passMT2 ) continue; h1_cutFlowVec.back()->Fill("passMT2", evtWeight * scaleMC);
 
         if( !passHT ) continue; h1_cutFlowVec.back()->Fill("passHT", evtWeight * scaleMC);
@@ -242,6 +247,11 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         h1_MT2_baselineVec.back()->Fill(MT2, evtWeight * scaleMC);
         h1_HT_baselineVec.back()->Fill(HT, evtWeight * scaleMC);
 
+        for(unsigned int it=0; it<nTops; it++){
+           TLorentzVector topLVec = type3Ptr->buildLVec(jetsLVec_forTagger, type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
+           h1_topMass_baselineVec.back()->Fill(topLVec.M(), evtWeight * scaleMC);
+        }
+   
         h1_dphi1_baselineVec.back()->Fill(dPhiVec[1], evtWeight * scaleMC);
         h1_dphi2_baselineVec.back()->Fill(dPhiVec[2], evtWeight * scaleMC);
         h1_dphi3_baselineVec.back()->Fill(dPhiVec[3], evtWeight * scaleMC);
@@ -323,9 +333,14 @@ void basicCheck(int argc, char *argv[]){
       selKeyStr = argv[1];
       std::cout<<"selKeyStr : "<<selKeyStr<<std::endl;
    }
+
+   bool doSel = false; std::ostringstream convert;
    if( argc >=3 ){
       entryToProcess = atoi(argv[2]);
       std::cout<<"entryToProcess : "<<entryToProcess<<std::endl;
+// Now entryToProcess is re-used as index to select which sub-sample to run: note that keep entryToProcess to be negative!
+// entryToProcess starts from 1!
+      if( entryToProcess < 0 ){ doSel = true; convert << abs(entryToProcess); }
    }
 
    std::stringstream ssSelKey(selKeyStr);
@@ -335,6 +350,9 @@ void basicCheck(int argc, char *argv[]){
    std::string nameStr;
 
    while(ssSelKey >> buf){ keyStrVec.push_back(buf); nameStr += "_"+buf; }
+   if( doSel ) nameStr += "_"+convert.str();
+
+   std::cout<<"nameKeyStr : "<<nameStr.c_str()<<std::endl;
 
    std::vector<TTree*> treeVec;
    std::vector<std::string> subSampleKeysVec;
@@ -347,9 +365,15 @@ void basicCheck(int argc, char *argv[]){
          if( !found ) continue;
       }
 
-      std::cout<<"\nProcessing "<<filelist.first.c_str()<<" ..."<<std::endl;   
       treeVec.clear(); subSampleKeysVec.clear();
-      for(auto & file : filelist.second){ 
+
+      std::cout<<"\nProcessing "<<filelist.first.c_str()<<" ... -->";
+      int idxCnt = 0;
+      for(auto & file : filelist.second){
+         idxCnt ++;
+// Skip from the very beginning
+         if( doSel && abs(entryToProcess) != idxCnt ) continue;
+
          std::string perSubStr;
          for(const auto & perST : allSamples ){ if(perST.second == file ) perSubStr = perST.first; }
 
@@ -358,12 +382,16 @@ void basicCheck(int argc, char *argv[]){
          if(filelist.first == "ZJetsToNuNu" && (perSubStr == "ZJetsToNuNu_HT_100to200" || perSubStr == "ZJetsToNuNu_HT_200to400") ) continue;
          if(filelist.first == "QCD" && (perSubStr == "QCD_HT100to200" || perSubStr == "QCD_HT200to300" || perSubStr == "QCD_HT300to500") ) continue;
 
+         std::cout<<"  "<<perSubStr.c_str();
+
          TChain *aux = new TChain(file.treePath.c_str());  
          file.addFilesToChain(aux);
          treeVec.push_back(aux);
 
          subSampleKeysVec.push_back(perSubStr);
       }
+      std::cout<<std::endl;
+
       anaFunc(tr, treeVec, subSampleKeysVec, filelist.first.c_str());
 
       std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
@@ -466,6 +494,7 @@ void basicCheck(int argc, char *argv[]){
       h1_nJets_looseVec[ih]->Write(); h1_nTops_looseVec[ih]->Write(); h1_nbJets_looseVec[ih]->Write();
       h1_met_looseVec[ih]->Write(); h1_MT2_looseVec[ih]->Write(); h1_HT_looseVec[ih]->Write(); h1_metphi_looseVec[ih]->Write();
       h1_dphi1_looseVec[ih]->Write(); h1_dphi2_looseVec[ih]->Write(); h1_dphi3_looseVec[ih]->Write();
+      h1_topMass_looseVec[ih]->Write();
       h1_vtxSize_looseVec[ih]->Write();
       h1_allJetPt_looseVec[ih]->Write(); h1_allJetEta_looseVec[ih]->Write(); h1_allJetPhi_looseVec[ih]->Write(); h1_allJetM_looseVec[ih]->Write();
       h1_leadJetPt_looseVec[ih]->Write(); h1_leadJetEta_looseVec[ih]->Write(); h1_leadJetPhi_looseVec[ih]->Write(); h1_leadJetM_looseVec[ih]->Write();
@@ -474,6 +503,7 @@ void basicCheck(int argc, char *argv[]){
 
       h1_nJets_baselineVec[ih]->Write(); h1_nTops_baselineVec[ih]->Write(); h1_nbJets_baselineVec[ih]->Write();
       h1_met_baselineVec[ih]->Write(); h1_MT2_baselineVec[ih]->Write(); h1_HT_baselineVec[ih]->Write(); h1_metphi_baselineVec[ih]->Write();
+      h1_topMass_baselineVec[ih]->Write();
       h1_dphi1_baselineVec[ih]->Write(); h1_dphi2_baselineVec[ih]->Write(); h1_dphi3_baselineVec[ih]->Write();
       h1_vtxSize_baselineVec[ih]->Write();
       h1_allJetPt_baselineVec[ih]->Write(); h1_allJetEta_baselineVec[ih]->Write(); h1_allJetPhi_baselineVec[ih]->Write(); h1_allJetM_baselineVec[ih]->Write();
