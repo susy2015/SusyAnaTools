@@ -123,6 +123,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const std::vector<double> & muonsRelIso = tr->getVec<double>("muonsRelIso");
         const std::vector<double> & muonsMiniIso = tr->getVec<double>("muonsMiniIso");
         const std::vector<double> & muonsMtw = tr->getVec<double>("muonsMtw");
+        const std::vector<int> & muonsFlagMedium = tr->getVec<int>("muonsFlagMedium");
 
         const std::vector<TLorentzVector> & elesLVec = tr->getVec<TLorentzVector>("elesLVec");
         const std::vector<double> & elesRelIso = tr->getVec<double>("elesRelIso");
@@ -161,6 +162,19 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 // Can directly use passBaseline to get to baseline distribution, but can also configure this
         h1_cutFlowVec.back()->Fill("original", evtWeight * scaleMC);
 
+// Check trigger bit for data. Different PD can have different triggers.
+        if( keyStringT.Contains("Data") ){
+           bool foundTrigger = false;
+           for(unsigned it=0; it<TriggerNames.size(); it++){
+              if( keyStringT.Contains("HTMHT") ){
+                 if( TriggerNames[it].find("HLT_PFHT350_PFMET100_JetIdCleaned_v") || TriggerNames[it].find("HLT_PFHT350_PFMET100_NoiseCleaned_v") ){
+                    if( PassTrigger[it] ) foundTrigger = true;
+                 }
+              }
+           }
+           if( !foundTrigger ) continue;
+        }
+
         if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
 
         if( !passnJets ) continue; h1_cutFlowVec.back()->Fill("passnJets", evtWeight * scaleMC);
@@ -168,6 +182,14 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         if( !passMuonVeto ) continue; h1_cutFlowVec.back()->Fill("passMuonVeto", evtWeight * scaleMC);
         if( !passEleVeto ) continue; h1_cutFlowVec.back()->Fill("passEleVeto", evtWeight * scaleMC);
         if( !passIsoTrkVeto ) continue; h1_cutFlowVec.back()->Fill("passIsoTrkVeto", evtWeight * scaleMC);
+/*
+        int cntMuons = 0;
+        for(unsigned int im=0; im<muonsLVec.size(); im++){
+           if( !AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), AnaConsts::muonsMiniIsoArr) ) continue;
+           cntMuons ++;
+        }
+        if( cntMuons != 1 ) continue;
+*/
 
 // Fill histograms with looser requirement -> trigger req. for data...
         if( passHT && passMET && passBJets ){

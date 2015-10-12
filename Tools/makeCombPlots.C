@@ -17,6 +17,7 @@
 #include "TH2Poly.h"
 
 #include "THStack.h"
+#include "TLine.h"
 
 #include "TFile.h"
 
@@ -137,7 +138,8 @@ void makeCombPlots(const std::string cutLev="baseline"){
    int divW=3, divH=3;
    cs->Divide(divW, divH);
 
-   TCanvas *ct = new TCanvas("ct", "ct", 1200, 900);
+   TCanvas *ct = new TCanvas("ct", "ct", 1200, 600);
+   ct->Divide(2, 1);
 
    Float_t legendX1 = .60;
    Float_t legendX2 = .85;
@@ -230,7 +232,7 @@ void makeCombPlots(const std::string cutLev="baseline"){
    }
 
    for(unsigned int ip=0; ip<todraw_h1_keyStrVec.size(); ip++){
-      ct->cd(); catLeg1->Clear();
+      ct->cd(1); catLeg1->Clear();
 
       THStack * hs_sum_SM = new THStack("hs", "");
       TH1D * tmp_data = 0;
@@ -265,6 +267,17 @@ void makeCombPlots(const std::string cutLev="baseline"){
       catLeg1->SetFillColor(kWhite);
       catLeg1->SetBorderSize(0);
       catLeg1->Draw();
+
+      ct->cd(2);
+      TH1D * h1_ratio = (TH1D*) tmp_data->Clone();
+      TH1D * tmp_sum_SM = (TH1D*) hs_sum_SM->GetStack()->Last();
+      h1_ratio->Divide(tmp_sum_SM);
+      h1_ratio->Draw();
+
+      TLine * lineCen = new TLine(tmp_data->GetXaxis()->GetXmin(), 1, tmp_data->GetXaxis()->GetXmax(), 1);
+      lineCen->SetLineColor(kRed);
+      lineCen->Draw("same");
+
       ct->Print("comb_"+TString(todraw_h1_keyStrVec[ip])+"_"+TString(cutLev)+".pdf");
    }
 }
