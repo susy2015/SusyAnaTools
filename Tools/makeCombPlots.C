@@ -17,6 +17,9 @@
 #include "TH2Poly.h"
 
 #include "THStack.h"
+#include "TLine.h"
+
+#include "TF1.h"
 
 #include "TFile.h"
 
@@ -43,21 +46,21 @@ void drawOverFlowBin(TH1 *histToAdjust){
    histToAdjust->SetBinContent(nbins, overflow+lastCont);
 }
 
-std::vector<std::string> todraw_h1_keyStrVec = {"nJets", "nbJets", "nTops", "met", "metphi", "HT", "MT2", "vtxSize", "allJetPt", "allJetM", "leadJetPt", "leadJetM"};
-std::vector<int>         todraw_h1_rebinVec  = {      1,        1,       1,    5,        5,     5,     5,         1,          5,         5,           5,          5};
+std::vector<std::string> todraw_h1_keyStrVec = {"nJets", "nbJets", "nTops", "met", "metphi", "HT", "MT2", "vtxSize", "allJetPt", "allJetM", "leadJetPt", "leadJetM", "topMass"};
+std::vector<int>         todraw_h1_rebinVec  = {      1,        1,       1,    5,        5,     5,     5,         1,          5,         5,           5,          5,         5};
+std::vector<std::string> todraw_h1_xLabelVec = {"N_{jets}", "N_{b}", "N_{t}", "E_{T}^{miss} (GeV)", "#phi_{E_{T}^{miss}}", "H_{T} (GeV)", "M_{T2} (GeV)", "N_{vtx}", "P_{T}(all jets) (GeV)", "M(all jets) (GeV)", "P_{T}(lead jet) (GeV)", "M(lead jet) (GeV)", "M(top) (GeV)"};
 
 std::vector<std::vector<TH1D*> > cached_h1Vec(todraw_h1_keyStrVec.size());
 std::vector<std::string> cached_sampleStrVec;
 std::vector<int> cached_sampleColorVec;
 
-const double scaleToSameYield = 1./1.5;
 
 void makeCombPlots(const std::string cutLev="baseline"){
 
    double dataLumi = 0;
 
    for(const auto & file : allCollections["Data_HTMHT25ns"]) dataLumi += file.lumi;
-   double scaleMCtoData = dataLumi/AnaSamples::luminosity * scaleToSameYield;
+   double scaleMCtoData = dataLumi/AnaSamples::luminosity;
    std::cout<<"\ndataLumi : "<<dataLumi<<"  mc assumed lumi : "<<AnaSamples::luminosity<<"  scaleMCtoData : "<<scaleMCtoData<<std::endl<<std::endl;
 
    TFile * TTbar_file = new TFile("basicCheck_TTbar.root");
@@ -137,11 +140,11 @@ void makeCombPlots(const std::string cutLev="baseline"){
    int divW=3, divH=3;
    cs->Divide(divW, divH);
 
-   TCanvas *ct = new TCanvas("ct", "ct", 1200, 900);
+   TCanvas *ct = new TCanvas("ct", "ct", 900, 600);
 
    Float_t legendX1 = .60;
-   Float_t legendX2 = .85;
-   Float_t legendY1 = .65;
+   Float_t legendX2 = .80;
+   Float_t legendY1 = .60;
    Float_t legendY2 = .85;
    TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
    catLeg1->SetTextSize(0.025);
@@ -192,7 +195,7 @@ void makeCombPlots(const std::string cutLev="baseline"){
  
    tdrStyle->SetLabelSize(0.050, "XYZ");
  
-   tdrStyle->SetPadTopMargin(0.1); tdrStyle->SetPadBottomMargin(0.15);
+   tdrStyle->SetPadTopMargin(0.1); tdrStyle->SetPadBottomMargin(0.20);
    tdrStyle->SetPadLeftMargin(0.15); tdrStyle->SetPadRightMargin(0.15);
  
 //   tdrStyle->SetOptStat(1111);
@@ -203,8 +206,38 @@ void makeCombPlots(const std::string cutLev="baseline"){
 
    tdrStyle->SetTitleXOffset(5.50); tdrStyle->SetTitleYOffset(6.50);
 
+// tmp_hs_sum_nJets used for auto scale
+   double scaleToSameYield = 1.0;
+   for(unsigned int ip=0; ip<todraw_h1_keyStrVec.size(); ip++){
+      if( todraw_h1_keyStrVec[ip] != "nJets" ) continue;
+
+      THStack * tmp_hs_sum_nJets = new THStack("tmp_hs_sum_nJets", "");
+      TH1D * tmp_data = 0;
+
+      for(unsigned int is=0; is<cached_h1Vec[ip].size(); is++){
+         TH1D * tmp_any = (TH1D*) cached_h1Vec[ip][is]->Clone();
+
+         if( cached_sampleStrVec[is].find("Data") != std::string::npos ){
+            tmp_data = (TH1D*)tmp_any->Clone();
+            tmp_data->Rebin(todraw_h1_rebinVec[ip]);
+            continue;
+         }
+         tmp_any->Rebin(todraw_h1_rebinVec[ip]);
+         tmp_any->Scale(scaleMCtoData);
+         tmp_hs_sum_nJets->Add(tmp_any);
+      }
+
+      TH1D * last = (TH1D*)tmp_hs_sum_nJets->GetStack()->Last();
+      scaleToSameYield = tmp_data->Integral()/last->Integral();
+      std::cout<<"\ndata : "<<tmp_data->Integral()<<"  MC : "<<last->Integral()<<"  scaleToSameYield : "<<scaleToSameYield<<std::endl<<std::endl;
+   }
+
    for(unsigned int ip=0; ip<todraw_h1_keyStrVec.size(); ip++){
       ct->cd(); catLeg1->Clear();
+      TPad *pad1 = new TPad("pad1", "pad1", 0, 0.30, 1, 1.0);
+      pad1->SetBottomMargin(0);
+      pad1->Draw();             // Draw the upper pad: pad1                                                        
+      pad1->cd();
 
       THStack * hs_sum_SM = new THStack("hs", "");
       TH1D * tmp_data = 0;
@@ -220,25 +253,63 @@ void makeCombPlots(const std::string cutLev="baseline"){
          }
 
          tmp_any->Rebin(todraw_h1_rebinVec[ip]);
-         tmp_any->Scale(scaleMCtoData); 
+         tmp_any->Scale(scaleMCtoData*scaleToSameYield); 
          tmp_any->SetFillColor(cached_sampleColorVec[is]); tmp_any->SetLineColor(cached_sampleColorVec[is]); tmp_any->SetMarkerColor(cached_sampleColorVec[is]);
          hs_sum_SM->Add(tmp_any);
          catLeg1->AddEntry(tmp_any, cached_sampleStrVec[is].c_str());
       }
 
-      hs_sum_SM->Draw("hist");
+      tmp_data->GetXaxis()->SetTitle(todraw_h1_xLabelVec[ip].c_str());
+      if( todraw_h1_keyStrVec[ip] == "HT" ) tmp_data->GetXaxis()->SetRangeUser(400, tmp_data->GetXaxis()->GetXmax());
+      tmp_data->Draw("");
+
+      hs_sum_SM->Draw("hist same");
       hs_sum_SM->SetMaximum(hs_sum_SM->GetMaximum()*1.5);
       if( todraw_h1_keyStrVec[ip] == "HT" ) hs_sum_SM->GetXaxis()->SetRangeUser(400, hs_sum_SM->GetXaxis()->GetXmax());
-      tmp_data->Draw("same");
 
-      if( todraw_h1_keyStrVec[ip] == "nJets" ){
-         TH1D * last = (TH1D*)hs_sum_SM->GetStack()->Last();
-         std::cout<<"\ndata : "<<tmp_data->Integral()<<"  MC : "<<last->Integral()<<std::endl<<std::endl;
-      }
+      tmp_data->Draw("same");
 
       catLeg1->SetFillColor(kWhite);
       catLeg1->SetBorderSize(0);
       catLeg1->Draw();
+
+      TH1D * h1_ratio = (TH1D*) tmp_data->Clone();
+      TH1D * tmp_sum_SM = (TH1D*) hs_sum_SM->GetStack()->Last();
+      h1_ratio->Divide(tmp_sum_SM);
+
+      ct->cd();
+      TPad *pad2 = new TPad("pad2", "pad2", 0, 0.03, 1, 0.30);
+      pad2->SetTopMargin(0);
+      pad2->SetBottomMargin(0.25);
+      //       pad2->SetGridx(); // vertical grid                                                                          
+      pad2->Draw();
+      pad2->cd();       // pad2 becomes the current pad                                                           
+      TF1 * fline = new TF1("line", "pol0", h1_ratio->GetBinLowEdge(1), h1_ratio->GetBinLowEdge(h1_ratio->GetNbinsX()) + h1_ratio->GetBinWidth(h1_ratio->GetNbinsX()));
+      fline->SetParameter(0, 1);
+      h1_ratio->SetTitle(0);
+      h1_ratio->SetLineColor(kBlue);
+      h1_ratio->SetMinimum(0);  // Define Y ..                                                                      
+      h1_ratio->SetMaximum(2); // .. range                                                                          
+      h1_ratio->SetStats(0);
+
+      // Y axis ratio plot settings                                                                               
+      h1_ratio->GetYaxis()->SetTitle("Data/MC");
+      h1_ratio->GetYaxis()->SetNdivisions(505);
+      h1_ratio->GetYaxis()->SetTitleSize(18);
+      h1_ratio->GetYaxis()->SetTitleFont(43);
+      h1_ratio->GetYaxis()->SetTitleOffset(1.55);
+      h1_ratio->GetYaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)                          
+      h1_ratio->GetYaxis()->SetLabelSize(15);
+
+      // X axis ratio plot settings                                                                               
+      h1_ratio->GetXaxis()->SetTitleSize(18);
+      h1_ratio->GetXaxis()->SetTitleFont(43);
+      h1_ratio->GetXaxis()->SetTitleOffset(3.5);
+      h1_ratio->GetXaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)                          
+      h1_ratio->GetXaxis()->SetLabelSize(15);
+      h1_ratio->Draw("E1");
+      fline->Draw("same");
+
       ct->Print("comb_"+TString(todraw_h1_keyStrVec[ip])+"_"+TString(cutLev)+".pdf");
    }
 }

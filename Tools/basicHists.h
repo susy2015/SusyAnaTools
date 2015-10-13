@@ -33,6 +33,7 @@ std::vector<std::vector<TH1D*> > h1_minDphi_topmetVec;
 std::vector<TH1D*> h1_nJets_looseVec, h1_nTops_looseVec, h1_nbJets_looseVec;
 std::vector<TH1D*> h1_met_looseVec, h1_MT2_looseVec, h1_HT_looseVec, h1_metphi_looseVec;
 std::vector<TH1D*> h1_dphi1_looseVec, h1_dphi2_looseVec, h1_dphi3_looseVec;
+std::vector<TH1D*> h1_topMass_looseVec;
 std::vector<TH1D*> h1_vtxSize_looseVec;
 std::vector<TH1D*> h1_allJetPt_looseVec, h1_allJetEta_looseVec, h1_allJetPhi_looseVec, h1_allJetM_looseVec;
 std::vector<TH1D*> h1_leadJetPt_looseVec, h1_leadJetEta_looseVec, h1_leadJetPhi_looseVec, h1_leadJetM_looseVec;
@@ -42,6 +43,7 @@ std::vector<TH1D*> h1_elePt_looseVec, h1_eleEta_looseVec, h1_elePhi_looseVec;
 std::vector<TH1D*> h1_nJets_baselineVec, h1_nTops_baselineVec, h1_nbJets_baselineVec;
 std::vector<TH1D*> h1_met_baselineVec, h1_MT2_baselineVec, h1_HT_baselineVec, h1_metphi_baselineVec;
 std::vector<TH1D*> h1_dphi1_baselineVec, h1_dphi2_baselineVec, h1_dphi3_baselineVec;
+std::vector<TH1D*> h1_topMass_baselineVec;
 std::vector<TH1D*> h1_vtxSize_baselineVec;
 std::vector<TH1D*> h1_allJetPt_baselineVec, h1_allJetEta_baselineVec, h1_allJetPhi_baselineVec, h1_allJetM_baselineVec;
 std::vector<TH1D*> h1_leadJetPt_baselineVec, h1_leadJetEta_baselineVec, h1_leadJetPhi_baselineVec, h1_leadJetM_baselineVec;
@@ -68,6 +70,8 @@ void declHistPerSample(const std::string &sampleKeyString){
   TH1D * h1_dphi1_loose = new TH1D(sampleKeyStringT+"_h1_dphi1_loose", sampleKeyStringT+": dphi1 after loose; dphi1", 100, 0.0, 3.2); h1_dphi1_loose->Sumw2(); h1_dphi1_looseVec.push_back((TH1D*)h1_dphi1_loose->Clone());
   TH1D * h1_dphi2_loose = new TH1D(sampleKeyStringT+"_h1_dphi2_loose", sampleKeyStringT+": dphi2 after loose; dphi2", 100, 0.0, 3.2); h1_dphi2_loose->Sumw2(); h1_dphi2_looseVec.push_back((TH1D*)h1_dphi2_loose->Clone());
   TH1D * h1_dphi3_loose = new TH1D(sampleKeyStringT+"_h1_dphi3_loose", sampleKeyStringT+": dphi3 after loose; dphi3", 100, 0.0, 3.2); h1_dphi3_loose->Sumw2(); h1_dphi3_looseVec.push_back((TH1D*)h1_dphi3_loose->Clone());
+
+  TH1D * h1_topMass_loose = new TH1D(sampleKeyStringT+"_h1_topMass_loose", sampleKeyStringT+": top mass after loose; topM (GeV)", 100, 0, 300); h1_topMass_loose->Sumw2(); h1_topMass_looseVec.push_back((TH1D*)h1_topMass_loose->Clone()); 
 
   TH1D * h1_vtxSize_loose = new TH1D(sampleKeyStringT+"_h1_vtxSize_loose", sampleKeyStringT+": vtxSize after loose; vtxSize", 50, 0, 50); h1_vtxSize_loose->Sumw2(); h1_vtxSize_looseVec.push_back((TH1D*)h1_vtxSize_loose->Clone());
 
@@ -101,6 +105,8 @@ void declHistPerSample(const std::string &sampleKeyString){
   TH1D * h1_dphi1_baseline = new TH1D(sampleKeyStringT+"_h1_dphi1_baseline", sampleKeyStringT+": dphi1 after baseline; dphi1", 100, 0.0, 3.2); h1_dphi1_baseline->Sumw2(); h1_dphi1_baselineVec.push_back((TH1D*)h1_dphi1_baseline->Clone());
   TH1D * h1_dphi2_baseline = new TH1D(sampleKeyStringT+"_h1_dphi2_baseline", sampleKeyStringT+": dphi2 after baseline; dphi2", 100, 0.0, 3.2); h1_dphi2_baseline->Sumw2(); h1_dphi2_baselineVec.push_back((TH1D*)h1_dphi2_baseline->Clone());
   TH1D * h1_dphi3_baseline = new TH1D(sampleKeyStringT+"_h1_dphi3_baseline", sampleKeyStringT+": dphi3 after baseline; dphi3", 100, 0.0, 3.2); h1_dphi3_baseline->Sumw2(); h1_dphi3_baselineVec.push_back((TH1D*)h1_dphi3_baseline->Clone());
+
+  TH1D * h1_topMass_baseline = new TH1D(sampleKeyStringT+"_h1_topMass_baseline", sampleKeyStringT+": top mass after baseline; topM (GeV)", 100, 0, 300); h1_topMass_baseline->Sumw2(); h1_topMass_baselineVec.push_back((TH1D*)h1_topMass_baseline->Clone()); 
 
   TH1D * h1_vtxSize_baseline = new TH1D(sampleKeyStringT+"_h1_vtxSize_baseline", sampleKeyStringT+": vtxSize after baseline; vtxSize", 50, 0, 50); h1_vtxSize_baseline->Sumw2(); h1_vtxSize_baselineVec.push_back((TH1D*)h1_vtxSize_baseline->Clone());
 
