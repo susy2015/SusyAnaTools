@@ -171,7 +171,6 @@ private:
 
     template<typename T> static const double& tlvGetValue(const std::string& name, const T& v)
     {
-        printf("%s %i!!!\n", name.c_str(), &v);
         fflush(stdin);
         
         if     (name.find("pt")  != std::string::npos) 
