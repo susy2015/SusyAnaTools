@@ -142,7 +142,7 @@ public:
         if( doEleVeto && !passEleVeto ){ passBaseline = false; passPreBaseline = false; passBaselineNoTag = false; }
         // Isolated track veto is disabled for now
         if( doIsoTrksVeto && !passIsoTrkVeto ){ passBaseline = false; passPreBaseline = false; passBaselineNoTag = false; }
-passPreBaseline
+
         if( debug ) std::cout<<"nMuons : "<<nMuons<<"  nElectrons : "<<nElectrons<<"  nIsoTrks : "<<nIsoTrks<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass number of jets?
