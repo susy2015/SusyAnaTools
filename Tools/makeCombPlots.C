@@ -19,6 +19,8 @@
 #include "THStack.h"
 #include "TLine.h"
 
+#include "TF1.h"
+
 #include "TFile.h"
 
 #include "searchBins.h"
@@ -138,12 +140,11 @@ void makeCombPlots(const std::string cutLev="baseline"){
    int divW=3, divH=3;
    cs->Divide(divW, divH);
 
-   TCanvas *ct = new TCanvas("ct", "ct", 1200, 600);
-   ct->Divide(2, 1);
+   TCanvas *ct = new TCanvas("ct", "ct", 900, 600);
 
    Float_t legendX1 = .60;
-   Float_t legendX2 = .85;
-   Float_t legendY1 = .65;
+   Float_t legendX2 = .80;
+   Float_t legendY1 = .60;
    Float_t legendY2 = .85;
    TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
    catLeg1->SetTextSize(0.025);
@@ -194,7 +195,7 @@ void makeCombPlots(const std::string cutLev="baseline"){
  
    tdrStyle->SetLabelSize(0.050, "XYZ");
  
-   tdrStyle->SetPadTopMargin(0.1); tdrStyle->SetPadBottomMargin(0.15);
+   tdrStyle->SetPadTopMargin(0.1); tdrStyle->SetPadBottomMargin(0.20);
    tdrStyle->SetPadLeftMargin(0.15); tdrStyle->SetPadRightMargin(0.15);
  
 //   tdrStyle->SetOptStat(1111);
@@ -232,7 +233,11 @@ void makeCombPlots(const std::string cutLev="baseline"){
    }
 
    for(unsigned int ip=0; ip<todraw_h1_keyStrVec.size(); ip++){
-      ct->cd(1); catLeg1->Clear();
+      ct->cd(); catLeg1->Clear();
+      TPad *pad1 = new TPad("pad1", "pad1", 0, 0.30, 1, 1.0);
+      pad1->SetBottomMargin(0);
+      pad1->Draw();             // Draw the upper pad: pad1                                                        
+      pad1->cd();
 
       THStack * hs_sum_SM = new THStack("hs", "");
       TH1D * tmp_data = 0;
@@ -268,15 +273,42 @@ void makeCombPlots(const std::string cutLev="baseline"){
       catLeg1->SetBorderSize(0);
       catLeg1->Draw();
 
-      ct->cd(2);
       TH1D * h1_ratio = (TH1D*) tmp_data->Clone();
       TH1D * tmp_sum_SM = (TH1D*) hs_sum_SM->GetStack()->Last();
       h1_ratio->Divide(tmp_sum_SM);
-      h1_ratio->Draw();
 
-      TLine * lineCen = new TLine(tmp_data->GetXaxis()->GetXmin(), 1, tmp_data->GetXaxis()->GetXmax(), 1);
-      lineCen->SetLineColor(kRed);
-      lineCen->Draw("same");
+      ct->cd();
+      TPad *pad2 = new TPad("pad2", "pad2", 0, 0.03, 1, 0.30);
+      pad2->SetTopMargin(0);
+      pad2->SetBottomMargin(0.25);
+      //       pad2->SetGridx(); // vertical grid                                                                          
+      pad2->Draw();
+      pad2->cd();       // pad2 becomes the current pad                                                           
+      TF1 * fline = new TF1("line", "pol0", h1_ratio->GetBinLowEdge(1), h1_ratio->GetBinLowEdge(h1_ratio->GetNbinsX()) + h1_ratio->GetBinWidth(h1_ratio->GetNbinsX()));
+      fline->SetParameter(0, 1);
+      h1_ratio->SetTitle(0);
+      h1_ratio->SetLineColor(kBlue);
+      h1_ratio->SetMinimum(0);  // Define Y ..                                                                      
+      h1_ratio->SetMaximum(2); // .. range                                                                          
+      h1_ratio->SetStats(0);
+
+      // Y axis ratio plot settings                                                                               
+      h1_ratio->GetYaxis()->SetTitle("Data/MC");
+      h1_ratio->GetYaxis()->SetNdivisions(505);
+      h1_ratio->GetYaxis()->SetTitleSize(18);
+      h1_ratio->GetYaxis()->SetTitleFont(43);
+      h1_ratio->GetYaxis()->SetTitleOffset(1.55);
+      h1_ratio->GetYaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)                          
+      h1_ratio->GetYaxis()->SetLabelSize(15);
+
+      // X axis ratio plot settings                                                                               
+      h1_ratio->GetXaxis()->SetTitleSize(18);
+      h1_ratio->GetXaxis()->SetTitleFont(43);
+      h1_ratio->GetXaxis()->SetTitleOffset(3.5);
+      h1_ratio->GetXaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)                          
+      h1_ratio->GetXaxis()->SetLabelSize(15);
+      h1_ratio->Draw("E1");
+      fline->Draw("same");
 
       ct->Print("comb_"+TString(todraw_h1_keyStrVec[ip])+"_"+TString(cutLev)+".pdf");
    }
