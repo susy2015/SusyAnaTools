@@ -94,7 +94,7 @@ void Plotter::Cuttable::extractCuts(std::set<std::string>& ab) const
     for(auto& cut : cutVec_) ab.insert(cut.rawName);
 }
 
-Plotter::HistSummary::HistSummary(std::string l, std::vector<Plotter::DataCollection> ns, std::pair<int, int> ratio, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal) : Cuttable(cuts), name(l), nBins(nb), low(ll), high(ul), isLog(log), isNorm(norm), xAxisLabel(xal), yAxisLabel(yal), ratio(ratio)
+Plotter::HistSummary::HistSummary(std::string l, std::vector<Plotter::DataCollection> ns, std::pair<int, int> ratio, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal, bool isRatio) : Cuttable(cuts), name(l), nBins(nb), low(ll), high(ul), isLog(log), isNorm(norm), xAxisLabel(xal), yAxisLabel(yal), ratio(ratio), isRatio(isRatio)
 {
     parseName(ns);
 }
@@ -715,29 +715,70 @@ void Plotter::plot()
             }
 
             TF1 * fline = new TF1("line", "pol0", hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
-            fline->SetParameter(0, 1);
+            TF1 * fline2 = nullptr;
+            TF1 * fline3 = nullptr;
+            std::string drawOptions = "";
 
             if(h1 && h2)
             {
-                fline->SetLineColor(h2->GetLineColor());
-
-                h1->Divide(h2);
-                //h1->SetLineColor(kBlack);
-                double d2ymin = 0.0;
-                double d2ymax = 1.5;
-                for(int iBin = 1; iBin <= h1->GetNbinsX(); ++iBin)
+                if(hist.isRatio)
                 {
-                    if(h1->GetBinContent(iBin) < 5.0)
+                    fline->SetParameter(0, 1);
+                    drawOptions = "same E1";
+
+                    h1->Divide(h2);
+                    //h1->SetLineColor(kBlack);
+                    double d2ymin = 0.0;
+                    double d2ymax = 1.5;
+                    for(int iBin = 1; iBin <= h1->GetNbinsX(); ++iBin)
                     {
-                        d2ymax = std::max(d2ymax, h1->GetBinContent(iBin));
+                        if(h1->GetBinContent(iBin) < 5.0)
+                        {
+                            d2ymax = std::max(d2ymax, h1->GetBinContent(iBin));
+                        }
                     }
+                    dummy2->GetYaxis()->SetRangeUser(d2ymin, 1.5*d2ymax);
                 }
-                dummy2->GetYaxis()->SetRangeUser(d2ymin, 1.5*d2ymax);
+                else // pull distribution
+                {
+                    fline->SetParameter(0, 0);
+                    drawOptions = "same histP";
+
+                    h1->SetLineStyle(0);
+                    h1->SetMarkerStyle(20);
+                    h1->SetMarkerColor(h1->GetLineColor());
+
+                    h1->Add(h2, -1.0);
+                    const double absoluteMaxPull = 10.0;
+                    double maxPull = 2.0;
+                    for(int iBin = 1; iBin <= h1->GetNbinsX(); ++iBin)
+                    {
+                        if(h1->GetBinError(iBin) > 0.00001) h1->SetBinContent(iBin, h1->GetBinContent(iBin)/h1->GetBinError(iBin));
+                        else h1->SetBinContent(iBin, -999.9);
+                        if(fabs(h1->GetBinContent(iBin)) < absoluteMaxPull) maxPull = std::max(maxPull, fabs(h1->GetBinContent(iBin)));
+                    }
+                    double d2ymin = -std::min(ceil(maxPull*1.2), absoluteMaxPull);
+                    double d2ymax =  std::min(ceil(maxPull*1.2), absoluteMaxPull); 
+                    dummy2->GetYaxis()->SetRangeUser(d2ymin, d2ymax);
+                    dummy2->GetYaxis()->SetTitle("Pull");
+                    dummy2->GetYaxis()->SetNdivisions(2, 5, 0);
+                    
+                    fline2 = new TF1("line", "pol0", hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
+                    fline2->SetParameter(0, 1);
+                    fline3 = new TF1("line", "pol0", hist.fhist()->GetBinLowEdge(1), hist.fhist()->GetBinLowEdge(hist.fhist()->GetNbinsX()) + hist.fhist()->GetBinWidth(hist.fhist()->GetNbinsX()));
+                    fline3->SetParameter(0, -1);
+                    fline2->SetLineColor(kBlack);
+                    fline2->SetLineStyle(kDashed);
+                    fline3->SetLineColor(kBlack);
+                    fline3->SetLineStyle(kDashed);
+                }
 
                 dummy2->Draw();
+                fline->SetLineColor(h2->GetLineColor());
                 fline->Draw("same");
-                
-                h1->Draw("same E1");
+                if(fline2) fline2->Draw("same");
+                if(fline3) fline3->Draw("same");
+                h1->Draw(drawOptions.c_str());
 
                 fixOverlay();
             }

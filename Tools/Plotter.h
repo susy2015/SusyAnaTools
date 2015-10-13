@@ -118,12 +118,12 @@ public:
         std::string name;
         int nBins;
         double low, high;
-        bool isLog, isNorm;
+        bool isLog, isNorm, isRatio;
         std::string xAxisLabel, yAxisLabel;
         std::pair<int, int> ratio;
         
         HistSummary() {}
-        HistSummary(std::string l, std::vector<Plotter::DataCollection> ns, std::pair<int, int> ratio, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal);
+        HistSummary(std::string l, std::vector<Plotter::DataCollection> ns, std::pair<int, int> ratio, std::string cuts, int nb, double ll, double ul, bool log, bool norm, std::string xal, std::string yal, bool isRatio = true);
         ~HistSummary();
 
         TH1* fhist(){if(hists.size()) return hists.front().hcsVec.front()->h;}
@@ -171,8 +171,6 @@ private:
 
     template<typename T> static const double& tlvGetValue(const std::string& name, const T& v)
     {
-        fflush(stdin);
-        
         if     (name.find("pt")  != std::string::npos) 
         {
             const auto& retval = v.Pt();
