@@ -238,16 +238,7 @@ passPreBaseline
 
         tr.registerDerivedVar("HT" + spec, HT);
 
-        double j1pt = -1.0, j2pt = -1.0, j3pt = -1.0;
-        if(tr.getVec<TLorentzVector>(jetVecLabel).size() >= 1) j1pt = tr.getVec<TLorentzVector>(jetVecLabel)[0].Pt();
-        if(tr.getVec<TLorentzVector>(jetVecLabel).size() >= 2) j1pt = tr.getVec<TLorentzVector>(jetVecLabel)[1].Pt();
-        if(tr.getVec<TLorentzVector>(jetVecLabel).size() >= 3) j1pt = tr.getVec<TLorentzVector>(jetVecLabel)[2].Pt();
-        tr.registerDerivedVar("cleanJet1pt" + spec, j1pt);
-        tr.registerDerivedVar("cleanJet2pt" + spec, j2pt);
-        tr.registerDerivedVar("cleanJet3pt" + spec, j3pt);
-
         if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
-
     } 
 
     bool passNoiseEventFilterFunc(NTupleReader &tr){
