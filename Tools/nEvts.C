@@ -34,10 +34,7 @@ int main(int argc, char *argv[])
         }
 
         TChain *t = new TChain(file.second.treePath.c_str());
-        for(const auto& fn : file.second.getFilelist())
-        {
-            t->Add(fn.c_str());
-        }
+        file.second.addFilesToChain(t);
      
         std::cout << "Processing file(s): " << file.second.filePath << "\t" << t->GetEntries() << std::endl;
     }

@@ -67,7 +67,9 @@ namespace AnaConsts{
    const AccRec     dphiNArr = {   -1,       2.4,      30,    -1  };
    const AccRec      bTagArr = {   -1,       2.4,      30,    -1  };
 
-   const double cutCSVS = 0.814, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
+//   const double cutCSVS = 0.814, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
+// Note the new working points are for Spring15 samples & data: cutCSVS is the medium working point
+   const double cutCSVS = 0.890, cutCSVL = 0.605, cutCSVT = 0.97, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
    const double defaultMETcut = 200;
    const double defaultMT2cut = 200;
    const double defaultHTcut = 500;
@@ -112,7 +114,7 @@ namespace AnaConsts{
                                                   // Only exist in MC samples
                                                   "genDecayIdxVec", "genDecayLVec", "genDecayMomIdxVec", "genDecayPdgIdVec", "genDecayStrVec", "genDecayMomRefVec",
                                                   "W_emuVec", "W_tau_emuVec", "W_tau_prongsVec", "W_tau_nuVec",
-                                                  "genHT", "PDFweights", "PDFids"
+                                                  "genHT", "PDFweights", "PDFids", "stored_weight"
                                                 };
 
 }
@@ -142,6 +144,7 @@ namespace AnaFunctions{
       int cntNJets =0;
       for(unsigned int ij=0; ij<inputJets.size(); ij++){
          if( !jetPassCuts(inputJets[ij], jetCutsArr) ) continue;
+         if( std::isnan(inputCSVS[ij]) ) continue;
          if( inputCSVS[ij] > cutCSVS ) cntNJets ++;
       }
       return cntNJets;
@@ -200,9 +203,9 @@ namespace AnaFunctions{
           && ( maxAbsEta == -1 || fabs(permuoneta) < maxAbsEta )
           && (     minPt == -1 || permuonpt >= minPt )
           && (     maxPt == -1 || permuonpt < maxPt )
-          && (    maxIso == -1 || muonIso < maxIso)
-          &&     (maxMtw == -1 || muonMtw < maxMtw
-          && flagID );
+          && (    maxIso == -1 || muonIso < maxIso )
+          && (    maxMtw == -1 || muonMtw < maxMtw )
+          && flagID;
    }
 
    bool passMuonAccOnly(const TLorentzVector& muon, const AnaConsts::IsoAccRec& muonsArr)
@@ -233,8 +236,8 @@ namespace AnaFunctions{
            && (     minPt == -1 || perelectronpt >= minPt )
            && (     maxPt == -1 || perelectronpt < maxPt ) 
            && (    maxIso == -1 || electronIso < maxIso )
-           && (    maxMtw == -1 || electronMtw < maxMtw 
-           && flagID );
+           && (    maxMtw == -1 || electronMtw < maxMtw )
+           && flagID;
    }
 
    int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr){
