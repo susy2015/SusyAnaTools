@@ -39,6 +39,8 @@ namespace commonFunctions
 
   double GetRA2Activity(edm::Handle<pat::JetCollection> jets, const reco::Candidate* ptcl, const bool useEME=true);
 
+  double GetTrackActivity(edm::Handle<pat::PackedCandidateCollection> other_pfcands, const pat::PackedCandidate* track);
+
 // The following is the old function definition
 //        double getPFIsolation(edm::Handle<pat::PackedCandidateCollection> pfcands,
 //                          const reco::Candidate* ptcl,

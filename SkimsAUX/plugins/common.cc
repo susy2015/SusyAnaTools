@@ -100,4 +100,20 @@ namespace commonFunctions
     return activity;
   }
 
+  double GetTrackActivity(edm::Handle<pat::PackedCandidateCollection> other_pfcands, const pat::PackedCandidate* track) {
+    if (track->pt()<5.) return 99999.;
+    double trkiso(0.); 
+    double r_iso = 0.3;
+    for (const pat::PackedCandidate &other_pfc : *other_pfcands) {
+        if (other_pfc.charge()==0) continue;
+        double dr = deltaR(other_pfc, *track);
+        if (dr < r_iso || dr > 0.4) continue; // activity annulus
+        float dz_other = other_pfc.dz();
+        if( fabs(dz_other) > 0.1 ) continue;
+        trkiso += other_pfc.pt();
+      }
+      double activity = trkiso/track->pt();
+      return activity;
+  }
+
 }

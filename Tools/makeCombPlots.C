@@ -140,7 +140,7 @@ void makeCombPlots(const std::string cutLev="baseline"){
    int divW=3, divH=3;
    cs->Divide(divW, divH);
 
-   TCanvas *ct = new TCanvas("ct", "ct", 900, 600);
+   TCanvas *ct = new TCanvas("ct", "ct", 600, 500);
 
    Float_t legendX1 = .60;
    Float_t legendX2 = .80;
@@ -195,8 +195,8 @@ void makeCombPlots(const std::string cutLev="baseline"){
  
    tdrStyle->SetLabelSize(0.050, "XYZ");
  
-   tdrStyle->SetPadTopMargin(0.1); tdrStyle->SetPadBottomMargin(0.20);
-   tdrStyle->SetPadLeftMargin(0.15); tdrStyle->SetPadRightMargin(0.15);
+   tdrStyle->SetPadTopMargin(0.1); tdrStyle->SetPadBottomMargin(0.30);
+   tdrStyle->SetPadLeftMargin(0.10); tdrStyle->SetPadRightMargin(0.05);
  
 //   tdrStyle->SetOptStat(1111);
  
@@ -261,11 +261,13 @@ void makeCombPlots(const std::string cutLev="baseline"){
 
       tmp_data->GetXaxis()->SetTitle(todraw_h1_xLabelVec[ip].c_str());
       if( todraw_h1_keyStrVec[ip] == "HT" ) tmp_data->GetXaxis()->SetRangeUser(400, tmp_data->GetXaxis()->GetXmax());
+      if( todraw_h1_keyStrVec[ip] == "topMass" ) tmp_data->GetXaxis()->SetRangeUser(50, tmp_data->GetXaxis()->GetXmax());
       tmp_data->Draw("");
 
       hs_sum_SM->Draw("hist same");
       hs_sum_SM->SetMaximum(hs_sum_SM->GetMaximum()*1.5);
       if( todraw_h1_keyStrVec[ip] == "HT" ) hs_sum_SM->GetXaxis()->SetRangeUser(400, hs_sum_SM->GetXaxis()->GetXmax());
+      if( todraw_h1_keyStrVec[ip] == "topMass" ) hs_sum_SM->GetXaxis()->SetRangeUser(50, hs_sum_SM->GetXaxis()->GetXmax());
 
       tmp_data->Draw("same");
 
@@ -280,7 +282,7 @@ void makeCombPlots(const std::string cutLev="baseline"){
       ct->cd();
       TPad *pad2 = new TPad("pad2", "pad2", 0, 0.03, 1, 0.30);
       pad2->SetTopMargin(0);
-      pad2->SetBottomMargin(0.25);
+      pad2->SetBottomMargin(0.30);
       //       pad2->SetGridx(); // vertical grid                                                                          
       pad2->Draw();
       pad2->cd();       // pad2 becomes the current pad                                                           
@@ -297,7 +299,7 @@ void makeCombPlots(const std::string cutLev="baseline"){
       h1_ratio->GetYaxis()->SetNdivisions(505);
       h1_ratio->GetYaxis()->SetTitleSize(18);
       h1_ratio->GetYaxis()->SetTitleFont(43);
-      h1_ratio->GetYaxis()->SetTitleOffset(1.55);
+      h1_ratio->GetYaxis()->SetTitleOffset(1.25);
       h1_ratio->GetYaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)                          
       h1_ratio->GetYaxis()->SetLabelSize(15);
 
