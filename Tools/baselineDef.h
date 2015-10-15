@@ -29,7 +29,7 @@ public:
         bool dodPhis = true;
 
         bool passBaseline = true;
-        bool passPreBaseline = true;
+        bool passBaselineNoTagMT2 = true;
         bool passBaselineNoTag = true;
 
         int bToFake = 1;
@@ -138,22 +138,22 @@ public:
         // Pass lepton veto?
         bool passMuonVeto = (nMuons == AnaConsts::nMuonsSel), passEleVeto = (nElectrons == AnaConsts::nElectronsSel), passIsoTrkVeto = (nIsoTrks == AnaConsts::nIsoTrksSel);
         bool passLeptVeto = passMuonVeto && passEleVeto && passIsoTrkVeto;
-        if( doMuonVeto && !passMuonVeto ){ passBaseline = false; passPreBaseline = false; passBaselineNoTag = false; }
-        if( doEleVeto && !passEleVeto ){ passBaseline = false; passPreBaseline = false; passBaselineNoTag = false; }
+        if( doMuonVeto && !passMuonVeto ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
+        if( doEleVeto && !passEleVeto ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
         // Isolated track veto is disabled for now
-        if( doIsoTrksVeto && !passIsoTrkVeto ){ passBaseline = false; passPreBaseline = false; passBaselineNoTag = false; }
+        if( doIsoTrksVeto && !passIsoTrkVeto ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
 
         if( debug ) std::cout<<"nMuons : "<<nMuons<<"  nElectrons : "<<nElectrons<<"  nIsoTrks : "<<nIsoTrks<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass number of jets?
         bool passnJets = true;
-        if( cntNJetsPt50Eta24 < AnaConsts::nJetsSelPt50Eta24 ){ passBaseline = false; passPreBaseline = false; passBaselineNoTag = false; passnJets = false; }
-        if( cntNJetsPt30Eta24 < AnaConsts::nJetsSelPt30Eta24 ){ passBaseline = false; passPreBaseline = false; passBaselineNoTag = false; passnJets = false; }
+        if( cntNJetsPt50Eta24 < AnaConsts::nJetsSelPt50Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; }
+        if( cntNJetsPt30Eta24 < AnaConsts::nJetsSelPt30Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; }
         if( debug ) std::cout<<"cntNJetsPt50Eta24 : "<<cntNJetsPt50Eta24<<"  cntNJetsPt30Eta24 : "<<cntNJetsPt30Eta24<<"  cntNJetsPt30 : "<<cntNJetsPt30<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass deltaPhi?
         bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
-        if( dodPhis && !passdPhis ){ passBaseline = false; passPreBaseline = false; passBaselineNoTag = false; }
+        if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
         if( debug ) std::cout<<"dPhi0 : "<<dPhiVec->at(0)<<"  dPhi1 : "<<dPhiVec->at(1)<<"  dPhi2 : "<<dPhiVec->at(2)<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass number of b-tagged jets?
@@ -163,13 +163,13 @@ public:
 
         // Pass the baseline MET requirement?
         bool passMET = (metLVec.Pt() >= AnaConsts::defaultMETcut);
-        if( doMET && !passMET ){ passBaseline = false; passPreBaseline = false; passBaselineNoTag = false; }
+        if( doMET && !passMET ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
         if( debug ) std::cout<<"met : "<<tr.getVar<double>("met")<<"  defaultMETcut : "<<AnaConsts::defaultMETcut<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass the HT cut for trigger?
         double HT = AnaFunctions::calcHT(tr.getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt30Eta24Arr);
         bool passHT = true;
-        if( HT < AnaConsts::defaultHTcut ){ passHT = false; passBaseline = false; passPreBaseline = false; passBaselineNoTag = false; }
+        if( HT < AnaConsts::defaultHTcut ){ passHT = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
         if( debug ) std::cout<<"HT : "<<HT<<"  defaultHTcut : "<<AnaConsts::defaultHTcut<<"  passHT : "<<passHT<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Calculate top tagger related variables. 
@@ -193,7 +193,7 @@ public:
         if( !passTagger ) passBaseline = false;
 
         bool passNoiseEventFilter = true;
-        if( !passNoiseEventFilterFunc(tr) ) { passNoiseEventFilter = false; passBaseline = false; passPreBaseline = false; passBaselineNoTag = false; }
+        if( !passNoiseEventFilterFunc(tr) ) { passNoiseEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
         if( debug ) std::cout<<"passNoiseEventFilterFunc : "<<passNoiseEventFilterFunc(tr)<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Register all the calculated variables
@@ -226,7 +226,7 @@ public:
         tr.registerDerivedVar("passTagger" + spec, passTagger);
         tr.registerDerivedVar("passNoiseEventFilter" + spec, passNoiseEventFilter);
         tr.registerDerivedVar("passBaseline" + spec, passBaseline);
-        tr.registerDerivedVar("passPreBaseline" + spec, passPreBaseline);
+        tr.registerDerivedVar("passBaselineNoTagMT2" + spec, passBaselineNoTagMT2);
         tr.registerDerivedVar("passBaselineNoTag" + spec, passBaselineNoTag);
 
         tr.registerDerivedVar("nTopCandSortedCnt" + spec, nTopCandSortedCnt);
