@@ -27,6 +27,8 @@ public:
         bool incZEROtop = false;
         bool doMET = true;
         bool dodPhis = true;
+        bool doTagger = true;
+        bool doBJet = true;
 
         bool passBaseline = true;
         bool passBaselineNoTag = true;
@@ -107,6 +109,8 @@ public:
         {
             doMET = false;
             dodPhis = false;
+            doTagger = false;
+            doBJet = false;
         }
 
         // Form TLorentzVector of MET
@@ -156,8 +160,8 @@ public:
         if( debug ) std::cout<<"dPhi0 : "<<dPhiVec->at(0)<<"  dPhi1 : "<<dPhiVec->at(1)<<"  dPhi2 : "<<dPhiVec->at(2)<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass number of b-tagged jets?
-        bool passBJets = true;
-        if( !( (AnaConsts::low_nJetsSelBtagged == -1 || cntCSVS >= AnaConsts::low_nJetsSelBtagged) && (AnaConsts::high_nJetsSelBtagged == -1 || cntCSVS < AnaConsts::high_nJetsSelBtagged ) ) ){ passBaseline = false; passBJets = false; }
+        bool passBJets = (AnaConsts::low_nJetsSelBtagged == -1 || cntCSVS >= AnaConsts::low_nJetsSelBtagged) && (AnaConsts::high_nJetsSelBtagged == -1 || cntCSVS < AnaConsts::high_nJetsSelBtagged );
+        if ( doBJets && !passBJets ){ passBaseline = false; }
         if( debug ) std::cout<<"cntCSVS : "<<cntCSVS<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass the baseline MET requirement?
@@ -188,8 +192,7 @@ public:
 
         // Pass top tagger requirement?
         bool passTagger = type3Ptr->passNewTaggerReq() && (incZEROtop || nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel);
-
-        if( !passTagger ) passBaseline = false;
+        if( doTagger && !passTagger ) { passBaseline = false };
 
         bool passNoiseEventFilter = true;
         if( !passNoiseEventFilterFunc(tr) ) { passNoiseEventFilter = false; passBaseline = false; passBaselineNoTag = false; }
