@@ -193,7 +193,7 @@ private:
         }
 
         if(isFirstEvent_) printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
-        return static_cast<T>(0);
+        return *static_cast<T*>(nullptr);
     }
 
     template<typename T> inline static void setDerived(const T& retval, void* const loc)
