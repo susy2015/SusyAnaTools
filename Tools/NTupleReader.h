@@ -13,9 +13,8 @@
 #include <vector>
 #include <set>
 #include <typeinfo>
+#include <functional>
 #include <cxxabi.h>
-
-#include "boost/function.hpp"
 
 /* This class is designed to be a simple interface to reading stop NTuples
    
@@ -63,7 +62,7 @@ public:
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
 
-    void registerFunction(boost::function<void(NTupleReader&)>);
+    void registerFunction(std::function<void(NTupleReader&)>);
 
     void getType(const std::string& name, std::string& type) const;
 
@@ -132,7 +131,7 @@ private:
     // stl collections to hold branch list and associated info
     std::map<std::string, void *> branchMap_;
     std::map<std::string, void *> branchVecMap_;
-    std::vector<boost::function<void(NTupleReader&)> > functionVec_;
+    std::vector<std::function<void(NTupleReader&)> > functionVec_;
     std::map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
     //Hack to get around segfault
