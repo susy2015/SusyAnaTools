@@ -117,7 +117,7 @@ void NTupleReader::calculateDerivedVariables()
     }
 }
 
-void NTupleReader::registerFunction(void (*f)(NTupleReader&))
+void NTupleReader::registerFunction(std::function<void(NTupleReader&)> f)
 {
     if(isFirstEvent_) functionVec_.push_back(f);
     else printf("NTupleReader::registerFunction(...): new functions cannot be registered after tuple reading begins!\n");
