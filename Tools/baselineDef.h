@@ -43,15 +43,15 @@ public:
         try
         {
           const double &temp  = tr.getVar<double>("genHT");
-          muonsFlagIDLabel = "";
         }
         catch (std::string var)
         {
           if(tr.IsFirstEvent()) 
           {
             printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
-            printf("Running with PHYS14 Config");
+            printf("Running with PHYS14 Config\n");
           }
+          muonsFlagIDLabel = "";
         }
         std::string elesFlagIDLabel = "";
 
@@ -271,7 +271,7 @@ public:
         if(tr.IsFirstEvent()) 
         {
           printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
-          printf("Running with PHYS14 Config");
+          printf("Running with PHYS14 Config\n");
         }
       }
       return true;
