@@ -40,6 +40,19 @@ public:
         std::string METPhiLabel = "metphi";
 
         std::string muonsFlagIDLabel = "muonsFlagMedium";
+        try
+        {
+          const double &temp  = tr.getVar<double>("genHT");
+          muonsFlagIDLabel = "";
+        }
+        catch (std::string var)
+        {
+          if(tr.IsFirstEvent()) 
+          {
+            printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
+            printf("Running with PHYS14 Config");
+          }
+        }
         std::string elesFlagIDLabel = "";
 
         if( spec.compare("noIsoTrksVeto") == 0)
@@ -242,14 +255,26 @@ public:
     } 
 
     bool passNoiseEventFilterFunc(NTupleReader &tr){
-       int jetIDFilter = tr.getVar<int>("prodJetIDEventFilter");
-       int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
-       int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
-       bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
-       int vtxSize = tr.getVar<int>("vtxSize");
+      try
+      {
+        int jetIDFilter = tr.getVar<int>("prodJetIDEventFilter");
+        int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
+        int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
+        bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
+        int vtxSize = tr.getVar<int>("vtxSize");
 
-//       return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
-       return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter;
+        //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
+        return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter;
+      }
+      catch (std::string var)
+      {
+        if(tr.IsFirstEvent()) 
+        {
+          printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
+          printf("Running with PHYS14 Config");
+        }
+      }
+      return true;
     }
 
     void operator()(NTupleReader &tr)

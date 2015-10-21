@@ -22,7 +22,7 @@ NTupleReader::NTupleReader(TTree * tree)
 void NTupleReader::init()
 {
     //gROOT->ProcessLine(".L TupleDict.h+");
-    gInterpreter->GenerateDictionary("vector<TLorentzVector>","TLorentzVector.h;vector");
+    //gInterpreter->GenerateDictionary("vector<TLorentzVector>","TLorentzVector.h;vector");
 
     nEvtTotal_ = tree_->GetEntries();
     nevt_ = 0;
