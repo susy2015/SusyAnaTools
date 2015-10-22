@@ -26,7 +26,7 @@
    An example baseline cut flow is defined in a separate code, i.e., baselineDef.C.
 */
 
-topTagger::type3TopTagger * type3Ptr;
+static topTagger::type3TopTagger * type3Ptr;
 
 namespace AnaConsts{
     
@@ -97,7 +97,7 @@ namespace AnaConsts{
 
    const double MT2cut_ = 300, mTcombcut_ = 500;
 
-   std::set<std::string> activatedBranchNames_DataOnly = { "run", "lumi", "event", "evtWeight", 
+   static std::set<std::string> activatedBranchNames_DataOnly = { "run", "lumi", "event", "evtWeight", 
                                                   "jetsLVec", "recoJetsBtag_0", "muMatchedJetIdx", "eleMatchedJetIdx", "looseisoTrksMatchedJetIdx", "trksForIsoVetoMatchedJetIdx",
                                                   "muonsLVec", "muonsMtw", "muonsRelIso", "muonsMiniIso", "muonsFlagMedium", "muonsFlagTight",
                                                   "elesLVec", "elesMtw", "elesRelIso", "elesMiniIso", "elesisEB",
@@ -110,7 +110,7 @@ namespace AnaConsts{
                                                   "TriggerNames", "PassTrigger"
                                                 };
 
-   std::set<std::string> activatedBranchNames = {
+   static std::set<std::string> activatedBranchNames = {
                                                   // Only exist in MC samples
                                                   "genDecayIdxVec", "genDecayLVec", "genDecayMomIdxVec", "genDecayPdgIdVec", "genDecayStrVec", "genDecayMomRefVec",
                                                   "W_emuVec", "W_tau_emuVec", "W_tau_prongsVec", "W_tau_nuVec",
@@ -121,7 +121,7 @@ namespace AnaConsts{
 
 namespace AnaFunctions{
 
-   bool jetPassCuts(const TLorentzVector& jet, const AnaConsts::AccRec& jetCutsArr)
+   inline bool jetPassCuts(const TLorentzVector& jet, const AnaConsts::AccRec& jetCutsArr)
    {
        const double minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
        double perjetpt = jet.Pt(), perjeteta = jet.Eta();
@@ -131,7 +131,7 @@ namespace AnaFunctions{
            && (     maxPt == -1 || perjetpt < maxPt );
    }       
 
-   int countJets(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr){
+   inline int countJets(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr){
       int cntNJets =0;
       for(unsigned int ij=0; ij<inputJets.size(); ij++){
           if(jetPassCuts(inputJets[ij], jetCutsArr)) cntNJets ++;
@@ -139,7 +139,7 @@ namespace AnaFunctions{
       return cntNJets;
    }
 
-   int countCSVS(const std::vector<TLorentzVector> &inputJets, const std::vector<double> &inputCSVS, const double cutCSVS, const AnaConsts::AccRec& jetCutsArr){
+   inline int countCSVS(const std::vector<TLorentzVector> &inputJets, const std::vector<double> &inputCSVS, const double cutCSVS, const AnaConsts::AccRec& jetCutsArr){
       const double minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
       int cntNJets =0;
       for(unsigned int ij=0; ij<inputJets.size(); ij++){
@@ -150,7 +150,7 @@ namespace AnaFunctions{
       return cntNJets;
    }
 
-   std::vector<double> calcDPhi(const std::vector<TLorentzVector> &inputJets, const double metphi, const int nDPhi, const AnaConsts::AccRec& jetCutsArr){
+   inline std::vector<double> calcDPhi(const std::vector<TLorentzVector> &inputJets, const double metphi, const int nDPhi, const AnaConsts::AccRec& jetCutsArr){
       const double minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
       int cntNJets =0;
       std::vector<double> outDPhiVec(nDPhi, 999);
@@ -165,7 +165,7 @@ namespace AnaFunctions{
       return outDPhiVec;
    }
 
-   double calcDeltaT(unsigned int pickedJetIdx, const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr){
+   inline double calcDeltaT(unsigned int pickedJetIdx, const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr){
       double deltaT = 0;
       double jres = 0.1;
       double sum = 0.0;
@@ -179,7 +179,7 @@ namespace AnaFunctions{
       return deltaT;
    }
    
-   std::vector<double> calcDPhiN(const std::vector<TLorentzVector> &inputJets, const TLorentzVector &metLVec, const int nDPhi, const AnaConsts::AccRec& jetCutsArr){
+   inline std::vector<double> calcDPhiN(const std::vector<TLorentzVector> &inputJets, const TLorentzVector &metLVec, const int nDPhi, const AnaConsts::AccRec& jetCutsArr){
       int cntNJets =0;
       std::vector<double> outDPhiVec(nDPhi, 999);
       for(unsigned int ij=0; ij<inputJets.size(); ij++){
@@ -195,7 +195,7 @@ namespace AnaFunctions{
       return outDPhiVec;
    }
 
-   bool passMuon(const TLorentzVector& muon, const double& muonIso, const double& muonMtw, int flagID, const AnaConsts::IsoAccRec& muonsArr)
+   inline bool passMuon(const TLorentzVector& muon, const double& muonIso, const double& muonMtw, int flagID, const AnaConsts::IsoAccRec& muonsArr)
    {
       const double minAbsEta = muonsArr.minAbsEta, maxAbsEta = muonsArr.maxAbsEta, minPt = muonsArr.minPt, maxPt = muonsArr.maxPt, maxIso = muonsArr.maxIso, maxMtw = muonsArr.maxMtw; 
       double permuonpt = muon.Pt(), permuoneta = muon.Eta();
@@ -208,7 +208,7 @@ namespace AnaFunctions{
           && flagID;
    }
 
-   bool passMuonAccOnly(const TLorentzVector& muon, const AnaConsts::IsoAccRec& muonsArr)
+   inline bool passMuonAccOnly(const TLorentzVector& muon, const AnaConsts::IsoAccRec& muonsArr)
    {
       const double minAbsEta = muonsArr.minAbsEta, maxAbsEta = muonsArr.maxAbsEta, minPt = muonsArr.minPt, maxPt = muonsArr.maxPt;
       double permuonpt = muon.Pt(), permuoneta = muon.Eta();
@@ -218,7 +218,7 @@ namespace AnaFunctions{
           && (     maxPt == -1 || permuonpt < maxPt );
    }
    
-   int countMuons(const std::vector<TLorentzVector> &muonsLVec, const std::vector<double> &muonsRelIso, const std::vector<double> &muonsMtw, const std::vector<int> &muonsFlagID, const AnaConsts::IsoAccRec& muonsArr){
+   inline int countMuons(const std::vector<TLorentzVector> &muonsLVec, const std::vector<double> &muonsRelIso, const std::vector<double> &muonsMtw, const std::vector<int> &muonsFlagID, const AnaConsts::IsoAccRec& muonsArr){
       
       int cntNMuons = 0;
       for(unsigned int im=0; im<muonsLVec.size(); im++){
@@ -227,7 +227,7 @@ namespace AnaFunctions{
       return cntNMuons;
    }
 
-   bool passElectron(const TLorentzVector& elec, const double electronIso, const double electronMtw, bool isEB, int flagID, const AnaConsts::ElecIsoAccRec& elesArr)
+   inline bool passElectron(const TLorentzVector& elec, const double electronIso, const double electronMtw, bool isEB, int flagID, const AnaConsts::ElecIsoAccRec& elesArr)
    {
        const double minAbsEta = elesArr.minAbsEta, maxAbsEta = elesArr.maxAbsEta, minPt = elesArr.minPt, maxPt = elesArr.maxPt, maxIso = (isEB)?(elesArr.maxIsoEB):(elesArr.maxIsoEE), maxMtw = elesArr.maxMtw;
        double perelectronpt = elec.Pt(), perelectroneta = elec.Eta();
@@ -240,7 +240,7 @@ namespace AnaFunctions{
            && flagID;
    }
 
-   int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr){
+   inline int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr){
 
       int cntNElectrons = 0;
       for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
@@ -249,7 +249,7 @@ namespace AnaFunctions{
       return cntNElectrons;
    }
 
-   int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<unsigned int>& isEBVec, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr){
+   inline int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<unsigned int>& isEBVec, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr){
 
       int cntNElectrons = 0;
       for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
@@ -258,7 +258,7 @@ namespace AnaFunctions{
       return cntNElectrons;
    }
 
-   double getElectronActivity(const TLorentzVector& elec, const std::vector<TLorentzVector>& jetLVec, const std::vector<double>& recoJetschargedHadronEnergyFraction, const AnaConsts::ActRec& elesAct)
+   inline double getElectronActivity(const TLorentzVector& elec, const std::vector<TLorentzVector>& jetLVec, const std::vector<double>& recoJetschargedHadronEnergyFraction, const AnaConsts::ActRec& elesAct)
    {
        double activity = 0;
        for( unsigned int i = 0 ; i < jetLVec.size() ; i++ )
@@ -274,7 +274,7 @@ namespace AnaFunctions{
        return activity;
    }
 
-   double getMuonActivity(const TLorentzVector& muon, const std::vector<TLorentzVector>& jetLVec, const std::vector<double>& recoJetschargedHadronEnergyFraction, const std::vector<double>& recoJetschargedEmEnergyFraction, const AnaConsts::ActRec& muonsAct)
+   inline double getMuonActivity(const TLorentzVector& muon, const std::vector<TLorentzVector>& jetLVec, const std::vector<double>& recoJetschargedHadronEnergyFraction, const std::vector<double>& recoJetschargedEmEnergyFraction, const AnaConsts::ActRec& muonsAct)
    {
        double activity = 0;
        for( unsigned int i = 0 ; i < jetLVec.size() ; i++ )
@@ -291,7 +291,7 @@ namespace AnaFunctions{
    }
 
 
-   bool passIsoTrk(const TLorentzVector& isoTrk, const double isoTrkIso, const double isoTrkMtw, const AnaConsts::IsoAccRec& isoTrksArr)
+   inline bool passIsoTrk(const TLorentzVector& isoTrk, const double isoTrkIso, const double isoTrkMtw, const AnaConsts::IsoAccRec& isoTrksArr)
    {
       const double minAbsEta = isoTrksArr.minAbsEta, maxAbsEta = isoTrksArr.maxAbsEta, minPt = isoTrksArr.minPt, maxPt = isoTrksArr.maxPt, maxIso = isoTrksArr.maxIso, maxMtw = isoTrksArr.maxMtw;
       double perisotrkpt = isoTrk.Pt(), perisotrketa = isoTrk.Eta();
@@ -303,7 +303,7 @@ namespace AnaFunctions{
           && (    maxMtw == -1 || isoTrkMtw < maxMtw );
    }
 
-   int countIsoTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<double> &isoTrksIso, const std::vector<double> &isoTrksMtw, const std::vector<int> &isoTrkspdgId){
+   inline int countIsoTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<double> &isoTrksIso, const std::vector<double> &isoTrksMtw, const std::vector<int> &isoTrkspdgId){
 
       int cntNIsoTrks = 0;
       for(unsigned int is=0; is<isoTrksLVec.size(); is++){
@@ -317,7 +317,7 @@ namespace AnaFunctions{
       return cntNIsoTrks;
    }
 
-   void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger){
+   inline void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger){
 
       jetsLVec_forTagger.clear(); recoJetsBtag_forTagger.clear();
 
@@ -330,7 +330,7 @@ namespace AnaFunctions{
 
 // cntNJetsVec stores number of jets counters from tightest requirement to loosest requirement.
 // cutCSVS is the CSV cut value
-   void preparecntNJets(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, const double cutCSVS, std::vector<int> &cntNJetsVec, std::vector<int> &cntNbJetsVec){
+   inline void preparecntNJets(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, const double cutCSVS, std::vector<int> &cntNJetsVec, std::vector<int> &cntNbJetsVec){
       cntNJetsVec.clear(); cntNbJetsVec.clear();
       int cntNJetsPt50Eta24 = countJets(inijetsLVec, AnaConsts::pt50Eta24Arr);
       int cntNJetsPt30Eta24 = countJets(inijetsLVec, AnaConsts::pt30Eta24Arr);
@@ -343,23 +343,23 @@ namespace AnaFunctions{
       cntNbJetsVec.push_back(cntCSVS);
    }
 
-   void preparecalcDPhi(const std::vector<TLorentzVector> &inijetsLVec, const double metphi, std::vector<double> &outDPhiVec){
+   inline void preparecalcDPhi(const std::vector<TLorentzVector> &inijetsLVec, const double metphi, std::vector<double> &outDPhiVec){
       outDPhiVec.clear();
       outDPhiVec = calcDPhi(inijetsLVec, metphi, 3, AnaConsts::dphiArr);
    }
 
-   void prepareTopTagger(){
+   inline void prepareTopTagger(){
       if( !type3Ptr ) type3Ptr = new topTagger::type3TopTagger();
       type3Ptr->setnJetsSel(AnaConsts::nJetsSel);
       type3Ptr->setCSVS(AnaConsts::cutCSVS);
    }
 
-   void prepareForNtupleReader(){
+   inline void prepareForNtupleReader(){
       using namespace AnaConsts;
       activatedBranchNames.insert(activatedBranchNames_DataOnly.begin(), activatedBranchNames_DataOnly.end());
    }
 
-   double calcHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr){
+   inline double calcHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr){
 
       const double minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
 
@@ -377,12 +377,12 @@ namespace AnaFunctions{
       return ht;
    }
 
-   bool passBaseline(){
+  inline bool passBaseline(){
 
      return true;
    }
 
-   int jetLepdRMatch(const TLorentzVector& lep, const std::vector<TLorentzVector>& jetsLVec, const double jldRMax)
+  inline int jetLepdRMatch(const TLorentzVector& lep, const std::vector<TLorentzVector>& jetsLVec, const double jldRMax)
    {
        double dRmin = 999.0;
        int minJMatch = -1;
