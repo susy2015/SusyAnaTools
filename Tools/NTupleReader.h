@@ -48,6 +48,11 @@ public:
         return nevt_;
     }
 
+    bool IsFirstEvent() const
+    {
+      return isFirstEvent_;
+    }
+
     int getNEntries() const
     {
         if(tree_) return nEvtTotal_;
@@ -121,6 +126,14 @@ public:
 
         return *getTupleObj<std::vector<T>*>(var, branchVecMap_);
     }
+
+    template<typename T, typename V> const std::map<T, V>& getMap(const std::string var) const
+    {
+        //This function can be used to return vectors
+
+        return *getTupleObj<std::map<T, V>*>(var, branchVecMap_);
+    }
+ 
  
 private:
     // private variables for internal use
@@ -192,6 +205,7 @@ private:
         }
 
         if(isFirstEvent_) printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
+        throw var;
         return *static_cast<T*>(nullptr);
     }
 
