@@ -19,7 +19,7 @@ namespace AnaSamples
             }
             fclose(f);
         }
-        else std::cout << "Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
+        //else std::cout << "Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
     }
 
     SampleSet::SampleSet(std::string fDir, double lumi) : fDir_(fDir), lumi_(lumi)
