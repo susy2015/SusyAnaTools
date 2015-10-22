@@ -74,8 +74,8 @@ namespace AnaSamples
         }
 
         const T& null() const {return nullT_;}
-        std::map<std::string, T> sampleSet_;
     protected:
+        std::map<std::string, T> sampleSet_;
         const T nullT_;
 
     public:

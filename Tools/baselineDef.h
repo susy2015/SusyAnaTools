@@ -42,7 +42,7 @@ public:
         std::string muonsFlagIDLabel = "muonsFlagMedium";
         try
         {
-          const double &temp  = tr.getVar<double>("genHT");
+          const std::vector<std::string> &temp = tr.getVec<std::string>("ntpVersion");
         }
         catch (std::string var)
         {
