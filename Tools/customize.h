@@ -105,7 +105,7 @@ namespace AnaConsts{
                                                   "met", "metphi", 
                                                   "tru_npv", "vtxSize",
                                                   "prodJetsNoMu_jetsLVec", "recoJetsBtag_0_MuCleaned",
-                                                  "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction",
+						  "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedHadronEnergyFraction",
                                                   "prodJetIDEventFilter", "CSCTightHaloFilter", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter",
                                                   "TriggerNames", "PassTrigger"
                                                 };
