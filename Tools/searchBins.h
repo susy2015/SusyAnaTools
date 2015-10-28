@@ -1,6 +1,8 @@
 #ifndef SEARCH_BINS_H
 #define SEARCH_BINS_H
 
+#include <iostream>
+
 /*
 const double nTops_SR_lo[]   = { 0,  0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  3 };
 const double nTops_SR_hi[]   = { 1,  1,  1,  2,  2,  2,  3,  3,  3, -1, -1, -1 };

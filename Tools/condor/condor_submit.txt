@@ -1,0 +1,240 @@
+universe = vanilla
+Executable = $ENV(CMSSW_BASE)/src/ZInvisible/Tools/condor/goMakePlots.sh
+Requirements = OpSys == "LINUX"&& (Arch != "DUMMY" )
+Should_Transfer_Files = YES
+WhenToTransferOutput = ON_EXIT
+Transfer_Input_Files = $ENV(CMSSW_BASE)/src/ZInvisible/Tools/makePlots, $ENV(CMSSW_BASE)/src/ZInvisible/Tools/condor/goMakePlots.sh,  $ENV(CMSSW_BASE)/src/ZInvisible/Tools/muEffHists.root,  $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so
+Output = logs/makePlots_$(Process).stdout
+Error = logs/makePlots_$(Process).stderr
+Log = logs/makePlots_$(Process).log
+notify_user = ${LOGNAME}@FNAL.GOV
+x509userproxy = $ENV(X509_USER_PROXY)
+
+Arguments = ZJetsToNuNu_HT_600toInf $ENV(CMSSW_BASE) 5 0
+Queue
+
+Arguments = ZJetsToNuNu_HT_600toInf $ENV(CMSSW_BASE) 5 5
+Queue
+
+Arguments = ZJetsToNuNu_HT_600toInf $ENV(CMSSW_BASE) 5 10
+Queue
+
+Arguments = ZJetsToNuNu_HT_600toInf $ENV(CMSSW_BASE) 5 15
+Queue
+
+Arguments = ZJetsToNuNu_HT_400to600 $ENV(CMSSW_BASE) 5 0
+Queue
+
+Arguments = ZJetsToNuNu_HT_400to600 $ENV(CMSSW_BASE) 5 5
+Queue
+
+Arguments = ZJetsToNuNu_HT_400to600 $ENV(CMSSW_BASE) 5 10
+Queue
+
+Arguments = ZJetsToNuNu_HT_200to400 $ENV(CMSSW_BASE) 5 0
+Queue
+
+Arguments = ZJetsToNuNu_HT_200to400 $ENV(CMSSW_BASE) 5 5
+Queue
+
+Arguments = ZJetsToNuNu_HT_200to400 $ENV(CMSSW_BASE) 5 10
+Queue
+
+Arguments = ZJetsToNuNu_HT_200to400 $ENV(CMSSW_BASE) 5 15
+Queue
+
+Arguments = ZJetsToNuNu_HT_200to400 $ENV(CMSSW_BASE) 5 20
+Queue
+
+Arguments = ZJetsToNuNu_HT_200to400 $ENV(CMSSW_BASE) 5 25
+Queue
+
+Arguments = ZJetsToNuNu_HT_200to400 $ENV(CMSSW_BASE) 5 30
+Queue
+
+Arguments = ZJetsToNuNu_HT_200to400 $ENV(CMSSW_BASE) 5 35
+Queue
+
+Arguments = ZJetsToNuNu_HT_100to200 $ENV(CMSSW_BASE) 5 0
+Queue
+
+Arguments = ZJetsToNuNu_HT_100to200 $ENV(CMSSW_BASE) 5 5
+Queue
+
+Arguments = ZJetsToNuNu_HT_100to200 $ENV(CMSSW_BASE) 5 10
+Queue
+
+Arguments = ZJetsToNuNu_HT_100to200 $ENV(CMSSW_BASE) 5 15
+Queue
+
+Arguments = ZJetsToNuNu_HT_100to200 $ENV(CMSSW_BASE) 5 20
+Queue
+
+Arguments = ZJetsToNuNu_HT_100to200 $ENV(CMSSW_BASE) 5 25
+Queue
+
+Arguments = ZJetsToNuNu_HT_100to200 $ENV(CMSSW_BASE) 5 30
+Queue
+
+Arguments = ZJetsToNuNu_HT_100to200 $ENV(CMSSW_BASE) 5 35
+Queue
+
+Arguments = ZJetsToNuNu_HT_100to200 $ENV(CMSSW_BASE) 5 40
+Queue
+
+Arguments = DYJetsToLL_HT_600toInf $ENV(CMSSW_BASE) 5 0
+Queue
+
+Arguments = DYJetsToLL_HT_600toInf $ENV(CMSSW_BASE) 5 5
+Queue
+
+Arguments = DYJetsToLL_HT_600toInf $ENV(CMSSW_BASE) 5 10
+Queue
+
+Arguments = DYJetsToLL_HT_600toInf $ENV(CMSSW_BASE) 5 15
+Queue
+
+Arguments = DYJetsToLL_HT_400to600 $ENV(CMSSW_BASE) 5 0
+Queue
+
+Arguments = DYJetsToLL_HT_400to600 $ENV(CMSSW_BASE) 5 5
+Queue
+
+Arguments = DYJetsToLL_HT_400to600 $ENV(CMSSW_BASE) 5 10
+Queue
+
+Arguments = DYJetsToLL_HT_400to600 $ENV(CMSSW_BASE) 5 15
+Queue
+
+Arguments = DYJetsToLL_HT_200to400 $ENV(CMSSW_BASE) 5 0
+Queue
+
+Arguments = DYJetsToLL_HT_200to400 $ENV(CMSSW_BASE) 5 5
+Queue
+
+Arguments = DYJetsToLL_HT_200to400 $ENV(CMSSW_BASE) 5 10
+Queue
+
+Arguments = DYJetsToLL_HT_200to400 $ENV(CMSSW_BASE) 5 15
+Queue
+
+Arguments = DYJetsToLL_HT_100to200 $ENV(CMSSW_BASE) 5 0
+Queue
+
+Arguments = DYJetsToLL_HT_100to200 $ENV(CMSSW_BASE) 5 5
+Queue
+
+Arguments = DYJetsToLL_HT_100to200 $ENV(CMSSW_BASE) 5 10
+Queue
+
+Arguments = DYJetsToLL_HT_100to200 $ENV(CMSSW_BASE) 5 15
+Queue
+
+Arguments = DYJetsToLL_HT_100to200 $ENV(CMSSW_BASE) 5 20
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 0
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 5
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 10
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 15
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 20
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 25
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 30
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 35
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 40
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 45
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 50
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 55
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 60
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 65
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 70
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 75
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 80
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 85
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 90
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 95
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 100
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 105
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 110
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 115
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 120
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 125
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 130
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 135
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 140
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 145
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 150
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 155
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 160
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 165
+Queue
+
+Arguments = TTbarDiLep $ENV(CMSSW_BASE) 5 170
+Queue
+

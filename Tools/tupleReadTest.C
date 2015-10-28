@@ -1,4 +1,5 @@
 #include "NTupleReader.h"
+#include "searchBins.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -30,7 +31,7 @@ int main()
     //char nBase[] = "root://cmsxrootd-site.fnal.gov//store/user/pastika/DYJetsToLL_M-50_13TeV-madgraph-pythia8/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223539/0000/stopFlatNtuples_%d.root";
     //char nBase[] = "/eos/uscms/store/user/pastika/DYJetsToLL_M-50_13TeV-madgraph-pythia8/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223539/0000/stopFlatNtuples_%d.root";
     //char nBase[] = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Mar14_2014_v2/pastika/DYJetsToLL_M-50_HT-400to600_Tune4C_13TeV-madgraph-tauola/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/150328_003540/0000/stopFlatNtuples_%d.root";
-    char nBase[] = "root://cmsxrootd-site.fnal.gov//store/user/lpcsusyhad/PHYS14_720_Dec23_2014/pastika/DYJetsToLL_M-50_13TeV-madgraph-pythia8/PHYS14_PU20bx25_PHYS14_25_V1-FLAT/141227_223539/0000/stopFlatNtuples_%d.root";
+    char nBase[] = "root://cmsxrootd-site.fnal.gov//store/user/lpcsusyhad/Spring15_74X_Oct_2015_Ntp_v2X/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/DYJetsToLL_M-50_HT-600toInf_Spring15DR74_Asympt25ns_Ntp_v2/150929_154444/0000/stopFlatNtuples_%d.root";
 
     TChain *f = new TChain("stopTreeMaker/AUX");
 
@@ -42,6 +43,8 @@ int main()
         sprintf(fname, nBase, i);
         f->Add(fname);
     }
+
+    print_searchBins();
     
     NTupleReader tr(f);
     tr.registerFunction(&joeFunctions::calcJoe);
@@ -65,9 +68,9 @@ int main()
         const std::vector<int>& trksForIsoVeto_idx = tr.getVec<int>("trksForIsoVeto_idx");
         const std::vector<int>& trksForIsoVeto_pdgId = tr.getVec<int>("trksForIsoVeto_pdgId");
 
-        const std::vector<int>& fish = tr.getVec<int>("fish");
+        //const std::vector<int>& fish = tr.getVec<int>("fish");
 
-        if(&fish != nullptr) std::cout << fish.size() << std::endl;
+        //if(&fish != nullptr) std::cout << fish.size() << std::endl;
 
         if(tr.getEvtNum()%100000 == 0) std::cout << tr.getEvtNum() << "\t" << ((clock() - t0)/1000000.0) << std::endl;
         //std::cout << tr.getVar<double>("met") << "\t" << tr.getVar<double>("mht") << "\t" << tr.getVar<double>("joe") << "\t" << tr.getVar<int>("five") << "\t" << tr.getVec<double>("muonsMtw").size() << "\t" << tr.getVec<double>("threeNum")[2] << std::endl;
