@@ -16,6 +16,14 @@
 #include <functional>
 #include <cxxabi.h>
 
+#ifdef __CINT__
+#pragma link off all globals;
+#pragma link off all classes;
+#pragma link off all functions;
+
+#pragma link C++ class vector<TLorentzVector>+;
+#endif
+
 /* This class is designed to be a simple interface to reading stop NTuples
    
    To use this class simply open the desired Tree as a TTree or TChain and pass it 
