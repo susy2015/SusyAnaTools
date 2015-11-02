@@ -12,6 +12,7 @@ CXXFLAGS += -O3
 
 ## Include ROOT
 CXXFLAGS  += $(shell root-config --cflags)
+CXXFLAGS  += -I../../
 
 CXXDEPFLAGS = -MMD -MP
 
@@ -22,10 +23,13 @@ LIBS       = $(shell root-config --glibs)
 MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
 
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
-PROGRAMS = tupleTest nEvts basicCheck makeCombPlots
+PROGRAMS = tupleTest nEvts makeCombPlots
 
-all: mkobj sampPyWrap $(PROGRAMS)
+FILES = $(wildcard *.cc)
+OBJS  := $(FILES:%.cc=$(ODIR)/%.o)
+allobjs : $(OBJS)
 
+all: mkobj sampPyWrap allobjs $(PROGRAMS)
 
 mkobj:
 	@mkdir -p obj
