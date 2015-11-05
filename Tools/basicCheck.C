@@ -27,7 +27,7 @@
 
 BaselineVessel * SRblv =0;
 const std::string spec = "MY";
-topTagger::type3TopTagger * type3Ptr = new topTagger::type3TopTagger();
+topTagger::type3TopTagger * type3Ptr = 0;
 
 void mypassBaselineFunc(NTupleReader &tr){
    (*SRblv)(tr);
@@ -347,6 +347,7 @@ void basicCheck(int argc, char *argv[]){
    NTupleReader *tr = 0;
 
    SRblv = new BaselineVessel(spec);
+   SRblv->prepareTopTagger();
    type3Ptr = SRblv->GetType3Ptr();
    type3Ptr->setdebug(true);
 
