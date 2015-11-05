@@ -4,7 +4,7 @@ SDIR       = .
 
 CXX        = g++
 
-CXXFLAGS  += -I. -std=c++0x -I$(CMSSW_BASE)/src/
+CXXFLAGS  += -I. -std=c++0x 
 ## Optimization flag
 CXXFLAGS += -O3
 ## Enable the maximun warning
@@ -22,14 +22,23 @@ LDFLAGS    =
 LIBS       = $(shell root-config --glibs)
 MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
 
+ifneq ($(shell echo $$CMSSW_BASE), )
+  CXXFLAGS  += -I$(CMSSW_BASE)/src/
+  MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
+else
+  CXXFLAGS  += -I../..
+  MT2LIB     = -L../../recipeAUX/OxbridgeMT2/.libs -loxbridgekinetics-1.0 
+endif
+
+
+
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
-PROGRAMS = tupleTest nEvts makeCombPlots
+PROGRAMS = tupleTest nEvts basicCheck makeCombPlots
 
 FILES = $(wildcard *.cc)
 OBJS  := $(FILES:%.cc=$(ODIR)/%.o)
-allobjs : $(OBJS)
 
-all: mkobj sampPyWrap allobjs $(PROGRAMS)
+all: mkobj $(OBJS) sampPyWrap $(PROGRAMS) 
 
 mkobj:
 	@mkdir -p obj
@@ -59,7 +68,7 @@ tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o
 nEvts: $(ODIR)/samples.o $(ODIR)/nEvts.o
 	$(LD) $^ $(LIBS) -o $@
 
-basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o
+basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/customize.o $(ODIR)/baselineDef.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o

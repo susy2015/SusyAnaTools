@@ -31,6 +31,7 @@ public:
     bool GetnTops(NTupleReader *tr) const;
     bool passNoiseEventFilterFunc(NTupleReader &tr);
 
+    topTagger::type3TopTagger * GetType3Ptr() const {return type3Ptr;};
     inline void operator()(NTupleReader &tr) { passBaseline(tr); }
 };
 

@@ -27,6 +27,7 @@
 
 BaselineVessel * SRblv =0;
 const std::string spec = "MY";
+topTagger::type3TopTagger * type3Ptr = new topTagger::type3TopTagger();
 
 void mypassBaselineFunc(NTupleReader &tr){
    (*SRblv)(tr);
@@ -336,9 +337,6 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 void basicCheck(int argc, char *argv[]){
 
    AnaFunctions::prepareForNtupleReader();
-   AnaFunctions::prepareTopTagger();
-
-   type3Ptr->setdebug(true);
 
    build_MT2_met_Binning_forTH2Poly(out_MT2_met_Binning_forTH2Poly);
 
@@ -349,6 +347,8 @@ void basicCheck(int argc, char *argv[]){
    NTupleReader *tr = 0;
 
    SRblv = new BaselineVessel(spec);
+   type3Ptr = SRblv->GetType3Ptr();
+   type3Ptr->setdebug(true);
 
    std::string selKeyStr;
    if( argc >=2 ){

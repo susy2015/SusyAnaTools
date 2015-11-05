@@ -291,4 +291,11 @@ namespace AnaFunctions{
        else                return -1;
    }
 
+
+   void prepareTopTagger(topTagger::type3TopTagger * type3Ptr){
+     if( !type3Ptr ) type3Ptr = new topTagger::type3TopTagger();
+     type3Ptr->setnJetsSel(AnaConsts::nJetsSel);
+     type3Ptr->setCSVS(AnaConsts::cutCSVS);
+   }
+
 }
