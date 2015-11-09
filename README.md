@@ -12,7 +12,6 @@ scram b -j9
 ```
 
 To submit jobs, go to SusyAnaTools/SkimsAUX/workdir/prod/74X_crab_example/
-
 Then modify the MultiCrab3.py file for the line:
 
 selSubmitKey = 'TEST ALL'
