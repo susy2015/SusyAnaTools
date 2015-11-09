@@ -202,9 +202,13 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
   if( debug ) std::cout<<"passNoiseEventFilterFunc : "<<passNoiseEventFilterFunc(tr)<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Register all the calculated variables
-  tr.registerDerivedVar("nMuons_CUT" + spec, nMuons);
-  tr.registerDerivedVar("nElectrons_CUT" + spec, nElectrons);
-  tr.registerDerivedVar("nIsoTrks_CUT" + spec, nIsoTrks);
+  tr.registerDerivedVar("nMuons_Base" + spec, nMuons);
+  tr.registerDerivedVar("nElectrons_Base" + spec, nElectrons);
+  tr.registerDerivedVar("nIsoTrks_Base" + spec, nIsoTrks);
+  //tr.registerDerivedVar("nMuons_CUT" + spec, nMuons);
+  //tr.registerDerivedVar("nElectrons_CUT" + spec, nElectrons);
+  //tr.registerDerivedVar("nIsoTrks_CUT" + spec, nIsoTrks);
+
 
   tr.registerDerivedVar("cntNJetsPt50Eta24" + spec, cntNJetsPt50Eta24);
   tr.registerDerivedVar("cntNJetsPt30Eta24" + spec, cntNJetsPt30Eta24);

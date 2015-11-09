@@ -86,7 +86,7 @@ public:
             if(branchMap_.find(name) != branchMap_.end())
             {
                 printf("NTupleReader::registerDerivedVar(...): You are trying to redefine a base tuple var: \"%s\".  This is not allowed!  Please choose a unique name.\n", name.c_str());
-                return;
+                throw name;
             }
             branchMap_[name] = new T();
 
@@ -104,7 +104,8 @@ public:
             if(branchVecMap_.find(name) != branchVecMap_.end())
             {
                 printf("NTupleReader::registerDerivedVar(...): You are trying to redefine a base tuple var: \"%s\".  This is not allowed!  Please choose a unique name.\n", name.c_str());
-                return;
+                throw name;
+                //return;
             }
             branchVecMap_[name] = new T*();
             
