@@ -23,7 +23,7 @@ json_25ns = 'Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config
 # TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleEG
 # Can be any of the combinations
-selSubmitKey = 'TTJets'
+selSubmitKey = 'TEST ALL'
 #selSubmitKey = 'NONE'
 doAutoMonitor = False
 
