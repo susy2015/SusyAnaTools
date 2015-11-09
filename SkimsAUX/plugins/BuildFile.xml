@@ -20,6 +20,7 @@
   <use   name="RecoEgamma/EgammaTools"/>
   <use   name="recipeAUX/OxbridgeMT2"/>
   <use   name="CondFormats/JetMETObjects"/>
+  <use   name="JetMETCorrections/Objects"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/VertexReco"/>
   <use   name="DataFormats/HepMCCandidate"/>

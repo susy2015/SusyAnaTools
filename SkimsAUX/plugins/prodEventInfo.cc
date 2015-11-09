@@ -88,7 +88,7 @@ bool prodEventInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   *storedWeight = -1.0;
 
   if( !isData_ ){
-     iEvent.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
+     iEvent.getByLabel(edm::InputTag("slimmedAddPileupInfo"), PupInfo);
      std::vector<PileupSummaryInfo>::const_iterator PVI;
 
      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {

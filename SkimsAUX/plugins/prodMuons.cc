@@ -101,7 +101,7 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByLabel(pfCandsSrc_, pfcands);
 
   edm::Handle< double > rho_;
-  iEvent.getByLabel("fixedGridRhoFastjetAll", rho_);
+  iEvent.getByLabel("fixedGridRhoFastjetCentralNeutral", rho_); // Central rho recommended for SUSY
   double rho = *rho_;
 
   // check which ones to keep
