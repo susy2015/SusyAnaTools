@@ -11,8 +11,11 @@ git clone -b Ntp_74X_08Nov2015_v3.0 git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 
-To submit jobs, go to SusyAnaTools/SkimsAUX/workdir/prod/74X_crab_example/
-Then modify the MultiCrab3.py file for the line:
+To submit jobs:
+
+1. cd SusyAnaTools/SkimsAUX/workdir/prod/74X_crab_example/
+
+2. Modify the MultiCrab3.py file for the line:
 
 selSubmitKey = 'TEST ALL'
 
