@@ -23,7 +23,7 @@ json_25ns = 'Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config
 # TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleEG
 # Can be any of the combinations
-selSubmitKey = 'TEST ALL'
+selSubmitKey = 'TTJets'
 #selSubmitKey = 'NONE'
 doAutoMonitor = False
 
@@ -193,7 +193,7 @@ if __name__ == "__main__":
         tempconfig = copy.deepcopy(config)
         tempconfig.General.requestName = key
         tempconfig.General.workArea = workArea
-        tempconfig.Data.publishDataName = Pubname + "_" + key
+        tempconfig.Data.outputDatasetTag = Pubname + "_" + key
         tempconfig.Data.outLFNDirBase = outDir
 
         if len(value) <3:

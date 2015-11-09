@@ -21,7 +21,7 @@ config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 5
 config.Data.publication = False
 config.Data.publishDBS = 'https://cmsweb.cern.ch/dbs/prod/phys03/DBSWriter/'
-config.Data.publishDataName = 'Spring15DR74_Asympt25ns_V1.1'
+config.Data.outputDatasetTag = 'Spring15DR74_Asympt25ns_V1.1'
 #Use your own username instead of the "lhx". Keep branch tag in the directory name, e.g., Spring15_720_Dec23_2014.
 config.Data.outLFNDirBase = '/store/group/lpcsusyhad/Spring15_74X_July_2015_v1.1/lhx/TTJets_madgraphMLM-pythia8/'
 
