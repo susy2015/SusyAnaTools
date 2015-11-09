@@ -23,6 +23,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 
 //
 // class declaration
@@ -45,6 +46,7 @@ private:
   virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
   edm::InputTag trigTagSrc_;
+  edm::InputTag trigPrescalesTagSrc_;
   std::vector<std::string> parsedTrigNamesVec_;
 
   bool debug_;
@@ -66,6 +68,7 @@ prodTriggerResults::prodTriggerResults(const edm::ParameterSet& iConfig)
 {
   parsedTrigNamesVec_ = iConfig.getParameter <std::vector<std::string> > ("triggerNameList");
   trigTagSrc_ = iConfig.getParameter<edm::InputTag> ("trigTagSrc");
+  trigPrescalesTagSrc_ = iConfig.getParameter<edm::InputTag> ("trigPrescalesTagSrc"); 
 
   debug_ = iConfig.getParameter<bool>("debug");
 
@@ -74,6 +77,7 @@ prodTriggerResults::prodTriggerResults(const edm::ParameterSet& iConfig)
   }
 
   produces<std::vector<std::string> >("TriggerNames");
+  produces<std::vector<int> >("TriggerPrescales");
   produces<std::vector<int> >("PassTrigger");
 }
 
@@ -91,13 +95,17 @@ prodTriggerResults::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   std::auto_ptr<std::vector<int> > passTrigVec(new std::vector<int>());
   std::auto_ptr<std::vector<std::string> > trigNamesVec(new std::vector<std::string>());
+  std::auto_ptr<std::vector<int> > trigPrescaleVec(new std::vector<int>());
 
   int passesTrigger;
   edm::Handle<edm::TriggerResults> trigResults; //our trigger result object
   iEvent.getByLabel(trigTagSrc_,trigResults);
+  edm::Handle<pat::PackedTriggerPrescales> trigPrescales;
+  iEvent.getByLabel(trigPrescalesTagSrc_,trigPrescales);
   const edm::TriggerNames& trigNames = iEvent.triggerNames(*trigResults);
 
   const std::vector<std::string> & allNames = trigNames.triggerNames();
+
   for(unsigned int ip = 0; ip < parsedTrigNamesVec_.size(); ip++){
      for(unsigned int ia=0; ia<allNames.size(); ia++){
         if(allNames.at(ia).find(parsedTrigNamesVec_.at(ip)) != std::string::npos) trigNamesVec->push_back(allNames.at(ia));
@@ -107,9 +115,18 @@ prodTriggerResults::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::sort(trigNamesVec->begin(), trigNamesVec->end());
   trigNamesVec->erase( std::unique( trigNamesVec->begin(), trigNamesVec->end() ), trigNamesVec->end() );
 
+  std::vector<unsigned int> selTrigIdxVec(trigNamesVec->size());
+  for(unsigned int it=0; it<trigNamesVec->size(); it++){
+     for(unsigned int ia=0; ia<allNames.size(); ia++){
+        if( allNames.at(ia) == trigNamesVec->at(it) ) selTrigIdxVec[it] = ia; 
+     }
+  }
+
   for(unsigned int it=0; it<trigNamesVec->size(); it++){
      passesTrigger = trigResults->accept(trigNames.triggerIndex(trigNamesVec->at(it)));
      passTrigVec->push_back(passesTrigger);
+
+     trigPrescaleVec->push_back(trigPrescales->getPrescaleForIndex(selTrigIdxVec[it]));
   }
 
   // for (int iHLT = 0 ; iHLT<static_cast<int>(trigResults->size()); ++iHLT) 
@@ -120,6 +137,7 @@ prodTriggerResults::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //   passTrigVec->push_back(passesTrigger);
   // }
   iEvent.put(passTrigVec,"PassTrigger");
+  iEvent.put(trigPrescaleVec,"TriggerPrescales");
   iEvent.put(trigNamesVec,"TriggerNames");	
 }
 

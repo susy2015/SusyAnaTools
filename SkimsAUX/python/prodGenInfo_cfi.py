@@ -6,5 +6,6 @@ prodGenInfo = cms.EDFilter(
   genParticleSrc = cms.InputTag("prunedGenParticles"),
   genDecayStrVecSrc   = cms.InputTag("printDecayPythia8:decayStr"),
   genDecayChainPartIdxVecSrc = cms.InputTag("printDecayPythia8:decayChainPartIdxVec"),
+  PFCandSource = cms.InputTag('packedPFCandidates'),
   debug  = cms.bool(False)
 )

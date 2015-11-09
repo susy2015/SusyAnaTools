@@ -50,6 +50,10 @@ class prodIsoTrks : public edm::EDFilter {
     edm::InputTag pfCandSrc_, loose_isoTrkSrc_, loose_isotrk_isoVecSrc_, loose_isotrk_dzpvVecSrc_;
     edm::Handle<pat::PackedCandidateCollection> pfCandHandle_, loose_isoTrksHandle_;
 
+    edm::InputTag ref_all_isoTrkSrc_, ref_all_isoTrk_isoVecSrc_;
+    edm::Handle<pat::PackedCandidateCollection> ref_all_isoTrksHandle_;
+    edm::Handle<std::vector<double> > ref_all_isoTrks_isoVecHandle_;
+
     edm::InputTag W_emuVec_Src_, W_tau_emuVec_Src_, W_tau_prongsVec_Src_;
     edm::Handle<std::vector<int> > W_emuVec_, W_tau_emuVec_, W_tau_prongsVec_;
 
@@ -64,6 +68,8 @@ class prodIsoTrks : public edm::EDFilter {
     int find_idx(int genIdx, const std::vector<int> &genDecayIdxVec);
 
     bool isData_;
+
+    double GetTrackActivity(const edm::Handle<pat::PackedCandidateCollection> & other_pfcands, const pat::PackedCandidate* track);
 };
 
 
@@ -86,6 +92,9 @@ prodIsoTrks::prodIsoTrks(const edm::ParameterSet & iConfig) {
   loose_isotrk_isoVecSrc_ = iConfig.getParameter<edm::InputTag>("loose_isotrk_isoVecSrc");
   loose_isotrk_dzpvVecSrc_ = iConfig.getParameter<edm::InputTag>("loose_isotrk_dzpvVecSrc");
 
+  ref_all_isoTrkSrc_ = iConfig.getParameter<edm::InputTag>("ref_all_isoTrkSrc");
+  ref_all_isoTrk_isoVecSrc_ = iConfig.getParameter<edm::InputTag>("ref_all_isoTrk_isoVecSrc");
+
   W_emuVec_Src_ = iConfig.getParameter<edm::InputTag>("W_emuVec");
   W_tau_emuVec_Src_ = iConfig.getParameter<edm::InputTag>("W_tau_emuVec");
   W_tau_prongsVec_Src_ = iConfig.getParameter<edm::InputTag>("W_tau_prongsVec");
@@ -99,6 +108,8 @@ prodIsoTrks::prodIsoTrks(const edm::ParameterSet & iConfig) {
   produces<std::vector<double> >("trksForIsoVetodz");
   produces<std::vector<int> >("trksForIsoVetopdgId");
   produces<std::vector<int> >("trksForIsoVetoidx");
+  produces<std::vector<double> >("trksForIsoVetoiso");
+  produces<std::vector<double> >("trksForIsoVetopfActivity");
 
   produces<std::vector<TLorentzVector> >("looseisoTrksLVec");
   produces<std::vector<double> >("looseisoTrkscharge");
@@ -107,6 +118,7 @@ prodIsoTrks::prodIsoTrks(const edm::ParameterSet & iConfig) {
   produces<std::vector<int> >("looseisoTrksidx");
   produces<std::vector<double> >("looseisoTrksiso");
   produces<std::vector<double> >("looseisoTrksmtw");
+  produces<std::vector<double> >("looseisoTrkspfActivity");
 
   produces<std::vector<int> >("forVetoIsoTrksidx");
 
@@ -128,6 +140,8 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<double> > trksForIsoVeto_dz(new std::vector<double>());
   std::auto_ptr<std::vector<int> > trksForIsoVeto_pdgId(new std::vector<int>());
   std::auto_ptr<std::vector<int> > trksForIsoVeto_idx(new std::vector<int>());
+  std::auto_ptr<std::vector<double> > trksForIsoVeto_iso(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > trksForIsoVeto_pfActivity(new std::vector<double>());
 
   std::auto_ptr<std::vector<TLorentzVector> > loose_isoTrksLVec(new std::vector<TLorentzVector>());
   std::auto_ptr<std::vector<double> > loose_isoTrks_charge(new std::vector<double>());
@@ -136,6 +150,7 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> > loose_isoTrks_idx(new std::vector<int>());
   std::auto_ptr<std::vector<double> > loose_isoTrks_iso(new std::vector<double>());
   std::auto_ptr<std::vector<double> > loose_isoTrks_mtw(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > loose_isoTrks_pfActivity(new std::vector<double>());
 
   std::auto_ptr<std::vector<int> > forVetoIsoTrks_idx(new std::vector<int>());
 
@@ -155,6 +170,9 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   iEvent.getByLabel(loose_isoTrkSrc_, loose_isoTrksHandle_); if( loose_isoTrksHandle_.isValid() ) loose_nIsoTrks = loose_isoTrksHandle_->size(); else loose_nIsoTrks =0;
   iEvent.getByLabel(forVetoIsoTrkSrc_, forVetoIsoTrks_); if( forVetoIsoTrks_.isValid() ) nIsoTrksForVeto = forVetoIsoTrks_->size(); else nIsoTrksForVeto =0;
+
+  iEvent.getByLabel(ref_all_isoTrkSrc_, ref_all_isoTrksHandle_); 
+  iEvent.getByLabel(ref_all_isoTrk_isoVecSrc_, ref_all_isoTrks_isoVecHandle_); 
 
   edm::Handle<std::vector<double> >  loose_isotrk_isoVecHandle, loose_isotrk_dzpvVecHandle;
   iEvent.getByLabel(loose_isotrk_isoVecSrc_, loose_isotrk_isoVecHandle);
@@ -195,6 +213,13 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
         if( std::isnan((*pfCandHandle_)[ip].pt()) ) continue;
 
+        double perIso = 9999.0;
+        for(unsigned int is=0; is< ref_all_isoTrksHandle_->size(); is++){
+           if( (*ref_all_isoTrksHandle_)[is].pt() == (*pfCandHandle_)[ip].pt() && (*ref_all_isoTrksHandle_)[is].eta() == (*pfCandHandle_)[ip].eta() && (*ref_all_isoTrksHandle_)[is].phi() == (*pfCandHandle_)[ip].phi() && (*ref_all_isoTrksHandle_)[is].energy() == (*pfCandHandle_)[ip].energy() && (*ref_all_isoTrksHandle_)[is].pdgId() == (*pfCandHandle_)[ip].pdgId() ){
+              perIso = (*ref_all_isoTrks_isoVecHandle_)[is];
+           }
+        }
+
         TLorentzVector perLVec;
         perLVec.SetPtEtaPhiE( (*pfCandHandle_)[ip].pt(), (*pfCandHandle_)[ip].eta(), (*pfCandHandle_)[ip].phi(), (*pfCandHandle_)[ip].energy() );
 
@@ -204,11 +229,13 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
            }
         }
 
-        int perCharge = pfCandHandle_->at(ip).charge();
+        int perCharge = pfCandHandle_->at(ip).charge(); 
         if( perCharge ==0 ) continue;
 
         double dz = (*pfCandHandle_)[ip].dz();
         if( fabs(dz) > isotrk_dz_ ) continue;
+
+        double pfActivity = GetTrackActivity(pfCandHandle_, &(*pfCandHandle_)[ip]);
 
         int matched = 0;
         for(unsigned int is=0; is<loose_nIsoTrks; is++){
@@ -216,6 +243,7 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
            if( perdeltaR < isotrk_dR_ ) matched ++;
            if( (*loose_isoTrksHandle_)[is].pt() == (*pfCandHandle_)[ip].pt() && (*loose_isoTrksHandle_)[is].eta() == (*pfCandHandle_)[ip].eta() && (*loose_isoTrksHandle_)[is].phi() == (*pfCandHandle_)[ip].phi() && (*loose_isoTrksHandle_)[is].energy() == (*pfCandHandle_)[ip].energy() && (*loose_isoTrksHandle_)[is].pdgId() == (*pfCandHandle_)[ip].pdgId() ){
               loose_isoTrks_idx->push_back(ip);
+              loose_isoTrks_pfActivity->push_back(pfActivity);
            }
         }
         if( !isData_ ){
@@ -248,6 +276,8 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         trksForIsoVeto_dz->push_back(dz);
         trksForIsoVeto_pdgId->push_back(pfCandHandle_->at(ip).pdgId());
         trksForIsoVeto_idx->push_back(ip);
+        trksForIsoVeto_iso->push_back(perIso);
+        trksForIsoVeto_pfActivity->push_back(pfActivity);
      }
   }
   if( debug_ ){
@@ -277,6 +307,8 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(trksForIsoVeto_dz, "trksForIsoVetodz");
   iEvent.put(trksForIsoVeto_pdgId, "trksForIsoVetopdgId");
   iEvent.put(trksForIsoVeto_idx, "trksForIsoVetoidx");
+  iEvent.put(trksForIsoVeto_iso, "trksForIsoVetoiso");
+  iEvent.put(trksForIsoVeto_pfActivity, "trksForIsoVetopfActivity");
 
   iEvent.put(loose_isoTrksLVec, "looseisoTrksLVec");
   iEvent.put(loose_isoTrks_charge, "looseisoTrkscharge");
@@ -285,6 +317,7 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(loose_isoTrks_idx, "looseisoTrksidx");
   iEvent.put(loose_isoTrks_iso, "looseisoTrksiso");
   iEvent.put(loose_isoTrks_mtw, "looseisoTrksmtw");
+  iEvent.put(loose_isoTrks_pfActivity, "looseisoTrkspfActivity");
 
   iEvent.put(forVetoIsoTrks_idx, "forVetoIsoTrksidx");
 
@@ -292,6 +325,22 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(nIsoTrksForVetoPtr, "nIsoTrksForVeto");
 
   return true;
+}
+
+double prodIsoTrks::GetTrackActivity(const edm::Handle<pat::PackedCandidateCollection> & other_pfcands, const pat::PackedCandidate* track) {
+  if (track->pt()<5.) return 99999.;
+  double trkiso(0.); 
+  double r_iso = 0.3;
+  for (const pat::PackedCandidate &other_pfc : *other_pfcands) {
+      if (other_pfc.charge()==0) continue;
+      double dr = deltaR(other_pfc, *track);
+      if (dr < r_iso || dr > 0.4) continue; // activity annulus
+      float dz_other = other_pfc.dz();
+      if( fabs(dz_other) > 0.1 ) continue;
+      trkiso += other_pfc.pt();
+    }
+    double activity = trkiso/track->pt();
+    return activity;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
