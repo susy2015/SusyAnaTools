@@ -75,6 +75,8 @@ TrackIsolationFilter::TrackIsolationFilter(const edm::ParameterSet& iConfig) {
   isoCut_           = iConfig.getParameter<double>          ("isoCut"); // isolation cut value
   doTrkIsoVeto_     = iConfig.getParameter<bool>            ("doTrkIsoVeto");
 
+  exclPdgIdVec_     = iConfig.getParameter<std::vector<int> > ("exclPdgIdVec"); 
+
   produces<std::vector<pat::PackedCandidate> >(""); 
   produces<vector<double> >("pfcandstrkiso").setBranchAlias("pfcands_trkiso");
   produces<vector<double> >("pfcandsdzpv"  ).setBranchAlias("pfcands_dzpv");
@@ -176,6 +178,8 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	      double dz_other = pf_other->dz();
 
 	      if( fabs(dz_other) > dzcut_ ) continue;
+
+              if( std::find( exclPdgIdVec_.begin(), exclPdgIdVec_.end(), pf_other->pdgId() ) != exclPdgIdVec_.end() ) continue;
 
 	      trkiso += pf_other->pt();
            }

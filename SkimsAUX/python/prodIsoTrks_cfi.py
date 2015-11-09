@@ -16,5 +16,7 @@ prodIsoTrks = cms.EDFilter(
   W_tau_emuVec = cms.InputTag("prodGenInfo:WtauemuVec"),
   W_tau_prongsVec = cms.InputTag("prodGenInfo:WtauprongsVec"),
   genDecayLVec = cms.InputTag("prodGenInfo:genDecayLVec"),
-  debug  = cms.bool(False)
+  debug  = cms.bool(False),
+  ref_all_isoTrkSrc = cms.InputTag("refalltrackIsolation"),
+  ref_all_isoTrk_isoVecSrc = cms.InputTag("refalltrackIsolation:pfcandstrkiso"),
 )

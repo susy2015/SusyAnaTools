@@ -90,6 +90,132 @@ stopTreeMaker::stopTreeMaker(const edm::ParameterSet& iConfig)
   vectorBoolNamesCached_.clear();
   vectorStringNamesCached_.clear();
   vectorTLorentzVectorNamesCached_.clear();
+
+// Initially at beginJob, Move all the declaration here to avoid job-dependent problems
+  edm::Service<TFileService> fs;
+  if( !fs ) {
+    throw edm::Exception(edm::errors::Configuration, "TFile Service is not registered in cfg file");
+  }
+  tree_ = fs->make<TTree>(treeName_,treeName_);  
+  tree_->SetAutoSave(10000000000);
+  tree_->SetAutoFlush(1000000);
+
+  tree_->Branch("run",&runNum_,"run/i");
+  tree_->Branch("lumi",&lumiBlockNum_,"lumi/i");
+  tree_->Branch("event",&evtNum_,"event/i");
+
+  if( debug_ ) std::cout<<std::endl;
+  varsDouble_ = std::vector<double>(varsDoubleTags_.size(), 9999.);
+  for(unsigned int i = 0; i < varsDouble_.size(); ++i) {
+    TString nameT = formBranchName(varsDoubleTags_.at(i), varsDoubleNames_);
+    varsDoubleNamesCached_.push_back(nameT);
+    if( debug_ ) std::cout<<"varsDoubleTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
+    tree_->Branch(nameT, &(varsDouble_.at(i)), nameT+"/D");
+  }
+
+  varsInt_ = std::vector<int>(varsIntTags_.size(), 9999);
+  for(unsigned int i = 0; i < varsIntTags_.size(); ++i) {
+    TString nameT = formBranchName(varsIntTags_.at(i), varsIntNames_);
+    varsIntNamesCached_.push_back(nameT);
+    if( debug_ ) std::cout<<"varsIntTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
+    tree_->Branch(nameT, &(varsInt_.at(i)), nameT+"/I");
+  }
+
+  varsBool_ = std::vector<unsigned int>(varsBoolTags_.size(), 0);
+  for(unsigned int i = 0; i < varsBoolTags_.size(); ++i) {
+    TString nameT = formBranchName(varsBoolTags_.at(i), varsBoolNames_);
+    varsBoolNamesCached_.push_back(nameT);
+    if( debug_ ) std::cout<<"varsBoolTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
+    tree_->Branch(nameT, &(varsBool_.at(i)), nameT+"/i");
+  }
+
+  varsString_ = std::vector<std::string>(varsStringTags_.size(), "");
+  for(unsigned int i = 0; i < varsStringTags_.size(); ++i) {
+    TString nameT = formBranchName(varsStringTags_.at(i), varsStringNames_);
+    varsStringNamesCached_.push_back(nameT);
+    if( debug_ ) std::cout<<"varsStringTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
+    tree_->Branch(nameT, nameT, &(varsString_.at(i)));
+  }
+
+  varsTLorentzVector_ = std::vector<TLorentzVector>(varsTLorentzVectorTags_.size(), TLorentzVector(0.,0.,0.,0.));
+  for(unsigned int i = 0; i < varsTLorentzVectorTags_.size(); ++i) {
+    TString nameT = formBranchName(varsTLorentzVectorTags_.at(i), varsTLorentzVectorNames_);
+    varsTLorentzVectorNamesCached_.push_back(nameT);
+    if( debug_ ) std::cout<<"varsTLorentzVectorTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
+    tree_->Branch(nameT, nameT, &(varsTLorentzVector_.at(i)));
+  }
+
+// vector of ...
+  for(unsigned int i=0; i< vectorDoubleTags_.size();i++)
+  {
+    std::vector<double> vector;
+    vectorDoubleVector_.push_back(vector);
+  }
+  for(unsigned int i=0; i< vectorDoubleTags_.size();i++)
+  {
+    TString nameT = formBranchName(vectorDoubleTags_.at(i), vectorDoubleNames_);
+    vectorDoubleNamesCached_.push_back(nameT);
+    if( debug_ ) std::cout<<"vectorDoubleTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
+    tree_->Branch(nameT, "std::vector<double>", &(vectorDoubleVector_.at(i)), 32000, 0);
+  }
+
+//
+  for(unsigned int i=0; i< vectorIntTags_.size();i++)
+  {
+    std::vector<int> vector;
+    vectorIntVector_.push_back(vector);
+  }
+  for(unsigned int i=0; i< vectorIntTags_.size();i++)
+  {
+    TString nameT = formBranchName(vectorIntTags_.at(i), vectorIntNames_);
+    vectorIntNamesCached_.push_back(nameT);
+    if( debug_ ) std::cout<<"vectorIntTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
+    tree_->Branch(nameT, "std::vector<int>", &(vectorIntVector_.at(i)), 32000, 0);
+  }
+
+//
+  for(unsigned int i=0; i< vectorBoolTags_.size();i++)
+  {
+    std::vector<unsigned int> vector;
+    vectorBoolVector_.push_back(vector);
+  }
+  for(unsigned int i=0; i< vectorBoolTags_.size();i++)
+  {
+    TString nameT = formBranchName(vectorBoolTags_.at(i), vectorBoolNames_);
+    vectorBoolNamesCached_.push_back(nameT);
+    if( debug_ ) std::cout<<"vectorBoolTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
+    tree_->Branch(nameT, "std::vector<unsigned int>", &(vectorBoolVector_.at(i)), 32000, 0);
+  }
+
+//
+  for(unsigned int i=0; i< vectorStringTags_.size();i++)
+  {
+    std::vector<std::string> vector;
+    vectorStringVector_.push_back(vector);
+  }
+  for(unsigned int i=0; i< vectorStringTags_.size();i++)
+  {
+    TString nameT = formBranchName(vectorStringTags_.at(i), vectorStringNames_);
+    vectorStringNamesCached_.push_back(nameT);
+    if( debug_ ) std::cout<<"vectorStringTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
+    tree_->Branch(nameT, "std::vector<std::string>", &(vectorStringVector_.at(i)), 32000, 0);
+  }
+
+//
+  for(unsigned int i=0; i< vectorTLorentzVectorTags_.size();i++)
+  {
+    std::vector<TLorentzVector> vector;
+    vectorTLorentzVector_.push_back(vector);
+  }
+  for(unsigned int i=0; i< vectorTLorentzVectorTags_.size();i++)
+  {
+    TString nameT = formBranchName(vectorTLorentzVectorTags_.at(i), vectorTLorentzVectorNames_);
+    vectorTLorentzVectorNamesCached_.push_back(nameT);
+    if( debug_ ) std::cout<<"vectorTLorentzVectorTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
+    tree_->Branch(nameT, "std::vector<TLorentzVector>", &(vectorTLorentzVector_.at(i)), 32000, 0);
+  }
+  if( debug_ ) std::cout<<std::endl;
+
 }
 
 stopTreeMaker::~stopTreeMaker()
@@ -236,129 +362,6 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 stopTreeMaker::beginJob()
 {
-  edm::Service<TFileService> fs;
-  if( !fs ) {
-    throw edm::Exception(edm::errors::Configuration, "TFile Service is not registered in cfg file");
-  }
-  tree_ = fs->make<TTree>(treeName_,treeName_);  
-  tree_->SetAutoSave(10000000000);
-  tree_->SetAutoFlush(1000000);
-
-  tree_->Branch("run",&runNum_,"run/i");
-  tree_->Branch("lumi",&lumiBlockNum_,"lumi/i");
-  tree_->Branch("event",&evtNum_,"event/i");
-
-  if( debug_ ) std::cout<<std::endl;
-  varsDouble_ = std::vector<double>(varsDoubleTags_.size(), 9999.);
-  for(unsigned int i = 0; i < varsDouble_.size(); ++i) {
-    TString nameT = formBranchName(varsDoubleTags_.at(i), varsDoubleNames_);
-    varsDoubleNamesCached_.push_back(nameT);
-    if( debug_ ) std::cout<<"varsDoubleTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
-    tree_->Branch(nameT, &(varsDouble_.at(i)), nameT+"/D");
-  }
-
-  varsInt_ = std::vector<int>(varsIntTags_.size(), 9999);
-  for(unsigned int i = 0; i < varsIntTags_.size(); ++i) {
-    TString nameT = formBranchName(varsIntTags_.at(i), varsIntNames_);
-    varsIntNamesCached_.push_back(nameT);
-    if( debug_ ) std::cout<<"varsIntTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
-    tree_->Branch(nameT, &(varsInt_.at(i)), nameT+"/I");
-  }
-
-  varsBool_ = std::vector<unsigned int>(varsBoolTags_.size(), 0);
-  for(unsigned int i = 0; i < varsBoolTags_.size(); ++i) {
-    TString nameT = formBranchName(varsBoolTags_.at(i), varsBoolNames_);
-    varsBoolNamesCached_.push_back(nameT);
-    if( debug_ ) std::cout<<"varsBoolTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
-    tree_->Branch(nameT, &(varsBool_.at(i)), nameT+"/i");
-  }
-
-  varsString_ = std::vector<std::string>(varsStringTags_.size(), "");
-  for(unsigned int i = 0; i < varsStringTags_.size(); ++i) {
-    TString nameT = formBranchName(varsStringTags_.at(i), varsStringNames_);
-    varsStringNamesCached_.push_back(nameT);
-    if( debug_ ) std::cout<<"varsStringTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
-    tree_->Branch(nameT, nameT, &(varsString_.at(i)));
-  }
-
-  varsTLorentzVector_ = std::vector<TLorentzVector>(varsTLorentzVectorTags_.size(), TLorentzVector(0.,0.,0.,0.));
-  for(unsigned int i = 0; i < varsTLorentzVectorTags_.size(); ++i) {
-    TString nameT = formBranchName(varsTLorentzVectorTags_.at(i), varsTLorentzVectorNames_);
-    varsTLorentzVectorNamesCached_.push_back(nameT);
-    if( debug_ ) std::cout<<"varsTLorentzVectorTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
-    tree_->Branch(nameT, nameT, &(varsTLorentzVector_.at(i)));
-  }
-
-// vector of ...
-  for(unsigned int i=0; i< vectorDoubleTags_.size();i++)
-  {
-    std::vector<double> vector;
-    vectorDoubleVector_.push_back(vector);
-  }
-  for(unsigned int i=0; i< vectorDoubleTags_.size();i++)
-  {
-    TString nameT = formBranchName(vectorDoubleTags_.at(i), vectorDoubleNames_);
-    vectorDoubleNamesCached_.push_back(nameT);
-    if( debug_ ) std::cout<<"vectorDoubleTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
-    tree_->Branch(nameT, "std::vector<double>", &(vectorDoubleVector_.at(i)), 32000, 0);
-  }
-
-//
-  for(unsigned int i=0; i< vectorIntTags_.size();i++)
-  {
-    std::vector<int> vector;
-    vectorIntVector_.push_back(vector);
-  }
-  for(unsigned int i=0; i< vectorIntTags_.size();i++)
-  {
-    TString nameT = formBranchName(vectorIntTags_.at(i), vectorIntNames_);
-    vectorIntNamesCached_.push_back(nameT);
-    if( debug_ ) std::cout<<"vectorIntTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
-    tree_->Branch(nameT, "std::vector<int>", &(vectorIntVector_.at(i)), 32000, 0);
-  }
-
-//
-  for(unsigned int i=0; i< vectorBoolTags_.size();i++)
-  {
-    std::vector<unsigned int> vector;
-    vectorBoolVector_.push_back(vector);
-  }
-  for(unsigned int i=0; i< vectorBoolTags_.size();i++)
-  {
-    TString nameT = formBranchName(vectorBoolTags_.at(i), vectorBoolNames_);
-    vectorBoolNamesCached_.push_back(nameT);
-    if( debug_ ) std::cout<<"vectorBoolTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
-    tree_->Branch(nameT, "std::vector<unsigned int>", &(vectorBoolVector_.at(i)), 32000, 0);
-  }
-
-//
-  for(unsigned int i=0; i< vectorStringTags_.size();i++)
-  {
-    std::vector<std::string> vector;
-    vectorStringVector_.push_back(vector);
-  }
-  for(unsigned int i=0; i< vectorStringTags_.size();i++)
-  {
-    TString nameT = formBranchName(vectorStringTags_.at(i), vectorStringNames_);
-    vectorStringNamesCached_.push_back(nameT);
-    if( debug_ ) std::cout<<"vectorStringTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
-    tree_->Branch(nameT, "std::vector<std::string>", &(vectorStringVector_.at(i)), 32000, 0);
-  }
-
-//
-  for(unsigned int i=0; i< vectorTLorentzVectorTags_.size();i++)
-  {
-    std::vector<TLorentzVector> vector;
-    vectorTLorentzVector_.push_back(vector);
-  }
-  for(unsigned int i=0; i< vectorTLorentzVectorTags_.size();i++)
-  {
-    TString nameT = formBranchName(vectorTLorentzVectorTags_.at(i), vectorTLorentzVectorNames_);
-    vectorTLorentzVectorNamesCached_.push_back(nameT);
-    if( debug_ ) std::cout<<"vectorTLorentzVectorTags :  i : "<<i<<"  nameT : "<<nameT<<std::endl;
-    tree_->Branch(nameT, "std::vector<TLorentzVector>", &(vectorTLorentzVector_.at(i)), 32000, 0);
-  }
-  if( debug_ ) std::cout<<std::endl;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

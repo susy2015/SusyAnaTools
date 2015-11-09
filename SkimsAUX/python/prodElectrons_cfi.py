@@ -11,9 +11,10 @@ prodElectrons = cms.EDFilter(
   BeamSpotSource    = cms.InputTag("offlineBeamSpot"),
   MinElePt       = cms.double(5),
   MaxEleEta      = cms.double(2.5),
+  MaxEleMiniIso  = cms.double(0.10),
   DoElectronVeto           = cms.bool(False),
   DoElectronID             = cms.bool(True),
   DoElectronVtxAssociation = cms.bool(True),
-  DoElectronIsolation      = cms.bool(True),
+  DoElectronIsolation      = cms.int32(2), # 1 for relIso; 2 for miniIso; 0 for nothing
   Debug                    = cms.bool(False)
 )
