@@ -49,6 +49,8 @@ private:
 
   bool doTrkIsoVeto_;
 
+  std::vector<int> exclPdgIdVec_;
+
   edm::InputTag pfCandidatesTag_;
   edm::InputTag vertexInputTag_;
 

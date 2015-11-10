@@ -22,6 +22,13 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+
 #include "TLorentzVector.h"
 
 class prodJets : public edm::EDFilter 
@@ -64,6 +71,8 @@ class prodJets : public edm::EDFilter
   edm::InputTag trksForIsoVetoLVec_Src_, looseisoTrksLVec_Src_;
   edm::Handle<std::vector<TLorentzVector> > trksForIsoVetoLVec_, looseisoTrksLVec_;
   double deltaRcon_;
+
+  std::string jetType_;
 };
 
 
@@ -102,16 +111,22 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
 
   deltaRcon_ = iConfig.getUntrackedParameter<double>("deltaRcon", 0.01);
 
+  jetType_ = iConfig.getParameter<std::string>("jetType");
+
   //produces<std::vector<pat::Jet> >("");
   produces<std::vector<TLorentzVector> >("jetsLVec");
   produces<std::vector<int> >("recoJetsFlavor");
   produces<std::vector<double> >("recoJetsBtag");
+  produces<std::vector<double> >("recoJetsJecUnc");
+  produces<std::vector<double> >("recoJetsJecScaleRawToFull");
   produces<int>("nJets");
 
   //produce variables needed for Lost Lepton study, added by hua.wei@cern.ch
   produces<std::vector<double> >("recoJetschargedHadronEnergyFraction");
   produces<std::vector<double> >("recoJetschargedEmEnergyFraction");
   produces<std::vector<double> >("recoJetsneutralEmEnergyFraction");
+
+  produces<std::vector<double> >("recoJetsmuonEnergyFraction");
 
   produces<std::vector<int> >("muMatchedJetIdx");
   produces<std::vector<int> >("eleMatchedJetIdx");
@@ -131,6 +146,12 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if( !iEvent.isRealData() ) isData_ = false;
 
   iEvent.getByLabel(jetSrc_, jets);
+
+  //get the JEC uncertainties
+  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+  iSetup.get<JetCorrectionsRecord>().get(jetType_, JetCorParColl);
+  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+  std::auto_ptr<JetCorrectionUncertainty> jecUnc( new JetCorrectionUncertainty(JetCorPar) );
 
   if( !isData_ ){
      iEvent.getByLabel(jetOtherSrc_, otherjets);
@@ -164,10 +185,13 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<TLorentzVector> > jetsLVec(new std::vector<TLorentzVector>());
   std::auto_ptr<std::vector<int> > recoJetsFlavor(new std::vector<int>());
   std::auto_ptr<std::vector<double> > recoJetsBtag(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > recoJetsJecUnc(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > recoJetsJecScaleRawToFull(new std::vector<double>());
 
   std::auto_ptr<std::vector<double> > recoJetschargedHadronEnergyFraction(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetschargedEmEnergyFraction(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetsneutralEmEnergyFraction(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > recoJetsmuonEnergyFraction(new std::vector<double>());
 
   std::auto_ptr<std::vector<int> > muMatchedJetIdx(new std::vector<int>(muLVec_->size(), -1));
   std::auto_ptr<std::vector<int> > eleMatchedJetIdx(new std::vector<int>(eleLVec_->size(), -1));
@@ -266,7 +290,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      } 
    
      if( cntJetPassPtCut != (int)jets->size() && debug_ ) std::cout<<"WARNING ... cntJetPassPtCut : "<<cntJetPassPtCut<<"  NOT EQUAL jets->size : "<<jets->size()<<std::endl;
-     if( (int)jets->size() > 10 && std::abs(cntJetPassPtCut - jets->size())/(1.0*jets->size()) > 0.3 ){
+     if( (int)jets->size() >= 4 && std::abs(1.0*cntJetPassPtCut - 1.0*jets->size())/(1.0*jets->size()) > 0.1 ){
         std::cout<<"\nWARNING ... cntJetPassPtCut : "<<cntJetPassPtCut<<"  slimmedJets.size : "<<jets->size()<<std::endl;
         std::cout<<"Please checking if global tag used for re-clustering the jets is the same as used to produce the miniAOD!"<<std::endl<<std::endl;
      }
@@ -280,6 +304,20 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     TLorentzVector perJetLVec;
     perJetLVec.SetPtEtaPhiE( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
     jetsLVec->push_back(perJetLVec);
+
+// Additional jec qualities
+    std::vector<std::string> availableJECLevels = jet.availableJECLevels();
+    double scaleRawToFull = jet.jecFactor(availableJECLevels.back())/jet.jecFactor("Uncorrected");
+    recoJetsJecScaleRawToFull->push_back(scaleRawToFull);
+
+//get JEC unc for this jet, using corrected pT
+    jecUnc->setJetEta(jet.eta());
+    jecUnc->setJetPt(jet.pt());
+
+    double uncertainty = jecUnc->getUncertainty(true);
+//safety check if uncertainty is not available for a jet
+    if( uncertainty==-999. ) uncertainty = 0;
+    recoJetsJecUnc->push_back(uncertainty);
 
     if( perJetLVec.Pt() < jetPtCut_miniAOD_ && ij < jets->size() ) cntJetLowPt ++;
 
@@ -297,6 +335,9 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     double neutralEmEnergyFraction = jet.neutralEmEnergyFraction();
     recoJetsneutralEmEnergyFraction->push_back( neutralEmEnergyFraction );
+
+    double muonEnergyFraction = jet.muonEnergyFraction();
+    recoJetsmuonEnergyFraction->push_back( muonEnergyFraction );
 
     //std::cout << chargedEmEnergyFraction << std::endl;
 
@@ -373,11 +414,15 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(jetsLVec, "jetsLVec");
   iEvent.put(recoJetsFlavor, "recoJetsFlavor");
   iEvent.put(recoJetsBtag, "recoJetsBtag");
+  iEvent.put(recoJetsJecUnc, "recoJetsJecUnc");
+  iEvent.put(recoJetsJecScaleRawToFull, "recoJetsJecScaleRawToFull");
   iEvent.put(nJets, "nJets");
 
   iEvent.put(recoJetschargedHadronEnergyFraction, "recoJetschargedHadronEnergyFraction");
   iEvent.put(recoJetschargedEmEnergyFraction, "recoJetschargedEmEnergyFraction");
   iEvent.put(recoJetsneutralEmEnergyFraction, "recoJetsneutralEmEnergyFraction");
+
+  iEvent.put(recoJetsmuonEnergyFraction, "recoJetsmuonEnergyFraction");
 
   iEvent.put(muMatchedJetIdx, "muMatchedJetIdx");
   iEvent.put(eleMatchedJetIdx, "eleMatchedJetIdx");

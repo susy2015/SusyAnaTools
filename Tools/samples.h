@@ -36,9 +36,12 @@ namespace AnaSamples
 
         double getWeight() const {return weight_;}
         const std::vector<std::string>& getFilelist() const {return filelist_;}
-        template<class T> void addFilesToChain(T* chain) const
+        template<class T> void addFilesToChain(T* chain,  int startfile =0, int filerun= -1) const
         {
-            for(auto& fn : filelist_) chain->Add(fn.c_str());
+	  if(filerun<0)filerun=filelist_.size();
+	  for(int fn = startfile; fn < startfile+filerun && fn<filelist_.size(); fn++){
+	      chain->Add(filelist_[fn].c_str());
+	    }
         }
         std::vector<std::string> filelist_;
 

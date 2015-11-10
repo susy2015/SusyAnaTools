@@ -34,6 +34,8 @@ typedef std::vector< edm::Handle< edm::ValueMap<double> > >             IsoDepos
 
 class prodElectrons : public edm::EDFilter {
 
+  enum elesIDLevel {VETO, LOOSE, MEDIUM, TIGHT};
+
   public:
 
     explicit prodElectrons(const edm::ParameterSet & iConfig);
@@ -49,10 +51,14 @@ class prodElectrons : public edm::EDFilter {
     edm::InputTag metSrc_;
     edm::InputTag beamSpotSrc_;
     edm::InputTag pfCandsSrc_;
-    bool   doEleVeto_, doEleIso_;
+    bool   doEleVeto_;
+    int doEleIso_; // 0: don't do any isolation; 1: relIso;  2: miniIso
     double minElePt_, maxEleEta_;
     bool debug_;
+    double minElePtForElectron2Clean_, maxEleMiniIso_;
 
+    bool passElectronID(const pat::Electron & ele, const edm::Handle< std::vector<reco::Vertex> > & vertices, const elesIDLevel level);
+    bool passElectronISO(const pat::Electron & ele, const double relIso, const elesIDLevel level);
 };
 
 
@@ -70,10 +76,17 @@ prodElectrons::prodElectrons(const edm::ParameterSet & iConfig) {
   minElePt_      = iConfig.getParameter<double>("MinElePt");
   maxEleEta_     = iConfig.getParameter<double>("MaxEleEta");
   doEleVeto_     = iConfig.getParameter<bool>("DoElectronVeto");
-  doEleIso_      = iConfig.getParameter<bool>("DoElectronIsolation");
+  doEleIso_      = iConfig.getParameter<int>("DoElectronIsolation");
+  maxEleMiniIso_ = iConfig.getParameter<double>("MaxEleMiniIso");
   debug_         = iConfig.getParameter<bool>("Debug");
 
+  minElePtForElectron2Clean_ = iConfig.getUntrackedParameter<double>("minElePtForElectron2Clean", 10);
+
   produces<std::vector<pat::Electron> >("");
+  produces<std::vector<pat::Electron> >("ele2Clean");  
+
+  produces<std::vector<int> >("elesFlagVeto");
+  produces<std::vector<int> >("elesFlagMedium");
   produces<std::vector<TLorentzVector> >("elesLVec");
   produces<std::vector<double> >("elesCharge");
   produces<std::vector<double> >("elesMtw");
@@ -115,46 +128,13 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByLabel(pfCandsSrc_, pfcands);
 
   edm::Handle< double > rho_;
-  iEvent.getByLabel("fixedGridRhoFastjetAll", rho_);
+  iEvent.getByLabel("fixedGridRhoFastjetCentralNeutral", rho_); // Central rho recommended for SUSY
   double rho = *rho_;
 
-  float cut_sigmaIEtaIEta[2]  = {999.9, 999.9};
-  float cut_dEtaIn[2]         = {999.9, 999.9};
-  float cut_dPhiIn[2]         = {999.9, 999.9};
-  float cut_hoe[2]            = {999.9, 999.9};
-  float cut_iso[2]            = {999.9, 999.9};
-  float cut_ooemoop[2]        = {999.9, 999.9};
-  float cut_d0vtx[2]          = {999.9, 999.9};
-  float cut_dzvtx[2]          = {999.9, 999.9};
-  unsigned int cut_mHits[2]   = {999, 999};
-  bool cut_convVeto[2]          = {false, false};
-
-//In sync with RA2b    
-  cut_sigmaIEtaIEta[0] = 0.011586; cut_sigmaIEtaIEta[1] = 0.031849;
-  cut_dEtaIn[0]        = 0.013625; cut_dEtaIn[1]        = 0.011932;
-  cut_dPhiIn[0]        = 0.230374; cut_dPhiIn[1]        = 0.255450;
-  cut_hoe[0]           = 0.181130; cut_hoe[1]           = 0.223870;
-  cut_iso[0]           = 0.158721; cut_iso[1]           = 0.177032;
-  cut_ooemoop[0]       = 0.295751; cut_ooemoop[1]       = 0.155501;
-  cut_d0vtx[0]         = 0.094095; cut_d0vtx[1]         = 0.342293;
-  cut_dzvtx[0]         = 0.713070; cut_dzvtx[1]         = 0.953461;
-  cut_mHits[0]         = 2;        cut_mHits[1]         = 3;
-  cut_convVeto[0]      = true;     cut_convVeto[1]      = true;
-
-/* From latest twiki...
-  cut_sigmaIEtaIEta[0] = 0.011400; cut_sigmaIEtaIEta[1] = 0.035200;
-  cut_dEtaIn[0]        = 0.015200; cut_dEtaIn[1]        = 0.011300;
-  cut_dPhiIn[0]        = 0.216000; cut_dPhiIn[1]        = 0.237000;
-  cut_hoe[0]           = 0.181000; cut_hoe[1]           = 0.116000;
-  cut_iso[0]           = 0.126000; cut_iso[1]           = 0.144000;
-  cut_ooemoop[0]       = 0.207000; cut_ooemoop[1]       = 0.174000;
-  cut_d0vtx[0]         = 0.056400; cut_d0vtx[1]         = 0.222000;
-  cut_dzvtx[0]         = 0.472000; cut_dzvtx[1]         = 0.921000;
-  cut_mHits[0]         = 2;        cut_mHits[1]         = 3;
-  cut_convVeto[0]      = true;     cut_convVeto[1]      = true;
-*/
   // check which ones to keep
   std::auto_ptr<std::vector<pat::Electron> > prod(new std::vector<pat::Electron>());
+  std::auto_ptr<std::vector<pat::Electron> > ele2Clean(new std::vector<pat::Electron>());
+
   std::auto_ptr<std::vector<TLorentzVector> > elesLVec(new std::vector<TLorentzVector>());
   std::auto_ptr<std::vector<double> > elesCharge(new std::vector<double>());
   std::auto_ptr<std::vector<double> > elesMtw(new std::vector<double>());
@@ -162,6 +142,9 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<bool> > elesisEB(new std::vector<bool>());
   std::auto_ptr<std::vector<double> > elesMiniIso(new std::vector<double>());
   std::auto_ptr<std::vector<double> > elespfActivity(new std::vector<double>());
+
+  std::auto_ptr<std::vector<int> > elesFlagVeto(new std::vector<int>());
+  std::auto_ptr<std::vector<int> > elesFlagMedium(new std::vector<int>());
 
   // loop on electrons
   for( edm::View<pat::Electron>::const_iterator ele = electrons->begin(); ele != electrons->end(); ele++ ){
@@ -171,64 +154,14 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // get the ID variables from the electron object
     // kinematic variables
-    bool isEB           = ele->isEB() ? true : false;
-//    float eta           = ele->superCluster()->eta();
+    bool isEB = ele->isEB() ? true : false;
 
-    // id variables
-    float sigmaIEtaIEta = ele->full5x5_sigmaIetaIeta();
-    float dEtaIn        = ele->deltaEtaSuperClusterTrackAtVtx();
-    float dPhiIn        = ele->deltaPhiSuperClusterTrackAtVtx();
-    float hoe           = ele->hadronicOverEm();
-    float ooemoop       = 1e30;
-    if( ele->ecalEnergy() !=0 && std::isfinite(ele->ecalEnergy()) ){
-       ooemoop = std::abs(1.0/ele->ecalEnergy() - ele->eSuperClusterOverP()/ele->ecalEnergy());
-    }
+    bool isVetoID = passElectronID((*ele), vertices, VETO);
+//    bool isLooseID = passElectronID((*ele), vertices, LOOSE);
+    bool isMediumID = passElectronID((*ele), vertices, MEDIUM);
+//    bool isTightID = passElectronID((*ele), vertices, TIGHT);
 
-    // impact parameter variables
-    float d0vtx         = 0.0;
-    float dzvtx         = 0.0;
-    if (vertices->size() > 0) {
-        reco::VertexRef vtx(vertices, 0);    
-        d0vtx = ele->gsfTrack()->dxy(vtx->position());
-        dzvtx = ele->gsfTrack()->dz(vtx->position());
-    } else {
-        d0vtx = ele->gsfTrack()->dxy();
-        dzvtx = ele->gsfTrack()->dz();
-    }
-
-    // conversion rejection variables
-    bool convVeto = ele->passConversionVeto();
-    float mHits = ele->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-    
-    // choose cut if barrel or endcap
-    unsigned int idx = isEB ? 0 : 1;
-
-    // test cuts
-    if (sigmaIEtaIEta >= cut_sigmaIEtaIEta[idx])     continue;
-    if (fabs(dEtaIn) >= cut_dEtaIn[idx])             continue;
-    if (fabs(dPhiIn) >= cut_dPhiIn[idx])             continue;
-    if (hoe >= cut_hoe[idx])                         continue;
-    if (fabs(ooemoop) >= cut_ooemoop[idx])           continue;
-    if (fabs(d0vtx) >= cut_d0vtx[idx])               continue;
-    if (fabs(dzvtx) >= cut_dzvtx[idx])               continue;
-    if (mHits > cut_mHits[idx])                      continue;
-    if (convVeto != cut_convVeto[idx])               continue;
-
-    if(debug_) {
-      reco::VertexRef vtx(vertices, 0);
-      std::cout << "iEle " << ele - electrons->begin()  << ": "
-		<< " (pt,eta,phi) "<<ele->pt()<<", "<<ele->eta()<<", "<<ele->phi() << " "
-		<< ", isEB " << ele->isEB() << ", isEE " << ele->isEE() << "\n"
-		<< ", dEtaIn " << ele->deltaEtaSuperClusterTrackAtVtx()
-		<< ", dPhiIn " << ele->deltaPhiSuperClusterTrackAtVtx()
-		<< ", sigmaIEtaIEta "<< ele->sigmaIetaIeta()
-		<< ", hoe " << ele->hadronicOverEm()
-		<< ", d0vtx " << ele->gsfTrack()->dxy(vtx->position())
-		<< ", dzvtx " << ele->gsfTrack()->dz(vtx->position())
-		<< ", passSelection " 
-		<< std::endl;
-    }
-
+    if( ! (isVetoID || isMediumID) ) continue;
 
     // isolation cuts                                                                                                                                        
     reco::GsfElectron::PflowIsolationVariables pfIso = ele->pfIsolationVariables();
@@ -240,8 +173,10 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     double miniIso = commonFunctions::GetMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), "electron", rho);
     double pfActivity = commonFunctions::GetMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), "electron", rho, true);
 
-    if (doEleIso_) {
-      if(iso >= cut_iso[idx]) continue;
+    if (doEleIso_ == 1 ) {
+       if( !passElectronISO((*ele), iso, VETO) ) continue;
+    } else if (doEleIso_ == 2 ){
+       if( miniIso >= maxEleMiniIso_ ) continue;
     }
 
     // electron is ID'd and isolated! - only accept if vertex present
@@ -258,10 +193,15 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        elesisEB->push_back(isEB);
        elesMiniIso->push_back(miniIso);
 
+       if( isVetoID ) elesFlagVeto->push_back(1); else elesFlagVeto->push_back(0); 
+       if( isMediumID ) elesFlagMedium->push_back(1); else elesFlagMedium->push_back(0); 
+
        elespfActivity->push_back(pfActivity);
     }
-  }
 
+    // add eles to clean from jets
+    if( isVetoID && miniIso < maxEleMiniIso_ && ele->pt() > minElePtForElectron2Clean_ ) ele2Clean->push_back(*ele);
+  }
 
   // determine result before losing ownership of the pointer
   bool result = (doEleVeto_ ? (prod->size() == 0) : true);
@@ -272,6 +212,9 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // store in the event
   iEvent.put(prod);
+  iEvent.put(ele2Clean, "ele2Clean");
+  iEvent.put(elesFlagVeto, "elesFlagVeto");
+  iEvent.put(elesFlagMedium, "elesFlagMedium");
   iEvent.put(elesLVec, "elesLVec");
   iEvent.put(elesCharge, "elesCharge");
   iEvent.put(elesMtw, "elesMtw");
@@ -284,6 +227,96 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   return result;
 }
 
+bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle< std::vector<reco::Vertex> > & vertices, const elesIDLevel level) {
+
+  // electron ID cuts, updated for Spring15 25ns MC and Run2015C-D data 
+  // https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
+
+  // barrel electrons
+  double eb_ieta_cut[4] = {0.0114, 0.0103, 0.0101, 0.0101};
+  double eb_deta_cut[4] = {0.0152, 0.0105, 0.0103, 0.00926};
+  double eb_dphi_cut[4] = {0.216, 0.115, 0.0336, 0.0336};
+  double eb_hovere_cut[4] = {0.181, 0.104, 0.0876, 0.0597};
+  double eb_ooeminusoop_cut[4] = {0.207, 0.102, 0.0174, 0.012};
+  double eb_d0_cut[4] = {0.0564, 0.0261, 0.0118, 0.0111};
+  double eb_dz_cut[4] = {0.472, 0.41, 0.373, 0.0466};
+  int eb_misshits_cut[4] = {2, 2, 2, 2};
+
+  // endcap electrons
+  double ee_ieta_cut[4] = {0.0352, 0.0301, 0.0283, 0.0279};
+  double ee_deta_cut[4] = {0.0113, 0.00814, 0.00733, 0.00724};
+  double ee_dphi_cut[4] = {0.237, 0.182, 0.114, 0.0918};
+  double ee_hovere_cut[4] = {0.116, 0.0897, 0.0678, 0.0615};
+  double ee_ooeminusoop_cut[4] = {0.174, 0.126, 0.0898, 0.00999};
+  double ee_d0_cut[4] = {0.222, 0.118, 0.0739, 0.0351};
+  double ee_dz_cut[4] = {0.921, 0.822, 0.602, 0.417};
+  int ee_misshits_cut[4] = {3, 1, 1, 1};
+
+  // common
+  bool reqConvVeto[4] = {true, true, true, true};
+
+  // id variables
+  double sigmaIEtaIEta = ele.full5x5_sigmaIetaIeta();
+  double dEtaIn        = ele.deltaEtaSuperClusterTrackAtVtx();
+  double dPhiIn        = ele.deltaPhiSuperClusterTrackAtVtx();
+  double hoe           = ele.hadronicOverEm();
+  double ooemoop       = 1e30;
+  if( ele.ecalEnergy() !=0 && std::isfinite(ele.ecalEnergy()) ){
+     ooemoop = std::abs(1.0/ele.ecalEnergy() - ele.eSuperClusterOverP()/ele.ecalEnergy());
+  }
+
+  // impact parameter variables
+  double d0vtx         = 0.0;
+  double dzvtx         = 0.0;
+  if (vertices->size() > 0) {
+      reco::VertexRef vtx(vertices, 0);    
+      d0vtx = ele.gsfTrack()->dxy(vtx->position());
+      dzvtx = ele.gsfTrack()->dz(vtx->position());
+  } else {
+      d0vtx = ele.gsfTrack()->dxy();
+      dzvtx = ele.gsfTrack()->dz();
+  }
+
+  // conversion rejection variables
+  bool convVeto = ele.passConversionVeto();
+  double mHits = ele.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+  
+  if (ele.isEB()) {
+    return 
+         eb_ieta_cut[level] > sigmaIEtaIEta
+      && eb_deta_cut[level] > fabs(dEtaIn)
+      && eb_dphi_cut[level] > fabs(dPhiIn)
+      && eb_hovere_cut[level] > hoe
+      && eb_ooeminusoop_cut[level] > fabs(ooemoop)
+      && eb_d0_cut[level] > fabs(d0vtx)
+      && eb_dz_cut[level] > fabs(dzvtx)
+      && (reqConvVeto[level] == convVeto)
+      && (eb_misshits_cut[level] >= mHits);
+  } else if (ele.isEE()) {
+    return 
+         ee_ieta_cut[level] > sigmaIEtaIEta
+      && ee_deta_cut[level] > fabs(dEtaIn)
+      && ee_dphi_cut[level] > fabs(dPhiIn)
+      && ee_hovere_cut[level] > hoe
+      && ee_ooeminusoop_cut[level] > fabs(ooemoop)
+      && ee_d0_cut[level] > fabs(d0vtx)
+      && ee_dz_cut[level] > fabs(dzvtx)
+      && (reqConvVeto[level] == convVeto)
+      && (ee_misshits_cut[level] >= mHits);
+  } else return false;
+
+}
+
+bool prodElectrons::passElectronISO(const pat::Electron & ele, const double relIso, const elesIDLevel level){
+   double eb_relIsoWithEA_cut[4] = {0.126, 0.0893, 0.0766, 0.0354};
+   double ee_relIsoWithEA_cut[4] = {0.144, 0.121, 0.0678, 0.0646}; 
+   
+   if( ele.isEB() ){
+      return relIso < eb_relIsoWithEA_cut[level];
+   }else if (ele.isEE() ){
+      return relIso < ee_relIsoWithEA_cut[level];
+   } else return false;
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
