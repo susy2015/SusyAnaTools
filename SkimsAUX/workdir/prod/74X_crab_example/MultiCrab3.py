@@ -14,10 +14,11 @@ import copy, os, time, sys
 from CRABAPI.RawCommand import crabCommand
 from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
+from multiprocessing import Process
 
-workArea = 'crabProdv3p0'
+workArea = 'crabProdv3p1'
 outDir =  '/store/group/lpcsusyhad/Spring15_74X_Nov_2015_Ntp_v3X'
-Pubname = 'Spring15_74X_Nov_2015_Ntp_v3p0'
+Pubname = 'Spring15_74X_Nov_2015_Ntp_v3p1'
 json_25ns = 'Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config
@@ -158,83 +159,94 @@ def CreateMonitorList(tasklist):
     monList.close()
 
 
+def SubmitJob(key, value):
+    doAll = False 
+    doTest = False
+
+    allSelKeys = selSubmitKey.split()
+
+    if selSubmitKey.find('NONE') != -1:
+       print "Nothing to be done!"
+       sys.exit()
+    if selSubmitKey.find('ALL') != -1:
+       doAll = True
+    if selSubmitKey.find('TEST') != -1:
+       doTest = True
+
+    doThis = doAll
+
+    if not doAll:
+        for selKey in allSelKeys:
+            if key.find(selKey) != -1:
+                doThis = True
+                break;
+
+    if not doThis:
+        return
+
+    tempconfig = copy.deepcopy(config)
+    tempconfig.General.requestName = key
+    tempconfig.General.workArea = workArea
+    tempconfig.Data.outputDatasetTag = Pubname + "_" + key
+    tempconfig.Data.outLFNDirBase = outDir
+
+    if len(value) <3:
+        print "Not enough argument for %s" % key
+        raise  AssertionError()
+    if value[0]: # Data
+        if key.find('Run2015C') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_v4']
+            tempconfig.JobType.inputFiles = [json_25ns]
+            tempconfig.Data.splitting = 'LumiBased'
+            tempconfig.Data.lumiMask = json_25ns
+        elif key.find('Run2015D-05Oct2015') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_reMiniAOD_v0']
+            tempconfig.JobType.inputFiles = [json_25ns]
+            tempconfig.Data.splitting = 'LumiBased'
+            tempconfig.Data.lumiMask = json_25ns
+        elif key.find('Run2015D-PromptReco') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_Prompt_v4']
+            tempconfig.JobType.inputFiles = [json_25ns]
+            tempconfig.Data.splitting = 'LumiBased'
+            tempconfig.Data.lumiMask = json_25ns
+        else:
+            pass
+    else:
+        tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=74X_mcRun2_asymptotic_v2']
+        tempconfig.Data.splitting = 'FileBased'
+
+    tempconfig.Data.inputDataset = value[1].strip()
+    tempconfig.Data.unitsPerJob = value[2]
+
+    if value[0] and len(value) > 3:
+        tempconfig.Data.lumiMask = value[3]
+
+    # Submitting jobs
+    if doTest:
+        saveConfigurationFile(tempconfig, workArea+"/test/"+key+"_test_cfg.py")
+        tasklist["crab_"+key] = key
+    else:
+        results = crabCommand('submit', config = tempconfig)
+        tasklist[results['uniquerequestname']] = key
+    del tempconfig
+
 if __name__ == "__main__":
 
     if not os.path.exists(workArea):
        os.makedirs(workArea)
        os.makedirs(workArea+"/test")
 
-    doAll = False
+    for key, value in jobslist.items():
+        p = Process(target=SubmitJob , args=(key, value))
+        p.start()
+        p.join()
+
+    CreateMonitorList(tasklist)
+
     doTest = False
 
-    allSelKeys = selSubmitKey.split()
-
-    if selSubmitKey.find('NONE') != -1:
-       print "Nothing to be done!" 
-       sys.exit()
-    if selSubmitKey.find('ALL') != -1:
-       doAll = True
     if selSubmitKey.find('TEST') != -1:
-       doTest = True 
+       doTest = True
 
-    for key, value in jobslist.items():
-
-        doThis = doAll
-
-        if not doAll:
-           for selKey in allSelKeys:
-              if key.find(selKey) != -1:
-                 doThis = True
-                 break;
-
-        if not doThis:
-           continue
-
-        tempconfig = copy.deepcopy(config)
-        tempconfig.General.requestName = key
-        tempconfig.General.workArea = workArea
-        tempconfig.Data.outputDatasetTag = Pubname + "_" + key
-        tempconfig.Data.outLFNDirBase = outDir
-
-        if len(value) <3:
-            print "Not enough argument for %s" % key
-            raise  AssertionError()
-        if value[0]: # Data
-            if key.find('Run2015C') != -1:
-               tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_v4'] 
-               tempconfig.JobType.inputFiles = [json_25ns]
-               tempconfig.Data.splitting = 'LumiBased'
-               tempconfig.Data.lumiMask = json_25ns
-            elif key.find('Run2015D-05Oct2015') != -1:
-               tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_reMiniAOD_v0']
-               tempconfig.JobType.inputFiles = [json_25ns]
-               tempconfig.Data.splitting = 'LumiBased'
-               tempconfig.Data.lumiMask = json_25ns
-            elif key.find('Run2015D-PromptReco') != -1:
-               tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_Prompt_v4']
-               tempconfig.JobType.inputFiles = [json_25ns]
-               tempconfig.Data.splitting = 'LumiBased'
-               tempconfig.Data.lumiMask = json_25ns
-            else:
-               pass
-        else:
-           tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=74X_mcRun2_asymptotic_v2']
-           tempconfig.Data.splitting = 'FileBased'
-
-        tempconfig.Data.inputDataset = value[1].strip()
-        tempconfig.Data.unitsPerJob = value[2]
-
-        if value[0] and len(value) > 3:
-            tempconfig.Data.lumiMask = value[3]
-
-        # Submitting jobs
-        if doTest:
-           saveConfigurationFile(tempconfig, workArea+"/test/"+key+"_test_cfg.py")
-           tasklist["crab_"+key] = key
-        else:
-           results = crabCommand('submit', config = tempconfig)
-           tasklist[results['uniquerequestname']] = key
-           del tempconfig
-    CreateMonitorList(tasklist)
-    if not doTest and doAutoMonitor:     
+    if not doTest and doAutoMonitor:
        MonitoringJobs(tasklist)
