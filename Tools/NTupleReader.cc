@@ -103,6 +103,15 @@ bool NTupleReader::getNextEvent()
     return status > 0;
 }
 
+bool NTupleReader::goToEvent(int evt_)
+{
+    if(evt_ >= nEvtTotal_) return false;
+    int status = tree_->GetEntry(evt_);
+    nevt_++;
+    if(nevt_ >= 2) isFirstEvent_ = false;
+    calculateDerivedVariables();
+    return status > 0;
+}
 void NTupleReader::disableUpdate()
 {
     isUpdateDisabled_ = true;

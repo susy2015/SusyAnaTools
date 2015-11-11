@@ -72,6 +72,7 @@ public:
     }
 
     bool getNextEvent();
+    bool goToEvent(int evt_);
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
 

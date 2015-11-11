@@ -31,6 +31,7 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
   bool passBaselineNoTag = true;
 
   int bToFake = 1;
+  muonsFlagIDLabel = "muonsFlagMedium";
 
   try
   {
