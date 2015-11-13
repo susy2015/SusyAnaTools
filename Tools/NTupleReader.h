@@ -106,7 +106,6 @@ public:
             {
                 printf("NTupleReader::registerDerivedVar(...): You are trying to redefine a base tuple var: \"%s\".  This is not allowed!  Please choose a unique name.\n", name.c_str());
                 throw name;
-                //return;
             }
             branchVecMap_[name] = new T*();
             
