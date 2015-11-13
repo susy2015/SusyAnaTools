@@ -6,9 +6,7 @@
 
 #include "Math/VectorUtil.h"
 
-#include <sstream>
 #include <iostream>
-#include <fstream>
 
 class BaselineVessel
 {
@@ -72,6 +70,7 @@ public:
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
+            doEleVeto   = false;
             doIsoTrksVeto = false;
         }
         else if(spec.compare("Zinv1b") == 0) 
@@ -81,6 +80,7 @@ public:
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
+            doEleVeto   = false;
             doIsoTrksVeto = false;
             bToFake = 1;
         }
@@ -91,6 +91,7 @@ public:
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
+            doEleVeto   = false;
             doIsoTrksVeto = false;
             bToFake = 1;
         }
@@ -241,15 +242,15 @@ public:
         if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
     } 
 
-    bool passNoiseEventFilterFunc(NTupleReader &tr){
-       int jetIDFilter = tr.getVar<int>("prodJetIDEventFilter");
-       int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
-       int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
-       bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
-       int vtxSize = tr.getVar<int>("vtxSize");
+    bool passNoiseEventFilterFunc(NTupleReader &tr)
+    {
+        int jetIDFilter = tr.getVar<int>("prodJetIDEventFilter");
+        int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
+        int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
+        bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
+        int vtxSize = tr.getVar<int>("vtxSize");
 
-//       return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
-       return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter;
+        return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter;
     }
 
     void operator()(NTupleReader &tr)
@@ -294,11 +295,8 @@ namespace stopFunctions
         {
             if(elecIsoFlag.compare("mini") == 0)
             {
-//                std::cout << "cleanJets(...):  electron mini iso mode not implemented yet!!! Using \"rel iso\" settings." << std::endl;
                 elecIsoStr_ = "elesMiniIso";
                 elecIsoReq_ = AnaConsts::elesMiniIsoArr;
-//                elecIsoStr_ = "elesRelIso";
-//                elecIsoReq_ = AnaConsts::elesArr;
             }
             else if(elecIsoFlag.compare("rel") == 0)
             {
@@ -347,7 +345,18 @@ namespace stopFunctions
 
         void setDisable(bool disable)
         {
-            disable_ = disable;
+            disableMuon_ = disable;
+            disableElec_ = disable;
+        }
+
+        void setDisableElec(bool disable)
+        {
+            disableElec_ = disable;
+        }
+
+        void setDisableMuon(bool disable)
+        {
+            disableMuon_ = disable;
         }
 
         void setRemove(bool remove)
@@ -400,7 +409,7 @@ namespace stopFunctions
         double muonPtThresh_;
         double photoCleanThresh_;
         bool remove_;
-        bool disable_;
+        bool disableMuon_, disableElec_;
         bool forceDr_;
 
         int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, const std::vector<double>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const double photoCleanThresh = -999.9)
@@ -489,7 +498,7 @@ namespace stopFunctions
 
             std::vector<bool> keepJetPFCandMatch(jetsLVec.size(), true);
 
-            if(!disable_)
+            if(!disableMuon_)
             {
                 for(int iM = 0; iM < muonsLVec.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
                 {
@@ -506,7 +515,10 @@ namespace stopFunctions
                     if( match >= 0 ) rejectJetIdx_formuVec->push_back(match);
                     else rejectJetIdx_formuVec->push_back(-1);
                 }
+            }
 
+            if(!disableElec_)
+            {
                 for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
                 {
                     if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elesFlagIDVec[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) 
