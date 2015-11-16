@@ -32,21 +32,23 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
 
   int bToFake = 1;
   muonsFlagIDLabel = "muonsFlagMedium";
+  elesFlagIDLabel = "elesFlagVeto";
 
-  try
-  {
-    const double &temp  = tr.getVar<double>("genHT");
-  }
-  catch (std::string var)
-  {
-    if(tr.IsFirstEvent()) 
-    {
-      printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
-      printf("Running with PHYS14 Config\n");
-    }
-    muonsFlagIDLabel = "";
-  }
-  std::string elesFlagIDLabel = "";
+  /*
+   *try
+   *{
+   *  const double &temp  = tr.getVar<double>("genHT");
+   *}
+   *catch (std::string var)
+   *{
+   *  if(tr.IsFirstEvent()) 
+   *  {
+   *    printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
+   *    printf("Running with PHYS14 Config\n");
+   *  }
+   *  muonsFlagIDLabel = "";
+   *}
+   */
 
   if( spec.compare("noIsoTrksVeto") == 0)
   {
@@ -289,14 +291,15 @@ bool BaselineVessel::GetnTops(NTupleReader *tr) const
 bool BaselineVessel::passNoiseEventFilterFunc(NTupleReader &tr){
   try
   {
-    int jetIDFilter = tr.getVar<int>("prodJetIDEventFilter");
-    int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
-    int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
-    bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
     int vtxSize = tr.getVar<int>("vtxSize");
+    int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
+    //        int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
+    int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
+    int hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
+    int hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
 
     //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
-    return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter;
+    return (vtxSize>=1) && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
   }
   catch (std::string var)
   {
@@ -308,7 +311,6 @@ bool BaselineVessel::passNoiseEventFilterFunc(NTupleReader &tr){
   }
   return true;
 }
-
 
 void stopFunctions::CleanJets::setMuonIso(const std::string muIsoFlag) 
 {
@@ -410,7 +412,7 @@ void stopFunctions::CleanJets::setPhotoCleanThresh(double photoCleanThresh)
   photoCleanThresh_ = photoCleanThresh;
 }
 
-int stopFunctions::CleanJets::cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, const std::vector<double>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const double photoCleanThresh)
+int stopFunctions::CleanJets::cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<double>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<double>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const double photoCleanThresh)
 {
   int match = lepMatchedJetIdx;
   if(match < 0)
@@ -427,11 +429,16 @@ int stopFunctions::CleanJets::cleanLeptonFromJet(const TLorentzVector& lep, cons
     }
     else
     {
-      (*cleanJetVec)[match] -= lep;
+      (*cleanJetVec)[match] -= lep * jecScaleRawToFull[match];
     }
   }
 
   return match;
+}
+
+void stopFunctions::CleanJets::setJecScaleRawToFull(std::string jecScaleRawToFullLabel)
+{
+  recoJetsJecScaleRawToFullLabel_ = jecScaleRawToFullLabel;
 }
 
 void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
@@ -450,6 +457,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   const std::vector<int>&            muMatchedJetIdx  = tr.getVec<int>("muMatchedJetIdx");
   const std::vector<int>&            eleMatchedJetIdx = tr.getVec<int>("eleMatchedJetIdx");
   const std::vector<unsigned int>&   elesisEB         = tr.getVec<unsigned int>("elesisEB");
+  const std::vector<double>& recoJetsJecScaleRawToFull = recoJetsJecScaleRawToFullLabel_.empty()? std::vector<double>(jetsLVec.size(), 1):tr.getVec<double>(recoJetsJecScaleRawToFullLabel_.c_str());
 
   const unsigned int& run   = tr.getVar<unsigned int>("run");
   const unsigned int& lumi  = tr.getVar<unsigned int>("lumi");
@@ -507,8 +515,8 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
       }
 
       int match = -1;
-      if(forceDr_) match = cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
-      else         match = cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
+      if(forceDr_) match = cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
+      else         match = cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
 
       if( match >= 0 ) rejectJetIdx_formuVec->push_back(match);
       else rejectJetIdx_formuVec->push_back(-1);
@@ -523,8 +531,8 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
       }
 
       int match = -1;
-      if(forceDr_) match = cleanLeptonFromJet(elesLVec[iE],                   -1, jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
-      else         match = cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
+      if(forceDr_) match = cleanLeptonFromJet(elesLVec[iE],                   -1, jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
+      else         match = cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
 
       if( match >= 0 ) rejectJetIdx_foreleVec->push_back(match);
       else rejectJetIdx_foreleVec->push_back(-1);

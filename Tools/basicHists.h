@@ -14,7 +14,6 @@
 
 char names[200], dispt[200];
 
-
 TH2D * h2_evtCnt_sumSM_nbJets_vs_nTops = 0;
 std::vector<TString> keyWordVec;
 

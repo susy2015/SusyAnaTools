@@ -22,6 +22,8 @@ public:
     std::string METLabel;
     std::string METPhiLabel;
     std::string muonsFlagIDLabel;
+    std::string elesFlagIDLabel;
+
 
     BaselineVessel(const std::string specialization = "") : spec(specialization),
       jetVecLabel("jetsLVec"), CSVVecLabel("recoJetsBtag_0"), METLabel("met"), METPhiLabel("metphi") { }
@@ -64,6 +66,7 @@ namespace stopFunctions
         void setMuonPtThresh(double minPt);
         //This option is used to clean up to 1 jet in the minDr cone around the muon if the jet is lower pt than the muon
         //It is designed only for use with the z->inv background to remove muon related radiation from the event
+        void setJecScaleRawToFull(std::string jecScaleRawToFullLabel);
         void setPhotoCleanThresh(double photoCleanThresh);
 
         //NOTE!!! Must add Hadron and EM fraction vectors here
@@ -75,7 +78,7 @@ namespace stopFunctions
             setJetCollection("jetsLVec");
             setBTagCollection("recoJetsBtag_0");
             setMuonsFlagID("muonsFlagMedium");
-            setElesFlagID("");
+            setElesFlagID("elesFlagVeto");
             setEnergyFractionCollections("recoJetschargedHadronEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedEmEnergyFraction");    
             setForceDr(false);
             setRemove(false);
@@ -83,11 +86,13 @@ namespace stopFunctions
             setElecPtThresh(0.0);
             setMuonPtThresh(0.0);
             setPhotoCleanThresh(-999.9);
+            setJecScaleRawToFull("recoJetsJecScaleRawToFull");
         }
         
     private:
         std::string muIsoStr_, elecIsoStr_, jetVecLabel_, bTagLabel_, chargedEMFracLabel_, neutralEMFracLabel_, chargedHadFracLabel_;
         std::string muonsFlagIDLabel_, elesFlagIDLabel_;
+        std::string recoJetsJecScaleRawToFullLabel_;
         AnaConsts::IsoAccRec muIsoReq_;
         AnaConsts::ElecIsoAccRec elecIsoReq_;
         double elecPtThresh_;
@@ -97,7 +102,7 @@ namespace stopFunctions
         bool disable_;
         bool forceDr_;
 
-        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, std::vector<bool>& keepJet, const std::vector<double>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const double photoCleanThresh = -999.9);
+        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<double>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<double>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const double photoCleanThresh = -999.9);
         void internalCleanJets(NTupleReader& tr);
     };
 
