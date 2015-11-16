@@ -1,10 +1,11 @@
 from ctypes import cdll
 from ctypes import c_char_p
-from ctypes import POINTER 
+from ctypes import POINTER
+import os
 
 class SampleCollection:
     def __init__(self):
-        self.lib = cdll.LoadLibrary('../obj/samplesModule.so')
+        self.lib = cdll.LoadLibrary('%s/src/SusyAnaTools/Tools/obj/samplesModule.so' % os.environ['CMSSW_BASE'])
         self.obj = self.lib.SC_new()
         self.lib.SC_samples.restype = POINTER(c_char_p)
         self.lib.SC_samples_names.restype = POINTER(c_char_p)
