@@ -97,22 +97,26 @@ namespace AnaConsts{
 
    static std::set<std::string> activatedBranchNames_DataOnly = { "run", "lumi", "event", "evtWeight", 
                                                   "jetsLVec", "recoJetsBtag_0", "muMatchedJetIdx", "eleMatchedJetIdx", "looseisoTrksMatchedJetIdx", "trksForIsoVetoMatchedJetIdx",
-                                                  "muonsLVec", "muonsMtw", "muonsRelIso", "muonsMiniIso", "muonsFlagMedium", "muonsFlagTight",
-                                                  "elesLVec", "elesMtw", "elesRelIso", "elesMiniIso", "elesisEB",
+                                                  "recoJetsJecUnc", "recoJetsJecScaleRawToFull",
+                                                  "muonsLVec", "muonsMtw", "muonsRelIso", "muonsMiniIso", "muonsFlagMedium", "muonsFlagTight", "muonspfActivity",
+                                                  "elesLVec", "elesMtw", "elesRelIso", "elesMiniIso", "elesisEB", "elesFlagVeto", "elesFlagMedium", "elespfActivity",
                                                   "loose_isoTrksLVec", "loose_isoTrks_iso", "loose_isoTrks_mtw", "loose_isoTrks_pdgId",
                                                   "met", "metphi", 
                                                   "tru_npv", "vtxSize",
                                                   "prodJetsNoMu_jetsLVec", "recoJetsBtag_0_MuCleaned",
-						  "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedHadronEnergyFraction",
-                                                  "prodJetIDEventFilter", "CSCTightHaloFilter", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter",
-                                                  "TriggerNames", "PassTrigger"
+						  "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedHadronEnergyFraction", "recoJetsmuonEnergyFraction",
+                                                  "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "CSCTightHaloFilter", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter",
+                                                  "TriggerNames", "PassTrigger", "TriggerPrescales", 
+                                                  "stored_weight" 
                                                 };
 
    static std::set<std::string> activatedBranchNames = {
                                                   // Only exist in MC samples
                                                   "genDecayIdxVec", "genDecayLVec", "genDecayMomIdxVec", "genDecayPdgIdVec", "genDecayStrVec", "genDecayMomRefVec",
                                                   "W_emuVec", "W_tau_emuVec", "W_tau_prongsVec", "W_tau_nuVec",
-                                                  "genHT", "PDFweights", "PDFids", "stored_weight"
+                                                  "genHT", "PDFweights", "PDFids",
+                                                  "id1", "id2", "x1", "x2", "q",
+                                                  "W_emu_pfActivityVec", "W_tau_emu_pfActivityVec", "W_tau_prongs_pfActivityVec", "ScaleWeightsMiniAOD"
                                                 };
 
 }
