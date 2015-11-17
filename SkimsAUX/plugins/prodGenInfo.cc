@@ -14,6 +14,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "SusyAnaTools/SkimsAUX/plugins/common.h"
+
 #include "TLorentzVector.h"
 
 class prodGenInfo : public edm::EDFilter {
@@ -34,6 +36,9 @@ class prodGenInfo : public edm::EDFilter {
     edm::Handle<std::vector<std::string> > genDecayStrVec_;
     edm::Handle<std::vector<int> > genDecayChainPartIdxVec_;
 
+    edm::InputTag pfCandsSrc_;
+    edm::Handle<pat::PackedCandidateCollection> pfcands;
+
     bool debug_;
 
     int find_idx(const reco::Candidate & target);
@@ -41,6 +46,8 @@ class prodGenInfo : public edm::EDFilter {
 
     void find_mother(std::vector<int> & momIdxVec, int dauIdx, const std::vector<int> &genDecayIdxVec, const std::vector<int> &genDecayMomIdxVec);
     void find_W_emu_tauprongs(std::vector<int> &W_emuVec, std::vector<int> &W_tauVec, std::vector<int> &W_tau_emuVec, std::vector<int> &W_tau_prongsVec, std::vector<int> &W_tau_nuVec, const std::vector<int> &genDecayIdxVec, const std::vector<int> &genDecayMomIdxVec, const std::vector<int> &genDecayPdgIdVec);
+
+    double calc_pfActivity (const int idx, const std::vector<int> &genDecayIdxVec, const double rho);
 };
 
 
@@ -50,6 +57,8 @@ prodGenInfo::prodGenInfo(const edm::ParameterSet & iConfig) {
 
   genDecayStrVecSrc_ = iConfig.getParameter<edm::InputTag>("genDecayStrVecSrc");
   genDecayChainPartIdxVecSrc_ = iConfig.getParameter<edm::InputTag>("genDecayChainPartIdxVecSrc");
+
+  pfCandsSrc_   = iConfig.getParameter<edm::InputTag>("PFCandSource");
   
   debug_       = iConfig.getParameter<bool>("debug");
 
@@ -65,6 +74,10 @@ prodGenInfo::prodGenInfo(const edm::ParameterSet & iConfig) {
   produces<std::vector<int> >("WtauemuVec");
   produces<std::vector<int> >("WtauprongsVec");
   produces<std::vector<int> >("WtaunuVec");
+
+  produces<std::vector<double> >("WemupfActivityVec");
+  produces<std::vector<double> >("WtauemupfActivityVec");
+  produces<std::vector<double> >("WtauprongspfActivityVec");
 }
 
 
@@ -78,6 +91,12 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByLabel(genDecayStrVecSrc_, genDecayStrVec_);
   iEvent.getByLabel(genDecayChainPartIdxVecSrc_, genDecayChainPartIdxVec_);
 
+  iEvent.getByLabel(pfCandsSrc_, pfcands);
+
+  edm::Handle< double > rho_;
+  iEvent.getByLabel("fixedGridRhoFastjetCentralNeutral", rho_); // Central rho recommended for SUSY
+  double rho = *rho_;
+
   std::auto_ptr<std::vector<TLorentzVector> > genDecayLVec(new std::vector<TLorentzVector>());
   std::auto_ptr<std::vector<int> > genDecayIdxVec(new std::vector<int>());
   std::auto_ptr<std::vector<int> > genDecayPdgIdVec(new std::vector<int>());
@@ -90,6 +109,10 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> > W_tau_emuVec(new std::vector<int>());
   std::auto_ptr<std::vector<int> > W_tau_prongsVec(new std::vector<int>());
   std::auto_ptr<std::vector<int> > W_tau_nuVec(new std::vector<int>());
+
+  std::auto_ptr<std::vector<double> > W_emu_pfActivityVec(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > W_tau_emu_pfActivityVec(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > W_tauprongs_pfActivityVec(new std::vector<double>());
 
   for(unsigned int id=0; id<genDecayStrVec_->size(); id++){
      genDecayStrVec->push_back( (*genDecayStrVec_)[id] );
@@ -173,6 +196,25 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
      std::cout<<std::endl<<std::endl;
   }
 
+// Calculate pfActivity for gen ele, mu, pi and ? (enough?)
+  for(unsigned int il=0; il < W_emuVec->size(); il++){
+    int idx = W_emuVec->at(il);
+    double pfActivity = calc_pfActivity (idx, (*genDecayIdxVec), rho);
+    W_emu_pfActivityVec->push_back(pfActivity);
+  }
+
+  for(unsigned int il=0; il < W_tau_emuVec->size(); il++){
+    int idx = W_tau_emuVec->at(il);
+    double pfActivity = calc_pfActivity (idx, (*genDecayIdxVec), rho);
+    W_tau_emu_pfActivityVec->push_back(pfActivity);
+  }
+
+  for(unsigned int ih=0; ih < W_tau_prongsVec->size(); ih++){
+    int idx = W_tau_prongsVec->at(ih);
+    double pfActivity = calc_pfActivity (idx, (*genDecayIdxVec), rho);
+    W_tauprongs_pfActivityVec->push_back(pfActivity);
+  }
+
   // store in the event
   iEvent.put(genDecayLVec, "genDecayLVec");
   iEvent.put(genDecayStrVec, "genDecayStrVec");
@@ -187,6 +229,10 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(W_tau_emuVec, "WtauemuVec");
   iEvent.put(W_tau_prongsVec, "WtauprongsVec");
   iEvent.put(W_tau_nuVec, "WtaunuVec");
+
+  iEvent.put(W_emu_pfActivityVec, "WemupfActivityVec");
+  iEvent.put(W_tau_emu_pfActivityVec, "WtauemupfActivityVec");
+  iEvent.put(W_tauprongs_pfActivityVec, "WtauprongspfActivityVec");
 
   return true;
 }
@@ -252,6 +298,22 @@ void prodGenInfo::find_W_emu_tauprongs(std::vector<int> &W_emuVec, std::vector<i
       }
    }
    return;
+}
+
+double prodGenInfo::calc_pfActivity (const int idx, const std::vector<int> &genDecayIdxVec, const double rho){
+   int idxGen = genDecayIdxVec.at(idx);
+
+   const reco::GenParticle& genPart = genParticles->at(idxGen);
+   int pdgId = genPart.pdgId();
+
+   const reco::Candidate* lep = dynamic_cast<const reco::Candidate *>(&genPart);
+
+   std::string gen_type = "";
+   if( std::abs(pdgId) ==11) gen_type = "electron";
+   else if ( std::abs(pdgId) == 13 ) gen_type = "muon"; 
+
+   double pfActivity = commonFunctions::GetMiniIsolation(pfcands, lep, gen_type, rho, true);
+   return pfActivity;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
