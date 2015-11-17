@@ -40,13 +40,13 @@ namespace AnaSamples
         // TTbarInc has LO xsec on McM : 502.20 pb. The NNLO is 831.76 pb. The k-factor for ttbar is: kt = 831.76/502.20 ~ 1.656233
         sampleSet_["TTbarInc"]  = FileSummary(fDir_ + MCloc + "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 831.76,  lumi, 11344206, 1.0, kGreen);
         // 1.61 * kt 
-        sampleSet_["TTbar_HT-600to800"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",     "stopTreeMaker/AUX", 2.666535,  lumi, 5119009, 1.0, kGreen);
+        sampleSet_["TTbar_HT_600to800"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",     "stopTreeMaker/AUX", 2.666535,  lumi, 5119009, 1.0, kGreen);
         // 0.663 * kt
-        sampleSet_["TTbar_HT-800to1200"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 1.098082,  lumi, 3510897, 1.0, kGreen);
+        sampleSet_["TTbar_HT_800to1200"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 1.098082,  lumi, 3510897, 1.0, kGreen);
         // 0.12 * kt
-        sampleSet_["TTbar_HT-1200to2500"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.198748,  lumi, 1014678, 1.0, kGreen);
+        sampleSet_["TTbar_HT_1200to2500"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.198748,  lumi, 1014678, 1.0, kGreen);
         // 0.00143 * kt
-        sampleSet_["TTbar_HT-2500toInf"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 0.002368413,  lumi, 507842, 1.0, kGreen);
+        sampleSet_["TTbar_HT_2500toInf"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 0.002368413,  lumi, 507842, 1.0, kGreen);
 
 
         // Calculated from PDG BRs'. Not from the kt * xSec in McM.
@@ -181,14 +181,14 @@ namespace AnaSamples
         addSampleSet(samples, "TTbar", {"TTbarInc"});
         addSampleSet(samples, "TTbarSingleLep", {"TTbarSingleLepT", "TTbarSingleLepTbar"});
         addSampleSet(samples, "TTbarDiLep", {"TTbarDiLep"});
-        addSampleSet(samples, "TTbarHT", {"TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
+        addSampleSet(samples, "TTbarHT", {"TTbar_HT_600to800", "TTbar_HT_800to1200", "TTbar_HT_1200to2500", "TTbar_HT_2500toInf"});
         addSampleSet(samples, "TTbarNoHad", {"TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
 
         // Only all had. part of TTbarInc
         addSampleSet(samples, "TTbarAll", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
 
         // Only all had. part of TTbarInc & HT cuts on inclusive samples
-        addSampleSet(samples, "TTbarExt", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", "TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
+        addSampleSet(samples, "TTbarExt", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", "TTbar_HT_600to800", "TTbar_HT_800to1200", "TTbar_HT_1200to2500", "TTbar_HT_2500toInf"});
 
         addSampleSet(samples, "WJetsToLNu_LESS", {"WJetsToLNu_HT_600toInf", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
         addSampleSet(samples, "WJetsToLNu", {"WJetsToLNu_HT_2500toInf", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});

@@ -68,7 +68,7 @@ tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o
 nEvts: $(ODIR)/samples.o $(ODIR)/nEvts.o
 	$(LD) $^ $(LIBS) -o $@
 
-basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/customize.o $(ODIR)/baselineDef.o
+basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/customize.o $(ODIR)/baselineDef.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o
