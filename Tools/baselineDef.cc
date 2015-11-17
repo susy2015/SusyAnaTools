@@ -73,15 +73,15 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
     doEleVeto = false; 
     doIsoTrksVeto = false;
   }
-  else if(spec.compare("Zinv") == 0) 
-  {
-    jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-    CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
-    METLabel    = "cleanMetPt";
-    METPhiLabel = "cleanMetPhi";
-    doMuonVeto  = false;
-    doIsoTrksVeto = false;
-  }
+  //else if(spec.compare("Zinv") == 0) 
+  //{
+    //jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
+    //CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
+    //METLabel    = "cleanMetPt";
+    //METPhiLabel = "cleanMetPhi";
+    //doMuonVeto  = false;
+    //doIsoTrksVeto = false;
+  //}
   else if(spec.compare("Zinv1b") == 0) 
   {
     jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
