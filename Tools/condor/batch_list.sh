@@ -17,7 +17,7 @@
 #baseDir=/eos/uscms/store/user/pastika/PHYS14_720_May19_2015_v1/
 baseDir=$1
 
-cd $baseDir
+#cd $baseDir
 
 #for i in $(ls $baseDir); do
 #    if [ -d $baseDir/$i ]; then
