@@ -63,47 +63,30 @@ public:
            doEleVeto = false; 
            doIsoTrksVeto = false;
         }
-        else if(spec.compare("Zinv") == 0) 
+        else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv2b") == 0) 
         {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
+            jetVecLabel = "jetsLVecLepCleaned";
+            CSVVecLabel = "recoJetsBtag_0_LepCleaned";
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
             doEleVeto   = false;
             doIsoTrksVeto = false;
-        }
-        else if(spec.compare("Zinv1b") == 0) 
-        {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag1fake";//"recoJetsBtag_0";
-            METLabel    = "cleanMetPt";
-            METPhiLabel = "cleanMetPhi";
-            doMuonVeto  = false;
-            doEleVeto   = false;
-            doIsoTrksVeto = false;
-            bToFake = 1;
-        }
-        else if(spec.compare("Zinv2b") == 0) 
-        {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag2fake";//"recoJetsBtag_0";
-            METLabel    = "cleanMetPt";
-            METPhiLabel = "cleanMetPhi";
-            doMuonVeto  = false;
-            doEleVeto   = false;
-            doIsoTrksVeto = false;
-            bToFake = 1;
-        }
-        else if(spec.compare("Zinv3b") == 0) 
-        {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag3fake";//"recoJetsBtag_0";
-            METLabel    = "cleanMetPt";
-            METPhiLabel = "cleanMetPhi";
-            doMuonVeto  = false;
-            doIsoTrksVeto = false;
-            bToFake = 1;
+            if(spec.compare("Zinv1b") == 0)
+            {
+                CSVVecLabel = "cleanJetpt30ArrBTag1fake";
+                bToFake = 1;
+            }
+            else if(spec.compare("Zinv2b") == 0)
+            {
+                CSVVecLabel = "cleanJetpt30ArrBTag2fake";
+                bToFake = 1; //This is not a typo
+            }
+            else if(spec.compare("Zinv3b") == 0)
+            {
+                CSVVecLabel = "cleanJetpt30ArrBTag3fake";
+                bToFake = 1; //This is not a typo
+            }
         }
         else if(spec.compare("QCD") == 0)
         {
