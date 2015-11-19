@@ -547,7 +547,6 @@ namespace stopFunctions
             auto iCHF = cleanChargedHadEFrac->begin();
             auto iNEMF = cleanNeutralEMEFrac->begin();
             auto iCEMF = cleanChargedEMEFrac->begin();
-            const bool& passMuZinvSel = tr.getVar<bool>("passMuZinvSel");
             for(; iJet != cleanJetVec->end() && iBTag != cleanJetBTag->end() && iKeep != keepJetPFCandMatch.end() && iOrigJet != jetsLVec.end(); ++iKeep, ++iOrigJet)
             {
                 if(!(*iKeep))
