@@ -6,9 +6,7 @@
 
 #include "Math/VectorUtil.h"
 
-#include <sstream>
 #include <iostream>
-#include <fstream>
 
 class BaselineVessel
 {
@@ -65,44 +63,30 @@ public:
            doEleVeto = false; 
            doIsoTrksVeto = false;
         }
-        else if(spec.compare("Zinv") == 0) 
+        else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv2b") == 0) 
         {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
+            jetVecLabel = "jetsLVecLepCleaned";
+            CSVVecLabel = "recoJetsBtag_0_LepCleaned";
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
+            doEleVeto   = false;
             doIsoTrksVeto = false;
-        }
-        else if(spec.compare("Zinv1b") == 0) 
-        {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag1fake";//"recoJetsBtag_0";
-            METLabel    = "cleanMetPt";
-            METPhiLabel = "cleanMetPhi";
-            doMuonVeto  = false;
-            doIsoTrksVeto = false;
-            bToFake = 1;
-        }
-        else if(spec.compare("Zinv2b") == 0) 
-        {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag2fake";//"recoJetsBtag_0";
-            METLabel    = "cleanMetPt";
-            METPhiLabel = "cleanMetPhi";
-            doMuonVeto  = false;
-            doIsoTrksVeto = false;
-            bToFake = 1;
-        }
-        else if(spec.compare("Zinv3b") == 0) 
-        {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag3fake";//"recoJetsBtag_0";
-            METLabel    = "cleanMetPt";
-            METPhiLabel = "cleanMetPhi";
-            doMuonVeto  = false;
-            doIsoTrksVeto = false;
-            bToFake = 1;
+            if(spec.compare("Zinv1b") == 0)
+            {
+                CSVVecLabel = "cleanJetpt30ArrBTag1fake";
+                bToFake = 1;
+            }
+            else if(spec.compare("Zinv2b") == 0)
+            {
+                CSVVecLabel = "cleanJetpt30ArrBTag2fake";
+                bToFake = 1; //This is not a typo
+            }
+            else if(spec.compare("Zinv3b") == 0)
+            {
+                CSVVecLabel = "cleanJetpt30ArrBTag3fake";
+                bToFake = 1; //This is not a typo
+            }
         }
         else if(spec.compare("QCD") == 0)
         {
@@ -307,11 +291,8 @@ namespace stopFunctions
         {
             if(elecIsoFlag.compare("mini") == 0)
             {
-//                std::cout << "cleanJets(...):  electron mini iso mode not implemented yet!!! Using \"rel iso\" settings." << std::endl;
                 elecIsoStr_ = "elesMiniIso";
                 elecIsoReq_ = AnaConsts::elesMiniIsoArr;
-//                elecIsoStr_ = "elesRelIso";
-//                elecIsoReq_ = AnaConsts::elesArr;
             }
             else if(elecIsoFlag.compare("rel") == 0)
             {
@@ -360,7 +341,18 @@ namespace stopFunctions
 
         void setDisable(bool disable)
         {
-            disable_ = disable;
+            disableMuon_ = disable;
+            disableElec_ = disable;
+        }
+
+        void setDisableElec(bool disable)
+        {
+            disableElec_ = disable;
+        }
+
+        void setDisableMuon(bool disable)
+        {
+            disableMuon_ = disable;
         }
 
         void setRemove(bool remove)
@@ -419,7 +411,7 @@ namespace stopFunctions
         double muonPtThresh_;
         double photoCleanThresh_;
         bool remove_;
-        bool disable_;
+        bool disableMuon_, disableElec_;
         bool forceDr_;
 
         int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<double>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<double>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const double photoCleanThresh = -999.9)
@@ -509,7 +501,7 @@ namespace stopFunctions
 
             std::vector<bool> keepJetPFCandMatch(jetsLVec.size(), true);
 
-            if(!disable_)
+            if(!disableMuon_)
             {
                 for(int iM = 0; iM < muonsLVec.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
                 {
@@ -526,7 +518,10 @@ namespace stopFunctions
                     if( match >= 0 ) rejectJetIdx_formuVec->push_back(match);
                     else rejectJetIdx_formuVec->push_back(-1);
                 }
+            }
 
+            if(!disableElec_)
+            {
                 for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
                 {
                     if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elesFlagIDVec[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) 
