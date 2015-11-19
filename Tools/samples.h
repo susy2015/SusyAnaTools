@@ -100,7 +100,12 @@ namespace AnaSamples
     public:
         SampleCollection(SampleSet samples);
         std::vector<std::string>& getSampleLabels(std::string name);
+        inline double getSampleLumi(std::string name)
+        {
+            totalLumiMap_[name];
+        }
     private:
+        std::map<std::string, double> totalLumiMap_;
         std::map<std::string, std::vector<std::string>> nameVec_;
         void addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss);
     };
