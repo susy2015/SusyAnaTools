@@ -73,44 +73,30 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
     doEleVeto = false; 
     doIsoTrksVeto = false;
   }
-  //else if(spec.compare("Zinv") == 0) 
-  //{
-    //jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-    //CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
-    //METLabel    = "cleanMetPt";
-    //METPhiLabel = "cleanMetPhi";
-    //doMuonVeto  = false;
-    //doIsoTrksVeto = false;
-  //}
-  else if(spec.compare("Zinv1b") == 0) 
+  else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv2b") == 0) 
   {
-    jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-    CSVVecLabel = "cleanJetpt30ArrBTag1fake";//"recoJetsBtag_0";
+    jetVecLabel = "jetsLVecLepCleaned";
+    CSVVecLabel = "recoJetsBtag_0_LepCleaned";
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
     doMuonVeto  = false;
+    doEleVeto   = false;
     doIsoTrksVeto = false;
-    bToFake = 1;
-  }
-  else if(spec.compare("Zinv2b") == 0) 
-  {
-    jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-    CSVVecLabel = "cleanJetpt30ArrBTag2fake";//"recoJetsBtag_0";
-    METLabel    = "cleanMetPt";
-    METPhiLabel = "cleanMetPhi";
-    doMuonVeto  = false;
-    doIsoTrksVeto = false;
-    bToFake = 1;
-  }
-  else if(spec.compare("Zinv3b") == 0) 
-  {
-    jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-    CSVVecLabel = "cleanJetpt30ArrBTag3fake";//"recoJetsBtag_0";
-    METLabel    = "cleanMetPt";
-    METPhiLabel = "cleanMetPhi";
-    doMuonVeto  = false;
-    doIsoTrksVeto = false;
-    bToFake = 1;
+    if(spec.compare("Zinv1b") == 0)
+    {
+      CSVVecLabel = "cleanJetpt30ArrBTag1fake";
+      bToFake = 1;
+    }
+    else if(spec.compare("Zinv2b") == 0)
+    {
+      CSVVecLabel = "cleanJetpt30ArrBTag2fake";
+      bToFake = 1; //This is not a typo
+    }
+    else if(spec.compare("Zinv3b") == 0)
+    {
+      CSVVecLabel = "cleanJetpt30ArrBTag3fake";
+      bToFake = 1; //This is not a typo
+    }
   }
   else if(spec.compare("QCD") == 0)
   {
@@ -387,10 +373,6 @@ void stopFunctions::CleanJets::setForceDr(bool forceDr)
   forceDr_ = forceDr;
 }
 
-void stopFunctions::CleanJets::setDisable(bool disable)
-{
-  disable_ = disable;
-}
 
 void stopFunctions::CleanJets::setRemove(bool remove)
 {
@@ -503,8 +485,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   TLorentzVector MHT;
 
   std::vector<bool> keepJetPFCandMatch(jetsLVec.size(), true);
-
-  if(!disable_)
+  if(!disableMuon_)
   {
     for(int iM = 0; iM < muonsLVec.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
     {
@@ -521,7 +502,10 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
       if( match >= 0 ) rejectJetIdx_formuVec->push_back(match);
       else rejectJetIdx_formuVec->push_back(-1);
     }
+  }
 
+  if(!disableElec_)
+  {
     for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
     {
       if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elesFlagIDVec[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) 
@@ -539,6 +523,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
     }
   }
 
+
   int jetsKept = 0;
   auto iJet = cleanJetVec->begin();
   auto iOrigJet = jetsLVec.begin();
@@ -547,7 +532,6 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   auto iCHF = cleanChargedHadEFrac->begin();
   auto iNEMF = cleanNeutralEMEFrac->begin();
   auto iCEMF = cleanChargedEMEFrac->begin();
-  const bool& passMuZinvSel = tr.getVar<bool>("passMuZinvSel");
   for(; iJet != cleanJetVec->end() && iBTag != cleanJetBTag->end() && iKeep != keepJetPFCandMatch.end() && iOrigJet != jetsLVec.end(); ++iKeep, ++iOrigJet)
   {
     if(!(*iKeep))
@@ -597,4 +581,14 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   tr.registerDerivedVec("removedChargedEMEFrac",  removedChargedEMEFrac);
   tr.registerDerivedVec("rejectJetIdx_formuVec", rejectJetIdx_formuVec);
   tr.registerDerivedVec("rejectJetIdx_foreleVec", rejectJetIdx_foreleVec);
+}
+
+void stopFunctions::CleanJets::setDisableElec(bool disable)
+{
+  disableElec_ = disable;
+}
+
+void stopFunctions::CleanJets::setDisableMuon(bool disable)
+{
+  disableMuon_ = disable;
 }

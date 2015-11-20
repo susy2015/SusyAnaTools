@@ -64,6 +64,8 @@ namespace stopFunctions
         void setRemove(bool remove);
         void setElecPtThresh(double minPt);
         void setMuonPtThresh(double minPt);
+        void setDisableElec(bool disable);
+        void setDisableMuon(bool disable);
         //This option is used to clean up to 1 jet in the minDr cone around the muon if the jet is lower pt than the muon
         //It is designed only for use with the z->inv background to remove muon related radiation from the event
         void setJecScaleRawToFull(std::string jecScaleRawToFullLabel);
@@ -99,7 +101,7 @@ namespace stopFunctions
         double muonPtThresh_;
         double photoCleanThresh_;
         bool remove_;
-        bool disable_;
+        bool disableMuon_, disableElec_;
         bool forceDr_;
 
         int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<double>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<double>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const double photoCleanThresh = -999.9);

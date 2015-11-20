@@ -103,7 +103,7 @@ namespace AnaConsts{
                                                   "loose_isoTrksLVec", "loose_isoTrks_iso", "loose_isoTrks_mtw", "loose_isoTrks_pdgId",
                                                   "met", "metphi", 
                                                   "tru_npv", "vtxSize",
-                                                  "prodJetsNoMu_jetsLVec", "recoJetsBtag_0_MuCleaned",
+                                                  "recoJetsBtag_0_LepCleaned", "jetsLVecLepCleaned",
 						  "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedHadronEnergyFraction", "recoJetsmuonEnergyFraction",
                                                   "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "CSCTightHaloFilter", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter",
                                                   "TriggerNames", "PassTrigger", "TriggerPrescales", 

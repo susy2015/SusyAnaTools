@@ -222,6 +222,8 @@ namespace topTagger{
 
             setdoTopVeto(false);
 
+            setdobTagCheck(true);
+
             setbVetoMethod(0);
 
             setWjetMassRanges(70, 110);
@@ -863,7 +865,7 @@ namespace topTagger{
                
          // Find a top fat jet passing at least one of the three criteria
                vector<int> fatJetPassStatusVec;
-               int isTopJet = checkTopCriteria(finalCombfatJets[ic], oriJetsVec, recoJetsBtagCSVS, fatJetSubMassVec[ic], fatJetm123, fatJetPassStatusVec);
+               int isTopJet = checkTopCriteria(finalCombfatJets[ic], oriJetsVec, recoJetsBtagCSVS, fatJetSubMassVec[ic], fatJetm123, fatJetPassStatusVec, dobTagCheck_);
                if( doInvertTopCriteria_ ){ if( isTopJet ) isTopJet = 0; else isTopJet = 1; }
                finalCombfatJetsPassStatusVec.push_back(fatJetPassStatusVec);
                if( isTopJet ){
@@ -1451,7 +1453,7 @@ namespace topTagger{
             for(int ic=0; ic<combSize; ic++){
          // Find a top fat jet passing at least one of the three criteria
                vector<int> fatJetPassStatusVec;
-               int isTopJet = checkTopCriteria(finalCombfatJets[ic], oriJetsVec, recoJetsBtagCSVS, fatJetSubMassVec[ic], fatJetMassVec[ic], fatJetPassStatusVec);
+               int isTopJet = checkTopCriteria(finalCombfatJets[ic], oriJetsVec, recoJetsBtagCSVS, fatJetSubMassVec[ic], fatJetMassVec[ic], fatJetPassStatusVec, dobTagCheck_);
                if( isTopJet ){
                   if( fatJetMassVec[ic] > looselowTopCutforCount_ && fatJetMassVec[ic] < loosehighTopCutforCount_ ){
                      topJetCand_deltaM_idx123Map[std::abs(fatJetMassVec[ic]-mTop_)] = finalCombfatJets[ic];
@@ -1852,7 +1854,7 @@ namespace topTagger{
                
          // Find a top fat jet passing at least one of the three criteria
                vector<int> fatJetPassStatusVec;
-               int isTopJet = checkTopCriteria(finalCombfatJets[ic], oriJetsVec, recoJetsBtagCSVS, fatJetSubMassVec[ic], fatJetm123, fatJetPassStatusVec);
+               int isTopJet = checkTopCriteria(finalCombfatJets[ic], oriJetsVec, recoJetsBtagCSVS, fatJetSubMassVec[ic], fatJetm123, fatJetPassStatusVec, dobTagCheck_);
                if( doInvertTopCriteria_ ){ if( isTopJet ) isTopJet = 0; else isTopJet = 1; }
                finalCombfatJetsPassStatusVec.push_back(fatJetPassStatusVec);
                if( isTopJet ){
@@ -2028,7 +2030,7 @@ namespace topTagger{
 //               double fatJetm23 = buildLVec(oriJetsVec, finalCombJetSubStruc[ic][2]).M();
                
                vector<int> fatJetPassStatusVec;
-               int isTopJet = checkTopCriteria(finalCombfatJets[ic], oriJetsVec, recoJetsBtagCSVS, fatJetSubMassVec[ic], fatJetm123, fatJetPassStatusVec);
+               int isTopJet = checkTopCriteria(finalCombfatJets[ic], oriJetsVec, recoJetsBtagCSVS, fatJetSubMassVec[ic], fatJetm123, fatJetPassStatusVec, dobTagCheck_);
                if( isTopJet ){
                   allCombPassCriteriaVec.push_back(ic);
                }
@@ -2161,6 +2163,10 @@ namespace topTagger{
             }
          }
 
+         void setdobTagCheck( const bool dobTagCheck ){
+            dobTagCheck_ = dobTagCheck;
+         }
+
          void setbVetoMethod( const int bVetoMethod ){ bVetoMethod_ = bVetoMethod; }
 
          void setWjetMassRanges( const double lowWjetMass, const double highWjetMass ){ lowWjetMass_ = lowWjetMass; highWjetMass_ = highWjetMass; }
@@ -2263,6 +2269,9 @@ namespace topTagger{
          int bVetoMethod_;
 // For top veto
          bool doTopVetoSel_;
+
+// Disable/enable b-tag check for checkTopCriteria function
+         bool dobTagCheck_;
 
 // Mass ranges for picking a W jet
 // Default: lowWjetMass_ = 70, highWjetMass_ = 110. They come from reading the mass distributions of the signal samples.
