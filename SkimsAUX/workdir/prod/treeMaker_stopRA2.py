@@ -18,7 +18,7 @@ options.register('hltName', 'HLT', VarParsing.VarParsing.multiplicity.singleton,
 
 options.register('mcInfo', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "process MonteCarlo data, default is data")
 
-options.register('doPDFs', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "switch to enable the production of PDF weights for NNPDF3.0, CT10, MMHT2014, n.b. you need to do `scram setup lhapdf` before running (default=False)")
+options.register('doPDFs', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "switch to enable the production of PDF weights for NNPDF3.0, CT10, MMHT2014, n.b. you need to do `scram setup lhapdf` before running (default=False)")
 
 options.register('addJetsForZinv', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "switch to add top projected jets for Zinv")
 
@@ -134,7 +134,7 @@ else:
        '/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/08BA5283-FD6E-E511-B078-02163E00F45F.root',
    ]
 
-process.maxEvents.input = options.maxEvents
+process.maxEvents.input = 1000
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 
