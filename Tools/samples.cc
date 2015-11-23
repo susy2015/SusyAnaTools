@@ -227,10 +227,7 @@ namespace AnaSamples
         {
             sampleSet_[name].push_back(samples[sn]);
             nameVec_[name].push_back(sn);
-            for(auto& sn : vss)
-            {
-                totalLumiMap_[name] += samples[sn].lumi;
-            }
+            totalLumiMap_[name] += samples[sn].lumi;
         }
     }
 
