@@ -103,7 +103,7 @@ namespace AnaSamples
         std::vector<std::string>& getSampleLabels(std::string name);
         inline double getSampleLumi(std::string name)
         {
-            totalLumiMap_[name];
+            return totalLumiMap_[name];
         }
     private:
         std::map<std::string, double> totalLumiMap_;
