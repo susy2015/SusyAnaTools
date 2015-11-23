@@ -83,7 +83,8 @@ namespace AnaSamples
 
     public:
         decltype(sampleSet_.cbegin()) begin() const { return sampleSet_.cbegin(); }
-        decltype(sampleSet_.cend()) end() const { return sampleSet_.cend(); }
+        decltype(sampleSet_.cend())     end() const { return sampleSet_.cend(); }
+        decltype(sampleSet_.size())    size() const { return sampleSet_.size(); }
     };
 
     class SampleSet : public SampleBase<FileSummary>
