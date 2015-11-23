@@ -28,6 +28,8 @@ public:
     BaselineVessel(const std::string specialization = "") : spec(specialization),
       jetVecLabel("jetsLVec"), CSVVecLabel("recoJetsBtag_0"), METLabel("met"), METPhiLabel("metphi") { }
 
+    ~BaselineVessel() {delete type3Ptr;};
+
     void passBaseline(NTupleReader &tr);
     void prepareTopTagger();
     bool GetnTops(NTupleReader *tr) const;
