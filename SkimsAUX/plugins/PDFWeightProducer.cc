@@ -94,8 +94,8 @@ void PDFWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // weirdo LHA conventions, gluons are 0
   if (id1 == 21) id1 = 0;
   if (id2 == 21) id2 = 0;
-
-  int N_pdfsets = 3; // hard-coded for now...
+ 
+  int N_pdfsets = 1; // hard-coded for now...
   int pdfset_internalIdNumber = -99;
   int pdfid = -99;
   for (int i = 1; i <= N_pdfsets; i++){
@@ -141,9 +141,10 @@ void PDFWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 void
 PDFWeightProducer::beginJob()
 {
-  LHAPDF::initPDFSet(1, "NNPDF30_lo_as_0130.LHgrid");
-  LHAPDF::initPDFSet(2, "CT10nlo.LHgrid");
-  LHAPDF::initPDFSet(3, "MMHT2014nlo68cl.LHgrid");
+  //LHAPDF::initPDFSet(1, "NNPDF30_lo_as_0130.LHgrid");
+  //LHAPDF::initPDFSet(2, "CT10nlo.LHgrid");
+  //LHAPDF::initPDFSet(3, "MMHT2014nlo68cl.LHgrid");
+  LHAPDF::initPDFSet(1, "PDF4LHC15_nlo_mc.LHgrid");
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

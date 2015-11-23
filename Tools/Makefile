@@ -4,7 +4,7 @@ SDIR       = .
 
 CXX        = g++
 
-CXXFLAGS  += -I. -std=c++0x -I$(CMSSW_BASE)/src/
+CXXFLAGS  += -I. -std=c++0x -I$(CMSSW_BASE)/src/ -I$(LHAPDF_DATA_PATH)/../../include
 ## Optimization flag
 CXXFLAGS += -O3
 ## Enable the maximun warning
@@ -20,7 +20,7 @@ LDFLAGS    =
 
 LIBS       = $(shell root-config --glibs)
 MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
-
+LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
 PROGRAMS = tupleTest nEvts basicCheck makeCombPlots
 
@@ -37,7 +37,7 @@ $(ODIR)/%.o : $(SDIR)/%.cc
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
 
 tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o 
-	$(LD) $^ $(LIBS) -o $@
+	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
 
 nEvts: $(ODIR)/samples.o $(ODIR)/nEvts.o
 	$(LD) $^ $(LIBS) -o $@
