@@ -113,25 +113,46 @@ public:
         setDerived(var, vecloc);
     }
 
-    template<typename T> T getVar(const std::string var) const
+    template<typename T> const T& getVar(const std::string var) const
     {
         //This function can be used to return single variables
 
-        return getTupleObj<T>(var, branchMap_);
+        try
+        {
+            return getTupleObj<T>(var, branchMap_);
+        }
+        catch(const std::string e)
+        {
+            return *static_cast<T*>(nullptr);
+        }
     }
 
     template<typename T> const std::vector<T>& getVec(const std::string var) const
     {
         //This function can be used to return vectors
 
-        return *getTupleObj<std::vector<T>*>(var, branchVecMap_);
+        try
+        {
+            return *getTupleObj<std::vector<T>*>(var, branchVecMap_);
+        }
+        catch(const std::string e)
+        {
+            return *static_cast<std::vector<T>*>(nullptr);
+        }
     }
 
     template<typename T, typename V> const std::map<T, V>& getMap(const std::string var) const
     {
-        //This function can be used to return vectors
+        //This function can be used to return maps
 
-        return *getTupleObj<std::map<T, V>*>(var, branchVecMap_);
+        try
+        {
+            return *getTupleObj<std::map<T, V>*>(var, branchVecMap_);
+        }
+        catch(const std::string e)
+        {
+            return *static_cast<std::map<T, V>*>(nullptr);
+        }
     }
  
  
@@ -157,7 +178,7 @@ private:
 
     void init();
 
-    template<typename T> void registerBranch(std::string name)
+    template<typename T> void registerBranch(const std::string name)
     {
         branchMap_[name] = new T();
 
@@ -166,7 +187,7 @@ private:
         typeMap_[name] = type;
     }
     
-    template<typename T> void registerVecBranch(std::string name)
+    template<typename T> void registerVecBranch(const std::string name)
     {
         branchVecMap_[name] = new std::vector<T>*();
 
@@ -175,7 +196,7 @@ private:
         typeMap_[name] = type;
     }
 
-    template<typename T> void updateTupleVar(std::string name, const T& var)
+    template<typename T> void updateTupleVar(const std::string name, const T& var)
     {
         if(isFirstEvent_)
         {
@@ -196,7 +217,7 @@ private:
         else printf("NTupleReader::updateTuple(...):  Variable not found: \"%s\"!!!\n", name.c_str());
     }
 
-    template<typename T, typename V> T getTupleObj(const std::string var, const V& v_tuple) const
+    template<typename T, typename V> T& getTupleObj(const std::string var, const V& v_tuple) const
     {
         auto tuple_iter = v_tuple.find(var);
         if(tuple_iter != v_tuple.end())
@@ -206,7 +227,6 @@ private:
 
         if(isFirstEvent_) printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
         throw var;
-        return *static_cast<T*>(nullptr);
     }
 
     template<typename T> inline static void setDerived(const T& retval, void* const loc)
