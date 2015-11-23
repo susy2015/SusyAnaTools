@@ -178,7 +178,7 @@ private:
 
     void init();
 
-    template<typename T> void registerBranch(std::string name)
+    template<typename T> void registerBranch(const std::string name)
     {
         branchMap_[name] = new T();
 
@@ -187,7 +187,7 @@ private:
         typeMap_[name] = type;
     }
     
-    template<typename T> void registerVecBranch(std::string name)
+    template<typename T> void registerVecBranch(const std::string name)
     {
         branchVecMap_[name] = new std::vector<T>*();
 
@@ -196,7 +196,7 @@ private:
         typeMap_[name] = type;
     }
 
-    template<typename T> void updateTupleVar(std::string name, const T& var)
+    template<typename T> void updateTupleVar(const std::string name, const T& var)
     {
         if(isFirstEvent_)
         {
