@@ -220,6 +220,8 @@ namespace AnaSamples
         addSampleSet(samples, "WWZ", {"WWZ"});
         addSampleSet(samples, "WZZ", {"WZZ"});
 
+	addSampleSet(samples, "Rare", {"TTWJetsToLNu", "TTWJetsToQQ", "WWZ", "WZZ"});
+
         addSampleSet(samples, "Data_SingleMuon", {"Data_SingleMuon_2015C", "Data_SingleMuon_2015D_05Oct2015", "Data_SingleMuon_2015D_PromptReco"});
 
         addSampleSet(samples, "Data_SingleElectron", {"Data_SingleElectron_2015C", "Data_SingleElectron_2015D_05Oct2015", "Data_SingleElectron_2015D_PromptReco"});
