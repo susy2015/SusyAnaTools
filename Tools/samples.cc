@@ -22,6 +22,16 @@ namespace AnaSamples
         else std::cout << "Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
     }
 
+    void FileSummary::addCollection(std::string colName)
+    {
+        collections_.insert(colName);
+    }
+
+    std::map<std::string, FileSummary>& SampleSet::getMap()
+    {
+        return sampleSet_;
+    }
+    
     SampleSet::SampleSet(std::string fDir, double lumi) : fDir_(fDir), lumi_(lumi)
     {
         // ---------------
@@ -178,7 +188,7 @@ namespace AnaSamples
         sampleSet_["Signal_TTDMDMJets_M1000GeV"]                 = FileSummary(fDir_ + MCloc + "TTDMDMJets_M1000GeV.txt", "stopTreeMaker/AUX", 0.01585, lumi, 121817, 1.0,  kRed);    
     }
 
-    SampleCollection::SampleCollection(SampleSet samples)
+    SampleCollection::SampleCollection(SampleSet& samples)
     {
         //Define sets of samples for later use
         addSampleSet(samples, "TTbar", {"TTbarInc"});
@@ -223,8 +233,23 @@ namespace AnaSamples
 
     void SampleCollection::addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss)
     {
+        if(vss.size() > 1)
+        {
+            for(std::string& sn : vss)
+            {
+                if(sn.compare(name) == 0)
+                {
+                    std::cout << "You have named a sampleCollection the same as one of its member sampleSets, but it has more than one sampleSet!!!! This is bad!!!  Stop!!! Stop now!!!  This collection will be skipped until it is properly named." << std::endl;
+                    return;
+                }
+            }
+        }
+
+        auto& map = samples.getMap();
+
         for(std::string& sn : vss)
         {
+            map[sn].addCollection(name);
             sampleSet_[name].push_back(samples[sn]);
             nameVec_[name].push_back(sn);
             totalLumiMap_[name] += samples[sn].lumi;
