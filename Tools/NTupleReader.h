@@ -126,42 +126,20 @@ public:
     {
         //This function can be used to return single variables
 
-        try
-        {
-            return getTupleObj<T>(var, branchMap_);
-        }
-        catch(const std::string e)
-        {
-            return *static_cast<T*>(nullptr);
-        }
+        return getTupleObj<T>(var, branchMap_);
     }
 
     template<typename T> const std::vector<T>& getVec(const std::string var) const
     {
         //This function can be used to return vectors
-
-        try
-        {
-            return *getTupleObj<std::vector<T>*>(var, branchVecMap_);
-        }
-        catch(const std::string e)
-        {
-            return *static_cast<std::vector<T>*>(nullptr);
-        }
+        return *getTupleObj<std::vector<T>*>(var, branchVecMap_);
     }
 
     template<typename T, typename V> const std::map<T, V>& getMap(const std::string var) const
     {
         //This function can be used to return maps
 
-        try
-        {
-            return *getTupleObj<std::map<T, V>*>(var, branchVecMap_);
-        }
-        catch(const std::string e)
-        {
-            return *static_cast<std::map<T, V>*>(nullptr);
-        }
+        return *getTupleObj<std::map<T, V>*>(var, branchVecMap_);
     }
  
  
