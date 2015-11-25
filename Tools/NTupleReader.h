@@ -181,8 +181,6 @@ private:
     std::vector<std::function<void(NTupleReader&)> > functionVec_;
     std::map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
-    //Hack to get around segfault
-    std::map<std::string, void *> inactiveBranchMap_;
 
     void activateBranches();
     void populateBranchList();
