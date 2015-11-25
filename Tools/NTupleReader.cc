@@ -28,6 +28,7 @@ void NTupleReader::init()
     nevt_ = 0;
     isUpdateDisabled_ = false;
     isFirstEvent_ = true;
+    reThrow_ = true;
 
     activateBranches();    
 }
@@ -130,6 +131,11 @@ void NTupleReader::getType(const std::string& name, std::string& type) const
     {
         type = typeIter->second;
     }
+}
+
+void NTupleReader::setReThrow(const bool reThrow)
+{
+    reThrow_ = reThrow;
 }
 
 void NTupleReader::printTupleMembers(FILE *f) const
