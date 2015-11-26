@@ -138,6 +138,20 @@ void NTupleReader::setReThrow(const bool reThrow)
     reThrow_ = reThrow;
 }
 
+const void* NTupleReader::getPtr(const std::string var) const
+{
+    //This function can be used to return the variable pointer
+
+    auto tuple_iter = branchMap_.find(var);
+    if(tuple_iter != branchMap_.end())
+    {
+        return tuple_iter->second;
+    }
+
+    throw "NTupleReader::getPtr(...): Variable not found: " + var;
+}
+
+
 void NTupleReader::printTupleMembers(FILE *f) const
 {
     for(auto& iVar : typeMap_)
