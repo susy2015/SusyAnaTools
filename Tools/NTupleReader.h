@@ -123,6 +123,8 @@ public:
         setDerived(var, vecloc);
     }
 
+    const void* getPtr(const std::string var) const;
+
     template<typename T> const T& getVar(const std::string var) const
     {
         //This function can be used to return single variables
