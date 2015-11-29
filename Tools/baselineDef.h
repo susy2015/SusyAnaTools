@@ -3,7 +3,6 @@
 
 #include "NTupleReader.h"
 #include "customize.h"
-#include "EventListFilter.h"
 
 #include "Math/VectorUtil.h"
 
@@ -24,8 +23,6 @@ public:
     std::string METPhiLabel;
     std::string muonsFlagIDLabel;
     std::string elesFlagIDLabel;
-    EventListFilter filter;
-
 
     BaselineVessel(const std::string specialization = "") : spec(specialization),
       jetVecLabel("jetsLVec"), CSVVecLabel("recoJetsBtag_0"), METLabel("met"), METPhiLabel("metphi") { }

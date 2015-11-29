@@ -280,14 +280,7 @@ bool BaselineVessel::passNoiseEventFilterFunc(NTupleReader &tr){
     int vtxSize = tr.getVar<int>("vtxSize");
     int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
     //        int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
-    bool beamHaloFilter = true;
-    if(filter.Initialized()) 
-    {
-      const unsigned int& run =   tr.getVar<unsigned int>("run");
-      const unsigned int& lumi  = tr.getVar<unsigned int>("lumi");
-      const unsigned int& event = tr.getVar<unsigned int>("event");
-      beamHaloFilter = filter.CheckEvent(run, lumi, event);
-    }
+    bool beamHaloFilter = tr.getVar<int>("CSCbeamHaloFilter");
     int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
     int hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
     int hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
