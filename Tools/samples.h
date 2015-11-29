@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <set>
 
 //#include "TChain.h"
 
@@ -45,8 +46,15 @@ namespace AnaSamples
         }
         std::vector<std::string> filelist_;
 
+        void addCollection(std::string);
+        const std::set<std::string>& getCollections() const
+        {
+            return collections_;
+        }
+
     private:
         double weight_;
+        std::set<std::string> collections_;
 
         void readFileList();
     };
@@ -87,19 +95,26 @@ namespace AnaSamples
         decltype(sampleSet_.size())    size() const { return sampleSet_.size(); }
     };
 
+    class SampleCollection;
+
     class SampleSet : public SampleBase<FileSummary>
     {
+        friend class SampleCollection;
+        
     public:
         SampleSet(std::string fDir = fileDir, double lumi = luminosity);
+
     private:
-        std::string fDir_;
+        std::string fDir_;        
 	double lumi_;
+
+        std::map<std::string, FileSummary>& getMap();
     };
 
     class SampleCollection : public SampleBase<std::vector<FileSummary>>
     {
     public:
-        SampleCollection(SampleSet samples);
+        SampleCollection(SampleSet& samples);
         std::vector<std::string>& getSampleLabels(std::string name);
         inline double getSampleLumi(std::string name)
         {

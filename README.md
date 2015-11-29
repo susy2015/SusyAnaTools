@@ -7,7 +7,7 @@ cmsrel CMSSW_7_4_15
 cd CMSSW_7_4_15/src/
 cmsenv
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
-git clone -b Ntp_74X_08Nov2015_v3.0 git@github.com:susy2015/SusyAnaTools.git
+git clone -b Ana_74X_17Nov2015_v3.0 git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 

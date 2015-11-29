@@ -80,6 +80,8 @@ public:
 
     void getType(const std::string& name, std::string& type) const;
 
+    void setReThrow(const bool);
+
     template<typename T> void registerDerivedVar(const std::string name, T var)
     {
         if(isFirstEvent_)
@@ -122,6 +124,8 @@ public:
         setDerived(var, vecloc);
     }
 
+    const void* getPtr(const std::string var) const;
+
     template<typename T> const T& getVar(const std::string var) const
     {
         //This function can be used to return single variables
@@ -147,7 +151,7 @@ private:
     // private variables for internal use
     TTree *tree_;
     int nevt_, nEvtTotal_;
-    bool isUpdateDisabled_, isFirstEvent_;
+    bool isUpdateDisabled_, isFirstEvent_, reThrow_;
     
     // stl collections to hold branch list and associated info
     std::map<std::string, void *> branchMap_;
@@ -155,8 +159,6 @@ private:
     std::vector<std::function<void(NTupleReader&)> > functionVec_;
     std::map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
-    //Hack to get around segfault
-    std::map<std::string, void *> inactiveBranchMap_;
 
     void activateBranches();
     void populateBranchList();

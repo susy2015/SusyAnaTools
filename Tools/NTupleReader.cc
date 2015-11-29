@@ -28,6 +28,7 @@ void NTupleReader::init()
     nevt_ = 0;
     isUpdateDisabled_ = false;
     isFirstEvent_ = true;
+    reThrow_ = true;
 
     activateBranches();    
 }
@@ -140,6 +141,25 @@ void NTupleReader::getType(const std::string& name, std::string& type) const
         type = typeIter->second;
     }
 }
+
+void NTupleReader::setReThrow(const bool reThrow)
+{
+    reThrow_ = reThrow;
+}
+
+const void* NTupleReader::getPtr(const std::string var) const
+{
+    //This function can be used to return the variable pointer
+
+    auto tuple_iter = branchMap_.find(var);
+    if(tuple_iter != branchMap_.end())
+    {
+        return tuple_iter->second;
+    }
+
+    throw "NTupleReader::getPtr(...): Variable not found: " + var;
+}
+
 
 void NTupleReader::printTupleMembers(FILE *f) const
 {
