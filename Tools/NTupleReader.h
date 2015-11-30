@@ -16,6 +16,14 @@
 #include <functional>
 #include <cxxabi.h>
 
+#ifdef __CINT__
+#pragma link off all globals;
+#pragma link off all classes;
+#pragma link off all functions;
+
+#pragma link C++ class vector<TLorentzVector>+;
+#endif
+
 /* This class is designed to be a simple interface to reading stop NTuples
    
    To use this class simply open the desired Tree as a TTree or TChain and pass it 
@@ -71,6 +79,8 @@ public:
 
     void getType(const std::string& name, std::string& type) const;
 
+    void setReThrow(const bool);
+
     template<typename T> void registerDerivedVar(const std::string name, T var)
     {
         if(isFirstEvent_)
@@ -113,6 +123,8 @@ public:
         setDerived(var, vecloc);
     }
 
+    const void* getPtr(const std::string var) const;
+
     template<typename T> const T& getVar(const std::string var) const
     {
         //This function can be used to return single variables
@@ -123,6 +135,7 @@ public:
         }
         catch(const std::string e)
         {
+            if(reThrow_) throw;
             return *static_cast<T*>(nullptr);
         }
     }
@@ -137,6 +150,7 @@ public:
         }
         catch(const std::string e)
         {
+            if(reThrow_) throw;
             return *static_cast<std::vector<T>*>(nullptr);
         }
     }
@@ -151,6 +165,7 @@ public:
         }
         catch(const std::string e)
         {
+            if(reThrow_) throw;
             return *static_cast<std::map<T, V>*>(nullptr);
         }
     }
@@ -160,7 +175,7 @@ private:
     // private variables for internal use
     TTree *tree_;
     int nevt_, nEvtTotal_;
-    bool isUpdateDisabled_, isFirstEvent_;
+    bool isUpdateDisabled_, isFirstEvent_, reThrow_;
     
     // stl collections to hold branch list and associated info
     std::map<std::string, void *> branchMap_;
@@ -168,8 +183,6 @@ private:
     std::vector<std::function<void(NTupleReader&)> > functionVec_;
     std::map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
-    //Hack to get around segfault
-    std::map<std::string, void *> inactiveBranchMap_;
 
     void activateBranches();
     void populateBranchList();
