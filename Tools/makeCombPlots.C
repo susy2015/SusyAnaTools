@@ -59,7 +59,7 @@ void makeCombPlots(const std::string cutLev="baseline"){
 
    double dataLumi = 0;
 
-   for(const auto & file : allCollections["Data_HTMHT25ns"]) dataLumi += file.lumi;
+   for(const auto & file : allCollections["Data_HTMHT"]) dataLumi += file.lumi;
    double scaleMCtoData = dataLumi/AnaSamples::luminosity;
    std::cout<<"\ndataLumi : "<<dataLumi<<"  mc assumed lumi : "<<AnaSamples::luminosity<<"  scaleMCtoData : "<<scaleMCtoData<<std::endl<<std::endl;
 
@@ -126,7 +126,7 @@ void makeCombPlots(const std::string cutLev="baseline"){
       cached_h1Vec[is].push_back((TH1D*)tW_file->Get(hfullname.c_str()));
    }
     
-   TFile * Data_HTMHT25ns_file = new TFile("basicCheck_Data_HTMHT25ns.root");
+   TFile * Data_HTMHT25ns_file = new TFile("basicCheck_Data_HTMHT.root");
    TH1D * Data_HTMHT25ns_h1_keyString = (TH1D*) Data_HTMHT25ns_file->Get("h1_keyString"); Data_HTMHT25ns_h1_keyString->LabelsDeflate();
    std::string Data_HTMHT25ns_sampleKey = Data_HTMHT25ns_h1_keyString->GetXaxis()->GetBinLabel(1); int Data_HTMHT25ns_color = (int)Data_HTMHT25ns_h1_keyString->GetBinContent(1);
    cached_sampleStrVec.push_back(Data_HTMHT25ns_sampleKey); cached_sampleColorVec.push_back(Data_HTMHT25ns_color);
