@@ -128,12 +128,12 @@ namespace AnaSamples
 
         // NLO --> negative weights!
         // (sign of gen weight) * (lumi*xsec)/(effective number of events): effective number of events = N(evt) with positive weight - N(evt) with negative weight
-        sampleSet_["TTZToLLNuNu"]               = FileSummary(fDir_ + MCloc + "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.2529, lumi, 398000 - 398000./291495. * 106505,  1.0,  kOrange+2);
-        sampleSet_["TTZToQQ"]                   = FileSummary(fDir_ + MCloc + "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.5297, lumi, 749800 - 749800./550599. * 199201,  1.0,  kOrange+2);
+        sampleSet_["TTZToLLNuNu"]               = FileSummary(fDir_ + MCloc + "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.2529, lumi, 291495 - 106505,  1.0,  kOrange+2);
+        sampleSet_["TTZToQQ"]                   = FileSummary(fDir_ + MCloc + "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.5297, lumi, 550599 - 199201,  1.0,  kOrange+2);
 
         // NLO --> negative weights!
-        sampleSet_["TTWJetsToLNu"]              = FileSummary(fDir_ + MCloc + "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.2043, lumi, 252908 - 61529 * 252908./191379.,  1.0,  kSpring+2);
-        sampleSet_["TTWJetsToQQ"]               = FileSummary(fDir_ + MCloc + "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.4062, lumi, 833964 - 201817 * 833964./632147.,  1.0,  kSpring+2);
+        sampleSet_["TTWJetsToLNu"]              = FileSummary(fDir_ + MCloc + "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.2043, lumi, 191379 - 61529,  1.0,  kSpring+2);
+        sampleSet_["TTWJetsToQQ"]               = FileSummary(fDir_ + MCloc + "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.4062, lumi, 632147 - 201817,  1.0,  kSpring+2);
 
         // ttH --> ??
         
@@ -203,7 +203,7 @@ namespace AnaSamples
         // Only all had. part of TTbarInc & HT cuts on inclusive samples
         addSampleSet(samples, "TTbarExt", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", "TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
 
-        addSampleSet(samples, "WJetsToLNu_LESS", {"WJetsToLNu_HT_600toInf", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
+//        addSampleSet(samples, "WJetsToLNu_LESS", {"WJetsToLNu_HT_600toInf", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
         addSampleSet(samples, "WJetsToLNu", {"WJetsToLNu_HT_2500toInf", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
 
         addSampleSet(samples, "ZJetsToNuNu", {"ZJetsToNuNu_HT_600toInf", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200"});
