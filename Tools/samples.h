@@ -51,12 +51,12 @@ namespace AnaSamples
         {
             return collections_;
         }
+        
+        void readFileList();
 
     private:
         double weight_;
         std::set<std::string> collections_;
-
-        void readFileList();
     };
 
     bool operator< (const FileSummary& lhs, const FileSummary& rhs);

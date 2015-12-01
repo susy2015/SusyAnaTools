@@ -8,6 +8,8 @@ namespace AnaSamples
 {
     void FileSummary::readFileList()
     {
+        if(filelist_.size()) filelist_.clear();
+        
         FILE *f = fopen(filePath.c_str(), "r");
         char buff[512];
         if(f)

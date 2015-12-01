@@ -1,5 +1,7 @@
 #include "MiniTupleMaker.h"
 
+#include "TLorentzVector.h"
+#include <iostream>
 MiniTupleMaker::MiniTupleMaker(TTree * const t) : tree_(t)
 {
 }
@@ -23,7 +25,22 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
 
         if(type.find("vector") != std::string::npos)
         {
-            throw "MiniTupleMaker::initBranches(...): Vector types are not allowed in MiniTuples!!!";
+            if(type.find("*") != std::string::npos)
+            {
+                throw "MiniTupleMaker::initBranches(...): Vectors of pointers are not allowed in MiniTuples!!!";
+            }
+            else
+            {
+                //Anyone reading this please forgive me, but root made me do it
+                if     (type.find("TLorentzVector") != std::string::npos) tree_->Branch(var.first.c_str(), static_cast<std::vector<TLorentzVector>**>(const_cast<void*>(tr.getVecPtr(var.first))));
+                else if(type.find("float")          != std::string::npos) tree_->Branch(var.first.c_str(), static_cast<std::vector<float>**>         (const_cast<void*>(tr.getVecPtr(var.first))));
+                else if(type.find("double")         != std::string::npos) tree_->Branch(var.first.c_str(), static_cast<std::vector<double>**>        (const_cast<void*>(tr.getVecPtr(var.first))));
+                else if(type.find("int")            != std::string::npos) tree_->Branch(var.first.c_str(), static_cast<std::vector<int>**>           (const_cast<void*>(tr.getVecPtr(var.first))));
+            }
+            else
+            {
+                throw "MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var.first + ", type: " + type;           
+            }
         }
         else
         {
@@ -83,6 +100,11 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
                 prepVar<long>(tr, var.first, var.second);
                 varTupleType = "/L";
             }
+            else if(type.find("TLorentzVector") != std::string::npos) 
+            {
+                prepVar<TLorentzVector>(tr, var.first, var.second);
+                varTupleType = "/L";
+            }
             else
             {
                 throw "MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var.first + ", type: " + type;
@@ -95,7 +117,7 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
 
 void MiniTupleMaker::fill()
 {
-    for(auto& var : tupleVars_) var.second.second();
+    for(auto& var : tupleVars_) if(var.second.second) var.second.second();
 
     tree_->Fill();
 }
