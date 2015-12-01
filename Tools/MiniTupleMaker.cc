@@ -36,10 +36,10 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
                 else if(type.find("float")          != std::string::npos) tree_->Branch(var.first.c_str(), static_cast<std::vector<float>**>         (const_cast<void*>(tr.getVecPtr(var.first))));
                 else if(type.find("double")         != std::string::npos) tree_->Branch(var.first.c_str(), static_cast<std::vector<double>**>        (const_cast<void*>(tr.getVecPtr(var.first))));
                 else if(type.find("int")            != std::string::npos) tree_->Branch(var.first.c_str(), static_cast<std::vector<int>**>           (const_cast<void*>(tr.getVecPtr(var.first))));
-            }
-            else
-            {
-                throw "MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var.first + ", type: " + type;           
+                else
+                {
+                    throw "MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var.first + ", type: " + type;           
+                }
             }
         }
         else
