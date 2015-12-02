@@ -6,7 +6,7 @@ CXX        = g++
 
 CXXFLAGS  += -I. -std=c++0x -I$(CMSSW_BASE)/src/ -I$(LHAPDF_DATA_PATH)/../../include
 ## Optimization flag
-CXXFLAGS += -O3
+CXXFLAGS += -g
 ## Enable the maximun warning
 #CXXFLAGS += -Wall -Wextra -Weffc++ -g
 
@@ -49,8 +49,8 @@ $(ODIR)/%.o : $(SDIR)/%.C
 $(ODIR)/%.o : $(SDIR)/%.cc
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
 
-tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o 
-	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
+tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/PDFUncertainty.o $(ODIR)/tupleReadTest.o 
+	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
 nEvts: $(ODIR)/samples.o $(ODIR)/nEvts.o
 	$(LD) $^ $(LIBS) -o $@
