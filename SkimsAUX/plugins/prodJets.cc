@@ -307,6 +307,12 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // Additional jec qualities
     std::vector<std::string> availableJECLevels = jet.availableJECLevels();
+    if( debug_ && ij==0 ){
+       std::cout<<"\nAvailable JEC levels:"<<std::endl;
+       for(unsigned int ia=0; ia<availableJECLevels.size(); ia++){
+          std::cout<<"ia : "<<ia<<"  --> "<<availableJECLevels[ia].c_str()<<std::endl;
+       }
+    }
     double scaleRawToFull = jet.jecFactor(availableJECLevels.back())/jet.jecFactor("Uncorrected");
     recoJetsJecScaleRawToFull->push_back(scaleRawToFull);
 
