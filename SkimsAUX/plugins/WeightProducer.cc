@@ -150,25 +150,29 @@ void WeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     ///informations, i.e. using sample ID, pt-hat-information, etc;
 
     //Option 3: pt-hat weighting
-    double storedWeight = -1.0;
+    double storedWeight = 0.0;
     double ratioPtHat = -1.;
     ptHat_ = 0.0; ptHatweight_ = 1.0;
-    if (_weightingMethod == "PtHat") {
-        // Get pthat
-        double ptHat = 0.;
+    if( !iEvent.isRealData() ){
         edm::Handle<GenEventInfoProduct> genEvtInfoHandle;
         iEvent.getByLabel("generator", genEvtInfoHandle);
         if (genEvtInfoHandle.isValid()) {
-//            ptHat = genEvtInfoHandle->binningValues()[0];
-            ptHat = ( genEvtInfoHandle->hasBinningValues() ? (genEvtInfoHandle->binningValues())[0] : 0.0);
-            _weight = weightFactor * pow(ptHat, _expo);
+            ptHat_ = ( genEvtInfoHandle->hasBinningValues() ? (genEvtInfoHandle->binningValues())[0] : 0.0);
             storedWeight = genEvtInfoHandle->weight();
+        }
+    }
+    if (_weightingMethod == "PtHat") {
+        // Get pthat
+        edm::Handle<GenEventInfoProduct> genEvtInfoHandle;
+        iEvent.getByLabel("generator", genEvtInfoHandle);
+        if ( !iEvent.isRealData() ) {
+            _weight = weightFactor * pow(ptHat_, _expo);
             if( storedWeight != 0 ) ratioPtHat = _weight/(_lumi*_xs/_NumberEvents*storedWeight);
         } else {
             std::cout<<"WARNING:: PtHat information needed but not available: set weight to 1!"<<std::endl;
             _weight = 1;
         }
-        ptHat_ = ptHat; ptHatweight_ = _weight;
+        ptHatweight_ = _weight;
     } 
     //Option 2: existing weight variable in the event named as in _weightName
     else if (_startWeight >= 0) {
@@ -204,6 +208,9 @@ void WeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     }
 
     _weight *= puweight_;
+
+// Specially treatment of the negative storedWeight for MC. Default (for data) storedWeight is 0.
+    if( storedWeight < 0 ) _weight *= -1;
 
     // put weight into the Event
     std::auto_ptr<double> weightPtr(new double(_weight));

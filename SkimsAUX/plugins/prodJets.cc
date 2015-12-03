@@ -83,7 +83,7 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   jetSrc_      = iConfig.getParameter<edm::InputTag>("jetSrc");
   jetOtherSrc_ = iConfig.getParameter<edm::InputTag>("jetOtherSrc");
   vtxSrc_      = iConfig.getParameter<edm::InputTag>("vtxSrc");
-  metSrc_      = iConfig.getParameter<edm::InputTag>("metSrc");
+//  metSrc_      = iConfig.getParameter<edm::InputTag>("metSrc");
   bTagKeyString_ = iConfig.getParameter<std::string>("bTagKeyString");
 
   debug_       = iConfig.getParameter<bool>("debug");
@@ -175,8 +175,8 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle< std::vector<reco::Vertex> > vertices;
   iEvent.getByLabel(vtxSrc_, vertices);
   // reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
-  edm::Handle<edm::View<reco::MET> > met;
-  iEvent.getByLabel(metSrc_, met);
+//  edm::Handle<edm::View<reco::MET> > met;
+//  iEvent.getByLabel(metSrc_, met);
 
   std::vector<pat::Jet> extJets = (*jets);
 

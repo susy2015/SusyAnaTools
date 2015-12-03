@@ -704,6 +704,9 @@ if options.addJetsForZinv == True:
    process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsBtag"))
    process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsBtag|recoJetsBtag_0_LepCleaned")
 
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecScaleRawToFull"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecScaleRawToFull|recoJetsJecScaleRawToFull_LepCleaned")
+
 if options.mcInfo == True:
    process.prodGenInfo.debug = cms.bool(options.debug)
    process.stopTreeMaker.vectorString.append(cms.InputTag("prodGenInfo", "genDecayStrVec"))
@@ -832,7 +835,6 @@ if options.specialFix == "JEC" and options.cmsswVersion == "74X":
    process.ak4patJetsPFchsPt30.jetSrc = cms.InputTag('patJetsReapplyJEC')
    process.ak4patJetsPFchsPt50Eta25.jetSrc = cms.InputTag('patJetsReapplyJEC')
    process.prodJetIDEventFilter.JetSource = cms.InputTag("patJetsReapplyJEC")
-   process.prodJetIDEventFilterNoLep.JetSource = cms.InputTag("patJetsReapplyJEC")
    process.ak4stopJetsPFchsPt30.jetSrc = cms.InputTag("patJetsReapplyJEC")
    process.ak4stopJetsPFchsPt50Eta24.jetSrc = cms.InputTag("patJetsReapplyJEC")
 
@@ -853,8 +855,6 @@ if options.specialFix == "JEC" and options.cmsswVersion == "74X":
    process.prodElectronsNoIso.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
 
    process.prodIsoTrks.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-   process.prodJets.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-   process.prodJetsNoLep.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
    process.prodMET.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
 
    process.prodMuons.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
