@@ -3,17 +3,6 @@
 
 #include "LHAPDF/LHAPDF.h"
 #include "NTupleReader.h"
-#include "TCanvas.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TChain.h"
-#include "TH1.h"
-#include <iostream>
-#include <cstdio>
-#include <string>
-#include <ctime>
-#include <iomanip>
-#include <cmath>
 #include <vector>
 
 class PDFUncertainty
