@@ -17,10 +17,10 @@ from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
 from multiprocessing import Process
 
-workArea = 'crabProdv3p1'
-outDir =  '/store/group/lpcsusyhad/Spring15_74X_Nov_2015_Ntp_v3X'
-Pubname = 'Spring15_74X_Nov_2015_Ntp_v3p1'
-json_25ns = 'Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
+workArea = 'crabProdv4p0'
+outDir =  '/store/group/lpcsusyhad/Spring15_74X_Dec_2015_Ntp_v4X'
+Pubname = 'Spring15_74X_Dec_2015_Ntp_v4p0'
+json_25ns = 'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
 # TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleEG
@@ -240,24 +240,25 @@ def SubmitJob(key, value):
         raise  AssertionError()
     if value[0]: # Data
         if key.find('Run2015C') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_v4']
-            tempconfig.JobType.inputFiles = [json_25ns]
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_v4', 'specialFix=JEC', 'jecDBname=Summer15_25nsV6_DATA', 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer15_25nsV6_DATA.db', 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2015D-05Oct2015') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_reMiniAOD_v0']
-            tempconfig.JobType.inputFiles = [json_25ns]
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_reMiniAOD_v0', 'specialFix=JEC', 'jecDBname=Summer15_25nsV6_DATA', 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer15_25nsV6_DATA.db', 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2015D-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_Prompt_v4']
-            tempconfig.JobType.inputFiles = [json_25ns]
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_Prompt_v4', 'specialFix=JEC', 'jecDBname=Summer15_25nsV6_DATA', 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer15_25nsV6_DATA.db', 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         else:
             pass
     else:
-        tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=74X_mcRun2_asymptotic_v2']
+        tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=74X_mcRun2_asymptotic_v2', 'specialFix=JEC', 'jecDBname=Summer15_25nsV6_MC']
+        tempconfig.JobType.inputFiles = ['Summer15_25nsV6_MC.db']
         tempconfig.Data.splitting = 'FileBased'
 
     tempconfig.Data.inputDataset = value[1].strip()
