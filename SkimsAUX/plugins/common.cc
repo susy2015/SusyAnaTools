@@ -101,7 +101,8 @@ namespace commonFunctions
   }
 
   double GetTrackActivity(edm::Handle<pat::PackedCandidateCollection> other_pfcands, const pat::PackedCandidate* track) {
-    if (track->pt()<5.) return 99999.;
+//    if (track->pt()<5.) return 99999.;
+    if (track->pt()<5.) return -1.0;
     double trkiso(0.); 
     double r_iso = 0.3;
     for (const pat::PackedCandidate &other_pfc : *other_pfcands) {
