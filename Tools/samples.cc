@@ -129,30 +129,30 @@ namespace AnaSamples
         // NLO --> negative weights!
         // (sign of gen weight) * (lumi*xsec)/(effective number of events): effective number of events = N(evt) with positive weight - N(evt) with negative weight
         sampleSet_["TTZToLLNuNu"]         = FileSummary(fDir_ + MCloc + "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.2529, lumi, 291495 - 106505,  1.0,  kOrange+2);
-        sampleSet_["TTZToQQ"]             = FileSummary(fDir_ + MCloc + "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.5297, lumi, 550599 - 199201,  1.0,  kOrange+2);
+        sampleSet_["TTZToQQ"]             = FileSummary(fDir_ + MCloc + "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt",          "stopTreeMaker/AUX", 0.5297, lumi, 550599 - 199201,  1.0,  kOrange+2);
 
         // NLO --> negative weights!
         sampleSet_["TTWJetsToLNu"]        = FileSummary(fDir_ + MCloc + "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.2043, lumi, 191379 - 61529,   1.0,  kSpring+2);
         sampleSet_["TTWJetsToQQ"]         = FileSummary(fDir_ + MCloc + "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt",  "stopTreeMaker/AUX", 0.4062, lumi, 632147 - 201817,  1.0,  kSpring+2);
 
-        // NLO --> negative weights! Still need to taken them into account
-        sampleSet_["TTGJets"]             = FileSummary(fDir_ + MCloc + "TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 3.697, lumi, 4832230,  1.0,  kSpring+2);
+        // NLO --> negative weights! 
+        sampleSet_["TTGJets"]             = FileSummary(fDir_ + MCloc + "TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 3.697, lumi,  3199309 - 1632921,  1.0,  kSpring+2);
 
-        // ttH --> negative weights! Still need to take them into account
-	sampleSet_["ttHJetTobb"]     = FileSummary(fDir_ + MCloc + "ttHJetTobb_M125_13TeV_amcatnloFXFX_madspin_pythia8.txt",             "stopTreeMaker/AUX", 0.2934,  lumi, 1612604,  1.0,  kOrange+2);
-	sampleSet_["ttHJetToNonbb"]  = FileSummary(fDir_ + MCloc + "ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8_mWCutfix.txt", "stopTreeMaker/AUX", 0.2151,  lumi, 8025223,  1.0,  kOrange+2);
+        // ttH --> negative weights!
+	sampleSet_["ttHJetTobb"]     = FileSummary(fDir_ + MCloc + "ttHJetTobb_M125_13TeV_amcatnloFXFX_madspin_pythia8.txt",             "stopTreeMaker/AUX", 0.2934,  lumi, 1047463 - 565141,   1.0,  kOrange+2);
+	sampleSet_["ttHJetToNonbb"]  = FileSummary(fDir_ + MCloc + "ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8_mWCutfix.txt", "stopTreeMaker/AUX", 0.2151,  lumi, 5206759 - 2818464,  1.0,  kOrange+2);
         
-        // Di-boson?
+        // Di-boson
 	// Ref. https://indico.cern.ch/event/439995/session/0/contribution/6/attachments/1143460/1638648/diboson_final.pdf (NNLO is given)
         sampleSet_["WW"]              = FileSummary(fDir_ + MCloc + "WW_TuneCUETP8M1_13TeV-pythia8.txt", "stopTreeMaker/AUX", 115.0,  lumi, 993640,  1.0,  kOrange+4); 
 	// Ref. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns (NLO from MCFM)
         sampleSet_["WZ"]              = FileSummary(fDir_ + MCloc + "WZ_TuneCUETP8M1_13TeV-pythia8.txt", "stopTreeMaker/AUX", 47.13,  lumi, 978512,  1.0,  kOrange+4);
         sampleSet_["ZZ"]              = FileSummary(fDir_ + MCloc + "ZZ_TuneCUETP8M1_13TeV-pythia8.txt", "stopTreeMaker/AUX", 16.523, lumi, 996944,  1.0,  kOrange+4);
 
-        // Tri-boson: negative weights! Still needs to be taken into account.
-        sampleSet_["WWZ"]             = FileSummary(fDir_ + MCloc + "WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.1651,  lumi, 250000,  1.0,  kOrange+2);
-        sampleSet_["WZZ"]             = FileSummary(fDir_ + MCloc + "WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.05565, lumi, 250000,  1.0,  kOrange+2);
-        sampleSet_["ZZZ"]             = FileSummary(fDir_ + MCloc + "ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.01398, lumi, 250000,  1.0,  kOrange+2);
+        // Tri-boson: negative weights!
+        sampleSet_["WWZ"]             = FileSummary(fDir_ + MCloc + "WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.1651,  lumi, 235734 - 14266,  1.0,  kOrange+2);
+        sampleSet_["WZZ"]             = FileSummary(fDir_ + MCloc + "WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.05565, lumi, 234584 - 15416,  1.0,  kOrange+2);
+        sampleSet_["ZZZ"]             = FileSummary(fDir_ + MCloc + "ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.01398, lumi, 231925 - 18075,  1.0,  kOrange+2);
 
         // --------
         // - data -
