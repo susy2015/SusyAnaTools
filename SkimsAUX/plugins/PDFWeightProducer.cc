@@ -138,7 +138,7 @@ void PDFWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       pdfset_internalIdNumber = i*1000;
       double lhaweight= 0.0;            
       int N_eigensets = LHAPDF::numberPDF(i);
-      for (int j = 1; j <= N_eigensets; j++){
+      for (int j = 0; j < N_eigensets; j++){
                   
          LHAPDF::usePDFMember(i,j);
          double xpdf1_new = LHAPDF::xfx(i, x1, q, id1);
