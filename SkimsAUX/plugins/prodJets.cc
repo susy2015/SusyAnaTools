@@ -306,15 +306,22 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     jetsLVec->push_back(perJetLVec);
 
 // Additional jec qualities
-    std::vector<std::string> availableJECLevels = jet.availableJECLevels();
+    std::vector<std::string> availableJECSets   = jet.availableJECSets();
+    std::vector<std::string> availableJECLevels = jet.availableJECLevels(jet.currentJECSet());
+    double scaleRawToFull = jet.jecFactor(jet.currentJECLevel(), "none", jet.currentJECSet())/jet.jecFactor("Uncorrected", "none", jet.currentJECSet());
+//    double scaleRawToFull = jet.jecFactor(availableJECLevels.back())/jet.jecFactor("Uncorrected");
+    recoJetsJecScaleRawToFull->push_back(scaleRawToFull);
     if( debug_ && ij==0 ){
-       std::cout<<"\nAvailable JEC levels:"<<std::endl;
+       std::cout<<"\nAvailable JEC sets:"<<"   current : "<<jet.currentJECSet().c_str()<<std::endl;
+       for(unsigned int ia=0; ia<availableJECSets.size(); ia++){
+          std::cout<<"ia : "<<ia<<"  --> "<<availableJECSets[ia].c_str()<<std::endl;
+       }
+       std::cout<<"\nAvailable JEC levels:"<<"   current : "<<jet.currentJECLevel().c_str()<<std::endl;
        for(unsigned int ia=0; ia<availableJECLevels.size(); ia++){
           std::cout<<"ia : "<<ia<<"  --> "<<availableJECLevels[ia].c_str()<<std::endl;
        }
+       std::cout<<"scaleRawToFull : "<<scaleRawToFull<<"  current : "<<jet.jecFactor(availableJECLevels.back())<<"  uncor : "<<jet.jecFactor("Uncorrected")<<std::endl;
     }
-    double scaleRawToFull = jet.jecFactor(availableJECLevels.back())/jet.jecFactor("Uncorrected");
-    recoJetsJecScaleRawToFull->push_back(scaleRawToFull);
 
 //get JEC unc for this jet, using corrected pT
     jecUnc->setJetEta(jet.eta());
