@@ -90,6 +90,14 @@ void NTupleReader::populateBranchList()
             if     (type.find("/D") != std::string::npos) registerBranch<double>(name);
             else if(type.find("/I") != std::string::npos) registerBranch<int>(name);
             else if(type.find("/i") != std::string::npos) registerBranch<unsigned int>(name);
+            else if(type.find("/F") != std::string::npos) registerBranch<float>(name);
+            else if(type.find("/C") != std::string::npos) registerBranch<char>(name);
+            else if(type.find("/c") != std::string::npos) registerBranch<unsigned char>(name);
+            else if(type.find("/S") != std::string::npos) registerBranch<short>(name);
+            else if(type.find("/s") != std::string::npos) registerBranch<unsigned short>(name);
+            else if(type.find("/O") != std::string::npos) registerBranch<bool>(name);
+            else if(type.find("/L") != std::string::npos) registerBranch<unsigned long>(name);
+            else if(type.find("/l") != std::string::npos) registerBranch<long>(name);
         }
     }
 }
@@ -160,6 +168,18 @@ const void* NTupleReader::getPtr(const std::string var) const
     throw "NTupleReader::getPtr(...): Variable not found: " + var;
 }
 
+const void* NTupleReader::getVecPtr(const std::string var) const
+{
+    //This function can be used to return the variable pointer
+
+    auto tuple_iter = branchVecMap_.find(var);
+    if(tuple_iter != branchVecMap_.end())
+    {
+        return tuple_iter->second;
+    }
+
+    throw "NTupleReader::getVecPtr(...): Variable not found: " + var;
+}
 
 void NTupleReader::printTupleMembers(FILE *f) const
 {

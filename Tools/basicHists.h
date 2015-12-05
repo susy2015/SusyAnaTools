@@ -84,11 +84,11 @@ void declHistPerSample(const std::string &sampleKeyString){
   TH1D * h1_leadJetPhi_loose = new TH1D(sampleKeyStringT+"_h1_leadJetPhi_loose", sampleKeyStringT+": leadJetPhi after loose; leadJetPhi", 100, -3.2, 3.2); h1_leadJetPhi_loose->Sumw2(); h1_leadJetPhi_looseVec.push_back((TH1D*)h1_leadJetPhi_loose->Clone());
   TH1D * h1_leadJetM_loose = new TH1D(sampleKeyStringT+"_h1_leadJetM_loose", sampleKeyStringT+": leadJetM after loose; leadJetM (GeV)", 100, 0, 250); h1_leadJetM_loose->Sumw2(); h1_leadJetM_looseVec.push_back((TH1D*)h1_leadJetM_loose->Clone());
 
-  TH1D * h1_muPt_loose = new TH1D(sampleKeyStringT+"_h1_muPt_loose", sampleKeyStringT+": muPt after loose; muPt (GeV)", 100, 0, 300); h1_muPt_loose->Sumw2(); h1_muPt_looseVec.push_back((TH1D*)h1_muPt_loose->Clone());
+  TH1D * h1_muPt_loose = new TH1D(sampleKeyStringT+"_h1_muPt_loose", sampleKeyStringT+": muPt after loose; muPt (GeV)", 100, 0, 500); h1_muPt_loose->Sumw2(); h1_muPt_looseVec.push_back((TH1D*)h1_muPt_loose->Clone());
   TH1D * h1_muEta_loose = new TH1D(sampleKeyStringT+"_h1_muEta_loose", sampleKeyStringT+": muEta after loose; muEta", 100, -5, 5); h1_muEta_loose->Sumw2(); h1_muEta_looseVec.push_back((TH1D*)h1_muEta_loose->Clone());
   TH1D * h1_muPhi_loose = new TH1D(sampleKeyStringT+"_h1_muPhi_loose", sampleKeyStringT+": muPhi after loose; muPhi", 100, -3.2, 3.2); h1_muPhi_loose->Sumw2(); h1_muPhi_looseVec.push_back((TH1D*)h1_muPhi_loose->Clone());
 
-  TH1D * h1_elePt_loose = new TH1D(sampleKeyStringT+"_h1_elePt_loose", sampleKeyStringT+": elePt after loose; elePt (GeV)", 100, 0, 300); h1_elePt_loose->Sumw2(); h1_elePt_looseVec.push_back((TH1D*)h1_elePt_loose->Clone());
+  TH1D * h1_elePt_loose = new TH1D(sampleKeyStringT+"_h1_elePt_loose", sampleKeyStringT+": elePt after loose; elePt (GeV)", 100, 0, 500); h1_elePt_loose->Sumw2(); h1_elePt_looseVec.push_back((TH1D*)h1_elePt_loose->Clone());
   TH1D * h1_eleEta_loose = new TH1D(sampleKeyStringT+"_h1_eleEta_loose", sampleKeyStringT+": eleEta after loose; eleEta", 100, -5, 5); h1_eleEta_loose->Sumw2(); h1_eleEta_looseVec.push_back((TH1D*)h1_eleEta_loose->Clone());
   TH1D * h1_elePhi_loose = new TH1D(sampleKeyStringT+"_h1_elePhi_loose", sampleKeyStringT+": elePhi after loose; elePhi", 100, -3.2, 3.2); h1_elePhi_loose->Sumw2(); h1_elePhi_looseVec.push_back((TH1D*)h1_elePhi_loose->Clone());
 
@@ -119,11 +119,11 @@ void declHistPerSample(const std::string &sampleKeyString){
   TH1D * h1_leadJetPhi_baseline = new TH1D(sampleKeyStringT+"_h1_leadJetPhi_baseline", sampleKeyStringT+": leadJetPhi after baseline; leadJetPhi", 100, -3.2, 3.2); h1_leadJetPhi_baseline->Sumw2(); h1_leadJetPhi_baselineVec.push_back((TH1D*)h1_leadJetPhi_baseline->Clone());
   TH1D * h1_leadJetM_baseline = new TH1D(sampleKeyStringT+"_h1_leadJetM_baseline", sampleKeyStringT+": leadJetM after baseline; leadJetM (GeV)", 100, 0, 250); h1_leadJetM_baseline->Sumw2(); h1_leadJetM_baselineVec.push_back((TH1D*)h1_leadJetM_baseline->Clone());
 
-  TH1D * h1_muPt_baseline = new TH1D(sampleKeyStringT+"_h1_muPt_baseline", sampleKeyStringT+": muPt after baseline; muPt (GeV)", 100, 0, 300); h1_muPt_baseline->Sumw2(); h1_muPt_baselineVec.push_back((TH1D*)h1_muPt_baseline->Clone());
+  TH1D * h1_muPt_baseline = new TH1D(sampleKeyStringT+"_h1_muPt_baseline", sampleKeyStringT+": muPt after baseline; muPt (GeV)", 100, 0, 500); h1_muPt_baseline->Sumw2(); h1_muPt_baselineVec.push_back((TH1D*)h1_muPt_baseline->Clone());
   TH1D * h1_muEta_baseline = new TH1D(sampleKeyStringT+"_h1_muEta_baseline", sampleKeyStringT+": muEta after baseline; muEta", 100, -5, 5); h1_muEta_baseline->Sumw2(); h1_muEta_baselineVec.push_back((TH1D*)h1_muEta_baseline->Clone());
   TH1D * h1_muPhi_baseline = new TH1D(sampleKeyStringT+"_h1_muPhi_baseline", sampleKeyStringT+": muPhi after baseline; muPhi", 100, -3.2, 3.2); h1_muPhi_baseline->Sumw2(); h1_muPhi_baselineVec.push_back((TH1D*)h1_muPhi_baseline->Clone());
 
-  TH1D * h1_elePt_baseline = new TH1D(sampleKeyStringT+"_h1_elePt_baseline", sampleKeyStringT+": elePt after baseline; elePt (GeV)", 100, 0, 300); h1_elePt_baseline->Sumw2(); h1_elePt_baselineVec.push_back((TH1D*)h1_elePt_baseline->Clone());
+  TH1D * h1_elePt_baseline = new TH1D(sampleKeyStringT+"_h1_elePt_baseline", sampleKeyStringT+": elePt after baseline; elePt (GeV)", 100, 0, 500); h1_elePt_baseline->Sumw2(); h1_elePt_baselineVec.push_back((TH1D*)h1_elePt_baseline->Clone());
   TH1D * h1_eleEta_baseline = new TH1D(sampleKeyStringT+"_h1_eleEta_baseline", sampleKeyStringT+": eleEta after baseline; eleEta", 100, -5, 5); h1_eleEta_baseline->Sumw2(); h1_eleEta_baselineVec.push_back((TH1D*)h1_eleEta_baseline->Clone());
   TH1D * h1_elePhi_baseline = new TH1D(sampleKeyStringT+"_h1_elePhi_baseline", sampleKeyStringT+": elePhi after baseline; elePhi", 100, -3.2, 3.2); h1_elePhi_baseline->Sumw2(); h1_elePhi_baselineVec.push_back((TH1D*)h1_elePhi_baseline->Clone());
 

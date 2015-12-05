@@ -5,8 +5,9 @@ SDIR       = .
 CXX        = g++
 
 CXXFLAGS  += -I. -std=c++0x 
+#CXXFLAGS  += -I$(LHAPDF_DATA_PATH)/../../include
 ## Optimization flag
-CXXFLAGS += -O3
+CXXFLAGS += -g
 ## Enable the maximun warning
 #CXXFLAGS += -Wall -Wextra -Weffc++ -g
 
@@ -32,6 +33,7 @@ endif
 
 
 
+LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
 PROGRAMS = tupleTest nEvts basicCheck makeCombPlots
 
@@ -64,8 +66,11 @@ $(ODIR)/%.o : $(SDIR)/%.cc
 
 tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o 
 	$(LD) $^ $(LIBS) -o $@
+	
+#tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/PDFUncertainty.o $(ODIR)/tupleReadTest.o 
+	#$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
-nEvts: $(ODIR)/samples.o $(ODIR)/nEvts.o
+nEvts: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/nEvts.o
 	$(LD) $^ $(LIBS) -o $@
 
 basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/customize.o $(ODIR)/baselineDef.o $(ODIR)/searchBins.o
