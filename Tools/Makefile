@@ -5,7 +5,7 @@ SDIR       = .
 CXX        = g++
 
 CXXFLAGS  += -I. -std=c++0x 
-#CXXFLAGS  += -I$(LHAPDF_DATA_PATH)/../../include
+CXXFLAGS  += -I$(LHAPDF_INCLUDE)
 ## Optimization flag
 CXXFLAGS += -g
 ## Enable the maximun warning
@@ -33,9 +33,9 @@ endif
 
 
 
-LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
+LHAPDFLIB  = -L$(LHAPDF_LIBDIR) -lLHAPDF
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
-PROGRAMS = tupleTest nEvts basicCheck makeCombPlots
+PROGRAMS = tupleTest nEvts makeCombPlots
 
 FILES = $(wildcard *.cc)
 OBJS  := $(FILES:%.cc=$(ODIR)/%.o)
@@ -73,8 +73,8 @@ tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o
 nEvts: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/nEvts.o
 	$(LD) $^ $(LIBS) -o $@
 
-basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/customize.o $(ODIR)/baselineDef.o $(ODIR)/searchBins.o
-	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+#basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/customize.o $(ODIR)/baselineDef.o $(ODIR)/searchBins.o
+	#$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
