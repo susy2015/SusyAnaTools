@@ -46,9 +46,9 @@ void drawOverFlowBin(TH1 *histToAdjust){
    histToAdjust->SetBinContent(nbins, overflow+lastCont);
 }
 
-std::vector<std::string> todraw_h1_keyStrVec = {"nJets", "nbJets", "nTops", "met", "metphi", "HT", "MT2", "vtxSize", "allJetPt", "allJetM", "leadJetPt", "leadJetM", "topMass"};
-std::vector<int>         todraw_h1_rebinVec  = {      1,        1,       1,    5,        5,     5,     5,         1,          5,         5,           5,          5,         5};
-std::vector<std::string> todraw_h1_xLabelVec = {"N_{jets}", "N_{b}", "N_{t}", "E_{T}^{miss} (GeV)", "#phi_{E_{T}^{miss}}", "H_{T} (GeV)", "M_{T2} (GeV)", "N_{vtx}", "P_{T}(all jets) (GeV)", "M(all jets) (GeV)", "P_{T}(lead jet) (GeV)", "M(lead jet) (GeV)", "M(top) (GeV)"};
+std::vector<std::string> todraw_h1_keyStrVec = {"nJets", "nbJets", "nTops", "met", "metphi", "HT", "MT2", "vtxSize", "allJetPt", "allJetM", "leadJetPt", "leadJetM", "topMass", "muPt", "dphi1", "dphi2", "dphi3"};
+std::vector<int>         todraw_h1_rebinVec  = {      1,        1,       1,    5,        5,     5,     5,         1,          5,         5,           5,          5,         5,      5,       1,       1,       1};
+std::vector<std::string> todraw_h1_xLabelVec = {"N_{jets}", "N_{b}", "N_{t}", "E_{T}^{miss} (GeV)", "#phi_{E_{T}^{miss}}", "H_{T} (GeV)", "M_{T2} (GeV)", "N_{vtx}", "P_{T}(all jets) (GeV)", "M(all jets) (GeV)", "P_{T}(lead jet) (GeV)", "M(lead jet) (GeV)", "M(top) (GeV)", "P_{T}(#mu)", "#Delta#phi(j_{1}, E_{T}^{miss})", "#Delta#phi(j_{2}, E_{T}^{miss})", "#Delta#phi(j_{3}, E_{T}^{miss})"};
 
 std::vector<std::vector<TH1D*> > cached_h1Vec(todraw_h1_keyStrVec.size());
 std::vector<std::string> cached_sampleStrVec;
@@ -59,7 +59,8 @@ void makeCombPlots(const std::string cutLev="baseline"){
 
    double dataLumi = 0;
 
-   for(const auto & file : allCollections["Data_HTMHT"]) dataLumi += file.lumi;
+//   for(const auto & file : allCollections["Data_HTMHT"]) dataLumi += file.lumi;
+   for(const auto & file : allCollections["Data_SingleMuon"]) dataLumi += file.lumi;
    double scaleMCtoData = dataLumi/AnaSamples::luminosity;
    std::cout<<"\ndataLumi : "<<dataLumi<<"  mc assumed lumi : "<<AnaSamples::luminosity<<"  scaleMCtoData : "<<scaleMCtoData<<std::endl<<std::endl;
 
@@ -125,7 +126,34 @@ void makeCombPlots(const std::string cutLev="baseline"){
       std::string hfullname = tW_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
       cached_h1Vec[is].push_back((TH1D*)tW_file->Get(hfullname.c_str()));
    }
+
+   TFile * Diboson_file = new TFile("basicCheck_Diboson.root");
+   TH1D * Diboson_h1_keyString = (TH1D*) Diboson_file->Get("h1_keyString"); Diboson_h1_keyString->LabelsDeflate();
+   std::string Diboson_sampleKey = Diboson_h1_keyString->GetXaxis()->GetBinLabel(1); int Diboson_color = allCollections[Diboson_sampleKey].front().color;
+   cached_sampleStrVec.push_back(Diboson_sampleKey); cached_sampleColorVec.push_back(Diboson_color);
+   for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
+      std::string hfullname = Diboson_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
+      cached_h1Vec[is].push_back((TH1D*)Diboson_file->Get(hfullname.c_str()));
+   }
     
+   TFile * Triboson_file = new TFile("basicCheck_Triboson.root");
+   TH1D * Triboson_h1_keyString = (TH1D*) Triboson_file->Get("h1_keyString"); Triboson_h1_keyString->LabelsDeflate();
+   std::string Triboson_sampleKey = Triboson_h1_keyString->GetXaxis()->GetBinLabel(1); int Triboson_color = allCollections[Triboson_sampleKey].front().color;
+   cached_sampleStrVec.push_back(Triboson_sampleKey); cached_sampleColorVec.push_back(Triboson_color);
+   for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
+      std::string hfullname = Triboson_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
+      cached_h1Vec[is].push_back((TH1D*)Triboson_file->Get(hfullname.c_str()));
+   }
+/*
+   TFile * TTX_file = new TFile("basicCheck_TTX.root");
+   TH1D * TTX_h1_keyString = (TH1D*) TTX_file->Get("h1_keyString"); TTX_h1_keyString->LabelsDeflate();
+   std::string TTX_sampleKey = TTX_h1_keyString->GetXaxis()->GetBinLabel(1); int TTX_color = (int)TTX_h1_keyString->GetBinContent(1);
+   cached_sampleStrVec.push_back(TTX_sampleKey); cached_sampleColorVec.push_back(TTX_color);
+   for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
+      std::string hfullname = TTX_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
+      cached_h1Vec[is].push_back((TH1D*)TTX_file->Get(hfullname.c_str()));
+   }
+*/
    TFile * Data_HTMHT25ns_file = new TFile("basicCheck_Data_HTMHT.root");
    TH1D * Data_HTMHT25ns_h1_keyString = (TH1D*) Data_HTMHT25ns_file->Get("h1_keyString"); Data_HTMHT25ns_h1_keyString->LabelsDeflate();
    std::string Data_HTMHT25ns_sampleKey = Data_HTMHT25ns_h1_keyString->GetXaxis()->GetBinLabel(1); int Data_HTMHT25ns_color = (int)Data_HTMHT25ns_h1_keyString->GetBinContent(1);
@@ -239,6 +267,9 @@ void makeCombPlots(const std::string cutLev="baseline"){
       pad1->Draw();             // Draw the upper pad: pad1                                                        
       pad1->cd();
 
+      if( todraw_h1_keyStrVec[ip] == "met" || todraw_h1_keyStrVec[ip] == "HT" || todraw_h1_keyStrVec[ip] == "allJetPt" || todraw_h1_keyStrVec[ip] == "leadJetPt" || todraw_h1_keyStrVec[ip] == "muPt" ) pad1->SetLogy();
+      else pad1->SetLogy(0);
+
       THStack * hs_sum_SM = new THStack("hs", "");
       TH1D * tmp_data = 0;
       for(unsigned int is=0; is<cached_h1Vec[ip].size(); is++){
@@ -263,6 +294,7 @@ void makeCombPlots(const std::string cutLev="baseline"){
       if( todraw_h1_keyStrVec[ip] == "HT" ) tmp_data->GetXaxis()->SetRangeUser(400, tmp_data->GetXaxis()->GetXmax());
       if( todraw_h1_keyStrVec[ip] == "topMass" ) tmp_data->GetXaxis()->SetRangeUser(50, tmp_data->GetXaxis()->GetXmax());
       tmp_data->Draw("");
+      tmp_data->SetMaximum(tmp_data->GetMaximum()*1.5);
 
       hs_sum_SM->Draw("hist same");
       hs_sum_SM->SetMaximum(hs_sum_SM->GetMaximum()*1.5);
@@ -270,6 +302,8 @@ void makeCombPlots(const std::string cutLev="baseline"){
       if( todraw_h1_keyStrVec[ip] == "topMass" ) hs_sum_SM->GetXaxis()->SetRangeUser(50, hs_sum_SM->GetXaxis()->GetXmax());
 
       tmp_data->Draw("same");
+
+      pad1->RedrawAxis();
 
       catLeg1->SetFillColor(kWhite);
       catLeg1->SetBorderSize(0);
@@ -283,7 +317,7 @@ void makeCombPlots(const std::string cutLev="baseline"){
       TPad *pad2 = new TPad("pad2", "pad2", 0, 0.03, 1, 0.30);
       pad2->SetTopMargin(0);
       pad2->SetBottomMargin(0.30);
-      //       pad2->SetGridx(); // vertical grid                                                                          
+      pad2->SetGridy();
       pad2->Draw();
       pad2->cd();       // pad2 becomes the current pad                                                           
       TF1 * fline = new TF1("line", "pol0", h1_ratio->GetBinLowEdge(1), h1_ratio->GetBinLowEdge(h1_ratio->GetNbinsX()) + h1_ratio->GetBinWidth(h1_ratio->GetNbinsX()));

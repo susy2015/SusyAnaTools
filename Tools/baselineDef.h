@@ -231,9 +231,9 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
     {
         try
         {
-            int vtxSize = tr.getVar<int>("vtxSize");
-            int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
+//            int vtxSize = tr.getVar<int>("vtxSize");
             //int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
+/*
             bool beamHaloFilter = true;
             if(filter.Initialized()) 
             {
@@ -242,12 +242,20 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
                 const unsigned int& event = tr.getVar<unsigned int>("event");
                 beamHaloFilter = filter.CheckEvent(run, lumi, event);
             }
+*/
+            int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
+            int CSCTightHaloListFilter = tr.getVar<int>("CSCTightHaloListFilter");
+            int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
+            int eeBadScListFilter = tr.getVar<int>("eeBadScListFilter");
+            bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
+            bool hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
             int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
-            int hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
-            int hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
+
+            int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
 
             //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
-            return (vtxSize>=1) && beamHaloFilter && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
+//            return (vtxSize>=1) && beamHaloFilter && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
+            return goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
         }
         catch (std::string var)
         {
