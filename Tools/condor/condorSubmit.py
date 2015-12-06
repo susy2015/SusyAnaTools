@@ -10,7 +10,7 @@ Executable = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goMakePlots.sh
 Requirements = OpSys == "LINUX"&& (Arch != "DUMMY" )
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/basicCheck, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goMakePlots.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so, $ENV(PWD)/csc_evtlist.txt 
+Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/basicCheck, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goMakePlots.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so
 Output = logs/basicCheck_$(Process).stdout
 Error = logs/basicCheck_$(Process).stderr
 Log = logs/basicCheck_$(Process).log
