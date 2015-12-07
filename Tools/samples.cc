@@ -48,6 +48,12 @@ namespace AnaSamples
 //        std::string MCloc = "Spring15_74X_Oct_2015_Ntp_v2X/";
         std::string MCloc = "Spring15_74X_Nov_2015_Ntp_v3X/";
 
+        if(fDir.compare("condor") == 0)
+        {
+            fDir = "";
+            MCloc = "";
+        }
+
         //TTbar samples
         // TTbarInc has LO xsec on McM : 502.20 pb. The NNLO is 831.76 pb. The k-factor for ttbar is: kt = 831.76/502.20 ~ 1.656233
         sampleSet_["TTbarInc"]  = FileSummary(fDir_ + MCloc + "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 831.76,  lumi, 11344206, 1.0, kGreen);
