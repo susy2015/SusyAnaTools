@@ -5,11 +5,10 @@
 #include "TObjArray.h"
 #include "TLeaf.h"
 
-#include <iostream>
-
 NTupleReader::NTupleReader(TTree * tree, std::set<std::string>& activeBranches) : activeBranches_(activeBranches)
 {
     tree_ = tree;
+    if(!tree_) throw "NTupleReader(...): TTree " + std::string(tree_->GetName()) + " is invalid!!!!";
     init();
 }
 
@@ -25,6 +24,7 @@ void NTupleReader::init()
     //gInterpreter->GenerateDictionary("vector<TLorentzVector>","TLorentzVector.h;vector");
 
     nEvtTotal_ = tree_->GetEntries();
+    if(nEvtTotal_) throw "NTupleReader::init(): TTree " + std::string(tree_->GetName()) + " has 0 events!!!!";
     nevt_ = 0;
     isUpdateDisabled_ = false;
     isFirstEvent_ = true;
