@@ -54,6 +54,8 @@ bool find_mother(int momIdx, int dauIdx, const std::vector<int> &genDecayIdxVec,
 int find_idx(int genIdx, const std::vector<int> &genDecayIdxVec);
 double calcMT(const TLorentzVector &objLVec, const TLorentzVector &metLVec);
 
+const AnaConsts::IsoAccRec hadtau_muonsMiniIsoArr = {   -1,       2.4,      20,     -1,       0.2,     -1  };
+
 void drawOverFlowBin(TH1 *histToAdjust){
    int nbins = histToAdjust->GetXaxis()->GetNbins();
    double overflow = histToAdjust->GetBinContent(nbins+1);
@@ -169,13 +171,13 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            bool foundTrigger = false;
            for(unsigned it=0; it<TriggerNames.size(); it++){
               if( keyStringT.Contains("HTMHT") ){
-                 if( TriggerNames[it].find("HLT_PFHT350_PFMET100_JetIdCleaned_v") || TriggerNames[it].find("HLT_PFHT350_PFMET100_NoiseCleaned_v") ){
+                 if( TriggerNames[it].find("HLT_PFHT350_PFMET100_JetIdCleaned_v") || TriggerNames[it].find("HLT_PFHT350_PFMET100_NoiseCleaned_v") || TriggerNames[it].find("HLT_PFHT350_PFMET100_v*") ){
                     if( PassTrigger[it] ) foundTrigger = true;
                  }
               }
               if( keyStringT.Contains("SingleMuon") ){
-//                 if( TriggerNames[it].find("HLT_Mu15_IsoVVVL_PFHT350_v") ){
-                 if( TriggerNames[it].find("HLT_Mu45_eta2p1_v") ){
+                 if( TriggerNames[it].find("HLT_Mu15_IsoVVVL_PFHT350_v") ){
+//                 if( TriggerNames[it].find("HLT_Mu45_eta2p1_v") ){
                     if( PassTrigger[it] ) foundTrigger = true;
                  }
               }
@@ -185,26 +187,26 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 
         if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
 
-//        if( !passnJets ) continue; h1_cutFlowVec.back()->Fill("passnJets", evtWeight * scaleMC);
+        if( !passnJets ) continue; h1_cutFlowVec.back()->Fill("passnJets", evtWeight * scaleMC);
 
-//        if( !passMuonVeto ) continue; h1_cutFlowVec.back()->Fill("passMuonVeto", evtWeight * scaleMC);
+        if( !passMuonVeto ) continue; h1_cutFlowVec.back()->Fill("passMuonVeto", evtWeight * scaleMC);
         if( !passEleVeto ) continue; h1_cutFlowVec.back()->Fill("passEleVeto", evtWeight * scaleMC);
-//        if( !passIsoTrkVeto ) continue; h1_cutFlowVec.back()->Fill("passIsoTrkVeto", evtWeight * scaleMC);
+        if( !passIsoTrkVeto ) continue; h1_cutFlowVec.back()->Fill("passIsoTrkVeto", evtWeight * scaleMC);
 
         int cntMuons = 0;
         std::vector<int> selMuonIdxVec;
         for(unsigned int im=0; im<muonsLVec.size(); im++){
-           if( !AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), AnaConsts::muonsMiniIsoArr) ) continue;
+//           if( !AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), AnaConsts::muonsMiniIsoArr) ) continue;
+           if( !AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), hadtau_muonsMiniIsoArr) ) continue;
            cntMuons ++;
            selMuonIdxVec.push_back(im);
         }
-        if( cntMuons != 1 ) continue;
-
+//        if( cntMuons != 1 ) continue;
 
 // Fill histograms with looser requirement -> trigger req. for data...
-//        if( passHT && passMET && passBJets ){
+        if( passHT && passMET ){
 //        if( passHT && nJets >=3 ){
-        if( passHT ){
+//        if( passHT ){
            h1_nJets_looseVec.back()->Fill(nJets, evtWeight * scaleMC);
            h1_nTops_looseVec.back()->Fill(nTops, evtWeight * scaleMC);
            h1_nbJets_looseVec.back()->Fill(nbJets, evtWeight * scaleMC);
@@ -319,6 +321,9 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            h1_eleEta_baselineVec.back()->Fill(elesLVec.at(ie).Eta(), evtWeight * scaleMC);
            h1_elePhi_baselineVec.back()->Fill(elesLVec.at(ie).Phi(), evtWeight * scaleMC);
         }
+ 
+        int searchBinIdx = find_Binning_Index(nbJets, nTops, MT2, met);
+        h1_searchBinYieldsVec.back()->Fill(searchBinIdx, evtWeight * scaleMC);
 
         double copymet = met, copyMT2 = MT2;
 
@@ -362,7 +367,8 @@ void basicCheck(int argc, char *argv[]){
 
    NTupleReader *tr = 0;
 
-   SRblv = new BaselineVessel(spec, "csc_evtlist.txt");
+//   SRblv = new BaselineVessel(spec, "csc_evtlist.txt");
+   SRblv = new BaselineVessel(spec);
 
    int startfile = 0, filerun = -1;
 
@@ -446,10 +452,11 @@ void basicCheck(int argc, char *argv[]){
          }
 
 // Throw away low HT bin samples since we have HT>500 GeV cut...
+/*
          if(filelist.first == "WJetsToLNu" && (perSubStr == "WJetsToLNu_HT_100to200" || perSubStr == "WJetsToLNu_HT_200to400") ) continue;
          if(filelist.first == "ZJetsToNuNu" && (perSubStr == "ZJetsToNuNu_HT_100to200" || perSubStr == "ZJetsToNuNu_HT_200to400") ) continue;
          if(filelist.first == "QCD" && (perSubStr == "QCD_HT100to200" || perSubStr == "QCD_HT200to300" || perSubStr == "QCD_HT300to500") ) continue;
-
+*/
          std::cout<<"  "<<perSubStr.c_str();
 
          TChain *aux = new TChain(file.treePath.c_str());  
@@ -536,6 +543,8 @@ void basicCheck(int argc, char *argv[]){
    draw1DallINone(cs, divW*divH, h1_cutFlowVec, 1, "text e"); cs->Print(pdfNameStrT);
    draw1DallINone(cs, divW*divH, h1_cutFlow_auxVec, 1, "text e"); cs->Print(pdfNameStrT);
 
+   draw1DallINone(cs, divW*divH, h1_searchBinYieldsVec, 1, "text e"); cs->Print(pdfNameStrT);
+
    for(unsigned int ic=0; ic<h2_evtCnt_nbJets_vs_nTopsVec.size(); ic++){ h2_evtCnt_nbJets_vs_nTopsVec[ic]->SetMarkerSize(h2_evtCnt_nbJets_vs_nTopsVec[ic]->GetMarkerSize()*2.0); }
    draw2DallINone(cs, divW*divH, h2_evtCnt_nbJets_vs_nTopsVec, "colz text e"); cs->Print(pdfNameStrT);
 
@@ -578,6 +587,8 @@ void basicCheck(int argc, char *argv[]){
       h1_leadJetPt_baselineVec[ih]->Write(); h1_leadJetEta_baselineVec[ih]->Write(); h1_leadJetPhi_baselineVec[ih]->Write(); h1_leadJetM_baselineVec[ih]->Write();
       h1_muPt_baselineVec[ih]->Write(); h1_muEta_baselineVec[ih]->Write(); h1_muPhi_baselineVec[ih]->Write();
       h1_elePt_baselineVec[ih]->Write(); h1_eleEta_baselineVec[ih]->Write(); h1_elePhi_baselineVec[ih]->Write();
+
+      h1_searchBinYieldsVec[ih]->Write();
    }
    basicCheckFile->Write(); basicCheckFile->Close();
 
