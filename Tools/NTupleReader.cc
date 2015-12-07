@@ -24,7 +24,7 @@ void NTupleReader::init()
     //gInterpreter->GenerateDictionary("vector<TLorentzVector>","TLorentzVector.h;vector");
 
     nEvtTotal_ = tree_->GetEntries();
-    if(nEvtTotal_) throw "NTupleReader::init(): TTree " + std::string(tree_->GetName()) + " has 0 events!!!!";
+    if(nEvtTotal_ <= 0) throw "NTupleReader::init(): TTree " + std::string(tree_->GetName()) + " has 0 events!!!!";
     nevt_ = 0;
     isUpdateDisabled_ = false;
     isFirstEvent_ = true;
