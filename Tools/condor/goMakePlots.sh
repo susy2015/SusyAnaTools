@@ -8,5 +8,6 @@ eval `scramv1 runtime -sh`
 
 cd ${_CONDOR_SCRATCH_DIR}
 
+xrdcp root://cmseos.fnal.gov/$(echo $6 | sed 's|/eos/uscms||') .
 
-./basicCheck $1 0 $3 $4
+./basicCheck $1 0 $3 $4 "condor"

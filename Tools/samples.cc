@@ -51,8 +51,9 @@ namespace AnaSamples
 
         if(fDir.compare("condor") == 0)
         {
-            fDir = "";
+            fDir_ = "";
             MCloc = "";
+            DATAloc = "";
         }
 
         //TTbar samples
@@ -165,25 +166,25 @@ namespace AnaSamples
         // - data -
         // --------
 	
-	sampleSet_["Data_SingleMuon_2015C"] = FileSummary(fDir_ + DATAloc + "SingleMuon/Spring15_74X_Dec_2015_Ntp_v4p0_SingleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
-	sampleSet_["Data_SingleMuon_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "SingleMuon/Spring15_74X_Dec_2015_Ntp_v4p0_SingleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
-	sampleSet_["Data_SingleMuon_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "SingleMuon/Spring15_74X_Dec_2015_Ntp_v4p0_SingleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1561.93, 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_SingleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_SingleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_SingleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1561.93, 1.0,  kBlack);
 
-//	sampleSet_["Data_SingleElectron_2015C"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Nov_2015_Ntp_v3p1_SingleElectron-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 16.345, 1.0,  kBlack);
-//	sampleSet_["Data_SingleElectron_2015D_05Oct2015"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Nov_2015_Ntp_v3p1_SingleElectron-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 552.67, 1.0,  kBlack);
-//	sampleSet_["Data_SingleElectron_2015D_PromptReco"] = FileSummary(fDir_ + MCloc + "SingleElectron/Spring15_74X_Nov_2015_Ntp_v3p1_SingleElectron-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 993.25, 1.0,  kBlack);
+//	sampleSet_["Data_SingleElectron_2015C"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_SingleElectron-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 16.345, 1.0,  kBlack);
+//	sampleSet_["Data_SingleElectron_2015D_05Oct2015"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_SingleElectron-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 552.67, 1.0,  kBlack);
+//	sampleSet_["Data_SingleElectron_2015D_PromptReco"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_SingleElectron-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 993.25, 1.0,  kBlack);
 
-//	sampleSet_["Data_DoubleMuon_2015C"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Nov_2015_Ntp_v3p1_DoubleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 16.345, 1.0,  kBlack);
-//	sampleSet_["Data_DoubleMuon_2015D_05Oct2015"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Nov_2015_Ntp_v3p1_DoubleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 552.67, 1.0,  kBlack);
-//	sampleSet_["Data_DoubleMuon_2015D_PromptReco"] = FileSummary(fDir_ + MCloc + "DoubleMuon/Spring15_74X_Nov_2015_Ntp_v3p1_DoubleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 993.72, 1.0,  kBlack);
+//	sampleSet_["Data_DoubleMuon_2015C"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_DoubleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 16.345, 1.0,  kBlack);
+//	sampleSet_["Data_DoubleMuon_2015D_05Oct2015"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_DoubleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 552.67, 1.0,  kBlack);
+//	sampleSet_["Data_DoubleMuon_2015D_PromptReco"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_DoubleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 993.72, 1.0,  kBlack);
 
-	sampleSet_["Data_DoubleEG_2015C"] = FileSummary(fDir_ + DATAloc + "DoubleEG/Spring15_74X_Dec_2015_Ntp_v4p0_DoubleEG-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
-	sampleSet_["Data_DoubleEG_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "DoubleEG/Spring15_74X_Dec_2015_Ntp_v4p0_DoubleEG-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
-	sampleSet_["Data_DoubleEG_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "DoubleEG/Spring15_74X_Dec_2015_Ntp_v4p0_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1562.18, 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_DoubleEG-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_DoubleEG-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1562.18, 1.0,  kBlack);
 
-	sampleSet_["Data_HTMHT_2015C"] = FileSummary(fDir_ + DATAloc + "HTMHT/Spring15_74X_Dec_2015_Ntp_v4p0_HTMHT-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
-	sampleSet_["Data_HTMHT_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "HTMHT/Spring15_74X_Dec_2015_Ntp_v4p0_HTMHT-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 574.23, 1.0,  kBlack);
-	sampleSet_["Data_HTMHT_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "HTMHT/Spring15_74X_Dec_2015_Ntp_v4p0_HTMHT-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1562.28, 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_HTMHT-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_HTMHT-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 574.23, 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_HTMHT-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1562.28, 1.0,  kBlack);
 
         // ----------
 	// - signal -
