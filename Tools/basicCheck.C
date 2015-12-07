@@ -32,9 +32,6 @@ void mypassBaselineFunc(NTupleReader &tr){
    (*SRblv)(tr);
 }
 
-AnaSamples::SampleSet        allSamples;
-AnaSamples::SampleCollection allCollections(allSamples);
-
 // 0 is used to set to process all events
 int entryToProcess = -1;
 
@@ -63,7 +60,10 @@ void drawOverFlowBin(TH1 *histToAdjust){
    histToAdjust->SetBinContent(nbins, overflow+lastCont);
 }
 
-void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString="ttbar", int verbose=0){
+void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString,
+  const AnaSamples::SampleSet  & allSamples,
+  const AnaSamples::SampleCollection & allCollections){
+
   TString sampleKeyStringT(sampleKeyString);
 
   std::vector<AnaSamples::FileSummary> fs = allCollections[sampleKeyString];
@@ -394,6 +394,14 @@ void basicCheck(int argc, char *argv[]){
       }
    }
 
+   std::string condorSpec;
+   if( argc >=6 ){
+      condorSpec = argv[5];
+   }
+
+   AnaSamples::SampleSet        allSamples = condorSpec.empty()? AnaSamples::SampleSet():AnaSamples::SampleSet(condorSpec);
+   AnaSamples::SampleCollection allCollections(allSamples);
+
    std::stringstream ssSelKey(selKeyStr);
 
    std::string buf;
@@ -467,7 +475,7 @@ void basicCheck(int argc, char *argv[]){
       }
       std::cout<<std::endl;
       
-      if( !treeVec.empty() ) anaFunc(tr, treeVec, subSampleKeysVec, filelist.first.c_str());
+      if( !treeVec.empty() ) anaFunc(tr, treeVec, subSampleKeysVec, filelist.first.c_str(), allSamples, allCollections);
 
       std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
    }  
@@ -543,7 +551,7 @@ void basicCheck(int argc, char *argv[]){
    draw1DallINone(cs, divW*divH, h1_cutFlowVec, 1, "text e"); cs->Print(pdfNameStrT);
    draw1DallINone(cs, divW*divH, h1_cutFlow_auxVec, 1, "text e"); cs->Print(pdfNameStrT);
 
-   draw1DallINone(cs, divW*divH, h1_searchBinYieldsVec, 1, "text e"); cs->Print(pdfNameStrT);
+   draw1DallINone(cs, divW*divH, h1_searchBinYieldsVec, 1, "hist text e"); cs->Print(pdfNameStrT);
 
    for(unsigned int ic=0; ic<h2_evtCnt_nbJets_vs_nTopsVec.size(); ic++){ h2_evtCnt_nbJets_vs_nTopsVec[ic]->SetMarkerSize(h2_evtCnt_nbJets_vs_nTopsVec[ic]->GetMarkerSize()*2.0); }
    draw2DallINone(cs, divW*divH, h2_evtCnt_nbJets_vs_nTopsVec, "colz text e"); cs->Print(pdfNameStrT);
