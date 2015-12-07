@@ -243,10 +243,15 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
                 beamHaloFilter = filter.CheckEvent(run, lumi, event);
             }
 */
-            int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
-            int CSCTightHaloListFilter = tr.getVar<int>("CSCTightHaloListFilter");
-            int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
-            int eeBadScListFilter = tr.getVar<int>("eeBadScListFilter");
+            bool passDataSpec = true;
+            if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
+               int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
+               int CSCTightHaloListFilter = tr.getVar<int>("CSCTightHaloListFilter");
+               int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
+               int eeBadScListFilter = tr.getVar<int>("eeBadScListFilter");
+               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
+            }
+
             bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
             bool hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
             int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
@@ -255,7 +260,8 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
 
             //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
 //            return (vtxSize>=1) && beamHaloFilter && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
-            return goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
+//            return goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
+            return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
         }
         catch (std::string var)
         {
