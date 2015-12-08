@@ -275,27 +275,34 @@ bool BaselineVessel::GetnTops(NTupleReader *tr) const
 
 
 bool BaselineVessel::passNoiseEventFilterFunc(NTupleReader &tr){
-  try
-  {
-    int vtxSize = tr.getVar<int>("vtxSize");
-    int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
-    //        int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
-    bool beamHaloFilter = tr.getVar<int>("CSCbeamHaloFilter");
-    int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
-    int hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
-    int hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
-
-    return (vtxSize>=1) && beamHaloFilter && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
-  }
-  catch (std::string var)
-  {
-    if(tr.IsFirstEvent()) 
+    try
     {
-      printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
-      printf("Running with PHYS14 Config\n");
+
+        bool passDataSpec = true;
+        if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
+            int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
+            int CSCTightHaloListFilter = tr.getVar<int>("CSCTightHaloListFilter");
+            int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
+            int eeBadScListFilter = tr.getVar<int>("eeBadScListFilter");
+            passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
+        }
+
+        bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
+        bool hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
+        int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
+
+        int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
+        return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
     }
-  }
-  return true;
+    catch (std::string var)
+    {
+        if(tr.IsFirstEvent()) 
+        {
+            printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
+            printf("Running with PHYS14 Config\n");
+        }
+    }
+    return true;
 }
 
 void stopFunctions::CleanJets::setMuonIso(const std::string muIsoFlag) 
