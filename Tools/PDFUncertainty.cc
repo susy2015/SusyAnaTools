@@ -16,7 +16,7 @@
 
 PDFUncertainty::PDFUncertainty()
 {
-        //ctor
+
         //Initialize all pdf sets
         for(int in = 0; in < 53; in++){
 
@@ -74,7 +74,7 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 	double lowerBound = *smallest1;
 
 
-
+	//This Part for calculating PDF Uncertainty
         //Vector to be stored.
         std::vector<double> *pdfweights = new std::vector<double>();
         std::vector<int> *pdfids = new std::vector<int>();
