@@ -12,6 +12,8 @@
 #include <iomanip>
 #include <cmath>
 
+#include "TH1.h"
+
 PDFUncertainty::PDFUncertainty()
 {
         //ctor
@@ -50,6 +52,26 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
         const int id1    =   tr.getVar<int>("id1");
         const int id2    =   tr.getVar<int>("id2");
 
+	//For Scale Variations
+	std::vector<double> *ScaleWeights = new std::vector<double>();
+        /*                                                                                                                         
+          Compute the envelope of your observable for weight                                                                       
+          indices 1,2,3,4,6,8 (index 0 corresponds to nominal                                                                      
+          scale, indices 5 and 7 correspond  anti-correlated                                                                       
+          variations).                                                                                                             
+	*/
+        (*ScaleWeights).push_back(ScaleWeightsMiniAOD.at(1));
+        (*ScaleWeights).push_back(ScaleWeightsMiniAOD.at(2));
+        (*ScaleWeights).push_back(ScaleWeightsMiniAOD.at(3));
+        (*ScaleWeights).push_back(ScaleWeightsMiniAOD.at(4));
+        (*ScaleWeights).push_back(ScaleWeightsMiniAOD.at(6));
+        (*ScaleWeights).push_back(ScaleWeightsMiniAOD.at(8));
+
+	auto biggest1 = std::max_element(std::begin(*ScaleWeights), std::end(*ScaleWeights));
+        auto smallest1 = std::min_element(std::begin(*ScaleWeights), std::end(*ScaleWeights));
+
+        double upperBound = *biggest1;
+	double lowerBound = *smallest1;
 
 
 
@@ -134,11 +156,21 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
             wgh_MMHT2014[im] = -1.0;
             if((*pdfids).at(im+53) > 2000 && (*pdfids).at(im+53) < 2060)  wgh_MMHT2014[im] = (*pdfweights).at(im+53);
         }
+
+
         //*************************
         for(int in =0; in < 101; in++){
             wgh_NNPDF[in] = 0.0;
             if((*pdfids).at(in+104) > 2999) wgh_NNPDF[in] = (*pdfweights).at(in +104);
+
         }
+
+
+	//********************************************************** 
+       
+
+
+
         //**************************
 
         //PDF 1 CT10 ....
@@ -172,6 +204,9 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
         tr.registerDerivedVar("PDF_Unc_Up", pdf_unc_up);
         tr.registerDerivedVar("PDF_Unc_Down", pdf_unc_down);
 
+	//For Scale Variations
+	tr.registerDerivedVar("Scaled_Variations_Up",upperBound);
+	tr.registerDerivedVar("Scaled_Variations_Down",lowerBound);
 }
 
 void PDFUncertainty::operator()(NTupleReader& tr)
@@ -179,3 +214,5 @@ void PDFUncertainty::operator()(NTupleReader& tr)
   //
     getPDFUncertainty(tr);
 }
+
+
