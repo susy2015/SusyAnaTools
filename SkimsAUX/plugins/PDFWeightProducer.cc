@@ -86,63 +86,113 @@ PDFWeightProducer::~PDFWeightProducer()
 
 void PDFWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //  std::cout<<"Running PDFWeightProducer"<<std::endl;
- 
-  using namespace edm;
-
-  edm::Handle<GenEventInfoProduct> GenInfo;
-  iEvent.getByLabel("generator",GenInfo);
-
-  std::vector<double> pdfweights;
-  std::vector<int> pdfids;
-  pdfweights.clear();
-  pdfids.clear();
-
-  // pdf inputs  
-  double q = GenInfo->pdf()->scalePDF;
-  int id1 = GenInfo->pdf()->id.first;
-  int id2 = GenInfo->pdf()->id.second;
-  double x1 = GenInfo->pdf()->x.first;
-  double x2 = GenInfo->pdf()->x.second;
-
-  // weirdo LHA conventions, gluons are 0
-  if (id1 == 21) id1 = 0;
-  if (id2 == 21) id2 = 0;
- 
-  int N_pdfsets = 1; // hard-coded for now...
-  int pdfset_internalIdNumber = -99;
-  int pdfid = -99;
-  for (int i = 1; i <= N_pdfsets; i++){
-    
-    // std::cout << "inputs for PDF weights = " << q << "," << id1 << "," << id2 << "," << x1 << "," << x2 << std::endl;
-    // std::cout << "...there are this many members = " << LHAPDF::numberPDF(i) << std::endl;
-    // get central value
-    LHAPDF::usePDFMember(i,0);
-    double xpdf1 = LHAPDF::xfx(i, x1, q, id1);
-    double xpdf2 = LHAPDF::xfx(i, x2, q, id2);
-    double w0 = xpdf1 * xpdf2;
-
-    pdfset_internalIdNumber = i*1000;
-
-    int N_eigensets = LHAPDF::numberPDF(i);
-    for (int j = 1; j <= N_eigensets; j++){
+   using namespace edm;
       
-      LHAPDF::usePDFMember(i,j);
-      double xpdf1_new = LHAPDF::xfx(i, x1, q, id1);
-      double xpdf2_new = LHAPDF::xfx(i, x2, q, id2);
-      double w_new = xpdf1_new * xpdf2_new;
-      double lhaweight = w_new / w0;
-      //pdf_weights.push_back(weight);
-      pdfid = pdfset_internalIdNumber + j;
+   //For MiniAOD
+   std::vector<edm::Handle<LHEEventProduct> > handles;
+   getterOfProducts_.fillHandles(iEvent, handles);
       
-      // std::cout << "lhaweight " << pdfid << " = " << lhaweight << "..." << w_new << "," << w0 << std::endl;
+   //For LHAPDF Grid
       
-      pdfweights.push_back(lhaweight);
-      pdfids.push_back(pdfid);
+   edm::Handle<GenEventInfoProduct> GenInfo;
+   iEvent.getByLabel("generator",GenInfo);
+      
+   //***************************
+   // From LHAPDF Grid
+   //***************************
+   std::vector<double> pdfweights;
+   std::vector<int> pdfids;
+   pdfweights.clear();
+   pdfids.clear();
+      
+   // pdf inputs
+   double q = GenInfo->pdf()->scalePDF;
+   int id1 = GenInfo->pdf()->id.first;
+   int id2 = GenInfo->pdf()->id.second;
+   double x1 = GenInfo->pdf()->x.first;
+   double x2 = GenInfo->pdf()->x.second;
 
-    }
-  }
+   std::auto_ptr<int> id1Ptr_(new int);                                                                                         
+   std::auto_ptr<int> id2Ptr_(new int);      
+   *id1Ptr_ = id1;                                                                                                                   
+   *id2Ptr_ = id2;    
+   iEvent.put(id1Ptr_, "id1");
+   iEvent.put(id2Ptr_, "id2");    
 
+   // weirdo LHA conventions, gluons are 0
+   if (id1 == 21) id1 = 0;
+   if (id2 == 21) id2 = 0;
+      
+   int N_pdfsets = 3; // hard-coded for now...
+   int pdfset_internalIdNumber = -99;
+   int pdfid = -99;
+   for (int i = 1; i <= N_pdfsets; i++){
+      // std::cout << "inputs for PDF weights = " << q << "," << id1 << "," << id2 << "," << x1 << "," << x2 << std::endl;
+      // std::cout << "...there are this many members = " << LHAPDF::numberPDF(i) << std::endl;
+      // get central value
+      LHAPDF::usePDFMember(i,0);
+      double xpdf1 = LHAPDF::xfx(i, x1, q, id1);
+      double xpdf2 = LHAPDF::xfx(i, x2, q, id2);
+      double w0 = xpdf1 * xpdf2;
+            
+      pdfset_internalIdNumber = i*1000;
+      double lhaweight= 0.0;            
+      int N_eigensets = LHAPDF::numberPDF(i);
+      for (int j = 0; j < N_eigensets; j++){
+                  
+         LHAPDF::usePDFMember(i,j);
+         double xpdf1_new = LHAPDF::xfx(i, x1, q, id1);
+         double xpdf2_new = LHAPDF::xfx(i, x2, q, id2);
+         double w_new = xpdf1_new * xpdf2_new;
+         lhaweight = w_new / w0;
+
+         //pdf_weights.push_back(weight);
+         pdfid = pdfset_internalIdNumber + j;
+                  
+         // std::cout << "lhaweight " << pdfid << " = " << lhaweight << "..." << w_new << "," << w0 << std::endl;
+                  
+         pdfweights.push_back(lhaweight);
+         pdfids.push_back(pdfid);
+      }
+   } // End from LHAPDF Grid
+      
+   //**************************************
+   // From MiniAOD
+   //**************************************
+   std::vector<double> scaleweightsMiniAOD;
+   std::vector<double> pdfweightsMiniAOD;
+   std::vector<int> pdfidsMIniAOD;
+      
+   if(!handles.empty()){
+      edm::Handle<LHEEventProduct> LheInfo = handles[0];
+         
+      std::vector< gen::WeightsInfo > lheweights = LheInfo->weights();
+      double lhaweight = 0.0;
+      if(!lheweights.empty()){
+         // these numbers are hard-coded by the LHEEventInfo
+         //renormalization/factorization scale weights
+         for (unsigned int i = 0; i < 9; i++){
+            // std::cout << "lheweights " << i << " = " << lheweights[i].id << ", " << lheweights[i].wgt/lheweights[9].wgt << std::endl;
+            scaleweightsMiniAOD.push_back(lheweights[i].wgt/lheweights[0].wgt);
+         }
+         //pdf weights
+         for (unsigned int i = 9; i < 110; i++){
+         //std::cout << "lheweights " << i << " = " << lheweights[i].id << ", " << lheweights[i].wgt/lheweights[9].wgt << std::endl;
+            lhaweight = lheweights[i].wgt/lheweights[9].wgt;
+	    pdfweightsMiniAOD.push_back(lhaweight);
+            pdfidsMIniAOD.push_back(i-9);
+        }
+     }
+  } //End from MiniAOD
+      
+  //For x1 and x2
+  std::auto_ptr<double> x1Ptr_(new double);
+  std::auto_ptr<double> x2Ptr_(new double);
+  std::auto_ptr<double> qPtr_(new double);
+
+  *x1Ptr_ = x1;
+  *x2Ptr_ = x2;
+  *qPtr_ = q;
 
   iEvent.put(x1Ptr_, "x1");
   iEvent.put(x2Ptr_, "x2");
@@ -172,11 +222,9 @@ void PDFWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 void
 PDFWeightProducer::beginJob()
 {
-  //LHAPDF::initPDFSet(1, "NNPDF30_lo_as_0130.LHgrid");
-  //LHAPDF::initPDFSet(2, "CT10nlo.LHgrid");
-  //LHAPDF::initPDFSet(3, "MMHT2014nlo68cl.LHgrid");
-  LHAPDF::initPDFSet(1, "PDF4LHC15_nlo_mc.LHgrid");
-
+   LHAPDF::initPDFSet(1, "NNPDF30_nlo_as_0118.LHgrid");
+   LHAPDF::initPDFSet(2, "CT10nlo.LHgrid");
+   LHAPDF::initPDFSet(3, "MMHT2014nlo68cl.LHgrid");
 }
 
       // ------------ method called once each job just after ending the event loop  ------------

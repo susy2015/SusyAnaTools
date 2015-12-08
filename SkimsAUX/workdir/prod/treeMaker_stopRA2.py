@@ -134,7 +134,7 @@ else:
        '/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/08BA5283-FD6E-E511-B078-02163E00F45F.root',
    ]
 
-process.maxEvents.input = 1000
+process.maxEvents.input = options.maxEvents
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 
