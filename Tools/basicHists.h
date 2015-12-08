@@ -49,10 +49,13 @@ std::vector<TH1D*> h1_leadJetPt_baselineVec, h1_leadJetEta_baselineVec, h1_leadJ
 std::vector<TH1D*> h1_muPt_baselineVec, h1_muEta_baselineVec, h1_muPhi_baselineVec;
 std::vector<TH1D*> h1_elePt_baselineVec, h1_eleEta_baselineVec, h1_elePhi_baselineVec;
 
+std::vector<TH1D*> h1_searchBinYieldsVec;
 
 void declHistPerSample(const std::string &sampleKeyString){
 
   const TString sampleKeyStringT = sampleKeyString;
+
+  TH1D * h1_searchBinYields = new TH1D(sampleKeyStringT+"_h1_searchBinYields", sampleKeyStringT+": search bin yields", nTotBins, 0, nTotBins); h1_searchBinYields->Sumw2(); h1_searchBinYieldsVec.push_back((TH1D*)h1_searchBinYields->Clone());
 
   TH1D * h1_cutFlow = new TH1D(sampleKeyStringT+"_h1_cutFlow", sampleKeyStringT+": cut flow table", 20, 0, 20); h1_cutFlow->SetBit(TH1::kCanRebin); h1_cutFlow->Sumw2(); h1_cutFlowVec.push_back((TH1D*)h1_cutFlow->Clone());
   TH1D * h1_cutFlow_aux = new TH1D(sampleKeyStringT+"_h1_cutFlow_aux", sampleKeyStringT+": more cut flow table", 20, 0, 20); h1_cutFlow_aux->SetBit(TH1::kCanRebin); h1_cutFlow_aux->Sumw2(); h1_cutFlow_auxVec.push_back((TH1D*)h1_cutFlow_aux->Clone());

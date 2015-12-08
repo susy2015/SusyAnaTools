@@ -34,9 +34,6 @@ void mypassBaselineFunc(NTupleReader &tr){
    (*SRblv)(tr);
 }
 
-AnaSamples::SampleSet        allSamples;
-AnaSamples::SampleCollection allCollections(allSamples);
-
 // 0 is used to set to process all events
 int entryToProcess = -1;
 
@@ -56,6 +53,8 @@ bool find_mother(int momIdx, int dauIdx, const std::vector<int> &genDecayIdxVec,
 int find_idx(int genIdx, const std::vector<int> &genDecayIdxVec);
 double calcMT(const TLorentzVector &objLVec, const TLorentzVector &metLVec);
 
+const AnaConsts::IsoAccRec hadtau_muonsMiniIsoArr = {   -1,       2.4,      20,     -1,       0.2,     -1  };
+
 void drawOverFlowBin(TH1 *histToAdjust){
    int nbins = histToAdjust->GetXaxis()->GetNbins();
    double overflow = histToAdjust->GetBinContent(nbins+1);
@@ -63,7 +62,10 @@ void drawOverFlowBin(TH1 *histToAdjust){
    histToAdjust->SetBinContent(nbins, overflow+lastCont);
 }
 
-void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString="ttbar", int verbose=0){
+void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString,
+  const AnaSamples::SampleSet  & allSamples,
+  const AnaSamples::SampleCollection & allCollections){
+
   TString sampleKeyStringT(sampleKeyString);
 
   std::vector<AnaSamples::FileSummary> fs = allCollections[sampleKeyString];
@@ -163,21 +165,18 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const bool passBaseline = tr->getVar<bool>("passBaseline" + spec);
         const bool passBaselineNoTag = tr->getVar<bool>("passBaselineNoTag" + spec);
 
-// Can directly use passBaseline to get to baseline distribution, but can also configure this
-        h1_cutFlowVec.back()->Fill("original", evtWeight * scaleMC);
-
 // Check trigger bit for data. Different PD can have different triggers.
         if( keyStringT.Contains("Data") ){
            bool foundTrigger = false;
            for(unsigned it=0; it<TriggerNames.size(); it++){
               if( keyStringT.Contains("HTMHT") ){
-                 if( TriggerNames[it].find("HLT_PFHT350_PFMET100_JetIdCleaned_v") || TriggerNames[it].find("HLT_PFHT350_PFMET100_NoiseCleaned_v") ){
+                 if( TriggerNames[it].find("HLT_PFHT350_PFMET100_JetIdCleaned_v") || TriggerNames[it].find("HLT_PFHT350_PFMET100_NoiseCleaned_v") || TriggerNames[it].find("HLT_PFHT350_PFMET100_v*") ){
                     if( PassTrigger[it] ) foundTrigger = true;
                  }
               }
               if( keyStringT.Contains("SingleMuon") ){
-//                 if( TriggerNames[it].find("HLT_Mu15_IsoVVVL_PFHT350_v") ){
-                 if( TriggerNames[it].find("HLT_Mu45_eta2p1_v") ){
+                 if( TriggerNames[it].find("HLT_Mu15_IsoVVVL_PFHT350_v") ){
+//                 if( TriggerNames[it].find("HLT_Mu45_eta2p1_v") ){
                     if( PassTrigger[it] ) foundTrigger = true;
                  }
               }
@@ -185,28 +184,31 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            if( !foundTrigger ) continue;
         }
 
+// Can directly use passBaseline to get to baseline distribution, but can also configure this
+        h1_cutFlowVec.back()->Fill("original", evtWeight * scaleMC);
+
         if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
 
-//        if( !passnJets ) continue; h1_cutFlowVec.back()->Fill("passnJets", evtWeight * scaleMC);
+        if( !passnJets ) continue; h1_cutFlowVec.back()->Fill("passnJets", evtWeight * scaleMC);
 
-//        if( !passMuonVeto ) continue; h1_cutFlowVec.back()->Fill("passMuonVeto", evtWeight * scaleMC);
+        if( !passMuonVeto ) continue; h1_cutFlowVec.back()->Fill("passMuonVeto", evtWeight * scaleMC);
         if( !passEleVeto ) continue; h1_cutFlowVec.back()->Fill("passEleVeto", evtWeight * scaleMC);
-//        if( !passIsoTrkVeto ) continue; h1_cutFlowVec.back()->Fill("passIsoTrkVeto", evtWeight * scaleMC);
+        if( !passIsoTrkVeto ) continue; h1_cutFlowVec.back()->Fill("passIsoTrkVeto", evtWeight * scaleMC);
 
         int cntMuons = 0;
         std::vector<int> selMuonIdxVec;
         for(unsigned int im=0; im<muonsLVec.size(); im++){
-           if( !AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), AnaConsts::muonsMiniIsoArr) ) continue;
+//           if( !AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), AnaConsts::muonsMiniIsoArr) ) continue;
+           if( !AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), hadtau_muonsMiniIsoArr) ) continue;
            cntMuons ++;
            selMuonIdxVec.push_back(im);
         }
-        if( cntMuons != 1 ) continue;
-
+//        if( cntMuons != 1 ) continue;
 
 // Fill histograms with looser requirement -> trigger req. for data...
-//        if( passHT && passMET && passBJets ){
+        if( passHT && passMET ){
 //        if( passHT && nJets >=3 ){
-        if( passHT ){
+//        if( passHT ){
            h1_nJets_looseVec.back()->Fill(nJets, evtWeight * scaleMC);
            h1_nTops_looseVec.back()->Fill(nTops, evtWeight * scaleMC);
            h1_nbJets_looseVec.back()->Fill(nbJets, evtWeight * scaleMC);
@@ -321,6 +323,9 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            h1_eleEta_baselineVec.back()->Fill(elesLVec.at(ie).Eta(), evtWeight * scaleMC);
            h1_elePhi_baselineVec.back()->Fill(elesLVec.at(ie).Phi(), evtWeight * scaleMC);
         }
+ 
+        int searchBinIdx = find_Binning_Index(nbJets, nTops, MT2, met);
+        h1_searchBinYieldsVec.back()->Fill(searchBinIdx, evtWeight * scaleMC);
 
         double copymet = met, copyMT2 = MT2;
 
@@ -361,10 +366,16 @@ void basicCheck(int argc, char *argv[]){
 
    NTupleReader *tr = 0;
 
+<<<<<<< HEAD
    SRblv = new BaselineVessel(spec, "csc_evtlist.txt");
    SRblv->prepareTopTagger();
    type3Ptr = SRblv->GetType3Ptr();
    type3Ptr->setdebug(true);
+=======
+//   SRblv = new BaselineVessel(spec, "csc_evtlist.txt");
+   SRblv = new BaselineVessel(spec);
+
+>>>>>>> 394ab84bc6149e6de85b720a54221219daa92cb6
    int startfile = 0, filerun = -1;
 
    std::string selKeyStr;
@@ -388,6 +399,14 @@ void basicCheck(int argc, char *argv[]){
          }
       }
    }
+
+   std::string condorSpec;
+   if( argc >=6 ){
+      condorSpec = argv[5];
+   }
+
+   AnaSamples::SampleSet        allSamples = condorSpec.empty()? AnaSamples::SampleSet():AnaSamples::SampleSet(condorSpec);
+   AnaSamples::SampleCollection allCollections(allSamples);
 
    std::stringstream ssSelKey(selKeyStr);
 
@@ -447,10 +466,11 @@ void basicCheck(int argc, char *argv[]){
          }
 
 // Throw away low HT bin samples since we have HT>500 GeV cut...
+/*
          if(filelist.first == "WJetsToLNu" && (perSubStr == "WJetsToLNu_HT_100to200" || perSubStr == "WJetsToLNu_HT_200to400") ) continue;
          if(filelist.first == "ZJetsToNuNu" && (perSubStr == "ZJetsToNuNu_HT_100to200" || perSubStr == "ZJetsToNuNu_HT_200to400") ) continue;
          if(filelist.first == "QCD" && (perSubStr == "QCD_HT100to200" || perSubStr == "QCD_HT200to300" || perSubStr == "QCD_HT300to500") ) continue;
-
+*/
          std::cout<<"  "<<perSubStr.c_str();
 
          TChain *aux = new TChain(file.treePath.c_str());  
@@ -461,7 +481,7 @@ void basicCheck(int argc, char *argv[]){
       }
       std::cout<<std::endl;
       
-      if( !treeVec.empty() ) anaFunc(tr, treeVec, subSampleKeysVec, filelist.first.c_str());
+      if( !treeVec.empty() ) anaFunc(tr, treeVec, subSampleKeysVec, filelist.first.c_str(), allSamples, allCollections);
 
       std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
    }  
@@ -525,26 +545,31 @@ void basicCheck(int argc, char *argv[]){
 
    tdrStyle->SetTitleXOffset(5.50); tdrStyle->SetTitleYOffset(6.50);
 
-   TCanvas *cs = new TCanvas("cs", "cs", 1200, 800);
-   int divW=3, divH=2;
-   cs->Divide(divW, divH);
+   if( condorSpec != "condor" ){
+      TCanvas *cs = new TCanvas("cs", "cs", 1200, 800);
+      int divW=3, divH=2;
+      cs->Divide(divW, divH);
 
-   TString pdfNameStrT = "basicCheck_allINone"+nameStr+".pdf";
-
-   cs->Print(pdfNameStrT+"[");
-   for(unsigned int ic=0; ic<h1_cutFlowVec.size(); ic++){ h1_cutFlowVec[ic]->LabelsDeflate(); h1_cutFlowVec[ic]->LabelsOption("v"); h1_cutFlowVec[ic]->SetMarkerSize(h1_cutFlowVec[ic]->GetMarkerSize()*1.5); }
-   for(unsigned int ic=0; ic<h1_cutFlow_auxVec.size(); ic++){ h1_cutFlow_auxVec[ic]->LabelsDeflate(); h1_cutFlow_auxVec[ic]->LabelsOption("v"); h1_cutFlow_auxVec[ic]->SetMarkerSize(h1_cutFlow_auxVec[ic]->GetMarkerSize()*1.5); }
-   draw1DallINone(cs, divW*divH, h1_cutFlowVec, 1, "text e"); cs->Print(pdfNameStrT);
-   draw1DallINone(cs, divW*divH, h1_cutFlow_auxVec, 1, "text e"); cs->Print(pdfNameStrT);
-
-   for(unsigned int ic=0; ic<h2_evtCnt_nbJets_vs_nTopsVec.size(); ic++){ h2_evtCnt_nbJets_vs_nTopsVec[ic]->SetMarkerSize(h2_evtCnt_nbJets_vs_nTopsVec[ic]->GetMarkerSize()*2.0); }
-   draw2DallINone(cs, divW*divH, h2_evtCnt_nbJets_vs_nTopsVec, "colz text e"); cs->Print(pdfNameStrT);
-
-   for(int iSR=0; iSR<nSR; iSR++){
-      for(unsigned int ic=0; ic<h2_poly_MT2_vs_metVec[iSR].size(); ic++){ h2_poly_MT2_vs_metVec[iSR][ic]->SetMarkerSize(h2_poly_MT2_vs_metVec[iSR][ic]->GetMarkerSize()*2.0); h2_poly_MT2_vs_metVec[iSR][ic]->GetZaxis()->SetRangeUser(0, h2_poly_MT2_vs_metVec[iSR][ic]->GetMaximum()); }
-      draw2DallINone(cs, divW*divH, h2_poly_MT2_vs_metVec[iSR], "colz text e"); cs->Print(pdfNameStrT);
+      TString pdfNameStrT = "basicCheck_allINone"+nameStr+".pdf";
+   
+      cs->Print(pdfNameStrT+"[");
+      for(unsigned int ic=0; ic<h1_cutFlowVec.size(); ic++){ h1_cutFlowVec[ic]->LabelsDeflate(); h1_cutFlowVec[ic]->LabelsOption("v"); h1_cutFlowVec[ic]->SetMarkerSize(h1_cutFlowVec[ic]->GetMarkerSize()*1.5); }
+      for(unsigned int ic=0; ic<h1_cutFlow_auxVec.size(); ic++){ h1_cutFlow_auxVec[ic]->LabelsDeflate(); h1_cutFlow_auxVec[ic]->LabelsOption("v"); h1_cutFlow_auxVec[ic]->SetMarkerSize(h1_cutFlow_auxVec[ic]->GetMarkerSize()*1.5); }
+      draw1DallINone(cs, divW*divH, h1_cutFlowVec, 1, "text e"); cs->Print(pdfNameStrT);
+      draw1DallINone(cs, divW*divH, h1_cutFlow_auxVec, 1, "text e"); cs->Print(pdfNameStrT);
+   
+      draw1DallINone(cs, divW*divH, h1_searchBinYieldsVec, 1, "hist text e"); cs->Print(pdfNameStrT);
+   
+      for(unsigned int ic=0; ic<h2_evtCnt_nbJets_vs_nTopsVec.size(); ic++){ h2_evtCnt_nbJets_vs_nTopsVec[ic]->SetMarkerSize(h2_evtCnt_nbJets_vs_nTopsVec[ic]->GetMarkerSize()*2.0); }
+      draw2DallINone(cs, divW*divH, h2_evtCnt_nbJets_vs_nTopsVec, "colz text e"); cs->Print(pdfNameStrT);
+   
+      for(int iSR=0; iSR<nSR; iSR++){
+         for(unsigned int ic=0; ic<h2_poly_MT2_vs_metVec[iSR].size(); ic++){ h2_poly_MT2_vs_metVec[iSR][ic]->SetMarkerSize(h2_poly_MT2_vs_metVec[iSR][ic]->GetMarkerSize()*2.0); h2_poly_MT2_vs_metVec[iSR][ic]->GetZaxis()->SetRangeUser(0, h2_poly_MT2_vs_metVec[iSR][ic]->GetMaximum()); }
+         draw2DallINone(cs, divW*divH, h2_poly_MT2_vs_metVec[iSR], "colz text e"); cs->Print(pdfNameStrT);
+      }
+      cs->Print(pdfNameStrT+"]");
    }
-   cs->Print(pdfNameStrT+"]");
+
 
    TString rootNameStrT = "basicCheck"+nameStr+".root";
 
@@ -579,6 +604,8 @@ void basicCheck(int argc, char *argv[]){
       h1_leadJetPt_baselineVec[ih]->Write(); h1_leadJetEta_baselineVec[ih]->Write(); h1_leadJetPhi_baselineVec[ih]->Write(); h1_leadJetM_baselineVec[ih]->Write();
       h1_muPt_baselineVec[ih]->Write(); h1_muEta_baselineVec[ih]->Write(); h1_muPhi_baselineVec[ih]->Write();
       h1_elePt_baselineVec[ih]->Write(); h1_eleEta_baselineVec[ih]->Write(); h1_elePhi_baselineVec[ih]->Write();
+
+      h1_searchBinYieldsVec[ih]->Write();
    }
    basicCheckFile->Write(); basicCheckFile->Close();
 
