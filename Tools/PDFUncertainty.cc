@@ -173,6 +173,9 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
         tr.registerDerivedVar("PDF_Unc_Up", pdf_unc_up);
         tr.registerDerivedVar("PDF_Unc_Down", pdf_unc_down);
 
+        delete pdfweights;
+        delete pdfids;
+
 }
 
 void PDFUncertainty::operator()(NTupleReader& tr)
