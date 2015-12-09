@@ -34,6 +34,15 @@ PDFUncertainty::~PDFUncertainty()
 
 void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 {
+  if (tr.getVar<int>("run") != 1)
+  {
+    tr.registerDerivedVar("PDF_Unc_Central", 1.0);
+    tr.registerDerivedVar("PDF_Unc_Sys", 1.0);
+    tr.registerDerivedVar("PDF_Unc_Up", 1.0);
+    tr.registerDerivedVar("PDF_Unc_Down", 1.0);
+    return;
+  }
+
   //This is how we get variables from nTuple 
         const std::vector<double> &ScaleWeightsMiniAOD = tr.getVec<double>("ScaleWeightsMiniAOD");
         const double x1  =   tr.getVar<double>("x1");
