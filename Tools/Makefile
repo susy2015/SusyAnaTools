@@ -4,7 +4,8 @@ SDIR       = .
 
 CXX        = g++
 
-CXXFLAGS  += -I. -std=c++0x -I$(CMSSW_BASE)/src/ -I$(LHAPDF_DATA_PATH)/../../include
+CXXFLAGS  += -I. -std=c++0x 
+CXXFLAGS  += -I$(LHAPDF_INCLUDE)
 ## Optimization flag
 CXXFLAGS += -g
 ## Enable the maximun warning
@@ -12,6 +13,7 @@ CXXFLAGS += -g
 
 ## Include ROOT
 CXXFLAGS  += $(shell root-config --cflags)
+CXXFLAGS  += -I../../
 
 CXXDEPFLAGS = -MMD -MP
 
@@ -20,12 +22,32 @@ LDFLAGS    =
 
 LIBS       = $(shell root-config --glibs)
 MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
-LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
+
+ifneq ($(shell echo $$CMSSW_BASE), )
+  CXXFLAGS  += -I$(CMSSW_BASE)/src/
+  MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
+else
+  CXXFLAGS  += -I../..
+  MT2LIB     = -L../../recipeAUX/OxbridgeMT2/.libs -loxbridgekinetics-1.0 
+endif
+
+ifneq ($(shell echo $$LHAPDF_INCLUDE), )
+  CXXFLAGS  += -isystem $(LHAPDF_INCLUDE)
+  LIBS += -L$(LHAPDF_LIBDIR) -lLHAPDF
+else
+  CXXFLAGS  += -isystem $(LHAPDF_DATA_PATH)/../../include
+  MT2LIB     = -L $(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
+endif
+
+
+LHAPDFLIB  = -L$(LHAPDF_LIBDIR) -lLHAPDF
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
-PROGRAMS = tupleTest nEvts basicCheck makeCombPlots
+PROGRAMS = tupleTest nEvts makeCombPlots
 
-all: mkobj sampPyWrap $(PROGRAMS)
+FILES = $(wildcard *.cc)
+OBJS  := $(FILES:%.cc=$(ODIR)/%.o)
 
+all: mkobj $(OBJS) sampPyWrap $(PROGRAMS) 
 
 mkobj:
 	@mkdir -p obj
@@ -48,14 +70,17 @@ $(ODIR)/%.o : $(SDIR)/%.C
 $(ODIR)/%.o : $(SDIR)/%.cc
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
 
-tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/PDFUncertainty.o $(ODIR)/tupleReadTest.o 
-	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
+tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o 
+	$(LD) $^ $(LIBS) -o $@
+	
+#tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/PDFUncertainty.o $(ODIR)/tupleReadTest.o 
+	#$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
 nEvts: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/nEvts.o
 	$(LD) $^ $(LIBS) -o $@
 
-basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o
-	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+#basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/customize.o $(ODIR)/baselineDef.o $(ODIR)/searchBins.o
+	#$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@

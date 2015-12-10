@@ -21,7 +21,7 @@ namespace AnaSamples
             }
             fclose(f);
         }
-        else std::cout << "Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
+        //else std::cout << "Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
     }
 
     void FileSummary::addCollection(std::string colName)
@@ -60,13 +60,13 @@ namespace AnaSamples
         // TTbarInc has LO xsec on McM : 502.20 pb. The NNLO is 831.76 pb. The k-factor for ttbar is: kt = 831.76/502.20 ~ 1.656233
         sampleSet_["TTbarInc"]  = FileSummary(fDir_ + MCloc + "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 831.76,  lumi, 11344206, 1.0, kGreen);
         // 1.61 * kt 
-        sampleSet_["TTbar_HT-600to800"]   = FileSummary(fDir_ + MCloc + "TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 2.666535,    lumi, 5119009, 1.0, kGreen);
+        sampleSet_["TTbar_HT_600to800"]   = FileSummary(fDir_ + MCloc + "TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 2.666535,    lumi, 5119009, 1.0, kGreen);
         // 0.663 * kt
-        sampleSet_["TTbar_HT-800to1200"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",  "stopTreeMaker/AUX", 1.098082,    lumi, 3510897, 1.0, kGreen);
+        sampleSet_["TTbar_HT_800to1200"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",  "stopTreeMaker/AUX", 1.098082,    lumi, 3510897, 1.0, kGreen);
         // 0.12 * kt
-        sampleSet_["TTbar_HT-1200to2500"] = FileSummary(fDir_ + MCloc + "TTJets_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.198748,    lumi, 1014678, 1.0, kGreen);
+        sampleSet_["TTbar_HT_1200to2500"] = FileSummary(fDir_ + MCloc + "TTJets_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.198748,    lumi, 1014678, 1.0, kGreen);
         // 0.00143 * kt
-        sampleSet_["TTbar_HT-2500toInf"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",  "stopTreeMaker/AUX", 0.002368413, lumi, 507842,  1.0, kGreen);
+        sampleSet_["TTbar_HT_2500toInf"]  = FileSummary(fDir_ + MCloc + "TTJets_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",  "stopTreeMaker/AUX", 0.002368413, lumi, 507842,  1.0, kGreen);
 
 
         // Calculated from PDG BRs'. Not from the kt * xSec in McM.
@@ -147,8 +147,8 @@ namespace AnaSamples
         sampleSet_["TTGJets"]             = FileSummary(fDir_ + MCloc + "TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 3.697, lumi,  3199309 - 1632921,  1.0,  kOrange+2);
 
         // ttH --> negative weights!
-	sampleSet_["ttHJetTobb"]     = FileSummary(fDir_ + MCloc + "ttHJetTobb_M125_13TeV_amcatnloFXFX_madspin_pythia8.txt",             "stopTreeMaker/AUX", 0.2934,  lumi, 1047463 - 565141,   1.0,  kOrange+2);
-	sampleSet_["ttHJetToNonbb"]  = FileSummary(fDir_ + MCloc + "ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8_mWCutfix.txt", "stopTreeMaker/AUX", 0.2151,  lumi, 5206759 - 2818464,  1.0,  kOrange+2);
+        sampleSet_["ttHJetTobb"]     = FileSummary(fDir_ + MCloc + "ttHJetTobb_M125_13TeV_amcatnloFXFX_madspin_pythia8.txt",             "stopTreeMaker/AUX", 0.2934,  lumi, 1047463 - 565141,   1.0,  kOrange+2);
+        sampleSet_["ttHJetToNonbb"]  = FileSummary(fDir_ + MCloc + "ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8_mWCutfix.txt", "stopTreeMaker/AUX", 0.2151,  lumi, 5206759 - 2818464,  1.0,  kOrange+2);
         
         // Di-boson
 	// Ref. https://indico.cern.ch/event/439995/session/0/contribution/6/attachments/1143460/1638648/diboson_final.pdf (NNLO is given)
@@ -214,14 +214,14 @@ namespace AnaSamples
         addSampleSet(samples, "TTbar", {"TTbarInc"});
         addSampleSet(samples, "TTbarSingleLep", {"TTbarSingleLepT", "TTbarSingleLepTbar"});
         addSampleSet(samples, "TTbarDiLep", {"TTbarDiLep"});
-        addSampleSet(samples, "TTbarHT", {"TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
+        addSampleSet(samples, "TTbarHT", {"TTbar_HT_600to800", "TTbar_HT_800to1200", "TTbar_HT_1200to2500", "TTbar_HT_2500toInf"});
         addSampleSet(samples, "TTbarNoHad", {"TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
 
         // Only all had. part of TTbarInc
         addSampleSet(samples, "TTbarAll", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
 
         // Only all had. part of TTbarInc & HT cuts on inclusive samples
-        addSampleSet(samples, "TTbarExt", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", "TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
+        addSampleSet(samples, "TTbarExt", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", "TTbar_HT_600to800", "TTbar_HT_800to1200", "TTbar_HT_1200to2500", "TTbar_HT_2500toInf"});
 
 //        addSampleSet(samples, "WJetsToLNu_LESS", {"WJetsToLNu_HT_600toInf", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
         addSampleSet(samples, "WJetsToLNu", {"WJetsToLNu_HT_2500toInf", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
@@ -239,9 +239,9 @@ namespace AnaSamples
 
         addSampleSet(samples, "TTG", {"TTGJets"});
 
-//	addSampleSet(samples, "ttHJetTobb", {"ttHJetTobb"});
-//	addSampleSet(samples, "ttHJetToNonbb", {"ttHJetToNonbb"});
-	addSampleSet(samples, "ttH", {"ttHJetTobb", "ttHJetToNonbb"});
+        //addSampleSet(samples, "ttHJetTobb", {"ttHJetTobb"});
+        //addSampleSet(samples, "ttHJetToNonbb", {"ttHJetToNonbb"});
+        addSampleSet(samples, "ttH", {"ttHJetTobb", "ttHJetToNonbb"});
 
         addSampleSet(samples, "WWZ", {"WWZ"});
         addSampleSet(samples, "WZZ", {"WZZ"});
@@ -251,7 +251,7 @@ namespace AnaSamples
 
         addSampleSet(samples, "Triboson", {"WWZ", "WZZ", "ZZZ"});
 
-	addSampleSet(samples, "Rare", {"TTWJetsToLNu", "TTWJetsToQQ", "TTGJets", "WWZ", "WZZ", "ZZZ", "ttHJetTobb", "ttHJetToNonbb"});
+        addSampleSet(samples, "Rare", {"TTWJetsToLNu", "TTWJetsToQQ", "TTGJets", "WWZ", "WZZ", "ZZZ", "ttHJetTobb", "ttHJetToNonbb"});
 
         addSampleSet(samples, "Data_SingleMuon", {"Data_SingleMuon_2015C", "Data_SingleMuon_2015D_05Oct2015", "Data_SingleMuon_2015D_PromptReco"});
 

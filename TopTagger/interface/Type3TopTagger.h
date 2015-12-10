@@ -35,7 +35,7 @@ namespace topTagger{
       public:
 
 //         type3TopTagger();
-         ~type3TopTagger();
+         ~type3TopTagger(){};
 
 // Make these variables public so that they can be easily accessed
 // They should be actually internal and/or intermediate variables

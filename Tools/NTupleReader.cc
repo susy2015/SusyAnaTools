@@ -59,7 +59,7 @@ void NTupleReader::populateBranchList()
     TIter next(lob);
     TBranch *branch;
 
-    while(branch = (TBranch*)next()) 
+    while((branch = (TBranch*)next())) 
     {
         std::string type(branch->GetTitle());
         std::string name(branch->GetName());
@@ -112,6 +112,15 @@ bool NTupleReader::getNextEvent()
     return status > 0;
 }
 
+bool NTupleReader::goToEvent(int evt_)
+{
+    if(evt_ >= nEvtTotal_) return false;
+    int status = tree_->GetEntry(evt_);
+    nevt_++;
+    if(nevt_ >= 2) isFirstEvent_ = false;
+    calculateDerivedVariables();
+    return status > 0;
+}
 void NTupleReader::disableUpdate()
 {
     isUpdateDisabled_ = true;
@@ -178,4 +187,30 @@ void NTupleReader::printTupleMembers(FILE *f) const
     {
         fprintf(f, "%60s %s\n", iVar.second.c_str(), iVar.first.c_str());
     }
+}
+
+std::vector<std::string> NTupleReader::GetTupleMembers() const
+{
+  std::vector<std::string> members;
+  for(auto& iVar : typeMap_)
+  {
+    members.push_back(iVar.first);
+  }
+  return members;
+}
+
+std::vector<std::string> NTupleReader::GetTupleSpecs(std::string VarName) const
+{
+  std::vector<std::string> members = GetTupleMembers();
+  std::vector<std::string> specs;
+  for(auto &member : members)
+  {
+    std::string::size_type t= member.find(VarName);
+    if (t != std::string::npos)
+    {
+      specs.push_back(member.erase(t, VarName.length()));
+    }
+  }
+  
+  return specs;
 }

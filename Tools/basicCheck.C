@@ -27,6 +27,8 @@
 
 BaselineVessel * SRblv =0;
 const std::string spec = "MY";
+extern std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
+topTagger::type3TopTagger * type3Ptr = 0;
 
 void mypassBaselineFunc(NTupleReader &tr){
    (*SRblv)(tr);
@@ -355,9 +357,6 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 void basicCheck(int argc, char *argv[]){
 
    AnaFunctions::prepareForNtupleReader();
-   AnaFunctions::prepareTopTagger();
-
-   type3Ptr->setdebug(true);
 
    build_MT2_met_Binning_forTH2Poly(out_MT2_met_Binning_forTH2Poly);
 
@@ -367,9 +366,16 @@ void basicCheck(int argc, char *argv[]){
 
    NTupleReader *tr = 0;
 
+<<<<<<< HEAD
+   SRblv = new BaselineVessel(spec, "csc_evtlist.txt");
+   SRblv->prepareTopTagger();
+   type3Ptr = SRblv->GetType3Ptr();
+   type3Ptr->setdebug(true);
+=======
 //   SRblv = new BaselineVessel(spec, "csc_evtlist.txt");
    SRblv = new BaselineVessel(spec);
 
+>>>>>>> 394ab84bc6149e6de85b720a54221219daa92cb6
    int startfile = 0, filerun = -1;
 
    std::string selKeyStr;
