@@ -42,7 +42,6 @@ $(ODIR)/samplesPyWrap.o: $(SDIR)/samples.cc $(SDIR)/samples.h
 $(ODIR)/samplesModulePyWrap.o: $(SDIR)/samplesModule.cc
 	$(CXX) --std=c++11 -c -fPIC -o $@ $<
 
-
 $(ODIR)/%.o : $(SDIR)/%.C
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
 
