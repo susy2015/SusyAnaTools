@@ -3,20 +3,20 @@
 
 #include "NTupleReader.h"
 #include "customize.h"
+#include "EventListFilter.h"
 
 #include "Math/VectorUtil.h"
 
-#include <sstream>
 #include <iostream>
-#include <fstream>
 
 class BaselineVessel
 {
 private:
     const std::string spec;
+    EventListFilter filter;
 
 public:
-    BaselineVessel(const std::string specialization = "") : spec(specialization) { }
+BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization), filter(filterString) { }
 
     void passBaseline(NTupleReader &tr)
     {
@@ -65,44 +65,30 @@ public:
            doEleVeto = false; 
            doIsoTrksVeto = false;
         }
-        else if(spec.compare("Zinv") == 0) 
+        else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0) 
         {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag";//"recoJetsBtag_0";
+            jetVecLabel = "jetsLVecLepCleaned";
+            CSVVecLabel = "recoJetsBtag_0_LepCleaned";
             METLabel    = "cleanMetPt";
             METPhiLabel = "cleanMetPhi";
             doMuonVeto  = false;
+            doEleVeto   = false;
             doIsoTrksVeto = false;
-        }
-        else if(spec.compare("Zinv1b") == 0) 
-        {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag1fake";//"recoJetsBtag_0";
-            METLabel    = "cleanMetPt";
-            METPhiLabel = "cleanMetPhi";
-            doMuonVeto  = false;
-            doIsoTrksVeto = false;
-            bToFake = 1;
-        }
-        else if(spec.compare("Zinv2b") == 0) 
-        {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag2fake";//"recoJetsBtag_0";
-            METLabel    = "cleanMetPt";
-            METPhiLabel = "cleanMetPhi";
-            doMuonVeto  = false;
-            doIsoTrksVeto = false;
-            bToFake = 1;
-        }
-        else if(spec.compare("Zinv3b") == 0) 
-        {
-            jetVecLabel = "cleanJetpt30ArrVec";//"jetsLVec";//"prodJetsNoMu_jetsLVec";
-            CSVVecLabel = "cleanJetpt30ArrBTag3fake";//"recoJetsBtag_0";
-            METLabel    = "cleanMetPt";
-            METPhiLabel = "cleanMetPhi";
-            doMuonVeto  = false;
-            doIsoTrksVeto = false;
-            bToFake = 1;
+            if(spec.compare("Zinv1b") == 0)
+            {
+                CSVVecLabel = "cleanJetpt30ArrBTag1fake";
+                bToFake = 1;
+            }
+            else if(spec.compare("Zinv2b") == 0)
+            {
+                CSVVecLabel = "cleanJetpt30ArrBTag2fake";
+                bToFake = 1; //This is not a typo
+            }
+            else if(spec.compare("Zinv3b") == 0)
+            {
+                CSVVecLabel = "cleanJetpt30ArrBTag3fake";
+                bToFake = 1; //This is not a typo
+            }
         }
         else if(spec.compare("QCD") == 0)
         {
@@ -241,28 +227,51 @@ public:
         if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
     } 
 
-    bool passNoiseEventFilterFunc(NTupleReader &tr){
-      try
-      {
-        int vtxSize = tr.getVar<int>("vtxSize");
-        int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
-//        int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
-        int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
-        int hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
-        int hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
-
-        //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
-        return (vtxSize>=1) && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
-      }
-      catch (std::string var)
-      {
-        if(tr.IsFirstEvent()) 
+    bool passNoiseEventFilterFunc(NTupleReader &tr)
+    {
+        try
         {
-          printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
-          printf("Running with PHYS14 Config\n");
+//            int vtxSize = tr.getVar<int>("vtxSize");
+            //int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
+/*
+            bool beamHaloFilter = true;
+            if(filter.Initialized()) 
+            {
+                const unsigned int& run =   tr.getVar<unsigned int>("run");
+                const unsigned int& lumi  = tr.getVar<unsigned int>("lumi");
+                const unsigned int& event = tr.getVar<unsigned int>("event");
+                beamHaloFilter = filter.CheckEvent(run, lumi, event);
+            }
+*/
+            bool passDataSpec = true;
+            if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
+               int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
+               int CSCTightHaloListFilter = tr.getVar<int>("CSCTightHaloListFilter");
+               int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
+               int eeBadScListFilter = tr.getVar<int>("eeBadScListFilter");
+               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
+            }
+
+            bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
+            bool hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
+            int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
+
+            int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
+
+            //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
+//            return (vtxSize>=1) && beamHaloFilter && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
+//            return goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
+            return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
         }
-      }
-      return true;
+        catch (std::string var)
+        {
+            if(tr.IsFirstEvent()) 
+            {
+                printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
+                printf("Running with PHYS14 Config\n");
+            }
+        }
+        return true;
     }
 
     void operator()(NTupleReader &tr)
@@ -307,11 +316,8 @@ namespace stopFunctions
         {
             if(elecIsoFlag.compare("mini") == 0)
             {
-//                std::cout << "cleanJets(...):  electron mini iso mode not implemented yet!!! Using \"rel iso\" settings." << std::endl;
                 elecIsoStr_ = "elesMiniIso";
                 elecIsoReq_ = AnaConsts::elesMiniIsoArr;
-//                elecIsoStr_ = "elesRelIso";
-//                elecIsoReq_ = AnaConsts::elesArr;
             }
             else if(elecIsoFlag.compare("rel") == 0)
             {
@@ -360,7 +366,18 @@ namespace stopFunctions
 
         void setDisable(bool disable)
         {
-            disable_ = disable;
+            disableMuon_ = disable;
+            disableElec_ = disable;
+        }
+
+        void setDisableElec(bool disable)
+        {
+            disableElec_ = disable;
+        }
+
+        void setDisableMuon(bool disable)
+        {
+            disableMuon_ = disable;
         }
 
         void setRemove(bool remove)
@@ -419,7 +436,7 @@ namespace stopFunctions
         double muonPtThresh_;
         double photoCleanThresh_;
         bool remove_;
-        bool disable_;
+        bool disableMuon_, disableElec_;
         bool forceDr_;
 
         int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<double>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<double>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const double photoCleanThresh = -999.9)
@@ -509,7 +526,7 @@ namespace stopFunctions
 
             std::vector<bool> keepJetPFCandMatch(jetsLVec.size(), true);
 
-            if(!disable_)
+            if(!disableMuon_)
             {
                 for(int iM = 0; iM < muonsLVec.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
                 {
@@ -526,7 +543,10 @@ namespace stopFunctions
                     if( match >= 0 ) rejectJetIdx_formuVec->push_back(match);
                     else rejectJetIdx_formuVec->push_back(-1);
                 }
+            }
 
+            if(!disableElec_)
+            {
                 for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
                 {
                     if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elesFlagIDVec[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) 
@@ -552,7 +572,6 @@ namespace stopFunctions
             auto iCHF = cleanChargedHadEFrac->begin();
             auto iNEMF = cleanNeutralEMEFrac->begin();
             auto iCEMF = cleanChargedEMEFrac->begin();
-            const bool& passMuZinvSel = tr.getVar<bool>("passMuZinvSel");
             for(; iJet != cleanJetVec->end() && iBTag != cleanJetBTag->end() && iKeep != keepJetPFCandMatch.end() && iOrigJet != jetsLVec.end(); ++iKeep, ++iOrigJet)
             {
                 if(!(*iKeep))

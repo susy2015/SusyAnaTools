@@ -105,9 +105,10 @@ namespace AnaConsts{
                                                   "loose_isoTrksLVec", "loose_isoTrks_iso", "loose_isoTrks_mtw", "loose_isoTrks_pdgId",
                                                   "met", "metphi", 
                                                   "tru_npv", "vtxSize",
-                                                  "prodJetsNoMu_jetsLVec", "recoJetsBtag_0_MuCleaned",
+                                                  "recoJetsBtag_0_LepCleaned", "jetsLVecLepCleaned",
 						  "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedHadronEnergyFraction", "recoJetsmuonEnergyFraction",
-                                                  "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "CSCTightHaloFilter", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter",
+//                                                  "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "CSCTightHaloFilter", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter",
+                                                  "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter", "goodVerticesFilter", "eeBadScFilter", "eeBadScListFilter", "CSCTightHaloListFilter",
                                                   "TriggerNames", "PassTrigger", "TriggerPrescales", 
                                                   "stored_weight" 
                                                 };
@@ -242,6 +243,16 @@ namespace AnaFunctions{
            && (    maxIso == -1 || electronIso < maxIso )
            && (    maxMtw == -1 || electronMtw < maxMtw )
            && flagID;
+   }
+
+   bool passElectronAccOnly(const TLorentzVector& elec, const AnaConsts::ElecIsoAccRec& elesArr)
+   {
+       const double minAbsEta = elesArr.minAbsEta, maxAbsEta = elesArr.maxAbsEta, minPt = elesArr.minPt, maxPt = elesArr.maxPt;
+       double perelectronpt = elec.Pt(), perelectroneta = elec.Eta();
+       return ( minAbsEta == -1 || fabs(perelectroneta) >= minAbsEta )
+           && ( maxAbsEta == -1 || fabs(perelectroneta) < maxAbsEta )
+           && (     minPt == -1 || perelectronpt >= minPt )
+           && (     maxPt == -1 || perelectronpt < maxPt );
    }
 
    int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr){

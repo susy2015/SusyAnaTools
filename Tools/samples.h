@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <set>
 
 //#include "TChain.h"
 
@@ -45,10 +46,17 @@ namespace AnaSamples
         }
         std::vector<std::string> filelist_;
 
+        void addCollection(std::string);
+        const std::set<std::string>& getCollections() const
+        {
+            return collections_;
+        }
+        
+        void readFileList();
+
     private:
         double weight_;
-
-        void readFileList();
+        std::set<std::string> collections_;
     };
 
     bool operator< (const FileSummary& lhs, const FileSummary& rhs);
@@ -83,24 +91,37 @@ namespace AnaSamples
 
     public:
         decltype(sampleSet_.cbegin()) begin() const { return sampleSet_.cbegin(); }
-        decltype(sampleSet_.cend()) end() const { return sampleSet_.cend(); }
+        decltype(sampleSet_.cend())     end() const { return sampleSet_.cend(); }
+        decltype(sampleSet_.size())    size() const { return sampleSet_.size(); }
     };
+
+    class SampleCollection;
 
     class SampleSet : public SampleBase<FileSummary>
     {
+        friend class SampleCollection;
+        
     public:
         SampleSet(std::string fDir = fileDir, double lumi = luminosity);
+
     private:
-        std::string fDir_;
+        std::string fDir_;        
 	double lumi_;
+
+        std::map<std::string, FileSummary>& getMap();
     };
 
     class SampleCollection : public SampleBase<std::vector<FileSummary>>
     {
     public:
-        SampleCollection(SampleSet samples);
+        SampleCollection(SampleSet& samples);
         std::vector<std::string>& getSampleLabels(std::string name);
+        inline double getSampleLumi(std::string name)
+        {
+            return totalLumiMap_[name];
+        }
     private:
+        std::map<std::string, double> totalLumiMap_;
         std::map<std::string, std::vector<std::string>> nameVec_;
         void addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss);
     };

@@ -23,7 +23,7 @@ baseDir=$1
 #    if [ -d $baseDir/$i ]; then
         for fn in $(ls $baseDir); do
             if [ -d $baseDir/$fn ]; then
-                find $baseDir/$i/$fn/ -name "*.root" | grep -v "failed" | sed 's|/eos/uscms|root://cmsxrootd-site.fnal.gov/|' > $fn.txt
+                find $baseDir/$i/$fn/ -name "*.root" | grep -v "failed" | sed 's|/eos/uscms|root://cmseos.fnal.gov/|' > $fn.txt
             fi
         done
 #    fi

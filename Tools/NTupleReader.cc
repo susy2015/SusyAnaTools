@@ -5,11 +5,10 @@
 #include "TObjArray.h"
 #include "TLeaf.h"
 
-#include <iostream>
-
 NTupleReader::NTupleReader(TTree * tree, std::set<std::string>& activeBranches) : activeBranches_(activeBranches)
 {
     tree_ = tree;
+    if(!tree_) throw "NTupleReader(...): TTree " + std::string(tree_->GetName()) + " is invalid!!!!";
     init();
 }
 
@@ -22,12 +21,14 @@ NTupleReader::NTupleReader(TTree * tree)
 void NTupleReader::init()
 {
     //gROOT->ProcessLine(".L TupleDict.h+");
-    gInterpreter->GenerateDictionary("vector<TLorentzVector>","TLorentzVector.h;vector");
+    //gInterpreter->GenerateDictionary("vector<TLorentzVector>","TLorentzVector.h;vector");
 
     nEvtTotal_ = tree_->GetEntries();
+    if(nEvtTotal_ <= 0) throw "NTupleReader::init(): TTree " + std::string(tree_->GetName()) + " has 0 events!!!!";
     nevt_ = 0;
     isUpdateDisabled_ = false;
     isFirstEvent_ = true;
+    reThrow_ = true;
 
     activateBranches();    
 }
@@ -89,6 +90,14 @@ void NTupleReader::populateBranchList()
             if     (type.find("/D") != std::string::npos) registerBranch<double>(name);
             else if(type.find("/I") != std::string::npos) registerBranch<int>(name);
             else if(type.find("/i") != std::string::npos) registerBranch<unsigned int>(name);
+            else if(type.find("/F") != std::string::npos) registerBranch<float>(name);
+            else if(type.find("/C") != std::string::npos) registerBranch<char>(name);
+            else if(type.find("/c") != std::string::npos) registerBranch<unsigned char>(name);
+            else if(type.find("/S") != std::string::npos) registerBranch<short>(name);
+            else if(type.find("/s") != std::string::npos) registerBranch<unsigned short>(name);
+            else if(type.find("/O") != std::string::npos) registerBranch<bool>(name);
+            else if(type.find("/L") != std::string::npos) registerBranch<unsigned long>(name);
+            else if(type.find("/l") != std::string::npos) registerBranch<long>(name);
         }
     }
 }
@@ -130,6 +139,37 @@ void NTupleReader::getType(const std::string& name, std::string& type) const
     {
         type = typeIter->second;
     }
+}
+
+void NTupleReader::setReThrow(const bool reThrow)
+{
+    reThrow_ = reThrow;
+}
+
+const void* NTupleReader::getPtr(const std::string var) const
+{
+    //This function can be used to return the variable pointer
+
+    auto tuple_iter = branchMap_.find(var);
+    if(tuple_iter != branchMap_.end())
+    {
+        return tuple_iter->second;
+    }
+
+    throw "NTupleReader::getPtr(...): Variable not found: " + var;
+}
+
+const void* NTupleReader::getVecPtr(const std::string var) const
+{
+    //This function can be used to return the variable pointer
+
+    auto tuple_iter = branchVecMap_.find(var);
+    if(tuple_iter != branchVecMap_.end())
+    {
+        return tuple_iter->second;
+    }
+
+    throw "NTupleReader::getVecPtr(...): Variable not found: " + var;
 }
 
 void NTupleReader::printTupleMembers(FILE *f) const
