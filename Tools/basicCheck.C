@@ -32,9 +32,7 @@ void mypassBaselineFunc(NTupleReader &tr){
    (*SRblv)(tr);
 }
 
-AnaSamples::SampleSet        allSamples;
-AnaSamples::SampleCollection allCollections(allSamples);
-
+// 0 is used to set to process all events
 int entryToProcess = -1;
 
 const bool debug = false;
@@ -53,6 +51,8 @@ bool find_mother(int momIdx, int dauIdx, const std::vector<int> &genDecayIdxVec,
 int find_idx(int genIdx, const std::vector<int> &genDecayIdxVec);
 double calcMT(const TLorentzVector &objLVec, const TLorentzVector &metLVec);
 
+const AnaConsts::IsoAccRec hadtau_muonsMiniIsoArr = {   -1,       2.4,      20,     -1,       0.2,     -1  };
+
 void drawOverFlowBin(TH1 *histToAdjust){
    int nbins = histToAdjust->GetXaxis()->GetNbins();
    double overflow = histToAdjust->GetBinContent(nbins+1);
@@ -60,7 +60,10 @@ void drawOverFlowBin(TH1 *histToAdjust){
    histToAdjust->SetBinContent(nbins, overflow+lastCont);
 }
 
-void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString="ttbar", int verbose=0){
+void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString,
+  const AnaSamples::SampleSet  & allSamples,
+  const AnaSamples::SampleCollection & allCollections){
+
   TString sampleKeyStringT(sampleKeyString);
 
   std::vector<AnaSamples::FileSummary> fs = allCollections[sampleKeyString];
@@ -93,11 +96,12 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
      tr->registerFunction(&mypassBaselineFunc);
 
      int entries = tr->getNEntries();
+     if( entryToProcess >0 ) entries = entryToProcess;
      std::cout<<"\n\n"<<keyString.c_str()<<"_entries : "<<entries<<"  scaleMC : "<<scaleMC<<std::endl;
 
      while(tr->getNextEvent()){
 
-        if( entryToProcess >=0 && tr->getEvtNum() > entryToProcess ) break;
+        if( entryToProcess >0 && tr->getEvtNum() > entryToProcess ) break;
 
         if( tr->getEvtNum()-1 == 0 || tr->getEvtNum() == entries || (tr->getEvtNum()-1)%(entries/10) == 0 ) std::cout<<"\n   Processing the "<<tr->getEvtNum()-1<<"th event ..."<<std::endl;
 
@@ -159,21 +163,27 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const bool passBaseline = tr->getVar<bool>("passBaseline" + spec);
         const bool passBaselineNoTag = tr->getVar<bool>("passBaselineNoTag" + spec);
 
-// Can directly use passBaseline to get to baseline distribution, but can also configure this
-        h1_cutFlowVec.back()->Fill("original", evtWeight * scaleMC);
-
 // Check trigger bit for data. Different PD can have different triggers.
         if( keyStringT.Contains("Data") ){
            bool foundTrigger = false;
            for(unsigned it=0; it<TriggerNames.size(); it++){
               if( keyStringT.Contains("HTMHT") ){
-                 if( TriggerNames[it].find("HLT_PFHT350_PFMET100_JetIdCleaned_v") || TriggerNames[it].find("HLT_PFHT350_PFMET100_NoiseCleaned_v") ){
+                 if( TriggerNames[it].find("HLT_PFHT350_PFMET100_JetIdCleaned_v") || TriggerNames[it].find("HLT_PFHT350_PFMET100_NoiseCleaned_v") || TriggerNames[it].find("HLT_PFHT350_PFMET100_v*") ){
+                    if( PassTrigger[it] ) foundTrigger = true;
+                 }
+              }
+              if( keyStringT.Contains("SingleMuon") ){
+                 if( TriggerNames[it].find("HLT_Mu15_IsoVVVL_PFHT350_v") ){
+//                 if( TriggerNames[it].find("HLT_Mu45_eta2p1_v") ){
                     if( PassTrigger[it] ) foundTrigger = true;
                  }
               }
            }
            if( !foundTrigger ) continue;
         }
+
+// Can directly use passBaseline to get to baseline distribution, but can also configure this
+        h1_cutFlowVec.back()->Fill("original", evtWeight * scaleMC);
 
         if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
 
@@ -182,17 +192,21 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         if( !passMuonVeto ) continue; h1_cutFlowVec.back()->Fill("passMuonVeto", evtWeight * scaleMC);
         if( !passEleVeto ) continue; h1_cutFlowVec.back()->Fill("passEleVeto", evtWeight * scaleMC);
         if( !passIsoTrkVeto ) continue; h1_cutFlowVec.back()->Fill("passIsoTrkVeto", evtWeight * scaleMC);
-/*
+
         int cntMuons = 0;
+        std::vector<int> selMuonIdxVec;
         for(unsigned int im=0; im<muonsLVec.size(); im++){
-           if( !AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), AnaConsts::muonsMiniIsoArr) ) continue;
+//           if( !AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), AnaConsts::muonsMiniIsoArr) ) continue;
+           if( !AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), hadtau_muonsMiniIsoArr) ) continue;
            cntMuons ++;
+           selMuonIdxVec.push_back(im);
         }
-        if( cntMuons != 1 ) continue;
-*/
+//        if( cntMuons != 1 ) continue;
 
 // Fill histograms with looser requirement -> trigger req. for data...
-        if( passHT && passMET && passBJets ){
+        if( passHT && passMET ){
+//        if( passHT && nJets >=3 ){
+//        if( passHT ){
            h1_nJets_looseVec.back()->Fill(nJets, evtWeight * scaleMC);
            h1_nTops_looseVec.back()->Fill(nTops, evtWeight * scaleMC);
            h1_nbJets_looseVec.back()->Fill(nbJets, evtWeight * scaleMC);
@@ -202,18 +216,18 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
    
            h1_MT2_looseVec.back()->Fill(MT2, evtWeight * scaleMC);
            h1_HT_looseVec.back()->Fill(HT, evtWeight * scaleMC);
-
+/*
            for(unsigned int it=0; it<nTops; it++){
               TLorentzVector topLVec = type3Ptr->buildLVec(jetsLVec_forTagger, type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
               h1_topMass_looseVec.back()->Fill(topLVec.M(), evtWeight * scaleMC);
            }
-   
-           h1_dphi1_looseVec.back()->Fill(dPhiVec[1], evtWeight * scaleMC);
-           h1_dphi2_looseVec.back()->Fill(dPhiVec[2], evtWeight * scaleMC);
-           h1_dphi3_looseVec.back()->Fill(dPhiVec[3], evtWeight * scaleMC);
-   
+*/
+           h1_dphi1_looseVec.back()->Fill(dPhiVec[0], evtWeight * scaleMC);
+           h1_dphi2_looseVec.back()->Fill(dPhiVec[1], evtWeight * scaleMC);
+           h1_dphi3_looseVec.back()->Fill(dPhiVec[2], evtWeight * scaleMC);
+
            h1_vtxSize_looseVec.back()->Fill(tr->getVar<int>("vtxSize"), evtWeight * scaleMC);
-   
+
            for(unsigned int ij=0; ij<jetsLVec_forTagger.size(); ij++){
               h1_allJetPt_looseVec.back()->Fill(jetsLVec_forTagger.at(ij).Pt(), evtWeight * scaleMC);
               h1_allJetEta_looseVec.back()->Fill(jetsLVec_forTagger.at(ij).Eta(), evtWeight * scaleMC);
@@ -228,7 +242,8 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
               }
            }
    
-           for(unsigned int im=0; im<muonsLVec.size(); im++){
+           for(unsigned int is=0; is<selMuonIdxVec.size(); is++){
+              int im = selMuonIdxVec[is];
               h1_muPt_looseVec.back()->Fill(muonsLVec.at(im).Pt(), evtWeight * scaleMC);
               h1_muEta_looseVec.back()->Fill(muonsLVec.at(im).Eta(), evtWeight * scaleMC);
               h1_muPhi_looseVec.back()->Fill(muonsLVec.at(im).Phi(), evtWeight * scaleMC);
@@ -274,9 +289,9 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            h1_topMass_baselineVec.back()->Fill(topLVec.M(), evtWeight * scaleMC);
         }
    
-        h1_dphi1_baselineVec.back()->Fill(dPhiVec[1], evtWeight * scaleMC);
-        h1_dphi2_baselineVec.back()->Fill(dPhiVec[2], evtWeight * scaleMC);
-        h1_dphi3_baselineVec.back()->Fill(dPhiVec[3], evtWeight * scaleMC);
+        h1_dphi1_baselineVec.back()->Fill(dPhiVec[0], evtWeight * scaleMC);
+        h1_dphi2_baselineVec.back()->Fill(dPhiVec[1], evtWeight * scaleMC);
+        h1_dphi3_baselineVec.back()->Fill(dPhiVec[2], evtWeight * scaleMC);
 
         h1_vtxSize_baselineVec.back()->Fill(tr->getVar<int>("vtxSize"), evtWeight * scaleMC);
 
@@ -294,7 +309,8 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            }
         }
 
-        for(unsigned int im=0; im<muonsLVec.size(); im++){
+        for(unsigned int is=0; is<selMuonIdxVec.size(); is++){
+           int im = selMuonIdxVec[is];
            h1_muPt_baselineVec.back()->Fill(muonsLVec.at(im).Pt(), evtWeight * scaleMC);
            h1_muEta_baselineVec.back()->Fill(muonsLVec.at(im).Eta(), evtWeight * scaleMC);
            h1_muPhi_baselineVec.back()->Fill(muonsLVec.at(im).Phi(), evtWeight * scaleMC);
@@ -305,6 +321,9 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            h1_eleEta_baselineVec.back()->Fill(elesLVec.at(ie).Eta(), evtWeight * scaleMC);
            h1_elePhi_baselineVec.back()->Fill(elesLVec.at(ie).Phi(), evtWeight * scaleMC);
         }
+ 
+        int searchBinIdx = find_Binning_Index(nbJets, nTops, MT2, met);
+        h1_searchBinYieldsVec.back()->Fill(searchBinIdx, evtWeight * scaleMC);
 
         double copymet = met, copyMT2 = MT2;
 
@@ -348,7 +367,10 @@ void basicCheck(int argc, char *argv[]){
 
    NTupleReader *tr = 0;
 
+//   SRblv = new BaselineVessel(spec, "csc_evtlist.txt");
    SRblv = new BaselineVessel(spec);
+
+   int startfile = 0, filerun = -1;
 
    std::string selKeyStr;
    if( argc >=2 ){
@@ -363,7 +385,22 @@ void basicCheck(int argc, char *argv[]){
 // Now entryToProcess is re-used as index to select which sub-sample to run: note that keep entryToProcess to be negative!
 // entryToProcess starts from 1!
       if( entryToProcess < 0 ){ doSel = true; convert << abs(entryToProcess); }
+
+      if( argc >=4 ){
+         filerun = atoi(argv[3]);
+         if( argc >=5 ){
+            startfile = atoi(argv[4]);
+         }
+      }
    }
+
+   std::string condorSpec;
+   if( argc >=6 ){
+      condorSpec = argv[5];
+   }
+
+   AnaSamples::SampleSet        allSamples = condorSpec.empty()? AnaSamples::SampleSet():AnaSamples::SampleSet(condorSpec);
+   AnaSamples::SampleCollection allCollections(allSamples);
 
    std::stringstream ssSelKey(selKeyStr);
 
@@ -373,6 +410,12 @@ void basicCheck(int argc, char *argv[]){
 
    while(ssSelKey >> buf){ keyStrVec.push_back(buf); nameStr += "_"+buf; }
    if( doSel ) nameStr += "_"+convert.str();
+
+   if( startfile != 0 || filerun != -1 ){
+      int idx = startfile/filerun;
+      convert << idx; 
+      nameStr += "_"+convert.str();
+   }
 
    std::cout<<"nameKeyStr : "<<nameStr.c_str()<<std::endl;
 
@@ -384,6 +427,16 @@ void basicCheck(int argc, char *argv[]){
       if( !keyStrVec.empty() ){
          bool found = false;
          for(auto& str : keyStrVec ){ if( filelist.first == str ) found = true; }
+         if( !found && entryToProcess !=0 ) continue;
+      }
+
+      if( entryToProcess == 0 ){
+         bool found = false;
+         for(auto & file : filelist.second){
+            std::string perSubStr;
+            for(const auto & perST : allSamples ){ if(perST.second == file ) perSubStr = perST.first; }
+            for(auto& str : keyStrVec ){ if( perSubStr == str ) found = true; }
+         }
          if( !found ) continue;
       }
 
@@ -393,28 +446,36 @@ void basicCheck(int argc, char *argv[]){
       int idxCnt = 0;
       for(auto & file : filelist.second){
          idxCnt ++;
-// Skip from the very beginning
-         if( doSel && abs(entryToProcess) != idxCnt ) continue;
 
          std::string perSubStr;
          for(const auto & perST : allSamples ){ if(perST.second == file ) perSubStr = perST.first; }
 
+// Skip from the very beginning
+         if( doSel && abs(entryToProcess) != idxCnt ) continue;
+
+         if( entryToProcess == 0 ){
+            bool found = false;
+            for(auto& str : keyStrVec ){ if( perSubStr == str ) found = true; }
+            if( !found ) continue;
+         }
+
 // Throw away low HT bin samples since we have HT>500 GeV cut...
+/*
          if(filelist.first == "WJetsToLNu" && (perSubStr == "WJetsToLNu_HT_100to200" || perSubStr == "WJetsToLNu_HT_200to400") ) continue;
          if(filelist.first == "ZJetsToNuNu" && (perSubStr == "ZJetsToNuNu_HT_100to200" || perSubStr == "ZJetsToNuNu_HT_200to400") ) continue;
          if(filelist.first == "QCD" && (perSubStr == "QCD_HT100to200" || perSubStr == "QCD_HT200to300" || perSubStr == "QCD_HT300to500") ) continue;
-
+*/
          std::cout<<"  "<<perSubStr.c_str();
 
          TChain *aux = new TChain(file.treePath.c_str());  
-         file.addFilesToChain(aux);
+         file.addFilesToChain(aux, startfile, filerun);
          treeVec.push_back(aux);
 
          subSampleKeysVec.push_back(perSubStr);
       }
       std::cout<<std::endl;
-
-      anaFunc(tr, treeVec, subSampleKeysVec, filelist.first.c_str());
+      
+      if( !treeVec.empty() ) anaFunc(tr, treeVec, subSampleKeysVec, filelist.first.c_str(), allSamples, allCollections);
 
       std::cout<<std::endl; timer.Stop(); timer.Print(); timer.Continue();
    }  
@@ -478,33 +539,38 @@ void basicCheck(int argc, char *argv[]){
 
    tdrStyle->SetTitleXOffset(5.50); tdrStyle->SetTitleYOffset(6.50);
 
-   TCanvas *cs = new TCanvas("cs", "cs", 1200, 800);
-   int divW=3, divH=2;
-   cs->Divide(divW, divH);
+   if( condorSpec != "condor" ){
+      TCanvas *cs = new TCanvas("cs", "cs", 1200, 800);
+      int divW=3, divH=2;
+      cs->Divide(divW, divH);
 
-   TString pdfNameStrT = "basicCheck_allINone"+nameStr+".pdf";
-
-   cs->Print(pdfNameStrT+"[");
-   for(unsigned int ic=0; ic<h1_cutFlowVec.size(); ic++){ h1_cutFlowVec[ic]->LabelsDeflate(); h1_cutFlowVec[ic]->LabelsOption("v"); h1_cutFlowVec[ic]->SetMarkerSize(h1_cutFlowVec[ic]->GetMarkerSize()*1.5); }
-   for(unsigned int ic=0; ic<h1_cutFlow_auxVec.size(); ic++){ h1_cutFlow_auxVec[ic]->LabelsDeflate(); h1_cutFlow_auxVec[ic]->LabelsOption("v"); h1_cutFlow_auxVec[ic]->SetMarkerSize(h1_cutFlow_auxVec[ic]->GetMarkerSize()*1.5); }
-   draw1DallINone(cs, divW*divH, h1_cutFlowVec, 1, "text e"); cs->Print(pdfNameStrT);
-   draw1DallINone(cs, divW*divH, h1_cutFlow_auxVec, 1, "text e"); cs->Print(pdfNameStrT);
-
-   for(unsigned int ic=0; ic<h2_evtCnt_nbJets_vs_nTopsVec.size(); ic++){ h2_evtCnt_nbJets_vs_nTopsVec[ic]->SetMarkerSize(h2_evtCnt_nbJets_vs_nTopsVec[ic]->GetMarkerSize()*2.0); }
-   draw2DallINone(cs, divW*divH, h2_evtCnt_nbJets_vs_nTopsVec, "colz text e"); cs->Print(pdfNameStrT);
-
-   for(int iSR=0; iSR<nSR; iSR++){
-      for(unsigned int ic=0; ic<h2_poly_MT2_vs_metVec[iSR].size(); ic++){ h2_poly_MT2_vs_metVec[iSR][ic]->SetMarkerSize(h2_poly_MT2_vs_metVec[iSR][ic]->GetMarkerSize()*2.0); h2_poly_MT2_vs_metVec[iSR][ic]->GetZaxis()->SetRangeUser(0, h2_poly_MT2_vs_metVec[iSR][ic]->GetMaximum()); }
-      draw2DallINone(cs, divW*divH, h2_poly_MT2_vs_metVec[iSR], "colz text e"); cs->Print(pdfNameStrT);
+      TString pdfNameStrT = "basicCheck_allINone"+nameStr+".pdf";
+   
+      cs->Print(pdfNameStrT+"[");
+      for(unsigned int ic=0; ic<h1_cutFlowVec.size(); ic++){ h1_cutFlowVec[ic]->LabelsDeflate(); h1_cutFlowVec[ic]->LabelsOption("v"); h1_cutFlowVec[ic]->SetMarkerSize(h1_cutFlowVec[ic]->GetMarkerSize()*1.5); }
+      for(unsigned int ic=0; ic<h1_cutFlow_auxVec.size(); ic++){ h1_cutFlow_auxVec[ic]->LabelsDeflate(); h1_cutFlow_auxVec[ic]->LabelsOption("v"); h1_cutFlow_auxVec[ic]->SetMarkerSize(h1_cutFlow_auxVec[ic]->GetMarkerSize()*1.5); }
+      draw1DallINone(cs, divW*divH, h1_cutFlowVec, 1, "text e"); cs->Print(pdfNameStrT);
+      draw1DallINone(cs, divW*divH, h1_cutFlow_auxVec, 1, "text e"); cs->Print(pdfNameStrT);
+   
+      draw1DallINone(cs, divW*divH, h1_searchBinYieldsVec, 1, "hist text e"); cs->Print(pdfNameStrT);
+   
+      for(unsigned int ic=0; ic<h2_evtCnt_nbJets_vs_nTopsVec.size(); ic++){ h2_evtCnt_nbJets_vs_nTopsVec[ic]->SetMarkerSize(h2_evtCnt_nbJets_vs_nTopsVec[ic]->GetMarkerSize()*2.0); }
+      draw2DallINone(cs, divW*divH, h2_evtCnt_nbJets_vs_nTopsVec, "colz text e"); cs->Print(pdfNameStrT);
+   
+      for(int iSR=0; iSR<nSR; iSR++){
+         for(unsigned int ic=0; ic<h2_poly_MT2_vs_metVec[iSR].size(); ic++){ h2_poly_MT2_vs_metVec[iSR][ic]->SetMarkerSize(h2_poly_MT2_vs_metVec[iSR][ic]->GetMarkerSize()*2.0); h2_poly_MT2_vs_metVec[iSR][ic]->GetZaxis()->SetRangeUser(0, h2_poly_MT2_vs_metVec[iSR][ic]->GetMaximum()); }
+         draw2DallINone(cs, divW*divH, h2_poly_MT2_vs_metVec[iSR], "colz text e"); cs->Print(pdfNameStrT);
+      }
+      cs->Print(pdfNameStrT+"]");
    }
-   cs->Print(pdfNameStrT+"]");
+
 
    TString rootNameStrT = "basicCheck"+nameStr+".root";
 
    TFile *basicCheckFile = new TFile(rootNameStrT, "RECREATE");
 
-   h2_evtCnt_sumSM_nbJets_vs_nTops->Write();
-   h1_keyString->Write();
+   if( h2_evtCnt_sumSM_nbJets_vs_nTops ) h2_evtCnt_sumSM_nbJets_vs_nTops->Write();
+   if( h1_keyString ) h1_keyString->Write();
    for(unsigned int ih=0; ih<h1_cutFlowVec.size(); ih++){
       h1_cutFlowVec[ih]->Write();
       h2_evtCnt_nbJets_vs_nTopsVec[ih]->Write();
@@ -532,6 +598,8 @@ void basicCheck(int argc, char *argv[]){
       h1_leadJetPt_baselineVec[ih]->Write(); h1_leadJetEta_baselineVec[ih]->Write(); h1_leadJetPhi_baselineVec[ih]->Write(); h1_leadJetM_baselineVec[ih]->Write();
       h1_muPt_baselineVec[ih]->Write(); h1_muEta_baselineVec[ih]->Write(); h1_muPhi_baselineVec[ih]->Write();
       h1_elePt_baselineVec[ih]->Write(); h1_eleEta_baselineVec[ih]->Write(); h1_elePhi_baselineVec[ih]->Write();
+
+      h1_searchBinYieldsVec[ih]->Write();
    }
    basicCheckFile->Write(); basicCheckFile->Close();
 
@@ -571,6 +639,8 @@ double calcMT(const TLorentzVector &objLVec, const TLorentzVector &metLVec){
 
 void draw2DallINone(TCanvas *cs, const int lastPadIdx, const std::vector<TH2D*> &h2_inputVec, const TString optDrawStr, const TString optComStr){
 
+  if( h2_inputVec.empty() ) return;
+
   int cntPadIdx = 0;
   std::vector<std::string> copykeyStringVec = keyStringCachedVec;
   if( optComStr.Contains("sumSM") ) copykeyStringVec.push_back("sumSM");
@@ -597,6 +667,8 @@ void draw2DallINone(TCanvas *cs, const int lastPadIdx, const std::vector<TH2D*> 
 
 void draw2DallINone(TCanvas *cs, const int lastPadIdx, const std::vector<TH2Poly*> &h2_inputVec, const TString optDrawStr, const TString optComStr){
 
+  if( h2_inputVec.empty() ) return;
+
   int cntPadIdx = 0;
   std::vector<std::string> copykeyStringVec = keyStringCachedVec;
   if( optComStr.Contains("sumSM") ) copykeyStringVec.push_back("sumSM");
@@ -622,6 +694,8 @@ void draw2DallINone(TCanvas *cs, const int lastPadIdx, const std::vector<TH2Poly
 }
 
 void draw1DallINone(TCanvas *cs, const int lastPadIdx, const std::vector<TH1D*> &h1_inputVec, const int nRebin, const TString optDrawStr, const TString optComStr){
+
+   if( h1_inputVec.empty() ) return;
 
   int statusLogy = 0;
   if( optDrawStr.Contains("SetLogy") ) statusLogy =1;

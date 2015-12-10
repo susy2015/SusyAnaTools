@@ -1,18 +1,7 @@
 #include "PDFUncertainty.h"
-
-#include "LHAPDF/LHAPDF.h"
-#include "NTupleReader.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TChain.h"
-#include <iostream>
-#include <cstdio>
-#include <string>
-#include <ctime>
-#include <iomanip>
 #include <cmath>
+#include "TMath.h"
 
-#include "TH1.h"
 
 PDFUncertainty::PDFUncertainty()
 {

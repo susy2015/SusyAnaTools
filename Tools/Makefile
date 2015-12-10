@@ -52,7 +52,7 @@ $(ODIR)/%.o : $(SDIR)/%.cc
 tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/PDFUncertainty.o $(ODIR)/tupleReadTest.o 
 	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
-nEvts: $(ODIR)/samples.o $(ODIR)/nEvts.o
+nEvts: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/nEvts.o
 	$(LD) $^ $(LIBS) -o $@
 
 basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o

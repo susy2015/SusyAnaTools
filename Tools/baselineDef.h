@@ -3,6 +3,7 @@
 
 #include "NTupleReader.h"
 #include "customize.h"
+#include "EventListFilter.h"
 
 #include "Math/VectorUtil.h"
 
@@ -12,9 +13,10 @@ class BaselineVessel
 {
 private:
     const std::string spec;
+    EventListFilter filter;
 
 public:
-    BaselineVessel(const std::string specialization = "") : spec(specialization) { }
+BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization), filter(filterString) { }
 
     void passBaseline(NTupleReader &tr)
     {
@@ -63,7 +65,7 @@ public:
            doEleVeto = false; 
            doIsoTrksVeto = false;
         }
-        else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv2b") == 0) 
+        else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0) 
         {
             jetVecLabel = "jetsLVecLepCleaned";
             CSVVecLabel = "recoJetsBtag_0_LepCleaned";
@@ -225,28 +227,51 @@ public:
         if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
     } 
 
-    bool passNoiseEventFilterFunc(NTupleReader &tr){
-      try
-      {
-        int vtxSize = tr.getVar<int>("vtxSize");
-        int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
-//        int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
-        int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
-        int hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
-        int hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
-
-        //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
-        return (vtxSize>=1) && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
-      }
-      catch (std::string var)
-      {
-        if(tr.IsFirstEvent()) 
+    bool passNoiseEventFilterFunc(NTupleReader &tr)
+    {
+        try
         {
-          printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
-          printf("Running with PHYS14 Config\n");
+//            int vtxSize = tr.getVar<int>("vtxSize");
+            //int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
+/*
+            bool beamHaloFilter = true;
+            if(filter.Initialized()) 
+            {
+                const unsigned int& run =   tr.getVar<unsigned int>("run");
+                const unsigned int& lumi  = tr.getVar<unsigned int>("lumi");
+                const unsigned int& event = tr.getVar<unsigned int>("event");
+                beamHaloFilter = filter.CheckEvent(run, lumi, event);
+            }
+*/
+            bool passDataSpec = true;
+            if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
+               int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
+               int CSCTightHaloListFilter = tr.getVar<int>("CSCTightHaloListFilter");
+               int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
+               int eeBadScListFilter = tr.getVar<int>("eeBadScListFilter");
+               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
+            }
+
+            bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
+            bool hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
+            int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
+
+            int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
+
+            //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
+//            return (vtxSize>=1) && beamHaloFilter && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
+//            return goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
+            return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
         }
-      }
-      return true;
+        catch (std::string var)
+        {
+            if(tr.IsFirstEvent()) 
+            {
+                printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
+                printf("Running with PHYS14 Config\n");
+            }
+        }
+        return true;
     }
 
     void operator()(NTupleReader &tr)
