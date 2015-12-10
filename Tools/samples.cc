@@ -215,13 +215,13 @@ namespace AnaSamples
         addSampleSet(samples, "TTbarSingleLep", {"TTbarSingleLepT", "TTbarSingleLepTbar"});
         addSampleSet(samples, "TTbarDiLep", {"TTbarDiLep"});
         addSampleSet(samples, "TTbarHT", {"TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
-//        addSampleSet(samples, "TTbarNoHad", {"TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
+        addSampleSet(samples, "TTbarNoHad", {"TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
 
         // Only all had. part of TTbarInc
-//        addSampleSet(samples, "TTbarAll", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
+        addSampleSet(samples, "TTbarAll", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
 
         // Only all had. part of TTbarInc & HT cuts on inclusive samples
-//        addSampleSet(samples, "TTbarExt", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", "TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
+        addSampleSet(samples, "TTbarExt", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", "TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
 
 //        addSampleSet(samples, "WJetsToLNu_LESS", {"WJetsToLNu_HT_600toInf", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
         addSampleSet(samples, "WJetsToLNu", {"WJetsToLNu_HT_2500toInf", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
@@ -243,15 +243,15 @@ namespace AnaSamples
 //	addSampleSet(samples, "ttHJetToNonbb", {"ttHJetToNonbb"});
 	addSampleSet(samples, "ttH", {"ttHJetTobb", "ttHJetToNonbb"});
 
-//        addSampleSet(samples, "WWZ", {"WWZ"});
-//        addSampleSet(samples, "WZZ", {"WZZ"});
-//        addSampleSet(samples, "ZZZ", {"ZZZ"});
+        addSampleSet(samples, "WWZ", {"WWZ"});
+        addSampleSet(samples, "WZZ", {"WZZ"});
+        addSampleSet(samples, "ZZZ", {"ZZZ"});
 
         addSampleSet(samples, "Diboson", {"WW", "WZ", "ZZ"});
 
         addSampleSet(samples, "Triboson", {"WWZ", "WZZ", "ZZZ"});
 
-//	addSampleSet(samples, "Rare", {"TTWJetsToLNu", "TTWJetsToQQ", "TTGJets", "WWZ", "WZZ", "ZZZ", "ttHJetTobb", "ttHJetToNonbb"});
+	addSampleSet(samples, "Rare", {"TTWJetsToLNu", "TTWJetsToQQ", "TTGJets", "WWZ", "WZZ", "ZZZ", "ttHJetTobb", "ttHJetToNonbb"});
 
         addSampleSet(samples, "Data_SingleMuon", {"Data_SingleMuon_2015C", "Data_SingleMuon_2015D_05Oct2015", "Data_SingleMuon_2015D_PromptReco"});
 
