@@ -201,7 +201,7 @@ std::vector<std::string> NTupleReader::GetTupleMembers() const
 
 std::vector<std::string> NTupleReader::GetTupleSpecs(std::string VarName) const
 {
-  std::vector<std::string> &members = GetTupleMembers();
+  std::vector<std::string> members = GetTupleMembers();
   std::vector<std::string> specs;
   for(auto &member : members)
   {
