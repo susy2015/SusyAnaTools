@@ -1,12 +1,11 @@
 #include "PDFUncertainty.h"
-
 #include <cmath>
-
 #include "TMath.h"
+
 
 PDFUncertainty::PDFUncertainty()
 {
-        //ctor
+
         //Initialize all pdf sets
         for(int in = 0; in < 53; in++){
 
@@ -39,15 +38,40 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
         const double x1  =   tr.getVar<double>("x1");
         const double x2  =   tr.getVar<double>("x2");
         const double  Q  =   tr.getVar<double>("q");//q is stored variable in tuple
-        const int id1    =   tr.getVar<int>("id1");
-        const int id2    =   tr.getVar<int>("id2");
+        const  int id1    =   tr.getVar<int>("id1");
+	const  int id2    =   tr.getVar<int>("id2");
+
+	//For Scale Variations
+	std::vector<double> ScaleWeights;
+        /*                                                                                                                         
+          Compute the envelope of your observable for weight                                                                       
+          indices 1,2,3,4,6,8 (index 0 corresponds to nominal                                                                      
+          scale, indices 5 and 7 correspond  anti-correlated                                                                       
+          variations).                                                                                                             
+	*/
+        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(1));
+        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(2));
+        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(3));
+        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(4));
+        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(6));
+        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(8));
+
+	auto biggest1 = std::max_element(std::begin(ScaleWeights), std::end(ScaleWeights));
+        auto smallest1 = std::min_element(std::begin(ScaleWeights), std::end(ScaleWeights));
+
+        double upperBound = *biggest1;
+	double lowerBound = *smallest1;
 
 
-
-
+	//This Part for calculating PDF Uncertainty
         //Vector to be stored.
-        std::vector<double> *pdfweights = new std::vector<double>();
-        std::vector<int> *pdfids = new std::vector<int>();
+        std::vector<double> pdfweights;
+        std::vector<int> pdfids;
+
+
+	//	// weirdo LHA conventions, gluons are 0
+	//if (id1 == 21) id1 = 0;
+	//if (id2 == 21) id2 = 0;
 
         //Variables to be registered after calculation.
         double pdf_unc_sys;
@@ -67,8 +91,8 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
           double w_new1 = xfx_1_1*xfx_2_1;
           lhaweight1  = w_new1/w01;
           pdfid1 = 1000 + i+1;
-          (*pdfweights).push_back(lhaweight1);
-          (*pdfids).push_back(pdfid1);
+          pdfweights.push_back(lhaweight1);
+          pdfids.push_back(pdfid1);
         }
         //Set 2
         int pdfid2 = -99;
@@ -82,8 +106,8 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
           double w_new2 = xfx_1_2*xfx_2_2;
           lhaweight2  = w_new2/w02;
           pdfid2 = 2000 + i+1;
-          (*pdfweights).push_back(lhaweight2);
-          (*pdfids).push_back(pdfid2);
+          pdfweights.push_back(lhaweight2);
+          pdfids.push_back(pdfid2);
         }
 
 
@@ -99,8 +123,8 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
           double w_new3 = xfx_1_3*xfx_2_3;
           lhaweight3  = w_new3/w03;
           pdfid3 = 3000 + i+1;
-          (*pdfweights).push_back(lhaweight3);
-          (*pdfids).push_back(pdfid3);
+          pdfweights.push_back(lhaweight3);
+          pdfids.push_back(pdfid3);
         }
 	//Now calculate pdf uncertainities
            // All Variations Initialize to zero.
@@ -118,19 +142,29 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
         //Average central value for particular Pdf For each event.
         for(int ic =0; ic < 53; ic++){
             wgh_CT10[ic] = -1.0;
-            if((*pdfids).at(ic) < 1200)  wgh_CT10[ic] = (*pdfweights).at(ic);
+            if(pdfids.at(ic) < 1200)  wgh_CT10[ic] = pdfweights.at(ic);
         }
 
         //***********************
         for(int im =0; im < 51; im++){
             wgh_MMHT2014[im] = -1.0;
-            if((*pdfids).at(im+53) > 2000 && (*pdfids).at(im+53) < 2060)  wgh_MMHT2014[im] = (*pdfweights).at(im+53);
+            if(pdfids.at(im+53) > 2000 && pdfids.at(im+53) < 2060)  wgh_MMHT2014[im] = pdfweights.at(im+53);
         }
+
+
         //*************************
         for(int in =0; in < 101; in++){
             wgh_NNPDF[in] = 0.0;
-            if((*pdfids).at(in+104) > 2999) wgh_NNPDF[in] = (*pdfweights).at(in +104);
+            if(pdfids.at(in+104) > 2999) wgh_NNPDF[in] = pdfweights.at(in +104);
+
         }
+
+
+	//********************************************************** 
+       
+
+
+
         //**************************
 
         //PDF 1 CT10 ....
@@ -164,6 +198,9 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
         tr.registerDerivedVar("PDF_Unc_Up", pdf_unc_up);
         tr.registerDerivedVar("PDF_Unc_Down", pdf_unc_down);
 
+	//For Scale Variations
+	tr.registerDerivedVar("Scaled_Variations_Up",upperBound);
+	tr.registerDerivedVar("Scaled_Variations_Down",lowerBound);
 }
 
 void PDFUncertainty::operator()(NTupleReader& tr)
@@ -171,3 +208,5 @@ void PDFUncertainty::operator()(NTupleReader& tr)
   //
     getPDFUncertainty(tr);
 }
+
+
