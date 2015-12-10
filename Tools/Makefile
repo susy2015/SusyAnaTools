@@ -41,7 +41,9 @@ $(ODIR)/samplesPyWrap.o: $(SDIR)/samples.cc $(SDIR)/samples.h
 
 $(ODIR)/samplesModulePyWrap.o: $(SDIR)/samplesModule.cc
 	$(CXX) --std=c++11 -c -fPIC -o $@ $<
-
+#mine
+weightTest: $(ODIR)/NTupleReader.o $(ODIR)/weight_pileup.o $(ODIR)/tupleReadTest.o
+	$(LD) $^ $(LIBS) -o $@
 
 $(ODIR)/%.o : $(SDIR)/%.C
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
@@ -49,7 +51,13 @@ $(ODIR)/%.o : $(SDIR)/%.C
 $(ODIR)/%.o : $(SDIR)/%.cc
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
 
-tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o 
+#tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/tupleReadTest.o 
+#	$(LD) $^ $(LIBS) -o $@
+
+#pileupTest: $(ODIR)/NTupleReader.o $(ODIR)/pileup_Scarlet.o
+#	$(LD) $^ $(LIBS) -o $@
+
+tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/Weights.o $(ODIR)/tupleReadTest.o
 	$(LD) $^ $(LIBS) -o $@
 
 nEvts: $(ODIR)/samples.o $(ODIR)/nEvts.o
