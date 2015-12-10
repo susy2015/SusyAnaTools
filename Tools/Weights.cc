@@ -28,7 +28,7 @@ Pileup_Sys::~Pileup_Sys()
 void Pileup_Sys::getPileup_Sys(NTupleReader& tr)
 {
 //Calling the Jasn file from RA2b currently
-TFile Pileup_Jasn("~/CMSSW_7_4_15/src/SusyAnaTools/PileupHistograms_1117.root");
+TFile Pileup_Jasn("PileupHistograms_1117.root");
 
 //These are the historgrams currently in the Jasn file
 TH1F *pu_central  = (TH1F*)Pileup_Jasn.Get("pu_weights_central");
