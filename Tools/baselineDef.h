@@ -65,7 +65,7 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
            doEleVeto = false; 
            doIsoTrksVeto = false;
         }
-        else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv2b") == 0) 
+        else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0) 
         {
             jetVecLabel = "jetsLVecLepCleaned";
             CSVVecLabel = "recoJetsBtag_0_LepCleaned";
