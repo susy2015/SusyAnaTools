@@ -13,10 +13,10 @@ class BaselineVessel
 {
 private:
     const std::string spec;
-    EventListFilter filter;
+    //EventListFilter filter;
 
 public:
-BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization), filter(filterString) { }
+BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization) { }
 
     void passBaseline(NTupleReader &tr)
     {
