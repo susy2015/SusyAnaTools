@@ -142,39 +142,6 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
         double upper_NNPDF = *NNPDF_Up;
 	double lower_NNPDF = *NNPDF_Down;
 
-
-	/********************************************************************/
-	//NNPDF error from Mean
-	/********************************************************************/
-
-
-	 /*
-	  *Alternatively since NNPDF is mc replica set best estimate will be
-	  *this one not done above. 
-	  *Will follow the procedure 
-	  *to calculate the  average and standard deviation using Eqs. (2.3) and (2.4) of arXiv:1106.5788v2.
-	  */
-
-	double av = 0.0;
-        double sd = 0.0;
-	for (size_t imem = 1; imem <= 100; imem++) {
-	  av += wgh_NNPDF[imem];
-	  sd += std::pow(wgh_NNPDF[imem],2);
-	}
-	
-	av /= 100.0; sd /= 100.0;
-	sd = 100/(100.0-1.0)*(sd-std::pow(av, 2));
-	sd = (sd > 0.0 && 100  > 1) ? std::sqrt(sd) : 0.0;
-	
-	double NNPDF_unc_up = av + sd;
-        double NNPDF_unc_down = av - sd;
-	double NNPDF_unc_errsym = sd;
-	double NNPDF_unc_central = av;
-	NNPDF_unc_up = NNPDF_unc_up/av;
-	NNPDF_unc_down =NNPDF_unc_down/av;
-
-
-
 	/********************************************************************/
 	//NNPDF error from Median                            
 	/********************************************************************/
@@ -288,6 +255,42 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
         pdf_unc_down = (pdf_unc_central - pdf_unc_sys)/pdf_unc_central ;
 
 
+
+
+
+
+	/********************************************************************/
+	//NNPDF error from Mean
+	/********************************************************************/
+
+
+	 /*
+	  *Alternatively since NNPDF is mc replica set best estimate will be
+	  *this one not done above. 
+	  *Will follow the procedure 
+	  *to calculate the  average and standard deviation using Eqs. (2.3) and (2.4) of arXiv:1106.5788v2.
+	  */
+
+	double av = 0.0;
+        double sd = 0.0;
+	for (size_t imem = 1; imem <= 100; imem++) {
+	  av += wgh_NNPDF[imem];
+	  sd += std::pow(wgh_NNPDF[imem],2);
+	}
+	
+	av /= 100.0; sd /= 100.0;
+	sd = 100/(100.0-1.0)*(sd-std::pow(av, 2));
+	sd = (sd > 0.0 && 100  > 1) ? std::sqrt(sd) : 0.0;
+	
+	double NNPDF_unc_up = av + sd;
+        double NNPDF_unc_down = av - sd;
+	double NNPDF_unc_errsym = sd;
+	double NNPDF_unc_central = av;
+	NNPDF_unc_up = NNPDF_unc_up/av;
+	NNPDF_unc_down =NNPDF_unc_down/av;
+
+
+
 	//register derived variables back to ntuples
         tr.registerDerivedVar("PDF_Unc_Central", pdf_unc_central);
         tr.registerDerivedVar("PDF_Unc_Sys", pdf_unc_sys);
@@ -322,7 +325,7 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 	//Up and down are Scaled to central value
 	tr.registerDerivedVar("NNPDF_From_Median_Up", NNPDF_from_median_up);
        	tr.registerDerivedVar("NNPDF_From_Median_Down", NNPDF_from_median_down);
-
+	
 	tr.registerDerivedVar("NNPDF_From_Median_Central", central);
 
 }
