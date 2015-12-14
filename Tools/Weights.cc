@@ -7,7 +7,7 @@ Pileup_Sys::Pileup_Sys()
 {
     TH1::AddDirectory(false); //magic incantation that lets the root file close if this is not here segfaults 
     //Calling the Jasn file from RA2b currently
-    TFile Pileup_Jasn("PileupHistograms_Nov17.root");
+    TFile Pileup_Jasn(SearchFilePath("PileupHistograms_Nov17.root").c_str());
     //These are the historgrams currently in the Jasn file
     pu_central  = (TH1F*)Pileup_Jasn.Get("pu_weights_central");
     pu_up  = (TH1F*)Pileup_Jasn.Get("pu_weights_up");
@@ -15,6 +15,31 @@ Pileup_Sys::Pileup_Sys()
 
     Pileup_Jasn.Close();
 }
+
+// ===  FUNCTION  ============================================================
+//         Name:  Pileup_Sys::SearchFilePath
+//  Description:  
+// ===========================================================================
+std::string Pileup_Sys::SearchFilePath(std::string name_) const
+{
+  std::vector<std::string> SearchPath = {"./", "../", "FileList"};
+  TString name(name_);
+  std::string repath="";
+
+  for(auto &a : SearchPath)
+  {
+    const char* out = gSystem->Which(a.c_str(), name);
+    if (out != 0)
+    {
+      repath = out;
+      delete out;
+      break;
+    }
+    delete out;
+  }
+
+  return repath;
+}       // -----  end of function Pileup_Sys::SearchFilePath  -----
 
 
 Pileup_Sys::~Pileup_Sys()

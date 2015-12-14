@@ -3,6 +3,8 @@
 
 #include "NTupleReader.h"
 #include "TH1.h"
+#include "TSystem.h"
+#include "TFile.h"
 
 
 class Pileup_Sys
@@ -16,6 +18,7 @@ public:
 protected:
 
 private: 
+    std::string SearchFilePath(std::string name_) const;
     //need to define the histogram but not fill it till the c file
     TH1F * pu_central;
     TH1F * pu_up;

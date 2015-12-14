@@ -75,6 +75,7 @@ public:
     bool goToEvent(int evt_);
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
+    bool HasVar(std::string name, std::string spec="") const;
     std::vector<std::string> GetTupleMembers() const;
     std::vector<std::string> GetTupleSpecs(std::string VarName = "cntNJetsPt30Eta24") const;
 
