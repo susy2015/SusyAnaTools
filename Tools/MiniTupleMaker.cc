@@ -4,7 +4,6 @@
 #include <iostream>
 MiniTupleMaker::MiniTupleMaker(TTree * const t) : tree_(t)
 {
-    first_ = true;
 }
 
 MiniTupleMaker::~MiniTupleMaker()
@@ -62,8 +61,6 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
             }
         }
     }
-    
-    first_ = false;
 }
 
 void MiniTupleMaker::fill()
