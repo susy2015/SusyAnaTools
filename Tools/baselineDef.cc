@@ -290,10 +290,10 @@ bool BaselineVessel::GetMHT(NTupleReader *tr) const
       SumHT += jet.Pt();
     }
   }
-  tr->registerDerivedVar("MHT", MHT.Pt());
-  tr->registerDerivedVar("MHTPhi", MHT.Phi());
-  tr->registerDerivedVar("MHTSig", MHT.Pt()/ sqrt(SumHT));
-  tr->registerDerivedVar("METSig", tr->getVar<double>("met")/ sqrt(SumHT));
+  tr->registerDerivedVar("MHT"+spec, MHT.Pt());
+  tr->registerDerivedVar("MHTPhi"+spec, MHT.Phi());
+  tr->registerDerivedVar("MHTSig"+spec, MHT.Pt()/ sqrt(SumHT));
+  tr->registerDerivedVar("METSig"+spec, tr->getVar<double>("met")/ sqrt(SumHT));
   return true;
 }       // -----  end of function BaselineVessel::GetMHT  -----
 
