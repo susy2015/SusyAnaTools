@@ -273,6 +273,29 @@ bool BaselineVessel::GetnTops(NTupleReader *tr) const
   return true;
 }       // -----  end of function VarPerEvent::GetnTops  -----
 
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetMHT
+//  Description:  /* cursor */
+// ===========================================================================
+bool BaselineVessel::GetMHT(NTupleReader *tr) const
+{
+  // Calculate MHT
+  TLorentzVector MHT(0, 0, 0, 0);
+  double SumHT = 0.0; //Using jet > 30 , |eta| < 5
+  for(auto &jet : tr->getVec<TLorentzVector>("jetsLVecLepCleaned"))
+  {
+    if (jet.Pt() >= 30)
+    {
+      MHT -= jet;
+      SumHT += jet.Pt();
+    }
+  }
+  tr->registerDerivedVar("MHT", MHT.Pt());
+  tr->registerDerivedVar("MHTPhi", MHT.Phi());
+  tr->registerDerivedVar("MHTSig", MHT.Pt()/ sqrt(SumHT));
+  tr->registerDerivedVar("METSig", tr->getVar<double>("met")/ sqrt(SumHT));
+  return true;
+}       // -----  end of function BaselineVessel::GetMHT  -----
 
 bool BaselineVessel::passNoiseEventFilterFunc(NTupleReader &tr){
     try

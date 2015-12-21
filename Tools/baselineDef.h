@@ -33,6 +33,7 @@ public:
     void prepareTopTagger();
     bool GetnTops(NTupleReader *tr) const;
     bool passNoiseEventFilterFunc(NTupleReader &tr);
+    bool GetMHT(NTupleReader *tr) const;
 
     topTagger::type3TopTagger * GetType3Ptr() const {return type3Ptr;};
     inline void operator()(NTupleReader &tr) { passBaseline(tr); }
@@ -44,6 +45,7 @@ inline void passBaselineFunc(NTupleReader &tr)
   blv.prepareTopTagger();
   blv.passBaseline(tr);
   blv.GetnTops(&tr);
+  blv.GetMHT(&tr);
 }
 
 namespace stopFunctions
