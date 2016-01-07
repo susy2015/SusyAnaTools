@@ -85,10 +85,10 @@ prodGenInfo::prodGenInfo(const edm::ParameterSet & iConfig) {
   produces<std::vector<double> >("WtauemupfActivityVec");
   produces<std::vector<double> >("WtauprongspfActivityVec");
 
-  //Gluino Gluino PT fr ISR Systematics
-  produces< std::vector< TLorentzVector > >("genParticle"); 
-  produces< std::vector< int > >("PDGid");
-  produces< std::vector< int > >("parent");
+  //StopStopPT fr ISR Systematics
+  produces< std::vector< TLorentzVector > >("selGenParticle"); 
+  produces< std::vector< int > >("selPDGid");
+  //produces< std::vector< int > >("parent");
 
 }
 
@@ -127,10 +127,10 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<double> > W_tauprongs_pfActivityVec(new std::vector<double>());
 
 
-  //Gluino Gluino PT fr ISR Systematics  
-  std::auto_ptr< std::vector< TLorentzVector > > genParticle( new std::vector< TLorentzVector > () );
-  std::auto_ptr< std::vector< int > > PDGid( new std::vector< int > () );
-  std::auto_ptr< std::vector< int > > parent( new std::vector< int > () );
+  //StopStopPT fr ISR Systematics  
+  std::auto_ptr< std::vector< TLorentzVector > > selGenParticle( new std::vector< TLorentzVector > () );
+  std::auto_ptr< std::vector< int > > selPDGid( new std::vector< int > () );
+  //  std::auto_ptr< std::vector< int > > parent( new std::vector< int > () );
 
   std::set<int> pdgIdOfInterest;
   pdgIdOfInterest.insert(21);
@@ -193,9 +193,9 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 			   iPart->energy() 
 			   );
 
-	genParticle->push_back( temp );     
-	PDGid->push_back( iPart->pdgId() );
-
+	selGenParticle->push_back( temp );     
+	selPDGid->push_back( iPart->pdgId() );
+	/*
 	int parentIndex = 0;
 
 	for(edm::View<reco::GenParticle>::const_iterator jPart = genParticles->begin();
@@ -210,13 +210,13 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	}
       
 	parent->push_back( parentIndex );
-
+	*/
       }
     
 
   }// end of loop over gen-particles
 
-  //Gluino Gluino PT for ISR Systematics finised........
+  //StopStopPT for ISR Systematics finised........
 
   for(unsigned int id=0; id<genDecayStrVec_->size(); id++){
      genDecayStrVec->push_back( (*genDecayStrVec_)[id] );
@@ -338,10 +338,10 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(W_tau_emu_pfActivityVec, "WtauemupfActivityVec");
   iEvent.put(W_tauprongs_pfActivityVec, "WtauprongspfActivityVec");
 
-  //Gluino Gluino PT for ISR Systematics
-  iEvent.put(genParticle, "genParticle"); 
-  iEvent.put(PDGid , "PDGid" );
-  iEvent.put(parent , "parent" );
+  //StopStop PT for ISR Systematics
+  iEvent.put(selGenParticle, "selGenParticle"); 
+  iEvent.put(selPDGid , "selPDGid" );
+  //iEvent.put(parent , "parent" );
 
   return true;
 }
