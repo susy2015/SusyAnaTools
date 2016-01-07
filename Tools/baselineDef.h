@@ -227,6 +227,23 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
     } 
 
+    bool GetnTops(NTupleReader *tr)
+    {
+      int nTops = tr->getVar<int>("nTopCandSortedCnt" + spec);
+      std::vector<TLorentzVector> *vTops = new std::vector<TLorentzVector>();
+
+      for(int it=0; it<nTops; it++)
+      {
+        TLorentzVector topLVec = type3Ptr->buildLVec(tr->getVec<TLorentzVector>("jetsLVec_forTagger" + spec), 
+            type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
+        vTops->push_back(topLVec);
+      }
+
+      tr->registerDerivedVec("vTops"+spec, vTops);
+
+      return true;
+    }       // -----  end of function VarPerEvent::GetnTops  -----
+
     bool passNoiseEventFilterFunc(NTupleReader &tr)
     {
         try
@@ -277,6 +294,7 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
     void operator()(NTupleReader &tr)
     {
         passBaseline(tr);
+        GetnTops(&tr);
     }
 } blv;
 
