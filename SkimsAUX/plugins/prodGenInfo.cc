@@ -3,7 +3,7 @@
 #include <memory>
 #include <algorithm>
 #include <iostream>
-#include <unordered_set>
+#include <set>
 
 
 // user include files
@@ -132,7 +132,7 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr< std::vector< int > > PDGid( new std::vector< int > () );
   std::auto_ptr< std::vector< int > > parent( new std::vector< int > () );
 
-  std::unordered_set<int> pdgIdOfInterest;
+  std::set<int> pdgIdOfInterest;
   pdgIdOfInterest.insert(21);
   pdgIdOfInterest.insert(22);
   pdgIdOfInterest.insert(23);
