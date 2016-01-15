@@ -392,6 +392,27 @@ namespace AnaFunctions{
       return ht;
    }
 
+   TLorentzVector calcMHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr){
+
+      const double minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
+
+      TLorentzVector mhtLVec;
+      for(unsigned int ij=0; ij<inputJets.size(); ij++){
+         double perjetpt = inputJets[ij].Pt(), perjeteta = inputJets[ij].Eta();
+         if(   ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
+            && ( maxAbsEta == -1 || fabs(perjeteta) < maxAbsEta )
+            && (     minPt == -1 || perjetpt >= minPt )
+            && (     maxPt == -1 || perjetpt < maxPt ) ){
+
+            TLorentzVector tmpLVec;
+            tmpLVec.SetPtEtaPhiM( inputJets[ij].Pt(), 0, inputJets[ij].Phi(), 0 );
+            mhtLVec -= tmpLVec;
+         }
+      }
+
+      return mhtLVec;
+   }
+
    bool passBaseline(){
 
      return true;

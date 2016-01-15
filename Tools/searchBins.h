@@ -308,4 +308,37 @@ void print_searchBins(){
    }
 }
 
+void print_searchBins_headerstr(const std::string addstr="\\\\"){
+
+   printf("\n%15s & %15s & %15s & %15s & %15s %s\n \\hline\n", "Search Bin", "\\ntops", "\\nbjets", "\\MTTwo [\\GeV]", "\\MET [\\GeV]", addstr.c_str());
+
+}
+
+std::string get_searchBins_defstr(const int binIdx, const std::string addstr="\\\\"){
+
+   struct searchBinDef sbDef;
+   find_BinBoundaries(binIdx, sbDef);
+   char tmpnbJetStr[20], tmpnTopStr[20], tmpMT2Str[20], tmpmetStr[20];
+   if( sbDef.top_hi != -1 ) sprintf(tmpnTopStr, "%1.0f", sbDef.top_lo); else sprintf(tmpnTopStr, "%1.0f+", sbDef.top_lo);
+   if( sbDef.bJet_hi != -1 ) sprintf(tmpnbJetStr, "%1.0f", sbDef.bJet_lo); else sprintf(tmpnbJetStr, "%1.0f+", sbDef.bJet_lo);
+   if( sbDef.MT2_hi != -1 ) sprintf(tmpMT2Str, "%3.0f-%3.0f", sbDef.MT2_lo, sbDef.MT2_hi); else sprintf(tmpMT2Str, "%3.0f+", sbDef.MT2_lo);
+   if( sbDef.met_hi != -1 ) sprintf(tmpmetStr, "%3.0f-%3.0f", sbDef.met_lo, sbDef.met_hi); else sprintf(tmpmetStr, "%3.0f+", sbDef.met_lo);
+
+   char totStr[200];
+   sprintf(totStr, "%15d & %15s & %15s & %15s & %15s %s\n \\hline\n", binIdx, tmpnTopStr, tmpnbJetStr, tmpMT2Str, tmpmetStr, addstr.c_str());
+ 
+   return std::string(totStr);
+}
+
+void print_searchBins_latex(){
+   std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning;
+   build_MT2_met_Binning(out_MT2_met_Binning);
+   print_searchBins_headerstr();
+   for(int ib=0; ib<nTotBins; ib++){
+      std::string outstr = get_searchBins_defstr(ib);
+      printf("%s", outstr.c_str());
+   }
+   std::cout<<std::endl<<std::endl;
+}
+
 #endif
