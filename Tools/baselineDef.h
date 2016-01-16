@@ -65,7 +65,7 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
            doEleVeto = false; 
            doIsoTrksVeto = false;
         }
-        else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0) 
+        else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
         {
             jetVecLabel = "jetsLVecLepCleaned";
             CSVVecLabel = "recoJetsBtag_0_LepCleaned";
@@ -88,6 +88,22 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
             {
                 CSVVecLabel = "cleanJetpt30ArrBTag3fake";
                 bToFake = 1; //This is not a typo
+            }
+            else if(spec.compare("ZinvJEUUp") == 0)
+            {
+                jetVecLabel = "jetLVecUp";
+            }
+            else if(spec.compare("ZinvJEUDn") == 0)
+            {
+                jetVecLabel = "jetLVecDn";
+            }
+            else if(spec.compare("ZinvMEUUp") == 0)
+            {
+                METLabel    = "metMEUUp";
+            }
+            else if(spec.compare("ZinvMEUDn") == 0)
+            {
+                METLabel    = "metMEUDn";
             }
         }
         else if(spec.compare("QCD") == 0)
