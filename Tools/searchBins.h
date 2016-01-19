@@ -119,4 +119,8 @@ void find_BinBoundaries(int inputIdx, searchBinDef & outBinDef);
 
 void print_searchBins();
 
+void print_searchBins_headerstr(const std::string addstr="\\\\");
+
+std::string get_searchBins_defstr(const int binIdx, const std::string addstr="\\\\");
+void print_searchBins_latex();
 #endif

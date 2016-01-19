@@ -29,7 +29,6 @@ public:
     void fill();
 
 private:
-    bool first_;
     TTree* const tree_;
     std::set<std::string> tupleVars_;
 
