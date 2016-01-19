@@ -55,12 +55,20 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
           scale, indices 5 and 7 correspond  anti-correlated                                                                       
           variations).                                                                                                             
 	*/
-        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(1));
-        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(2));
-        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(3));
-        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(4));
-        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(6));
-        ScaleWeights.push_back(ScaleWeightsMiniAOD.at(8));
+        if( ScaleWeightsMiniAOD.size() == 9 )
+        {
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(1));
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(2));
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(3));
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(4));
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(6));
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(8));
+        }
+        else
+        {
+            ScaleWeights.clear(); 
+            ScaleWeights.resize(6, 1.0);
+        }
 
 	auto biggest1 = std::max_element(std::begin(ScaleWeights), std::end(ScaleWeights));
         auto smallest1 = std::min_element(std::begin(ScaleWeights), std::end(ScaleWeights));
