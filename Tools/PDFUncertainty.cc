@@ -35,11 +35,17 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 {
   //This is how we get variables from nTuple 
         const std::vector<double> &ScaleWeightsMiniAOD = tr.getVec<double>("ScaleWeightsMiniAOD");
-        const double x1  =   tr.getVar<double>("x1");
-        const double x2  =   tr.getVar<double>("x2");
-        const double  Q  =   tr.getVar<double>("q");//q is stored variable in tuple
-        const  int id1    =   tr.getVar<int>("id1");
-	const  int id2    =   tr.getVar<int>("id2");
+        const double& x1  =   tr.getVar<double>("x1");
+        const double& x2  =   tr.getVar<double>("x2");
+        const double&  Q  =   tr.getVar<double>("q");//q is stored variable in tuple
+        const  int& id1    =   tr.getVar<int>("id1");
+	const  int& id2    =   tr.getVar<int>("id2");
+
+        if(!&ScaleWeightsMiniAOD || !&x1 || !&x2 || !& Q || !&id1 || !&id2)
+        {
+            return;
+            //throw "PDFUncertainty::getPDFUncertainty(NTupleReader& tr): Input parameter not found!!!";
+        }
 
 	//For Scale Variations
 	std::vector<double> ScaleWeights;
