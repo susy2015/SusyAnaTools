@@ -35,11 +35,17 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 {
   //This is how we get variables from nTuple 
         const std::vector<double> &ScaleWeightsMiniAOD = tr.getVec<double>("ScaleWeightsMiniAOD");
-        const double x1  =   tr.getVar<double>("x1");
-        const double x2  =   tr.getVar<double>("x2");
-        const double  Q  =   tr.getVar<double>("q");//q is stored variable in tuple
-        const  int id1    =   tr.getVar<int>("id1");
-	const  int id2    =   tr.getVar<int>("id2");
+        const double& x1  =   tr.getVar<double>("x1");
+        const double& x2  =   tr.getVar<double>("x2");
+        const double&  Q  =   tr.getVar<double>("q");//q is stored variable in tuple
+        const  int& id1    =   tr.getVar<int>("id1");
+	const  int& id2    =   tr.getVar<int>("id2");
+
+        if(!&ScaleWeightsMiniAOD || !&x1 || !&x2 || !& Q || !&id1 || !&id2)
+        {
+            return;
+            //throw "PDFUncertainty::getPDFUncertainty(NTupleReader& tr): Input parameter not found!!!";
+        }
 
 	//For Scale Variations
 	std::vector<double> ScaleWeights;
@@ -49,16 +55,19 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
           scale, indices 5 and 7 correspond  anti-correlated                                                                       
           variations).                                                                                                             
 	*/
-        if( ScaleWeightsMiniAOD.size() == 9 ){
-           ScaleWeights.push_back(ScaleWeightsMiniAOD.at(1));
-           ScaleWeights.push_back(ScaleWeightsMiniAOD.at(2));
-           ScaleWeights.push_back(ScaleWeightsMiniAOD.at(3));
-           ScaleWeights.push_back(ScaleWeightsMiniAOD.at(4));
-           ScaleWeights.push_back(ScaleWeightsMiniAOD.at(6));
-           ScaleWeights.push_back(ScaleWeightsMiniAOD.at(8));
-        }else{
-// Set default to be 1.0
-           ScaleWeights.clear(); ScaleWeights.resize(6, 1.0);
+        if( ScaleWeightsMiniAOD.size() == 9 )
+        {
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(1));
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(2));
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(3));
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(4));
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(6));
+            ScaleWeights.push_back(ScaleWeightsMiniAOD.at(8));
+        }
+        else
+        {
+            ScaleWeights.clear(); 
+            ScaleWeights.resize(6, 1.0);
         }
 
 	auto biggest1 = std::max_element(std::begin(ScaleWeights), std::end(ScaleWeights));
@@ -66,7 +75,6 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 
         double upperBound = *biggest1;
 	double lowerBound = *smallest1;
-        double scaleNominal = ScaleWeightsMiniAOD.size() == 9 ? ScaleWeightsMiniAOD.at(0) : 1.0;
 
 
 	//This Part for calculating PDF Uncertainty
@@ -308,7 +316,6 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 	//For Scale Variations
 	tr.registerDerivedVar("Scaled_Variations_Up",upperBound);
 	tr.registerDerivedVar("Scaled_Variations_Down",lowerBound);
-        tr.registerDerivedVar("Scaled_Variations_Nominal",scaleNominal);
 
 	// NNPDF from Mean
 	//Scaled to Mean(central value)
