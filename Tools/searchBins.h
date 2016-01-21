@@ -341,4 +341,17 @@ void print_searchBins_latex(){
    std::cout<<std::endl<<std::endl;
 }
 
+void print_searchBins_latex(const std::vector<double>& prediction, const std::vector<double>& uncertainty, std::string label){
+    std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning;
+    build_MT2_met_Binning(out_MT2_met_Binning);
+    print_searchBins_headerstr(label);
+    for(int ib=0; ib<nTotBins; ib++){
+	char addon[20];
+	sprintf(addon, "& $%.2f \\pm %.2f$ \\\\", prediction[ib], uncertainty[ib]);
+	std::string outstr = get_searchBins_defstr(ib, std::string(addon));
+	printf("%s", outstr.c_str());
+    }
+    std::cout<<std::endl<<std::endl;
+}
+
 #endif
