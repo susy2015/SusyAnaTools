@@ -3,6 +3,9 @@
 
 #include <iostream>
 
+#include "TLine.h"
+#include "TLatex.h"
+
 /*
 const double nTops_SR_lo[]   = { 0,  0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  3 };
 const double nTops_SR_hi[]   = { 1,  1,  1,  2,  2,  2,  3,  3,  3, -1, -1, -1 };
@@ -341,4 +344,78 @@ void print_searchBins_latex(){
    std::cout<<std::endl<<std::endl;
 }
 
+// Function to draw the signal bin definition
+void drawSBregionDef(const double ymin_Yields = 0.05, const double ymax_Yields = 500.){
+
+   const double adjHalfBin = 0.5;
+   //-----------------------------------------------------------
+   // Putting lines and labels explaining search region definitions
+   //-----------------------------------------------------------
+   // Ntop separation lines
+   TLine *tl_ntop = new TLine();
+   tl_ntop->SetLineStyle(2);
+   tl_ntop->DrawLine(23.5 + adjHalfBin,ymin_Yields,23.5 + adjHalfBin,ymax_Yields);
+   tl_ntop->DrawLine(41.5 + adjHalfBin,ymin_Yields,41.5 + adjHalfBin,ymax_Yields);
+
+   // Ntop labels
+   TLatex * ttext_ntop = new TLatex();
+   ttext_ntop->SetTextFont(42);
+   ttext_ntop->SetTextSize(0.06);
+   ttext_ntop->SetTextAlign(22);
+   ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields/1.8 ,"N_{top} = 1");
+   ttext_ntop->DrawLatex(35.5 + adjHalfBin, ymax_Yields/35. ,"N_{top} = 2");
+   ttext_ntop->SetTextAngle(90.);
+   ttext_ntop->DrawLatex(43. + adjHalfBin, ymax_Yields/15. ,"N_{top} #geq 3");
+
+   // Nb separation lines
+   TLine *tl_nb = new TLine();
+   tl_nb->SetLineStyle(3);
+   tl_nb->SetLineColor(32);
+   tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields/4.);
+   tl_nb->DrawLine(20.5 + adjHalfBin,ymin_Yields,20.5 + adjHalfBin,ymax_Yields/4.);
+   tl_nb->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/40.);
+   tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields/40.);
+   tl_nb->DrawLine(42.5 + adjHalfBin,ymin_Yields,42.5 + adjHalfBin,ymax_Yields/40.);
+   tl_nb->DrawLine(43.5 + adjHalfBin,ymin_Yields,43.5 + adjHalfBin,ymax_Yields/40.);
+
+   // Nb labels
+   TLatex * ttext2 = new TLatex();
+   ttext2->SetTextFont(42);
+   ttext2->SetTextColor(32);
+   ttext2->SetTextSize(0.05);
+   ttext2->SetTextAlign(22);
+   ttext2->Draw();
+
+   ttext2->DrawLatex( 4.5 + adjHalfBin, ymax_Yields/3., "N_{b} = 1");
+   ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields/3., "N_{b} = 2");
+   ttext2->SetTextAngle(90.);
+   ttext2->DrawLatex(21.5 + adjHalfBin, ymax_Yields/3. , "N_{b} #geq 3");
+
+   // MT2 separation lines
+   TLine *tl_mt2 = new TLine();
+   tl_mt2->SetLineStyle(4);
+   tl_mt2->SetLineColor(49);
+   tl_mt2->DrawLine(3.5 + adjHalfBin,ymin_Yields,3.5 + adjHalfBin,ymax_Yields/20.);
+   tl_mt2->DrawLine(7.5 + adjHalfBin,ymin_Yields,7.5 + adjHalfBin,ymax_Yields/20.);
+   tl_mt2->DrawLine(14.5 + adjHalfBin,ymin_Yields,14.5 + adjHalfBin,ymax_Yields/20.);
+   tl_mt2->DrawLine(18.5 + adjHalfBin,ymin_Yields,18.5 + adjHalfBin,ymax_Yields/20.);
+
+   tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields/80.);
+   tl_mt2->DrawLine(29.5 + adjHalfBin,ymin_Yields,29.5 + adjHalfBin,ymax_Yields/80.);
+   tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields/80.);
+   tl_mt2->DrawLine(37.5 + adjHalfBin,ymin_Yields,37.5 + adjHalfBin,ymax_Yields/80.);
+
+   // MT2 labels
+   TLatex * ttextmt2 = new TLatex();
+   ttextmt2->SetTextFont(42);
+   ttextmt2->SetTextColor(49);
+   ttextmt2->SetTextSize(0.02);
+   ttextmt2->SetTextAlign(22);
+   ttextmt2->SetTextAngle(90);
+   ttextmt2->DrawLatex( 1.5 + adjHalfBin, ymax_Yields/10. , "M_{T2}=[200,300]");
+   ttextmt2->DrawLatex( 5.0 + adjHalfBin, ymax_Yields/10. , "M_{T2}=[300,400]");
+   ttextmt2->DrawLatex(8.5 + adjHalfBin, ymax_Yields/10. , "M_{T2}#geq400");
+   //-----------------------------------------------------------
+
+}
 #endif
