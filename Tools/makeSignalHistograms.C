@@ -120,48 +120,53 @@ int main()
 {
     TH1::AddDirectory(false);
 
-    AnaSamples::SampleSet        ss("", 2153.74);
-    AnaSamples::SampleCollection sc(ss);
-
-    std::set<std::string> activatedBranch;
-    for(auto& branch : AnaConsts::activatedBranchNames_DataOnly) activatedBranch.insert(branch);
-    for(auto& branch : AnaConsts::activatedBranchNames) activatedBranch.insert(branch);
-
-    std::map<std::pair<int, int>, HistContainer> histVec;
-
-    for(auto& fs : sc["ZJetsToNuNu"])
+    try
     {
-        size_t start = fs.filePath.rfind('/');
-        size_t stop  = fs.filePath.rfind('.');
-        std::string treeName = fs.filePath.substr(start + 1, stop - start - 1);
 
-        TChain * t = new TChain(fs.treePath.c_str());
-        fs.addFilesToChain(t);
+        AnaSamples::SampleSet        ss(AnaSamples::fileDir, 2153.74);
+        AnaSamples::SampleCollection sc(ss);
 
-        BaselineVessel blv;
+        std::set<std::string> activatedBranch;
+        for(auto& branch : AnaConsts::activatedBranchNames_DataOnly) activatedBranch.insert(branch);
+        for(auto& branch : AnaConsts::activatedBranchNames) activatedBranch.insert(branch);
 
-        NTupleReader tr(t, activatedBranch);
-        tr.registerFunction(blv);
-        tr.registerFunction(&calcSearchBin);
+        std::map<std::pair<int, int>, HistContainer> histVec;
 
-        while(tr.getNextEvent())
+        for(auto& fs : sc["Signal_fastsim_T2tt_scan"])
         {
-            if(tr.getEvtNum() % 10000 == 0) std::cout << "Event #: " << tr.getEvtNum() << std::endl;
+            TChain * t = new TChain(fs.treePath.c_str());
+            fs.addFilesToChain(t);
 
-            const double& SusyMotherMass  = tr.getVar<double>("SusyMotherMass");
-            const double& SusyLSPMass     = tr.getVar<double>("SusyLSPMass");
+            BaselineVessel blv;
 
-            std::pair<int, int> iMP((int)SusyMotherMass, (int)SusyLSPMass);
+            NTupleReader tr(t, activatedBranch);
+            tr.registerFunction(blv);
+            tr.registerFunction(&calcSearchBin);
 
-            auto iter = histVec.find(iMP);
-            if(iter == histVec.end()) iter = histVec.emplace(iMP, HistContainer(iMP.first, iMP.second)).first;
+            while(tr.getNextEvent())
+            {
+                if(tr.getEvtNum() % 10000 == 0) std::cout << "Event #: " << tr.getEvtNum() << std::endl;
 
-            iter->second.fill(tr, fs.getWeight());
+                const double& SusyMotherMass  = tr.getVar<double>("SusyMotherMass");
+                const double& SusyLSPMass     = tr.getVar<double>("SusyLSPMass");
+
+                std::pair<int, int> iMP((int)SusyMotherMass, (int)SusyLSPMass);
+
+                auto iter = histVec.find(iMP);
+                if(iter == histVec.end()) iter = histVec.emplace(iMP, HistContainer(iMP.first, iMP.second)).first;
+
+                iter->second.fill(tr, fs.getWeight());
+            }
         }
+
+        TFile *f = TFile::Open("signalHists.root");
+        f->cd();
+        for(auto& p : histVec) p.second.write();
+        f->Close();
+    }
+    catch(const std::string e)
+    {
+        std::cout << e << std::endl;
     }
 
-    TFile *f = TFile::Open("signalHists.root");
-    f->cd();
-    for(auto& p : histVec) p.second.write();
-    f->Close();
 }
