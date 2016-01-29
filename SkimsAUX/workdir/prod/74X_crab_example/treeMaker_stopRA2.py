@@ -644,11 +644,12 @@ process.stopTreeMaker.varsInt.append(cms.InputTag("goodVerticesFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("eeBadScFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("EcalDeadCellTriggerPrimitiveFilter"))
 
-process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"))
-process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHENoiseFilterResult|HBHENoiseFilter")
+if options.fastsim == False:
+   process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"))
+   process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHENoiseFilterResult|HBHENoiseFilter")
 
-process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult"))
-process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHEIsoNoiseFilterResult|HBHEIsoNoiseFilter")
+   process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult"))
+   process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHEIsoNoiseFilterResult|HBHEIsoNoiseFilter")
 
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodMuons", "nMuons"))
 process.stopTreeMaker.varsIntNamesInTree.append("prodMuons:nMuons|nMuons_CUT")
@@ -738,6 +739,8 @@ if options.mcInfo == True:
       process.SusyScanProducer.shouldScan = cms.bool(options.fastsim)
       process.stopTreeMaker.varsDouble.extend([cms.InputTag("SusyScanProducer", "SusyMotherMass"), cms.InputTag("SusyScanProducer", "SusyLSPMass")])
 
+      process.prodJets.jetOtherSrc = cms.InputTag('slimmedJets')
+
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodIsoTrks:trksForIsoVetoLVec"))
 
 process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodIsoTrks:trksForIsoVetocharge"), cms.InputTag("prodIsoTrks:trksForIsoVetodz"), cms.InputTag("prodIsoTrks:trksForIsoVetoiso"), cms.InputTag("prodIsoTrks:trksForIsoVetopfActivity"), cms.InputTag("prodIsoTrks:looseisoTrkscharge"), cms.InputTag("prodIsoTrks:looseisoTrksdz"), cms.InputTag("prodIsoTrks:looseisoTrksiso"), cms.InputTag("prodIsoTrks:looseisoTrksmtw"), cms.InputTag("prodIsoTrks:looseisoTrkspfActivity")])
@@ -780,7 +783,10 @@ process.stopTreeMaker.varsDoubleNamesInTree.append("weightProducer:weight|evtWei
 
 #process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.METFilters * process.CSCTightHaloFilter * process.HBHENoiseFilter * process.EcalDeadCellTriggerPrimitiveFilter )
 #process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.METFilters * process.CSCTightHaloFilter * process.EcalDeadCellTriggerPrimitiveFilter )
-process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.CSCTightHaloFilter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter ) 
+if options.fastsim == False:
+   process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.CSCTightHaloFilter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter ) 
+else:
+   process.trig_filter_seq = cms.Sequence( process.triggerProducer * process.CSCTightHaloFilter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter ) 
 
 if options.externalFilterList:
    process.load("SusyAnaTools.SkimsAUX.EventListFilter_cfi")
@@ -796,6 +802,14 @@ if options.externalFilterList:
          process.CSCTightHaloListFilter = process.EventListFilter.clone(inputFileList=flist)
          process.trig_filter_seq += process.CSCTightHaloListFilter
          process.stopTreeMaker.varsBool.append(cms.InputTag("CSCTightHaloListFilter"))
+      elif flist.find("badResolutionTrack") !=-1:
+         process.badResolutionTrackListFilter = process.EventListFilter.clone(inputFileList=flist)
+         process.trig_filter_seq += process.badResolutionTrackListFilter
+         process.stopTreeMaker.varsBool.append(cms.InputTag("badResolutionTrackListFilter"))
+      elif flist.find("muonBadTrack") != -1:
+         process.muonBadTrackListFilter = process.EventListFilter.clone(inputFileList=flist)
+         process.trig_filter_seq += process.muonBadTrackListFilter
+         process.stopTreeMaker.varsBool.append(cms.InputTag("muonBadTrackListFilter"))
       else:
          print "Do NOT support externalFilterList with name : ", flist
 
@@ -830,6 +844,8 @@ if options.specialFix == "JEC" and options.cmsswVersion == "74X":
    process.patJetsReapplyJECPt10.pfJetCut = cms.string('pt >= 10')
 
    process.prodJets.jetSrc = cms.InputTag('patJetsReapplyJECPt10')
+   if options.fastsim == True:
+      process.prodJets.jetOtherSrc = cms.InputTag('patJetsReapplyJECPt10')
 
    process.ak4patJetsPFchsPt10.jetSrc = cms.InputTag('patJetsReapplyJEC')
    process.ak4patJetsPFchsPt30.jetSrc = cms.InputTag('patJetsReapplyJEC')
