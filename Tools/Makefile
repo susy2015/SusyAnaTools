@@ -22,7 +22,7 @@ LIBS       = $(shell root-config --glibs)
 MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
 LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
-PROGRAMS = tupleTest nEvts basicCheck makeCombPlots
+PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms
 
 all: mkobj sampPyWrap $(PROGRAMS)
 
@@ -58,6 +58,9 @@ basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o
+	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+
+makeSignalHistograms: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/makeSignalHistograms.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 clean:

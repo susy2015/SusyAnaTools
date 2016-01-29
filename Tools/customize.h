@@ -120,7 +120,8 @@ namespace AnaConsts{
                                                   "genHT", "PDFweights", "PDFids",
                                                   "id1", "id2", "x1", "x2", "q",
                                                   "W_emu_pfActivityVec", "W_tau_emu_pfActivityVec", "W_tau_prongs_pfActivityVec", "ScaleWeightsMiniAOD",
-                                                  "recoJetsJecUncLepCleaned", "metMagUp", "metMagDown", "metPhiUp", "metPhiDown"
+                                                  "recoJetsJecUncLepCleaned", "metMagUp", "metMagDown", "metPhiUp", "metPhiDown",
+                                                  "SusyMotherMass", "SusyLSPMass"
                                                 };
 
 }
