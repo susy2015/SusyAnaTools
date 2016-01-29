@@ -62,7 +62,7 @@ private:
 public:
     HistContainer(int mMass, int dMass) : mMass_(mMass), dMass_(dMass) 
         {
-        
+            bookHists();
         }
 
     void fill(const NTupleReader& tr, const double weight)
