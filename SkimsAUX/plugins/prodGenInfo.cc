@@ -1,10 +1,8 @@
-
 // system include files
 #include <memory>
 #include <algorithm>
 #include <iostream>
 #include <set>
-
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -88,7 +86,6 @@ prodGenInfo::prodGenInfo(const edm::ParameterSet & iConfig) {
   //StopStopPT fr ISR Systematics
   produces< std::vector< TLorentzVector > >("selGenParticle"); 
   produces< std::vector< int > >("selPDGid");
-  //produces< std::vector< int > >("parent");
 
 }
 
@@ -130,7 +127,6 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //StopStopPT fr ISR Systematics  
   std::auto_ptr< std::vector< TLorentzVector > > selGenParticle( new std::vector< TLorentzVector > () );
   std::auto_ptr< std::vector< int > > selPDGid( new std::vector< int > () );
-  //  std::auto_ptr< std::vector< int > > parent( new std::vector< int > () );
 
   std::set<int> pdgIdOfInterest;
   pdgIdOfInterest.insert(21);
@@ -154,6 +150,7 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   pdgIdOfInterest.insert(15);
   pdgIdOfInterest.insert(16);
 
+// http://pdg.lbl.gov/2007/reviews/montecarlorpp.pdf
   pdgIdOfInterest.insert(1000021);
   pdgIdOfInterest.insert(1000022);
   pdgIdOfInterest.insert(1000023);
@@ -174,16 +171,14 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   pdgIdOfInterest.insert(2000005);
   pdgIdOfInterest.insert(2000006);
 
-
-
- 
   for(edm::View<reco::GenParticle>::const_iterator iPart = genParticles->begin();
       iPart != genParticles->end();
       ++iPart){
-    
+ 
+// Pythin 8 status code: http://home.thep.lu.se/~torbjorn/pythia81html/ParticleProperties.html 
     if( std::find( pdgIdOfInterest.begin(), pdgIdOfInterest.end(), abs(iPart->pdgId()) ) != pdgIdOfInterest.end() 
-        && (    ( abs(iPart->pdgId()) != 1000006 && abs( iPart->status() ) >20 && abs( iPart->status() ) <30 )//20-30 status-> from hard processes 
-		|| ( abs(iPart->pdgId()) == 1000006 && iPart->isLastCopy() ) ) ) //special requirement for gluinos
+        && (    ( abs(iPart->pdgId()) != 1000021 && abs(iPart->pdgId()) != 1000006 && abs(iPart->pdgId()) != 1000005 && abs( iPart->status() ) >20 && abs( iPart->status() ) <30 ) 
+             || ( (abs(iPart->pdgId()) == 1000021 || abs(iPart->pdgId()) == 1000006 || abs(iPart->pdgId()) == 1000005) && iPart->isLastCopy() ) ) ) //special requirement for gluinos || stops || sbottoms  
       {
 
 	TLorentzVector temp;
@@ -195,24 +190,8 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 	selGenParticle->push_back( temp );     
 	selPDGid->push_back( iPart->pdgId() );
-	/*
-	int parentIndex = 0;
-
-	for(edm::View<reco::GenParticle>::const_iterator jPart = genParticles->begin();
-	    jPart != genParticles->end();
-	    ++jPart){
-
-	  if( pow( pow( iPart->phi() - jPart->phi() , 2 ) + pow( iPart->eta() - jPart->eta() , 2 ) , .5 ) < 0.01 ) 
-	    break;
-        
-	  parentIndex++;
-
-	}
-      
-	parent->push_back( parentIndex );
-	*/
-      }
-    
+	
+     }
 
   }// end of loop over gen-particles
 
@@ -341,7 +320,6 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //StopStop PT for ISR Systematics
   iEvent.put(selGenParticle, "selGenParticle"); 
   iEvent.put(selPDGid , "selPDGid" );
-  //iEvent.put(parent , "parent" );
 
   return true;
 }
