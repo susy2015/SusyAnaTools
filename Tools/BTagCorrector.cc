@@ -172,73 +172,88 @@ void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& s
   sfEffList = vector<double>(3,1.0); //eff, sf (central, up, or down), cf (central, up, or down)
 
   /********************************************************************/  
-  if(flav==5){ //b-tag
-    sfEffList[0] = h_eff_b->GetBinContent(h_eff_b->GetXaxis()->FindBin(pt),h_eff_b->GetYaxis()->FindBin(eta));
-    sfEffList[1] = (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_B,eta,pt) :
-		    (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_B,eta,pt) :
-		     readerDown.eval(BTagEntry::FLAV_B,eta,pt) ) );
-
-    //Apply double uncertainty if bJet Pt is more than 670 Gev.
-    // scaleFactorUp = 2*(scaleFactorUp-scaleFactor) + scaleFactor
-    // scaleFactorUp = 2*(scaleFactorDown-scaleFactor) + scaleFactor
-    if(pt > 670.0){
-      sfEffList[1] = 2*( (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_B,eta,pt) :
-			 (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_B,eta,pt) :
-			  readerDown.eval(BTagEntry::FLAV_B,eta,pt) ) ) - reader.eval(BTagEntry::FLAV_B,eta,pt)) + reader.eval(BTagEntry::FLAV_B,eta,pt);
+  if(flav==5)
+    { //b-tag
+      sfEffList[0] = h_eff_b->GetBinContent(h_eff_b->GetXaxis()->FindBin(pt),h_eff_b->GetYaxis()->FindBin(eta));
+      sfEffList[1] = (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_B,eta,pt) :
+		      (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_B,eta,pt) :
+		       readerDown.eval(BTagEntry::FLAV_B,eta,pt) ) );
+      
+      //Apply double uncertainty if bJet Pt is more than 670 Gev.
+      // scaleFactorUp = 2*(scaleFactorUp-scaleFactor) + scaleFactor
+      // scaleFactorUp = 2*(scaleFactorDown-scaleFactor) + scaleFactor
+      if(pt > 670.0)
+	{
+	  sfEffList[1] = 2*( (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_B,eta,pt) :
+			      (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_B,eta,pt) :
+			       readerDown.eval(BTagEntry::FLAV_B,eta,pt) ) ) - reader.eval(BTagEntry::FLAV_B,eta,pt)) + reader.eval(BTagEntry::FLAV_B,eta,pt);
+	}
+      if(fastsim)
+	{
+	  sfEffList[2] = (btagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_B,eta,pt) :
+			  (btagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_B,eta,pt) :
+			   readerFastDown.eval(BTagEntry::FLAV_B,eta,pt) ) );
+	  
+	  
+	  //Apply double uncertainty if bJet Pt is more than 670 Gev.                                                                                                                                                
+	  if(pt > 670.0)
+	    {
+	      sfEffList[2] = 2*( (btagSFunc==0 ? readerFast.eval(BTagEntry::FLAV_B,eta,pt) :
+				  (btagSFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_B,eta,pt) :
+				   readerFastDown.eval(BTagEntry::FLAV_B,eta,pt) ) ) - readerFast.eval(BTagEntry::FLAV_B,eta,pt)) + readerFast.eval(BTagEntry::FLAV_B,eta,pt);
+	    }
+	  
+	}
+      
     }
-    if(fastsim){
-      sfEffList[2] = (btagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_B,eta,pt) :
-		      (btagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_B,eta,pt) :
-		       readerFastDown.eval(BTagEntry::FLAV_B,eta,pt) ) );
-
-    }
-      //Apply double uncertainty if bJet Pt is more than 670 Gev.                                                                                                                                                
-      if(pt > 670.0){
-	sfEffList[2] = 2*( (btagSFunc==0 ? readerFast.eval(BTagEntry::FLAV_B,eta,pt) :
-			    (btagSFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_B,eta,pt) :
-			     readerFastDown.eval(BTagEntry::FLAV_B,eta,pt) ) ) - readerFast.eval(BTagEntry::FLAV_B,eta,pt)) + readerFast.eval(BTagEntry::FLAV_B,eta,pt);
-      }
-  }
   /********************************************************************/
-  else if(flav==4){ //charm mistag
-    sfEffList[0] =h_eff_c->GetBinContent(h_eff_c->GetXaxis()->FindBin(pt),h_eff_c->GetYaxis()->FindBin(eta));
-    sfEffList[1] = (ctagSFunc==0 ? reader.eval(BTagEntry::FLAV_C,eta,pt) :
-		    (ctagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_C,eta,pt) :
-		     readerDown.eval(BTagEntry::FLAV_C,eta,pt) ) );
-
-    if(fastsim){
-      sfEffList[2] = (ctagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_C,eta,pt) :
-		      (ctagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_C,eta,pt) :
-		       readerFastDown.eval(BTagEntry::FLAV_C,eta,pt) ) );
+  else if(flav==4)
+    { //charm mistag
+      sfEffList[0] =h_eff_c->GetBinContent(h_eff_c->GetXaxis()->FindBin(pt),h_eff_c->GetYaxis()->FindBin(eta));
+      sfEffList[1] = (ctagSFunc==0 ? reader.eval(BTagEntry::FLAV_C,eta,pt) :
+		      (ctagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_C,eta,pt) :
+		       readerDown.eval(BTagEntry::FLAV_C,eta,pt) ) );
+      
+      if(fastsim)
+	{
+	  sfEffList[2] = (ctagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_C,eta,pt) :
+			  (ctagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_C,eta,pt) :
+			   readerFastDown.eval(BTagEntry::FLAV_C,eta,pt) ) );
+	}
     }
-  }
   /********************************************************************/
-  else if(flav<4 || flav==21){ //udsg mistag
-    sfEffList[0] = h_eff_udsg->GetBinContent(h_eff_udsg->GetXaxis()->FindBin(pt),h_eff_udsg->GetYaxis()->FindBin(eta));
-    //    sfEffList[0] = h_eff_udsg->GetBinContent(h_eff_udsg->FindBin(pt,eta));
-    sfEffList[1] = (mistagSFunc==0 ? reader.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-		    (mistagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-		     readerDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) );
-
-    //Apply double uncertainty if lightJet Pt is more than 1000 Gev.                                                                                                                                
-    if(pt > 1000.0){
-      sfEffList[1] = 2*( (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-			  (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-			   readerDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) ) - reader.eval(BTagEntry::FLAV_UDSG,eta,pt)) + reader.eval(BTagEntry::FLAV_UDSG,eta,pt);
+  else if(flav<4 || flav==21)
+    { //udsg mistag
+      sfEffList[0] = h_eff_udsg->GetBinContent(h_eff_udsg->GetXaxis()->FindBin(pt),h_eff_udsg->GetYaxis()->FindBin(eta));
+      //    sfEffList[0] = h_eff_udsg->GetBinContent(h_eff_udsg->FindBin(pt,eta));
+      sfEffList[1] = (mistagSFunc==0 ? reader.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+		      (mistagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+		       readerDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) );
+      
+      //Apply double uncertainty if lightJet Pt is more than 1000 Gev.                                                                                                                                
+      if(pt > 1000.0)
+	{
+	  sfEffList[1] = 2*( (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+			      (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+			       readerDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) ) - reader.eval(BTagEntry::FLAV_UDSG,eta,pt)) + reader.eval(BTagEntry::FLAV_UDSG,eta,pt);
+	}
+      if(fastsim)
+	{
+	  sfEffList[2] = (mistagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+			  (mistagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+			   readerFastDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) );
+	  
+	  //Apply double uncertainty if Light jet Pt is more than 1000 Gev.                                                                                                                                       
+	  if(pt > 1000.0)
+	    {
+	      sfEffList[2] = 2*( (btagSFunc==0 ? readerFast.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+				  (btagSFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+				   readerFastDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) ) - readerFast.eval(BTagEntry::FLAV_UDSG,eta,pt)) + readerFast.eval(BTagEntry::FLAV_UDSG,eta,pt);
+	    }
+	}
+      
     }
-    if(fastsim){
-      sfEffList[2] = (mistagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-		      (mistagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-		       readerFastDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) );
-    }
-      //Apply double uncertainty if Light jet Pt is more than 1000 Gev.                                                                                                                                             
-    if(pt > 1000.0){
-        sfEffList[2] = 2*( (btagSFunc==0 ? readerFast.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-                            (btagSFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-                             readerFastDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) ) - readerFast.eval(BTagEntry::FLAV_UDSG,eta,pt)) + readerFast.eval(BTagEntry::FLAV_UDSG,eta,pt);
-    }
-
-  }
+  
 }
 
 
