@@ -94,9 +94,9 @@ namespace AnaSamples
         //DY->ll
         // kz = 1.23
         sampleSet_["DYJetsToLL_HT_100to200"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 147.4, lumi, 11079482, 1.23,  kYellow-7);
-        sampleSet_["DYJetsToLL_HT_200to400"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 40.99, lumi, 1942050,  1.23,  kYellow-7);
+        sampleSet_["DYJetsToLL_HT_200to400"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 40.99, lumi, 10548654,  1.23,  kYellow-7);
         sampleSet_["DYJetsToLL_HT_400to600"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 5.678, lumi, 10420186, 1.23,  kYellow-7);
-        sampleSet_["DYJetsToLL_HT_600toInf"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 2.198, lumi, 998912,  1.23,  kYellow-7);
+        sampleSet_["DYJetsToLL_HT_600toInf"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 2.198, lumi, 4631933,  1.23,  kYellow-7);
         // NNLO
         sampleSet_["DYJetsToLL_Inc"]         = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 6025.2, lumi, 9042031, 1.0,  kYellow-7);
 
