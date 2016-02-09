@@ -14,7 +14,9 @@ eosurl = "root://cmseos.fnal.gov"
 
 def eoscp(filename, path):
     stripedName = filename.split("/")[-1]
-    stdout = os.popen("eos %s cp %s %s/%s"%(eosurl, filename, eosurl, "/".join([path, filename])))
+    command = "xrdcp %s %s/%s"%(filename, eosurl, "/".join([path, filename]))
+    print command
+    stdout = os.popen(command)
     for l in stdout:
         print l.strip("\n")
 
