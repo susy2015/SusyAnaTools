@@ -73,7 +73,8 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
     doEleVeto = false; 
     doIsoTrksVeto = false;
   }
-  else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv2b") == 0) 
+  else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || 
+      spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
     jetVecLabel = "jetsLVecLepCleaned";
     CSVVecLabel = "recoJetsBtag_0_LepCleaned";
@@ -97,11 +98,44 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
       CSVVecLabel = "cleanJetpt30ArrBTag3fake";
       bToFake = 1; //This is not a typo
     }
+    else if(spec.compare("ZinvJEUUp") == 0)
+    {
+      jetVecLabel = "jetLVecUp";
+    }
+    else if(spec.compare("ZinvJEUDn") == 0)
+    {
+      jetVecLabel = "jetLVecDn";
+    }
+    else if(spec.compare("ZinvMEUUp") == 0)
+    {
+      METLabel    = "metMEUUp";
+    }
+    else if(spec.compare("ZinvMEUDn") == 0)
+    {
+      METLabel    = "metMEUDn";
+    }
   }
   else if(spec.compare("QCD") == 0)
   {
     doMET = false;
     dodPhis = false;
+  }
+  else if( spec.compare("jecUp") == 0 || spec.compare("jecDn") == 0 || spec.compare("metMagUp") == 0 || spec.compare("metMagDn") == 0 || spec.compare("metPhiUp") == 0 || spec.compare("metPhiDn") == 0 ){
+    if( spec.compare("jecUp") == 0 ){
+      jetVecLabel = "jetLVec_jecUp";
+      CSVVecLabel = "recoJetsBtag_jecUp";
+    }else if(spec.compare("jecDn") == 0 ){
+      jetVecLabel = "jetLVec_jecDn";
+      CSVVecLabel = "recoJetsBtag_jecDn";
+    }else if(spec.compare("metMagUp") == 0 ){
+      METLabel = "met_metMagUp";
+    }else if(spec.compare("metMagDn") == 0 ){
+      METLabel = "met_metMagDn";
+    }else if(spec.compare("metPhiUp") == 0 ){
+      METPhiLabel = "metphi_metPhiUp";
+    }else if(spec.compare("metPhiDn") == 0 ){
+      METPhiLabel = "metphi_metPhiDn";
+    }
   }
 
   // Form TLorentzVector of MET
@@ -310,11 +344,11 @@ bool BaselineVessel::passNoiseEventFilterFunc(NTupleReader &tr){
             passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
         }
 
-        bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
-        bool hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
+        bool hbheNoiseFilter = isfastsim? true:tr.getVar<bool>("HBHENoiseFilter");
+        bool hbheIsoNoiseFilter = isfastsim? true:tr.getVar<bool>("HBHEIsoNoiseFilter");
         int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
 
-        int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
+        int jetIDFilter = isfastsim? 1:tr.getVar<int>("looseJetID_NoLep");
         return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
     }
     catch (std::string var)

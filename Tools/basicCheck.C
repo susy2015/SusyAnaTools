@@ -366,16 +366,8 @@ void basicCheck(int argc, char *argv[]){
 
    NTupleReader *tr = 0;
 
-<<<<<<< HEAD
-   SRblv = new BaselineVessel(spec, "csc_evtlist.txt");
-   SRblv->prepareTopTagger();
-   type3Ptr = SRblv->GetType3Ptr();
-   type3Ptr->setdebug(true);
-=======
-//   SRblv = new BaselineVessel(spec, "csc_evtlist.txt");
    SRblv = new BaselineVessel(spec);
 
->>>>>>> 394ab84bc6149e6de85b720a54221219daa92cb6
    int startfile = 0, filerun = -1;
 
    std::string selKeyStr;

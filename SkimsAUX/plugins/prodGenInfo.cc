@@ -1,6 +1,10 @@
+// system include files
 #include <memory>
 #include <algorithm>
+#include <iostream>
+#include <set>
 
+// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -78,6 +82,11 @@ prodGenInfo::prodGenInfo(const edm::ParameterSet & iConfig) {
   produces<std::vector<double> >("WemupfActivityVec");
   produces<std::vector<double> >("WtauemupfActivityVec");
   produces<std::vector<double> >("WtauprongspfActivityVec");
+
+  //StopStopPT fr ISR Systematics
+  produces< std::vector< TLorentzVector > >("selGenParticle"); 
+  produces< std::vector< int > >("selPDGid");
+
 }
 
 
@@ -113,6 +122,80 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<double> > W_emu_pfActivityVec(new std::vector<double>());
   std::auto_ptr<std::vector<double> > W_tau_emu_pfActivityVec(new std::vector<double>());
   std::auto_ptr<std::vector<double> > W_tauprongs_pfActivityVec(new std::vector<double>());
+
+
+  //StopStopPT fr ISR Systematics  
+  std::auto_ptr< std::vector< TLorentzVector > > selGenParticle( new std::vector< TLorentzVector > () );
+  std::auto_ptr< std::vector< int > > selPDGid( new std::vector< int > () );
+
+  std::set<int> pdgIdOfInterest;
+  pdgIdOfInterest.insert(21);
+  pdgIdOfInterest.insert(22);
+  pdgIdOfInterest.insert(23);
+  pdgIdOfInterest.insert(24);
+  pdgIdOfInterest.insert(25);
+
+  pdgIdOfInterest.insert(1);
+  pdgIdOfInterest.insert(2);
+  pdgIdOfInterest.insert(3);
+
+  pdgIdOfInterest.insert(4);
+  pdgIdOfInterest.insert(5);
+  pdgIdOfInterest.insert(6);
+
+  pdgIdOfInterest.insert(11);
+  pdgIdOfInterest.insert(12);
+  pdgIdOfInterest.insert(13);
+  pdgIdOfInterest.insert(14);
+  pdgIdOfInterest.insert(15);
+  pdgIdOfInterest.insert(16);
+
+// http://pdg.lbl.gov/2007/reviews/montecarlorpp.pdf
+  pdgIdOfInterest.insert(1000021);
+  pdgIdOfInterest.insert(1000022);
+  pdgIdOfInterest.insert(1000023);
+  pdgIdOfInterest.insert(1000025);
+  pdgIdOfInterest.insert(1000035);
+
+  pdgIdOfInterest.insert(1000001);
+  pdgIdOfInterest.insert(1000002);
+  pdgIdOfInterest.insert(1000003);
+  pdgIdOfInterest.insert(1000004);
+  pdgIdOfInterest.insert(1000005);
+  pdgIdOfInterest.insert(1000006);
+
+  pdgIdOfInterest.insert(2000001);
+  pdgIdOfInterest.insert(2000002);
+  pdgIdOfInterest.insert(2000003);
+  pdgIdOfInterest.insert(2000004);
+  pdgIdOfInterest.insert(2000005);
+  pdgIdOfInterest.insert(2000006);
+
+  for(edm::View<reco::GenParticle>::const_iterator iPart = genParticles->begin();
+      iPart != genParticles->end();
+      ++iPart){
+ 
+// Pythin 8 status code: http://home.thep.lu.se/~torbjorn/pythia81html/ParticleProperties.html 
+    if( std::find( pdgIdOfInterest.begin(), pdgIdOfInterest.end(), abs(iPart->pdgId()) ) != pdgIdOfInterest.end() 
+        && (    ( abs(iPart->pdgId()) != 1000021 && abs(iPart->pdgId()) != 1000006 && abs(iPart->pdgId()) != 1000005 && abs( iPart->status() ) >20 && abs( iPart->status() ) <30 ) 
+             || ( (abs(iPart->pdgId()) == 1000021 || abs(iPart->pdgId()) == 1000006 || abs(iPart->pdgId()) == 1000005) && iPart->isLastCopy() ) ) ) //special requirement for gluinos || stops || sbottoms  
+      {
+
+	TLorentzVector temp;
+	temp.SetPtEtaPhiE( iPart->pt() ,
+			   iPart->eta() ,
+			   iPart->phi() ,
+			   iPart->energy() 
+			   );
+
+	selGenParticle->push_back( temp );     
+	selPDGid->push_back( iPart->pdgId() );
+	
+     }
+
+  }// end of loop over gen-particles
+
+  //StopStopPT for ISR Systematics finised........
 
   for(unsigned int id=0; id<genDecayStrVec_->size(); id++){
      genDecayStrVec->push_back( (*genDecayStrVec_)[id] );
@@ -233,6 +316,10 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(W_emu_pfActivityVec, "WemupfActivityVec");
   iEvent.put(W_tau_emu_pfActivityVec, "WtauemupfActivityVec");
   iEvent.put(W_tauprongs_pfActivityVec, "WtauprongspfActivityVec");
+
+  //StopStop PT for ISR Systematics
+  iEvent.put(selGenParticle, "selGenParticle"); 
+  iEvent.put(selPDGid , "selPDGid" );
 
   return true;
 }

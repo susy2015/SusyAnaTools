@@ -43,6 +43,7 @@ endif
 LHAPDFLIB  = -L$(LHAPDF_LIBDIR) -lLHAPDF
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
 PROGRAMS = tupleTest nEvts makeCombPlots
+#PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards batchSignalPlots
 
 FILES = $(wildcard *.cc)
 OBJS  := $(FILES:%.cc=$(ODIR)/%.o)
@@ -83,6 +84,18 @@ nEvts: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/nEvts.o
 	#$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o
+	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+
+signalScan: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/signalScan.o $(ODIR)/PDFUncertainty.o $(ODIR)/BTagCorrector.o $(ODIR)/BTagCalibrationStandalone.o
+	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
+
+makeSignalCards: $(ODIR)/samples.o $(ODIR)/makeSignalCards.o
+	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+
+batchSignalPlots: $(ODIR)/samples.o $(ODIR)/batchSignalPlots.o
+	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+
+makeSignalHistograms: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/makeSignalHistograms.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 clean:

@@ -5,6 +5,9 @@
 #include <vector>
 #include <iostream>
 
+#include "TLine.h"
+#include "TLatex.h"
+
 /*
 const double nTops_SR_lo[]   = { 0,  0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  3 };
 const double nTops_SR_hi[]   = { 1,  1,  1,  2,  2,  2,  3,  3,  3, -1, -1, -1 };
@@ -123,4 +126,6 @@ void print_searchBins_headerstr(const std::string addstr="\\\\");
 
 std::string get_searchBins_defstr(const int binIdx, const std::string addstr="\\\\");
 void print_searchBins_latex();
+void print_searchBins_latex(const std::vector<double>& prediction, const std::vector<double>& uncertainty, std::string label);
+void drawSBregionDef(const double ymin_Yields = 0.05, const double ymax_Yields = 500., const bool logscale=true);
 #endif

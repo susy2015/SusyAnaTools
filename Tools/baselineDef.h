@@ -15,6 +15,7 @@ class BaselineVessel
 private:
     const std::string spec;
     topTagger::type3TopTagger * type3Ptr;
+    bool isfastsim;
 
 public:
     std::string jetVecLabel;
@@ -24,8 +25,9 @@ public:
     std::string muonsFlagIDLabel;
     std::string elesFlagIDLabel;
 
-    BaselineVessel(const std::string specialization = "") : spec(specialization),
-      jetVecLabel("jetsLVec"), CSVVecLabel("recoJetsBtag_0"), METLabel("met"), METPhiLabel("metphi") { }
+    BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization),
+      jetVecLabel("jetsLVec"), CSVVecLabel("recoJetsBtag_0"), METLabel("met"), METPhiLabel("metphi") 
+    { if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; }
 
     ~BaselineVessel() {delete type3Ptr;};
 
