@@ -1,0 +1,1 @@
+rm -fr Signal_fastsim_T2tt_scan/*.txt; rm -fr Signal_fastsim_T2tt_scan/logs; rm -fr Signal_fastsim_T2tt_scan/*.root; echo '\nSignal_fastsim_T2tt_scan\n'; ls -l -t -r Signal_fastsim_T2tt_scan

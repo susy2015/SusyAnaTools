@@ -23,23 +23,19 @@ class BTagCorrector {
   //constructor
  BTagCorrector() : debug(false), fastsim(false), btagSFunc(0), ctagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL) {
 
-
     //Hard Coded here.
     // Replace "bTagEfficiency_test.root" with desirable efficiency file
     // Same "efficiency file and MC sample to run over must be same
     //Efficiency can be calculated using bTagEfficiencyCalc.C
 
-    inFile = new TFile("bTagEfficiency_SMS-T2tt_FastSim_mStop-600-950_mLSP-1to450.root");
+    inFile = new TFile("batchSignalPlots.root");
     SetEffs(inFile);
-    SetCalib("CSVFiles/CSVv2_mod.csv");
-
+    SetCalib("CSVv2_mod.csv");
 
     //FastSim
     //Uncomment following two line for fastSim
     //SetFastSim(true);
     //SetCalibFastSim("CSVFiles/CSV_13TEV_Combined_20_11_2015.csv");
-
-
 
   }
   //destructor
@@ -49,9 +45,9 @@ class BTagCorrector {
   void SetDebug(bool d) { debug = d; }
   void SetFastSim(bool f) { fastsim = f; }
   void SetEffs(TFile* file){
-    h_eff_b = (TH2F*)file->Get("h_eff_b");
-    h_eff_c = (TH2F*)file->Get("h_eff_c");
-    h_eff_udsg = (TH2F*)file->Get("h_eff_udsg");
+    h_eff_b = (TH2F*)file->Get("eff_b");
+    h_eff_c = (TH2F*)file->Get("eff_c");
+    h_eff_udsg = (TH2F*)file->Get("eff_udsg");
   }
   void SetCalib(string cfile){
     //initialize btag helper classes

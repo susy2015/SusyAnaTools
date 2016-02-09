@@ -31,7 +31,7 @@ std::vector<std::vector<TH1D*> > h1_nJetsVec, h1_metVec, h1_MT2Vec, h1_mTcombVec
 std::vector<std::vector<TH1D*> > h1_minDphi_topmetVec;
 
 std::vector<TH1D*> h1_nJets_looseVec, h1_nTops_looseVec, h1_nbJets_looseVec;
-std::vector<TH1D*> h1_met_looseVec, h1_MT2_looseVec, h1_HT_looseVec, h1_metphi_looseVec;
+std::vector<TH1D*> h1_met_looseVec, h1_MT2_looseVec, h1_HT_looseVec, h1_metphi_looseVec, h1_mht_looseVec, h1_mhtphi_looseVec;
 std::vector<TH1D*> h1_dphi1_looseVec, h1_dphi2_looseVec, h1_dphi3_looseVec;
 std::vector<TH1D*> h1_topMass_looseVec;
 std::vector<TH1D*> h1_vtxSize_looseVec;
@@ -41,7 +41,7 @@ std::vector<TH1D*> h1_muPt_looseVec, h1_muEta_looseVec, h1_muPhi_looseVec;
 std::vector<TH1D*> h1_elePt_looseVec, h1_eleEta_looseVec, h1_elePhi_looseVec;
 
 std::vector<TH1D*> h1_nJets_baselineVec, h1_nTops_baselineVec, h1_nbJets_baselineVec;
-std::vector<TH1D*> h1_met_baselineVec, h1_MT2_baselineVec, h1_HT_baselineVec, h1_metphi_baselineVec;
+std::vector<TH1D*> h1_met_baselineVec, h1_MT2_baselineVec, h1_HT_baselineVec, h1_metphi_baselineVec, h1_mht_baselineVec, h1_mhtphi_baselineVec;
 std::vector<TH1D*> h1_dphi1_baselineVec, h1_dphi2_baselineVec, h1_dphi3_baselineVec;
 std::vector<TH1D*> h1_topMass_baselineVec;
 std::vector<TH1D*> h1_vtxSize_baselineVec;
@@ -50,13 +50,29 @@ std::vector<TH1D*> h1_leadJetPt_baselineVec, h1_leadJetEta_baselineVec, h1_leadJ
 std::vector<TH1D*> h1_muPt_baselineVec, h1_muEta_baselineVec, h1_muPhi_baselineVec;
 std::vector<TH1D*> h1_elePt_baselineVec, h1_eleEta_baselineVec, h1_elePhi_baselineVec;
 
-std::vector<TH1D*> h1_searchBinYieldsVec;
+std::vector<TH1D*> h1_searchBinYieldsVec, h1_searchBinYields_HadTauVec, h1_searchBinYields_LostLepVec, h1_searchBinYields_OverlapVec;
+
+std::vector<TH1D*> h1_scaleUncNominal_searchBinYieldsVec, h1_scaleUncUp_searchBinYieldsVec, h1_scaleUncDown_searchBinYieldsVec;
+std::vector<TH1D*> h1_pdfUncCentral_searchBinYieldsVec, h1_pdfUncUp_searchBinYieldsVec, h1_pdfUncDown_searchBinYieldsVec;
+
+std::vector<TH2D*> h2_MT2_vs_met_baselineVec;
 
 void declHistPerSample(const std::string &sampleKeyString){
 
   const TString sampleKeyStringT = sampleKeyString;
 
   TH1D * h1_searchBinYields = new TH1D(sampleKeyStringT+"_h1_searchBinYields", sampleKeyStringT+": search bin yields", nTotBins, 0, nTotBins); h1_searchBinYields->Sumw2(); h1_searchBinYieldsVec.push_back((TH1D*)h1_searchBinYields->Clone());
+  TH1D * h1_searchBinYields_HadTau = new TH1D(sampleKeyStringT+"_h1_searchBinYields_HadTau", sampleKeyStringT+": search bin yields for HadTau", nTotBins, 0, nTotBins); h1_searchBinYields_HadTau->Sumw2(); h1_searchBinYields_HadTauVec.push_back((TH1D*)h1_searchBinYields_HadTau->Clone());
+  TH1D * h1_searchBinYields_LostLep = new TH1D(sampleKeyStringT+"_h1_searchBinYields_LostLep", sampleKeyStringT+": search bin yields for LostLep", nTotBins, 0, nTotBins); h1_searchBinYields_LostLep->Sumw2(); h1_searchBinYields_LostLepVec.push_back((TH1D*)h1_searchBinYields_LostLep->Clone());
+  TH1D * h1_searchBinYields_Overlap = new TH1D(sampleKeyStringT+"_h1_searchBinYields_Overlap", sampleKeyStringT+": search bin yields for Overlap", nTotBins, 0, nTotBins); h1_searchBinYields_Overlap->Sumw2(); h1_searchBinYields_OverlapVec.push_back((TH1D*)h1_searchBinYields_Overlap->Clone());
+
+  TH1D * h1_scaleUncNominal_searchBinYields = new TH1D(sampleKeyStringT+"_h1_scaleUncNominal_searchBinYields", sampleKeyStringT+": scale unc norminal", nTotBins, 0, nTotBins); h1_scaleUncNominal_searchBinYields->Sumw2(); h1_scaleUncNominal_searchBinYieldsVec.push_back((TH1D*)h1_scaleUncNominal_searchBinYields->Clone());
+  TH1D * h1_scaleUncUp_searchBinYields = new TH1D(sampleKeyStringT+"_h1_scaleUncUp_searchBinYields", sampleKeyStringT+": scale unc up", nTotBins, 0, nTotBins); h1_scaleUncUp_searchBinYields->Sumw2(); h1_scaleUncUp_searchBinYieldsVec.push_back((TH1D*)h1_scaleUncUp_searchBinYields->Clone());
+  TH1D * h1_scaleUncDown_searchBinYields = new TH1D(sampleKeyStringT+"_h1_scaleUncDown_searchBinYields", sampleKeyStringT+": scale unc down", nTotBins, 0, nTotBins); h1_scaleUncDown_searchBinYields->Sumw2(); h1_scaleUncDown_searchBinYieldsVec.push_back((TH1D*)h1_scaleUncDown_searchBinYields->Clone());
+
+  TH1D * h1_pdfUncCentral_searchBinYields = new TH1D(sampleKeyStringT+"_h1_pdfUncCentral_searchBinYields", sampleKeyStringT+": pdf unc central", nTotBins, 0, nTotBins); h1_pdfUncCentral_searchBinYields->Sumw2(); h1_pdfUncCentral_searchBinYieldsVec.push_back((TH1D*)h1_pdfUncCentral_searchBinYields->Clone());
+  TH1D * h1_pdfUncUp_searchBinYields = new TH1D(sampleKeyStringT+"_h1_pdfUncUp_searchBinYields", sampleKeyStringT+": pdf unc up", nTotBins, 0, nTotBins); h1_pdfUncUp_searchBinYields->Sumw2(); h1_pdfUncUp_searchBinYieldsVec.push_back((TH1D*)h1_pdfUncUp_searchBinYields->Clone());
+  TH1D * h1_pdfUncDown_searchBinYields = new TH1D(sampleKeyStringT+"_h1_pdfUncDown_searchBinYields", sampleKeyStringT+": pdf unc down", nTotBins, 0, nTotBins); h1_pdfUncDown_searchBinYields->Sumw2(); h1_pdfUncDown_searchBinYieldsVec.push_back((TH1D*)h1_pdfUncDown_searchBinYields->Clone());
 
   TH1D * h1_cutFlow = new TH1D(sampleKeyStringT+"_h1_cutFlow", sampleKeyStringT+": cut flow table", 20, 0, 20); h1_cutFlow->SetBit(TH1::kCanRebin); h1_cutFlow->Sumw2(); h1_cutFlowVec.push_back((TH1D*)h1_cutFlow->Clone());
   TH1D * h1_cutFlow_aux = new TH1D(sampleKeyStringT+"_h1_cutFlow_aux", sampleKeyStringT+": more cut flow table", 20, 0, 20); h1_cutFlow_aux->SetBit(TH1::kCanRebin); h1_cutFlow_aux->Sumw2(); h1_cutFlow_auxVec.push_back((TH1D*)h1_cutFlow_aux->Clone());
@@ -69,6 +85,9 @@ void declHistPerSample(const std::string &sampleKeyString){
   TH1D * h1_MT2_loose = new TH1D(sampleKeyStringT+"_h1_MT2_loose", sampleKeyStringT+": MT2 after loose; MT2 (GeV)", 100, 0, 1000); h1_MT2_loose->Sumw2(); h1_MT2_looseVec.push_back((TH1D*)h1_MT2_loose->Clone());
   TH1D * h1_HT_loose = new TH1D(sampleKeyStringT+"_h1_HT_loose", sampleKeyStringT+": HT after loose; HT (GeV)", 100, 0, 1000); h1_HT_loose->Sumw2(); h1_HT_looseVec.push_back((TH1D*)h1_HT_loose->Clone());
   TH1D * h1_metphi_loose = new TH1D(sampleKeyStringT+"_h1_metphi_loose", sampleKeyStringT+": metphi after loose; metphi", 100, -3.2, 3.2); h1_metphi_loose->Sumw2(); h1_metphi_looseVec.push_back((TH1D*)h1_metphi_loose->Clone());
+
+  TH1D * h1_mht_loose = new TH1D(sampleKeyStringT+"_h1_mht_loose", sampleKeyStringT+": mht after loose; mht (GeV)", 100, 0, 1000); h1_mht_loose->Sumw2(); h1_mht_looseVec.push_back((TH1D*)h1_mht_loose->Clone());
+  TH1D * h1_mhtphi_loose = new TH1D(sampleKeyStringT+"_h1_mhtphi_loose", sampleKeyStringT+": mhtphi after loose; mhtphi", 100, -3.2, 3.2); h1_mhtphi_loose->Sumw2(); h1_mhtphi_looseVec.push_back((TH1D*)h1_mhtphi_loose->Clone());
 
   TH1D * h1_dphi1_loose = new TH1D(sampleKeyStringT+"_h1_dphi1_loose", sampleKeyStringT+": dphi1 after loose; dphi1", 100, 0.0, 3.2); h1_dphi1_loose->Sumw2(); h1_dphi1_looseVec.push_back((TH1D*)h1_dphi1_loose->Clone());
   TH1D * h1_dphi2_loose = new TH1D(sampleKeyStringT+"_h1_dphi2_loose", sampleKeyStringT+": dphi2 after loose; dphi2", 100, 0.0, 3.2); h1_dphi2_loose->Sumw2(); h1_dphi2_looseVec.push_back((TH1D*)h1_dphi2_loose->Clone());
@@ -105,6 +124,9 @@ void declHistPerSample(const std::string &sampleKeyString){
   TH1D * h1_HT_baseline = new TH1D(sampleKeyStringT+"_h1_HT_baseline", sampleKeyStringT+": HT after baseline; HT (GeV)", 100, 0, 1000); h1_HT_baseline->Sumw2(); h1_HT_baselineVec.push_back((TH1D*)h1_HT_baseline->Clone());
   TH1D * h1_metphi_baseline = new TH1D(sampleKeyStringT+"_h1_metphi_baseline", sampleKeyStringT+": metphi after baseline; metphi", 100, -3.2, 3.2); h1_metphi_baseline->Sumw2(); h1_metphi_baselineVec.push_back((TH1D*)h1_metphi_baseline->Clone());
 
+  TH1D * h1_mht_baseline = new TH1D(sampleKeyStringT+"_h1_mht_baseline", sampleKeyStringT+": mht after baseline; mht (GeV)", 100, 0, 1000); h1_mht_baseline->Sumw2(); h1_mht_baselineVec.push_back((TH1D*)h1_mht_baseline->Clone());
+  TH1D * h1_mhtphi_baseline = new TH1D(sampleKeyStringT+"_h1_mhtphi_baseline", sampleKeyStringT+": mhtphi after baseline; mhtphi", 100, -3.2, 3.2); h1_mhtphi_baseline->Sumw2(); h1_mhtphi_baselineVec.push_back((TH1D*)h1_mhtphi_baseline->Clone());
+
   TH1D * h1_dphi1_baseline = new TH1D(sampleKeyStringT+"_h1_dphi1_baseline", sampleKeyStringT+": dphi1 after baseline; dphi1", 100, 0.0, 3.2); h1_dphi1_baseline->Sumw2(); h1_dphi1_baselineVec.push_back((TH1D*)h1_dphi1_baseline->Clone());
   TH1D * h1_dphi2_baseline = new TH1D(sampleKeyStringT+"_h1_dphi2_baseline", sampleKeyStringT+": dphi2 after baseline; dphi2", 100, 0.0, 3.2); h1_dphi2_baseline->Sumw2(); h1_dphi2_baselineVec.push_back((TH1D*)h1_dphi2_baseline->Clone());
   TH1D * h1_dphi3_baseline = new TH1D(sampleKeyStringT+"_h1_dphi3_baseline", sampleKeyStringT+": dphi3 after baseline; dphi3", 100, 0.0, 3.2); h1_dphi3_baseline->Sumw2(); h1_dphi3_baselineVec.push_back((TH1D*)h1_dphi3_baseline->Clone());
@@ -130,6 +152,8 @@ void declHistPerSample(const std::string &sampleKeyString){
   TH1D * h1_elePt_baseline = new TH1D(sampleKeyStringT+"_h1_elePt_baseline", sampleKeyStringT+": elePt after baseline; elePt (GeV)", 100, 0, 500); h1_elePt_baseline->Sumw2(); h1_elePt_baselineVec.push_back((TH1D*)h1_elePt_baseline->Clone());
   TH1D * h1_eleEta_baseline = new TH1D(sampleKeyStringT+"_h1_eleEta_baseline", sampleKeyStringT+": eleEta after baseline; eleEta", 100, -5, 5); h1_eleEta_baseline->Sumw2(); h1_eleEta_baselineVec.push_back((TH1D*)h1_eleEta_baseline->Clone());
   TH1D * h1_elePhi_baseline = new TH1D(sampleKeyStringT+"_h1_elePhi_baseline", sampleKeyStringT+": elePhi after baseline; elePhi", 100, -3.2, 3.2); h1_elePhi_baseline->Sumw2(); h1_elePhi_baselineVec.push_back((TH1D*)h1_elePhi_baseline->Clone());
+
+  TH2D * h2_MT2_vs_met_baseline = new TH2D(sampleKeyStringT+"_h2_MT2_vs_met_baseline", sampleKeyStringT+": MT2 versus met after baseline; met (GeV); MT2 (GeV)", 100, 200, 700, 100, 200, 700); h2_MT2_vs_met_baseline->Sumw2(); h2_MT2_vs_met_baselineVec.push_back((TH2D*)h2_MT2_vs_met_baseline->Clone());
 
   TH2D * h2_evtCnt_nbJets_vs_nTops = new TH2D(sampleKeyStringT+"_h2_evtCnt_nbJets_vs_nTops", sampleKeyStringT+": event counts nbJets versus nTops; nTops; nbJets", 4, 0, 4, 3, 1, 4); h2_evtCnt_nbJets_vs_nTops->Sumw2(); h2_evtCnt_nbJets_vs_nTopsVec.push_back((TH2D*) h2_evtCnt_nbJets_vs_nTops->Clone());
 
