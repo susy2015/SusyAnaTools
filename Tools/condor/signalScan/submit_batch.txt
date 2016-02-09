@@ -1,3 +1,7 @@
-mkdir /uscms_data/d3/lhx/tasks/recipes/prepare2015/OTHERS/dev_for_v4_7415/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T2tt_scan
-cd /uscms_data/d3/lhx/tasks/recipes/prepare2015/OTHERS/dev_for_v4_7415/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T2tt_scan; ./condorSubmit.py -d Signal_fastsim_T2tt_scan -n 2;
-cd /uscms_data/d3/lhx/tasks/recipes/prepare2015/OTHERS/dev_for_v4_7415/src/SusyAnaTools/Tools/condor/signalScan/
+mkdir Signal_fastsim_T2tt_scan
+cd Signal_fastsim_T2tt_scan
+ln -s ../condorSubmit.py .
+ln -s ../goScan.sh .
+ln -s ../samples.py .
+./condorSubmit.py -d Signal_fastsim_T2tt_scan -n 2;
+cd ../ 

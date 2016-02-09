@@ -10,7 +10,7 @@ Executable = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/signalScan/goScan.sh
 Requirements = OpSys == "LINUX"&& (Arch != "DUMMY" )
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/signalScan, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/signalScan/goScan.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/batchSignalPlots.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSV_13TEV_Combined_20_11_2015.csv, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSVv2_mod.csv
+Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/signalScan, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/signalScan/goScan.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/data/batchSignalPlots.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSV_13TEV_Combined_20_11_2015.csv, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSVv2_mod.csv
 Output = logs/basicCheck_$(Process).stdout
 Error = logs/basicCheck_$(Process).stderr
 Log = logs/basicCheck_$(Process).log
