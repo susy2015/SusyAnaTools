@@ -14,9 +14,10 @@ class BaselineVessel
 private:
     const std::string spec;
     //EventListFilter filter;
+    bool isfastsim;
 
 public:
-BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization) { }
+BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization) { if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; }
 
     void passBaseline(NTupleReader &tr)
     {
@@ -110,6 +111,22 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         {
             doMET = false;
             dodPhis = false;
+        }else if( spec.compare("jecUp") == 0 || spec.compare("jecDn") == 0 || spec.compare("metMagUp") == 0 || spec.compare("metMagDn") == 0 || spec.compare("metPhiUp") == 0 || spec.compare("metPhiDn") == 0 ){
+           if( spec.compare("jecUp") == 0 ){
+              jetVecLabel = "jetLVec_jecUp";
+              CSVVecLabel = "recoJetsBtag_jecUp";
+           }else if(spec.compare("jecDn") == 0 ){
+              jetVecLabel = "jetLVec_jecDn";
+              CSVVecLabel = "recoJetsBtag_jecDn";
+           }else if(spec.compare("metMagUp") == 0 ){
+              METLabel = "met_metMagUp";
+           }else if(spec.compare("metMagDn") == 0 ){
+              METLabel = "met_metMagDn";
+           }else if(spec.compare("metPhiUp") == 0 ){
+              METPhiLabel = "metphi_metPhiUp";
+           }else if(spec.compare("metPhiDn") == 0 ){
+              METPhiLabel = "metphi_metPhiDn";
+           }
         }
 
         // Form TLorentzVector of MET
@@ -285,11 +302,11 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
                passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
             }
 
-            bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
-            bool hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
+            bool hbheNoiseFilter = isfastsim? true:tr.getVar<bool>("HBHENoiseFilter");
+            bool hbheIsoNoiseFilter = isfastsim? true:tr.getVar<bool>("HBHEIsoNoiseFilter");
             int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
 
-            int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
+            int jetIDFilter = isfastsim? 1:tr.getVar<int>("looseJetID_NoLep");
 
             //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
 //            return (vtxSize>=1) && beamHaloFilter && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;

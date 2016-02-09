@@ -98,3 +98,4 @@ CSVv2;OperatingPoint, measurementType, sysType, jetFlavor, etaMin, etaMax, ptMin
 2, comb, central, 2, 0, 2.4, 20, 1000, 0, 1, "0.907317" 
 2, comb, down, 2, 0, 2.4, 20, 1000, 0, 1, "0.557317" 
 2, comb, up, 2, 0, 2.4, 20, 1000, 0, 1, "1.257317" 
+

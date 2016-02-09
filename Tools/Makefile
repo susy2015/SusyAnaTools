@@ -22,7 +22,7 @@ LIBS       = $(shell root-config --glibs)
 MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2
 LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
-PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms
+PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards batchSignalPlots
 
 all: mkobj sampPyWrap $(PROGRAMS)
 
@@ -58,6 +58,15 @@ basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o
+	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+
+signalScan: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/signalScan.o $(ODIR)/PDFUncertainty.o $(ODIR)/BTagCorrector.o $(ODIR)/BTagCalibrationStandalone.o
+	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
+
+makeSignalCards: $(ODIR)/samples.o $(ODIR)/makeSignalCards.o
+	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+
+batchSignalPlots: $(ODIR)/samples.o $(ODIR)/batchSignalPlots.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 makeSignalHistograms: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/makeSignalHistograms.o
