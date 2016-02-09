@@ -64,7 +64,7 @@ namespace AnaSamples
     bool operator!= (const FileSummary& lhs, const FileSummary& rhs);
 
 
-    static const double luminosity = 2156.0; // in pb-1
+    static const double luminosity = 2262.0; // in pb-1
     //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/";
     //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Mar14_2014_v2/";
     //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_72X_July_2015_v1.1/";
