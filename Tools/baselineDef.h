@@ -296,14 +296,16 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
             bool passDataSpec = true;
             if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
                int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
-               int CSCTightHaloListFilter = tr.getVar<int>("CSCTightHaloListFilter");
+               unsigned int CSCTightHaloListFilter = tr.getVar<unsigned int>("CSCTightHaloListFilter");
                int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
-               int eeBadScListFilter = tr.getVar<int>("eeBadScListFilter");
-               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
+               unsigned int eeBadScListFilter = tr.getVar<unsigned int>("eeBadScListFilter");
+               unsigned int badResolutionTrackListFilter = tr.getVar<unsigned int>("badResolutionTrackListFilter");
+               unsigned int muonBadTrackListFilter = tr.getVar<unsigned int>("muonBadTrackListFilter");
+               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && badResolutionTrackListFilter && muonBadTrackListFilter;
             }
 
-            bool hbheNoiseFilter = isfastsim? true:tr.getVar<bool>("HBHENoiseFilter");
-            bool hbheIsoNoiseFilter = isfastsim? true:tr.getVar<bool>("HBHEIsoNoiseFilter");
+            unsigned int hbheNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHENoiseFilter");
+            unsigned int hbheIsoNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHEIsoNoiseFilter");
             int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
 
             int jetIDFilter = isfastsim? 1:tr.getVar<int>("looseJetID_NoLep");
