@@ -13,11 +13,11 @@ const double nTops_SR_hi[]   = { 1,  1,  1,  2,  2,  2,  3,  3,  3, -1, -1, -1 }
 const double nbJets_SR_lo[]  = { 1,  2,  3,  1,  2,  3,  1,  2,  3,  1,  2,  3 };
 const double nbJets_SR_hi[]  = { 2,  3, -1,  2,  3, -1,  2,  3, -1,  2,  3, -1 };
 */
-const double nTops_SR_lo[]   = { 1,  1,  1,  2,  2,  2,  3,  3,  3 };
-const double nTops_SR_hi[]   = { 2,  2,  2,  3,  3,  3, -1, -1, -1 };
+const double nTops_SR_lo[]   = { 1,  1,  2,  2 };
+const double nTops_SR_hi[]   = { 2,  2, -1, -1 };
 
-const double nbJets_SR_lo[]  = { 1,  2,  3,  1,  2,  3,  1,  2,  3 };
-const double nbJets_SR_hi[]  = { 2,  3, -1,  2,  3, -1,  2,  3, -1 };
+const double nbJets_SR_lo[]  = { 1,  2,  1,  2 };
+const double nbJets_SR_hi[]  = { 2, -1,  2, -1 };
 /*
 const std::string keyStr_nTops_SR[]  = { "EQ0", "EQ0", "EQ0", "EQ1", "EQ1", "EQ1", "EQ2", "EQ2", "EQ2", "LE3", "LE3", "LE3" };
 const std::string disStr_nTops_SR[]  = {  "=0",  "=0",  "=0",  "=1",  "=1",  "=1",  "=2",  "=2",  "=2", ">=3", ">=3", ">=3" };
@@ -25,11 +25,11 @@ const std::string disStr_nTops_SR[]  = {  "=0",  "=0",  "=0",  "=1",  "=1",  "=1
 const std::string keyStr_nbJets_SR[] = { "EQ1", "EQ2", "LE3", "EQ1", "EQ2", "LE3", "EQ1", "EQ2", "LE3", "EQ1", "EQ2", "LE3" };
 const std::string disStr_nbJets_SR[] = {  "=1",  "=2", ">=3",  "=1",  "=2", ">=3",  "=1",  "=2", ">=3",  "=1",  "=2", ">=3" };
 */
-const std::string keyStr_nTops_SR[]  = { "EQ1", "EQ1", "EQ1", "EQ2", "EQ2", "EQ2", "LE3", "LE3", "LE3" };
-const std::string disStr_nTops_SR[]  = {  "=1",  "=1",  "=1",  "=2",  "=2",  "=2", ">=3", ">=3", ">=3" };
+const std::string keyStr_nTops_SR[]  = { "EQ1", "EQ1", "LE2", "LE2"};
+const std::string disStr_nTops_SR[]  = {  "=1",  "=1", ">=2", ">=2"};
 
-const std::string keyStr_nbJets_SR[] = { "EQ1", "EQ2", "LE3", "EQ1", "EQ2", "LE3", "EQ1", "EQ2", "LE3" };
-const std::string disStr_nbJets_SR[] = {  "=1",  "=2", ">=3",  "=1",  "=2", ">=3",  "=1",  "=2", ">=3" };
+const std::string keyStr_nbJets_SR[] = { "EQ1", "LE2", "EQ1", "LE2"};
+const std::string disStr_nbJets_SR[] = {  "=1", ">=2",  "=1", ">=2"};
 
 const int nSR = sizeof(nTops_SR_lo)/sizeof(nTops_SR_lo[0]);
 
@@ -85,7 +85,7 @@ const std::vector<std::vector<double> > vMT2_vs_met_SR_3 { // nb=1, ntop=1
                                                          };
 
 
-const std::vector<std::vector<double> > vMT2_vs_met_SR_4 { // nb=2, ntop=1
+const std::vector<std::vector<double> > vMT2_vs_met_SR_4 { // nb>=2, ntop=1
                                                            // MT2 lo 
                                                            {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400},
                                                            // MT2 hi 
@@ -96,18 +96,7 @@ const std::vector<std::vector<double> > vMT2_vs_met_SR_4 { // nb=2, ntop=1
                                                            {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 450,  -1}
                                                          };
 
-const std::vector<std::vector<double> > vMT2_vs_met_SR_5 { // nb>=3, ntop=1
-                                                           // MT2 lo 
-                                                           {200, 200, 200},
-                                                           // MT2 hi 
-                                                           { -1,  -1,  -1},
-                                                           // met lo 
-                                                           {200, 300, 400},
-                                                           // met hi 
-                                                           {300, 400,  -1}
-                                                         };
-
-const std::vector<std::vector<double> > vMT2_vs_met_SR_6 { // nb=1, ntop=2
+const std::vector<std::vector<double> > vMT2_vs_met_SR_6 { // nb=1, ntop>=2
                                                            // MT2 lo 
                                                            {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
                                                            // MT2 hi 
@@ -118,7 +107,7 @@ const std::vector<std::vector<double> > vMT2_vs_met_SR_6 { // nb=1, ntop=2
                                                            {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1}
                                                          };
 
-const std::vector<std::vector<double> > vMT2_vs_met_SR_7 { // nb=2, ntop=2
+const std::vector<std::vector<double> > vMT2_vs_met_SR_7 { // nb>=2, ntop>=2
                                                            // MT2 lo 
                                                            {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
                                                            // MT2 hi 
@@ -129,54 +118,9 @@ const std::vector<std::vector<double> > vMT2_vs_met_SR_7 { // nb=2, ntop=2
                                                            {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1}
                                                          };
 
-
-const std::vector<std::vector<double> > vMT2_vs_met_SR_8 { // nb>=3, ntop=2
-                                                           // MT2 lo 
-                                                           {200, 200},
-                                                           // MT2 hi 
-                                                           { -1,  -1},
-                                                           // met lo 
-                                                           {200, 300},
-                                                           // met hi 
-                                                           {300,  -1}
-                                                         };
-
-
-const std::vector<std::vector<double> > vMT2_vs_met_SR_9 { // nb=1, ntop=3
-                                                           // MT2 lo 
-                                                           {200},
-                                                           // MT2 hi 
-                                                           { -1},
-                                                           // met lo 
-                                                           {200},
-                                                           // met hi 
-                                                           { -1}
-                                                         };
-
-const std::vector<std::vector<double> > vMT2_vs_met_SR_10 { // nb=2, ntop=3
-                                                           // MT2 lo 
-                                                           {200},
-                                                           // MT2 hi 
-                                                           { -1},
-                                                           // met lo 
-                                                           {200},
-                                                           // met hi 
-                                                           { -1}
-                                                         };
-
-const std::vector<std::vector<double> > vMT2_vs_met_SR_11 { // nb>=3, ntop=3
-                                                           // MT2 lo 
-                                                           {200},
-                                                           // MT2 hi 
-                                                           { -1},
-                                                           // met lo 
-                                                           {200},
-                                                           // met hi 
-                                                           { -1}
-                                                         };
 
 //const std::vector<std::vector<std::vector<double> > > vMT2_vs_met_all_SR {vMT2_vs_met_SR_0, vMT2_vs_met_SR_1, vMT2_vs_met_SR_2, vMT2_vs_met_SR_3, vMT2_vs_met_SR_4, vMT2_vs_met_SR_5, vMT2_vs_met_SR_6, vMT2_vs_met_SR_7, vMT2_vs_met_SR_8, vMT2_vs_met_SR_9, vMT2_vs_met_SR_10, vMT2_vs_met_SR_11};
-const std::vector<std::vector<std::vector<double> > > vMT2_vs_met_all_SR {vMT2_vs_met_SR_3, vMT2_vs_met_SR_4, vMT2_vs_met_SR_5, vMT2_vs_met_SR_6, vMT2_vs_met_SR_7, vMT2_vs_met_SR_8, vMT2_vs_met_SR_9, vMT2_vs_met_SR_10, vMT2_vs_met_SR_11};
+const std::vector<std::vector<std::vector<double> > > vMT2_vs_met_all_SR {vMT2_vs_met_SR_3, vMT2_vs_met_SR_4, vMT2_vs_met_SR_6, vMT2_vs_met_SR_7};
 
 const double max_MT2_for_binEdge = 400, max_met_for_binEdge = 600;
 const double max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25;
