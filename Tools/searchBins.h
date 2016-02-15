@@ -294,7 +294,8 @@ void print_searchBins_latex(const std::vector<double>& prediction, const std::ve
     print_searchBins_headerstr(label);
     for(int ib=0; ib<nTotBins; ib++){
 	char addon[20];
-	sprintf(addon, "& $%.2f \\pm %.2f$ \\\\", prediction[ib], uncertainty[ib]);
+	if( prediction[ib] > 0.01) sprintf(addon, "& $%.2f \\pm %.2f$ \\\\", prediction[ib], uncertainty[ib]);
+        else                       sprintf(addon, "& $%.3f \\pm %.3f$ \\\\", prediction[ib], uncertainty[ib]);
 	std::string outstr = get_searchBins_defstr(ib, std::string(addon));
 	printf("%s", outstr.c_str());
     }
