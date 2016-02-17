@@ -47,7 +47,7 @@ namespace AnaSamples
 
 //        std::string MCloc = "Spring15_74X_Oct_2015_Ntp_v2X/";
         std::string MCloc = "Spring15_74X_Dec_2015_Ntp_v4X/";
-        std::string DATAloc = "Spring15_74X_Dec_2015_Ntp_v4X/";
+        std::string DATAloc = "Spring15_74X_Jan_2016_Ntp_v5X/";
 
         if(fDir.compare("condor") == 0)
         {
@@ -166,25 +166,25 @@ namespace AnaSamples
         // - data -
         // --------
 	
-	sampleSet_["Data_SingleMuon_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_fixListFilterBug_fixTriggerBug_SingleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
-	sampleSet_["Data_SingleMuon_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_fixListFilterBug_fixTriggerBug2_SingleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
-	sampleSet_["Data_SingleMuon_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_fixListFilterBug_fixTriggerBug_SingleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1561.93, 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_SingleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_SingleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_SingleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1670.38, 1.0,  kBlack);
 
 //	sampleSet_["Data_SingleElectron_2015C"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_SingleElectron-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 16.345, 1.0,  kBlack);
-//	sampleSet_["Data_SingleElectron_2015D_05Oct2015"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_SingleElectron-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 552.67, 1.0,  kBlack);
+//	sampleSet_["Data_SingleElectron_2015D_05Oct2015"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v 3p1_SingleElectron-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 552.67, 1.0,  kBlack);
 //	sampleSet_["Data_SingleElectron_2015D_PromptReco"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_SingleElectron-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 993.25, 1.0,  kBlack);
 
 //	sampleSet_["Data_DoubleMuon_2015C"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_DoubleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 16.345, 1.0,  kBlack);
 //	sampleSet_["Data_DoubleMuon_2015D_05Oct2015"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_DoubleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 552.67, 1.0,  kBlack);
 //	sampleSet_["Data_DoubleMuon_2015D_PromptReco"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_DoubleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 993.72, 1.0,  kBlack);
 
-	sampleSet_["Data_DoubleEG_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_fixListFilterBug_fixTriggerBug2_DoubleEG-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
-	sampleSet_["Data_DoubleEG_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_fixListFilterBug_fixTriggerBug_DoubleEG-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
-	sampleSet_["Data_DoubleEG_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_fixListFilterBug_fixTriggerBug_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1562.18, 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_DoubleEG-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_DoubleEG-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1669.92, 1.0,  kBlack);
 
-	sampleSet_["Data_HTMHT_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_fixListFilterBug_fixTriggerBug3_HTMHT-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
-	sampleSet_["Data_HTMHT_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_fixListFilterBug_fixTriggerBug_HTMHT-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 574.23, 1.0,  kBlack);
-	sampleSet_["Data_HTMHT_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Dec_2015_Ntp_v4p0_fixListFilterBug_fixTriggerBug_HTMHT-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1562.28, 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_HTMHT-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_HTMHT-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 574.23, 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_reTry_HTMHT-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1670.53, 1.0,  kBlack);
 
         // ----------
 	// - signal -
@@ -216,7 +216,12 @@ namespace AnaSamples
         sampleSet_["SMS-T2tt_mStop-400to475_mLSP-1to400"]        = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-400to475_mLSP-1to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         sampleSet_["SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475"]            = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         sampleSet_["SMS-T2tt_mStop-600-950_mLSP-1to450"]         = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-600-950_mLSP-1to450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-       
+
+        sampleSet_["SMS-T2tb_mStop-350to400_0to225"]             = FileSummary(fDir_ + MCloc + "SMS-T2tb_mStop-350to400_0to225_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tb_mStop-425to600_0to425"]             = FileSummary(fDir_ + MCloc + "SMS-T2tb_mStop-425to600_0to425_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tb_mStop-625to850_0to450"]             = FileSummary(fDir_ + MCloc + "SMS-T2tb_mStop-625to850_0to450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tb_mStop-875to1125_0to475"]            = FileSummary(fDir_ + MCloc + "SMS-T2tb_mStop-875to1125_0to475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+
     }
 
     SampleCollection::SampleCollection(SampleSet& samples)
@@ -272,7 +277,7 @@ namespace AnaSamples
 
         addSampleSet(samples, "Data_DoubleEG", {"Data_DoubleEG_2015C", "Data_DoubleEG_2015D_05Oct2015", "Data_DoubleEG_2015D_PromptReco"});
 
-        addSampleSet(samples, "Data_HTMHT", {"Data_HTMHT_2015C", "Data_HTMHT_2015D_05Oct2015"});
+        addSampleSet(samples, "Data_HTMHT", {"Data_HTMHT_2015C", "Data_HTMHT_2015D_05Oct2015", "Data_HTMHT_2015D_PromptReco"});
 
         addSampleSet(samples, "Signal_T1tttt_mGluino1200_mLSP800", {"Signal_T1tttt_mGluino1200_mLSP800"});
         addSampleSet(samples, "Signal_T1tttt_mGluino1500_mLSP100", {"Signal_T1tttt_mGluino1500_mLSP100"});
@@ -280,6 +285,8 @@ namespace AnaSamples
         addSampleSet(samples, "Signal_T2tt_mStop850_mLSP100", {"Signal_T2tt_mStop850_mLSP100"});
 
         addSampleSet(samples, "Signal_fastsim_T2tt_scan", {"SMS-T2tt_mStop-100-125_mLSP-1to50", "SMS-T2tt_mStop-150-175_mLSP-1to100", "SMS-T2tt_mStop-200_mLSP-1to125", "SMS-T2tt_mStop-225_mLSP-25to150", "SMS-T2tt_mStop-250_mLSP-1to175", "SMS-T2tt_mStop-275_mLSP-75to200", "SMS-T2tt_mStop-300to375_mLSP-1to300", "SMS-T2tt_mStop-400to475_mLSP-1to400", "SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475", "SMS-T2tt_mStop-600-950_mLSP-1to450"});
+
+        addSampleSet(samples, "Signal_fastsim_T2tb_scan", {"SMS-T2tb_mStop-350to400_0to225", "SMS-T2tb_mStop-425to600_0to425", "SMS-T2tb_mStop-625to850_0to450", "SMS-T2tb_mStop-875to1125_0to475"});
     }
 
     void SampleCollection::addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss)

@@ -34,22 +34,6 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
   muonsFlagIDLabel = "muonsFlagMedium";
   elesFlagIDLabel = "elesFlagVeto";
 
-  /*
-   *try
-   *{
-   *  const double &temp  = tr.getVar<double>("genHT");
-   *}
-   *catch (std::string var)
-   *{
-   *  if(tr.IsFirstEvent()) 
-   *  {
-   *    printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
-   *    printf("Running with PHYS14 Config\n");
-   *  }
-   *  muonsFlagIDLabel = "";
-   *}
-   */
-
   if( spec.compare("noIsoTrksVeto") == 0)
   {
     doIsoTrksVeto = false;
@@ -73,8 +57,7 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
     doEleVeto = false; 
     doIsoTrksVeto = false;
   }
-  else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || 
-      spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
+  else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
     jetVecLabel = "jetsLVecLepCleaned";
     CSVVecLabel = "recoJetsBtag_0_LepCleaned";
@@ -119,8 +102,7 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
   {
     doMET = false;
     dodPhis = false;
-  }
-  else if( spec.compare("jecUp") == 0 || spec.compare("jecDn") == 0 || spec.compare("metMagUp") == 0 || spec.compare("metMagDn") == 0 || spec.compare("metPhiUp") == 0 || spec.compare("metPhiDn") == 0 ){
+  }else if( spec.compare("jecUp") == 0 || spec.compare("jecDn") == 0 || spec.compare("metMagUp") == 0 || spec.compare("metMagDn") == 0 || spec.compare("metPhiUp") == 0 || spec.compare("metPhiDn") == 0 ){
     if( spec.compare("jecUp") == 0 ){
       jetVecLabel = "jetLVec_jecUp";
       CSVVecLabel = "recoJetsBtag_jecUp";
@@ -337,15 +319,17 @@ bool BaselineVessel::passNoiseEventFilterFunc(NTupleReader &tr){
 
         bool passDataSpec = true;
         if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
-            int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
-            int CSCTightHaloListFilter = tr.getVar<int>("CSCTightHaloListFilter");
-            int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
-            int eeBadScListFilter = tr.getVar<int>("eeBadScListFilter");
-            passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
+           int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
+           unsigned int CSCTightHaloListFilter = tr.getVar<unsigned int>("CSCTightHaloListFilter");
+           int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
+           unsigned int eeBadScListFilter = tr.getVar<unsigned int>("eeBadScListFilter");
+           unsigned int badResolutionTrackListFilter = tr.getVar<unsigned int>("badResolutionTrackListFilter");
+           unsigned int muonBadTrackListFilter = tr.getVar<unsigned int>("muonBadTrackListFilter");
+           passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && badResolutionTrackListFilter && muonBadTrackListFilter;
         }
 
-        bool hbheNoiseFilter = isfastsim? true:tr.getVar<bool>("HBHENoiseFilter");
-        bool hbheIsoNoiseFilter = isfastsim? true:tr.getVar<bool>("HBHEIsoNoiseFilter");
+        unsigned int hbheNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHENoiseFilter");
+        unsigned int hbheIsoNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHEIsoNoiseFilter");
         int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
 
         int jetIDFilter = isfastsim? 1:tr.getVar<int>("looseJetID_NoLep");

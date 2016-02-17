@@ -7,11 +7,12 @@ const double nTops_SR_hi[]   = { 1,  1,  1,  2,  2,  2,  3,  3,  3, -1, -1, -1 }
 const double nbJets_SR_lo[]  = { 1,  2,  3,  1,  2,  3,  1,  2,  3,  1,  2,  3 };
 const double nbJets_SR_hi[]  = { 2,  3, -1,  2,  3, -1,  2,  3, -1,  2,  3, -1 };
 */
-double nTops_SR_lo[]   = { 1,  1,  1,  2,  2,  2,  3,  3,  3 };
-double nTops_SR_hi[]   = { 2,  2,  2,  3,  3,  3, -1, -1, -1 };
 
-double nbJets_SR_lo[]  = { 1,  2,  3,  1,  2,  3,  1,  2,  3 };
-double nbJets_SR_hi[]  = { 2,  3, -1,  2,  3, -1,  2,  3, -1 };
+double nTops_SR_lo[]   = { 1,  1,  2,  2 };
+double nTops_SR_hi[]   = { 2,  2, -1, -1 };
+
+double nbJets_SR_lo[]  = { 1,  2,  1,  2 };
+double nbJets_SR_hi[]  = { 2, -1,  2, -1 };
 /*
 std::string keyStr_nTops_SR[]  = { "EQ0", "EQ0", "EQ0", "EQ1", "EQ1", "EQ1", "EQ2", "EQ2", "EQ2", "LE3", "LE3", "LE3" };
 std::string disStr_nTops_SR[]  = {  "=0",  "=0",  "=0",  "=1",  "=1",  "=1",  "=2",  "=2",  "=2", ">=3", ">=3", ">=3" };
@@ -19,11 +20,11 @@ std::string disStr_nTops_SR[]  = {  "=0",  "=0",  "=0",  "=1",  "=1",  "=1",  "=
 std::string keyStr_nbJets_SR[] = { "EQ1", "EQ2", "LE3", "EQ1", "EQ2", "LE3", "EQ1", "EQ2", "LE3", "EQ1", "EQ2", "LE3" };
 std::string disStr_nbJets_SR[] = {  "=1",  "=2", ">=3",  "=1",  "=2", ">=3",  "=1",  "=2", ">=3",  "=1",  "=2", ">=3" };
 */
-std::string keyStr_nTops_SR[]  = { "EQ1", "EQ1", "EQ1", "EQ2", "EQ2", "EQ2", "LE3", "LE3", "LE3" };
-std::string disStr_nTops_SR[]  = {  "=1",  "=1",  "=1",  "=2",  "=2",  "=2", ">=3", ">=3", ">=3" };
+std::string keyStr_nTops_SR[]  = { "EQ1", "EQ1", "LE2", "LE2"};
+std::string disStr_nTops_SR[]  = {  "=1",  "=1", ">=2", ">=2"};
 
-std::string keyStr_nbJets_SR[] = { "EQ1", "EQ2", "LE3", "EQ1", "EQ2", "LE3", "EQ1", "EQ2", "LE3" };
-std::string disStr_nbJets_SR[] = {  "=1",  "=2", ">=3",  "=1",  "=2", ">=3",  "=1",  "=2", ">=3" };
+std::string keyStr_nbJets_SR[] = { "EQ1", "LE2", "EQ1", "LE2"};
+std::string disStr_nbJets_SR[] = {  "=1", ">=2",  "=1", ">=2"};
 
 int nSR = sizeof(nTops_SR_lo)/sizeof(nTops_SR_lo[0]);
 
@@ -79,7 +80,7 @@ std::vector<std::vector<double> > vMT2_vs_met_SR_3 { // nb=1, ntop=1
                                                          };
 
 
-std::vector<std::vector<double> > vMT2_vs_met_SR_4 { // nb=2, ntop=1
+std::vector<std::vector<double> > vMT2_vs_met_SR_4 { // nb>=2, ntop=1
                                                            // MT2 lo 
                                                            {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400},
                                                            // MT2 hi 
@@ -90,18 +91,7 @@ std::vector<std::vector<double> > vMT2_vs_met_SR_4 { // nb=2, ntop=1
                                                            {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 450,  -1}
                                                          };
 
-std::vector<std::vector<double> > vMT2_vs_met_SR_5 { // nb>=3, ntop=1
-                                                           // MT2 lo 
-                                                           {200, 200, 200},
-                                                           // MT2 hi 
-                                                           { -1,  -1,  -1},
-                                                           // met lo 
-                                                           {200, 300, 400},
-                                                           // met hi 
-                                                           {300, 400,  -1}
-                                                         };
-
-std::vector<std::vector<double> > vMT2_vs_met_SR_6 { // nb=1, ntop=2
+std::vector<std::vector<double> > vMT2_vs_met_SR_6 { // nb=1, ntop>=2
                                                            // MT2 lo 
                                                            {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
                                                            // MT2 hi 
@@ -112,7 +102,7 @@ std::vector<std::vector<double> > vMT2_vs_met_SR_6 { // nb=1, ntop=2
                                                            {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1}
                                                          };
 
-std::vector<std::vector<double> > vMT2_vs_met_SR_7 { // nb=2, ntop=2
+std::vector<std::vector<double> > vMT2_vs_met_SR_7 { // nb>=2, ntop>=2
                                                            // MT2 lo 
                                                            {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
                                                            // MT2 hi 
@@ -124,53 +114,8 @@ std::vector<std::vector<double> > vMT2_vs_met_SR_7 { // nb=2, ntop=2
                                                          };
 
 
-std::vector<std::vector<double> > vMT2_vs_met_SR_8 { // nb>=3, ntop=2
-                                                           // MT2 lo 
-                                                           {200, 200},
-                                                           // MT2 hi 
-                                                           { -1,  -1},
-                                                           // met lo 
-                                                           {200, 300},
-                                                           // met hi 
-                                                           {300,  -1}
-                                                         };
-
-
-std::vector<std::vector<double> > vMT2_vs_met_SR_9 { // nb=1, ntop=3
-                                                           // MT2 lo 
-                                                           {200},
-                                                           // MT2 hi 
-                                                           { -1},
-                                                           // met lo 
-                                                           {200},
-                                                           // met hi 
-                                                           { -1}
-                                                         };
-
-std::vector<std::vector<double> > vMT2_vs_met_SR_10 { // nb=2, ntop=3
-                                                           // MT2 lo 
-                                                           {200},
-                                                           // MT2 hi 
-                                                           { -1},
-                                                           // met lo 
-                                                           {200},
-                                                           // met hi 
-                                                           { -1}
-                                                         };
-
-std::vector<std::vector<double> > vMT2_vs_met_SR_11 { // nb>=3, ntop=3
-                                                           // MT2 lo 
-                                                           {200},
-                                                           // MT2 hi 
-                                                           { -1},
-                                                           // met lo 
-                                                           {200},
-                                                           // met hi 
-                                                           { -1}
-                                                         };
-
-//std::vector<std::vector<std::vector<double> > > vMT2_vs_met_all_SR {vMT2_vs_met_SR_0, vMT2_vs_met_SR_1, vMT2_vs_met_SR_2, vMT2_vs_met_SR_3, vMT2_vs_met_SR_4, vMT2_vs_met_SR_5, vMT2_vs_met_SR_6, vMT2_vs_met_SR_7, vMT2_vs_met_SR_8, vMT2_vs_met_SR_9, vMT2_vs_met_SR_10, vMT2_vs_met_SR_11};
-std::vector<std::vector<std::vector<double> > > vMT2_vs_met_all_SR {vMT2_vs_met_SR_3, vMT2_vs_met_SR_4, vMT2_vs_met_SR_5, vMT2_vs_met_SR_6, vMT2_vs_met_SR_7, vMT2_vs_met_SR_8, vMT2_vs_met_SR_9, vMT2_vs_met_SR_10, vMT2_vs_met_SR_11};
+//const std::vector<std::vector<std::vector<double> > > vMT2_vs_met_all_SR {vMT2_vs_met_SR_0, vMT2_vs_met_SR_1, vMT2_vs_met_SR_2, vMT2_vs_met_SR_3, vMT2_vs_met_SR_4, vMT2_vs_met_SR_5, vMT2_vs_met_SR_6, vMT2_vs_met_SR_7, vMT2_vs_met_SR_8, vMT2_vs_met_SR_9, vMT2_vs_met_SR_10, vMT2_vs_met_SR_11};
+std::vector<std::vector<std::vector<double> > > vMT2_vs_met_all_SR {vMT2_vs_met_SR_3, vMT2_vs_met_SR_4, vMT2_vs_met_SR_6, vMT2_vs_met_SR_7};
 
 double max_MT2_for_binEdge = 400, max_met_for_binEdge = 600;
 double max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25;
@@ -338,7 +283,8 @@ void print_searchBins_latex(const std::vector<double>& prediction, const std::ve
     print_searchBins_headerstr(label);
     for(int ib=0; ib<nTotBins; ib++){
 	char addon[20];
-	sprintf(addon, "& $%.2f \\pm %.2f$ \\\\", prediction[ib], uncertainty[ib]);
+	if( prediction[ib] > 0.01) sprintf(addon, "& $%.2f \\pm %.2f$ \\\\", prediction[ib], uncertainty[ib]);
+        else                       sprintf(addon, "& $%.3f \\pm %.3f$ \\\\", prediction[ib], uncertainty[ib]);
 	std::string outstr = get_searchBins_defstr(ib, std::string(addon));
 	printf("%s", outstr.c_str());
     }
@@ -347,6 +293,7 @@ void print_searchBins_latex(const std::vector<double>& prediction, const std::ve
 
 // Function to draw the signal bin definition
 void drawSBregionDef(const double ymin_Yields , const double ymax_Yields , const bool logscale){
+   int NSB = 37;
 
    const double adjHalfBin = 0.5;
    //-----------------------------------------------------------
@@ -355,8 +302,14 @@ void drawSBregionDef(const double ymin_Yields , const double ymax_Yields , const
    // Ntop separation lines
    TLine *tl_ntop = new TLine();
    tl_ntop->SetLineStyle(2);
-       tl_ntop->DrawLine(23.5 + adjHalfBin,ymin_Yields,23.5 + adjHalfBin,ymax_Yields);
-       tl_ntop->DrawLine(41.5 + adjHalfBin,ymin_Yields,41.5 + adjHalfBin,ymax_Yields);
+    if(NSB == 45)
+    {
+	tl_ntop->DrawLine(23.5 + adjHalfBin,ymin_Yields,23.5 + adjHalfBin,ymax_Yields);
+	tl_ntop->DrawLine(41.5 + adjHalfBin,ymin_Yields,41.5 + adjHalfBin,ymax_Yields);
+    } else if(NSB == 37)
+    {
+	tl_ntop->DrawLine(20.5 + adjHalfBin,ymin_Yields,20.5 + adjHalfBin,ymax_Yields);
+    }
 
    // Ntop labels
    TLatex * ttext_ntop = new TLatex();
@@ -365,16 +318,30 @@ void drawSBregionDef(const double ymin_Yields , const double ymax_Yields , const
    ttext_ntop->SetTextAlign(22);
    if(logscale)
    {
-       ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields/1.8 ,"N_{top} = 1");
-       ttext_ntop->DrawLatex(35.5 + adjHalfBin, ymax_Yields/35. ,"N_{top} = 2");
-       ttext_ntop->SetTextAngle(90.);
-       ttext_ntop->DrawLatex(43. + adjHalfBin, ymax_Yields/15. ,"N_{top} #geq 3");
+       if(NSB == 45)
+       {
+	   ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields/1.8 ,"N_{top} = 1");
+	   ttext_ntop->DrawLatex(35.5 + adjHalfBin, ymax_Yields/35. ,"N_{top} = 2");
+	   ttext_ntop->SetTextAngle(90.);
+	   ttext_ntop->DrawLatex(43. + adjHalfBin, ymax_Yields/15. ,"N_{top} #geq 3"); 
+       } else if (NSB == 37)
+       {
+	   ttext_ntop->DrawLatex(10 + adjHalfBin, ymax_Yields/1.8 ,"N_{top} = 1");
+	   ttext_ntop->DrawLatex(29.5 + adjHalfBin, ymax_Yields/35. ,"N_{top} = 2");
+       }
    } else
    {
-       ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields*0.92 ,"N_{top} = 1");
-       ttext_ntop->DrawLatex(35.5 + adjHalfBin, ymax_Yields*0.92 ,"N_{top} = 2");
-       ttext_ntop->SetTextAngle(90.);
-       ttext_ntop->DrawLatex(43. + adjHalfBin, ymax_Yields*0.85 ,"N_{top} #geq 3");
+       if(NSB == 45)
+       {
+	   ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields*0.92 ,"N_{top} = 1");
+	   ttext_ntop->DrawLatex(35.5 + adjHalfBin, ymax_Yields*0.92 ,"N_{top} = 2");
+	   ttext_ntop->SetTextAngle(90.);
+	   ttext_ntop->DrawLatex(43. + adjHalfBin, ymax_Yields*0.85 ,"N_{top} #geq 3");
+       } else if(NSB == 37)
+       {
+	   ttext_ntop->DrawLatex(10 + adjHalfBin, ymax_Yields*0.92 ,"N_{top} = 1");
+	   ttext_ntop->DrawLatex(29.5 + adjHalfBin, ymax_Yields*0.92 ,"N_{top} = 2");
+       }
    }
 
    // Nb separation lines
@@ -383,20 +350,34 @@ void drawSBregionDef(const double ymin_Yields , const double ymax_Yields , const
    tl_nb->SetLineColor(32);
    if(logscale)
    {
-       tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields/4.);
-       tl_nb->DrawLine(20.5 + adjHalfBin,ymin_Yields,20.5 + adjHalfBin,ymax_Yields/4.);
-       tl_nb->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/40.);
-       tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields/40.);
-       tl_nb->DrawLine(42.5 + adjHalfBin,ymin_Yields,42.5 + adjHalfBin,ymax_Yields/40.);
-       tl_nb->DrawLine(43.5 + adjHalfBin,ymin_Yields,43.5 + adjHalfBin,ymax_Yields/40.);
+       if(NSB == 45)
+       {
+	   tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields/4.);
+	   tl_nb->DrawLine(20.5 + adjHalfBin,ymin_Yields,20.5 + adjHalfBin,ymax_Yields/4.);
+	   tl_nb->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/40.);
+	   tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields/40.);
+	   tl_nb->DrawLine(42.5 + adjHalfBin,ymin_Yields,42.5 + adjHalfBin,ymax_Yields/40.);
+	   tl_nb->DrawLine(43.5 + adjHalfBin,ymin_Yields,43.5 + adjHalfBin,ymax_Yields/40.);
+       } else if (NSB == 37)
+       {
+	   tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields/4.);
+	   tl_nb->DrawLine(28.5 + adjHalfBin,ymin_Yields,28.5 + adjHalfBin,ymax_Yields/40.);
+       }
    } else
    {
-       tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields*0.8);
-       tl_nb->DrawLine(20.5 + adjHalfBin,ymin_Yields,20.5 + adjHalfBin,ymax_Yields*0.8);
-       tl_nb->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields*0.8);
-       tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields*0.8);
-       tl_nb->DrawLine(42.5 + adjHalfBin,ymin_Yields,42.5 + adjHalfBin,ymax_Yields*0.8);
-       tl_nb->DrawLine(43.5 + adjHalfBin,ymin_Yields,43.5 + adjHalfBin,ymax_Yields*0.8);
+       if(NSB == 45)
+       {
+	   tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields*0.8);
+	   tl_nb->DrawLine(20.5 + adjHalfBin,ymin_Yields,20.5 + adjHalfBin,ymax_Yields*0.8);
+	   tl_nb->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields*0.8);
+	   tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields*0.8);
+	   tl_nb->DrawLine(42.5 + adjHalfBin,ymin_Yields,42.5 + adjHalfBin,ymax_Yields*0.8);
+	   tl_nb->DrawLine(43.5 + adjHalfBin,ymin_Yields,43.5 + adjHalfBin,ymax_Yields*0.8);
+       } else if (NSB == 37)
+       {
+	   tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields*0.8);
+	   tl_nb->DrawLine(28.5 + adjHalfBin,ymin_Yields,28.5 + adjHalfBin,ymax_Yields*0.8);
+       }
    }
    // Nb labels
    TLatex * ttext2 = new TLatex();
@@ -410,14 +391,20 @@ void drawSBregionDef(const double ymin_Yields , const double ymax_Yields , const
    {
        ttext2->DrawLatex( 4.5 + adjHalfBin, ymax_Yields/3., "N_{b} = 1");
        ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields/3., "N_{b} = 2");
-       ttext2->SetTextAngle(90.);
-       ttext2->DrawLatex(21.5 + adjHalfBin, ymax_Yields/3. , "N_{b} #geq 3");
+       if(NSB == 45)
+       {
+	   ttext2->SetTextAngle(90.);
+	   ttext2->DrawLatex(21.5 + adjHalfBin, ymax_Yields/3. , "N_{b} #geq 3");
+       }
    } else
    {
        ttext2->DrawLatex( 4.5 + adjHalfBin, ymax_Yields*0.8, "N_{b} = 1");
        ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields*0.8, "N_{b} = 2");
-       ttext2->SetTextAngle(90.);
-       ttext2->DrawLatex(21.5 + adjHalfBin + 0.5, ymax_Yields*0.8, "N_{b} #geq 3");
+       if(NSB == 45)
+       {
+	   ttext2->SetTextAngle(90.);
+	   ttext2->DrawLatex(21.5 + adjHalfBin + 0.5, ymax_Yields*0.8, "N_{b} #geq 3");
+       }
    }
    // MT2 separation lines
    TLine *tl_mt2 = new TLine();
@@ -429,22 +416,38 @@ void drawSBregionDef(const double ymin_Yields , const double ymax_Yields , const
        tl_mt2->DrawLine(7.5 + adjHalfBin,ymin_Yields,7.5 + adjHalfBin,ymax_Yields/20.);
        tl_mt2->DrawLine(14.5 + adjHalfBin,ymin_Yields,14.5 + adjHalfBin,ymax_Yields/20.);
        tl_mt2->DrawLine(18.5 + adjHalfBin,ymin_Yields,18.5 + adjHalfBin,ymax_Yields/20.);
-       
-       tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields/80.);
-       tl_mt2->DrawLine(29.5 + adjHalfBin,ymin_Yields,29.5 + adjHalfBin,ymax_Yields/80.);
-       tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields/80.);
-       tl_mt2->DrawLine(37.5 + adjHalfBin,ymin_Yields,37.5 + adjHalfBin,ymax_Yields/80.);
+       if(NSB == 45)
+       {
+	   tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields/80.);
+	   tl_mt2->DrawLine(29.5 + adjHalfBin,ymin_Yields,29.5 + adjHalfBin,ymax_Yields/80.);
+	   tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields/80.);
+	   tl_mt2->DrawLine(37.5 + adjHalfBin,ymin_Yields,37.5 + adjHalfBin,ymax_Yields/80.);
+       } else if(NSB == 37)
+       {
+	   tl_mt2->DrawLine(23.5 + adjHalfBin,ymin_Yields,23.5 + adjHalfBin,ymax_Yields/80.);
+	   tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields/80.);
+	   tl_mt2->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/80.);
+	   tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields/80.);
+       }
    } else
    {
        tl_mt2->DrawLine(3.5 + adjHalfBin,ymin_Yields,3.5 + adjHalfBin,ymax_Yields*0.6);
        tl_mt2->DrawLine(7.5 + adjHalfBin,ymin_Yields,7.5 + adjHalfBin,ymax_Yields*0.6);
        tl_mt2->DrawLine(14.5 + adjHalfBin,ymin_Yields,14.5 + adjHalfBin,ymax_Yields*0.6);
        tl_mt2->DrawLine(18.5 + adjHalfBin,ymin_Yields,18.5 + adjHalfBin,ymax_Yields*0.6);
-       
-       tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields*0.6);
-       tl_mt2->DrawLine(29.5 + adjHalfBin,ymin_Yields,29.5 + adjHalfBin,ymax_Yields*0.6);
-       tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields*0.6);
-       tl_mt2->DrawLine(37.5 + adjHalfBin,ymin_Yields,37.5 + adjHalfBin,ymax_Yields*0.6);
+       if(NSB == 45)
+       {       
+	   tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields*0.6);
+	   tl_mt2->DrawLine(29.5 + adjHalfBin,ymin_Yields,29.5 + adjHalfBin,ymax_Yields*0.6);
+	   tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields*0.6);
+	   tl_mt2->DrawLine(37.5 + adjHalfBin,ymin_Yields,37.5 + adjHalfBin,ymax_Yields*0.6);
+       } else if(NSB == 37)
+       {
+	   tl_mt2->DrawLine(23.5 + adjHalfBin,ymin_Yields,23.5 + adjHalfBin,ymax_Yields*0.6);
+	   tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields*0.6);
+	   tl_mt2->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields*0.6);
+	   tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields*0.6);
+       }
    }
    // MT2 labels
    TLatex * ttextmt2 = new TLatex();

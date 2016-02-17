@@ -67,7 +67,7 @@ std::vector<int> cached_sampleColorVec;
 
 void makeSignalCards(const std::string inputRootName){
 
-   double dataLumi = 2153.74;
+   double dataLumi = 2261.99;
 
    TFile * sig_file = new TFile(inputRootName.c_str());
    sig_file->cd();
