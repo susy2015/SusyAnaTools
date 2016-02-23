@@ -286,6 +286,25 @@ bool BaselineVessel::GetnTops(NTupleReader *tr) const
   tr->registerDerivedVec("vTops"+spec, vTops);
   tr->registerDerivedVec("mTopJets"+spec, vTopJets);
 
+  std::vector<TLorentzVector> *vCombs = new std::vector<TLorentzVector>();
+  std::map<int, std::vector<TLorentzVector> > *vCombJets = new std::map<int, std::vector<TLorentzVector> >();
+  for(unsigned int i=0; i < type3Ptr->finalCombfatJets.size(); ++i)
+  {
+    TLorentzVector topLVec = type3Ptr->buildLVec(tr->getVec<TLorentzVector>("jetsLVec_forTagger" + spec), type3Ptr->finalCombfatJets.at(i));
+    vCombs->push_back(topLVec);
+
+    std::vector<TLorentzVector> temp;
+    std::vector<int> indexCombVec = type3Ptr->finalCombfatJets.at(i);
+    for (size_t k = 0; k < indexCombVec.size(); ++k)
+    {
+      temp.push_back( (tr->getVec<TLorentzVector>("jetsLVec_forTagger"+spec)).at(indexCombVec.at(k)));
+    }
+    vCombJets->insert(std::make_pair(i, temp));
+  }
+
+  tr->registerDerivedVec("vCombs"+spec, vCombs);
+  tr->registerDerivedVec("mCombJets"+spec, vCombJets);
+
   return true;
 }       // -----  end of function VarPerEvent::GetnTops  -----
 
