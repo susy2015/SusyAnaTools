@@ -54,8 +54,8 @@ tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/PDFUncertainty.o $(ODIR)/tupleReadTest
 nEvts: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/nEvts.o
 	$(LD) $^ $(LIBS) -o $@
 
-basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o
-	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/PDFUncertainty.o
+	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
 makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
