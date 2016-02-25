@@ -224,6 +224,28 @@ namespace AnaFunctions{
       return cntNIsoTrks;
    }
 
+   int countIsoLepTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<double> &isoTrksIso, const std::vector<double> &isoTrksMtw, const std::vector<int> &isoTrkspdgId){
+
+      int cntNIsoTrks = 0;
+      for(unsigned int is=0; is<isoTrksLVec.size(); is++){
+         if( std::abs(isoTrkspdgId[is]) == 11 || std::abs(isoTrkspdgId[is]) == 13 ){
+            if( passIsoTrk(isoTrksLVec[is], isoTrksIso[is], isoTrksMtw[is], AnaConsts::isoLepTrksArr ) ) cntNIsoTrks ++;
+         }
+      }
+      return cntNIsoTrks;
+   }
+
+   int countIsoPionTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<double> &isoTrksIso, const std::vector<double> &isoTrksMtw, const std::vector<int> &isoTrkspdgId){
+
+      int cntNIsoTrks = 0;
+      for(unsigned int is=0; is<isoTrksLVec.size(); is++){
+         if( std::abs(isoTrkspdgId[is]) == 211 ){
+            if( passIsoTrk(isoTrksLVec[is], isoTrksIso[is], isoTrksMtw[is], AnaConsts::isoHadTrksArr ) ) cntNIsoTrks ++;
+         }
+      }
+      return cntNIsoTrks;
+   }
+
    void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger){
 
       jetsLVec_forTagger.clear(); recoJetsBtag_forTagger.clear();

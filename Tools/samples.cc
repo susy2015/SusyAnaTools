@@ -46,14 +46,16 @@ namespace AnaSamples
         double TTbar_DiLept_BR = 0.10614564; // W_Lept_BR^2
 
 //        std::string MCloc = "Spring15_74X_Oct_2015_Ntp_v2X/";
-        std::string MCloc = "Spring15_74X_Dec_2015_Ntp_v4X/";
-        std::string DATAloc = "Spring15_74X_Jan_2016_Ntp_v5X/";
+        std::string MCloc = "Spring15_74X_Feb_2016_Ntp_v6X_forMoriond/";
+        std::string DATAloc = "Spring15_74X_Feb_2016_Ntp_v6X_forMoriond/";
+        std::string sigMCloc = "Spring15_74X_Dec_2015_Ntp_v4X/";
 
         if(fDir.compare("condor") == 0)
         {
             fDir_ = "";
             MCloc = "";
             DATAloc = "";
+            sigMCloc = "";
         }
 
         //TTbar samples
@@ -94,9 +96,9 @@ namespace AnaSamples
         //DY->ll
         // kz = 1.23
         sampleSet_["DYJetsToLL_HT_100to200"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 147.4, lumi, 11079482, 1.23,  kYellow-7);
-        sampleSet_["DYJetsToLL_HT_200to400"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 40.99, lumi, 10548654,  1.23,  kYellow-7);
+        sampleSet_["DYJetsToLL_HT_200to400"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 40.99, lumi, 9580541,  1.23,  kYellow-7);
         sampleSet_["DYJetsToLL_HT_400to600"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 5.678, lumi, 10420186, 1.23,  kYellow-7);
-        sampleSet_["DYJetsToLL_HT_600toInf"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 2.198, lumi, 4631933,  1.23,  kYellow-7);
+        sampleSet_["DYJetsToLL_HT_600toInf"] = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 2.198, lumi, 4864654,  1.23,  kYellow-7);
         // NNLO
         sampleSet_["DYJetsToLL_Inc"]         = FileSummary(fDir_ + MCloc + "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 6025.2, lumi, 9042031, 1.0,  kYellow-7);
 
@@ -105,7 +107,7 @@ namespace AnaSamples
         sampleSet_["QCD_HT100to200"]    = FileSummary(fDir_ + MCloc + "QCD_HT100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 27540000, lumi, 81637494, 1.0,  kBlue);
         sampleSet_["QCD_HT200to300"]    = FileSummary(fDir_ + MCloc + "QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 1735000, lumi, 18718905, 1.0,  kBlue);
         sampleSet_["QCD_HT300to500"]    = FileSummary(fDir_ + MCloc + "QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 366800, lumi, 19826197, 1.0,  kBlue);
-        sampleSet_["QCD_HT500to700"]    = FileSummary(fDir_ + MCloc + "QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",    "stopTreeMaker/AUX", 29370, lumi, 19664159, 1.0,  kBlue);
+        sampleSet_["QCD_HT500to700"]    = FileSummary(fDir_ + MCloc + "QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",    "stopTreeMaker/AUX", 29370, lumi, 19575436, 1.0,  kBlue);
         sampleSet_["QCD_HT700to1000"]   = FileSummary(fDir_ + MCloc + "QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 6524, lumi, 15356448, 1.0,  kBlue);
         sampleSet_["QCD_HT1000to1500"]  = FileSummary(fDir_ + MCloc + "QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",  "stopTreeMaker/AUX", 1064, lumi, 4963895, 1.0,  kBlue);
         sampleSet_["QCD_HT1500to2000"]  = FileSummary(fDir_ + MCloc + "QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",  "stopTreeMaker/AUX", 121.5, lumi, 3868886, 1.0,  kBlue);
@@ -166,10 +168,9 @@ namespace AnaSamples
         // - data -
         // --------
 	
-	sampleSet_["Data_SingleMuon_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_SingleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
-	sampleSet_["Data_SingleMuon_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_SingleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
-	sampleSet_["Data_SingleMuon_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_SingleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1670.38, 1.0,  kBlack);
-
+	sampleSet_["Data_SingleMuon_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_SingleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_SingleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
+	sampleSet_["Data_SingleMuon_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_SingleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1670.38, 1.0,  kBlack);
 //	sampleSet_["Data_SingleElectron_2015C"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_SingleElectron-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 16.345, 1.0,  kBlack);
 //	sampleSet_["Data_SingleElectron_2015D_05Oct2015"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v 3p1_SingleElectron-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 552.67, 1.0,  kBlack);
 //	sampleSet_["Data_SingleElectron_2015D_PromptReco"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_SingleElectron-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 993.25, 1.0,  kBlack);
@@ -178,49 +179,105 @@ namespace AnaSamples
 //	sampleSet_["Data_DoubleMuon_2015D_05Oct2015"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_DoubleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 552.67, 1.0,  kBlack);
 //	sampleSet_["Data_DoubleMuon_2015D_PromptReco"] = FileSummary(fDir_ + MCloc + "Spring15_74X_Nov_2015_Ntp_v3p1_DoubleMuon-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 993.72, 1.0,  kBlack);
 
-	sampleSet_["Data_DoubleEG_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_DoubleEG-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
-	sampleSet_["Data_DoubleEG_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_DoubleEG-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
-	sampleSet_["Data_DoubleEG_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1669.92, 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_DoubleEG-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_DoubleEG-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
+	sampleSet_["Data_DoubleEG_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1669.92, 1.0,  kBlack);
 
-	sampleSet_["Data_HTMHT_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_HTMHT-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
-	sampleSet_["Data_HTMHT_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_HTMHT-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 574.23, 1.0,  kBlack);
-	sampleSet_["Data_HTMHT_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Jan_2016_Ntp_v5p0_reTry_HTMHT-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1670.53, 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015C"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_HTMHT-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015D_05Oct2015"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_HTMHT-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 574.23, 1.0,  kBlack);
+	sampleSet_["Data_HTMHT_2015D_PromptReco"] = FileSummary(fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_HTMHT-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1670.53, 1.0,  kBlack);
 
         // ----------
 	// - signal -
         // ----------
 
 	// To be updated - no T2tt, T2bb Spring15 samples yet (update later)!
-        sampleSet_["Signal_T1tttt_mGluino1200_mLSP800"]          = FileSummary(fDir_ + MCloc + "SMS-T1tttt_mGluino-1200_mLSP-800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.0856418, lumi, 147194, 1.0,  kRed);
-        sampleSet_["Signal_T1tttt_mGluino1500_mLSP100"]          = FileSummary(fDir_ + MCloc + "SMS-T1tttt_mGluino-1500_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.0141903, lumi, 103140, 1.0,  kRed);
-//        sampleSet_["Signal_T5tttt_mGluino1300_mStop300_mChi280"] = FileSummary(fDir_ + MCloc + "", "stopTreeMaker/AUX", 0.0460525, lumi, 44011,  1.0,  kRed);
-//        sampleSet_["Signal_T5tttt_mGluino1300_mStop300_mCh285"]  = FileSummary(fDir_ + MCloc + "", "stopTreeMaker/AUX", 0.0460525, lumi, 43818,  1.0,  kRed);
-//        sampleSet_["Signal_T1bbbb_mGluino1000_mLSP900"]          = FileSummary(fDir_ + MCloc + "T1bbbb_2J_mGl-1000_mLSP-900_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.325388,  lumi, 97134,  1.0,  kRed);
-//        sampleSet_["Signal_T1bbbb_mGluino1500_mLSP100"]          = FileSummary(fDir_ + MCloc + "T1bbbb_2J_mGl-1500_mLSP-100_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.0141903, lumi, 105149, 1.0,  kRed);
-//        sampleSet_["Signal_T2tt_mStop425_mLSP325"]               = FileSummary(fDir_ + MCloc + "T2tt_2J_mStop-425_mLSP-325_madgraph-tauola.txt", "stopTreeMaker/AUX", 1.31169,   lumi, 1039030,1.0,  kRed);
-        sampleSet_["Signal_T2tt_mStop500_mLSP325"]               = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-500_mLSP-325_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.51848, lumi, 388207, 1.0,  kRed);
-//        sampleSet_["Signal_T2tt_mStop650_mLSP325"]               = FileSummary(fDir_ + MCloc + "T2tt_2J_mStop-650_mLSP-325_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.107045,  lumi, 105672, 1.0,  kRed);
-        sampleSet_["Signal_T2tt_mStop850_mLSP100"]               = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-850_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.0189612, lumi, 240685, 1.0,  kRed);
-//        sampleSet_["Signal_T2bb_mSbottom600_mLSP580"]            = FileSummary(fDir_ + MCloc + "T2bb_2J_mStop-600_mLSP-580_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.174599,  lumi, 107316, 1.0,  kRed);
-//        sampleSet_["Signal_T2bb_mSbottom900_mLSP100"]            = FileSummary(fDir_ + MCloc + "T2bb_2J_mStop-900_mLSP-100_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.0128895, lumi, 102661, 1.0,  kRed);    
-//        sampleSet_["Signal_TTDMDMJets_M600GeV"]                  = FileSummary(fDir_ + MCloc + "TTDMDMJets_M600GeV.txt", "stopTreeMaker/AUX", 0.1038, lumi, 126547, 1.0,  kRed);    
-//        sampleSet_["Signal_TTDMDMJets_M1000GeV"]                 = FileSummary(fDir_ + MCloc + "TTDMDMJets_M1000GeV.txt", "stopTreeMaker/AUX", 0.01585, lumi, 121817, 1.0,  kRed);    
+        sampleSet_["Signal_T1tttt_mGluino1200_mLSP800"]          = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1200_mLSP-800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.0856418, lumi, 147194, 1.0,  kRed);
+        sampleSet_["Signal_T1tttt_mGluino1500_mLSP100"]          = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1500_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.0141903, lumi, 103140, 1.0,  kRed);
+//        sampleSet_["Signal_T5tttt_mGluino1300_mStop300_mChi280"] = FileSummary(fDir_ + sigMCloc + "", "stopTreeMaker/AUX", 0.0460525, lumi, 44011,  1.0,  kRed);
+//        sampleSet_["Signal_T5tttt_mGluino1300_mStop300_mCh285"]  = FileSummary(fDir_ + sigMCloc + "", "stopTreeMaker/AUX", 0.0460525, lumi, 43818,  1.0,  kRed);
+//        sampleSet_["Signal_T1bbbb_mGluino1000_mLSP900"]          = FileSummary(fDir_ + sigMCloc + "T1bbbb_2J_mGl-1000_mLSP-900_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.325388,  lumi, 97134,  1.0,  kRed);
+//        sampleSet_["Signal_T1bbbb_mGluino1500_mLSP100"]          = FileSummary(fDir_ + sigMCloc + "T1bbbb_2J_mGl-1500_mLSP-100_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.0141903, lumi, 105149, 1.0,  kRed);
+//        sampleSet_["Signal_T2tt_mStop425_mLSP325"]               = FileSummary(fDir_ + sigMCloc + "T2tt_2J_mStop-425_mLSP-325_madgraph-tauola.txt", "stopTreeMaker/AUX", 1.31169,   lumi, 1039030,1.0,  kRed);
+        sampleSet_["Signal_T2tt_mStop500_mLSP325"]               = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-500_mLSP-325_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.51848, lumi, 388207, 1.0,  kRed);
+//        sampleSet_["Signal_T2tt_mStop650_mLSP325"]               = FileSummary(fDir_ + sigMCloc + "T2tt_2J_mStop-650_mLSP-325_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.107045,  lumi, 105672, 1.0,  kRed);
+        sampleSet_["Signal_T2tt_mStop850_mLSP100"]               = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-850_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.0189612, lumi, 240685, 1.0,  kRed);
+//        sampleSet_["Signal_T2bb_mSbottom600_mLSP580"]            = FileSummary(fDir_ + sigMCloc + "T2bb_2J_mStop-600_mLSP-580_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.174599,  lumi, 107316, 1.0,  kRed);
+//        sampleSet_["Signal_T2bb_mSbottom900_mLSP100"]            = FileSummary(fDir_ + sigMCloc + "T2bb_2J_mStop-900_mLSP-100_madgraph-tauola.txt", "stopTreeMaker/AUX", 0.0128895, lumi, 102661, 1.0,  kRed);    
+//        sampleSet_["Signal_TTDMDMJets_M600GeV"]                  = FileSummary(fDir_ + sigMCloc + "TTDMDMJets_M600GeV.txt", "stopTreeMaker/AUX", 0.1038, lumi, 126547, 1.0,  kRed);    
+//        sampleSet_["Signal_TTDMDMJets_M1000GeV"]                 = FileSummary(fDir_ + sigMCloc + "TTDMDMJets_M1000GeV.txt", "stopTreeMaker/AUX", 0.01585, lumi, 121817, 1.0,  kRed);    
 // Fastsim signal scans
-        sampleSet_["SMS-T2tt_mStop-100-125_mLSP-1to50"]          = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-100-125_mLSP-1to50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tt_mStop-150-175_mLSP-1to100"]         = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-150-175_mLSP-1to100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tt_mStop-200_mLSP-1to125"]             = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-200_mLSP-1to125_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tt_mStop-225_mLSP-25to150"]            = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-225_mLSP-25to150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tt_mStop-250_mLSP-1to175"]             = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-250_mLSP-1to175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tt_mStop-275_mLSP-75to200"]            = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-275_mLSP-75to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tt_mStop-300to375_mLSP-1to300"]        = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-300to375_mLSP-1to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tt_mStop-400to475_mLSP-1to400"]        = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-400to475_mLSP-1to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475"]            = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tt_mStop-600-950_mLSP-1to450"]         = FileSummary(fDir_ + MCloc + "SMS-T2tt_mStop-600-950_mLSP-1to450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tt_mStop-100-125_mLSP-1to50"]          = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-100-125_mLSP-1to50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tt_mStop-150-175_mLSP-1to100"]         = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-150-175_mLSP-1to100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tt_mStop-200_mLSP-1to125"]             = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-200_mLSP-1to125_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tt_mStop-225_mLSP-25to150"]            = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-225_mLSP-25to150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tt_mStop-250_mLSP-1to175"]             = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-250_mLSP-1to175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tt_mStop-275_mLSP-75to200"]            = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-275_mLSP-75to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tt_mStop-300to375_mLSP-1to300"]        = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-300to375_mLSP-1to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tt_mStop-400to475_mLSP-1to400"]        = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-400to475_mLSP-1to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475"]            = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tt_mStop-600-950_mLSP-1to450"]         = FileSummary(fDir_ + sigMCloc + "SMS-T2tt_mStop-600-950_mLSP-1to450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
-        sampleSet_["SMS-T2tb_mStop-350to400_0to225"]             = FileSummary(fDir_ + MCloc + "SMS-T2tb_mStop-350to400_0to225_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tb_mStop-425to600_0to425"]             = FileSummary(fDir_ + MCloc + "SMS-T2tb_mStop-425to600_0to425_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tb_mStop-625to850_0to450"]             = FileSummary(fDir_ + MCloc + "SMS-T2tb_mStop-625to850_0to450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        sampleSet_["SMS-T2tb_mStop-875to1125_0to475"]            = FileSummary(fDir_ + MCloc + "SMS-T2tb_mStop-875to1125_0to475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tb_mStop-200to325_0to150"]             = FileSummary(fDir_ + sigMCloc + "SMS-T2tb_mStop-200to325_0to150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tb_mStop-200to625_50to475"]            = FileSummary(fDir_ + sigMCloc + "SMS-T2tb_mStop-200to625_50to475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tb_mStop-350to400_0to225"]             = FileSummary(fDir_ + sigMCloc + "SMS-T2tb_mStop-350to400_0to225_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tb_mStop-425to600_0to425"]             = FileSummary(fDir_ + sigMCloc + "SMS-T2tb_mStop-425to600_0to425_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tb_mStop-625to850_0to450"]             = FileSummary(fDir_ + sigMCloc + "SMS-T2tb_mStop-625to850_0to450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T2tb_mStop-875to1125_0to475"]            = FileSummary(fDir_ + sigMCloc + "SMS-T2tb_mStop-875to1125_0to475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+
+        sampleSet_["SMS-T1tttt_mGluino-600to625_mLSP-250to375"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-600to625_mLSP-250to375_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-600_mLSP-1to225"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-600_mLSP-1to225_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-600_mLSP-250to325"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-600_mLSP-250to325_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-625to650_mLSP-200to400"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-625to650_mLSP-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-625_mLSP-275to375"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-625_mLSP-275to375_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-650to675_mLSP-250to425"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-650to675_mLSP-250to425_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-675_mLSP-325to450"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-675_mLSP-325to450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-700to750_mLSP-200to500"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-700to750_mLSP-200to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-700_mLSP-1to450"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-700_mLSP-1to450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-750to775_mLSP-350to525"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-750to775_mLSP-350to525_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-775_mLSP-475to550"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-775_mLSP-475to550_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-800to825_mLSP-1to575"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-800to825_mLSP-1to575_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-825to850_mLSP-200to600"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-825to850_mLSP-200to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-850to875_mLSP-450to625"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-850to875_mLSP-450to625_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-875to900_mLSP-1to650"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-875to900_mLSP-1to650_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-900to950_mLSP-200to700"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-900to950_mLSP-200to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-950to975_mLSP-350to725"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-950to975_mLSP-350to725_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-975_mLSP-600to750"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-975_mLSP-600to750_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1000to1050_mLSP-1to800"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1000to1050_mLSP-1to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1000_mLSP-1to700"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1000_mLSP-1to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1050to1075_mLSP-650to850"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1050to1075_mLSP-650to850_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1050_mLSP-50to775"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1050_mLSP-50to775_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1100to1125_mLSP-700to900"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1100to1125_mLSP-700to900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1100_mLSP-1to775"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1100_mLSP-1to775_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1150to1175_mLSP-750to925"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1150to1175_mLSP-750to925_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1150_mLSP-1to800"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1150_mLSP-1to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1175_mLSP-950"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1175_mLSP-950_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1200to1225_mLSP-800to1000"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1200to1225_mLSP-800to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1200_mLSP-1to825"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1200_mLSP-1to825_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1225to1250_mLSP-1to1025"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1225to1250_mLSP-1to1025_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1250to1275_mLSP-700to1050"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1250to1275_mLSP-700to1050_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1275_mLSP-900to975"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1275_mLSP-900to975_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1300to1325_mLSP-700to1100"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1300to1325_mLSP-700to1100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1300_mLSP-1to1075"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1300_mLSP-1to1075_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1325to1350_mLSP-1to1125"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1325to1350_mLSP-1to1125_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1350to1375_mLSP-50to1025"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1350to1375_mLSP-50to1025_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1375_mLSP-950to1150"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1375_mLSP-950to1150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1400to1425_mLSP-50to1100"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1400to1425_mLSP-50to1100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1400_mLSP-1to1175"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1400_mLSP-1to1175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1425to1450_mLSP-1to1200"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1425to1450_mLSP-1to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1450to1475_mLSP-50to1075"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1450to1475_mLSP-50to1075_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1475to1500_mLSP-1to1250"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1475to1500_mLSP-1to1250_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1500to1525_mLSP-50to1125"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1500to1525_mLSP-50to1125_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1525to1550_mLSP-1to1300"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1525to1550_mLSP-1to1300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1550to1575_mLSP-500to1175"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1550to1575_mLSP-500to1175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1600to1650_mLSP-1to1350"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1600to1650_mLSP-1to1350_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1650to1700_mLSP-1to1400"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1650to1700_mLSP-1to1400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1700to1750_mLSP-1to1450"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1700to1750_mLSP-1to1450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1750_mLSP-50to1450"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1750_mLSP-50to1450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1800to1850_mLSP-1to1450"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1800to1850_mLSP-1to1450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1850to1900_mLSP-1to1450"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1850to1900_mLSP-1to1450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1900to1950_mLSP-0to1450"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1900to1950_mLSP-0to1450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        sampleSet_["SMS-T1tttt_mGluino-1950_mLSP-700to950"] = FileSummary(fDir_ + sigMCloc + "SMS-T1tttt_mGluino-1950_mLSP-700to950_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
     }
 
@@ -287,6 +344,8 @@ namespace AnaSamples
         addSampleSet(samples, "Signal_fastsim_T2tt_scan", {"SMS-T2tt_mStop-100-125_mLSP-1to50", "SMS-T2tt_mStop-150-175_mLSP-1to100", "SMS-T2tt_mStop-200_mLSP-1to125", "SMS-T2tt_mStop-225_mLSP-25to150", "SMS-T2tt_mStop-250_mLSP-1to175", "SMS-T2tt_mStop-275_mLSP-75to200", "SMS-T2tt_mStop-300to375_mLSP-1to300", "SMS-T2tt_mStop-400to475_mLSP-1to400", "SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475", "SMS-T2tt_mStop-600-950_mLSP-1to450"});
 
         addSampleSet(samples, "Signal_fastsim_T2tb_scan", {"SMS-T2tb_mStop-350to400_0to225", "SMS-T2tb_mStop-425to600_0to425", "SMS-T2tb_mStop-625to850_0to450", "SMS-T2tb_mStop-875to1125_0to475"});
+        addSampleSet(samples, "Signal_fastsim_T1tttt_scan", {"SMS-T1tttt_mGluino-600to625_mLSP-250to375", "SMS-T1tttt_mGluino-600_mLSP-1to225", "SMS-T1tttt_mGluino-600_mLSP-250to325", "SMS-T1tttt_mGluino-625to650_mLSP-200to400", "SMS-T1tttt_mGluino-625_mLSP-275to375", "SMS-T1tttt_mGluino-650to675_mLSP-250to425", "SMS-T1tttt_mGluino-675_mLSP-325to450", "SMS-T1tttt_mGluino-700to750_mLSP-200to500", "SMS-T1tttt_mGluino-700_mLSP-1to450", "SMS-T1tttt_mGluino-750to775_mLSP-350to525", "SMS-T1tttt_mGluino-775_mLSP-475to550", "SMS-T1tttt_mGluino-800to825_mLSP-1to575", "SMS-T1tttt_mGluino-825to850_mLSP-200to600", "SMS-T1tttt_mGluino-850to875_mLSP-450to625", "SMS-T1tttt_mGluino-875to900_mLSP-1to650", "SMS-T1tttt_mGluino-900to950_mLSP-200to700", "SMS-T1tttt_mGluino-950to975_mLSP-350to725", "SMS-T1tttt_mGluino-975_mLSP-600to750", "SMS-T1tttt_mGluino-1000to1050_mLSP-1to800", "SMS-T1tttt_mGluino-1000_mLSP-1to700", "SMS-T1tttt_mGluino-1050to1075_mLSP-650to850", "SMS-T1tttt_mGluino-1050_mLSP-50to775", "SMS-T1tttt_mGluino-1100to1125_mLSP-700to900", "SMS-T1tttt_mGluino-1100_mLSP-1to775", "SMS-T1tttt_mGluino-1150to1175_mLSP-750to925", "SMS-T1tttt_mGluino-1150_mLSP-1to800", "SMS-T1tttt_mGluino-1175_mLSP-950", "SMS-T1tttt_mGluino-1200to1225_mLSP-800to1000", "SMS-T1tttt_mGluino-1200_mLSP-1to825", "SMS-T1tttt_mGluino-1225to1250_mLSP-1to1025", "SMS-T1tttt_mGluino-1250to1275_mLSP-700to1050", "SMS-T1tttt_mGluino-1275_mLSP-900to975", "SMS-T1tttt_mGluino-1300to1325_mLSP-700to1100", "SMS-T1tttt_mGluino-1300_mLSP-1to1075", "SMS-T1tttt_mGluino-1325to1350_mLSP-1to1125", "SMS-T1tttt_mGluino-1350to1375_mLSP-50to1025", "SMS-T1tttt_mGluino-1375_mLSP-950to1150", "SMS-T1tttt_mGluino-1400to1425_mLSP-50to1100", "SMS-T1tttt_mGluino-1400_mLSP-1to1175", "SMS-T1tttt_mGluino-1425to1450_mLSP-1to1200", "SMS-T1tttt_mGluino-1450to1475_mLSP-50to1075", "SMS-T1tttt_mGluino-1475to1500_mLSP-1to1250", "SMS-T1tttt_mGluino-1500to1525_mLSP-50to1125", "SMS-T1tttt_mGluino-1525to1550_mLSP-1to1300", "SMS-T1tttt_mGluino-1550to1575_mLSP-500to1175", "SMS-T1tttt_mGluino-1600to1650_mLSP-1to1350", "SMS-T1tttt_mGluino-1650to1700_mLSP-1to1400", "SMS-T1tttt_mGluino-1700to1750_mLSP-1to1450", "SMS-T1tttt_mGluino-1750_mLSP-50to1450", "SMS-T1tttt_mGluino-1800to1850_mLSP-1to1450", "SMS-T1tttt_mGluino-1850to1900_mLSP-1to1450", "SMS-T1tttt_mGluino-1900to1950_mLSP-0to1450", "SMS-T1tttt_mGluino-1950_mLSP-700to950"});
+
     }
 
     void SampleCollection::addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss)
