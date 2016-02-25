@@ -302,6 +302,20 @@ void print_searchBins_latex(const std::vector<double>& prediction, const std::ve
     std::cout<<std::endl<<std::endl;
 }
 
+void print_searchBinsPred_latex(const std::vector<double>& prediction, const std::vector<double>& StatUp,  const std::vector<double>& StatDown, const std::vector<double>& SysUp, const std::vector<double>& SysDown, std::string label){
+    std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning;
+    build_MT2_met_Binning(out_MT2_met_Binning);
+    print_searchBins_headerstr(label);
+    for(int ib=0; ib<nTotBins; ib++){
+	char addon[128];
+	if( prediction[ib] > 0.01) sprintf(addon, "& $%.2f^{+%.2f +%.2f}_{-%.2f -%.2f}$ \\\\", prediction[ib], StatUp[ib], SysUp[ib], StatDown[ib], SysDown[ib]);
+        else                       sprintf(addon, "& $%.3f^{+%.3f +%.3f}_{-%.3f -%.3f}$ \\\\", prediction[ib], StatUp[ib], SysUp[ib], StatDown[ib], SysDown[ib]);                
+	std::string outstr = get_searchBins_defstr(ib, std::string(addon));
+	printf("%s", outstr.c_str());
+    }
+    std::cout<<std::endl<<std::endl;
+}
+
 // Function to draw the signal bin definition
 void drawSBregionDef(const double ymin_Yields = 0.05, const double ymax_Yields = 500., const bool logscale=true){
     int NSB = 37;
