@@ -47,7 +47,7 @@ private:
     std::vector<searchBinDef> searchBins_;
     
     //Use this to add bins to searchBins_, it adds all met and mt2 bins for a particular bin in Nb-Nt
-    void addNbNtBin(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> met_lo, const std::vector<double> met_hi, const std::vector<double> mt2_lo, const std::vector<double> mt2_hi);
+    void addNbNtBin(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> mt2_lo, const std::vector<double> mt2_hi, const std::vector<double> met_lo, const std::vector<double> met_hi);
 
 };
 

@@ -121,7 +121,7 @@ SearchBins::SearchBins()
                { -1});
 }
 
-void SearchBins::addNbNtBin(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> met_lo, const std::vector<double> met_hi, const std::vector<double> mt2_lo, const std::vector<double> mt2_hi)
+void SearchBins::addNbNtBin(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> mt2_lo, const std::vector<double> mt2_hi, const std::vector<double> met_lo, const std::vector<double> met_hi)
 {
     if((met_lo.size() != met_hi.size()) || (met_lo.size() != mt2_lo.size()) || (met_lo.size() != mt2_hi.size()))
     {
