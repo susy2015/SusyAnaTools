@@ -8,7 +8,7 @@
 class SearchBins
 {
 public:
-    SearchBins();
+    SearchBins(std::string binEra = "SB_37_2015");
 
     int find_Binning_Index(const int ibJet, const int iTop, const double MT2, const double met) const;
 
@@ -22,10 +22,12 @@ public:
         int idx_SR_, idx_vMT2_vs_met_;
 
         searchBinDef();
-        searchBinDef(int idx_SR, int bJet_lo, int bJet_hi, int top_lo, int top_hi, double met_lo, double met_hi, double MT2_lo, double MT2_hi);
+        searchBinDef(int idx_SR, int idx_vMT2_vs_met, int bJet_lo, int bJet_hi, int top_lo, int top_hi, double met_lo, double met_hi, double MT2_lo, double MT2_hi);
 
         bool compare(const int ibJet, const int iTop, const double MT2, const double met) const;
     };
+
+    int nSearchBins() {return searchBins_.size();}
 
     void build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::vector<double> > > & outBinning) const;
     void build_MT2_met_Binning(std::vector<std::vector<std::vector<double> > > & outBinning) const;
@@ -49,6 +51,8 @@ private:
     //Use this to add bins to searchBins_, it adds all met and mt2 bins for a particular bin in Nb-Nt
     void addNbNtBin(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> mt2_lo, const std::vector<double> mt2_hi, const std::vector<double> met_lo, const std::vector<double> met_hi);
 
+    void SearchBins_37_2015();
+    void SearchBins_45_2015();
 };
 
 #endif

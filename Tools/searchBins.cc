@@ -9,7 +9,7 @@ SearchBins::searchBinDef::searchBinDef() : idx_SR_(-1), bJet_lo_(-1), bJet_hi_(-
     
 }
 
-SearchBins::searchBinDef::searchBinDef(int idx_SR, int bJet_lo, int bJet_hi, int top_lo, int top_hi, double met_lo, double met_hi, double MT2_lo, double MT2_hi) : idx_SR_(idx_SR), bJet_lo_(bJet_lo), bJet_hi_(bJet_hi), top_lo_(top_lo), top_hi_(top_hi), met_lo_(met_lo), met_hi_(met_hi), MT2_lo_(MT2_lo), MT2_hi_(MT2_hi)
+SearchBins::searchBinDef::searchBinDef(int idx_SR, int idx_vMT2_vs_met, int bJet_lo, int bJet_hi, int top_lo, int top_hi, double met_lo, double met_hi, double MT2_lo, double MT2_hi) : idx_SR_(idx_SR), idx_vMT2_vs_met_(idx_vMT2_vs_met), bJet_lo_(bJet_lo), bJet_hi_(bJet_hi), top_lo_(top_lo), top_hi_(top_hi), met_lo_(met_lo), met_hi_(met_hi), MT2_lo_(MT2_lo), MT2_hi_(MT2_hi)
 {
     
 }
@@ -26,99 +26,22 @@ bool SearchBins::searchBinDef::compare(const int ibJet, const int iTop, const do
         && (met_hi_ < 0   || met  < met_hi_ );
 }
 
-SearchBins::SearchBins()
+SearchBins::SearchBins(std::string binEra)
 {
-    //         nb=1, ntop=1
-    addNbNtBin(1, 2, 1, 2,
-               // MT2 lo 
-               {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400, 400},
-               // MT2 hi 
-               {300, 300, 300, 300, /**/ 400, 400, 400, 400, /**/  -1,  -1,  -1},
-               // met lo 
-               {200, 275, 350, 450, /**/ 200, 275, 350, 450, /**/ 200, 350, 450},
-               // met hi 
-               {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 350, 450,  -1});
-
-    //         nb=2, ntop=1
-    addNbNtBin(2, 3, 1, 2,
-               // MT2 lo 
-               {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400},
-               // MT2 hi 
-               {300, 300, 300, 300, /**/ 400, 400, 400, 400, /**/  -1,  -1},
-               // met lo 
-               {200, 275, 350, 450, /**/ 200, 275, 350, 450, /**/ 200, 450},
-               // met hi 
-               {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 450,  -1});
-    //         nb>=3, ntop=1
-    addNbNtBin(3, -1, 1, 2,
-               // MT2 lo 
-               {200, 200, 200},
-               // MT2 hi 
-               { -1,  -1,  -1},
-               // met lo 
-               {200, 300, 400},
-               // met hi 
-               {300, 400,  -1});
-    //         nb=1, ntop=2
-    addNbNtBin(1, 2, 2, 3,
-               // MT2 lo 
-               {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
-               // MT2 hi 
-               {300, 300, 300, /**/ 400, 400, 400, /**/  -1,  -1},
-               // met lo 
-               {200, 275, 350, /**/ 200, 275, 350, /**/ 200, 350},
-               // met hi 
-               {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1});
-    //         nb=2, ntop=2
-    addNbNtBin(2, 3, 2, 3,
-               // MT2 lo 
-               {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
-               // MT2 hi 
-               {300, 300, 300, /**/ 400, 400, 400, /**/  -1,  -1},
-               // met lo 
-               {200, 275, 350, /**/ 200, 275, 350, /**/ 200, 350},
-               // met hi 
-               {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1});
-    //         nb>=3, ntop=2
-    addNbNtBin(3, -1, 2, 3,
-               // MT2 lo 
-               {200, 200},
-               // MT2 hi 
-               { -1,  -1},
-               // met lo 
-               {200, 300},
-               // met hi 
-               {300,  -1});
-    //         nb=1, ntop=3
-    addNbNtBin(1, 2, 3, -1,
-               // MT2 lo 
-               {200},
-               // MT2 hi 
-               { -1},
-               // met lo 
-               {200},
-               // met hi 
-               { -1});
-    //         nb=2, ntop=3
-    addNbNtBin(2, 3, 3, -1,
-               // MT2 lo 
-               {200},
-               // MT2 hi 
-               { -1},
-               // met lo 
-               {200},
-               // met hi 
-               { -1});
-    //         nb>=3, ntop=3
-    addNbNtBin(3, -1, 3, -1,
-               // MT2 lo 
-               {200},
-               // MT2 hi 
-               { -1},
-               // met lo 
-               {200},
-               // met hi 
-               { -1});
+    if(binEra.compare("SB_37_2015") != 0)
+    {
+        SearchBins_37_2015();
+    }
+    else if(binEra.compare("SB_45_2015") != 0)
+    {
+        SearchBins_45_2015();
+    }
+    else
+    {
+        std::cout << "!!!!!!!!!!!!!!!!!!!!BINS NOT ADDED!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << "Bin era \"" << binEra << "\" does not exist" << std::endl;
+        std::cout << "!!!!!!!!!!!!!!!!!!!!BINS NOT ADDED!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+    }
 }
 
 void SearchBins::addNbNtBin(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> mt2_lo, const std::vector<double> mt2_hi, const std::vector<double> met_lo, const std::vector<double> met_hi)
@@ -134,59 +57,67 @@ void SearchBins::addNbNtBin(int bJet_lo, int bJet_hi, int top_lo, int top_hi, co
     const int Nbins = met_lo.size();
     for(int iBin = 0; iBin < Nbins; ++iBin)
     {
-        searchBins_.emplace_back(searchBinDef(NSearchRegions_, bJet_lo, bJet_hi, top_lo, top_hi, met_lo[iBin], met_hi[iBin], mt2_lo[iBin], mt2_hi[iBin]));
+        searchBins_.emplace_back(searchBinDef(NSearchRegions_, iBin, bJet_lo, bJet_hi, top_lo, top_hi, met_lo[iBin], met_hi[iBin], mt2_lo[iBin], mt2_hi[iBin]));
     }
     ++NSearchRegions_;
 }
 
 void SearchBins::build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::vector<double> > > & outBinning) const
 {
-//    const double max_MT2_for_binEdge = 400, max_met_for_binEdge = 600;
-//    //const double max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25;
-//    const double pseudoMax_MT2_for_hist = max_MT2_for_binEdge + 100, pseudoMax_met_for_hist = max_met_for_binEdge + 50;
-//
-//    nTotBins = 0;
-//    outBinning.clear();
-//    for(unsigned int iSR =0; iSR<nSR; iSR++)
-//    {
-//        std::vector<std::vector<double> > perBinning;
-//        std::vector<std::vector<double> > vMT2_vs_met_per_SR = vMT2_vs_met_all_SR.at(iSR);
-//        for(unsigned int ib=0; ib<vMT2_vs_met_per_SR[0].size(); ib++)
-//        {
-//            double MT2_lo = vMT2_vs_met_per_SR[0].at(ib);
-//            double MT2_hi = vMT2_vs_met_per_SR[1].at(ib);
-//            double met_lo = vMT2_vs_met_per_SR[2].at(ib);
-//            double met_hi = vMT2_vs_met_per_SR[3].at(ib);
-//            if( MT2_hi == -1 ) MT2_hi = pseudoMax_MT2_for_hist;
-//            if( met_hi == -1 ) met_hi = pseudoMax_met_for_hist;
-//            perBinning.push_back({met_lo, MT2_lo, met_hi, MT2_hi});
-//            nTotBins++;
-//        }
-//        outBinning.push_back(perBinning);
-//    }
-////   std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
+    const double max_MT2_for_binEdge = 400, max_met_for_binEdge = 600;
+    //const double max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25;
+    const double pseudoMax_MT2_for_hist = max_MT2_for_binEdge + 100, pseudoMax_met_for_hist = max_met_for_binEdge + 50;
+    
+    int nTotBins = 0;
+    int currentSR = -1;
+    outBinning.clear();
+    for(auto& sb : searchBins_)
+    {
+        double MT2_lo = sb.met_lo_;
+        double MT2_hi = sb.MT2_hi_;
+        double met_lo = sb.met_lo_;
+        double met_hi = sb.met_hi_;
+        if( MT2_hi == -1 ) MT2_hi = pseudoMax_MT2_for_hist;
+        if( met_hi == -1 ) met_hi = pseudoMax_met_for_hist;
+        ++nTotBins;
+
+        if(sb.idx_SR_ != currentSR)
+        {
+            currentSR = sb.idx_SR_;
+            outBinning.emplace_back(std::vector<std::vector<double> >({{MT2_lo, MT2_hi, met_lo, met_hi}}));
+        }
+        else
+        {
+            outBinning.back().push_back({MT2_lo, MT2_hi, met_lo, met_hi});
+        }
+    }
+    //   std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
 }
 
 void SearchBins::build_MT2_met_Binning(std::vector<std::vector<std::vector<double> > > & outBinning) const
 {
-//    nTotBins = 0;
-//    outBinning.clear();
-//    for(unsigned int iSR =0; iSR<nSR; iSR++)
-//    {
-//        std::vector<std::vector<double> > perBinning;
-//        std::vector<std::vector<double> > vMT2_vs_met_per_SR = vMT2_vs_met_all_SR.at(iSR);
-//        for(unsigned int ib=0; ib<vMT2_vs_met_per_SR[0].size(); ib++)
-//        {
-//            double MT2_lo = vMT2_vs_met_per_SR[0].at(ib);
-//            double MT2_hi = vMT2_vs_met_per_SR[1].at(ib);
-//            double met_lo = vMT2_vs_met_per_SR[2].at(ib);
-//            double met_hi = vMT2_vs_met_per_SR[3].at(ib);
-//            perBinning.push_back({met_lo, MT2_lo, met_hi, MT2_hi});
-//            nTotBins++;
-//        }
-//        outBinning.push_back(perBinning);
-//    }
-//    std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
+    int nTotBins = 0;
+    int currentSR = -1;
+    outBinning.clear();
+    for(auto& sb : searchBins_)
+    {
+        double MT2_lo = sb.met_lo_;
+        double MT2_hi = sb.MT2_hi_;
+        double met_lo = sb.met_lo_;
+        double met_hi = sb.met_hi_;
+        ++nTotBins;
+
+        if(sb.idx_SR_ != currentSR)
+        {
+            currentSR = sb.idx_SR_;
+            outBinning.emplace_back(std::vector<std::vector<double> >({{MT2_lo, MT2_hi, met_lo, met_hi}}));
+        }
+        else
+        {
+            outBinning.back().push_back({MT2_lo, MT2_hi, met_lo, met_hi});
+        }
+    }
+    std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
 }
 
 int SearchBins::find_Binning_Index(int ibJet, int iTop, double MT2, double met) const
@@ -412,6 +343,145 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
         ttextmt2->DrawLatex(8.5 + adjHalfBin, ymax_Yields*0.55 , "M_{T2}#geq400");
     }
     //-----------------------------------------------------------
-
 }
 
+
+void SearchBins::SearchBins_45_2015()
+{
+    //         nb=1, ntop=1
+    addNbNtBin(1, 2, 1, 2,
+               // MT2 lo 
+               {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400, 400},
+               // MT2 hi 
+               {300, 300, 300, 300, /**/ 400, 400, 400, 400, /**/  -1,  -1,  -1},
+               // met lo 
+               {200, 275, 350, 450, /**/ 200, 275, 350, 450, /**/ 200, 350, 450},
+               // met hi 
+               {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 350, 450,  -1});
+
+    //         nb=2, ntop=1
+    addNbNtBin(2, 3, 1, 2,
+               // MT2 lo 
+               {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400},
+               // MT2 hi 
+               {300, 300, 300, 300, /**/ 400, 400, 400, 400, /**/  -1,  -1},
+               // met lo 
+               {200, 275, 350, 450, /**/ 200, 275, 350, 450, /**/ 200, 450},
+               // met hi 
+               {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 450,  -1});
+    //         nb>=3, ntop=1
+    addNbNtBin(3, -1, 1, 2,
+               // MT2 lo 
+               {200, 200, 200},
+               // MT2 hi 
+               { -1,  -1,  -1},
+               // met lo 
+               {200, 300, 400},
+               // met hi 
+               {300, 400,  -1});
+    //         nb=1, ntop=2
+    addNbNtBin(1, 2, 2, 3,
+               // MT2 lo 
+               {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
+               // MT2 hi 
+               {300, 300, 300, /**/ 400, 400, 400, /**/  -1,  -1},
+               // met lo 
+               {200, 275, 350, /**/ 200, 275, 350, /**/ 200, 350},
+               // met hi 
+               {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1});
+    //         nb=2, ntop=2
+    addNbNtBin(2, 3, 2, 3,
+               // MT2 lo 
+               {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
+               // MT2 hi 
+               {300, 300, 300, /**/ 400, 400, 400, /**/  -1,  -1},
+               // met lo 
+               {200, 275, 350, /**/ 200, 275, 350, /**/ 200, 350},
+               // met hi 
+               {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1});
+    //         nb>=3, ntop=2
+    addNbNtBin(3, -1, 2, 3,
+               // MT2 lo 
+               {200, 200},
+               // MT2 hi 
+               { -1,  -1},
+               // met lo 
+               {200, 300},
+               // met hi 
+               {300,  -1});
+    //         nb=1, ntop=3
+    addNbNtBin(1, 2, 3, -1,
+               // MT2 lo 
+               {200},
+               // MT2 hi 
+               { -1},
+               // met lo 
+               {200},
+               // met hi 
+               { -1});
+    //         nb=2, ntop=3
+    addNbNtBin(2, 3, 3, -1,
+               // MT2 lo 
+               {200},
+               // MT2 hi 
+               { -1},
+               // met lo 
+               {200},
+               // met hi 
+               { -1});
+    //         nb>=3, ntop=3
+    addNbNtBin(3, -1, 3, -1,
+               // MT2 lo 
+               {200},
+               // MT2 hi 
+               { -1},
+               // met lo 
+               {200},
+               // met hi 
+               { -1});
+}
+
+void SearchBins::SearchBins_37_2015()
+{
+    //         nb=1, ntop=1
+    addNbNtBin(1, 2, 1, 2,
+               // MT2 lo 
+               {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400, 400},
+               // MT2 hi 
+               {300, 300, 300, 300, /**/ 400, 400, 400, 400, /**/  -1,  -1,  -1},
+               // met lo 
+               {200, 275, 350, 450, /**/ 200, 275, 350, 450, /**/ 200, 350, 450},
+               // met hi 
+               {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 350, 450,  -1});
+
+    //         nb>=2, ntop=1
+    addNbNtBin(2, -1, 1, 2,
+               // MT2 lo 
+               {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400},
+               // MT2 hi 
+               {300, 300, 300, 300, /**/ 400, 400, 400, 400, /**/  -1,  -1},
+               // met lo 
+               {200, 275, 350, 450, /**/ 200, 275, 350, 450, /**/ 200, 450},
+               // met hi 
+               {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 450,  -1});
+    //         nb=1, ntop>=2
+    addNbNtBin(1, 2, 2, -1,
+               // MT2 lo 
+               {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
+               // MT2 hi 
+               {300, 300, 300, /**/ 400, 400, 400, /**/  -1,  -1},
+               // met lo 
+               {200, 275, 350, /**/ 200, 275, 350, /**/ 200, 350},
+               // met hi 
+               {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1});
+    //         nb>=2, ntop>=2
+    addNbNtBin(2, -1, 2, -1,
+               // MT2 lo 
+               {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
+               // MT2 hi 
+               {300, 300, 300, /**/ 400, 400, 400, /**/  -1,  -1},
+               // met lo 
+               {200, 275, 350, /**/ 200, 275, 350, /**/ 200, 350},
+               // met hi 
+               {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1});
+}
