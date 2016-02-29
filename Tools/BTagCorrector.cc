@@ -282,6 +282,9 @@ void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& s
 
 void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
 {
+    //Check if this is data by looking for "genDecayPdgIdVec" collection (yes, this is dumb)
+    const vector<int>& genDecayPdgIdVec = tr.getVec<int>("genDecayPdgIdVec");
+    if(&genDecayPdgIdVec == nullptr) return;
 
     vector<TLorentzVector> inputJets = tr.getVec<TLorentzVector>("jetsLVec");
     vector<double> recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
