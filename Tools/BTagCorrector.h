@@ -51,7 +51,8 @@ BTagCorrector(std::string file = "batchSignalPlots.root", std::string CSVFilePat
     //accessors
     void SetDebug(bool d) { debug = d; }
     void SetFastSim(bool f) { fastsim = f; }
-    void SetEffs(TFile* file, std::string suffix = ""){
+    void SetEffs(TFile* file, std::string suffix = "")
+    {
         if(suffix.size())
         {
             h_eff_b = (TH2F*)file->Get(("eff_b_" + suffix).c_str());
@@ -99,9 +100,9 @@ BTagCorrector(std::string file = "batchSignalPlots.root", std::string CSVFilePat
 
 
     //method 1b
-    std::vector<double> GetCorrections(std::vector<TLorentzVector> *Jets, std::vector<int> *Jets_flavor);
+    std::vector<double> GetCorrections(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor);
     //method 1a
-    double GetSimpleCorrection(std::vector<TLorentzVector> *Jets, std::vector<int> *Jets_flavor,  std::vector<double> *Jets_bDiscriminatorCSV);
+    double GetSimpleCorrection(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor, const std::vector<double> *Jets_bDiscriminatorCSV);
 
     void InitSFEff(double pt, double eta, int flav, std::vector<double>& sfEffList);
 

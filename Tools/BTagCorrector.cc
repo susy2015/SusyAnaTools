@@ -21,7 +21,7 @@ using namespace std;
 // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
 /***********************************************************************************/
 
-vector<double> BTagCorrector::GetCorrections(vector<TLorentzVector> *Jets, vector<int> *Jets_flavor)
+vector<double> BTagCorrector::GetCorrections(const vector<TLorentzVector> *Jets, const vector<int> *Jets_flavor)
 {
 
     //reset probabilities
@@ -123,7 +123,7 @@ vector<double> BTagCorrector::GetCorrections(vector<TLorentzVector> *Jets, vecto
 
 
 
-double BTagCorrector::GetSimpleCorrection(vector<TLorentzVector> *Jets, vector<int> *Jets_flavor,  vector<double> *Jets_bDiscriminatorCSV){
+double BTagCorrector::GetSimpleCorrection(const vector<TLorentzVector> *Jets, const vector<int> *Jets_flavor, const vector<double> *Jets_bDiscriminatorCSV){
 
     double mcTag = 1.;
     double mcNoTag = 1.;
@@ -184,7 +184,11 @@ void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& s
     /********************************************************************/  
     if(flav==5)
     { //b-tag
-        int pt_bin = h_eff_b->GetXaxis()->FindBin(pt); if( pt_bin > h_eff_b->GetXaxis()->GetNbins() ) pt_bin = h_eff_b->GetXaxis()->GetNbins(); int eta_bin = h_eff_b->GetYaxis()->FindBin(eta); if ( eta_bin > h_eff_b->GetYaxis()->GetNbins() ) eta_bin = h_eff_b->GetYaxis()->GetNbins();
+        int pt_bin = h_eff_b->GetXaxis()->FindBin(pt); 
+        if( pt_bin > h_eff_b->GetXaxis()->GetNbins() ) pt_bin = h_eff_b->GetXaxis()->GetNbins(); 
+        int eta_bin = h_eff_b->GetYaxis()->FindBin(eta); 
+        if ( eta_bin > h_eff_b->GetYaxis()->GetNbins() ) eta_bin = h_eff_b->GetYaxis()->GetNbins();
+
         sfEffList[0] = h_eff_b->GetBinContent(pt_bin, eta_bin);
 
         sfEffList[1] = (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_B,eta,pt) :
@@ -217,7 +221,10 @@ void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& s
     /********************************************************************/
     else if(flav==4)
     { //charm mistag
-        int pt_bin = h_eff_c->GetXaxis()->FindBin(pt); if( pt_bin > h_eff_c->GetXaxis()->GetNbins() ) pt_bin = h_eff_c->GetXaxis()->GetNbins(); int eta_bin = h_eff_c->GetYaxis()->FindBin(eta); if ( eta_bin > h_eff_c->GetYaxis()->GetNbins() ) eta_bin = h_eff_c->GetYaxis()->GetNbins();
+        int pt_bin = h_eff_c->GetXaxis()->FindBin(pt); 
+        if( pt_bin > h_eff_c->GetXaxis()->GetNbins() ) pt_bin = h_eff_c->GetXaxis()->GetNbins();
+        int eta_bin = h_eff_c->GetYaxis()->FindBin(eta); 
+        if ( eta_bin > h_eff_c->GetYaxis()->GetNbins() ) eta_bin = h_eff_c->GetYaxis()->GetNbins();
         sfEffList[0] =h_eff_c->GetBinContent(pt_bin, eta_bin);
 
         sfEffList[1] = (ctagSFunc==0 ? reader.eval(BTagEntry::FLAV_C,eta,pt) :
@@ -246,7 +253,11 @@ void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& s
     /********************************************************************/
     else if(flav<4 || flav==21)
     { //udsg mistag
-        int pt_bin = h_eff_udsg->GetXaxis()->FindBin(pt); if( pt_bin > h_eff_udsg->GetXaxis()->GetNbins() ) pt_bin = h_eff_udsg->GetXaxis()->GetNbins(); int eta_bin = h_eff_udsg->GetYaxis()->FindBin(eta); if ( eta_bin > h_eff_udsg->GetYaxis()->GetNbins() ) eta_bin = h_eff_udsg->GetYaxis()->GetNbins();
+        int pt_bin = h_eff_udsg->GetXaxis()->FindBin(pt); 
+        if( pt_bin > h_eff_udsg->GetXaxis()->GetNbins() ) pt_bin = h_eff_udsg->GetXaxis()->GetNbins(); 
+        int eta_bin = h_eff_udsg->GetYaxis()->FindBin(eta); 
+        if ( eta_bin > h_eff_udsg->GetYaxis()->GetNbins() ) eta_bin = h_eff_udsg->GetYaxis()->GetNbins();
+
         sfEffList[0] = h_eff_udsg->GetBinContent(pt_bin, eta_bin);
 
         sfEffList[1] = (mistagSFunc==0 ? reader.eval(BTagEntry::FLAV_UDSG,eta,pt) :
@@ -286,9 +297,9 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     const vector<int>& genDecayPdgIdVec = tr.getVec<int>("genDecayPdgIdVec");
     if(&genDecayPdgIdVec == nullptr) return;
 
-    vector<TLorentzVector> inputJets = tr.getVec<TLorentzVector>("jetsLVec");
-    vector<double> recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
-    vector<int> recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
+    const vector<TLorentzVector>& inputJets = tr.getVec<TLorentzVector>("jetsLVec");
+    const vector<double>& recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
+    const vector<int>& recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
 
     /*************************************************/
     // Here we define which(up, down or central
