@@ -22,99 +22,99 @@ using namespace std;
 /***********************************************************************************/
 
 vector<double> BTagCorrector::GetCorrections(vector<TLorentzVector> *Jets, vector<int> *Jets_flavor)
-     {
+{
 
-       //reset probabilities
-       vector<double> *prob = new vector<double>(4,0.0);
-       (*prob)[0] = 1.0;
+    //reset probabilities
+    vector<double> *prob = new vector<double>(4,0.0);
+    (*prob)[0] = 1.0;
   
-       //first loop over jets
-       vector<vector<double> > sfEffLists = vector<vector<double> >(Jets->size(),vector<double>());
-       for(unsigned ja = 0; ja < Jets->size(); ++ja){
-	 //HT jet cuts
-	 if(Jets->at(ja).Pt()< 30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
+    //first loop over jets
+    vector<vector<double> > sfEffLists = vector<vector<double> >(Jets->size(),vector<double>());
+    for(unsigned ja = 0; ja < Jets->size(); ++ja){
+        //HT jet cuts
+        if(Jets->at(ja).Pt()< 30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
 
   
-	 //get sf and eff values (checks if already calculated)
-	 InitSFEff(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), sfEffLists[ja]);
-	 double eps_a = sfEffLists[ja][0]*sfEffLists[ja][1]*sfEffLists[ja][2];
+        //get sf and eff values (checks if already calculated)
+        InitSFEff(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), sfEffLists[ja]);
+        double eps_a = sfEffLists[ja][0]*sfEffLists[ja][1]*sfEffLists[ja][2];
   
-	 //jet index, pt, eta, flavor, eff, sf, cf
+        //jet index, pt, eta, flavor, eff, sf, cf
 
-	 if(debug) cout << "Jet " << ja << ": " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << ", " << abs(Jets_flavor->at(ja)) 
-			<< ", " << sfEffLists[ja][0] << ", " << sfEffLists[ja][1] << ", " << sfEffLists[ja][2] << endl;
+        if(debug) cout << "Jet " << ja << ": " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << ", " << abs(Jets_flavor->at(ja)) 
+                       << ", " << sfEffLists[ja][0] << ", " << sfEffLists[ja][1] << ", " << sfEffLists[ja][2] << endl;
   
-	 //calculate prob(0 b-tags)
-	 (*prob)[0] *= (1-eps_a);
+        //calculate prob(0 b-tags)
+        (*prob)[0] *= (1-eps_a);
 	 
-	 //sub-probabilities for following calculations
-	 double subprob1 = 1.0;
-	 double subprob2 = 0.0;
+        //sub-probabilities for following calculations
+        double subprob1 = 1.0;
+        double subprob2 = 0.0;
 	 
-	 //second loop over jets
-	 for(unsigned jb = 0; jb < Jets->size(); ++jb){
-	   //skip the same jet
-	   if(jb==ja) continue;
+        //second loop over jets
+        for(unsigned jb = 0; jb < Jets->size(); ++jb){
+            //skip the same jet
+            if(jb==ja) continue;
 	   
-	   //HT jet cuts
+            //HT jet cuts
 	   
-	   if(Jets->at(ja).Pt()<30.0 ||fabs(Jets->at(ja).Eta()) > 2.4) continue;
+            if(Jets->at(ja).Pt()<30.0 ||fabs(Jets->at(ja).Eta()) > 2.4) continue;
 	   
 	   
-	   //get sf and eff values (checks if already calculated)
-	   InitSFEff(Jets->at(jb).Pt(), Jets->at(jb).Eta(), Jets_flavor->at(jb), sfEffLists[jb]);
+            //get sf and eff values (checks if already calculated)
+            InitSFEff(Jets->at(jb).Pt(), Jets->at(jb).Eta(), Jets_flavor->at(jb), sfEffLists[jb]);
 	   
-	   double eps_b = sfEffLists[jb][0]*sfEffLists[jb][1]*sfEffLists[jb][2];
+            double eps_b = sfEffLists[jb][0]*sfEffLists[jb][1]*sfEffLists[jb][2];
 	   
-	   //jet index, pt, eta, flavor, eff, sf, cf
+            //jet index, pt, eta, flavor, eff, sf, cf
 	   
-	   if(debug) cout << "\tJet " << jb << ": " << Jets->at(jb).Pt() << ", " << fabs(Jets->at(jb).Eta()) << ", " << abs(Jets_flavor->at(jb)) 
-			  << ", " << sfEffLists[jb][0] << ", " << sfEffLists[jb][1] << ", " << sfEffLists[jb][2] << endl;
+            if(debug) cout << "\tJet " << jb << ": " << Jets->at(jb).Pt() << ", " << fabs(Jets->at(jb).Eta()) << ", " << abs(Jets_flavor->at(jb)) 
+                           << ", " << sfEffLists[jb][0] << ", " << sfEffLists[jb][1] << ", " << sfEffLists[jb][2] << endl;
 	   
-	   //calculate prob(1 b-tag)
-	   subprob1 *= (1-eps_b);
+            //calculate prob(1 b-tag)
+            subprob1 *= (1-eps_b);
 	   
-	   //sub-sub-probability for following calculations
-	   double subsubprob2 = 1.0;
+            //sub-sub-probability for following calculations
+            double subsubprob2 = 1.0;
 	   
-	   //third loop over jets (only for jb>ja)
-	   if(jb<ja) continue;
-	   for(unsigned jc = 0; jc < Jets->size(); ++jc){
-	     //skip the same jet
-	     if(jc==jb || jc==ja) continue;
+            //third loop over jets (only for jb>ja)
+            if(jb<ja) continue;
+            for(unsigned jc = 0; jc < Jets->size(); ++jc){
+                //skip the same jet
+                if(jc==jb || jc==ja) continue;
 	     
-	     //HT jet cuts
-	     if(Jets->at(ja).Pt()<30.0 ||fabs(Jets->at(ja).Eta()) > 2.4) continue;
+                //HT jet cuts
+                if(Jets->at(ja).Pt()<30.0 ||fabs(Jets->at(ja).Eta()) > 2.4) continue;
 	     
-	     //get sf and eff values (checks if already calculated)
-	     InitSFEff(Jets->at(jc).Pt(), Jets->at(jc).Eta(), Jets_flavor->at(jc), sfEffLists[jc]);
-	     double eps_c = sfEffLists[jc][0]*sfEffLists[jc][1]*sfEffLists[jc][2];
+                //get sf and eff values (checks if already calculated)
+                InitSFEff(Jets->at(jc).Pt(), Jets->at(jc).Eta(), Jets_flavor->at(jc), sfEffLists[jc]);
+                double eps_c = sfEffLists[jc][0]*sfEffLists[jc][1]*sfEffLists[jc][2];
 	     
-	     //jet index, pt, eta, flavor, eff, sf, cf
-	     //      if(debug) cout <<"Test Begins...." << endl;
-	     if(debug) cout << "\t\tJet " << jc << ": " << Jets->at(jc).Pt() << ", " << fabs(Jets->at(jc).Eta()) << ", " << abs(Jets_flavor->at(jc)) 
-			    << ", " << sfEffLists[jc][0] << ", " << sfEffLists[jc][1] << ", " << sfEffLists[jc][2] << endl;
+                //jet index, pt, eta, flavor, eff, sf, cf
+                //      if(debug) cout <<"Test Begins...." << endl;
+                if(debug) cout << "\t\tJet " << jc << ": " << Jets->at(jc).Pt() << ", " << fabs(Jets->at(jc).Eta()) << ", " << abs(Jets_flavor->at(jc)) 
+                               << ", " << sfEffLists[jc][0] << ", " << sfEffLists[jc][1] << ", " << sfEffLists[jc][2] << endl;
 	     
-	     //calculate prob(2 b-tags)
-	     subsubprob2 *= (1-eps_c);
-	   }
+                //calculate prob(2 b-tags)
+                subsubprob2 *= (1-eps_c);
+            }
 	   
-	   //add up sub-sub-prob
-	   subprob2 += eps_b*subsubprob2;
-	 }
+            //add up sub-sub-prob
+            subprob2 += eps_b*subsubprob2;
+        }
 	 
-	 //add up sub-probs
-	 (*prob)[1] += eps_a*subprob1;
-	 (*prob)[2] += eps_a*subprob2;
-       }
+        //add up sub-probs
+        (*prob)[1] += eps_a*subprob1;
+        (*prob)[2] += eps_a*subprob2;
+    }
        
-       //conserve probability
+    //conserve probability
        
-       (*prob)[3] = 1 - (*prob)[0] -(*prob)[1] - (*prob)[2];
-       if(debug) cout << (*prob)[0] << ", " << (*prob)[1] << ", " << (*prob)[2] << ", " << (*prob)[3] << endl;
+    (*prob)[3] = 1 - (*prob)[0] -(*prob)[1] - (*prob)[2];
+    if(debug) cout << (*prob)[0] << ", " << (*prob)[1] << ", " << (*prob)[2] << ", " << (*prob)[3] << endl;
        
-       return (*prob);
-     }
+    return (*prob);
+}
 
 /***********************************************************************************/
 //method 1a in twiki
@@ -125,151 +125,151 @@ vector<double> BTagCorrector::GetCorrections(vector<TLorentzVector> *Jets, vecto
 
 double BTagCorrector::GetSimpleCorrection(vector<TLorentzVector> *Jets, vector<int> *Jets_flavor,  vector<double> *Jets_bDiscriminatorCSV){
 
-  double mcTag = 1.;
-  double mcNoTag = 1.;
-  double dataTag = 1.;
-  double dataNoTag = 1.;
+    double mcTag = 1.;
+    double mcNoTag = 1.;
+    double dataTag = 1.;
+    double dataNoTag = 1.;
   
-  //loop over jets
-  vector<vector<double> > sfEffLists = vector<vector<double> >(Jets->size(),vector<double>());
+    //loop over jets
+    vector<vector<double> > sfEffLists = vector<vector<double> >(Jets->size(),vector<double>());
     for(unsigned ja = 0; ja < Jets->size(); ++ja){
-    //HT jet cuts
-    if(Jets->at(ja).Pt()<30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
+        //HT jet cuts
+        if(Jets->at(ja).Pt()<30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
     
-    //get sf and eff values (checks if already calculated)
-    InitSFEff(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), sfEffLists[ja]);
-    double eff_a = sfEffLists[ja][0]; //eff
-    double cf_a = sfEffLists[ja][2]; //CF
-    double sf_a = sfEffLists[ja][1];
+        //get sf and eff values (checks if already calculated)
+        InitSFEff(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), sfEffLists[ja]);
+        double eff_a = sfEffLists[ja][0]; //eff
+        double cf_a = sfEffLists[ja][2]; //CF
+        double sf_a = sfEffLists[ja][1];
     
-    if( sfEffLists[ja][0] ==0 || sfEffLists[ja][1] ==0 || sfEffLists[ja][2] ==0 ){
-      std::cout<<"sfEffLists[ja][0] : "<<sfEffLists[ja][0]<<"  sfEffLists[ja][1] : "<<sfEffLists[ja][1]<<"  sfEffLists[ja][2] : "<<sfEffLists[ja][2]<<std::endl; 
+        if( sfEffLists[ja][0] ==0 || sfEffLists[ja][1] ==0 || sfEffLists[ja][2] ==0 ){
+            std::cout<<"sfEffLists[ja][0] : "<<sfEffLists[ja][0]<<"  sfEffLists[ja][1] : "<<sfEffLists[ja][1]<<"  sfEffLists[ja][2] : "<<sfEffLists[ja][2]<<std::endl; 
+        }
+
+        //jet index, pt, eta, flavor, csv, eff, sf, cf
+        if(debug) cout << "Jet " << ja << ": " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << ", " << abs(Jets_flavor->at(ja))  << ", " << Jets_bDiscriminatorCSV->at(ja)
+                       << ", " << sfEffLists[ja][0] << ", " << sfEffLists[ja][1] << ", " << sfEffLists[ja][2] << endl;
+    
+        if(Jets_bDiscriminatorCSV->at(ja) > 0.890){
+            mcTag *= eff_a*cf_a;
+            dataTag *= eff_a*cf_a*sf_a;
+        } else {
+            mcNoTag *= (1-eff_a*cf_a);
+            dataNoTag *= (1-eff_a*cf_a*sf_a);
+        }
     }
 
-    //jet index, pt, eta, flavor, csv, eff, sf, cf
-    if(debug) cout << "Jet " << ja << ": " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << ", " << abs(Jets_flavor->at(ja))  << ", " << Jets_bDiscriminatorCSV->at(ja)
-  		 << ", " << sfEffLists[ja][0] << ", " << sfEffLists[ja][1] << ", " << sfEffLists[ja][2] << endl;
-    
-    if(Jets_bDiscriminatorCSV->at(ja) > 0.890){
-      mcTag *= eff_a*cf_a;
-      dataTag *= eff_a*cf_a*sf_a;
-    } else {
-      mcNoTag *= (1-eff_a*cf_a);
-      dataNoTag *= (1-eff_a*cf_a*sf_a);
-    }
-  }
-
-  return (dataNoTag * dataTag)/(mcNoTag * mcTag);
+    return (dataNoTag * dataTag)/(mcNoTag * mcTag);
 }
 
 
 /***********************************************************************************/
 //helper function
 void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& sfEffList){
-  //avoid rerunning this
-  sfEffList.clear();
-  if(sfEffList.size()>0) return;
+    //avoid rerunning this
+    sfEffList.clear();
+    if(sfEffList.size()>0) return;
   
-  //use abs(eta) for now
-  eta = fabs(eta);
-  //use abs(flav) always
-  flav = abs(flav);
+    //use abs(eta) for now
+    eta = fabs(eta);
+    //use abs(flav) always
+    flav = abs(flav);
     
-  sfEffList = vector<double>(3,1.0); //eff, sf (central, up, or down), cf (central, up, or down)
+    sfEffList = vector<double>(3,1.0); //eff, sf (central, up, or down), cf (central, up, or down)
 
-  const double max_btagSF_pt = 670.0, max_fastsim_btagCF_pt = 800.0;
-  const double max_ctagSF_pt = 670.0, max_fastsim_ctagCF_pt = 800.0;
-  const double max_udsgSF_pt = 1000.0, max_fastsim_udsgCF_pt = 800.0;
+    const double max_btagSF_pt = 670.0, max_fastsim_btagCF_pt = 800.0;
+    const double max_ctagSF_pt = 670.0, max_fastsim_ctagCF_pt = 800.0;
+    const double max_udsgSF_pt = 1000.0, max_fastsim_udsgCF_pt = 800.0;
 
-  /********************************************************************/  
-  if(flav==5)
+    /********************************************************************/  
+    if(flav==5)
     { //b-tag
-      int pt_bin = h_eff_b->GetXaxis()->FindBin(pt); if( pt_bin > h_eff_b->GetXaxis()->GetNbins() ) pt_bin = h_eff_b->GetXaxis()->GetNbins(); int eta_bin = h_eff_b->GetYaxis()->FindBin(eta); if ( eta_bin > h_eff_b->GetYaxis()->GetNbins() ) eta_bin = h_eff_b->GetYaxis()->GetNbins();
-      sfEffList[0] = h_eff_b->GetBinContent(pt_bin, eta_bin);
+        int pt_bin = h_eff_b->GetXaxis()->FindBin(pt); if( pt_bin > h_eff_b->GetXaxis()->GetNbins() ) pt_bin = h_eff_b->GetXaxis()->GetNbins(); int eta_bin = h_eff_b->GetYaxis()->FindBin(eta); if ( eta_bin > h_eff_b->GetYaxis()->GetNbins() ) eta_bin = h_eff_b->GetYaxis()->GetNbins();
+        sfEffList[0] = h_eff_b->GetBinContent(pt_bin, eta_bin);
 
-      sfEffList[1] = (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_B,eta,pt) :
-		      (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_B,eta,pt) :
-		       readerDown.eval(BTagEntry::FLAV_B,eta,pt) ) );
-      //Apply double uncertainty if bJet Pt is more than 670 Gev.
-      // scaleFactorUp = 2*(scaleFactorUp-scaleFactor) + scaleFactor
-      // scaleFactorUp = 2*(scaleFactorDown-scaleFactor) + scaleFactor
-      if(pt > max_btagSF_pt)
+        sfEffList[1] = (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_B,eta,pt) :
+                        (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_B,eta,pt) :
+                         readerDown.eval(BTagEntry::FLAV_B,eta,pt) ) );
+        //Apply double uncertainty if bJet Pt is more than 670 Gev.
+        // scaleFactorUp = 2*(scaleFactorUp-scaleFactor) + scaleFactor
+        // scaleFactorUp = 2*(scaleFactorDown-scaleFactor) + scaleFactor
+        if(pt > max_btagSF_pt)
 	{
-	  sfEffList[1] = 2*( (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_B,eta,max_btagSF_pt-1e-2) :
-			      (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_B,eta,max_btagSF_pt-1e-2) :
-			       readerDown.eval(BTagEntry::FLAV_B,eta,max_btagSF_pt-1e-2) ) ) - reader.eval(BTagEntry::FLAV_B,eta,max_btagSF_pt-1e-2)) + reader.eval(BTagEntry::FLAV_B,eta,max_btagSF_pt-1e-2);
+            sfEffList[1] = 2*( (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_B,eta,max_btagSF_pt-1e-2) :
+                                (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_B,eta,max_btagSF_pt-1e-2) :
+                                 readerDown.eval(BTagEntry::FLAV_B,eta,max_btagSF_pt-1e-2) ) ) - reader.eval(BTagEntry::FLAV_B,eta,max_btagSF_pt-1e-2)) + reader.eval(BTagEntry::FLAV_B,eta,max_btagSF_pt-1e-2);
 	}
 
-      if(fastsim)
+        if(fastsim)
 	{
-	  sfEffList[2] = (btagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_B,eta,pt) :
-			  (btagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_B,eta,pt) :
-			   readerFastDown.eval(BTagEntry::FLAV_B,eta,pt) ) );
-	  //Apply double uncertainty if bJet Pt is more than 670 Gev.
-	  if(pt > max_fastsim_btagCF_pt)
+            sfEffList[2] = (btagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_B,eta,pt) :
+                            (btagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_B,eta,pt) :
+                             readerFastDown.eval(BTagEntry::FLAV_B,eta,pt) ) );
+            //Apply double uncertainty if bJet Pt is more than 670 Gev.
+            if(pt > max_fastsim_btagCF_pt)
 	    {
-	      sfEffList[2] = 2*( (btagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_B,eta,max_fastsim_btagCF_pt-1e-2) :
-				  (btagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_B,eta,max_fastsim_btagCF_pt-1e-2) :
-				   readerFastDown.eval(BTagEntry::FLAV_B,eta,max_fastsim_btagCF_pt-1e-2) ) ) - readerFast.eval(BTagEntry::FLAV_B,eta,max_fastsim_btagCF_pt-1e-2)) + readerFast.eval(BTagEntry::FLAV_B,eta,max_fastsim_btagCF_pt-1e-2);
+                sfEffList[2] = 2*( (btagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_B,eta,max_fastsim_btagCF_pt-1e-2) :
+                                    (btagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_B,eta,max_fastsim_btagCF_pt-1e-2) :
+                                     readerFastDown.eval(BTagEntry::FLAV_B,eta,max_fastsim_btagCF_pt-1e-2) ) ) - readerFast.eval(BTagEntry::FLAV_B,eta,max_fastsim_btagCF_pt-1e-2)) + readerFast.eval(BTagEntry::FLAV_B,eta,max_fastsim_btagCF_pt-1e-2);
 	    }
 	}
     }
-  /********************************************************************/
-  else if(flav==4)
+    /********************************************************************/
+    else if(flav==4)
     { //charm mistag
-      int pt_bin = h_eff_c->GetXaxis()->FindBin(pt); if( pt_bin > h_eff_c->GetXaxis()->GetNbins() ) pt_bin = h_eff_c->GetXaxis()->GetNbins(); int eta_bin = h_eff_c->GetYaxis()->FindBin(eta); if ( eta_bin > h_eff_c->GetYaxis()->GetNbins() ) eta_bin = h_eff_c->GetYaxis()->GetNbins();
-      sfEffList[0] =h_eff_c->GetBinContent(pt_bin, eta_bin);
+        int pt_bin = h_eff_c->GetXaxis()->FindBin(pt); if( pt_bin > h_eff_c->GetXaxis()->GetNbins() ) pt_bin = h_eff_c->GetXaxis()->GetNbins(); int eta_bin = h_eff_c->GetYaxis()->FindBin(eta); if ( eta_bin > h_eff_c->GetYaxis()->GetNbins() ) eta_bin = h_eff_c->GetYaxis()->GetNbins();
+        sfEffList[0] =h_eff_c->GetBinContent(pt_bin, eta_bin);
 
-      sfEffList[1] = (ctagSFunc==0 ? reader.eval(BTagEntry::FLAV_C,eta,pt) :
-		      (ctagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_C,eta,pt) :
-		       readerDown.eval(BTagEntry::FLAV_C,eta,pt) ) );
-      if(pt > max_ctagSF_pt)
+        sfEffList[1] = (ctagSFunc==0 ? reader.eval(BTagEntry::FLAV_C,eta,pt) :
+                        (ctagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_C,eta,pt) :
+                         readerDown.eval(BTagEntry::FLAV_C,eta,pt) ) );
+        if(pt > max_ctagSF_pt)
 	{
-	  sfEffList[1] = 2*( (ctagSFunc==0 ? reader.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2) :
-			      (ctagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2) :
-			       readerDown.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2) ) ) - reader.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2)) + reader.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2);
+            sfEffList[1] = 2*( (ctagSFunc==0 ? reader.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2) :
+                                (ctagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2) :
+                                 readerDown.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2) ) ) - reader.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2)) + reader.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2);
 	}
-      if(fastsim)
+        if(fastsim)
 	{
-	  sfEffList[2] = (ctagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_C,eta,pt) :
-			  (ctagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_C,eta,pt) :
-			   readerFastDown.eval(BTagEntry::FLAV_C,eta,pt) ) );
+            sfEffList[2] = (ctagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_C,eta,pt) :
+                            (ctagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_C,eta,pt) :
+                             readerFastDown.eval(BTagEntry::FLAV_C,eta,pt) ) );
 
-	  if(pt > max_fastsim_ctagCF_pt)
+            if(pt > max_fastsim_ctagCF_pt)
 	    {
-	      sfEffList[2] = 2*( (ctagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_C,eta,max_fastsim_ctagCF_pt-1e-2) :
-				  (ctagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_C,eta,max_fastsim_ctagCF_pt-1e-2) :
-				   readerFastDown.eval(BTagEntry::FLAV_C,eta,max_fastsim_ctagCF_pt-1e-2) ) ) - readerFast.eval(BTagEntry::FLAV_C,eta,max_fastsim_ctagCF_pt-1e-2)) + readerFast.eval(BTagEntry::FLAV_C,eta,max_fastsim_ctagCF_pt-1e-2);
+                sfEffList[2] = 2*( (ctagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_C,eta,max_fastsim_ctagCF_pt-1e-2) :
+                                    (ctagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_C,eta,max_fastsim_ctagCF_pt-1e-2) :
+                                     readerFastDown.eval(BTagEntry::FLAV_C,eta,max_fastsim_ctagCF_pt-1e-2) ) ) - readerFast.eval(BTagEntry::FLAV_C,eta,max_fastsim_ctagCF_pt-1e-2)) + readerFast.eval(BTagEntry::FLAV_C,eta,max_fastsim_ctagCF_pt-1e-2);
 	    }
 	}
     }
-  /********************************************************************/
-  else if(flav<4 || flav==21)
+    /********************************************************************/
+    else if(flav<4 || flav==21)
     { //udsg mistag
-      int pt_bin = h_eff_udsg->GetXaxis()->FindBin(pt); if( pt_bin > h_eff_udsg->GetXaxis()->GetNbins() ) pt_bin = h_eff_udsg->GetXaxis()->GetNbins(); int eta_bin = h_eff_udsg->GetYaxis()->FindBin(eta); if ( eta_bin > h_eff_udsg->GetYaxis()->GetNbins() ) eta_bin = h_eff_udsg->GetYaxis()->GetNbins();
-      sfEffList[0] = h_eff_udsg->GetBinContent(pt_bin, eta_bin);
+        int pt_bin = h_eff_udsg->GetXaxis()->FindBin(pt); if( pt_bin > h_eff_udsg->GetXaxis()->GetNbins() ) pt_bin = h_eff_udsg->GetXaxis()->GetNbins(); int eta_bin = h_eff_udsg->GetYaxis()->FindBin(eta); if ( eta_bin > h_eff_udsg->GetYaxis()->GetNbins() ) eta_bin = h_eff_udsg->GetYaxis()->GetNbins();
+        sfEffList[0] = h_eff_udsg->GetBinContent(pt_bin, eta_bin);
 
-      sfEffList[1] = (mistagSFunc==0 ? reader.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-		      (mistagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-		       readerDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) );
-      //Apply double uncertainty if lightJet Pt is more than 1000 Gev.
-      if(pt > max_udsgSF_pt)
+        sfEffList[1] = (mistagSFunc==0 ? reader.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+                        (mistagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+                         readerDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) );
+        //Apply double uncertainty if lightJet Pt is more than 1000 Gev.
+        if(pt > max_udsgSF_pt)
 	{
-	  sfEffList[1] = 2*( (mistagSFunc==0 ? reader.eval(BTagEntry::FLAV_UDSG,eta,max_udsgSF_pt-1e-2) :
-			      (mistagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_UDSG,eta,max_udsgSF_pt-1e-2) :
-			       readerDown.eval(BTagEntry::FLAV_UDSG,eta,max_udsgSF_pt-1e-2) ) ) - reader.eval(BTagEntry::FLAV_UDSG,eta,max_udsgSF_pt-1e-2)) + reader.eval(BTagEntry::FLAV_UDSG,eta,max_udsgSF_pt-1e-2);
+            sfEffList[1] = 2*( (mistagSFunc==0 ? reader.eval(BTagEntry::FLAV_UDSG,eta,max_udsgSF_pt-1e-2) :
+                                (mistagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_UDSG,eta,max_udsgSF_pt-1e-2) :
+                                 readerDown.eval(BTagEntry::FLAV_UDSG,eta,max_udsgSF_pt-1e-2) ) ) - reader.eval(BTagEntry::FLAV_UDSG,eta,max_udsgSF_pt-1e-2)) + reader.eval(BTagEntry::FLAV_UDSG,eta,max_udsgSF_pt-1e-2);
 	}
-      if(fastsim)
+        if(fastsim)
 	{
-	  sfEffList[2] = (mistagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-			  (mistagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
-			   readerFastDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) );
-	  //Apply double uncertainty if Light jet Pt is more than 1000 Gev.
-	  if(pt > max_fastsim_udsgCF_pt)
+            sfEffList[2] = (mistagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+                            (mistagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
+                             readerFastDown.eval(BTagEntry::FLAV_UDSG,eta,pt) ) );
+            //Apply double uncertainty if Light jet Pt is more than 1000 Gev.
+            if(pt > max_fastsim_udsgCF_pt)
 	    {
-	      sfEffList[2] = 2*( (mistagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_UDSG,eta,max_fastsim_udsgCF_pt-1e-2) :
-				  (mistagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_UDSG,eta,max_fastsim_udsgCF_pt-1e-2) :
-				   readerFastDown.eval(BTagEntry::FLAV_UDSG,eta,max_fastsim_udsgCF_pt-1e-2) ) ) - readerFast.eval(BTagEntry::FLAV_UDSG,eta,max_fastsim_udsgCF_pt-1e-2)) + readerFast.eval(BTagEntry::FLAV_UDSG,eta,max_fastsim_udsgCF_pt-1e-2);
+                sfEffList[2] = 2*( (mistagCFunc==0 ? readerFast.eval(BTagEntry::FLAV_UDSG,eta,max_fastsim_udsgCF_pt-1e-2) :
+                                    (mistagCFunc==1 ? readerFastUp.eval(BTagEntry::FLAV_UDSG,eta,max_fastsim_udsgCF_pt-1e-2) :
+                                     readerFastDown.eval(BTagEntry::FLAV_UDSG,eta,max_fastsim_udsgCF_pt-1e-2) ) ) - readerFast.eval(BTagEntry::FLAV_UDSG,eta,max_fastsim_udsgCF_pt-1e-2)) + readerFast.eval(BTagEntry::FLAV_UDSG,eta,max_fastsim_udsgCF_pt-1e-2);
 	    }
 	}
     }
@@ -281,111 +281,111 @@ void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& s
 /***********************************************************************************/
 
 void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
-   {
+{
 
-     vector<TLorentzVector> inputJets = tr.getVec<TLorentzVector>("jetsLVec");
-     vector<double> recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
-     vector<int> recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
+    vector<TLorentzVector> inputJets = tr.getVec<TLorentzVector>("jetsLVec");
+    vector<double> recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
+    vector<int> recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
 
-     /*************************************************/
-     // Here we define which(up, down or central
-     // to be stored central = 0, up = 1 down = else
-     /*************************************************/
+    /*************************************************/
+    // Here we define which(up, down or central
+    // to be stored central = 0, up = 1 down = else
+    /*************************************************/
     
-     /*************************************************/
-     // Case 0: Central value;
-     /*************************************************/
+    /*************************************************/
+    // Case 0: Central value;
+    /*************************************************/
 
-     int switch_Unc = 0, switch_udsg_Unc = 0;
-     SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
-     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
-     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-     //Method 1a) ignoring b-tag status 
-     double evtWeightSimple_Central  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
-     // Method 1b) in different b-jet mullticipity bins.
-     vector<double> *evtWeightProb_Central = new vector<double>();
-     (*evtWeightProb_Central) = GetCorrections(&inputJets, &recoJetsFlavor);
-     //Register derived quantities to nTuples.
-     tr.registerDerivedVar("bTagSF_EventWeightSimple_Central", evtWeightSimple_Central);
-     //evtWeightProb[0] = probability of 0 Btags...... evtWeightProb[3] = probability of 3 Btags
-     //put event in each btag bin, weighted by evtWeightprob[0], evtWeightprob[1],
-     // evtWeightprob[2], evtWeightprob[3] for nb = 0, 1, 2, 3+
-     tr.registerDerivedVec("bTagSF_EventWeightProb_Central", evtWeightProb_Central);
-
-
-     /*************************************************/
-     // Case 1: Up  value;                            
-     /*************************************************/
-
-     switch_Unc = 1; switch_udsg_Unc = 0;
-     SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
-     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
-     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-     double evtWeightSimple_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
-     vector<double> *evtWeightProb_Up = new vector<double>();
-     (*evtWeightProb_Up) = GetCorrections(&inputJets, &recoJetsFlavor);
-     tr.registerDerivedVar("bTagSF_EventWeightSimple_Up", evtWeightSimple_Up);
-     tr.registerDerivedVec("bTagSF_EventWeightProb_Up", evtWeightProb_Up);
+    int switch_Unc = 0, switch_udsg_Unc = 0;
+    SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
+    SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
+    SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
+    //Method 1a) ignoring b-tag status 
+    double evtWeightSimple_Central  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    // Method 1b) in different b-jet mullticipity bins.
+    vector<double> *evtWeightProb_Central = new vector<double>();
+    (*evtWeightProb_Central) = GetCorrections(&inputJets, &recoJetsFlavor);
+    //Register derived quantities to nTuples.
+    tr.registerDerivedVar("bTagSF_EventWeightSimple_Central", evtWeightSimple_Central);
+    //evtWeightProb[0] = probability of 0 Btags...... evtWeightProb[3] = probability of 3 Btags
+    //put event in each btag bin, weighted by evtWeightprob[0], evtWeightprob[1],
+    // evtWeightprob[2], evtWeightprob[3] for nb = 0, 1, 2, 3+
+    tr.registerDerivedVec("bTagSF_EventWeightProb_Central", evtWeightProb_Central);
 
 
-     /*************************************************/
-     // Case -1:Down  value;                            
-     /*************************************************/
+    /*************************************************/
+    // Case 1: Up  value;                            
+    /*************************************************/
 
-     switch_Unc = -1; switch_udsg_Unc = 0;
-     SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
-     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
-     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-     double evtWeightSimple_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
-     vector<double> *evtWeightProb_Down = new vector<double>();
-     (*evtWeightProb_Down) = GetCorrections(&inputJets, &recoJetsFlavor);
-     tr.registerDerivedVar("bTagSF_EventWeightSimple_Down", evtWeightSimple_Down);
-     tr.registerDerivedVec("bTagSF_EventWeightProb_Down", evtWeightProb_Down);
+    switch_Unc = 1; switch_udsg_Unc = 0;
+    SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
+    SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
+    SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
+    double evtWeightSimple_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    vector<double> *evtWeightProb_Up = new vector<double>();
+    (*evtWeightProb_Up) = GetCorrections(&inputJets, &recoJetsFlavor);
+    tr.registerDerivedVar("bTagSF_EventWeightSimple_Up", evtWeightSimple_Up);
+    tr.registerDerivedVec("bTagSF_EventWeightProb_Up", evtWeightProb_Up);
+
+
+    /*************************************************/
+    // Case -1:Down  value;                            
+    /*************************************************/
+
+    switch_Unc = -1; switch_udsg_Unc = 0;
+    SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
+    SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
+    SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
+    double evtWeightSimple_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    vector<double> *evtWeightProb_Down = new vector<double>();
+    (*evtWeightProb_Down) = GetCorrections(&inputJets, &recoJetsFlavor);
+    tr.registerDerivedVar("bTagSF_EventWeightSimple_Down", evtWeightSimple_Down);
+    tr.registerDerivedVec("bTagSF_EventWeightProb_Down", evtWeightProb_Down);
 
    
-     /*************************************************/
-     // Mistag (udsg) Case 1: Up  value;                            
-     /*************************************************/
+    /*************************************************/
+    // Mistag (udsg) Case 1: Up  value;                            
+    /*************************************************/
 
-     switch_Unc = 0; switch_udsg_Unc = 1;
-     SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
-     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
-     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-     double evtWeightSimple_mistag_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
-     vector<double> *evtWeightProb_mistag_Up = new vector<double>();
-     (*evtWeightProb_Up) = GetCorrections(&inputJets, &recoJetsFlavor);
-     tr.registerDerivedVar("mistagSF_EventWeightSimple_Up", evtWeightSimple_mistag_Up);
-     tr.registerDerivedVec("mistagSF_EventWeightProb_Up", evtWeightProb_mistag_Up);
+    switch_Unc = 0; switch_udsg_Unc = 1;
+    SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
+    SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
+    SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
+    double evtWeightSimple_mistag_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    vector<double> *evtWeightProb_mistag_Up = new vector<double>();
+    (*evtWeightProb_Up) = GetCorrections(&inputJets, &recoJetsFlavor);
+    tr.registerDerivedVar("mistagSF_EventWeightSimple_Up", evtWeightSimple_mistag_Up);
+    tr.registerDerivedVec("mistagSF_EventWeightProb_Up", evtWeightProb_mistag_Up);
 
 
-     /*************************************************/
-     // Case -1:Down  value;                            
-     /*************************************************/
+    /*************************************************/
+    // Case -1:Down  value;                            
+    /*************************************************/
 
-     switch_Unc = 0; switch_udsg_Unc = -1;
-     SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
-     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
-     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-     double evtWeightSimple_mistag_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
-     vector<double> *evtWeightProb_mistag_Down = new vector<double>();
-     (*evtWeightProb_Down) = GetCorrections(&inputJets, &recoJetsFlavor);
-     tr.registerDerivedVar("mistagSF_EventWeightSimple_Down", evtWeightSimple_mistag_Down);
-     tr.registerDerivedVec("mistagSF_EventWeightProb_Down", evtWeightProb_mistag_Down);
+    switch_Unc = 0; switch_udsg_Unc = -1;
+    SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
+    SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
+    SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
+    double evtWeightSimple_mistag_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    vector<double> *evtWeightProb_mistag_Down = new vector<double>();
+    (*evtWeightProb_Down) = GetCorrections(&inputJets, &recoJetsFlavor);
+    tr.registerDerivedVar("mistagSF_EventWeightSimple_Down", evtWeightSimple_mistag_Down);
+    tr.registerDerivedVec("mistagSF_EventWeightProb_Down", evtWeightProb_mistag_Down);
 
-     /*************************************************/
-     // Example to use these variables are in
-     // https://github.com/humkies/bTag/blob/master/bTagScaleFactor.C#L151                                                                             
-     /*************************************************/
+    /*************************************************/
+    // Example to use these variables are in
+    // https://github.com/humkies/bTag/blob/master/bTagScaleFactor.C#L151                                                                             
+    /*************************************************/
 
-   }
+}
 
 
 
 /***********************************************************************************/
 void BTagCorrector::operator()(NTupleReader& tr)
 {
-  //
-  registerVarToNTuples(tr);
+    //
+    registerVarToNTuples(tr);
 }
 /***********************************************************************************/
 
