@@ -7,6 +7,7 @@
 #include <set>
 
 //#include "TChain.h"
+#include <iostream>
 
 namespace AnaSamples
 {
@@ -108,7 +109,7 @@ namespace AnaSamples
 
         void addSample(std::string tag, std::string filePath, std::string treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) 
         {
-            sampleSet_[tag] = FileSummary(tag, filePath, treePath, xsec, lumi, kfactor, nEvts, color);
+            sampleSet_[tag] = FileSummary(tag, filePath, treePath, xsec, lumi, nEvts, kfactor, color);
         }
 
         void addSample(std::string tag, std::string filePath, std::string treePath, double lumi, double kfactor, int color = kBlack) 
