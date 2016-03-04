@@ -41,9 +41,9 @@ public:
     inline void operator()(NTupleReader &tr) { passBaseline(tr); }
 };
 
-inline void passBaselineFunc(NTupleReader &tr)
+inline void passBaselineFunc(NTupleReader &tr, std::string filterstring)
 {
-  BaselineVessel blv;
+  BaselineVessel blv("", filterstring);
   blv.prepareTopTagger();
   blv.passBaseline(tr);
   blv.GetnTops(&tr);
