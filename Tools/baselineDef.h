@@ -219,6 +219,11 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         if( !passNoiseEventFilterFunc(tr) ) { passNoiseEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
         if( debug ) std::cout<<"passNoiseEventFilterFunc : "<<passNoiseEventFilterFunc(tr)<<"  passBaseline : "<<passBaseline<<std::endl;
 
+        // pass QCD high MET filter
+        bool passQCDHighMETFilter = true;
+        if( !passQCDHighMETFilterFunc(tr) ) { passQCDHighMETFilter = false; }
+        if( debug ) std::cout<<"passQCDHighMETFilter : "<< passQCDHighMETFilter <<"  passBaseline : "<<passBaseline<<std::endl;
+
         // Register all the calculated variables
         tr.registerDerivedVar("nMuons_CUT" + spec, nMuons);
         tr.registerDerivedVar("nElectrons_CUT" + spec, nElectrons);
@@ -250,6 +255,7 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         tr.registerDerivedVar("passHT" + spec, passHT);
         tr.registerDerivedVar("passTagger" + spec, passTagger);
         tr.registerDerivedVar("passNoiseEventFilter" + spec, passNoiseEventFilter);
+        tr.registerDerivedVar("passQCDHighMETFilter" + spec, passQCDHighMETFilter);
         tr.registerDerivedVar("passBaseline" + spec, passBaseline);
         tr.registerDerivedVar("passBaselineNoTagMT2" + spec, passBaselineNoTagMT2);
         tr.registerDerivedVar("passBaselineNoTag" + spec, passBaselineNoTag);
@@ -332,6 +338,24 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
             }
         }
         return true;
+    }
+
+    bool passQCDHighMETFilterFunc(NTupleReader &tr)
+    {
+      std::vector<TLorentzVector> jetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+      std::vector<double> recoJetsmuonEnergyFraction = tr.getVec<double>("recoJetsmuonEnergyFraction");
+      double metphi = tr.getVar<double>("metphi");
+
+      int nJetsLoop = recoJetsmuonEnergyFraction.size();
+      std::vector<double> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metphi, nJetsLoop, AnaConsts::dphiArr);
+
+      for(int i=0; i<nJetsLoop ; i++)
+      {
+        double thisrecoJetsmuonenergy = recoJetsmuonEnergyFraction.at(i)*(jetsLVec.at(i)).Pt();
+        if( (recoJetsmuonEnergyFraction.at(i)>0.5) && (thisrecoJetsmuonenergy>200) && (std::abs(dPhisVec.at(i)-3.1416)<0.4) ) return false;
+      }
+
+      return true;
     }
 
     void operator()(NTupleReader &tr)
