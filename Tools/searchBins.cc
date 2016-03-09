@@ -28,11 +28,11 @@ bool SearchBins::searchBinDef::compare(const int ibJet, const int iTop, const do
 
 SearchBins::SearchBins(std::string binEra)
 {
-    if(binEra.compare("SB_37_2015") != 0)
+    if(binEra.compare("SB_37_2015") == 0)
     {
         SearchBins_37_2015();
     }
-    else if(binEra.compare("SB_45_2015") != 0)
+    else if(binEra.compare("SB_45_2015") == 0)
     {
         SearchBins_45_2015();
     }
