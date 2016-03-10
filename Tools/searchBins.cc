@@ -217,38 +217,60 @@ void SearchBins::print_searchBins_latex(const std::vector<double>& prediction, c
 }
 
 // Function to draw the signal bin definition
-void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yields, const bool logscale)
-{
+void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yields, const bool logscale){
+    int NSB = 37;
 
     const double adjHalfBin = 0.5;
+    const double deltaY = ymax_Yields - ymin_Yields;
     //-----------------------------------------------------------
     // Putting lines and labels explaining search region definitions
     //-----------------------------------------------------------
     // Ntop separation lines
     TLine *tl_ntop = new TLine();
     tl_ntop->SetLineStyle(2);
-    tl_ntop->DrawLine(23.5 + adjHalfBin,ymin_Yields,23.5 + adjHalfBin,ymax_Yields);
-    tl_ntop->DrawLine(41.5 + adjHalfBin,ymin_Yields,41.5 + adjHalfBin,ymax_Yields);
-
+    if(NSB == 45)
+    {
+        tl_ntop->DrawLine(23.5 + adjHalfBin,ymin_Yields,23.5 + adjHalfBin,ymax_Yields);
+        tl_ntop->DrawLine(41.5 + adjHalfBin,ymin_Yields,41.5 + adjHalfBin,ymax_Yields);
+    } 
+    else if(NSB == 37)
+    {
+        tl_ntop->DrawLine(20.5 + adjHalfBin,ymin_Yields,20.5 + adjHalfBin,ymax_Yields);
+    }
     // Ntop labels
     TLatex * ttext_ntop = new TLatex();
     ttext_ntop->SetTextFont(42);
-    ttext_ntop->SetTextSize(0.06);
+    ttext_ntop->SetTextSize(0.045);
     ttext_ntop->SetTextAlign(22);
     if(logscale)
-    
     {
-        ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields/1.8 ,"N_{top} = 1");
-        ttext_ntop->DrawLatex(35.5 + adjHalfBin, ymax_Yields/35. ,"N_{top} = 2");
-        ttext_ntop->SetTextAngle(90.);
-        ttext_ntop->DrawLatex(43. + adjHalfBin, ymax_Yields/15. ,"N_{top} #geq 3");
-    } 
+        if(NSB == 45)
+        {
+            ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields/1.8 ,"N_{top} = 1");
+            ttext_ntop->DrawLatex(35.5 + adjHalfBin, ymax_Yields/35. ,"N_{top} = 2");
+            ttext_ntop->SetTextAngle(90.);
+            ttext_ntop->DrawLatex(43. + adjHalfBin, ymax_Yields/15. ,"N_{top} #geq 3"); 
+        } 
+        else if (NSB == 37)
+        {
+            ttext_ntop->DrawLatex(10 + adjHalfBin, ymax_Yields/1.8 ,"N_{top} = 1");
+            ttext_ntop->DrawLatex(29.5 + adjHalfBin, ymax_Yields/35. ,"N_{top} #geq 2");
+        }
+    }
     else
     {
-        ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields*0.92 ,"N_{top} = 1");
-        ttext_ntop->DrawLatex(35.5 + adjHalfBin, ymax_Yields*0.92 ,"N_{top} = 2");
-        ttext_ntop->SetTextAngle(90.);
-        ttext_ntop->DrawLatex(43. + adjHalfBin, ymax_Yields*0.85 ,"N_{top} #geq 3");
+        if(NSB == 45)
+        {
+            ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{top} = 1");
+            ttext_ntop->DrawLatex(35.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{top} = 2");
+            ttext_ntop->SetTextAngle(90.);
+            ttext_ntop->DrawLatex(43. + adjHalfBin, ymax_Yields*0.85 ,"N_{top} #geq 3");
+        }
+        else if(NSB == 37)
+        {
+            ttext_ntop->DrawLatex(10 + adjHalfBin, ymax_Yields*0.93 ,"N_{top} = 1");
+            ttext_ntop->DrawLatex(29.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{top} #geq 2");
+        }
     }
 
     // Nb separation lines
@@ -257,43 +279,68 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
     tl_nb->SetLineColor(32);
     if(logscale)
     {
-        tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields/4.);
-        tl_nb->DrawLine(20.5 + adjHalfBin,ymin_Yields,20.5 + adjHalfBin,ymax_Yields/4.);
-        tl_nb->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/40.);
-        tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields/40.);
-        tl_nb->DrawLine(42.5 + adjHalfBin,ymin_Yields,42.5 + adjHalfBin,ymax_Yields/40.);
-        tl_nb->DrawLine(43.5 + adjHalfBin,ymin_Yields,43.5 + adjHalfBin,ymax_Yields/40.);
-    } 
+        if(NSB == 45)
+        {
+            tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields/4.);
+            tl_nb->DrawLine(20.5 + adjHalfBin,ymin_Yields,20.5 + adjHalfBin,ymax_Yields/4.);
+            tl_nb->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/40.);
+            tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields/40.);
+            tl_nb->DrawLine(42.5 + adjHalfBin,ymin_Yields,42.5 + adjHalfBin,ymax_Yields/40.);
+            tl_nb->DrawLine(43.5 + adjHalfBin,ymin_Yields,43.5 + adjHalfBin,ymax_Yields/40.);
+        }
+        else if (NSB == 37)
+        {
+            tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields/4.);
+            tl_nb->DrawLine(28.5 + adjHalfBin,ymin_Yields,28.5 + adjHalfBin,ymax_Yields/40.);
+        }
+    }
     else
     {
-        tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields*0.8);
-        tl_nb->DrawLine(20.5 + adjHalfBin,ymin_Yields,20.5 + adjHalfBin,ymax_Yields*0.8);
-        tl_nb->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields*0.8);
-        tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields*0.8);
-        tl_nb->DrawLine(42.5 + adjHalfBin,ymin_Yields,42.5 + adjHalfBin,ymax_Yields*0.8);
-        tl_nb->DrawLine(43.5 + adjHalfBin,ymin_Yields,43.5 + adjHalfBin,ymax_Yields*0.8);
+        if(NSB == 45)
+        {
+            tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields*0.8);
+            tl_nb->DrawLine(20.5 + adjHalfBin,ymin_Yields,20.5 + adjHalfBin,ymax_Yields*0.8);
+            tl_nb->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields*0.8);
+            tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields*0.8);
+            tl_nb->DrawLine(42.5 + adjHalfBin,ymin_Yields,42.5 + adjHalfBin,ymax_Yields*0.8);
+            tl_nb->DrawLine(43.5 + adjHalfBin,ymin_Yields,43.5 + adjHalfBin,ymax_Yields*0.8);
+        } 
+        else if (NSB == 37)
+        {
+            tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields*0.8);
+            tl_nb->DrawLine(28.5 + adjHalfBin,ymin_Yields,28.5 + adjHalfBin,ymax_Yields*0.8);
+        }
     }
     // Nb labels
     TLatex * ttext2 = new TLatex();
     ttext2->SetTextFont(42);
-    ttext2->SetTextColor(32);
-    ttext2->SetTextSize(0.05);
+    //ttext2->SetTextColor(32);
+    ttext2->SetTextColor(kBlack);
+    ttext2->SetTextSize(0.045);
     ttext2->SetTextAlign(22);
     ttext2->Draw();
 
     if(logscale)
     {
-        ttext2->DrawLatex( 4.5 + adjHalfBin, ymax_Yields/3., "N_{b} = 1");
-        ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields/3., "N_{b} = 2");
-        ttext2->SetTextAngle(90.);
-        ttext2->DrawLatex(21.5 + adjHalfBin, ymax_Yields/3. , "N_{b} #geq 3");
+        ttext2->DrawLatex( 4.5 + adjHalfBin, ymax_Yields/5., "N_{b} = 1");
+        if(NSB == 37) ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields/3., "N_{b} #geq 2");
+        else if(NSB == 45)
+        {
+            ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields/5., "N_{b} = 2");
+            ttext2->SetTextAngle(90.);
+            ttext2->DrawLatex(21.5  + adjHalfBin, ymax_Yields/5. , "N_{b} #geq 3");
+        }
     } 
     else
     {
-        ttext2->DrawLatex( 4.5 + adjHalfBin, ymax_Yields*0.8, "N_{b} = 1");
-        ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields*0.8, "N_{b} = 2");
-        ttext2->SetTextAngle(90.);
-        ttext2->DrawLatex(21.5 + adjHalfBin + 0.5, ymax_Yields*0.8, "N_{b} #geq 3");
+        ttext2->DrawLatex( 4.5 + adjHalfBin, ymax_Yields*0.87, "N_{b} = 1");
+        if(NSB == 37) ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields*0.87, "N_{b} #geq 2");
+        else if(NSB == 45)
+        {
+            ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields*0.87, "N_{b} = 2");
+            ttext2->SetTextAngle(90.);
+            ttext2->DrawLatex(21.5 + adjHalfBin + 0.5, ymax_Yields*0.87, "N_{b} #geq 3");
+        }
     }
     // MT2 separation lines
     TLine *tl_mt2 = new TLine();
@@ -305,44 +352,62 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
         tl_mt2->DrawLine(7.5 + adjHalfBin,ymin_Yields,7.5 + adjHalfBin,ymax_Yields/20.);
         tl_mt2->DrawLine(14.5 + adjHalfBin,ymin_Yields,14.5 + adjHalfBin,ymax_Yields/20.);
         tl_mt2->DrawLine(18.5 + adjHalfBin,ymin_Yields,18.5 + adjHalfBin,ymax_Yields/20.);
-       
-        tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields/80.);
-        tl_mt2->DrawLine(29.5 + adjHalfBin,ymin_Yields,29.5 + adjHalfBin,ymax_Yields/80.);
-        tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields/80.);
-        tl_mt2->DrawLine(37.5 + adjHalfBin,ymin_Yields,37.5 + adjHalfBin,ymax_Yields/80.);
-    }
+        if(NSB == 45)
+        {
+            tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields/80.);
+            tl_mt2->DrawLine(29.5 + adjHalfBin,ymin_Yields,29.5 + adjHalfBin,ymax_Yields/80.);
+            tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields/80.);
+            tl_mt2->DrawLine(37.5 + adjHalfBin,ymin_Yields,37.5 + adjHalfBin,ymax_Yields/80.);
+        } 
+        else if(NSB == 37)
+        {
+            tl_mt2->DrawLine(23.5 + adjHalfBin,ymin_Yields,23.5 + adjHalfBin,ymax_Yields/80.);
+            tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields/80.);
+            tl_mt2->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/80.);
+            tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields/80.);
+        }
+    } 
     else
     {
-        tl_mt2->DrawLine(3.5 + adjHalfBin,ymin_Yields,3.5 + adjHalfBin,ymax_Yields*0.6);
-        tl_mt2->DrawLine(7.5 + adjHalfBin,ymin_Yields,7.5 + adjHalfBin,ymax_Yields*0.6);
-        tl_mt2->DrawLine(14.5 + adjHalfBin,ymin_Yields,14.5 + adjHalfBin,ymax_Yields*0.6);
-        tl_mt2->DrawLine(18.5 + adjHalfBin,ymin_Yields,18.5 + adjHalfBin,ymax_Yields*0.6);
-       
-        tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields*0.6);
-        tl_mt2->DrawLine(29.5 + adjHalfBin,ymin_Yields,29.5 + adjHalfBin,ymax_Yields*0.6);
-        tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields*0.6);
-        tl_mt2->DrawLine(37.5 + adjHalfBin,ymin_Yields,37.5 + adjHalfBin,ymax_Yields*0.6);
+        tl_mt2->DrawLine( 3.5 + adjHalfBin, ymin_Yields,  3.5 + adjHalfBin, ymax_Yields*0.6);
+        tl_mt2->DrawLine( 7.5 + adjHalfBin, ymin_Yields,  7.5 + adjHalfBin, ymax_Yields*0.6);
+        tl_mt2->DrawLine(14.5 + adjHalfBin, ymin_Yields, 14.5 + adjHalfBin, ymax_Yields*0.6);
+        tl_mt2->DrawLine(18.5 + adjHalfBin, ymin_Yields, 18.5 + adjHalfBin, ymax_Yields*0.6);
+        if(NSB == 45)
+        {       
+            tl_mt2->DrawLine(26.5 + adjHalfBin, ymin_Yields, 26.5 + adjHalfBin, ymax_Yields*0.6);
+            tl_mt2->DrawLine(29.5 + adjHalfBin, ymin_Yields, 29.5 + adjHalfBin, ymax_Yields*0.6);
+            tl_mt2->DrawLine(34.5 + adjHalfBin, ymin_Yields, 34.5 + adjHalfBin, ymax_Yields*0.6);
+            tl_mt2->DrawLine(37.5 + adjHalfBin, ymin_Yields, 37.5 + adjHalfBin, ymax_Yields*0.6);
+        } 
+        else if(NSB == 37)
+        {
+            tl_mt2->DrawLine(23.5 + adjHalfBin, ymin_Yields, 23.5 + adjHalfBin, ymax_Yields*0.6);
+            tl_mt2->DrawLine(26.5 + adjHalfBin, ymin_Yields, 26.5 + adjHalfBin, ymax_Yields*0.6);
+            tl_mt2->DrawLine(31.5 + adjHalfBin, ymin_Yields, 31.5 + adjHalfBin, ymax_Yields*0.6);
+            tl_mt2->DrawLine(34.5 + adjHalfBin, ymin_Yields, 34.5 + adjHalfBin, ymax_Yields*0.6);
+        }
     }
     // MT2 labels
     TLatex * ttextmt2 = new TLatex();
     ttextmt2->SetTextFont(42);
-    ttextmt2->SetTextColor(49);
-    ttextmt2->SetTextSize(0.02);
-    ttextmt2->SetTextAlign(22);
+    //ttextmt2->SetTextColor(49);
+    ttextmt2->SetTextColor(kBlack);
+    ttextmt2->SetTextSize(0.040);
+    ttextmt2->SetTextAlign(12);
     ttextmt2->SetTextAngle(90);
     if(logscale)
     {
-        ttextmt2->DrawLatex( 1.5 + adjHalfBin, ymax_Yields/10. , "M_{T2}=[200,300]");
-        ttextmt2->DrawLatex( 5.0 + adjHalfBin, ymax_Yields/10. , "M_{T2}=[300,400]");
-        ttextmt2->DrawLatex(8.5 + adjHalfBin, ymax_Yields/10. , "M_{T2}#geq400");
-    }
+        ttextmt2->DrawLatex( 2.0, ymax_Yields/25. , "M_{T2}=[200,300]");
+        ttextmt2->DrawLatex( 6.0, ymax_Yields/25. , "M_{T2}=[300,400]");
+        ttextmt2->DrawLatex( 9.5, ymax_Yields/25. , "M_{T2}#geq400 GeV");
+    } 
     else
     {
-        ttextmt2->DrawLatex( 1.5 + adjHalfBin, ymax_Yields*0.55 , "M_{T2}=[200,300]");
-        ttextmt2->DrawLatex( 5.0 + adjHalfBin, ymax_Yields*0.55 , "M_{T2}=[300,400]");
-        ttextmt2->DrawLatex(8.5 + adjHalfBin, ymax_Yields*0.55 , "M_{T2}#geq400");
+        ttextmt2->DrawLatex( 2.0, deltaY*0.52 + ymin_Yields , "M_{T2}=[200,300]");
+        ttextmt2->DrawLatex( 6.0, deltaY*0.52 + ymin_Yields , "M_{T2}=[300,400]");
+        ttextmt2->DrawLatex( 9.5, deltaY*0.52 + ymin_Yields , "M_{T2}#geq400 GeV");
     }
-    //-----------------------------------------------------------
 }
 
 
