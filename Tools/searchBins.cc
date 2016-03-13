@@ -254,7 +254,7 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
         else if (NSB == 37)
         {
             ttext_ntop->DrawLatex(10 + adjHalfBin, ymax_Yields/1.8 ,"N_{top} = 1");
-            ttext_ntop->DrawLatex(29.5 + adjHalfBin, ymax_Yields/35. ,"N_{top} #geq 2");
+            ttext_ntop->DrawLatex(29.5 + adjHalfBin, ymax_Yields/70. ,"N_{top} #geq 2");
         }
     }
     else
@@ -291,7 +291,7 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
         else if (NSB == 37)
         {
             tl_nb->DrawLine(10.5 + adjHalfBin,ymin_Yields,10.5 + adjHalfBin,ymax_Yields/4.);
-            tl_nb->DrawLine(28.5 + adjHalfBin,ymin_Yields,28.5 + adjHalfBin,ymax_Yields/40.);
+            tl_nb->DrawLine(28.5 + adjHalfBin,ymin_Yields,28.5 + adjHalfBin,ymax_Yields/160.);
         }
     }
     else
@@ -322,13 +322,13 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
 
     if(logscale)
     {
-        ttext2->DrawLatex( 4.5 + adjHalfBin, ymax_Yields/5., "N_{b} = 1");
-        if(NSB == 37) ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields/3., "N_{b} #geq 2");
+        ttext2->DrawLatex( 4.5 + adjHalfBin, ymax_Yields/3.5, "N_{b} = 1");
+        if(NSB == 37) ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields/3.5, "N_{b} #geq 2");
         else if(NSB == 45)
         {
-            ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields/5., "N_{b} = 2");
+            ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields/3.5, "N_{b} = 2");
             ttext2->SetTextAngle(90.);
-            ttext2->DrawLatex(21.5  + adjHalfBin, ymax_Yields/5. , "N_{b} #geq 3");
+            ttext2->DrawLatex(21.5  + adjHalfBin, ymax_Yields/3.5 , "N_{b} #geq 3");
         }
     } 
     else
@@ -361,10 +361,10 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
         } 
         else if(NSB == 37)
         {
-            tl_mt2->DrawLine(23.5 + adjHalfBin,ymin_Yields,23.5 + adjHalfBin,ymax_Yields/80.);
-            tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields/80.);
-            tl_mt2->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/80.);
-            tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields/80.);
+            tl_mt2->DrawLine(23.5 + adjHalfBin,ymin_Yields,23.5 + adjHalfBin,ymax_Yields/320.);
+            tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields/320.);
+            tl_mt2->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/320.);
+            tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields/320.);
         }
     } 
     else
@@ -398,9 +398,9 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
     ttextmt2->SetTextAngle(90);
     if(logscale)
     {
-        ttextmt2->DrawLatex( 2.0, ymax_Yields/25. , "M_{T2}=[200,300]");
-        ttextmt2->DrawLatex( 6.0, ymax_Yields/25. , "M_{T2}=[300,400]");
-        ttextmt2->DrawLatex( 9.5, ymax_Yields/25. , "M_{T2}#geq400 GeV");
+        ttextmt2->DrawLatex( 2.0, ymax_Yields/200. , "M_{T2}=[200,300]");
+        ttextmt2->DrawLatex( 6.0, ymax_Yields/200. , "M_{T2}=[300,400]");
+        ttextmt2->DrawLatex( 9.5, ymax_Yields/200. , "M_{T2}#geq400 GeV");
     } 
     else
     {
