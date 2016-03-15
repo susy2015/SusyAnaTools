@@ -394,8 +394,8 @@ process.mhtPFchsFilter = process.mhtFilter.clone()
 process.mhtPFchsFilter.MHTSource = cms.InputTag("mhtPFchs")
 
 #MT2
-process.load("SusyAnaTools.Skims.mt2Producer_cfi")
-#process.load("SusyAnaTools.Skims.mt2Filter_cfi")
+process.load("SusyAnaTools.SkimsAUX.mt2Producer_cfi")
+#process.load("SusyAnaTools.SkimsAUX.mt2Filter_cfi")
 process.mt2PFchs = process.mt2.clone()
 process.mt2PFchs.JetTag = cms.InputTag("ak4patJetsPFchsPt30")
 process.mt2PFchs.METTag = cms.InputTag("slimmedMETs")
@@ -521,7 +521,7 @@ else:
 process.jetsMETDPhiFilter.dPhiCuts = cms.untracked.vdouble(0.5, 0.5, 0.3)
 
 process.stopCount1BJets = process.stopCountBJets.clone()
-process.stopCount1BJets.minNumber = cms.uint32(100)
+process.stopCount1BJets.minNumber = cms.uint32(1)
 
 process.stopCount2BJets = process.stopCountBJets.clone()
 process.stopCount2BJets.minNumber = cms.uint32(2)
@@ -887,7 +887,14 @@ if options.specialFix == "JEC" and options.cmsswVersion == "74X":
    process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
 
    process.type3topTagger.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-   
+
+   process.patJetsReapplyJECPt30 = process.selectedPatJetsRA2.clone()
+   process.patJetsReapplyJECPt30.jetSrc = cms.InputTag("patJetsReapplyJEC")
+   process.patJetsReapplyJECPt30.pfJetCut = cms.string('pt >= 30')
+
+   process.mt2PFchs.JetTag = cms.InputTag("patJetsReapplyJECPt30")
+   process.mt2PFchs.METTag = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+
 ###-- Dump config ------------------------------------------------------------
 if options.debug:
    file = open('allDump_cfg.py','w')
