@@ -393,6 +393,14 @@ process.mhtPFchs.JetCollection = cms.InputTag("ak4patJetsPFchsPt30")
 process.mhtPFchsFilter = process.mhtFilter.clone()
 process.mhtPFchsFilter.MHTSource = cms.InputTag("mhtPFchs")
 
+#MT2
+process.load("SusyAnaTools.SkimsAUX.mt2Producer_cfi")
+#process.load("SusyAnaTools.SkimsAUX.mt2Filter_cfi")
+process.mt2PFchs = process.mt2.clone()
+process.mt2PFchs.JetTag = cms.InputTag("ak4patJetsPFchsPt30")
+process.mt2PFchs.METTag = cms.InputTag("slimmedMETs")
+
+
 # Delta Phi
 process.load("SusyAnaTools.Skims.jetMHTDPhiFilter_cfi")
 
@@ -757,6 +765,8 @@ process.stopTreeMaker.varsIntNamesInTree.extend(["prodIsoTrks:loosenIsoTrks|loos
 
 process.stopTreeMaker.varsDouble.extend([cms.InputTag("ak4stopmhtPFchs:mht"), cms.InputTag("ak4stopmhtPFchs:mhtphi")])
 
+process.stopTreeMaker.varsDouble.append(cms.InputTag("mt2PFchs:mt2"))
+
 process.stopTreeMaker.varsDouble.append(cms.InputTag("ak4stophtPFchs"))
 process.stopTreeMaker.varsDoubleNamesInTree.append("ak4stophtPFchs|ht")
 
@@ -877,7 +887,14 @@ if options.specialFix == "JEC" and options.cmsswVersion == "74X":
    process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
 
    process.type3topTagger.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-   
+
+   process.patJetsReapplyJECPt30 = process.selectedPatJetsRA2.clone()
+   process.patJetsReapplyJECPt30.jetSrc = cms.InputTag("patJetsReapplyJEC")
+   process.patJetsReapplyJECPt30.pfJetCut = cms.string('pt >= 30')
+
+   process.mt2PFchs.JetTag = cms.InputTag("patJetsReapplyJECPt30")
+   process.mt2PFchs.METTag = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+
 ###-- Dump config ------------------------------------------------------------
 if options.debug:
    file = open('allDump_cfg.py','w')
