@@ -1,0 +1,7 @@
+mkdir Signal_fastsim_T2tt_scan
+cd Signal_fastsim_T2tt_scan
+ln -s ../condorSubmit.py .
+ln -s ../goScan.sh .
+ln -s ../samples.py .
+./condorSubmit.py -d Signal_fastsim_T2tt_scan -n 2;
+cd ../ 

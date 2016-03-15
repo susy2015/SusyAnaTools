@@ -1,0 +1,1 @@
+hadd signalScan_SMS-T2tt.root Signal_fastsim_T2tt_scan/signalScan_SMS-T2tt*.root

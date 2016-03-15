@@ -12,6 +12,8 @@
 #include <string>
 #include <functional>
 
+#include <iostream>
+
 class MiniTupleMaker
 {
 public:
@@ -28,24 +30,20 @@ public:
 
 private:
     TTree* const tree_;
-    std::map<std::string, std::pair<void *, std::function<void()>>> tupleVars_;
-    std::vector<std::function<void()>> cleanupVec_;
+    std::set<std::string> tupleVars_;
 
-    template<typename T> void prepVar(const NTupleReader& tr, const std::string& name, std::pair<void *, std::function<void()>>& vs)
+    template<typename T> void prepVar(const NTupleReader& tr, const std::string& name)
     {
-        vs.first = new T;
-        vs.second = std::bind(copyVar<T>, tr.getPtr(name), vs.first);
-        cleanupVec_.emplace_back(std::bind(cleanup<T>, vs.first));
+        TBranch *tb = tree_->GetBranch(name.c_str());
+        if(!tb) tree_->Branch(name.c_str(), static_cast<T*>(const_cast<void*>(tr.getPtr(name))));
+        else       tb->SetAddress(const_cast<void*>(tr.getPtr(name)));
     }
 
-    template<typename T> static void copyVar(const void* tupleVar, void* miniTupleVar)
+    template<typename T> void prepVec(const NTupleReader& tr, const std::string& name)
     {
-        *static_cast<T*>(miniTupleVar) = *static_cast<const T*>(tupleVar);
-    }
-
-    template<typename T> static void cleanup(void* miniTupleVar)
-    {
-        if(miniTupleVar) delete static_cast<T*>(miniTupleVar);
+        TBranch *tb = tree_->GetBranch(name.c_str());
+        if(!tb) tree_->Branch(name.c_str(), static_cast<std::vector<T>**>(const_cast<void*>(tr.getVecPtr(name))));
+        else       tb->SetAddress(const_cast<void*>(tr.getVecPtr(name)));
     }
 };
 

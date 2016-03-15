@@ -108,7 +108,7 @@ namespace AnaConsts{
                                                   "recoJetsBtag_0_LepCleaned", "jetsLVecLepCleaned",
 						  "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedHadronEnergyFraction", "recoJetsmuonEnergyFraction",
 //                                                  "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "CSCTightHaloFilter", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter",
-                                                  "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter", "goodVerticesFilter", "eeBadScFilter", "eeBadScListFilter", "CSCTightHaloListFilter",
+                                                  "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter", "goodVerticesFilter", "eeBadScFilter", "eeBadScListFilter", "CSCTightHaloListFilter", "badResolutionTrackListFilter", "muonBadTrackListFilter",
                                                   "TriggerNames", "PassTrigger", "TriggerPrescales", 
                                                   "stored_weight" 
                                                 };
@@ -119,7 +119,9 @@ namespace AnaConsts{
                                                   "W_emuVec", "W_tau_emuVec", "W_tau_prongsVec", "W_tau_nuVec",
                                                   "genHT", "PDFweights", "PDFids",
                                                   "id1", "id2", "x1", "x2", "q",
-                                                  "W_emu_pfActivityVec", "W_tau_emu_pfActivityVec", "W_tau_prongs_pfActivityVec", "ScaleWeightsMiniAOD"
+                                                  "W_emu_pfActivityVec", "W_tau_emu_pfActivityVec", "W_tau_prongs_pfActivityVec", "ScaleWeightsMiniAOD",
+                                                  "recoJetsJecUncLepCleaned", "metMagUp", "metMagDown", "metPhiUp", "metPhiDown",
+                                                  "SusyMotherMass", "SusyLSPMass", "recoJetsFlavor"
                                                 };
 
 }
@@ -332,6 +334,28 @@ namespace AnaFunctions{
       return cntNIsoTrks;
    }
 
+   int countIsoLepTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<double> &isoTrksIso, const std::vector<double> &isoTrksMtw, const std::vector<int> &isoTrkspdgId){
+
+      int cntNIsoTrks = 0;
+      for(unsigned int is=0; is<isoTrksLVec.size(); is++){
+         if( std::abs(isoTrkspdgId[is]) == 11 || std::abs(isoTrkspdgId[is]) == 13 ){
+            if( passIsoTrk(isoTrksLVec[is], isoTrksIso[is], isoTrksMtw[is], AnaConsts::isoLepTrksArr ) ) cntNIsoTrks ++;
+         }
+      }
+      return cntNIsoTrks;
+   }
+
+   int countIsoPionTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<double> &isoTrksIso, const std::vector<double> &isoTrksMtw, const std::vector<int> &isoTrkspdgId){
+
+      int cntNIsoTrks = 0;
+      for(unsigned int is=0; is<isoTrksLVec.size(); is++){
+         if( std::abs(isoTrkspdgId[is]) == 211 ){
+            if( passIsoTrk(isoTrksLVec[is], isoTrksIso[is], isoTrksMtw[is], AnaConsts::isoHadTrksArr ) ) cntNIsoTrks ++;
+         }
+      }
+      return cntNIsoTrks;
+   }
+
    void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger){
 
       jetsLVec_forTagger.clear(); recoJetsBtag_forTagger.clear();
@@ -390,6 +414,27 @@ namespace AnaFunctions{
          }
       }
       return ht;
+   }
+
+   TLorentzVector calcMHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr){
+
+      const double minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
+
+      TLorentzVector mhtLVec;
+      for(unsigned int ij=0; ij<inputJets.size(); ij++){
+         double perjetpt = inputJets[ij].Pt(), perjeteta = inputJets[ij].Eta();
+         if(   ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
+            && ( maxAbsEta == -1 || fabs(perjeteta) < maxAbsEta )
+            && (     minPt == -1 || perjetpt >= minPt )
+            && (     maxPt == -1 || perjetpt < maxPt ) ){
+
+            TLorentzVector tmpLVec;
+            tmpLVec.SetPtEtaPhiM( inputJets[ij].Pt(), 0, inputJets[ij].Phi(), 0 );
+            mhtLVec -= tmpLVec;
+         }
+      }
+
+      return mhtLVec;
    }
 
    bool passBaseline(){
