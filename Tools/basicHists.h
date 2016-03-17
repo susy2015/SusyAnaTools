@@ -56,6 +56,7 @@ std::vector<TH1D*> h1_scaleUncNominal_searchBinYieldsVec, h1_scaleUncUp_searchBi
 std::vector<TH1D*> h1_pdfUncCentral_searchBinYieldsVec, h1_pdfUncUp_searchBinYieldsVec, h1_pdfUncDown_searchBinYieldsVec;
 
 std::vector<TH2D*> h2_MT2_vs_met_baselineVec;
+std::vector<TH2D*> h2_MT2_vs_met_looseVec, h2_alt_MT2_vs_met_looseVec, h2_MT2_vs_alt_MT2_looseVec;
 
 void declHistPerSample(const std::string &sampleKeyString){
 
@@ -79,7 +80,7 @@ void declHistPerSample(const std::string &sampleKeyString){
 
   TH1D * h1_nJets_loose = new TH1D(sampleKeyStringT+"_h1_nJets_loose", sampleKeyStringT+": nJets after loose; nJets", 14, 0, 14); h1_nJets_loose->Sumw2(); h1_nJets_looseVec.push_back((TH1D*)h1_nJets_loose->Clone());
   TH1D * h1_nbJets_loose = new TH1D(sampleKeyStringT+"_h1_nbJets_loose", sampleKeyStringT+": nbJets after loose; nbJets", 5, 0, 5); h1_nbJets_loose->Sumw2(); h1_nbJets_looseVec.push_back((TH1D*)h1_nbJets_loose->Clone());
-  TH1D * h1_nTops_loose = new TH1D(sampleKeyStringT+"_h1_nTops_loose", sampleKeyStringT+": nTops after loose; nTops", 4, 0, 4); h1_nTops_loose->Sumw2(); h1_nTops_looseVec.push_back((TH1D*)h1_nTops_loose->Clone());
+  TH1D * h1_nTops_loose = new TH1D(sampleKeyStringT+"_h1_nTops_loose", sampleKeyStringT+": nTops after loose; nTops", 5, 0, 5); h1_nTops_loose->Sumw2(); h1_nTops_looseVec.push_back((TH1D*)h1_nTops_loose->Clone());
 
   TH1D * h1_met_loose = new TH1D(sampleKeyStringT+"_h1_met_loose", sampleKeyStringT+": met after loose; met (GeV)", 100, 0, 1000); h1_met_loose->Sumw2(); h1_met_looseVec.push_back((TH1D*)h1_met_loose->Clone());
   TH1D * h1_MT2_loose = new TH1D(sampleKeyStringT+"_h1_MT2_loose", sampleKeyStringT+": MT2 after loose; MT2 (GeV)", 100, 0, 1000); h1_MT2_loose->Sumw2(); h1_MT2_looseVec.push_back((TH1D*)h1_MT2_loose->Clone());
@@ -117,7 +118,7 @@ void declHistPerSample(const std::string &sampleKeyString){
 
   TH1D * h1_nJets_baseline = new TH1D(sampleKeyStringT+"_h1_nJets_baseline", sampleKeyStringT+": nJets after baseline; nJets", 14, 0, 14); h1_nJets_baseline->Sumw2(); h1_nJets_baselineVec.push_back((TH1D*)h1_nJets_baseline->Clone());
   TH1D * h1_nbJets_baseline = new TH1D(sampleKeyStringT+"_h1_nbJets_baseline", sampleKeyStringT+": nbJets after baseline; nbJets", 5, 0, 5); h1_nbJets_baseline->Sumw2(); h1_nbJets_baselineVec.push_back((TH1D*)h1_nbJets_baseline->Clone());
-  TH1D * h1_nTops_baseline = new TH1D(sampleKeyStringT+"_h1_nTops_baseline", sampleKeyStringT+": nTops after baseline; nTops", 4, 0, 4); h1_nTops_baseline->Sumw2(); h1_nTops_baselineVec.push_back((TH1D*)h1_nTops_baseline->Clone());
+  TH1D * h1_nTops_baseline = new TH1D(sampleKeyStringT+"_h1_nTops_baseline", sampleKeyStringT+": nTops after baseline; nTops", 5, 0, 5); h1_nTops_baseline->Sumw2(); h1_nTops_baselineVec.push_back((TH1D*)h1_nTops_baseline->Clone());
 
   TH1D * h1_met_baseline = new TH1D(sampleKeyStringT+"_h1_met_baseline", sampleKeyStringT+": met after baseline; met (GeV)", 100, 0, 1000); h1_met_baseline->Sumw2(); h1_met_baselineVec.push_back((TH1D*)h1_met_baseline->Clone());
   TH1D * h1_MT2_baseline = new TH1D(sampleKeyStringT+"_h1_MT2_baseline", sampleKeyStringT+": MT2 after baseline; MT2 (GeV)", 100, 0, 1000); h1_MT2_baseline->Sumw2(); h1_MT2_baselineVec.push_back((TH1D*)h1_MT2_baseline->Clone());
@@ -153,7 +154,13 @@ void declHistPerSample(const std::string &sampleKeyString){
   TH1D * h1_eleEta_baseline = new TH1D(sampleKeyStringT+"_h1_eleEta_baseline", sampleKeyStringT+": eleEta after baseline; eleEta", 100, -5, 5); h1_eleEta_baseline->Sumw2(); h1_eleEta_baselineVec.push_back((TH1D*)h1_eleEta_baseline->Clone());
   TH1D * h1_elePhi_baseline = new TH1D(sampleKeyStringT+"_h1_elePhi_baseline", sampleKeyStringT+": elePhi after baseline; elePhi", 100, -3.2, 3.2); h1_elePhi_baseline->Sumw2(); h1_elePhi_baselineVec.push_back((TH1D*)h1_elePhi_baseline->Clone());
 
-  TH2D * h2_MT2_vs_met_baseline = new TH2D(sampleKeyStringT+"_h2_MT2_vs_met_baseline", sampleKeyStringT+": MT2 versus met after baseline; met (GeV); MT2 (GeV)", 100, 200, 700, 100, 200, 700); h2_MT2_vs_met_baseline->Sumw2(); h2_MT2_vs_met_baselineVec.push_back((TH2D*)h2_MT2_vs_met_baseline->Clone());
+  TH2D * h2_MT2_vs_met_baseline = new TH2D(sampleKeyStringT+"_h2_MT2_vs_met_baseline", sampleKeyStringT+": MT2 versus met after baseline; met (GeV); MT2 (GeV)", 100,  0, 1000, 100,  0, 1000); h2_MT2_vs_met_baseline->Sumw2(); h2_MT2_vs_met_baselineVec.push_back((TH2D*)h2_MT2_vs_met_baseline->Clone());
+
+  TH2D * h2_MT2_vs_met_loose = new TH2D(sampleKeyStringT+"_h2_MT2_vs_met_loose", sampleKeyStringT+": MT2 versus met after loose; met (GeV); MT2 (GeV)", 100,  0, 1000, 100,  0, 1000); h2_MT2_vs_met_loose->Sumw2(); h2_MT2_vs_met_looseVec.push_back((TH2D*)h2_MT2_vs_met_loose->Clone());
+
+  TH2D * h2_alt_MT2_vs_met_loose = new TH2D(sampleKeyStringT+"_h2_alt_MT2_vs_met_loose", sampleKeyStringT+": alt_MT2 versus met after loose; met (GeV); alt MT2 (GeV)", 100,  0, 1000, 100,  0, 1000); h2_alt_MT2_vs_met_loose->Sumw2(); h2_alt_MT2_vs_met_looseVec.push_back((TH2D*)h2_alt_MT2_vs_met_loose->Clone());
+
+  TH2D * h2_MT2_vs_alt_MT2_loose = new TH2D(sampleKeyStringT+"_h2_MT2_vs_alt_MT2_loose", sampleKeyStringT+": MT2 versus alternative MT2 after loose; alt MT2 (GeV); MT2 (GeV)", 100,   0, 1000, 100,   0, 1000); h2_MT2_vs_alt_MT2_loose->Sumw2(); h2_MT2_vs_alt_MT2_looseVec.push_back((TH2D*)h2_MT2_vs_alt_MT2_loose->Clone());
 
   TH2D * h2_evtCnt_nbJets_vs_nTops = new TH2D(sampleKeyStringT+"_h2_evtCnt_nbJets_vs_nTops", sampleKeyStringT+": event counts nbJets versus nTops; nTops; nbJets", 4, 0, 4, 3, 1, 4); h2_evtCnt_nbJets_vs_nTops->Sumw2(); h2_evtCnt_nbJets_vs_nTopsVec.push_back((TH2D*) h2_evtCnt_nbJets_vs_nTops->Clone());
 
