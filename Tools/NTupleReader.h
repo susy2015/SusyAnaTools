@@ -75,11 +75,17 @@ public:
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
 
-    void registerFunction(std::function<void(NTupleReader&)>);
+    template<typename T> void registerFunction(T& f)
+    {
+        if(isFirstEvent_) functionVec_.emplace_back(f);
+        else printf("NTupleReader::registerFunction(...): new functions cannot be registered after tuple reading begins!\n");
+    }
+
 
     void getType(const std::string& name, std::string& type) const;
 
     void setReThrow(const bool);
+    bool getReThrow() const;
 
     template<typename T> void registerDerivedVar(const std::string name, T var)
     {
