@@ -35,7 +35,7 @@ namespace topTagger{
       public:
 
 //         type3TopTagger();
-         ~type3TopTagger();
+//         ~type3TopTagger();
 
 // Make these variables public so that they can be easily accessed
 // They should be actually internal and/or intermediate variables
@@ -496,23 +496,30 @@ namespace topTagger{
             }
          }
 
-         void ptOrderedfatJets(const vector<TLorentzVector> &oriJetsVec, vector<vector<int> > &tmpFinalCombfatJets, vector<vector<int> > &tmpFinalRemaining, vector<vector<vector<int> > > &tmpFinalCombJetSubStruc){
+         void ptOrderedfatJets(const vector<TLorentzVector> &oriJetsVec, vector<vector<int> > &tmpFinalCombfatJets, vector<vector<int> > &tmpFinalRemaining, vector<vector<vector<int> > > &tmpFinalCombJetSubStruc)
+         {
             const vector<vector<int> > cachedtmpFinalCombfatJets = tmpFinalCombfatJets;
             const vector<vector<int> > cachedtmpFinalRemaining = tmpFinalRemaining;
             const vector<vector<vector<int> > > cachedtmpFinalCombJetSubStruc = tmpFinalCombJetSubStruc;
          
-            tmpFinalCombfatJets.clear(); tmpFinalRemaining.clear(); tmpFinalCombJetSubStruc.clear();
+            tmpFinalCombfatJets.clear(); 
+            tmpFinalRemaining.clear(); 
+            tmpFinalCombJetSubStruc.clear();
          
             unsigned int tmpCombSize = cachedtmpFinalCombfatJets.size();
          
-// Get the index after pt ordered
+            // Get the index after pt ordered
             vector<double> tempfatJetPtVec;
-            for(unsigned int ic=0; ic<tmpCombSize; ic++){ tempfatJetPtVec.push_back(buildLVec(oriJetsVec, cachedtmpFinalCombfatJets[ic]).Pt()); }
+            for(unsigned int ic=0; ic<tmpCombSize; ic++)
+            { 
+                tempfatJetPtVec.push_back(buildLVec(oriJetsVec, cachedtmpFinalCombfatJets[ic]).Pt()); 
+            }
             std::vector<size_t> ptindexes;
             argsort(tempfatJetPtVec.begin(), tempfatJetPtVec.end(), std::greater<double>(), ptindexes);
          
-// Transfer the fat jets to pt ordered
-            for(unsigned int ii=0; ii<ptindexes.size(); ii++){
+            // Transfer the fat jets to pt ordered
+            for(unsigned int ii=0; ii<ptindexes.size(); ii++)
+            {
                unsigned int indexMapped = ptindexes[ii];
                tmpFinalCombfatJets.push_back( cachedtmpFinalCombfatJets[indexMapped] );
                tmpFinalRemaining.push_back( cachedtmpFinalRemaining[indexMapped] );
@@ -651,25 +658,29 @@ namespace topTagger{
             }
          }
 
-         void onlyfatJetsCloseInACone(const vector<int> &indexVec, const vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS, vector<vector<int> > &tmpFinalCombfatJets, vector<vector<int> > &tmpFinalRemaining, vector<vector<vector<int> > > &tmpFinalCombJetSubStruc){
+         void onlyfatJetsCloseInACone(const vector<int> &indexVec, const vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS, vector<vector<int> > &tmpFinalCombfatJets, vector<vector<int> > &tmpFinalRemaining, vector<vector<vector<int> > > &tmpFinalCombJetSubStruc)
+         {
 
             tmpFinalCombfatJets.clear(); tmpFinalRemaining.clear(); tmpFinalCombJetSubStruc.clear();
          
             vector<vector<int> > tempCombfatJets; vector<vector<int> > tempRemaining; vector<vector<vector<int> > > tempCombJetSubStruc;
          
-            prepareCombination(indexVec, tempCombfatJets, tempRemaining, tempCombJetSubStruc);
+            if(oriJetsVec.size() >= 3) prepareCombination(indexVec, tempCombfatJets, tempRemaining, tempCombJetSubStruc);
 
             unsigned int tmpCombSize = tempCombfatJets.size();
          
-            for(unsigned int ic=0; ic<tmpCombSize; ic++){
-               if( filterfatJetWithDRcone(oriJetsVec, tempCombfatJets[ic], simuCAdeltaR_) ){
+            for(unsigned int ic=0; ic<tmpCombSize; ic++)
+            {
+               if( filterfatJetWithDRcone(oriJetsVec, tempCombfatJets[ic], simuCAdeltaR_) )
+               {
                   tmpFinalCombfatJets.push_back(tempCombfatJets[ic]);
                   tmpFinalRemaining.push_back(tempRemaining[ic]);
                   tmpFinalCombJetSubStruc.push_back(tempCombJetSubStruc[ic]);
                }
             }
            
-            if( doWjetfatJets_ ){ 
+            if( doWjetfatJets_ && oriJetsVec.size() >= 2)
+            { 
                vector<vector<int> > tempWjetCombfatJets; vector<vector<int> > tempWjetRemaining; vector<vector<vector<int> > > tempWjetCombJetSubStruc;
                makeWjetfatJets(oriJetsVec, recoJetsBtagCSVS, tempWjetCombfatJets, tempWjetRemaining, tempWjetCombJetSubStruc);
                for(unsigned int ic=0; ic<tempWjetCombfatJets.size(); ic++){
@@ -681,11 +692,14 @@ namespace topTagger{
                }
             }
 
-            if( doTopjetfatJets_ ){ 
+            if( doTopjetfatJets_ )
+            { 
                vector<vector<int> > tempTopjetCombfatJets; vector<vector<int> > tempTopjetRemaining; vector<vector<vector<int> > > tempTopjetCombJetSubStruc;
                makeTopjetfatJets(oriJetsVec, recoJetsBtagCSVS, tempTopjetCombfatJets, tempTopjetRemaining, tempTopjetCombJetSubStruc);
-               for(unsigned int ic=0; ic<tempTopjetCombfatJets.size(); ic++){
-                  if( filterfatJetWithDRcone(oriJetsVec, tempTopjetCombfatJets[ic], simuCAdeltaR_) ){
+               for(unsigned int ic=0; ic<tempTopjetCombfatJets.size(); ic++)
+               {
+                  if( filterfatJetWithDRcone(oriJetsVec, tempTopjetCombfatJets[ic], simuCAdeltaR_) )
+                  {
                      tmpFinalCombfatJets.push_back(tempTopjetCombfatJets[ic]);
                      tmpFinalRemaining.push_back(tempTopjetRemaining[ic]);
                      tmpFinalCombJetSubStruc.push_back(tempTopjetCombJetSubStruc[ic]);
@@ -693,11 +707,14 @@ namespace topTagger{
                }
             }
 
-            if( doBhadjetfatJets_ ){
+            if( doBhadjetfatJets_ )
+            {
                vector<vector<int> > tempBhadjetCombfatJets; vector<vector<int> > tempBhadjetRemaining; vector<vector<vector<int> > > tempBhadjetCombJetSubStruc;
                makeBhadjetfatJets(oriJetsVec, recoJetsBtagCSVS, tempBhadjetCombfatJets, tempBhadjetRemaining, tempBhadjetCombJetSubStruc);
-               for(unsigned int ic=0; ic<tempBhadjetCombfatJets.size(); ic++){
-                  if( filterfatJetWithDRcone(oriJetsVec, tempBhadjetCombfatJets[ic], simuCAdeltaR_) ){
+               for(unsigned int ic=0; ic<tempBhadjetCombfatJets.size(); ic++)
+               {
+                  if( filterfatJetWithDRcone(oriJetsVec, tempBhadjetCombfatJets[ic], simuCAdeltaR_) )
+                  {
                      //if( std::find(tmpFinalCombfatJets.begin(), tmpFinalCombfatJets.end(), tempBhadjetCombfatJets[ic]) != tmpFinalCombfatJets.end() ) continue;
                      tmpFinalCombfatJets.push_back(tempBhadjetCombfatJets[ic]);
                      tmpFinalRemaining.push_back(tempBhadjetRemaining[ic]);
@@ -783,7 +800,8 @@ namespace topTagger{
             return mt;
          }
 
-         void prepareFindingBestTopCandidate(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS){
+         void prepareFindingBestTopCandidate(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS)
+         {
 
             vector<int> indexVec; for(size ij=0; ij<oriJetsVec.size(); ij++) indexVec.push_back(ij);
 
@@ -791,54 +809,61 @@ namespace topTagger{
 
             combSize = finalCombfatJets.size();
 
-            for(size ij=0; ij<oriJetsVec.size(); ij++){
+            for(size ij=0; ij<oriJetsVec.size(); ij++)
+            {
                if( recoJetsBtagCSVS[ij] > globalCachedCSVS_ && fabs(oriJetsVec[ij].Eta())<maxEtaForbJets_ ) cntnbJetsCSVS ++;
             }
 
             if( bVetoMethod_ == 0 )
             {
-               if( cntnbJetsCSVS == 0 )
-               {
-                   std::vector<double> maxCSVSvec;
-                   for(size ij=0; ij<oriJetsVec.size(); ij++)
-                   {
-                       if( fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ && !std::isnan(recoJetsBtagCSVS[ij]) )
-                       {
-                           maxCSVSvec.push_back(recoJetsBtagCSVS[ij]);
-                       }
-                   }
-                   std::sort(maxCSVSvec.begin(), maxCSVSvec.end(), std::greater<decltype(maxCSVSvec.front())>());
-                   if( maxCSVSvec.size() > 1 && (int)maxCSVSvec.size() > CSVToFake_ ) CSVS_ = 0.5*(maxCSVSvec[CSVToFake_ - 1] + maxCSVSvec[CSVToFake_]);
-                   else if(maxCSVSvec.size() > 0)                             CSVS_ = maxCSVSvec.back() - 1e-5;
-                   if( maxCSVSvec.size() == 0 ){ CSVS_ = -999; std::cout<<"No b to fake for 0 b case! Check NaN of CSV values of jets!  CSVS_ is set to be "<<CSVS_<<std::endl; }
-                   for(size ij=0; ij<oriJetsVec.size(); ij++)
-                   {
-                       if( recoJetsBtagCSVS[ij] > CSVS_ && fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ ) cntnbJetsCSVS ++;
-                   }
-               }
-               else
-               {
+               //if( cntnbJetsCSVS == 0 )
+               //{
+               //    std::vector<double> maxCSVSvec;
+               //    for(size ij=0; ij<oriJetsVec.size(); ij++)
+               //    {
+               //        if( fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ && !std::isnan(recoJetsBtagCSVS[ij]) )
+               //        {
+               //            maxCSVSvec.push_back(recoJetsBtagCSVS[ij]);
+               //        }
+               //    }
+               //    std::sort(maxCSVSvec.begin(), maxCSVSvec.end(), std::greater<decltype(maxCSVSvec.front())>());
+               //    if( maxCSVSvec.size() > 1 && (int)maxCSVSvec.size() > CSVToFake_ ) CSVS_ = 0.5*(maxCSVSvec[CSVToFake_ - 1] + maxCSVSvec[CSVToFake_]);
+               //    else if(maxCSVSvec.size() > 0)                             CSVS_ = maxCSVSvec.back() - 1e-5;
+               //    if( maxCSVSvec.size() == 0 ){ CSVS_ = -999; std::cout<<"No b to fake for 0 b case! Check NaN of CSV values of jets!  CSVS_ is set to be "<<CSVS_<<std::endl; }
+               //    for(size ij=0; ij<oriJetsVec.size(); ij++)
+               //    {
+               //        if( recoJetsBtagCSVS[ij] > CSVS_ && fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ ) cntnbJetsCSVS ++;
+               //    }
+               //}
+               //else
+               //{
                    CSVS_ = globalCachedCSVS_;
-               }
-            }else if( bVetoMethod_ == 1 ){
-               if( cntnbJetsCSVS == 0 )
-               {
-                  CSVS_ = minCSVS_disablebtag;
-                  dobVetoCS_ = true;
-                  for(size ij=0; ij<oriJetsVec.size(); ij++)
-                  {
-                     if( recoJetsBtagCSVS[ij] > CSVS_ && fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ ) cntnbJetsCSVS ++;
-                  }
-               }else{
-                  CSVS_ = globalCachedCSVS_;
-                  dobVetoCS_ = globalCacheddobVetoCS_;
-               }
+                   //}
             }
+            //////else if( bVetoMethod_ == 1 )
+            //////{
+            //////   if( cntnbJetsCSVS == 0 )
+            //////   {
+            //////      CSVS_ = minCSVS_disablebtag;
+            //////      dobVetoCS_ = true;
+            //////      for(size ij=0; ij<oriJetsVec.size(); ij++)
+            //////      {
+            //////         if( recoJetsBtagCSVS[ij] > CSVS_ && fabs(oriJetsVec[ij].Eta()) < maxEtaForbJets_ ) cntnbJetsCSVS ++;
+            //////      }
+            //////   }
+            //////   else
+            //////   {
+            //////      CSVS_ = globalCachedCSVS_;
+            //////      dobVetoCS_ = globalCacheddobVetoCS_;
+            //////   }
+            //////}
 
-            for(int ic=0; ic<combSize; ic++){
+            for(int ic=0; ic<combSize; ic++)
+            {
                TLorentzVector centralLVec = buildLVec(oriJetsVec, finalCombfatJets[ic]);
                double maxDR = 0.0;
-               for(unsigned int is=0; is<finalCombfatJets[ic].size(); is++){
+               for(unsigned int is=0; is<finalCombfatJets[ic].size(); is++)
+               {
                   TLorentzVector perJetLVec = oriJetsVec[finalCombfatJets[ic][is]];
                   double perDR = perJetLVec.DeltaR(centralLVec);
                   if( maxDR < perDR ) maxDR = perDR;
@@ -1469,20 +1494,20 @@ namespace topTagger{
             std::vector<double> pickedTopCandValueVec;
 
             std::map<double, vector<int> >::iterator mapIter;
-            if( bestTopJetIdx != -1 && bestTopJetMass > lowTopCut_ && bestTopJetMass < highTopCut_ && bestTopJetEta > lowTopEtaCut_ && bestTopJetEta < highTopEtaCut_ ){
-               for(unsigned int it=0; it< bestTopJetComb.size(); it++){
-                  allIdxCacheVec.push_back(bestTopJetComb.at(it));
-               }
-               nTopCandSortedCnt++;
-               pickedTopCandSortedVec.push_back(bestTopJetIdx);
-               if( topCandOrderMethod_ == 0 ){
-                  for(mapIter = topJetCand_deltaM_idx123Map.begin(); mapIter != topJetCand_deltaM_idx123Map.end(); mapIter++){
-                     if( finalCombfatJets[bestTopJetIdx] == mapIter->second ){ pickedTopCandValueVec.push_back(mapIter->first); }
-                  }
-               }else if( topCandOrderMethod_ == 1 ){
-                  pickedTopCandValueVec.push_back(bestTopJetLVec.Pt());
-               }
-            }
+            //if( bestTopJetIdx != -1 && bestTopJetMass > lowTopCut_ && bestTopJetMass < highTopCut_ && bestTopJetEta > lowTopEtaCut_ && bestTopJetEta < highTopEtaCut_ ){
+            //   for(unsigned int it=0; it< bestTopJetComb.size(); it++){
+            //      allIdxCacheVec.push_back(bestTopJetComb.at(it));
+            //   }
+            //   nTopCandSortedCnt++;
+            //   pickedTopCandSortedVec.push_back(bestTopJetIdx);
+            //   if( topCandOrderMethod_ == 0 ){
+            //      for(mapIter = topJetCand_deltaM_idx123Map.begin(); mapIter != topJetCand_deltaM_idx123Map.end(); mapIter++){
+            //         if( finalCombfatJets[bestTopJetIdx] == mapIter->second ){ pickedTopCandValueVec.push_back(mapIter->first); }
+            //      }
+            //   }else if( topCandOrderMethod_ == 1 ){
+            //      pickedTopCandValueVec.push_back(bestTopJetLVec.Pt());
+            //   }
+            //}
 
             double minDeltaM = -1;
 //            bool foundThePickedTop = false;
@@ -1734,8 +1759,8 @@ namespace topTagger{
             if( noriJets >= nJetsSel_ ){
 
                prepareFindingBestTopCandidate(oriJetsVec, recoJetsBtagCSVS);
-               findBestTopCandidate(oriJetsVec, recoJetsBtagCSVS);
-               fillingBestTopCandidateVars(oriJetsVec, recoJetsBtagCSVS);
+               //findBestTopCandidate(oriJetsVec, recoJetsBtagCSVS);
+               //fillingBestTopCandidateVars(oriJetsVec, recoJetsBtagCSVS);
 
 // For Di-Top cases
 // XXX: Make sure the findDiTopCandidates function does NOT interfere with the major/main topTagger part, i.e., the "top + b" cases.
@@ -1744,21 +1769,21 @@ namespace topTagger{
 //               findDiTopCandidates(oriJetsVec, recoJetsBtagCSVS);
 
 // The number 6 is because we need 3 jets for each triplet
-               if( noriJets >= 6 ){
-                  prepareFindingRemainingTopCandidate(oriJetsVec, recoJetsBtagCSVS);
-                  findRemainingTopCandidate(oriJetsVec, recoJetsBtagCSVS);
-                  fillingRemainingTopCandidate(oriJetsVec, recoJetsBtagCSVS);
-               }
+               //if( noriJets >= 6 ){
+               //   prepareFindingRemainingTopCandidate(oriJetsVec, recoJetsBtagCSVS);
+               //   findRemainingTopCandidate(oriJetsVec, recoJetsBtagCSVS);
+               //   fillingRemainingTopCandidate(oriJetsVec, recoJetsBtagCSVS);
+               //}
 
-               tunningRemainingJetSystem(oriJetsVec, recoJetsBtagCSVS, metLVec);
+               //tunningRemainingJetSystem(oriJetsVec, recoJetsBtagCSVS, metLVec);
 
-               prepareCutVariables(oriJetsVec, recoJetsBtagCSVS, metLVec);
+               //prepareCutVariables(oriJetsVec, recoJetsBtagCSVS, metLVec);
 
                findnTopCands(oriJetsVec, recoJetsBtagCSVS);
 
-               new_tuned_variables(oriJetsVec, recoJetsBtagCSVS, metLVec);
+               //new_tuned_variables(oriJetsVec, recoJetsBtagCSVS, metLVec);
 
-               pass = applyNewCuts();
+               //pass = applyNewCuts();
 
 //               pass = applyCuts();
 

@@ -26,7 +26,7 @@ namespace AnaSamples
         FileSummary(std::string tag, std::string filePath, std::string treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), treePath(treePath), xsec(xsec), lumi(lumi), kfactor(kfactor), nEvts(nEvts), color(color), isData_(false)
         {
             weight_ = xsec * lumi * kfactor / nEvts;
-            readFileList();
+            //readFileList();
         }
 	
 	// Constructor which doesn't make a xsec*lumi weighted sample, e.g. for use with data.
@@ -35,7 +35,7 @@ namespace AnaSamples
         FileSummary(std::string tag, std::string filePath, std::string treePath, double lumi, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), treePath(treePath), xsec(1), lumi(lumi), kfactor(kfactor), nEvts(1), color(color), isData_(true)
         {
             weight_ = kfactor;
-            readFileList();
+            //readFileList();
         }
 
         double getWeight() const {return weight_;}

@@ -288,18 +288,6 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
     {
         try
         {
-//            int vtxSize = tr.getVar<int>("vtxSize");
-            //int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
-/*
-            bool beamHaloFilter = true;
-            if(filter.Initialized()) 
-            {
-                const unsigned int& run =   tr.getVar<unsigned int>("run");
-                const unsigned int& lumi  = tr.getVar<unsigned int>("lumi");
-                const unsigned int& event = tr.getVar<unsigned int>("event");
-                beamHaloFilter = filter.CheckEvent(run, lumi, event);
-            }
-*/
             bool passDataSpec = true;
             if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
                int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
@@ -309,7 +297,6 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
                unsigned int badResolutionTrackListFilter = tr.getVar<unsigned int>("badResolutionTrackListFilter");
                unsigned int muonBadTrackListFilter = tr.getVar<unsigned int>("muonBadTrackListFilter");
                passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && badResolutionTrackListFilter && muonBadTrackListFilter;
-//               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
             }
 
             unsigned int hbheNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHENoiseFilter");
@@ -318,9 +305,6 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
 
             int jetIDFilter = isfastsim? 1:tr.getVar<int>("looseJetID_NoLep");
 
-            //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
-//            return (vtxSize>=1) && beamHaloFilter && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
-//            return goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
             return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
         }
         catch (std::string var)
