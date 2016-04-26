@@ -50,6 +50,7 @@ namespace AnaSamples
         std::string MCloc2 = "Spring15_74X_Dec_2015_Ntp_v4X/";
         std::string DATAloc = "Spring15_74X_Feb_2016_Ntp_v6X_forMoriond/";
         std::string sigMCloc = "Spring15_74X_Dec_2015_Ntp_v4X/";
+        std::string addSigMCloc = "Spring15_74X_v5X_top_corridor/";
 
         if(fDir.compare("condor") == 0)
         {
@@ -58,6 +59,7 @@ namespace AnaSamples
             MCloc2 = "";
             DATAloc = "";
             sigMCloc = "";
+            addSigMCloc = "";
         }
 
         //TTbar samples
@@ -344,6 +346,17 @@ namespace AnaSamples
         addSample("SMS-T6ttWW_mLSP50_mSbottom-625to950_mChargino-550to875", fDir_ + sigMCloc + "SMS-T6ttWW_mLSP50_mSbottom-625to950_mChargino-550to875_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         addSample("SMS-T6ttWW_mLSP50_mSbottom-650to950_mChargino-150to750", fDir_ + sigMCloc + "SMS-T6ttWW_mLSP50_mSbottom-650to950_mChargino-150to750_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
+// Additional signals
+        addSample("SMS-T2tt_mStop-100-125_mLSP-1to50_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-100-125_mLSP-1to50_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-150-175_mLSP-1to100_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-150-175_mLSP-1to100_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-200_mLSP-1to125_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-200_mLSP-1to125_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-225_mLSP-25to150_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-225_mLSP-25to150_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-250_mLSP-1to175_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-250_mLSP-1to175_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-275_mLSP-75to200_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-275_mLSP-75to200_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-300to375_mLSP-1to300_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-300to375_mLSP-1to300_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-400to475_mLSP-1to400_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-400to475_mLSP-1to400_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-600-950_mLSP-1to450_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-600-950_mLSP-1to450_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
     }
 
     SampleCollection::SampleCollection(SampleSet& samples)
@@ -418,6 +431,8 @@ namespace AnaSamples
         addSampleSet(samples, "Signal_fastsim_T5tttt_degen_scan", {"SMS-T5tttt_degen_mGl-600to800_mLSP-0to625", "SMS-T5tttt_degen_mGl-600to800_mLSP-450to675", "SMS-T5tttt_degen_mGl-825to1000_mLSP-0to825", "SMS-T5tttt_degen_mGl-825to1000_mLSP-675to875", "SMS-T5tttt_degen_mGl-1025to1200_mLSP-0to1025", "SMS-T5tttt_degen_mGl-1025to1200_mLSP-875to1075", "SMS-T5tttt_degen_mGl-1225to1400_mLSP-0to1225", "SMS-T5tttt_degen_mGl-1225to1400_mLSP-1075to1275", "SMS-T5tttt_degen_mGl-1425to1600_mLSP-0to1350", "SMS-T5tttt_degen_mGl-1425to1600_mLSP-1275to1375", "SMS-T5tttt_degen_mGl-1650to1700_mLSP-0to1350"});
 
         addSampleSet(samples, "Signal_fastsim_T6ttWW_scan", {"SMS-T6ttWW_mLSP50_mSbottom-300to600_mChargino-75to125", "SMS-T6ttWW_mLSP50_mSbottom-300to600_mChargino-150to500", "SMS-T6ttWW_mLSP50_mSbottom-300to600_mChargino-225to575", "SMS-T6ttWW_mLSP50_mSbottom-350to600_mChargino-150to400", "SMS-T6ttWW_mLSP50_mSbottom-625to950_mChargino-75to125", "SMS-T6ttWW_mLSP50_mSbottom-625to950_mChargino-500to850", "SMS-T6ttWW_mLSP50_mSbottom-625to950_mChargino-550to875", "SMS-T6ttWW_mLSP50_mSbottom-650to950_mChargino-150to750"});
+
+        addSampleSet(samples, "Signal_fastsim_T2tt_wt_genJets_scan", {"SMS-T2tt_mStop-100-125_mLSP-1to50_wt_genJets", "SMS-T2tt_mStop-150-175_mLSP-1to100_wt_genJets", "SMS-T2tt_mStop-200_mLSP-1to125_wt_genJets", "SMS-T2tt_mStop-225_mLSP-25to150_wt_genJets", "SMS-T2tt_mStop-250_mLSP-1to175_wt_genJets", "SMS-T2tt_mStop-275_mLSP-75to200_wt_genJets", "SMS-T2tt_mStop-300to375_mLSP-1to300_wt_genJets", "SMS-T2tt_mStop-400to475_mLSP-1to400_wt_genJets", "SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_wt_genJets", "SMS-T2tt_mStop-600-950_mLSP-1to450_wt_genJets"});
     }
 
     void SampleCollection::addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss)

@@ -224,6 +224,11 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         if( !passQCDHighMETFilterFunc(tr) ) { passQCDHighMETFilter = false; }
         if( debug ) std::cout<<"passQCDHighMETFilter : "<< passQCDHighMETFilter <<"  passBaseline : "<<passBaseline<<std::endl;
 
+        // pass the special filter for fastsim
+        bool passFastsimEventFilter = true;
+        if( !passFastsimEventFilterFunc(tr) ) { passFastsimEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
+        if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc(tr)<<"  passBaseline : "<<passBaseline<<std::endl;
+
         // Register all the calculated variables
         tr.registerDerivedVar("nMuons_CUT" + spec, nMuons);
         tr.registerDerivedVar("nElectrons_CUT" + spec, nElectrons);
@@ -256,6 +261,7 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         tr.registerDerivedVar("passTagger" + spec, passTagger);
         tr.registerDerivedVar("passNoiseEventFilter" + spec, passNoiseEventFilter);
         tr.registerDerivedVar("passQCDHighMETFilter" + spec, passQCDHighMETFilter);
+        tr.registerDerivedVar("passFastsimEventFilter" + spec, passFastsimEventFilter);
         tr.registerDerivedVar("passBaseline" + spec, passBaseline);
         tr.registerDerivedVar("passBaselineNoTagMT2" + spec, passBaselineNoTagMT2);
         tr.registerDerivedVar("passBaselineNoTag" + spec, passBaselineNoTag);
@@ -356,6 +362,29 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
       }
 
       return true;
+    }
+
+    bool passFastsimEventFilterFunc(NTupleReader &tr){
+       bool passFilter = true;
+       if( isfastsim ){
+          bool cached_rethrow = tr.getReThrow();
+          tr.setReThrow(false);
+          const std::vector<TLorentzVector> & genjetsLVec = tr.getVec<TLorentzVector>("genjetsLVec");
+          const std::vector<TLorentzVector> & recoJetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+          const std::vector<double> & recoJetschargedHadronEnergyFraction = tr.getVec<double>("recoJetschargedHadronEnergyFraction");
+
+          if( !recoJetsLVec.empty() && (&genjetsLVec) != nullptr ){
+             double mindeltaR = 999.0;
+             int matchedgenJetsIdx = -1;
+             for(unsigned int ig=0; ig<genjetsLVec.size(); ig++){
+                double dR = recoJetsLVec[0].DeltaR(genjetsLVec[ig]);
+                if( dR < mindeltaR ){ dR = mindeltaR; matchedgenJetsIdx = (int)ig; }
+             }
+             if( matchedgenJetsIdx != -1 && mindeltaR > 0.3 && recoJetschargedHadronEnergyFraction[0] < 0.1 ) passFilter = false;
+          }
+          tr.setReThrow(cached_rethrow);
+       }
+       return passFilter;
     }
 
     void operator()(NTupleReader &tr)
