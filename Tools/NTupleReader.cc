@@ -126,11 +126,11 @@ void NTupleReader::calculateDerivedVariables()
     }
 }
 
-//void NTupleReader::registerFunction(std::function<void(NTupleReader&)> f)
-//{
-//    if(isFirstEvent_) functionVec_.push_back(f);
-//    else printf("NTupleReader::registerFunction(...): new functions cannot be registered after tuple reading begins!\n");
-//}
+void NTupleReader::registerFunction(void (*f)(NTupleReader&))
+{
+    if(isFirstEvent_) functionVec_.emplace_back(f);
+    else printf("NTupleReader::registerFunction(...): new functions cannot be registered after tuple reading begins!\n");
+}
 
 void NTupleReader::getType(const std::string& name, std::string& type) const
 {
