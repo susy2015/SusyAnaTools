@@ -6,7 +6,7 @@
 
 namespace AnaSamples
 {
-    void FileSummary::readFileList()
+    void FileSummary::readFileList() const
     {
         if(filelist_.size()) filelist_.clear();
         

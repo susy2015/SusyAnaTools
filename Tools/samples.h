@@ -26,7 +26,6 @@ namespace AnaSamples
         FileSummary(std::string tag, std::string filePath, std::string treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), treePath(treePath), xsec(xsec), lumi(lumi), kfactor(kfactor), nEvts(nEvts), color(color), isData_(false)
         {
             weight_ = xsec * lumi * kfactor / nEvts;
-            //readFileList();
         }
 	
 	// Constructor which doesn't make a xsec*lumi weighted sample, e.g. for use with data.
@@ -35,19 +34,21 @@ namespace AnaSamples
         FileSummary(std::string tag, std::string filePath, std::string treePath, double lumi, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), treePath(treePath), xsec(1), lumi(lumi), kfactor(kfactor), nEvts(1), color(color), isData_(true)
         {
             weight_ = kfactor;
-            //readFileList();
         }
 
         double getWeight() const {return weight_;}
         const std::vector<std::string>& getFilelist() const {return filelist_;}
         template<class T> void addFilesToChain(T* chain,  int startfile =0, int filerun= -1) const
         {
-	  if(filerun<0)filerun=filelist_.size();
-	  for(int fn = startfile; fn < startfile+filerun && fn<filelist_.size(); fn++){
-	      chain->Add(filelist_[fn].c_str());
+            if(filelist_.size() == 0) readFileList();
+
+            if(filerun<0)filerun=filelist_.size();
+            for(int fn = startfile; fn < startfile+filerun && fn<filelist_.size(); fn++)
+            {
+                chain->Add(filelist_[fn].c_str());
 	    }
         }
-        std::vector<std::string> filelist_;
+        mutable std::vector<std::string> filelist_;
 
         void addCollection(std::string);
         const std::set<std::string>& getCollections() const
@@ -55,7 +56,7 @@ namespace AnaSamples
             return collections_;
         }
         
-        void readFileList();
+        void readFileList() const;
 
     private:
         double weight_;
