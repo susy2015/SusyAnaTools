@@ -222,6 +222,7 @@ namespace AnaSamples
         addSample("SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475", fDir_ + sigMCloc + "SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         addSample("SMS-T2tt_mStop-600-950_mLSP-1to450", fDir_ + sigMCloc + "SMS-T2tt_mStop-600-950_mLSP-1to450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
+// T2tb
         addSample("SMS-T2tb_mStop-200to325_0to150", fDir_ + sigMCloc + "SMS-T2tb_mStop-200to325_0to150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         addSample("SMS-T2tb_mStop-200to625_50to475", fDir_ + sigMCloc + "SMS-T2tb_mStop-200to625_50to475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         addSample("SMS-T2tb_mStop-350to400_0to225", fDir_ + sigMCloc + "SMS-T2tb_mStop-350to400_0to225_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
@@ -229,6 +230,7 @@ namespace AnaSamples
         addSample("SMS-T2tb_mStop-625to850_0to450", fDir_ + sigMCloc + "SMS-T2tb_mStop-625to850_0to450_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         addSample("SMS-T2tb_mStop-875to1125_0to475", fDir_ + sigMCloc + "SMS-T2tb_mStop-875to1125_0to475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
+// T1tttt
         addSample("SMS-T1tttt_mGluino-600to625_mLSP-250to375", fDir_ + sigMCloc + "SMS-T1tttt_mGluino-600to625_mLSP-250to375_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         addSample("SMS-T1tttt_mGluino-600_mLSP-1to225", fDir_ + sigMCloc + "SMS-T1tttt_mGluino-600_mLSP-1to225_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         addSample("SMS-T1tttt_mGluino-600_mLSP-250to325", fDir_ + sigMCloc + "SMS-T1tttt_mGluino-600_mLSP-250to325_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
@@ -346,17 +348,21 @@ namespace AnaSamples
         addSample("SMS-T6ttWW_mLSP50_mSbottom-625to950_mChargino-550to875", fDir_ + sigMCloc + "SMS-T6ttWW_mLSP50_mSbottom-625to950_mChargino-550to875_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         addSample("SMS-T6ttWW_mLSP50_mSbottom-650to950_mChargino-150to750", fDir_ + sigMCloc + "SMS-T6ttWW_mLSP50_mSbottom-650to950_mChargino-150to750_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
+// Additional samples for top corridor studies
+        addSample("TTbar_fastsim_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "TTbar_Fastsim_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 831.76,  lumi, 10970095, 1.0, kGreen);
+        addSample("TTbar_fullsim_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "TTbar_Fullsim_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 831.76,  lumi, 11344206, 1.0, kGreen);
+
 // Additional signals
-        addSample("SMS-T2tt_mStop-100-125_mLSP-1to50_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-100-125_mLSP-1to50_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-150-175_mLSP-1to100_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-150-175_mLSP-1to100_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-200_mLSP-1to125_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-200_mLSP-1to125_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-225_mLSP-25to150_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-225_mLSP-25to150_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-250_mLSP-1to175_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-250_mLSP-1to175_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-275_mLSP-75to200_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-275_mLSP-75to200_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-300to375_mLSP-1to300_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-300to375_mLSP-1to300_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-400to475_mLSP-1to400_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-400to475_mLSP-1to400_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-600-950_mLSP-1to450_wt_genJets", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-600-950_mLSP-1to450_wt_genJets.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-100-125_mLSP-1to50_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-100-125_mLSP-1to50_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-150-175_mLSP-1to100_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-150-175_mLSP-1to100_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-200_mLSP-1to125_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-200_mLSP-1to125_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-225_mLSP-25to150_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-225_mLSP-25to150_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-250_mLSP-1to175_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-250_mLSP-1to175_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-275_mLSP-75to200_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-275_mLSP-75to200_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-300to375_mLSP-1to300_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-300to375_mLSP-1to300_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-400to475_mLSP-1to400_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-400to475_mLSP-1to400_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_mStop-600-950_mLSP-1to450_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "condor_SMS-T2tt_mStop-600-950_mLSP-1to450_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
     }
 
     SampleCollection::SampleCollection(SampleSet& samples)
@@ -432,7 +438,10 @@ namespace AnaSamples
 
         addSampleSet(samples, "Signal_fastsim_T6ttWW_scan", {"SMS-T6ttWW_mLSP50_mSbottom-300to600_mChargino-75to125", "SMS-T6ttWW_mLSP50_mSbottom-300to600_mChargino-150to500", "SMS-T6ttWW_mLSP50_mSbottom-300to600_mChargino-225to575", "SMS-T6ttWW_mLSP50_mSbottom-350to600_mChargino-150to400", "SMS-T6ttWW_mLSP50_mSbottom-625to950_mChargino-75to125", "SMS-T6ttWW_mLSP50_mSbottom-625to950_mChargino-500to850", "SMS-T6ttWW_mLSP50_mSbottom-625to950_mChargino-550to875", "SMS-T6ttWW_mLSP50_mSbottom-650to950_mChargino-150to750"});
 
-        addSampleSet(samples, "Signal_fastsim_T2tt_wt_genJets_scan", {"SMS-T2tt_mStop-100-125_mLSP-1to50_wt_genJets", "SMS-T2tt_mStop-150-175_mLSP-1to100_wt_genJets", "SMS-T2tt_mStop-200_mLSP-1to125_wt_genJets", "SMS-T2tt_mStop-225_mLSP-25to150_wt_genJets", "SMS-T2tt_mStop-250_mLSP-1to175_wt_genJets", "SMS-T2tt_mStop-275_mLSP-75to200_wt_genJets", "SMS-T2tt_mStop-300to375_mLSP-1to300_wt_genJets", "SMS-T2tt_mStop-400to475_mLSP-1to400_wt_genJets", "SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_wt_genJets", "SMS-T2tt_mStop-600-950_mLSP-1to450_wt_genJets"});
+        addSampleSet(samples, "TTbar_fastsim_wt_genJets_wt_genMET", {"TTbar_fastsim_wt_genJets_wt_genMET"});
+        addSampleSet(samples, "TTbar_fullsim_wt_genJets_wt_genMET", {"TTbar_fullsim_wt_genJets_wt_genMET"});
+
+        addSampleSet(samples, "Signal_fastsim_T2tt_wt_genJets_wt_genMET_scan", {"SMS-T2tt_mStop-100-125_mLSP-1to50_wt_genJets_wt_genMET", "SMS-T2tt_mStop-150-175_mLSP-1to100_wt_genJets_wt_genMET", "SMS-T2tt_mStop-200_mLSP-1to125_wt_genJets_wt_genMET", "SMS-T2tt_mStop-225_mLSP-25to150_wt_genJets_wt_genMET", "SMS-T2tt_mStop-250_mLSP-1to175_wt_genJets_wt_genMET", "SMS-T2tt_mStop-275_mLSP-75to200_wt_genJets_wt_genMET", "SMS-T2tt_mStop-300to375_mLSP-1to300_wt_genJets_wt_genMET", "SMS-T2tt_mStop-400to475_mLSP-1to400_wt_genJets_wt_genMET", "SMS-T2tt_mStop-500-525-550_mLSP-1to425-325to450-1to475_wt_genJets_wt_genMET", "SMS-T2tt_mStop-600-950_mLSP-1to450_wt_genJets_wt_genMET"});
     }
 
     void SampleCollection::addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss)
