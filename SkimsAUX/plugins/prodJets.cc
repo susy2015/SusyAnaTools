@@ -30,6 +30,9 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
 #include "TLorentzVector.h"
+///Quark gluon seperation
+#include "DataFormats/Common/interface/ValueMap.h"
+//#include "DataFormats/PatCandidates/interface/Jet.h"
 
 class prodJets : public edm::EDFilter 
 {
@@ -56,6 +59,8 @@ class prodJets : public edm::EDFilter
   double jetPtCut_miniAOD_, genMatch_dR_;
   double relPt_for_xCheck_, dR_for_xCheck_;
 
+  float qgLikelihood;
+
   edm::InputTag W_emuVec_Src_, W_tauVec_Src_, W_tau_emuVec_Src_, W_tau_prongsVec_Src_, W_tau_nuVec_Src_;
   edm::Handle<std::vector<int> > W_emuVec_, W_tauVec_, W_tau_emuVec_, W_tau_prongsVec_, W_tau_nuVec_;
 
@@ -73,45 +78,50 @@ class prodJets : public edm::EDFilter
   double deltaRcon_;
 
   std::string jetType_;
+  //PUPPI sources
+  edm::InputTag puppiJetsSrc_;
+  edm::Handle<std::vector<pat::Jet> > puppiJets;
+  
+  //AK8 Jets
+  edm::InputTag ak8JetsSrc_;
+  edm::Handle<std::vector<pat::Jet> > ak8Jets;
+  //Quark gluon seperation
+  edm::EDGetTokenT<edm::View<pat::Jet> > jetsToken;  
+  edm::EDGetTokenT<edm::ValueMap<float> > qgToken;
 };
 
 
-prodJets::prodJets(const edm::ParameterSet & iConfig) 
+prodJets::prodJets(const edm::ParameterSet & iConfig)
+  : jetSrc_                 (iConfig.getParameter<edm::InputTag>("jetSrc"))
+  , jetOtherSrc_            (iConfig.getParameter<edm::InputTag>("jetOtherSrc"))
+  , bTagKeyString_          (iConfig.getParameter<std::string>("bTagKeyString"))
+  , vtxSrc_                 (iConfig.getParameter<edm::InputTag>("vtxSrc"))
+//, metSrc_           	    (iConfig.getParameter<edm::InputTag>("metSrc"))
+  , debug_                  (iConfig.getParameter<bool>("debug"))
+  , jetPtCut_miniAOD_       (iConfig.getUntrackedParameter<double>("jetPtCut_miniAOD", 10))
+  , genMatch_dR_            (iConfig.getUntrackedParameter<double>("genMatch_dR", 1.0))
+  , relPt_for_xCheck_       (iConfig.getUntrackedParameter<double>("relPt_for_xCheck", 1e-2))
+  , dR_for_xCheck_          (iConfig.getUntrackedParameter<double>("dR_for_xCheck", 0.2))
+  , W_emuVec_Src_           (iConfig.getParameter<edm::InputTag>("W_emuVec"))
+  , W_tauVec_Src_           (iConfig.getParameter<edm::InputTag>("W_tauVec"))
+  , W_tau_emuVec_Src_       (iConfig.getParameter<edm::InputTag>("W_tau_emuVec"))
+  , W_tau_prongsVec_Src_    (iConfig.getParameter<edm::InputTag>("W_tau_prongsVec"))
+  , W_tau_nuVec_Src_        (iConfig.getParameter<edm::InputTag>("W_tau_nuVec"))
+  , genDecayLVec_Src_       (iConfig.getParameter<edm::InputTag>("genDecayLVec"))
+  , genDecayMomRefVec_Src_  (iConfig.getParameter<edm::InputTag>("genDecayMomRefVec"))
+  , eleLVec_Src_ 	    (iConfig.getParameter<edm::InputTag>("eleLVec"))
+  , muLVec_Src_  	    (iConfig.getParameter<edm::InputTag>("muLVec"))
+  , trksForIsoVetoLVec_Src_ (iConfig.getParameter<edm::InputTag>("trksForIsoVetoLVec"))
+  , looseisoTrksLVec_Src_   (iConfig.getParameter<edm::InputTag>("looseisoTrksLVec"))
+  , deltaRcon_ 		    (iConfig.getUntrackedParameter<double>("deltaRcon", 0.01))
+  , jetType_   		    (iConfig.getParameter<std::string>("jetType"))
+  , puppiJetsSrc_           (iConfig.getParameter<edm::InputTag>("puppiJetsSrc"))
+  , ak8JetsSrc_             (iConfig.getParameter<edm::InputTag>("ak8JetsSrc"))
+  , jetsToken               (consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jetsInputTag")))
+  , qgToken                 (consumes<edm::ValueMap<float> >(edm::InputTag("QGTagger", "qgLikelihood")))
+
 {
   isData_ = true;
-
-  jetSrc_      = iConfig.getParameter<edm::InputTag>("jetSrc");
-  jetOtherSrc_ = iConfig.getParameter<edm::InputTag>("jetOtherSrc");
-  vtxSrc_      = iConfig.getParameter<edm::InputTag>("vtxSrc");
-//  metSrc_      = iConfig.getParameter<edm::InputTag>("metSrc");
-  bTagKeyString_ = iConfig.getParameter<std::string>("bTagKeyString");
-
-  debug_       = iConfig.getParameter<bool>("debug");
-
-  jetPtCut_miniAOD_ = iConfig.getUntrackedParameter<double>("jetPtCut_miniAOD", 10);
-  genMatch_dR_ = iConfig.getUntrackedParameter<double>("genMatch_dR", 1.0);
-  dR_for_xCheck_ = iConfig.getUntrackedParameter<double>("dR_for_xCheck", 0.2);
-  relPt_for_xCheck_ = iConfig.getUntrackedParameter<double>("relPt_for_xCheck", 1e-2);
-
-  W_emuVec_Src_ = iConfig.getParameter<edm::InputTag>("W_emuVec");
-  W_tauVec_Src_ = iConfig.getParameter<edm::InputTag>("W_tauVec");
-  W_tau_emuVec_Src_ = iConfig.getParameter<edm::InputTag>("W_tau_emuVec");
-  W_tau_prongsVec_Src_ = iConfig.getParameter<edm::InputTag>("W_tau_prongsVec");
-  W_tau_nuVec_Src_ = iConfig.getParameter<edm::InputTag>("W_tau_nuVec");
-
-  genDecayLVec_Src_ = iConfig.getParameter<edm::InputTag>("genDecayLVec");
-
-  genDecayMomRefVec_Src_ = iConfig.getParameter<edm::InputTag>("genDecayMomRefVec");
-
-  eleLVec_Src_ = iConfig.getParameter<edm::InputTag>("eleLVec");
-  muLVec_Src_ = iConfig.getParameter<edm::InputTag>("muLVec");
-  
-  trksForIsoVetoLVec_Src_ = iConfig.getParameter<edm::InputTag>("trksForIsoVetoLVec");
-  looseisoTrksLVec_Src_ = iConfig.getParameter<edm::InputTag>("looseisoTrksLVec");
-
-  deltaRcon_ = iConfig.getUntrackedParameter<double>("deltaRcon", 0.01);
-
-  jetType_ = iConfig.getParameter<std::string>("jetType");
 
   //produces<std::vector<pat::Jet> >("");
   produces<std::vector<TLorentzVector> >("jetsLVec");
@@ -133,8 +143,12 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
 
   produces<std::vector<int> >("trksForIsoVetoMatchedJetIdx");
   produces<std::vector<int> >("looseisoTrksMatchedJetIdx");
+  //PUPPI
+  produces<std::vector<TLorentzVector> >("puppiJetsLVec");
+  //ak8
+  produces<std::vector<TLorentzVector> >("ak8JetsLVec"); 
+  produces<std::vector<int> >("qgToken");
 }
-
 
 prodJets::~prodJets() 
 {
@@ -175,8 +189,18 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle< std::vector<reco::Vertex> > vertices;
   iEvent.getByLabel(vtxSrc_, vertices);
   // reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
-//  edm::Handle<edm::View<reco::MET> > met;
-//  iEvent.getByLabel(metSrc_, met);
+  edm::Handle<edm::View<reco::MET> > met;
+  iEvent.getByLabel(metSrc_, met);
+
+  //PUPPI
+  iEvent.getByLabel(puppiJetsSrc_, puppiJets);
+  //std::vector<pat::Jet> extJetsPuppi = (*puppiJets);
+  
+  //ak8
+  iEvent.getByLabel(ak8JetsSrc_, ak8Jets);
+  //std::vector<pat::Jet> tmpak8Jets = (*ak8Jets);
+ 
+ 
 
   std::vector<pat::Jet> extJets = (*jets);
 
@@ -198,6 +222,11 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::auto_ptr<std::vector<int> > trksForIsoVetoMatchedJetIdx(new std::vector<int>(trksForIsoVetoLVec_->size(), -1));
   std::auto_ptr<std::vector<int> > looseisoTrksMatchedJetIdx(new std::vector<int>(looseisoTrksLVec_->size(), -1));
+
+  //PUPPI
+  std::auto_ptr<std::vector<TLorentzVector> > puppiJetsLVec(new std::vector<TLorentzVector>());
+  //ak8
+  std::auto_ptr<std::vector<TLorentzVector> > ak8JetsLVec(new std::vector<TLorentzVector>());
 
   if( !isData_ ){
      int cntJetPassPtCut = 0;
@@ -296,6 +325,22 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
   }
 
+//PUPPI
+  for(unsigned int ip = 0; ip < puppiJets->size(); ip++)  
+    {
+      TLorentzVector perPuppiJetLVec;
+      perPuppiJetLVec.SetPtEtaPhiE( puppiJets->at(ip).pt(), puppiJets->at(ip).eta(), puppiJets->at(ip).phi(), puppiJets->at(ip).energy() );
+      puppiJetsLVec->push_back(perPuppiJetLVec);
+    }
+//END PUPPI
+//AK8
+    for(unsigned int ak = 0; ak < ak8Jets->size(); ak++)
+    {
+      TLorentzVector perak8JetLVec;
+      perak8JetLVec.SetPtEtaPhiE( ak8Jets->at(ak).pt(), ak8Jets->at(ak).eta(), ak8Jets->at(ak).phi(), ak8Jets->at(ak).energy() );
+      ak8JetsLVec->push_back(perak8JetLVec);
+    }
+
   int cntJetLowPt = 0;
   for(unsigned int ij=0; ij < extJets.size(); ij++)
   {
@@ -322,7 +367,14 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
        std::cout<<"scaleRawToFull : "<<scaleRawToFull<<"  current : "<<jet.jecFactor(availableJECLevels.back())<<"  uncor : "<<jet.jecFactor("Uncorrected")<<std::endl;
     }
-
+///Quark gluon seperation!!i
+//float qgLikelihood;
+      edm::Handle<edm::View<pat::Jet>> jets;      iEvent.getByToken(jetsToken,jets);
+        edm::Handle<edm::ValueMap<float>> qgHandle; iEvent.getByToken(qgToken, qgHandle);
+          for(auto jet = jets->begin();  jet != jets->end(); ++jet){
+               edm::RefToBase<pat::Jet> jetRef(edm::Ref<edm::View<pat::Jet> >(jets, jet - jets->begin()));
+	         qgLikelihood = (*qgHandle)[jetRef];
+                      }
 //get JEC unc for this jet, using corrected pT
     jecUnc->setJetEta(jet.eta());
     jecUnc->setJetPt(jet.pt());
@@ -421,7 +473,6 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<int> nJets (new int);
 
   *nJets = jetsLVec->size();
-
   // store in the event
   // iEvent.put(prod);
   iEvent.put(jetsLVec, "jetsLVec");
@@ -442,7 +493,11 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   iEvent.put(trksForIsoVetoMatchedJetIdx, "trksForIsoVetoMatchedJetIdx");
   iEvent.put(looseisoTrksMatchedJetIdx, "looseisoTrksMatchedJetIdx");
-
+  
+  //PUPPI
+  iEvent.put(puppiJetsLVec, "puppiJetsLVec");
+  //ak8
+  iEvent.put(ak8JetsLVec, "ak8JetsLVec");
   return true;
 }
 
