@@ -313,7 +313,8 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
             }
 */
             bool passDataSpec = true;
-            if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
+//            if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
+            if( tr.getVar<unsigned int>("run") >= 100000 ){ // hack to know if it's data or MC...
                int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
                unsigned int CSCTightHaloListFilter = tr.getVar<unsigned int>("CSCTightHaloListFilter");
                int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
