@@ -66,6 +66,7 @@ namespace AnaConsts{
    const AccRec      dphiArr = {   -1,       4.7,      30,    -1  };
    const AccRec     dphiNArr = {   -1,       2.4,      30,    -1  };
    const AccRec      bTagArr = {   -1,       2.4,      30,    -1  };
+   const AccRec pt20Eta25Arr = {   -1,       2.5,      20,    -1  };
 
 //   const double cutCSVS = 0.814, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
 // Note the new working points are for Spring15 samples & data: cutCSVS is the medium working point
@@ -122,7 +123,7 @@ namespace AnaConsts{
                                                   "W_emu_pfActivityVec", "W_tau_emu_pfActivityVec", "W_tau_prongs_pfActivityVec", "ScaleWeightsMiniAOD",
                                                   "recoJetsJecUncLepCleaned", "metMagUp", "metMagDown", "metPhiUp", "metPhiDown",
                                                   "SusyMotherMass", "SusyLSPMass", "recoJetsFlavor",
-                                                  "genjetsLVec"
+                                                  "genjetsLVec", "genmet", "genmetphi"
                                                 };
 
 }

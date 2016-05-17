@@ -112,22 +112,29 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         {
             doMET = false;
             dodPhis = false;
-        }else if( spec.compare("jecUp") == 0 || spec.compare("jecDn") == 0 || spec.compare("metMagUp") == 0 || spec.compare("metMagDn") == 0 || spec.compare("metPhiUp") == 0 || spec.compare("metPhiDn") == 0 ){
-           if( spec.compare("jecUp") == 0 ){
+        }else if( spec.find("jecUp") != std::string::npos || spec.find("jecDn") != std::string::npos || spec.find("metMagUp") != std::string::npos || spec.find("metMagDn") != std::string::npos || spec.find("metPhiUp") != std::string::npos || spec.find("metPhiDn") != std::string::npos ){
+           if( spec.find("jecUp") != std::string::npos ){
               jetVecLabel = "jetLVec_jecUp";
               CSVVecLabel = "recoJetsBtag_jecUp";
-           }else if(spec.compare("jecDn") == 0 ){
+           }else if(spec.find("jecDn") != std::string::npos ){
               jetVecLabel = "jetLVec_jecDn";
               CSVVecLabel = "recoJetsBtag_jecDn";
-           }else if(spec.compare("metMagUp") == 0 ){
+           }else if(spec.find("metMagUp") != std::string::npos ){
               METLabel = "met_metMagUp";
-           }else if(spec.compare("metMagDn") == 0 ){
+           }else if(spec.find("metMagDn") != std::string::npos ){
               METLabel = "met_metMagDn";
-           }else if(spec.compare("metPhiUp") == 0 ){
+           }else if(spec.find("metPhiUp") != std::string::npos ){
               METPhiLabel = "metphi_metPhiUp";
-           }else if(spec.compare("metPhiDn") == 0 ){
+           }else if(spec.find("metPhiDn") != std::string::npos ){
               METPhiLabel = "metphi_metPhiDn";
            }
+           if( spec.find("usegenmet") != std::string::npos ){
+              METLabel = "genmet";
+              METPhiLabel = "genmetphi";
+           } 
+        }else if( spec.compare("usegenmet") == 0 ){
+           METLabel = "genmet";
+           METPhiLabel = "genmetphi";
         }
 
         // Form TLorentzVector of MET
@@ -375,13 +382,16 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
           const std::vector<double> & recoJetschargedHadronEnergyFraction = tr.getVec<double>("recoJetschargedHadronEnergyFraction");
 
           if( !recoJetsLVec.empty() && (&genjetsLVec) != nullptr ){
-             double mindeltaR = 999.0;
-             int matchedgenJetsIdx = -1;
-             for(unsigned int ig=0; ig<genjetsLVec.size(); ig++){
-                double dR = recoJetsLVec[0].DeltaR(genjetsLVec[ig]);
-                if( dR < mindeltaR ){ dR = mindeltaR; matchedgenJetsIdx = (int)ig; }
+             for(unsigned int ij=0; ij<recoJetsLVec.size(); ij++){
+                if( !AnaFunctions::jetPassCuts(recoJetsLVec[ij], AnaConsts::pt20Eta25Arr) ) continue;
+                double mindeltaR = 999.0;
+                int matchedgenJetsIdx = -1;
+                for(unsigned int ig=0; ig<genjetsLVec.size(); ig++){
+                   double dR = recoJetsLVec[ij].DeltaR(genjetsLVec[ig]);
+                   if( dR < mindeltaR ){ dR = mindeltaR; matchedgenJetsIdx = (int)ig; }
+                }
+                if( matchedgenJetsIdx != -1 && mindeltaR > 0.3 && recoJetschargedHadronEnergyFraction[ij] < 0.1 ) passFilter = false;
              }
-             if( matchedgenJetsIdx != -1 && mindeltaR > 0.3 && recoJetschargedHadronEnergyFraction[0] < 0.1 ) passFilter = false;
           }
           tr.setReThrow(cached_rethrow);
        }
