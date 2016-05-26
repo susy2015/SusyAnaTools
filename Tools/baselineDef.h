@@ -388,7 +388,7 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
                 int matchedgenJetsIdx = -1;
                 for(unsigned int ig=0; ig<genjetsLVec.size(); ig++){
                    double dR = recoJetsLVec[ij].DeltaR(genjetsLVec[ig]);
-                   if( dR < mindeltaR ){ dR = mindeltaR; matchedgenJetsIdx = (int)ig; }
+                   if( mindeltaR > dR ){ mindeltaR = dR; matchedgenJetsIdx = (int)ig; }
                 }
                 if( matchedgenJetsIdx != -1 && mindeltaR > 0.3 && recoJetschargedHadronEnergyFraction[ij] < 0.1 ) passFilter = false;
              }
