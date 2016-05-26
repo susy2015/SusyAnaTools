@@ -375,13 +375,16 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
           const std::vector<double> & recoJetschargedHadronEnergyFraction = tr.getVec<double>("recoJetschargedHadronEnergyFraction");
 
           if( !recoJetsLVec.empty() && (&genjetsLVec) != nullptr ){
-             double mindeltaR = 999.0;
-             int matchedgenJetsIdx = -1;
-             for(unsigned int ig=0; ig<genjetsLVec.size(); ig++){
-                double dR = recoJetsLVec[0].DeltaR(genjetsLVec[ig]);
-                if( dR < mindeltaR ){ dR = mindeltaR; matchedgenJetsIdx = (int)ig; }
+             for(unsigned int ij=0; ij<recoJetsLVec.size(); ij++){
+                if( !AnaFunctions::jetPassCuts(recoJetsLVec[ij], AnaConsts::pt20Eta25Arr) ) continue;
+                double mindeltaR = 999.0;
+                int matchedgenJetsIdx = -1;
+                for(unsigned int ig=0; ig<genjetsLVec.size(); ig++){
+                   double dR = recoJetsLVec[ij].DeltaR(genjetsLVec[ig]);
+                   if( mindeltaR > dR ){ mindeltaR = dR; matchedgenJetsIdx = (int)ig; }
+                }
+                if( matchedgenJetsIdx != -1 && mindeltaR > 0.3 && recoJetschargedHadronEnergyFraction[ij] < 0.1 ) passFilter = false;
              }
-             if( matchedgenJetsIdx != -1 && mindeltaR > 0.3 && recoJetschargedHadronEnergyFraction[0] < 0.1 ) passFilter = false;
           }
           tr.setReThrow(cached_rethrow);
        }
