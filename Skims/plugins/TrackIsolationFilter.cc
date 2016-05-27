@@ -76,7 +76,7 @@ TrackIsolationFilter::TrackIsolationFilter(const edm::ParameterSet& iConfig) {
   doTrkIsoVeto_     = iConfig.getParameter<bool>            ("doTrkIsoVeto");
 
   exclPdgIdVec_     = iConfig.getParameter<std::vector<int> > ("exclPdgIdVec"); 
-  PfcandTok_ = consumes<pat::PackedCandidateCollection>(pfCandidatesTag_);
+  PfcandTok_ = consumes<edm::View<pat::PackedCandidate>>(pfCandidatesTag_);
   VertexInputTok_ =consumes<edm::View<reco::Vertex> >(vertexInputTag_);
   produces<std::vector<pat::PackedCandidate> >(""); 
   produces<vector<double> >("pfcandstrkiso").setBranchAlias("pfcands_trkiso");
@@ -105,7 +105,7 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   // get PFCandidate collection
   //---------------------------------
   
-  edm::Handle<pat::PackedCandidateCollection> pfCandidatesHandle;
+  edm::Handle<edm::View<pat::PackedCandidate>> pfCandidatesHandle;
   iEvent.getByToken(PfcandTok_, pfCandidatesHandle);
 
   //---------------------------------
@@ -127,8 +127,10 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   if( vertices->size() > 0) {
 
-     for( pat::PackedCandidateCollection::const_iterator pf_it = pfCandidatesHandle->begin(); pf_it != pfCandidatesHandle->end(); pf_it++ ) {
-
+    // for( pat::PackedCandidateCollection::const_iterator pf_it = pfCandidatesHandle->begin(); pf_it != pfCandidatesHandle->end(); pf_it++ ) {
+for(size_t i=0; i<pfCandidatesHandle->size();i++)
+    {
+  const pat::PackedCandidate* pf_it = &(*pfCandidatesHandle)[i];
         //-------------------------------------------------------------------------------------
         // only store PFCandidate values if pt > minPt
         //-------------------------------------------------------------------------------------
@@ -163,10 +165,12 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
            double trkiso = 0.0;
 
-           for( pat::PackedCandidateCollection::const_iterator pf_other = pfCandidatesHandle->begin(); pf_other != pfCandidatesHandle->end(); pf_other++ ) {
-
+           //for( pat::PackedCandidateCollection::const_iterator pf_other = pfCandidatesHandle->begin(); pf_other != pfCandidatesHandle->end(); pf_other++ ) {
+for(size_t j=0; j<pfCandidatesHandle->size();j++)
+    {
+  const pat::PackedCandidate* pf_other = &(*pfCandidatesHandle)[j];
               // don't count the PFCandidate in its own isolation sum
-              if( pf_it == pf_other       ) continue;
+              if( i == j       ) continue;
 
 	      // require the PFCandidate to be charged
 	      if( pf_other->charge() == 0 ) continue;
