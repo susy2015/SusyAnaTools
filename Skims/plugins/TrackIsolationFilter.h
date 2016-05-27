@@ -57,7 +57,7 @@ private:
   edm::InputTag pfCandidatesTag_;
   edm::InputTag vertexInputTag_;
   edm::EDGetTokenT<pat::PackedCandidateCollection> PfcandTok_;
-  edm::EDGetTokenT<std::vector<reco::Vertex> > VertexInputTok_;
+  edm::EDGetTokenT<edm::View<reco::Vertex> > VertexInputTok_;
   int vtxSize;
 };
 
