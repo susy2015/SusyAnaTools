@@ -14,7 +14,8 @@ weightProducer = cms.EDProducer('WeightProducer',
    XS = cms.double(4.9E10),              # used (only) for 'PtHat'-weighting
    NumberEvts = cms.double(-1.),         # used (only) for 'PtHat'-weighting
    Lumi = cms.double(100.),              # used (only) for 'PtHat'-weighting                     
-
+   
+   generatorSource = cms.InputTag('generator'),
 
    #The final calculated weight is scaled by the following factor.
    #This can be used e.g. to scale the luminosity by +-1sigma.

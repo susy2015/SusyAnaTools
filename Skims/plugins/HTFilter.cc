@@ -18,19 +18,20 @@ class HTFilter : public edm::EDFilter {
     
     edm::InputTag htSrc_;
     double minHT_;
-
+    edm::EDGetTokenT<double> HtTok_;
 };
 
 
 HTFilter::HTFilter(const edm::ParameterSet & iConfig) {
   htSrc_ = iConfig.getParameter<edm::InputTag>("HTSource");
   minHT_  = iConfig.getParameter<double>("MinHT");
+  HtTok_ = consumes<double>(htSrc_);
 }
 
 
 bool HTFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   edm::Handle<double> ht;
-  iEvent.getByLabel(htSrc_, ht);
+  iEvent.getByToken(HtTok_, ht);
   return (*ht > minHT_);
 }
 

@@ -60,7 +60,7 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
   edm::InputTag trigTagSrc_;
   std::string filterName_;
-	
+  edm::EDGetTokenT<edm::TriggerResults> TrigTagTok_;
   // ----------member data ---------------------------
 };
 
@@ -80,7 +80,7 @@ prodFilterFlags::prodFilterFlags(const edm::ParameterSet& iConfig)
 {
   filterName_ = iConfig.getParameter<std::string>("filterName");
   trigTagSrc_ = iConfig.getParameter<edm::InputTag>("trigTagSrc");
-
+  TrigTagTok_ = consumes<edm::TriggerResults>(trigTagSrc_);
   produces<int>("");
 }
 
@@ -105,7 +105,8 @@ prodFilterFlags::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   int passesTrigger = -1;
   edm::Handle<edm::TriggerResults> trigResults; //our trigger result object
-  iEvent.getByLabel(trigTagSrc_, trigResults);
+ // iEvent.getByLabel(trigTagSrc_, trigResults);
+   iEvent.getByToken(TrigTagTok_, trigResults);
   const edm::TriggerNames& trigNames = iEvent.triggerNames(*trigResults); 
   if(trigNames.triggerIndex(filterName_) < trigResults->size())
     passesTrigger=trigResults->accept(trigNames.triggerIndex(filterName_));

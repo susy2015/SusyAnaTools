@@ -28,6 +28,9 @@
 #include "TLorentzVector.h"
 #include "TTree.h"
 
+#include "SusyAnaTools/SkimsAUX/plugins/common.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 //
 // class decleration
 //
@@ -53,7 +56,8 @@ private:
 
   edm::InputTag pfCandidatesTag_;
   edm::InputTag vertexInputTag_;
-
+  edm::EDGetTokenT<pat::PackedCandidateCollection> PfcandTok_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > VertexInputTok_;
   int vtxSize;
 };
 

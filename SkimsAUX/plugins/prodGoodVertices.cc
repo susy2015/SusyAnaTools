@@ -21,6 +21,7 @@ class prodGoodVertices : public edm::EDFilter {
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
     
     edm::InputTag vtxSrc_;
+    edm::EDGetTokenT< std::vector<reco::Vertex> > VtxTok_;
     StringCutObjectSelector<reco::Vertex,true> vtxCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
 };
 
@@ -30,6 +31,7 @@ prodGoodVertices::prodGoodVertices(const edm::ParameterSet & iConfig) :
 {
   produces<int>("");
   vtxSrc_ = iConfig.getParameter<edm::InputTag>("vtxSrc");
+  VtxTok_ = consumes<std::vector<reco::Vertex>>(vtxSrc_);
 }
 
 
@@ -37,7 +39,7 @@ bool prodGoodVertices::filter(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   // read in the objects
   edm::Handle<edm::View<reco::Vertex> > vertices;
-  iEvent.getByLabel(vtxSrc_, vertices);
+  iEvent.getByToken(VtxTok_, vertices);
 
   int vtxCnt =0;
   for(unsigned int iv=0; iv<vertices->size(); iv++){

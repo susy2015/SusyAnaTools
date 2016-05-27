@@ -32,6 +32,12 @@ class prodMuons : public edm::EDFilter {
     edm::InputTag vtxSrc_;
     edm::InputTag metSrc_;
     edm::InputTag pfCandsSrc_;
+    edm::InputTag rhoSrc_;
+    edm::EDGetTokenT<std::vector<pat::Muon>> MuonTok_;
+    edm::EDGetTokenT< std::vector<reco::Vertex> > VtxTok_;
+    edm::EDGetTokenT<edm::View<reco::MET> > MetTok_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection>  PfcandTok_;
+    edm::EDGetTokenT<double> RhoTok_;
     bool debug_;
     bool doMuonVeto_, doMuonID_, doMuonVtx_;
     int doMuonIso_; // 0: don't do any isolation; 1: relIso;  2: miniIso
@@ -50,6 +56,7 @@ prodMuons::prodMuons(const edm::ParameterSet & iConfig) {
   vtxSrc_       = iConfig.getParameter<edm::InputTag>("VertexSource");
   metSrc_       = iConfig.getParameter<edm::InputTag>("metSource");
   pfCandsSrc_   = iConfig.getParameter<edm::InputTag>("PFCandSource");
+  rhoSrc_       = iConfig.getParameter<edm::InputTag>("RhoSource");
   minMuPt_      = iConfig.getParameter<double>("MinMuPt");
   maxMuEta_     = iConfig.getParameter<double>("MaxMuEta");
   maxMuD0_      = iConfig.getParameter<double>("MaxMuD0");
@@ -64,6 +71,12 @@ prodMuons::prodMuons(const edm::ParameterSet & iConfig) {
   debug_        = iConfig.getParameter<bool>("Debug");
 
   minMuPtForMuon2Clean_ = iConfig.getUntrackedParameter<double>("minMuPtForMuon2Clean", 10);
+
+  MuonTok_ = consumes<std::vector<pat::Muon>>(muonSrc_);
+  VtxTok_ = consumes<std::vector<reco::Vertex>>(vtxSrc_);
+  MetTok_ = consumes<edm::View<reco::MET>>(metSrc_);
+  PfcandTok_ = consumes<pat::PackedCandidateCollection>(pfCandsSrc_);
+  RhoTok_ = consumes<double>(rhoSrc_);
 
   produces<std::vector<pat::Muon> >("");
   produces<std::vector<pat::Muon> >("mu2Clean");
@@ -89,19 +102,25 @@ prodMuons::~prodMuons() {
 bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // read in the objects
-  edm::Handle<std::vector<pat::Muon> > muons;
-  iEvent.getByLabel(muonSrc_, muons);
+   //edm::Handle<edm::View<pat::Muon> > muons;
+   edm::Handle<std::vector<pat::Muon> > muons;
+  iEvent.getByToken(MuonTok_, muons);
+  //edm::Handle<std::vector<pat::Muon> > muons;
+  //edm::Handle<edm::View<pat::Muon> > muons;
+  //iEvent.getByToken(muonSrc_, muons);
+  //iEvent.getByLabel(MuonTok_, muons);
   edm::Handle< std::vector<reco::Vertex> > vertices;
-  iEvent.getByLabel(vtxSrc_, vertices);
+  iEvent.getByToken(VtxTok_, vertices);
   reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
   edm::Handle<edm::View<reco::MET> > met;
-  iEvent.getByLabel(metSrc_, met);
+  iEvent.getByToken(MetTok_, met);
 
   edm::Handle<pat::PackedCandidateCollection> pfcands;
-  iEvent.getByLabel(pfCandsSrc_, pfcands);
+  iEvent.getByToken(PfcandTok_, pfcands);
 
   edm::Handle< double > rho_;
-  iEvent.getByLabel("fixedGridRhoFastjetCentralNeutral", rho_); // Central rho recommended for SUSY
+  iEvent.getByToken(RhoTok_,rho_); 
+ //iEvent.getByToken("fixedGridRhoFastjetCentralNeutral", rho_); // Central rho recommended for SUSY
   double rho = *rho_;
 
   // check which ones to keep
@@ -120,6 +139,7 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> > muonsFlagTight(new std::vector<int>());
 
   if (vertices->size() > 0) {
+   //for (std::vector<int> m = muons->begin(); m != muons->end(); ++m) {
     for (std::vector<pat::Muon>::const_iterator m = muons->begin(); m != muons->end(); ++m) {
 
       // acceptance cuts
@@ -173,7 +193,7 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
 
       //add muons to clean from jets 
-      if(isMediumID && miniIso < maxMuMiniIso_ && m->pt() > minMuPtForMuon2Clean_) mu2Clean->push_back(*m);
+   //   if(isMediumID && miniIso < maxMuMiniIso_ && m->pt() > minMuPtForMuon2Clean_) mu2Clean->push_back(*m);
     }
   }
     

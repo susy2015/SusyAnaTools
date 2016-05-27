@@ -94,6 +94,9 @@ private:
     double initPUscaleFactor_;
     bool initPUinput();
     double puweight_;
+    edm::InputTag genSrc_;
+    edm::EDGetTokenT<GenEventInfoProduct> GenTok_;
+    edm::EDGetTokenT<double> WeightNameTok_;
 };
 
 WeightProducer::WeightProducer(const edm::ParameterSet& iConfig):
@@ -120,7 +123,10 @@ WeightProducer::WeightProducer(const edm::ParameterSet& iConfig):
     }else{
        weightFactor = 1.0;
     }
-
+ 
+     genSrc_ = iConfig.getParameter<edm::InputTag>("generatorSource");
+     GenTok_ = consumes<GenEventInfoProduct>(genSrc_);    
+     WeightNameTok_ = consumes<double>(_weightName);
     doPUweighting = initPUinput();
 
     maxInitPrintOut_ = 10;
@@ -155,7 +161,7 @@ void WeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     ptHat_ = 0.0; ptHatweight_ = 1.0;
     if( !iEvent.isRealData() ){
         edm::Handle<GenEventInfoProduct> genEvtInfoHandle;
-        iEvent.getByLabel("generator", genEvtInfoHandle);
+        iEvent.getByToken(GenTok_, genEvtInfoHandle);
         if (genEvtInfoHandle.isValid()) {
             ptHat_ = ( genEvtInfoHandle->hasBinningValues() ? (genEvtInfoHandle->binningValues())[0] : 0.0);
             storedWeight = genEvtInfoHandle->weight();
@@ -164,7 +170,7 @@ void WeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     if (_weightingMethod == "PtHat") {
         // Get pthat
         edm::Handle<GenEventInfoProduct> genEvtInfoHandle;
-        iEvent.getByLabel("generator", genEvtInfoHandle);
+        iEvent.getByToken(GenTok_, genEvtInfoHandle);
         if ( !iEvent.isRealData() ) {
             _weight = weightFactor * pow(ptHat_, _expo);
             if( storedWeight != 0 ) ratioPtHat = _weight/(_lumi*_xs/_NumberEvents*storedWeight);
@@ -181,7 +187,7 @@ void WeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     //Option 1: weight constant, as defined in cfg file
     else {
         edm::Handle<double> event_weight;
-        iEvent.getByLabel(_weightName, event_weight);
+        iEvent.getByToken(WeightNameTok_, event_weight);
         _weight = (event_weight.isValid() ? (*event_weight) : 1.0);
     }
 

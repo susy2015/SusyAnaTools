@@ -20,13 +20,14 @@ class MHTFilter : public edm::EDFilter {
     
     edm::InputTag mhtSrc_;
     double minMHT_;
-
+    edm::EDGetTokenT<edm::View<reco::MET> > MhtTok_;
 };
 
 
 MHTFilter::MHTFilter(const edm::ParameterSet & iConfig) {
   mhtSrc_ = iConfig.getParameter<edm::InputTag>("MHTSource");
   minMHT_  = iConfig.getParameter<double>("MinMHT");
+  MhtTok_ = consumes<edm::View<reco::MET> >(mhtSrc_);
 }
 
 
@@ -34,7 +35,7 @@ bool MHTFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   // read in the MHT
   edm::Handle<edm::View<reco::MET> > mht;
-  iEvent.getByLabel(mhtSrc_, mht);
+  iEvent.getByToken(MhtTok_, mht);
 
   return ((*mht)[0].pt() > minMHT_);
 
