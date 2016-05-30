@@ -1,4 +1,3 @@
-
 #include <memory>
 #include <algorithm>
 
@@ -31,20 +30,20 @@
 
 #include "TLorentzVector.h"
 
-class prodJets : public edm::EDFilter 
+class prodJets : public edm::EDFilter
 {
  public:
 
   explicit prodJets(const edm::ParameterSet & iConfig);
   ~prodJets();
-
+  
  private:
 
   virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
   edm::InputTag jetSrc_, jetOtherSrc_;
 // All have to be pat::Jet, otherwise cannot get b-tagging information!
-  edm::Handle<std::vector<pat::Jet> > jets, otherjets; 
+  edm::Handle<std::vector<pat::Jet> > jets, otherjets;
   std::string bTagKeyString_;
   edm::InputTag vtxSrc_;
   edm::InputTag metSrc_;
@@ -56,12 +55,27 @@ class prodJets : public edm::EDFilter
   double jetPtCut_miniAOD_, genMatch_dR_;
   double relPt_for_xCheck_, dR_for_xCheck_;
 
+  edm::EDGetTokenT<std::vector<pat::Jet> >JetTok_;
+  edm::EDGetTokenT<std::vector<pat::Jet> >OtherJetsTok_;
+  edm::EDGetTokenT<std::vector<int> > W_EmuVec_Tok_;
+  edm::EDGetTokenT<std::vector<int> >W_TauVec_Tok_;
+  edm::EDGetTokenT<std::vector<int> >W_Tau_EmuVec_Tok_;
+  edm::EDGetTokenT<std::vector<int> >W_Tau_ProngsVec_Tok_;
+  edm::EDGetTokenT<std::vector<int> >W_Tau_NuVec_Tok_;
+  edm::EDGetTokenT<std::vector<TLorentzVector> >GenDecayLVec_Tok_;
+  edm::EDGetTokenT<std::vector<int> >GenDecayMomRefVec_Tok_;
+  edm::EDGetTokenT<std::vector<TLorentzVector> >EleLVec_Tok_;
+  edm::EDGetTokenT<std::vector<TLorentzVector> >MuLVec_Tok_;
+  edm::EDGetTokenT<std::vector<TLorentzVector> >TrksForIsoVetolVec_Tok_;
+  edm::EDGetTokenT<std::vector<TLorentzVector> >LooseIsoTrksVec_Tok_;
+  edm::EDGetTokenT< std::vector<reco::Vertex> >VtxTok_;
+
   edm::InputTag W_emuVec_Src_, W_tauVec_Src_, W_tau_emuVec_Src_, W_tau_prongsVec_Src_, W_tau_nuVec_Src_;
   edm::Handle<std::vector<int> > W_emuVec_, W_tauVec_, W_tau_emuVec_, W_tau_prongsVec_, W_tau_nuVec_;
 
   edm::InputTag genDecayLVec_Src_;
   edm::Handle<std::vector<TLorentzVector> > genDecayLVec_;
-
+  
   edm::InputTag genDecayMomRefVec_Src_;
   edm::Handle<std::vector<int> > genDecayMomRefVec_;
 
@@ -76,7 +90,7 @@ class prodJets : public edm::EDFilter
 };
 
 
-prodJets::prodJets(const edm::ParameterSet & iConfig) 
+prodJets::prodJets(const edm::ParameterSet & iConfig)
 {
   isData_ = true;
 
@@ -100,18 +114,33 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   W_tau_nuVec_Src_ = iConfig.getParameter<edm::InputTag>("W_tau_nuVec");
 
   genDecayLVec_Src_ = iConfig.getParameter<edm::InputTag>("genDecayLVec");
-
+  
   genDecayMomRefVec_Src_ = iConfig.getParameter<edm::InputTag>("genDecayMomRefVec");
 
   eleLVec_Src_ = iConfig.getParameter<edm::InputTag>("eleLVec");
   muLVec_Src_ = iConfig.getParameter<edm::InputTag>("muLVec");
-  
+
   trksForIsoVetoLVec_Src_ = iConfig.getParameter<edm::InputTag>("trksForIsoVetoLVec");
   looseisoTrksLVec_Src_ = iConfig.getParameter<edm::InputTag>("looseisoTrksLVec");
 
   deltaRcon_ = iConfig.getUntrackedParameter<double>("deltaRcon", 0.01);
 
   jetType_ = iConfig.getParameter<std::string>("jetType");
+
+  JetTok_ = consumes<std::vector<pat::Jet> >(jetSrc_);
+  OtherJetsTok_ = consumes<std::vector<pat::Jet> >(jetOtherSrc_);
+  W_EmuVec_Tok_=consumes<std::vector<int> >(W_emuVec_Src_);
+  W_TauVec_Tok_=consumes<std::vector<int> >(W_tauVec_Src_);
+  W_Tau_EmuVec_Tok_=consumes<std::vector<int> >(W_tau_emuVec_Src_);
+  W_Tau_ProngsVec_Tok_ = consumes<std::vector<int> >(W_tau_prongsVec_Src_);
+  W_Tau_NuVec_Tok_ = consumes<std::vector<int> >(W_tau_nuVec_Src_);
+  GenDecayLVec_Tok_=consumes<std::vector<TLorentzVector> >(genDecayLVec_Src_);
+  GenDecayMomRefVec_Tok_=consumes<std::vector<int> >(genDecayMomRefVec_Src_);
+  EleLVec_Tok_=consumes<std::vector<TLorentzVector> >(eleLVec_Src_);
+  MuLVec_Tok_=consumes<std::vector<TLorentzVector> >(muLVec_Src_);
+  TrksForIsoVetolVec_Tok_=consumes<std::vector<TLorentzVector> >(trksForIsoVetoLVec_Src_);
+  LooseIsoTrksVec_Tok_=consumes<std::vector<TLorentzVector> >(looseisoTrksLVec_Src_);
+  VtxTok_=consumes< std::vector<reco::Vertex> >(vtxSrc_);
 
   //produces<std::vector<pat::Jet> >("");
   produces<std::vector<TLorentzVector> >("jetsLVec");
@@ -124,7 +153,7 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   //produce variables needed for Lost Lepton study, added by hua.wei@cern.ch
   produces<std::vector<double> >("recoJetschargedHadronEnergyFraction");
   produces<std::vector<double> >("recoJetschargedEmEnergyFraction");
-  produces<std::vector<double> >("recoJetsneutralEmEnergyFraction");
+    produces<std::vector<double> >("recoJetsneutralEmEnergyFraction");
 
   produces<std::vector<double> >("recoJetsmuonEnergyFraction");
 
@@ -136,16 +165,16 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
 }
 
 
-prodJets::~prodJets() 
+prodJets::~prodJets()
 {
 }
 
 
-bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
+bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   if( !iEvent.isRealData() ) isData_ = false;
 
-  iEvent.getByLabel(jetSrc_, jets);
+  iEvent.getByToken(JetTok_, jets);
 
   //get the JEC uncertainties
   edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
@@ -154,26 +183,26 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<JetCorrectionUncertainty> jecUnc( new JetCorrectionUncertainty(JetCorPar) );
 
   if( !isData_ ){
-     iEvent.getByLabel(jetOtherSrc_, otherjets);
-     iEvent.getByLabel(W_emuVec_Src_, W_emuVec_);
-     iEvent.getByLabel(W_tauVec_Src_, W_tauVec_);
-     iEvent.getByLabel(W_tau_emuVec_Src_, W_tau_emuVec_);
-     iEvent.getByLabel(W_tau_prongsVec_Src_, W_tau_prongsVec_);
-     iEvent.getByLabel(W_tau_nuVec_Src_, W_tau_nuVec_);
+     iEvent.getByToken(OtherJetsTok_, otherjets);
+     iEvent.getByToken(W_EmuVec_Tok_, W_emuVec_);
+     iEvent.getByToken(W_TauVec_Tok_, W_tauVec_);
+     iEvent.getByToken(W_Tau_EmuVec_Tok_, W_tau_emuVec_);
+     iEvent.getByToken(W_Tau_ProngsVec_Tok_, W_tau_prongsVec_);
+     iEvent.getByToken(W_Tau_NuVec_Tok_, W_tau_nuVec_);
 
-     iEvent.getByLabel(genDecayLVec_Src_, genDecayLVec_);
-     iEvent.getByLabel(genDecayMomRefVec_Src_, genDecayMomRefVec_);
+     iEvent.getByToken(GenDecayLVec_Tok_, genDecayLVec_);
+     iEvent.getByToken(GenDecayMomRefVec_Tok_, genDecayMomRefVec_);
   }
 
-  iEvent.getByLabel(eleLVec_Src_, eleLVec_);
-  iEvent.getByLabel(muLVec_Src_, muLVec_);
+  iEvent.getByToken(EleLVec_Tok_, eleLVec_);
+  iEvent.getByToken(MuLVec_Tok_, muLVec_);
 
-  iEvent.getByLabel(trksForIsoVetoLVec_Src_, trksForIsoVetoLVec_);
-  iEvent.getByLabel(looseisoTrksLVec_Src_,looseisoTrksLVec_);
+  iEvent.getByToken(TrksForIsoVetolVec_Tok_, trksForIsoVetoLVec_);
+  iEvent.getByToken(LooseIsoTrksVec_Tok_,looseisoTrksLVec_);
 
   // read in the objects
   edm::Handle< std::vector<reco::Vertex> > vertices;
-  iEvent.getByLabel(vtxSrc_, vertices);
+  iEvent.getByToken(VtxTok_, vertices);
   // reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
 //  edm::Handle<edm::View<reco::MET> > met;
 //  iEvent.getByLabel(metSrc_, met);
@@ -202,7 +231,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if( !isData_ ){
      int cntJetPassPtCut = 0;
      for(unsigned int io=0; io < otherjets->size(); io++){
-        const double otjet_pt = otherjets->at(io).pt(), otjet_eta = otherjets->at(io).eta(), otjet_phi = otherjets->at(io).phi();
+     	  const double otjet_pt = otherjets->at(io).pt(), otjet_eta = otherjets->at(io).eta(), otjet_phi = otherjets->at(io).phi();
         TLorentzVector perLVec; perLVec.SetPtEtaPhiE(otjet_pt, otjet_eta, otjet_phi, otherjets->at(io).energy());
         int cntFound = 0, matchedIdx = -1;
         double minDR = 999.0;
@@ -238,7 +267,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                  double perdeltaR = perLVec.DeltaR(genLVec);
                  if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
               }
-              for(unsigned int ig=0; ig<W_tauVec_->size(); ig++){
+                           for(unsigned int ig=0; ig<W_tauVec_->size(); ig++){
                  int perIdx = W_tauVec_->at(ig);
                  TLorentzVector genLVec = genDecayLVec_->at(perIdx);
                  double perdeltaR = perLVec.DeltaR(genLVec);
@@ -262,7 +291,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                  for(unsigned int in=0; in<W_tau_nuVec_->size(); in++){
                     int perJdx = W_tau_nuVec_->at(in);
                     TLorentzVector gennuLVec = genDecayLVec_->at(perJdx);
-   
+
                     int momIdx = perJdx;
                     bool isFound = false;
                     while( momIdx != -1 ){
@@ -278,17 +307,13 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                  double perdeltaR = perLVec.DeltaR(muLVec_->at(im));
                  if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
               }
-              for(unsigned int ie=0; ie<eleLVec_->size(); ie++){
-                 double perdeltaR = perLVec.DeltaR(eleLVec_->at(ie));
-                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-              }
               if( cntgenMatch ){
                  extJets.push_back(otherjets->at(io));
               }
            }
         }
-     } 
-   
+     }
+
      if( cntJetPassPtCut != (int)jets->size() && debug_ ) std::cout<<"WARNING ... cntJetPassPtCut : "<<cntJetPassPtCut<<"  NOT EQUAL jets->size : "<<jets->size()<<std::endl;
      if( (int)jets->size() >= 4 && std::abs(1.0*cntJetPassPtCut - 1.0*jets->size())/(1.0*jets->size()) > 0.1 ){
         std::cout<<"\nWARNING ... cntJetPassPtCut : "<<cntJetPassPtCut<<"  slimmedJets.size : "<<jets->size()<<std::endl;
@@ -390,12 +415,12 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       double trkEta = trksForIsoVetoLVec_->at(it).Eta(), trkPhi = trksForIsoVetoLVec_->at(it).Phi();
       double mindRtrkCon = 999.;
       for (unsigned int iCon = 0; iCon < numConstituents; ++iCon){
-	//          const reco::PFCandidatePtr& constituent = constituents[iCon];
-	const reco::Candidate * constituent = jet.daughter(iCon);
-	const double dRtrkCon = reco::deltaR(constituent->eta(), constituent->phi(), trkEta, trkPhi);
-	if( mindRtrkCon > dRtrkCon ){
-	  mindRtrkCon = dRtrkCon;
-	}
+        //          const reco::PFCandidatePtr& constituent = constituents[iCon];
+        const reco::Candidate * constituent = jet.daughter(iCon);
+        const double dRtrkCon = reco::deltaR(constituent->eta(), constituent->phi(), trkEta, trkPhi);
+        if( mindRtrkCon > dRtrkCon ){
+        	          mindRtrkCon = dRtrkCon;
+        }
       }
       if( mindRtrkCon < deltaRcon_ ) (*trksForIsoVetoMatchedJetIdx)[it] = ij;
     }
