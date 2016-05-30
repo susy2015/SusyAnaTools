@@ -56,6 +56,21 @@ class prodJets : public edm::EDFilter
   double jetPtCut_miniAOD_, genMatch_dR_;
   double relPt_for_xCheck_, dR_for_xCheck_;
 
+  edm::EDGetTokenT<std::vector<pat::Jet> >JetTok_;
+  edm::EDGetTokenT<std::vector<pat::Jet> >OtherJetsTok_;
+  edm::EDGetTokenT<std::vector<int> > W_EmuVec_Tok_;
+  edm::EDGetTokenT<std::vector<int> >W_TauVec_Tok_;
+  edm::EDGetTokenT<std::vector<int> >W_Tau_EmuVec_Tok_;
+  edm::EDGetTokenT<std::vector<int> >W_Tau_ProngsVec_Tok_;
+  edm::EDGetTokenT<std::vector<int> >W_Tau_NuVec_Tok_;
+  edm::EDGetTokenT<std::vector<TLorentzVector> >GenDecayLVec_Tok_;
+  edm::EDGetTokenT<std::vector<int> >GenDecayMomRefVec_Tok_;
+  edm::EDGetTokenT<std::vector<TLorentzVector> >EleLVec_Tok_;
+  edm::EDGetTokenT<std::vector<TLorentzVector> >MuLVec_Tok_;
+  edm::EDGetTokenT<std::vector<TLorentzVector> >TrksForIsoVetolVec_Tok_;
+  edm::EDGetTokenT<std::vector<TLorentzVector> >LooseIsoTrksVec_Tok_;
+  edm::EDGetTokenT< std::vector<reco::Vertex> >VtxTok_;
+
   edm::InputTag W_emuVec_Src_, W_tauVec_Src_, W_tau_emuVec_Src_, W_tau_prongsVec_Src_, W_tau_nuVec_Src_;
   edm::Handle<std::vector<int> > W_emuVec_, W_tauVec_, W_tau_emuVec_, W_tau_prongsVec_, W_tau_nuVec_;
 
@@ -113,6 +128,21 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
 
   jetType_ = iConfig.getParameter<std::string>("jetType");
 
+  JetTok_ = consumes<std::vector<pat::Jet> >(jetSrc_);
+  OtherJetsTok_ = consumes<std::vector<pat::Jet> >(jetOtherSrc_);
+  W_EmuVec_Tok_=consumes<std::vector<int> >(W_emuVec_Src_);
+  W_TauVec_Tok_=consumes<std::vector<int> >(W_tauVec_Src_);
+  W_Tau_EmuVec_Tok_=consumes<std::vector<int> >(W_tau_emuVec_Src_);
+  W_Tau_ProngsVec_Tok_ = consumes<std::vector<int> >(W_tau_prongsVec_Src_);
+  W_Tau_NuVec_Tok_ = consumes<std::vector<int> >(W_tau_nuVec_Src_);
+  GenDecayLVec_Tok_=consumes<std::vector<TLorentzVector> >(genDecayLVec_Src_);
+  GenDecayMomRefVec_Tok_=consumes<std::vector<int> >(genDecayMomRefVec_Src_);
+  EleLVec_Tok_=consumes<std::vector<TLorentzVector> >(eleLVec_Src_);
+  MuLVec_Tok_=consumes<std::vector<TLorentzVector> >(muLVec_Src_);
+  TrksForIsoVetolVec_Tok_=consumes<std::vector<TLorentzVector> >(trksForIsoVetoLVec_Src_);
+  LooseIsoTrksVec_Tok_=consumes<std::vector<TLorentzVector> >(looseisoTrksLVec_Src_);
+  VtxTok_=consumes< std::vector<reco::Vertex> >(vtxSrc_);
+
   //produces<std::vector<pat::Jet> >("");
   produces<std::vector<TLorentzVector> >("jetsLVec");
   produces<std::vector<int> >("recoJetsFlavor");
@@ -145,7 +175,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   if( !iEvent.isRealData() ) isData_ = false;
 
-  iEvent.getByLabel(jetSrc_, jets);
+  iEvent.getByToken(JetTok_, jets);
 
   //get the JEC uncertainties
   edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
@@ -154,26 +184,26 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<JetCorrectionUncertainty> jecUnc( new JetCorrectionUncertainty(JetCorPar) );
 
   if( !isData_ ){
-     iEvent.getByLabel(jetOtherSrc_, otherjets);
-     iEvent.getByLabel(W_emuVec_Src_, W_emuVec_);
-     iEvent.getByLabel(W_tauVec_Src_, W_tauVec_);
-     iEvent.getByLabel(W_tau_emuVec_Src_, W_tau_emuVec_);
-     iEvent.getByLabel(W_tau_prongsVec_Src_, W_tau_prongsVec_);
-     iEvent.getByLabel(W_tau_nuVec_Src_, W_tau_nuVec_);
+     iEvent.getByToken(OtherJetsTok_, otherjets);
+     iEvent.getByToken(W_EmuVec_Tok_, W_emuVec_);
+     iEvent.getByToken(W_TauVec_Tok_, W_tauVec_);
+     iEvent.getByToken(W_Tau_EmuVec_Tok_, W_tau_emuVec_);
+     iEvent.getByToken(W_Tau_ProngsVec_Tok_, W_tau_prongsVec_);
+     iEvent.getByToken(W_Tau_NuVec_Tok_, W_tau_nuVec_);
 
-     iEvent.getByLabel(genDecayLVec_Src_, genDecayLVec_);
-     iEvent.getByLabel(genDecayMomRefVec_Src_, genDecayMomRefVec_);
+     iEvent.getByToken(GenDecayLVec_Tok_, genDecayLVec_);
+     iEvent.getByToken(GenDecayMomRefVec_Tok_, genDecayMomRefVec_);
   }
 
-  iEvent.getByLabel(eleLVec_Src_, eleLVec_);
-  iEvent.getByLabel(muLVec_Src_, muLVec_);
+  iEvent.getByToken(EleLVec_Tok_, eleLVec_);
+  iEvent.getByToken(MuLVec_Tok_, muLVec_);
 
-  iEvent.getByLabel(trksForIsoVetoLVec_Src_, trksForIsoVetoLVec_);
-  iEvent.getByLabel(looseisoTrksLVec_Src_,looseisoTrksLVec_);
+  iEvent.getByToken(TrksForIsoVetolVec_Tok_, trksForIsoVetoLVec_);
+  iEvent.getByToken(LooseIsoTrksVec_Tok_,looseisoTrksLVec_);
 
   // read in the objects
   edm::Handle< std::vector<reco::Vertex> > vertices;
-  iEvent.getByLabel(vtxSrc_, vertices);
+  iEvent.getByToken(VtxTok_, vertices);
   // reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
 //  edm::Handle<edm::View<reco::MET> > met;
 //  iEvent.getByLabel(metSrc_, met);

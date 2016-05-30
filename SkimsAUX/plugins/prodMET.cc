@@ -37,6 +37,8 @@ class prodMET : public edm::EDFilter {
     edm::InputTag metSrc_;
     bool debug_;
 
+    edm::EDGetTokenT<edm::View<pat::MET> >MetTok_;
+
     std::vector<pat::MET::METUncertainty> uncUpList, uncDownList;
 };
 
@@ -45,6 +47,8 @@ prodMET::prodMET(const edm::ParameterSet & iConfig) {
   metSrc_      = iConfig.getParameter<edm::InputTag>("metSrc");
 
   debug_       = iConfig.getParameter<bool>("debug");
+
+  MetTok_  = consumes<edm::View<pat::MET> >(metSrc_);
 
   uncUpList = {pat::MET::JetResUp, pat::MET::JetEnUp, pat::MET::MuonEnUp, pat::MET::ElectronEnUp, pat::MET::TauEnUp, pat::MET::UnclusteredEnUp, pat::MET::PhotonEnUp};
   uncDownList = {pat::MET::JetResDown, pat::MET::JetEnDown, pat::MET::MuonEnDown, pat::MET::ElectronEnDown, pat::MET::TauEnDown, pat::MET::UnclusteredEnDown, pat::MET::PhotonEnDown};
@@ -65,7 +69,7 @@ prodMET::~prodMET() {
 bool prodMET::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<edm::View<pat::MET> > met;
-  iEvent.getByLabel(metSrc_, met);
+  iEvent.getByToken(MetTok_, met);
 
   std::auto_ptr<double> metPtr(new double);
   std::auto_ptr<double> metphiPtr(new double);

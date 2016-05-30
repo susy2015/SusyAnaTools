@@ -39,6 +39,13 @@ class prodGenInfo : public edm::EDFilter {
     edm::InputTag pfCandsSrc_;
     edm::Handle<pat::PackedCandidateCollection> pfcands;
 
+    edm::InputTag rhoSrc_;
+    edm::EDGetTokenT<edm::View<reco::GenParticle > > GenParticleTok_;
+    edm::EDGetTokenT<std::vector<std::string> > GenDecayStrVecTok_;
+    edm::EDGetTokenT<std::vector<int> > GenDecayChainParIdxVecTok_;   
+    edm::EDGetTokenT<pat::PackedCandidateCollection> PfCandsTok_;
+    edm::EDGetTokenT<double> RhoTok_;
+
     bool debug_;
 
     int find_idx(const reco::Candidate & target);
@@ -61,6 +68,13 @@ prodGenInfo::prodGenInfo(const edm::ParameterSet & iConfig) {
   pfCandsSrc_   = iConfig.getParameter<edm::InputTag>("PFCandSource");
   
   debug_       = iConfig.getParameter<bool>("debug");
+
+  rhoSrc_       = iConfig.getParameter<edm::InputTag>("RhoSource");
+  GenParticleTok_ =consumes<edm::View<reco::GenParticle > >(genParticleSrc_);
+  GenDecayStrVecTok_ =consumes<std::vector<std::string> >(genDecayStrVecSrc_);
+  GenDecayChainParIdxVecTok_ =consumes<std::vector<int> >(genDecayChainPartIdxVecSrc_);
+  PfCandsTok_= consumes<pat::PackedCandidateCollection>(pfCandsSrc_);
+  RhoTok_ = consumes<double>(rhoSrc_);
 
   produces<std::vector<std::string> >("genDecayStrVec");
   produces<std::vector<int> >("genDecayIdxVec");
@@ -87,14 +101,15 @@ prodGenInfo::~prodGenInfo() {
 
 bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  iEvent.getByLabel(genParticleSrc_, genParticles);
-  iEvent.getByLabel(genDecayStrVecSrc_, genDecayStrVec_);
-  iEvent.getByLabel(genDecayChainPartIdxVecSrc_, genDecayChainPartIdxVec_);
+  iEvent.getByToken(GenParticleTok_, genParticles);
+  iEvent.getByToken(GenDecayStrVecTok_, genDecayStrVec_);
+  iEvent.getByToken(GenDecayChainParIdxVecTok_, genDecayChainPartIdxVec_);
 
-  iEvent.getByLabel(pfCandsSrc_, pfcands);
+  iEvent.getByToken(PfCandsTok_, pfcands);
 
   edm::Handle< double > rho_;
-  iEvent.getByLabel("fixedGridRhoFastjetCentralNeutral", rho_); // Central rho recommended for SUSY
+  //iEvent.getByLabel("fixedGridRhoFastjetCentralNeutral", rho_); // Central rho recommended for SUSY
+  iEvent.getByToken(RhoTok_,rho_);
   double rho = *rho_;
 
   std::auto_ptr<std::vector<TLorentzVector> > genDecayLVec(new std::vector<TLorentzVector>());

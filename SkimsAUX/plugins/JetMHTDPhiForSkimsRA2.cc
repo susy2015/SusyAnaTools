@@ -21,6 +21,8 @@ class JetMHTDPhiForSkimsRA2 : public edm::EDFilter {
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
     
     edm::InputTag mhtSrc_, jetSrc_;
+    edm::EDGetTokenT<edm::View<reco::MET> > MhtTok_;
+    edm::EDGetTokenT<edm::View<reco::Jet> > JetTok_;
 
 };
 
@@ -28,6 +30,9 @@ class JetMHTDPhiForSkimsRA2 : public edm::EDFilter {
 JetMHTDPhiForSkimsRA2::JetMHTDPhiForSkimsRA2(const edm::ParameterSet & iConfig) {
   mhtSrc_ = iConfig.getParameter<edm::InputTag>("MHTSource");
   jetSrc_ = iConfig.getParameter<edm::InputTag>("JetSource");
+
+  MhtTok_= consumes<edm::View<reco::MET> >(mhtSrc_);
+  JetTok_= consumes<edm::View<reco::Jet> >(jetSrc_);
 
   produces<std::vector<double> >("jetMHTDPhiVec");
   produces<double>("dPhi0");
@@ -40,9 +45,9 @@ bool JetMHTDPhiForSkimsRA2::filter(edm::Event & iEvent, const edm::EventSetup & 
 
   // read in the objects
   edm::Handle<edm::View<reco::MET> > mht;
-  iEvent.getByLabel(mhtSrc_, mht);
+  iEvent.getByToken(MhtTok_, mht);
   edm::Handle<edm::View<reco::Jet> > jets;
-  iEvent.getByLabel(jetSrc_, jets);
+  iEvent.getByToken(JetTok_, jets);
 
   std::auto_ptr<std::vector<double> > jetMHTDPhiVecPtr (new std::vector<double> );
 
