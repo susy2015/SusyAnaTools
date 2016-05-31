@@ -65,6 +65,9 @@ stopTreeMaker::stopTreeMaker(const edm::ParameterSet& iConfig)
   vectorTLorentzVectorTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("vectorTLorentzVector");
   vectorTLorentzVectorNames_= iConfig.getParameter< std::vector<std::string> >  ("vectorTLorentzVectorNamesInTree");
 
+  VarsDoubleTok_ =consumes<double>(varsDoubleTags_);
+  VarsIntTok_ =consumes <int>(varsIntTags_);
+
   cachedNames_.clear();
 
   varsDouble_.clear();
@@ -245,7 +248,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //Float variables
   for(unsigned int i = 0; i < varsDoubleTags_.size(); ++i) {
      edm::Handle<double> var;
-     iEvent.getByLabel(varsDoubleTags_.at(i),var);
+     iEvent.getByToken(VarsDoubleTok_.at(i),var);
      if( var.isValid() ) {
         varsDouble_.at(i) = *var;
      }else{
@@ -255,7 +258,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
   for(unsigned int i = 0; i < varsIntTags_.size(); ++i) {
     edm::Handle<int> var;
-    iEvent.getByLabel(varsIntTags_.at(i),var);
+    iEvent.getByToken(VarsIntTok_.at(i),var);
     if( var.isValid() ) {
        varsInt_.at(i) = *var;
     }else{
