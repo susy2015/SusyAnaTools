@@ -55,6 +55,9 @@ private:
   std::vector<std::string> varsDoubleNames_;
   std::vector<double> varsDouble_;
   std::vector<TString> varsDoubleNamesCached_;
+ 
+  edm::EDGetTokenT<double>VarsDoubleTok_;
+  edm::EDGetTokenT<int>VarsIntTok_;
   // any int precision varialbes
   std::vector<edm::InputTag> varsIntTags_;
   std::vector<std::string> varsIntNames_;
