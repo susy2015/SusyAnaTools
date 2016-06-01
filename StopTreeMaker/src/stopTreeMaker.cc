@@ -64,8 +64,15 @@ stopTreeMaker::stopTreeMaker(const edm::ParameterSet& iConfig)
   vectorStringNames_= iConfig.getParameter< std::vector<std::string> >  ("vectorStringNamesInTree");
   vectorTLorentzVectorTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("vectorTLorentzVector");
   vectorTLorentzVectorNames_= iConfig.getParameter< std::vector<std::string> >  ("vectorTLorentzVectorNamesInTree");
-
-  VarsDoubleTok_ =consumes<double>(varsDoubleTags_);
+/*
+  for(const auto& tag : varsDoubleTags_){
+ VarsDoubleTok_ .push_back(consumes<std::vector<double>>(varsDoubleTags_));
+  //VarsDoubleTok_ =consumes<std::vector<double>>(varsDoubleTags_);
+}
+*/
+for(const auto& tag : varsDoubleTags_){
+  VarsDoubleTok_ .push_back(consumes<std::vector<double>>(varsDoubleTags_));
+}
   VarsIntTok_ =consumes <int>(varsIntTags_);
 
   cachedNames_.clear();
