@@ -71,7 +71,7 @@ stopTreeMaker::stopTreeMaker(const edm::ParameterSet& iConfig)
 }
 */
 for(const auto& tag : varsDoubleTags_){
-  VarsDoubleTok_ .push_back(consumes<std::vector<double>>(varsDoubleTags_));
+  VarsDoubleTok_ .push_back(consumes<double>(varsDoubleTags_));
 }
   VarsIntTok_ =consumes <int>(varsIntTags_);
 
