@@ -36,7 +36,12 @@ class prodEventInfo : public edm::EDFilter {
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     edm::InputTag vtxSrc_;
+    edm::InputTag puppiSrc_;
+    edm::InputTag genSrc_;
     edm::Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+    edm::EDGetTokenT< std::vector<reco::Vertex> > VtxTok_;
+    edm::EDGetTokenT<std::vector< PileupSummaryInfo > > PuppiTok_;
+    edm::EDGetTokenT<GenEventInfoProduct> GenTok_;
     bool debug_;
     bool isData_;
 };
@@ -48,6 +53,12 @@ prodEventInfo::prodEventInfo(const edm::ParameterSet & iConfig) {
   debug_       = iConfig.getParameter<bool>("debug");
 
   isData_      = true;
+
+  genSrc_ = iConfig.getParameter<edm::InputTag>("genSrc");
+  puppiSrc_ = iConfig.getParameter<edm::InputTag>("puppiSrc");
+  VtxTok_ = consumes< std::vector<reco::Vertex> >(vtxSrc_);
+  PuppiTok_ = consumes<std::vector< PileupSummaryInfo > >(puppiSrc_);
+  GenTok_ = consumes<GenEventInfoProduct>(genSrc_);
 
   produces<int>("vtxSize");
   produces<double>("trunpv");
@@ -69,7 +80,7 @@ bool prodEventInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if( !iEvent.isRealData() ) isData_ = false;
 
   edm::Handle< std::vector<reco::Vertex> > vertices;
-  iEvent.getByLabel(vtxSrc_, vertices);
+  iEvent.getByToken(VtxTok_, vertices);
 //  reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
 
   std::auto_ptr<int> vtxSize(new int);
@@ -88,7 +99,7 @@ bool prodEventInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   *storedWeight = -1.0;
 
   if( !isData_ ){
-     iEvent.getByLabel(edm::InputTag("slimmedAddPileupInfo"), PupInfo);
+     iEvent.getByToken(PuppiTok_, PupInfo);
      std::vector<PileupSummaryInfo>::const_iterator PVI;
 
      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
@@ -116,7 +127,7 @@ bool prodEventInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
      *avg_npv /= 3.0;
 
      edm::Handle<GenEventInfoProduct> genEvtInfoHandle;
-     iEvent.getByLabel("generator", genEvtInfoHandle);
+     iEvent.getByToken(GenTok_, genEvtInfoHandle);
      if (genEvtInfoHandle.isValid()) {
         *storedWeight = genEvtInfoHandle->weight();
      }

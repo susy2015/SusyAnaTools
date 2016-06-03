@@ -196,7 +196,8 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<reco::MET> > met;
   iEvent.getByToken(MetTok_, met);
 
-  iEvent.getByToken(Loose_Isotrk_IsoVecHandle_Tok_, loose_isoTrksHandle_); if( loose_isoTrksHandle_.isValid() ) loose_nIsoTrks = loose_isoTrksHandle_->size(); else loose_nIsoTrks =0;
+  iEvent.getByToken(Loose_IsoTrksHandle_Tok_, loose_isoTrksHandle_); 
+  if( loose_isoTrksHandle_.isValid() ) loose_nIsoTrks = loose_isoTrksHandle_->size(); else loose_nIsoTrks =0;
   iEvent.getByToken(ForVetoIsoTrks_Tok_, forVetoIsoTrks_); 
   if( forVetoIsoTrks_.isValid() ) nIsoTrksForVeto = forVetoIsoTrks_->size(); else nIsoTrksForVeto =0;
 

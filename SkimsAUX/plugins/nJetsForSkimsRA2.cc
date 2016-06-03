@@ -27,7 +27,7 @@ class nJetsForSkimsRA2 : public edm::EDFilter {
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
     
     edm::InputTag jetSrc_;
-    edm::EDGetTokenT<std::vector<reco::Jet> > JetTok_;
+    edm::EDGetTokenT<edm::View<reco::Jet> > JetTok_;
     double minJetPt_;
     double maxJetEta_;
 
@@ -38,7 +38,7 @@ nJetsForSkimsRA2::nJetsForSkimsRA2(const edm::ParameterSet & iConfig) {
   jetSrc_ = iConfig.getParameter<edm::InputTag>("JetSource");
   minJetPt_    = iConfig.getParameter<double>("MinJetPt");
   maxJetEta_   = iConfig.getParameter<double>("MaxJetEta");
-  JetTok_  = consumes<std::vector<reco::Jet> > (jetSrc_);
+  JetTok_  = consumes<edm::View<reco::Jet> > (jetSrc_);
   produces<int>("nJets");
 }
 

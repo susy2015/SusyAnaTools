@@ -25,7 +25,7 @@ class simpleJetSelector : public edm::EDFilter {
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
     
     edm::InputTag jetSrc_;
-    edm::EDGetTokenT<std::vector<pat::Jet> > JetTok_;
+    edm::EDGetTokenT<edm::View<pat::Jet> > JetTok_;
     StringCutObjectSelector<pat::Jet,true> pfJetCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
 };
 
@@ -35,7 +35,7 @@ simpleJetSelector::simpleJetSelector(const edm::ParameterSet & iConfig) :
 {
   produces<std::vector<pat::Jet> >("");
   jetSrc_ = iConfig.getParameter<edm::InputTag>("jetSrc");
-  JetTok_  = consumes<std::vector<pat::Jet> > (jetSrc_);
+  JetTok_  = consumes<edm::View<pat::Jet> > (jetSrc_);
 }
 
 
