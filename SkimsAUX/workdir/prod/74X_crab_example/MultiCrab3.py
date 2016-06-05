@@ -251,6 +251,11 @@ def SubmitJob(key, value):
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer15_25nsV6_DATA.db', 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
+        elif key.find('Run2015B-PromptReco') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_reMiniAOD_v0', 'specialFix=JEC', 'jecDBname=Summer15_25nsV6_DATA', 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
+             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_25nsV1_DATA.db', 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+            tempconfig.Data.splitting = 'LumiBased'
+            tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2016B-PromptReco') != -1:
             tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v8']#, 'specialFix=JEC', 'jecDBname=Summer15_25nsV6_DATA', 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
            # tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_25nsV1_DATA.db', 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
