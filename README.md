@@ -6,7 +6,6 @@ The following installation instructions assume the user wants to process Run2015
 cmsrel CMSSW_8_0_10
 cd CMSSW_8_0_10/src/
 cmsenv
-git cms-merge-topic -u kpedro88:METfix7415
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
 git clone -b 8_0_10_Ntuple_production git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
