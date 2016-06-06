@@ -42,7 +42,7 @@ class prodGenJets : public edm::EDFilter
   edm::InputTag genjetSrc_;
   // All have to be pat::Jet, otherwise cannot get b-tagging information!
   edm::Handle<std::vector<reco::GenJet> > genjets;
-  edm::EDGetTokenT<vector<TLorentzVector> > GenJetTok_;
+  edm::EDGetTokenT<std::vector<reco::GenJet> > GenJetTok_;
 };
 
 
@@ -50,7 +50,7 @@ prodGenJets::prodGenJets(const edm::ParameterSet & iConfig)
 {
 	genjetSrc_ = iConfig.getParameter<edm::InputTag>("genjetSrc");
 	produces<std::vector<TLorentzVector> >("genjetsLVec");
-        GenJetTok_ = consumes< vector<TLorentzVector> >(genjetSrc_);
+        GenJetTok_ = consumes<std::vector<reco::GenJet> >(genjetSrc_);
 	//produces<std::vector<int> >("genJetsFlavor");
 }
 
