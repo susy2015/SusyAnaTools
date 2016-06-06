@@ -27,18 +27,62 @@
 
 #include "PDFUncertainty.h"
 
-#include "../SkimsAUX/plugins/MT2CalcCore.h"
+#include "xSec.h"
+
+#include "BTagCorrector.h"
+
+#include <cstdio>
+#include <string>
+#include <vector>
+#include <map>
+#include <utility>
+
+#include "../TopTagger/interface/indexSort.h"
 
 const bool doSingleMuonCS = false;
 const bool doInvDphi = false;
-
-MT2CalcCore * mt2Calc;
 
 BaselineVessel * SRblv =0;
 const std::string spec = "MY";
 
 void mypassBaselineFunc(NTupleReader &tr){
    (*SRblv)(tr);
+}
+
+const std::string spec_jecUp = "jecUp";
+BaselineVessel * SRblv_jecUp =0;
+void jecUpBaselineFunc(NTupleReader &tr){
+   (*SRblv_jecUp)(tr);
+}
+
+const std::string spec_jecDn = "jecDn";
+BaselineVessel * SRblv_jecDn =0;
+void jecDnBaselineFunc(NTupleReader &tr){
+   (*SRblv_jecDn)(tr);
+}
+
+const std::string spec_metMagUp = "metMagUp";
+BaselineVessel * SRblv_metMagUp =0;
+void metMagUpBaselineFunc(NTupleReader &tr){
+   (*SRblv_metMagUp)(tr);
+}
+
+const std::string spec_metMagDn = "metMagDn";
+BaselineVessel * SRblv_metMagDn =0;
+void metMagDnBaselineFunc(NTupleReader &tr){
+   (*SRblv_metMagDn)(tr);
+}
+
+const std::string spec_metPhiUp = "metPhiUp";
+BaselineVessel * SRblv_metPhiUp =0;
+void metPhiUpBaselineFunc(NTupleReader &tr){
+   (*SRblv_metPhiUp)(tr);
+}
+
+const std::string spec_metPhiDn = "metPhiDn";
+BaselineVessel * SRblv_metPhiDn =0;
+void metPhiDnBaselineFunc(NTupleReader &tr){
+   (*SRblv_metPhiDn)(tr);
 }
 
 PDFUncertainty * pdfScale =0;
@@ -74,6 +118,585 @@ void drawOverFlowBin(TH1 *histToAdjust){
    histToAdjust->SetBinContent(nbins, overflow+lastCont);
 }
 
+class HistContainer
+{
+private:
+    TH1* met_;
+    TH1* mt2_;
+    TH1* nt_;
+    TH1* nb_;
+    TH1* baseline_met_;
+    TH1* baseline_mt2_;
+    TH1* baseline_nt_;
+    TH1* baseline_nb_;
+    TH1* baseline_nSearchBin_;
+    TH1* xSec_;
+    TH1* totEntries_;
+
+    TH1* baseline_nb_ngenbLE3_;
+
+    TH1* genTopPt_;
+    TH1* baseline_genTopPt_;
+
+    TH2* sumStopPt_vs_met_;
+
+    TH2* baseline_MT2_vs_met_;
+
+    TH1* baseline_scaleUncUp_;
+    TH1* baseline_scaleUncDn_;
+
+    TH1* baseline_pdfUncUp_;
+    TH1* baseline_pdfUncCen_;
+    TH1* baseline_pdfUncDn_;
+
+    TH1* baseline_isrUncUp_;
+    TH1* baseline_isrUncDn_;
+
+    TH1* baseline_metMagUp_;
+    TH1* baseline_metMagDn_;
+
+    TH1* baseline_metPhiUp_;
+    TH1* baseline_metPhiDn_;
+
+    TH1* baseline_jetJECUp_;
+    TH1* baseline_jetJECDn_;
+
+    TH1* baseline_bTagSFUp_;
+    TH1* baseline_bTagSFCen_;
+    TH1* baseline_bTagSFDn_;
+    TH1* baseline_mistagSFUp_;
+    TH1* baseline_mistagSFDn_;
+
+    int mMass_;
+    int dMass_;
+
+    TH2* num_eff_b_;
+    TH2* num_eff_c_;
+    TH2* num_eff_udsg_;
+    TH2* den_eff_b_;
+    TH2* den_eff_c_;
+    TH2* den_eff_udsg_;
+
+    double maxEffpt_, secMaxEffpt_;
+
+    void bookHists()
+    {
+       char hname[128];
+       sprintf(hname, "%s_%d_%d", "met", mMass_, dMass_);
+       met_ = new TH1D(hname, hname, 100, 0, 1000); met_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "mt2", mMass_, dMass_);
+       mt2_ = new TH1D(hname, hname, 100, 0, 1000); mt2_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "nt", mMass_, dMass_);
+       nt_ = new TH1D(hname, hname,  4, 0, 4); nt_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "nb", mMass_, dMass_);
+       nb_ = new TH1D(hname, hname,  5, 0, 5); nb_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "sumStopPt_vs_met", mMass_, dMass_);
+       sumStopPt_vs_met_ = new TH2D(hname, hname, 100, 0, 800, 100, 0, 800); sumStopPt_vs_met_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_met", mMass_, dMass_);
+       baseline_met_ = new TH1D(hname, hname, 100, 0, 1000); baseline_met_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_mt2", mMass_, dMass_);
+       baseline_mt2_ = new TH1D(hname, hname, 100, 0, 1000); baseline_mt2_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_nt", mMass_, dMass_);
+       baseline_nt_ = new TH1D(hname, hname,  4, 0, 4); baseline_nt_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_nb", mMass_, dMass_);
+       baseline_nb_ = new TH1D(hname, hname,  5, 0, 5); baseline_nb_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_nb_ngenbLE3", mMass_, dMass_);
+       baseline_nb_ngenbLE3_ = new TH1D(hname, hname,  5, 0, 5); baseline_nb_ngenbLE3_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_nSearchBin", mMass_, dMass_);
+       baseline_nSearchBin_ = new TH1D(hname, hname,  45, 0, 45); baseline_nSearchBin_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_scaleUncUp", mMass_, dMass_);
+       baseline_scaleUncUp_ = new TH1D(hname, hname,  45, 0, 45); baseline_scaleUncUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_scaleUncDn", mMass_, dMass_);
+       baseline_scaleUncDn_ = new TH1D(hname, hname,  45, 0, 45); baseline_scaleUncDn_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_pdfUncUp", mMass_, dMass_);
+       baseline_pdfUncUp_ = new TH1D(hname, hname,  45, 0, 45); baseline_pdfUncUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_pdfUncCen", mMass_, dMass_);
+       baseline_pdfUncCen_ = new TH1D(hname, hname,  45, 0, 45); baseline_pdfUncCen_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_pdfUncDn", mMass_, dMass_);
+       baseline_pdfUncDn_ = new TH1D(hname, hname,  45, 0, 45); baseline_pdfUncDn_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_isrUncUp", mMass_, dMass_);
+       baseline_isrUncUp_ = new TH1D(hname, hname,  45, 0, 45); baseline_isrUncUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_isrUncDn", mMass_, dMass_);
+       baseline_isrUncDn_ = new TH1D(hname, hname,  45, 0, 45); baseline_isrUncDn_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_metMagUp", mMass_, dMass_);
+       baseline_metMagUp_ = new TH1D(hname, hname, 45, 0, 45); baseline_metMagUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_metMagDn", mMass_, dMass_);
+       baseline_metMagDn_ = new TH1D(hname, hname, 45, 0, 45); baseline_metMagDn_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_metPhiUp", mMass_, dMass_);
+       baseline_metPhiUp_ = new TH1D(hname, hname, 45, 0, 45); baseline_metPhiUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_metPhiDn", mMass_, dMass_);
+       baseline_metPhiDn_ = new TH1D(hname, hname, 45, 0, 45); baseline_metPhiDn_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_jetJECUp", mMass_, dMass_);
+       baseline_jetJECUp_ = new TH1D(hname, hname, 45, 0, 45); baseline_jetJECUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_jetJECDn", mMass_, dMass_);
+       baseline_jetJECDn_ = new TH1D(hname, hname, 45, 0, 45); baseline_jetJECDn_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_bTagSFUp", mMass_, dMass_);
+       baseline_bTagSFUp_ = new TH1D(hname, hname,  45, 0, 45); baseline_bTagSFUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_bTagSFCen", mMass_, dMass_);
+       baseline_bTagSFCen_ = new TH1D(hname, hname,  45, 0, 45); baseline_bTagSFCen_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_bTagSFDn", mMass_, dMass_);
+       baseline_bTagSFDn_ = new TH1D(hname, hname,  45, 0, 45); baseline_bTagSFDn_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_mistagSFUp", mMass_, dMass_);
+       baseline_mistagSFUp_ = new TH1D(hname, hname,  45, 0, 45); baseline_mistagSFUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_mistagSFDn", mMass_, dMass_);
+       baseline_mistagSFDn_ = new TH1D(hname, hname,  45, 0, 45); baseline_mistagSFDn_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "genTopPt", mMass_, dMass_);
+       genTopPt_ = new TH1D(hname, hname, 100, 0, 1000); genTopPt_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_genTopPt", mMass_, dMass_);
+       baseline_genTopPt_ = new TH1D(hname, hname, 100, 0, 1000); baseline_genTopPt_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_MT2_vs_met", mMass_, dMass_);
+       baseline_MT2_vs_met_ = new TH2D(hname, hname, 100, 200, 700, 100, 200, 700); baseline_MT2_vs_met_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "xSec", mMass_, dMass_);
+       xSec_ = new TH1D(hname, hname, 10, 0, 10); xSec_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "totEntries", mMass_, dMass_);
+       totEntries_ = new TH1D(hname, hname, 10, 0, 10); totEntries_->Sumw2();
+
+       const int nPtBins = 17;
+       const int nEtaBins = 3;
+
+       maxEffpt_ = 900; secMaxEffpt_ = 800;
+
+       const double ptBins[]   =  {20,30,40,50,60,70,80,100,120,160,210,260,320,400,500,600,secMaxEffpt_,maxEffpt_};
+       const double etaBins[]  =  {0.0,0.8,1.6,2.4};
+
+       sprintf(hname, "%s_%d_%d", "num_eff_b", mMass_, dMass_);
+       num_eff_b_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); num_eff_b_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "num_eff_c", mMass_, dMass_);
+       num_eff_c_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); num_eff_c_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "num_eff_udsg", mMass_, dMass_);
+       num_eff_udsg_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); num_eff_udsg_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "den_eff_b", mMass_, dMass_);
+       den_eff_b_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); den_eff_b_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "den_eff_c", mMass_, dMass_);
+       den_eff_c_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); den_eff_c_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "den_eff_udsg", mMass_, dMass_);
+       den_eff_udsg_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); den_eff_udsg_->Sumw2();
+    }
+
+public:
+    HistContainer(int mMass, int dMass) : mMass_(mMass), dMass_(dMass)
+    {
+       bookHists();
+    }
+
+    void fill(const NTupleReader& tr, const double weight)
+    {
+       const double& met                = tr.getVar<double>("met");
+       const double& best_had_brJet_MT2 = tr.getVar<double>("best_had_brJet_MT2" + spec);
+       const int& cntCSVS               = tr.getVar<int>("cntCSVS" + spec);
+       const int& nTopCandSortedCnt     = tr.getVar<int>("nTopCandSortedCnt" + spec);
+       const bool& passBaseline         = tr.getVar<bool>("passBaseline" + spec);
+
+       const std::vector<int> & genDecayIdxVec = tr.getVec<int>("genDecayIdxVec");
+       const std::vector<int> & genDecayMomIdxVec = tr.getVec<int>("genDecayMomIdxVec");
+       const std::vector<int> & genDecayPdgIdVec = tr.getVec<int>("genDecayPdgIdVec");
+       const std::vector<TLorentzVector> & genDecayLVec = tr.getVec<TLorentzVector>("genDecayLVec");
+       const std::vector<std::string> & genDecayStrVec = tr.getVec<std::string>("genDecayStrVec");
+
+       const double & Scaled_Variations_Up = tr.getVar<double>("Scaled_Variations_Up");
+       const double & Scaled_Variations_Down = tr.getVar<double>("Scaled_Variations_Down");
+
+       const double & NNPDF_From_Median_Central = tr.getVar<double>("NNPDF_From_Median_Central");
+//       const double NNPDF_From_Median_Up = tr.getVar<double>("NNPDF_From_Median_Up") * NNPDF_From_Median_Central;
+//       const double NNPDF_From_Median_Down = tr.getVar<double>("NNPDF_From_Median_Down") >0 ? tr.getVar<double>("NNPDF_From_Median_Down") * NNPDF_From_Median_Central : 0;
+       const double NNPDF_From_Median_Up = tr.getVar<double>("NNPDF_From_Median_Up");
+       const double NNPDF_From_Median_Down = tr.getVar<double>("NNPDF_From_Median_Down");
+
+       const std::vector<double> & prob_Up = tr.getVec<double>("bTagSF_EventWeightProb_Up");
+       const std::vector<double> & prob_Cen = tr.getVec<double>("bTagSF_EventWeightProb_Central");
+       const std::vector<double> & prob_Dn = tr.getVec<double>("bTagSF_EventWeightProb_Down");
+
+       const double & method1a_Up = tr.getVar<double>("bTagSF_EventWeightSimple_Up");
+       const double & method1a_Cen = tr.getVar<double>("bTagSF_EventWeightSimple_Central");
+       const double & method1a_Dn = tr.getVar<double>("bTagSF_EventWeightSimple_Down");
+       const double & method1a_mistag_Up = tr.getVar<double>("mistagSF_EventWeightSimple_Up");
+       const double & method1a_mistag_Dn = tr.getVar<double>("mistagSF_EventWeightSimple_Down");
+
+       const std::vector<TLorentzVector> & selGenParticle = tr.getVec<TLorentzVector>("selGenParticle");
+       const std::vector<int> & selPDGid = tr.getVec<int>("selPDGid");
+
+       const std::vector<double> & recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
+       const std::vector<int> & recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
+       const std::vector<TLorentzVector> & jetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+
+       const double & met_metMagUp = tr.getVar<double>("met_metMagUp");
+       const double & best_had_brJet_MT2_metMagUp = tr.getVar<double>("best_had_brJet_MT2" + spec_metMagUp);
+       const int & cntCSVS_metMagUp = tr.getVar<int>("cntCSVS" + spec_metMagUp);
+       const int & nTopCandSortedCnt_metMagUp = tr.getVar<int>("nTopCandSortedCnt" + spec_metMagUp);
+       const bool & passBaseline_metMagUp = tr.getVar<bool>("passBaseline" + spec_metMagUp);
+
+       const double & met_metMagDn = tr.getVar<double>("met_metMagDn");
+       const double & best_had_brJet_MT2_metMagDn = tr.getVar<double>("best_had_brJet_MT2" + spec_metMagDn);
+       const int & cntCSVS_metMagDn = tr.getVar<int>("cntCSVS" + spec_metMagDn);
+       const int & nTopCandSortedCnt_metMagDn = tr.getVar<int>("nTopCandSortedCnt" + spec_metMagDn);
+       const bool & passBaseline_metMagDn = tr.getVar<bool>("passBaseline" + spec_metMagDn);
+
+       const double & met_metPhiUp = tr.getVar<double>("met");
+       const double & best_had_brJet_MT2_metPhiUp = tr.getVar<double>("best_had_brJet_MT2" + spec_metPhiUp);
+       const int & cntCSVS_metPhiUp = tr.getVar<int>("cntCSVS" + spec_metPhiUp);
+       const int & nTopCandSortedCnt_metPhiUp = tr.getVar<int>("nTopCandSortedCnt" + spec_metPhiUp);
+       const bool & passBaseline_metPhiUp = tr.getVar<bool>("passBaseline" + spec_metPhiUp);
+
+       const double & met_metPhiDn = tr.getVar<double>("met");
+       const double & best_had_brJet_MT2_metPhiDn = tr.getVar<double>("best_had_brJet_MT2" + spec_metPhiDn);
+       const int & cntCSVS_metPhiDn = tr.getVar<int>("cntCSVS" + spec_metPhiDn);
+       const int & nTopCandSortedCnt_metPhiDn = tr.getVar<int>("nTopCandSortedCnt" + spec_metPhiDn);
+       const bool & passBaseline_metPhiDn = tr.getVar<bool>("passBaseline" + spec_metPhiDn);
+
+       const double & met_jecUp = tr.getVar<double>("met");
+       const double & best_had_brJet_MT2_jecUp = tr.getVar<double>("best_had_brJet_MT2" + spec_jecUp);
+       const int & cntCSVS_jecUp = tr.getVar<int>("cntCSVS" + spec_jecUp);
+       const int & nTopCandSortedCnt_jecUp = tr.getVar<int>("nTopCandSortedCnt" + spec_jecUp);
+       const bool & passBaseline_jecUp = tr.getVar<bool>("passBaseline" + spec_jecUp);
+
+       const double & met_jecDn = tr.getVar<double>("met");
+       const double & best_had_brJet_MT2_jecDn = tr.getVar<double>("best_had_brJet_MT2" + spec_jecDn);
+       const int & cntCSVS_jecDn = tr.getVar<int>("cntCSVS" + spec_jecDn);
+       const int & nTopCandSortedCnt_jecDn = tr.getVar<int>("nTopCandSortedCnt" + spec_jecDn);
+       const bool & passBaseline_jecDn = tr.getVar<bool>("passBaseline" + spec_jecDn);
+
+       for(unsigned int ig=0; ig<genDecayPdgIdVec.size(); ig++){
+
+          if( std::abs(genDecayPdgIdVec[ig]) != 6 ) continue;
+
+          double genTopPt = genDecayLVec[ig].Pt();
+
+          genTopPt_->Fill(genTopPt, weight);
+
+          if(passBaseline) baseline_genTopPt_->Fill(genTopPt, weight);
+       }
+
+       TLorentzVector sumStopLVec;
+       int cntgenb =0;
+       for(unsigned int is=0; is<selGenParticle.size(); is++){
+          if( std::abs(selPDGid[is]) == 1000006 ) sumStopLVec += selGenParticle[is];
+          if( std::abs(selPDGid[is]) == 5 > 0 ){
+             if( AnaFunctions::jetPassCuts(selGenParticle[is], AnaConsts::pt30Eta24Arr) ) cntgenb ++;
+          }
+       }
+
+       int cntbflavJets = 0;
+       for(unsigned int ij=0; ij<jetsLVec.size(); ij++){
+          if( !AnaFunctions::jetPassCuts(jetsLVec[ij], AnaConsts::pt30Eta24Arr) ) continue;
+          int flav = std::abs(recoJetsFlavor[ij]);
+          if( flav == 5 ) cntbflavJets++;
+       }
+
+/*
+       if( cntgenb >=3 ){
+          std::cout<<"\nSusyMotherMass : "<<tr.getVar<double>("SusyMotherMass")<<"  SusyLSPMass : "<<tr.getVar<double>("SusyLSPMass")<<"  cntbflavJets : "<<cntbflavJets<<std::endl;
+          std::cout<<"--> genDecayStrVec : "<<genDecayStrVec.at(0).c_str()<<std::endl;
+          for(unsigned int is=0; is<selGenParticle.size(); is++){
+             std::cout<<"  selPDGid : "<<selPDGid[is]<<"  Pt : "<<selGenParticle[is].Pt()<<"  Eta : "<<selGenParticle[is].Eta()<<"  Phi : "<<selGenParticle[is].Phi()<<"  M : "<<selGenParticle[is].M()<<std::endl;
+          }
+       }
+*/
+
+       sumStopPt_vs_met_->Fill(met, sumStopLVec.Pt(), weight);
+
+       const int nSearchBin = find_Binning_Index(cntCSVS, nTopCandSortedCnt, best_had_brJet_MT2, met);
+
+       met_->Fill(met, weight);
+       mt2_->Fill(best_had_brJet_MT2, weight);
+       nt_->Fill(nTopCandSortedCnt, weight);
+       nb_->Fill(cntCSVS, weight);
+
+       totEntries_->Fill(0.0, weight);
+
+       if(passBaseline)
+       {
+          baseline_met_->Fill(met, weight);
+          baseline_mt2_->Fill(best_had_brJet_MT2, weight);
+          baseline_nt_->Fill(nTopCandSortedCnt, weight);
+          baseline_nb_->Fill(cntCSVS, weight);
+
+          if( cntgenb >=3 ) baseline_nb_ngenbLE3_->Fill(cntCSVS, weight);
+
+          baseline_nSearchBin_->Fill(nSearchBin, weight);
+
+          baseline_scaleUncUp_->Fill(nSearchBin, Scaled_Variations_Up * weight);
+          baseline_scaleUncDn_->Fill(nSearchBin, Scaled_Variations_Down * weight);
+
+          baseline_pdfUncUp_->Fill(nSearchBin, NNPDF_From_Median_Up * weight);
+          baseline_pdfUncCen_->Fill(nSearchBin, NNPDF_From_Median_Central * weight);
+          baseline_pdfUncDn_->Fill(nSearchBin, NNPDF_From_Median_Down * weight);
+
+          for(unsigned int ij=0; ij<jetsLVec.size(); ij++){
+             if( !AnaFunctions::jetPassCuts(jetsLVec[ij], AnaConsts::pt30Eta24Arr) ) continue;
+             double pt = jetsLVec[ij].Pt(), eta = std::abs(jetsLVec[ij].Eta());
+             if( pt > maxEffpt_ ) pt = (maxEffpt_ + secMaxEffpt_) * 0.5;
+             double csvs = recoJetsBtag[ij];
+             int flav = std::abs(recoJetsFlavor[ij]);
+             if(flav == 5){ //b jets
+                den_eff_b_->Fill(pt, eta, weight);
+                if( csvs > AnaConsts::cutCSVS) num_eff_b_->Fill(pt, eta, weight);
+             }else if(flav == 4){ //c jets
+                den_eff_c_->Fill(pt, eta, weight);
+                if( csvs > AnaConsts::cutCSVS) num_eff_c_->Fill(pt, eta, weight);
+             }else if(flav < 4 || flav == 21){ //light quark jets & gluon
+                den_eff_udsg_->Fill(pt, eta, weight);
+                if( csvs > AnaConsts::cutCSVS) num_eff_udsg_->Fill(pt, eta, weight);
+             }
+          }
+
+          baseline_bTagSFUp_->Fill(nSearchBin, method1a_Up * weight);
+          baseline_bTagSFCen_->Fill(nSearchBin, method1a_Cen * weight);
+          baseline_bTagSFDn_->Fill(nSearchBin, method1a_Dn * weight);
+
+          baseline_mistagSFUp_->Fill(nSearchBin, method1a_mistag_Up * weight);
+          baseline_mistagSFDn_->Fill(nSearchBin, method1a_mistag_Dn * weight);
+
+/*
+          for(unsigned int ib=0; ib<4; ib++){
+             const int iSB = find_Binning_Index(ib, nTopCandSortedCnt, best_had_brJet_MT2, met);
+             if( iSB == -1 ) continue;
+             baseline_bTagSFUp_->Fill(iSB, prob_Up[ib] * weight);
+             baseline_bTagSFCen_->Fill(iSB, prob_Cen[ib] * weight);
+             baseline_bTagSFDn_->Fill(iSB, prob_Dn[ib] * weight);
+          }
+*/
+/*
+          for(unsigned int ib=0; ib<nTotBins; ib++){
+             struct searchBinDef sbDef;
+             find_BinBoundaries(ib, sbDef);
+             int tmp_cntCSVS = cntCSVS <=3 ? cntCSVS:3;
+             if( sbDef.bJet_lo == tmp_cntCSVS ){
+                baseline_bTagSFUp_->Fill(ib, prob_Up[tmp_cntCSVS] * weight);
+                baseline_bTagSFCen_->Fill(ib, prob_Cen[tmp_cntCSVS] * weight);
+                baseline_bTagSFDn_->Fill(ib, prob_Dn[tmp_cntCSVS] * weight);
+             }
+          }
+*/
+/*
+          if(cntCSVS == 1){
+             baseline_bTagSFUp_->Fill(nSearchBin, prob_Up[1] * weight);
+             baseline_bTagSFCen_->Fill(nSearchBin, prob_Cen[1] * weight);
+             baseline_bTagSFDn_->Fill(nSearchBin, prob_Dn[1] * weight);
+          }else if(cntCSVS ==2 ){
+             baseline_bTagSFUp_->Fill(nSearchBin, prob_Up[2] * weight);
+             baseline_bTagSFCen_->Fill(nSearchBin, prob_Cen[2] * weight);
+             baseline_bTagSFDn_->Fill(nSearchBin, prob_Dn[2] * weight);
+          }else if(cntCSVS >=3 ){
+             baseline_bTagSFUp_->Fill(nSearchBin, prob_Up[3] * weight);
+             baseline_bTagSFCen_->Fill(nSearchBin, prob_Cen[3] * weight);
+             baseline_bTagSFDn_->Fill(nSearchBin, prob_Dn[3] * weight);
+          }
+*/
+          baseline_MT2_vs_met_->Fill(met, best_had_brJet_MT2, weight);
+
+          if( sumStopLVec.Pt() < 400 ){
+             baseline_isrUncUp_->Fill(nSearchBin, weight);
+             baseline_isrUncDn_->Fill(nSearchBin, weight);
+          }else if( sumStopLVec.Pt() < 600 ){
+             baseline_isrUncUp_->Fill(nSearchBin, (1+0.15) * weight);
+             baseline_isrUncDn_->Fill(nSearchBin, (1-0.15) * weight);
+          }else{
+             baseline_isrUncUp_->Fill(nSearchBin, (1+0.30) * weight);
+             baseline_isrUncDn_->Fill(nSearchBin, (1-0.30) * weight);
+          }
+       }
+
+       if( passBaseline_metMagUp ){
+          const int nSearchBin_metMagUp = find_Binning_Index(cntCSVS_metMagUp, nTopCandSortedCnt_metMagUp, best_had_brJet_MT2_metMagUp, met_metMagUp);
+          baseline_metMagUp_->Fill(nSearchBin_metMagUp, weight);
+       }
+       if( passBaseline_metMagDn ){
+          const int nSearchBin_metMagDn = find_Binning_Index(cntCSVS_metMagDn, nTopCandSortedCnt_metMagDn, best_had_brJet_MT2_metMagDn, met_metMagDn);
+          baseline_metMagDn_->Fill(nSearchBin_metMagDn, weight);
+       }
+       if( passBaseline_metPhiUp ){
+          const int nSearchBin_metPhiUp = find_Binning_Index(cntCSVS_metPhiUp, nTopCandSortedCnt_metPhiUp, best_had_brJet_MT2_metPhiUp, met_metPhiUp);
+          baseline_metPhiUp_->Fill(nSearchBin_metPhiUp, weight);
+       }
+       if( passBaseline_metPhiDn ){
+          const int nSearchBin_metPhiDn = find_Binning_Index(cntCSVS_metPhiDn, nTopCandSortedCnt_metPhiDn, best_had_brJet_MT2_metPhiDn, met_metPhiDn);
+          baseline_metPhiDn_->Fill(nSearchBin_metPhiDn, weight);
+       }
+       if( passBaseline_jecUp ){
+          const int nSearchBin_jetUp = find_Binning_Index(cntCSVS_jecUp, nTopCandSortedCnt_jecUp, best_had_brJet_MT2_jecUp, met_jecUp);
+          baseline_jetJECUp_->Fill(nSearchBin_jetUp, weight);
+       }
+       if( passBaseline_jecDn ){
+          const int nSearchBin_jetDn = find_Binning_Index(cntCSVS_jecDn, nTopCandSortedCnt_jecDn, best_had_brJet_MT2_jecDn, met_jecDn);
+          baseline_jetJECDn_->Fill(nSearchBin_jetDn, weight);
+       }
+    }
+
+    void fillxSec(const double xSec, const double xSecErr)
+    {
+       xSec_->Fill(0.0, xSec);
+       xSec_->Fill(1.0, xSecErr);
+    }
+
+    void write()
+    {
+       met_->Write();
+       mt2_->Write();
+       nt_->Write();
+       nb_->Write();
+       baseline_met_->Write();
+       baseline_mt2_->Write();
+       baseline_nt_->Write();
+       baseline_nb_->Write();
+       baseline_nb_ngenbLE3_->Write();
+
+       baseline_nSearchBin_->Write();
+       baseline_MT2_vs_met_->Write();
+       totEntries_->Write();
+
+       baseline_scaleUncUp_->Write();
+       baseline_scaleUncDn_->Write();
+
+       baseline_pdfUncUp_->Write();
+       baseline_pdfUncCen_->Write();
+       baseline_pdfUncDn_->Write();
+
+       baseline_isrUncUp_->Write();
+       baseline_isrUncDn_->Write();
+
+       baseline_metMagUp_->Write();
+       baseline_metMagDn_->Write();
+
+       baseline_metPhiUp_->Write();
+       baseline_metPhiDn_->Write();
+
+       baseline_jetJECUp_->Write();
+       baseline_jetJECDn_->Write();
+
+       baseline_bTagSFUp_->Write();
+       baseline_bTagSFCen_->Write();
+       baseline_bTagSFDn_->Write();
+
+       baseline_mistagSFUp_->Write();
+       baseline_mistagSFDn_->Write();
+
+       genTopPt_->Write();
+       baseline_genTopPt_->Write();
+
+       sumStopPt_vs_met_->Write();
+
+       num_eff_b_->Write();
+       num_eff_c_->Write();
+       num_eff_udsg_->Write();
+       den_eff_b_->Write();
+       den_eff_c_->Write();
+       den_eff_udsg_->Write();
+//       xSec_->Write();
+    }
+};
+
+class SystematicPrep{
+   private:
+
+   void systematicPrep(NTupleReader& tr){
+      const std::vector<TLorentzVector>& jetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+      const std::vector<double> & recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
+      const std::vector<double>& recoJetsJecUnc = tr.getVec<double>("recoJetsJecUnc");
+
+      const std::vector<double>& metMagUpVec = tr.getVec<double>("metMagUp");
+      const std::vector<double>& metMagDnVec = tr.getVec<double>("metMagDown");
+      const std::vector<double>& metPhiUpVec = tr.getVec<double>("metPhiUp");
+      const std::vector<double>& metPhiDnVec = tr.getVec<double>("metPhiDown");
+
+      const double& met    = tr.getVar<double>("met");
+      const double& metphi = tr.getVar<double>("metphi");
+
+      std::vector<TLorentzVector> *jetLVecUp = new std::vector<TLorentzVector>;
+      std::vector<TLorentzVector> *jetLVecDn = new std::vector<TLorentzVector>;
+
+      std::vector<double> *recoJetsBtagUp = new std::vector<double>;
+      std::vector<double> *recoJetsBtagDn = new std::vector<double>;
+
+//      std::vector<double> *dmetMag = new std::vector<double>;
+//      std::vector<double> *dmetPhi = new std::vector<double>;
+
+      double metUp = 0.0, metDn = 99999.0;
+      double metPhiUp = metphi, metPhiDn = metphi;
+
+      for(int iMet = 0; iMet < metMagUpVec.size(); ++iMet){
+         metUp = std::max(metUp, metMagUpVec[iMet]);
+         metDn = std::min(metDn, metMagDnVec[iMet]);
+
+         if( TVector2::Phi_mpi_pi(metPhiUpVec[iMet] - metphi) > 0 && metPhiUp < metPhiUpVec[iMet] ) metPhiUp = metPhiUpVec[iMet];
+         if( TVector2::Phi_mpi_pi(metPhiUpVec[iMet] - metphi) < 0 && metPhiDn > metPhiUpVec[iMet] ) metPhiDn = metPhiUpVec[iMet];
+          
+         if( TVector2::Phi_mpi_pi(metPhiDnVec[iMet] - metphi) > 0 && metPhiUp < metPhiDnVec[iMet] ) metPhiUp = metPhiDnVec[iMet];
+         if( TVector2::Phi_mpi_pi(metPhiDnVec[iMet] - metphi) < 0 && metPhiDn > metPhiDnVec[iMet] ) metPhiDn = metPhiDnVec[iMet];
+          
+//         dmetMag->push_back((metMagUp[iMet] - met)/met);
+//         dmetMag->push_back((metMagDown[iMet] - met)/met);
+
+//         dmetPhi->push_back(TVector2::Phi_mpi_pi(metPhiUp[iMet] - metphi));
+//         dmetPhi->push_back(TVector2::Phi_mpi_pi(metPhiDown[iMet] - metphi));
+      }
+
+      std::vector<double> tmpjetPtUp, tmpjetPtDn;
+
+      for(int iJet = 0; iJet < jetsLVec.size(); ++iJet){
+         tmpjetPtUp.push_back( jetsLVec[iJet].Pt() * (1 + recoJetsJecUnc[iJet]) );
+         tmpjetPtDn.push_back( jetsLVec[iJet].Pt() * (1 - recoJetsJecUnc[iJet]) );
+      }
+
+      std::vector<size_t> ptIdxUp, ptIdxDn;
+      stdindexSort::argsort(tmpjetPtUp.begin(), tmpjetPtUp.end(), std::greater<double>(), ptIdxUp);
+      stdindexSort::argsort(tmpjetPtDn.begin(), tmpjetPtDn.end(), std::greater<double>(), ptIdxDn);
+      for(unsigned int ip=0; ip<ptIdxUp.size(); ip++){
+         unsigned int idxMapped = ptIdxUp[ip];
+         jetLVecUp->push_back( jetsLVec[idxMapped] * (1 + recoJetsJecUnc[idxMapped]) );
+         recoJetsBtagUp->push_back( recoJetsBtag[idxMapped] );
+      }
+
+      for(unsigned int ip=0; ip<ptIdxDn.size(); ip++){
+         unsigned int idxMapped = ptIdxDn[ip];
+         jetLVecDn->push_back( jetsLVec[idxMapped] * (1 - recoJetsJecUnc[idxMapped]) );
+         recoJetsBtagDn->push_back( recoJetsBtag[idxMapped] );
+      }
+
+      tr.registerDerivedVar("met_metMagUp", metUp);
+      tr.registerDerivedVar("met_metMagDn", metDn);
+
+      tr.registerDerivedVar("metphi_metPhiUp", metPhiUp);
+      tr.registerDerivedVar("metphi_metPhiDn", metPhiDn);
+
+      tr.registerDerivedVec("jetLVec_jecUp", jetLVecUp);
+      tr.registerDerivedVec("jetLVec_jecDn", jetLVecDn);
+
+      tr.registerDerivedVec("recoJetsBtag_jecUp", recoJetsBtagUp);
+      tr.registerDerivedVec("recoJetsBtag_jecDn", recoJetsBtagDn);
+   }
+
+   public:
+   SystematicPrep() { }
+
+   void operator()(NTupleReader& tr) {
+      systematicPrep(tr);
+   }
+} sysPrep;
+
+/*
+void sysPrepFunc(NTupleReader &tr){
+   sysPrep(tr);
+}
+*/
+
+std::map<std::pair<int, int>, HistContainer> histVec;
+
 void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString,
   const AnaSamples::SampleSet  & allSamples,
   const AnaSamples::SampleCollection & allCollections){
@@ -105,10 +728,29 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
      if( keyStringT.Contains("Data") ){ scaleMC = 1.0; isData = true; }
 
      if( tr ) delete tr;
-     if( isData ) tr = new NTupleReader(treeVec[ist], AnaConsts::activatedBranchNames_DataOnly);
-     else tr = new NTupleReader(treeVec[ist], AnaConsts::activatedBranchNames);
+     std::set<std::string> activatedBranch;
+     for(auto& branch : AnaConsts::activatedBranchNames_DataOnly) activatedBranch.insert(branch);
+     for(auto& branch : AnaConsts::activatedBranchNames) activatedBranch.insert(branch);
+     activatedBranch.insert("selGenParticle"); activatedBranch.insert("selPDGid");
+     activatedBranch.insert("recoJetsFlavor");
+
+     tr = new NTupleReader(treeVec[ist], activatedBranch);
      tr->registerFunction(&mypassBaselineFunc);
      if(!isData) tr->registerFunction(&myPDFUncertaintyFunc);
+
+//     tr->registerFunction(&sysPrepFunc);
+     tr->registerFunction(sysPrep);
+
+     tr->registerFunction(&jecUpBaselineFunc);
+     tr->registerFunction(&jecDnBaselineFunc);
+     tr->registerFunction(&metMagUpBaselineFunc);
+     tr->registerFunction(&metMagDnBaselineFunc);
+     tr->registerFunction(&metPhiUpBaselineFunc);
+     tr->registerFunction(&metPhiDnBaselineFunc);
+
+     BTagCorrector btagcorr;
+     btagcorr.SetFastSim(true); btagcorr.SetCalibFastSim("CSV_13TEV_Combined_20_11_2015.csv");
+     tr->registerFunction(btagcorr);
 
      int entries = tr->getNEntries();
      if( entryToProcess >0 ) entries = entryToProcess;
@@ -119,6 +761,16 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         if( entryToProcess >0 && tr->getEvtNum() > entryToProcess ) break;
 
         if( tr->getEvtNum()-1 == 0 || tr->getEvtNum() == entries || (entries>=10 && (tr->getEvtNum()-1)%(entries/10) == 0) ) std::cout<<"\n   Processing the "<<tr->getEvtNum()-1<<"th event ..."<<std::endl;
+
+        const double& SusyMotherMass  = tr->getVar<double>("SusyMotherMass");
+        const double& SusyLSPMass     = tr->getVar<double>("SusyLSPMass");
+
+        std::pair<int, int> iMP((int)SusyMotherMass, (int)SusyLSPMass);
+
+        auto iter = histVec.find(iMP);
+        if(iter == histVec.end()) iter = histVec.emplace(iMP, HistContainer(iMP.first, iMP.second)).first;
+
+        iter->second.fill(*tr, scaleMC);
 
         // Internal evtWeight in the sample: default is 1.0 execept for MC samples with intrinsic weight, e.g., QCD flat sample.
         double iniWeight = tr->getVar<double>("evtWeight");
@@ -139,8 +791,6 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const double met = tr->getVar<double>("met");
         TLorentzVector metLVec; metLVec.SetPtEtaPhiM(tr->getVar<double>("met"), 0, tr->getVar<double>("metphi"), 0);
         const TLorentzVector mhtLVec = AnaFunctions::calcMHT(tr->getVec<TLorentzVector>("jetsLVec"), AnaConsts::pt30Arr);
-//        metLVec.SetPtEtaPhiM(mhtLVec.Pt(), 0, mhtLVec.Phi(), 0); 
-//        const double met = mhtLVec.Pt();
 
         const std::vector<std::string> & TriggerNames = tr->getVec<std::string>("TriggerNames");
         const std::vector<int> & PassTrigger = tr->getVec<int>("PassTrigger");
@@ -160,8 +810,14 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const std::vector<int> W_tau_emuVec = keyStringT.Contains("Data")? std::vector<int>() : tr->getVec<int>("W_tau_emuVec");
         const std::vector<int> W_emuVec = keyStringT.Contains("Data")? std::vector<int>() : tr->getVec<int>("W_emuVec");
 
+        const std::vector<double>& recoJetsJecUnc = tr->getVec<double>("recoJetsJecUnc");
+        const std::vector<double>& metMagUp   = tr->getVec<double>("metMagUp");
+        const std::vector<double>& metMagDown = tr->getVec<double>("metMagDown");
+        const std::vector<double>& metPhiUp   = tr->getVec<double>("metPhiUp");
+        const std::vector<double>& metPhiDown = tr->getVec<double>("metPhiDown");         
+
         std::vector<int> emuVec_merge;
-        emuVec_merge.reserve( W_emuVec.size() + W_tau_emuVec.size() ); 
+        emuVec_merge.reserve( W_emuVec.size() + W_tau_emuVec.size() );
         emuVec_merge.insert( emuVec_merge.end(), W_emuVec.begin(), W_emuVec.end() );
         emuVec_merge.insert( emuVec_merge.end(), W_tau_emuVec.begin(), W_tau_emuVec.end() );
 
@@ -194,63 +850,14 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const bool passBaseline = tr->getVar<bool>("passBaseline" + spec);
         const bool passBaselineNoTag = tr->getVar<bool>("passBaselineNoTag" + spec);
 
-        std::vector<double> tighter_dPhiVec = AnaFunctions::calcDPhi(tr->getVec<TLorentzVector>("jetsLVec"), metLVec.Phi(), 4, AnaConsts::dphiArr);
-        const bool pass_tighter_dPhis = passdPhis && tighter_dPhiVec.at(3) >= 0.3;
-
         const int searchBinIdx = find_Binning_Index(nbJets, nTops, MT2, met);
 
         h1_cutFlowVec.back()->Fill("all", evtWeight * scaleMC);
 
 // Check trigger bit for data. Different PD can have different triggers.
-        if( keyStringT.Contains("Data") ){
-           bool foundTrigger = false;
-           if( keyStringT.Contains("Placeholder") ) foundTrigger = true;
-           for(unsigned it=0; it<TriggerNames.size(); it++){
-              if( keyStringT.Contains("HTMHT") ){
-/*
-                 if(    TriggerNames[it].find("HLT_PFMET170_NoiseCleaned_v") != std::string::npos
-                     || TriggerNames[it].find("HLT_PFMET170_JetIdCleaned_v") != std::string::npos 
-                     || TriggerNames[it].find("HLT_PFMET100_PFMHT100_IDTight_v") != std::string::npos
-                     || TriggerNames[it].find("HLT_PFMET110_PFMHT110_IDTight_v") != std::string::npos
-                     || TriggerNames[it].find("HLT_PFMET120_PFMHT120_IDTight_v") != std::string::npos
-                     || TriggerNames[it].find("HLT_PFMET130_PFMHT130_IDTight_v") != std::string::npos
-                     || TriggerNames[it].find("HLT_PFMET140_PFMHT140_IDTight_v") != std::string::npos
-                     || TriggerNames[it].find("HLT_PFMET150_PFMHT150_IDTight_v") != std::string::npos
-                 ){
-*/
-                 if(    TriggerNames[it].find("HLT_PFHT350_PFMET100_JetIdCleaned_v") != std::string::npos
-                     || TriggerNames[it].find("HLT_PFHT350_PFMET100_NoiseCleaned_v") != std::string::npos
-                     || TriggerNames[it].find("HLT_PFHT350_PFMET100_v") != std::string::npos ){
-
-                    if( PassTrigger[it] ) foundTrigger = true;
-                 }
-              }
-              if( keyStringT.Contains("SingleMuon") ){
-                 if( TriggerNames[it].find("HLT_Mu15_IsoVVVL_PFHT350_v") != std::string::npos ){
-//                 if( TriggerNames[it].find("HLT_Mu15_IsoVVVL_PFHT350_v") ){
-//                 if( TriggerNames[it].find("HLT_Mu45_eta2p1_v") ){
-                    if( PassTrigger[it] ) foundTrigger = true;
-                 }
-              }
-           }
-           if( !foundTrigger ) continue;
-        }
-
 // Can directly use passBaseline to get to baseline distribution, but can also configure this
         h1_cutFlowVec.back()->Fill("original", evtWeight * scaleMC);
-/*
-        if( !tr->getVar<bool>("HBHENoiseFilter") ) continue; h1_cutFlowVec.back()->Fill("passHBHE", evtWeight * scaleMC);
-        if( !tr->getVar<bool>("HBHEIsoNoiseFilter") ) continue; h1_cutFlowVec.back()->Fill("passHBHEIso", evtWeight * scaleMC);
-        if( keyStringT.Contains("Data") ){
-           if( ! (tr->getVar<int>("eeBadScFilter") && tr->getVar<int>("eeBadScListFilter") ) ) continue; h1_cutFlowVec.back()->Fill("passeeBadSc", evtWeight * scaleMC);
-           if( ! tr->getVar<int>("CSCTightHaloListFilter") ) continue; h1_cutFlowVec.back()->Fill("passCSC", evtWeight * scaleMC);
-        }else{
-           h1_cutFlowVec.back()->Fill("passeeBadSc", evtWeight * scaleMC);
-           h1_cutFlowVec.back()->Fill("passCSC", evtWeight * scaleMC);
-        }
-        if( !(tr->getVar<int>("vtxSize")>=1) ) continue; h1_cutFlowVec.back()->Fill("passVtx", evtWeight * scaleMC);
-        if( !tr->getVar<int>("looseJetID_NoLep") ) continue; h1_cutFlowVec.back()->Fill("passJetId", evtWeight * scaleMC);
-*/
+
         if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
 
         if( !doSingleMuonCS && !passMuonVeto ) continue; h1_cutFlowVec.back()->Fill("passMuonVeto", evtWeight * scaleMC);
@@ -258,8 +865,6 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         if( !doSingleMuonCS && !passIsoTrkVeto ) continue; h1_cutFlowVec.back()->Fill("passIsoTrkVeto", evtWeight * scaleMC);
 
         if( !passnJets ) continue; h1_cutFlowVec.back()->Fill("passnJets", evtWeight * scaleMC);
-
-        const double alt_MT2 = mt2Calc->getMT2Hemi(jetsLVec_forTagger, metLVec);
 
         int cntMuons_LostLepton = 0, cntMuons_HadTau = 0;
         std::vector<int> selMuonIdx_LostLeptonVec, selMuonIdx_HadTauVec;
@@ -275,11 +880,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         }
 
 // Fill histograms with looser requirement -> trigger req. for data...
-//        const bool looseCond = doSingleMuonCS ? (passHT && nJets >=3 && nJetsPt50Eta24 >=1 && cntMuons_HadTau ==1) : (passHT && passMET && passdPhis && passBJets);
-//        const bool looseCond = doSingleMuonCS ? (passHT && passMET && cntMuons_HadTau ==1) : (passHT && passMET && passdPhis && passBJets);
-//        const bool looseCond = doSingleMuonCS ? (passHT && passMET && passdPhis && passBJets && cntMuons_LostLepton ==1) : (passHT && passMET && passdPhis && passBJets);
         const bool looseCond = doSingleMuonCS ? (passHT && passMET && passdPhis && passBJets && cntMuons_HadTau ==1) : (passHT && passMET && passdPhis && passBJets);
-//        if( passHT && nJets >=3 && nJetsPt50Eta24 >=1 && cntMuons_HadTau ==1 ){
         if( looseCond ){
            h1_nJets_looseVec.back()->Fill(nJets, evtWeight * scaleMC);
            h1_nTops_looseVec.back()->Fill(nTops, evtWeight * scaleMC);
@@ -293,12 +894,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
    
            h1_MT2_looseVec.back()->Fill(MT2, evtWeight * scaleMC);
            h1_HT_looseVec.back()->Fill(HT, evtWeight * scaleMC);
-/*
-           for(unsigned int it=0; it<nTops; it++){
-              TLorentzVector topLVec = type3Ptr->buildLVec(jetsLVec_forTagger, type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
-              h1_topMass_looseVec.back()->Fill(topLVec.M(), evtWeight * scaleMC);
-           }
-*/
+
            h1_dphi1_looseVec.back()->Fill(dPhiVec[0], evtWeight * scaleMC);
            h1_dphi2_looseVec.back()->Fill(dPhiVec[1], evtWeight * scaleMC);
            h1_dphi3_looseVec.back()->Fill(dPhiVec[2], evtWeight * scaleMC);
@@ -335,11 +931,6 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 // End of filling histograms with loose requirement
 
         if( doSingleMuonCS && cntMuons_LostLepton != 1 ) continue; if( doSingleMuonCS ) h1_cutFlowVec.back()->Fill("sel1Muon", evtWeight * scaleMC);
-        if( doSingleMuonCS ){
-           int is = selMuonIdx_LostLeptonVec[0];
-           double mtw_muonCS = calcMT(muonsLVec.at(is), metLVec);
-           if( mtw_muonCS < 100 ) continue;
-        }
 
         if( !passBJets ) continue; h1_cutFlowVec.back()->Fill("passBJets", evtWeight * scaleMC);
 
@@ -348,69 +939,15 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         if( !passMET ) continue; h1_cutFlowVec.back()->Fill("passMET", evtWeight * scaleMC);
 
         if( (!doInvDphi && !passdPhis) || (doInvDphi && passdPhis) ) continue; h1_cutFlowVec.back()->Fill("passdPhis", evtWeight * scaleMC);
-/*
-        h1_cutFlowVec.back()->Fill("Njet_4_6", (nJets>=4 && nJets<=6) * evtWeight * scaleMC);
-        h1_cutFlowVec.back()->Fill("Njet_7_8", (nJets>=7 && nJets<=8) * evtWeight * scaleMC);
-        h1_cutFlowVec.back()->Fill("Njet_9", (nJets>=9) * evtWeight * scaleMC);
-*/
+
         if( !passTagger ) continue; h1_cutFlowVec.back()->Fill("passTagger", evtWeight * scaleMC);
          
-//        std::cout<<"MT2 : "<<MT2<<"  alt_MT2 : "<<alt_MT2<<std::endl;
-
         if( !(nTops>=1) ) continue; h1_cutFlowVec.back()->Fill("passnTopsLE1", evtWeight * scaleMC);
-
-        h2_MT2_vs_alt_MT2_looseVec.back()->Fill(alt_MT2, MT2, evtWeight * scaleMC);
-        h2_MT2_vs_met_looseVec.back()->Fill(tr->getVar<double>("met"), MT2, evtWeight * scaleMC);
-        h2_alt_MT2_vs_met_looseVec.back()->Fill(tr->getVar<double>("met"), alt_MT2, evtWeight * scaleMC);
 
         if( !passMT2 ) continue; h1_cutFlowVec.back()->Fill("passMT2", evtWeight * scaleMC);
 
 // No need, but store this for a cross-check
         h1_cutFlowVec.back()->Fill("passBaseline", passBaseline * evtWeight * scaleMC);
-
-//        if( !(searchBinIdx ==0 || searchBinIdx ==5 || searchBinIdx == 11) ) continue;
-
-        if( keyStringT.Contains("Placeholder") && nTops >=3 ) continue;
-
-        if( keyStringT.Contains("Data_HTMHT") ){
-//           if( nTops >=3 || searchBinIdx == 0 || searchBinIdx == 5 || searchBinIdx == 11 ){
-           if( nTops >=3 || nTops ==1 ){
-              std::cout<<"\n"<<keyStringT<<"  searchBinIdx : "<<searchBinIdx<<"  run : "<<run<<"  lumi : "<<lumi<<"  event : "<<event<<"  nJets : "<<nJets<<"  nTops : "<<nTops<<"  nbJets : "<<nbJets<<"  met : "<<met<<"  metphi : "<<metLVec.Phi()<<"  MT2 : "<<MT2<<"  HT : "<<HT<<"  mht : "<<mhtLVec.Pt()<<"  mhtphi : "<<mhtLVec.Phi()<<std::endl;
-              std::cout<<"  --> bJets idx : ";
-              for(unsigned int ib=0; ib<recoJetsBtag_forTagger.size(); ib++){
-                 if( !AnaFunctions::jetPassCuts(jetsLVec_forTagger[ib], AnaConsts::bTagArr) ) continue;
-                 if( std::isnan(recoJetsBtag_forTagger[ib]) ) continue;
-                 if( recoJetsBtag_forTagger[ib] <= AnaConsts::cutCSVS ) continue;
-                 std::cout<<"  "<<ib;
-              }
-              std::cout<<std::endl;
-              for(unsigned int it=0; it<nTops; it++){
-                 int combIdx = type3Ptr->ori_pickedTopCandSortedVec[it];
-                 std::cout<<"it : "<<it<<"  combIdx : "<<combIdx<<"  finalCombfatJets.size : "<<type3Ptr->finalCombfatJets[combIdx].size()<<"   -->  ";
-                 for(unsigned int ic=0; ic<type3Ptr->finalCombfatJets[combIdx].size(); ic++){ std::cout<<"  "<<type3Ptr->finalCombfatJets[combIdx][ic]; }
-                 std::cout<<std::endl;
-                 TLorentzVector topLVec = type3Ptr->buildLVec(jetsLVec_forTagger, type3Ptr->finalCombfatJets[combIdx]);
-                 std::cout<<"  --> topLVec  Pt : "<<topLVec.Pt()<<"  Eta : "<<topLVec.Eta()<<"  Phi : "<<topLVec.Phi()<<"  M : "<<topLVec.M()<<std::endl;
-              }
-              std::cout<<"cached_MT2Vec : ";
-              for(unsigned int im=0; im<type3Ptr->cached_MT2Vec.size(); im++){ std::cout<<"  "<<type3Ptr->cached_MT2Vec[im]; }
-              std::cout<<std::endl;
-
-              std::cout<<"jets : "<<std::endl;
-              for(unsigned int ij = 0; ij<jetsLVec_forTagger.size(); ij++){
-                 std::cout<<"ij : "<<ij<<"  Pt : "<<jetsLVec_forTagger[ij].Pt()<<"  Eta : "<<jetsLVec_forTagger[ij].Eta()<<"  Phi : "<<jetsLVec_forTagger[ij].Phi()<<"  M : "<<jetsLVec_forTagger[ij].M()<<"  CSVS : "<<recoJetsBtag_forTagger[ij]<<std::endl;
-              }
-              std::cout<<std::endl;
-           }
-        }
-
-        if( keyStringT.Contains("QCD") ){
-           if( searchBinIdx == 7 || searchBinIdx == 27 ){
-              std::cout<<"\n"<<keyStringT<<"  searchBinIdx : "<<searchBinIdx<<"  run : "<<run<<"  lumi : "<<lumi<<"  event : "<<event<<"  nJets : "<<nJets<<"  nTops : "<<nTops<<"  nbJets : "<<nbJets<<"  met : "<<met<<"  metphi : "<<metLVec.Phi()<<"  MT2 : "<<MT2<<"  HT : "<<HT<<"  mht : "<<mhtLVec.Pt()<<"  mhtphi : "<<mhtLVec.Phi()<<std::endl;
-           }
-        }
-
-//        if( !pass_tighter_dPhis ) continue;  h1_cutFlowVec.back()->Fill("passTdPhis", evtWeight * scaleMC);
 
         h1_nJets_baselineVec.back()->Fill(nJets, evtWeight * scaleMC);
         h1_nTops_baselineVec.back()->Fill(nTops, evtWeight * scaleMC);
@@ -509,9 +1046,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
   }
 }
 
-void basicCheck(int argc, char *argv[]){
-
-   mt2Calc = new MT2CalcCore();
+void signalScan(int argc, char *argv[]){
 
    AnaFunctions::prepareForNtupleReader();
    AnaFunctions::prepareTopTagger();
@@ -526,10 +1061,15 @@ void basicCheck(int argc, char *argv[]){
    declHistGlobal();
 
    NTupleReader *tr = 0;
-
-//   SRblv = new BaselineVessel(spec, "csc_evtlist.txt");
-   SRblv = new BaselineVessel(spec);
+   SRblv = new BaselineVessel(spec, "fastsim");
    pdfScale = new PDFUncertainty();
+
+   SRblv_jecUp = new BaselineVessel(spec_jecUp, "fastsim");
+   SRblv_jecDn = new BaselineVessel(spec_jecDn, "fastsim");
+   SRblv_metMagUp = new BaselineVessel(spec_metMagUp, "fastsim");
+   SRblv_metMagDn = new BaselineVessel(spec_metMagDn, "fastsim");
+   SRblv_metPhiUp = new BaselineVessel(spec_metPhiUp, "fastsim");
+   SRblv_metPhiDn = new BaselineVessel(spec_metPhiDn, "fastsim");
 
    int startfile = 0, filerun = -1;
 
@@ -705,7 +1245,7 @@ void basicCheck(int argc, char *argv[]){
       int divW=3, divH=2;
       cs->Divide(divW, divH);
 
-      TString pdfNameStrT = "basicCheck_allINone"+nameStr+".pdf";
+      TString pdfNameStrT = "signalScan_allINone"+nameStr+".pdf";
    
       cs->Print(pdfNameStrT+"[");
       for(unsigned int ic=0; ic<h1_cutFlowVec.size(); ic++){ h1_cutFlowVec[ic]->LabelsDeflate(); h1_cutFlowVec[ic]->LabelsOption("v"); h1_cutFlowVec[ic]->SetMarkerSize(h1_cutFlowVec[ic]->GetMarkerSize()*1.5); }
@@ -723,42 +1263,23 @@ void basicCheck(int argc, char *argv[]){
          draw2DallINone(cs, divW*divH, h2_poly_MT2_vs_metVec[iSR], "colz text e"); cs->Print(pdfNameStrT);
       }
       cs->Print(pdfNameStrT+"]");
-
-      tdrStyle->SetPaintTextFormat("2.0f");
-
-      TCanvas *c1 = new TCanvas("c1", "c1", 800, 800); 
-      for(int iSR=0; iSR<nSR; iSR++){
-         h2_poly_MT2_vs_metVec[iSR].back()->ClearBinContents();
-         int ib = nbJets_SR_lo[iSR], it = nTops_SR_lo[iSR];
-         std::vector<std::vector<double> > vMT2_vs_met_per_SR = vMT2_vs_met_all_SR.at(iSR);
-         for(unsigned int is=0; is<vMT2_vs_met_per_SR[0].size(); is++){
-            double MT2_lo = vMT2_vs_met_per_SR[0].at(is);
-            double MT2_hi = vMT2_vs_met_per_SR[1].at(is);
-            double met_lo = vMT2_vs_met_per_SR[2].at(is);
-            double met_hi = vMT2_vs_met_per_SR[3].at(is);
-
-            double med_MT2 = MT2_hi ==-1? MT2_lo+5 : (MT2_lo+MT2_hi)/2.0;
-            double med_met = met_hi ==-1? met_lo+5 : (met_lo+met_hi)/2.0;
-
-            double idxBin = find_Binning_Index(ib, it, MT2_lo, met_lo);
-            if( idxBin ==0 ) idxBin = 0.1;
-            int idxPoly = h2_poly_MT2_vs_metVec[iSR].back()->FindBin(med_met, med_MT2);
-            h2_poly_MT2_vs_metVec[iSR].back()->SetBinContent(idxPoly, idxBin);
-         }
-         TString titleT = h2_poly_MT2_vs_metVec[iSR].back()->GetTitle(); titleT.ReplaceAll("TTZ: ", "");
-         h2_poly_MT2_vs_metVec[iSR].back()->SetTitle(titleT);
-         h2_poly_MT2_vs_metVec[iSR].back()->SetStats(0);
-         h2_poly_MT2_vs_metVec[iSR].back()->Draw("text");
-         char tmpStr[200];
-         sprintf(tmpStr, "basicCheck_poly_MT2_vs_met_%d.pdf", iSR); 
-         c1->Print(tmpStr);
-      }
    }
 
 
-   TString rootNameStrT = "basicCheck"+nameStr+".root";
+   TString rootNameStrT = "signalScan"+nameStr+".root";
 
-   TFile *basicCheckFile = new TFile(rootNameStrT, "RECREATE");
+   TFile *signalScanFile = new TFile(rootNameStrT, "RECREATE");
+
+   for(auto& p : histVec){
+/*
+      int mMass = p.first.first;
+      double xSec = 0.0, xSecErr = 0.0;
+      if( xSecMap.find(mMass) != xSecMap.end() ) xSec = xSecMap.find(mMass)->second;
+      if( xSecErrMap.find(mMass) != xSecErrMap.end() ) xSecErr = xSecErrMap.find(mMass)->second;
+      p.second.fillxSec(xSec, xSecErr);
+*/
+      p.second.write();
+   }
 
    if( h2_evtCnt_sumSM_nbJets_vs_nTops ) h2_evtCnt_sumSM_nbJets_vs_nTops->Write();
    if( h1_keyString ) h1_keyString->Write();
@@ -800,9 +1321,8 @@ void basicCheck(int argc, char *argv[]){
       h1_pdfUncCentral_searchBinYieldsVec[ih]->Write(); h1_pdfUncUp_searchBinYieldsVec[ih]->Write(); h1_pdfUncDown_searchBinYieldsVec[ih]->Write();
 
       h2_MT2_vs_met_baselineVec[ih]->Write();
-      h2_MT2_vs_met_looseVec[ih]->Write(); h2_MT2_vs_alt_MT2_looseVec[ih]->Write(); h2_alt_MT2_vs_met_looseVec[ih]->Write();
    }
-   basicCheckFile->Write(); basicCheckFile->Close();
+   signalScanFile->Write(); signalScanFile->Close();
 
 }
 
@@ -1020,6 +1540,6 @@ void draw1DallINone(TCanvas *cs, const int lastPadIdx, const std::vector<TH1D*> 
 }
 
 int main(int argc, char *argv[]){
-   basicCheck(argc, argv);
+   signalScan(argc, argv);
 }
 

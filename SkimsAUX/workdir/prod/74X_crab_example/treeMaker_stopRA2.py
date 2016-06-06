@@ -11,7 +11,7 @@ options = VarParsing.VarParsing ('standard')
 
 options.register('era', "Run2_25ns", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Run2_25ns or Run2_50ns")
 options.register('ntpVersion', "Ntp_74X_04Dec2015_v4.0", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "ntpVersion: to be same as the tag of the release. But can be used to produce 72X ntuple as well!")
-options.register('GlobalTag', "80X_mcRun2_asymptotic_2016_miniAODv2", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "74X PromptReco: 74X_dataRun2_Prompt_v0")
+options.register('GlobalTag', "74X_mcRun2_asymptotic_v2", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "74X PromptReco: 74X_dataRun2_Prompt_v0")
 options.register('cmsswVersion', '74X', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific MC fix")
 options.register('specialFix', 'None', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "special fixes ==>   JEC : use external JEC; IVF : fix IVF")
 options.register('jecDBname', "Summer15_25nsV6_MC", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Summer15_25nsV6_DATA for data")
@@ -83,7 +83,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 ## Source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/mc/RunIISpring16MiniAODv1/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/0216816D-B902-E611-9E55-008CFA197D60.root'
+      '/store/relval/CMSSW_3_8_0_pre8/RelValTTbar/GEN-SIM-RECO/START38_V6-v1/0004/847D00B0-608E-DF11-A37D-003048678FA0.root'
     )
 )
 ## Maximal Number of Events
@@ -128,8 +128,16 @@ elif options.fileslist:
    process.source.fileNames = inputfiles
 else:
    process.source.fileNames = [
-'/store/mc/RunIISpring16MiniAODv1/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/0216816D-B902-E611-9E55-008CFA197D60.root'   
-]
+       '/store/mc/RunIISpring15MiniAODv2/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/B2807D76-876F-E511-AA52-0CC47A009148.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/FastAsympt25ns_74X_mcRun2_asymptotic_v2-v1/50000/9C394DDC-E17D-E511-A5D6-0CC47A4DEDCC.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/001F4F14-786E-E511-804F-0025905A60FE.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/00B6C8DE-E76E-E511-AEDE-008CFA000BB8.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/0268EC15-ED6E-E511-A4F2-00266CFAE7E8.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/02774F35-E86E-E511-AF7C-008CFA001444.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/06CF1D64-FD6E-E511-A13C-02163E011C03.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/081543FD-EC6E-E511-8A47-7845C4FC374C.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/08BA5283-FD6E-E511-B078-02163E00F45F.root',
+   ]
 
 process.maxEvents.input = options.maxEvents
 
@@ -387,6 +395,14 @@ process.mhtPFchs.JetCollection = cms.InputTag("ak4patJetsPFchsPt30")
 process.mhtPFchsFilter = process.mhtFilter.clone()
 process.mhtPFchsFilter.MHTSource = cms.InputTag("mhtPFchs")
 
+#MT2
+process.load("SusyAnaTools.SkimsAUX.mt2Producer_cfi")
+#process.load("SusyAnaTools.SkimsAUX.mt2Filter_cfi")
+process.mt2PFchs = process.mt2.clone()
+process.mt2PFchs.JetTag = cms.InputTag("ak4patJetsPFchsPt30")
+process.mt2PFchs.METTag = cms.InputTag("slimmedMETs")
+
+
 # Delta Phi
 process.load("SusyAnaTools.Skims.jetMHTDPhiFilter_cfi")
 
@@ -565,6 +581,7 @@ process.groomProdak4.groomingOpt = cms.untracked.int32(1)
 #process.groomProdak4.debug = cms.untracked.bool(options.debug)
 
 process.load("SusyAnaTools.SkimsAUX.prodJets_cfi")
+process.load("SusyAnaTools.SkimsAUX.prodGenJets_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodMET_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodGenInfo_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodIsoTrks_cfi")
@@ -638,11 +655,12 @@ process.stopTreeMaker.varsInt.append(cms.InputTag("goodVerticesFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("eeBadScFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("EcalDeadCellTriggerPrimitiveFilter"))
 
-process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"))
-process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHENoiseFilterResult|HBHENoiseFilter")
+if options.fastsim == False:
+   process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"))
+   process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHENoiseFilterResult|HBHENoiseFilter")
 
-process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult"))
-process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHEIsoNoiseFilterResult|HBHEIsoNoiseFilter")
+   process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult"))
+   process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHEIsoNoiseFilterResult|HBHEIsoNoiseFilter")
 
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodMuons", "nMuons"))
 process.stopTreeMaker.varsIntNamesInTree.append("prodMuons:nMuons|nMuons_CUT")
@@ -661,6 +679,7 @@ process.stopTreeMaker.vectorInt.extend([cms.InputTag("prodElectronsNoIso", "eles
 
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodJets", "nJets"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "jetsLVec"))
+#process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenJets", "genjetsLVec"))
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "recoJetsFlavor"))
 
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsJecUnc"))
@@ -704,14 +723,15 @@ if options.addJetsForZinv == True:
 if options.mcInfo == True:
    process.prodGenInfo.debug = cms.bool(options.debug)
    process.stopTreeMaker.vectorString.append(cms.InputTag("prodGenInfo", "genDecayStrVec"))
-   process.stopTreeMaker.vectorInt.extend([cms.InputTag("prodGenInfo", "genDecayIdxVec"), cms.InputTag("prodGenInfo", "genDecayPdgIdVec"), cms.InputTag("prodGenInfo", "genDecayMomIdxVec"), cms.InputTag("prodGenInfo", "genDecayMomRefVec"), cms.InputTag("prodGenInfo", "WemuVec"), cms.InputTag("prodGenInfo", "WtauVec"), cms.InputTag("prodGenInfo", "WtauemuVec"), cms.InputTag("prodGenInfo", "WtauprongsVec"), cms.InputTag("prodGenInfo", "WtaunuVec")])
+   process.stopTreeMaker.vectorInt.extend([cms.InputTag("prodGenInfo", "genDecayIdxVec"), cms.InputTag("prodGenInfo", "genDecayPdgIdVec"), cms.InputTag("prodGenInfo", "genDecayMomIdxVec"), cms.InputTag("prodGenInfo", "genDecayMomRefVec"), cms.InputTag("prodGenInfo", "WemuVec"), cms.InputTag("prodGenInfo", "WtauVec"), cms.InputTag("prodGenInfo", "WtauemuVec"), cms.InputTag("prodGenInfo", "WtauprongsVec"), cms.InputTag("prodGenInfo", "WtaunuVec"),  cms.InputTag("prodGenInfo","selPDGid")])
    process.stopTreeMaker.vectorIntNamesInTree.extend(["prodGenInfo:WemuVec|W_emuVec", "prodGenInfo:WtauVec|W_tauVec", "prodGenInfo:WtauemuVec|W_tau_emuVec", "prodGenInfo:WtauprongsVec|W_tau_prongsVec", "prodGenInfo:WtaunuVec|W_tau_nuVec"])
    process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodGenInfo", "WemupfActivityVec"), cms.InputTag("prodGenInfo", "WtauemupfActivityVec"), cms.InputTag("prodGenInfo", "WtauprongspfActivityVec")])
    process.stopTreeMaker.vectorDoubleNamesInTree.extend(["prodGenInfo:WemupfActivityVec|W_emu_pfActivityVec", "prodGenInfo:WtauemupfActivityVec|W_tau_emu_pfActivityVec", "prodGenInfo:WtauprongspfActivityVec|W_tau_prongs_pfActivityVec"])
    process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenInfo", "genDecayLVec"))
-
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenInfo", "selGenParticle"))
    process.genHT = cms.EDProducer('GenHTProducer')
    process.stopTreeMaker.varsDouble.append(cms.InputTag("genHT", "genHT"))
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenJets", "genjetsLVec"))
 
    process.PDFWeights = cms.EDProducer('PDFWeightProducer')
    process.stopTreeMaker.varsDouble.append(cms.InputTag("PDFWeights", "x1"))
@@ -732,6 +752,8 @@ if options.mcInfo == True:
       process.SusyScanProducer.shouldScan = cms.bool(options.fastsim)
       process.stopTreeMaker.varsDouble.extend([cms.InputTag("SusyScanProducer", "SusyMotherMass"), cms.InputTag("SusyScanProducer", "SusyLSPMass")])
 
+      process.prodJets.jetOtherSrc = cms.InputTag('slimmedJets')
+
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodIsoTrks:trksForIsoVetoLVec"))
 
 process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodIsoTrks:trksForIsoVetocharge"), cms.InputTag("prodIsoTrks:trksForIsoVetodz"), cms.InputTag("prodIsoTrks:trksForIsoVetoiso"), cms.InputTag("prodIsoTrks:trksForIsoVetopfActivity"), cms.InputTag("prodIsoTrks:looseisoTrkscharge"), cms.InputTag("prodIsoTrks:looseisoTrksdz"), cms.InputTag("prodIsoTrks:looseisoTrksiso"), cms.InputTag("prodIsoTrks:looseisoTrksmtw"), cms.InputTag("prodIsoTrks:looseisoTrkspfActivity")])
@@ -747,6 +769,8 @@ process.stopTreeMaker.varsInt.extend([cms.InputTag("prodIsoTrks:loosenIsoTrks"),
 process.stopTreeMaker.varsIntNamesInTree.extend(["prodIsoTrks:loosenIsoTrks|loose_nIsoTrks", "prodIsoTrks:nIsoTrksForVeto|nIsoTrks_CUT"])
 
 process.stopTreeMaker.varsDouble.extend([cms.InputTag("ak4stopmhtPFchs:mht"), cms.InputTag("ak4stopmhtPFchs:mhtphi")])
+
+process.stopTreeMaker.varsDouble.append(cms.InputTag("mt2PFchs:mt2"))
 
 process.stopTreeMaker.varsDouble.append(cms.InputTag("ak4stophtPFchs"))
 process.stopTreeMaker.varsDoubleNamesInTree.append("ak4stophtPFchs|ht")
@@ -774,7 +798,10 @@ process.stopTreeMaker.varsDoubleNamesInTree.append("weightProducer:weight|evtWei
 
 #process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.METFilters * process.CSCTightHaloFilter * process.HBHENoiseFilter * process.EcalDeadCellTriggerPrimitiveFilter )
 #process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.METFilters * process.CSCTightHaloFilter * process.EcalDeadCellTriggerPrimitiveFilter )
-process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.CSCTightHaloFilter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter ) 
+if options.fastsim == False:
+   process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.CSCTightHaloFilter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter ) 
+else:
+   process.trig_filter_seq = cms.Sequence( process.triggerProducer * process.CSCTightHaloFilter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter ) 
 
 if options.externalFilterList:
    process.load("SusyAnaTools.SkimsAUX.EventListFilter_cfi")
@@ -790,6 +817,14 @@ if options.externalFilterList:
          process.CSCTightHaloListFilter = process.EventListFilter.clone(inputFileList=flist)
          process.trig_filter_seq += process.CSCTightHaloListFilter
          process.stopTreeMaker.varsBool.append(cms.InputTag("CSCTightHaloListFilter"))
+      elif flist.find("badResolutionTrack") !=-1:
+         process.badResolutionTrackListFilter = process.EventListFilter.clone(inputFileList=flist)
+         process.trig_filter_seq += process.badResolutionTrackListFilter
+         process.stopTreeMaker.varsBool.append(cms.InputTag("badResolutionTrackListFilter"))
+      elif flist.find("muonBadTrack") != -1:
+         process.muonBadTrackListFilter = process.EventListFilter.clone(inputFileList=flist)
+         process.trig_filter_seq += process.muonBadTrackListFilter
+         process.stopTreeMaker.varsBool.append(cms.InputTag("muonBadTrackListFilter"))
       else:
          print "Do NOT support externalFilterList with name : ", flist
 
@@ -824,6 +859,8 @@ if options.specialFix == "JEC" and options.cmsswVersion == "74X":
    process.patJetsReapplyJECPt10.pfJetCut = cms.string('pt >= 10')
 
    process.prodJets.jetSrc = cms.InputTag('patJetsReapplyJECPt10')
+   if options.fastsim == True:
+      process.prodJets.jetOtherSrc = cms.InputTag('patJetsReapplyJECPt10')
 
    process.ak4patJetsPFchsPt10.jetSrc = cms.InputTag('patJetsReapplyJEC')
    process.ak4patJetsPFchsPt30.jetSrc = cms.InputTag('patJetsReapplyJEC')
@@ -855,7 +892,14 @@ if options.specialFix == "JEC" and options.cmsswVersion == "74X":
    process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
 
    process.type3topTagger.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-   
+
+   process.patJetsReapplyJECPt30 = process.selectedPatJetsRA2.clone()
+   process.patJetsReapplyJECPt30.jetSrc = cms.InputTag("patJetsReapplyJEC")
+   process.patJetsReapplyJECPt30.pfJetCut = cms.string('pt >= 30')
+
+   process.mt2PFchs.JetTag = cms.InputTag("patJetsReapplyJECPt30")
+   process.mt2PFchs.METTag = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+
 ###-- Dump config ------------------------------------------------------------
 if options.debug:
    file = open('allDump_cfg.py','w')

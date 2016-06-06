@@ -13,10 +13,11 @@ class BaselineVessel
 {
 private:
     const std::string spec;
-    EventListFilter filter;
+    //EventListFilter filter;
+    bool isfastsim;
 
 public:
-BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization), filter(filterString) { }
+BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization) { if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; }
 
     void passBaseline(NTupleReader &tr)
     {
@@ -31,6 +32,7 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         bool passBaseline = true;
         bool passBaselineNoTagMT2 = true;
         bool passBaselineNoTag = true;
+        bool passBaselineNoLepVeto = true;
 
         int bToFake = 1;
 
@@ -65,7 +67,7 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
            doEleVeto = false; 
            doIsoTrksVeto = false;
         }
-        else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv2b") == 0) 
+        else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
         {
             jetVecLabel = "jetsLVecLepCleaned";
             CSVVecLabel = "recoJetsBtag_0_LepCleaned";
@@ -89,11 +91,50 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
                 CSVVecLabel = "cleanJetpt30ArrBTag3fake";
                 bToFake = 1; //This is not a typo
             }
+            else if(spec.compare("ZinvJEUUp") == 0)
+            {
+                jetVecLabel = "jetLVecUp";
+            }
+            else if(spec.compare("ZinvJEUDn") == 0)
+            {
+                jetVecLabel = "jetLVecDn";
+            }
+            else if(spec.compare("ZinvMEUUp") == 0)
+            {
+                METLabel    = "metMEUUp";
+            }
+            else if(spec.compare("ZinvMEUDn") == 0)
+            {
+                METLabel    = "metMEUDn";
+            }
         }
         else if(spec.compare("QCD") == 0)
         {
             doMET = false;
             dodPhis = false;
+        }else if( spec.find("jecUp") != std::string::npos || spec.find("jecDn") != std::string::npos || spec.find("metMagUp") != std::string::npos || spec.find("metMagDn") != std::string::npos || spec.find("metPhiUp") != std::string::npos || spec.find("metPhiDn") != std::string::npos ){
+           if( spec.find("jecUp") != std::string::npos ){
+              jetVecLabel = "jetLVec_jecUp";
+              CSVVecLabel = "recoJetsBtag_jecUp";
+           }else if(spec.find("jecDn") != std::string::npos ){
+              jetVecLabel = "jetLVec_jecDn";
+              CSVVecLabel = "recoJetsBtag_jecDn";
+           }else if(spec.find("metMagUp") != std::string::npos ){
+              METLabel = "met_metMagUp";
+           }else if(spec.find("metMagDn") != std::string::npos ){
+              METLabel = "met_metMagDn";
+           }else if(spec.find("metPhiUp") != std::string::npos ){
+              METPhiLabel = "metphi_metPhiUp";
+           }else if(spec.find("metPhiDn") != std::string::npos ){
+              METPhiLabel = "metphi_metPhiDn";
+           }
+           if( spec.find("usegenmet") != std::string::npos ){
+              METLabel = "genmet";
+              METPhiLabel = "genmetphi";
+           } 
+        }else if( spec.compare("usegenmet") == 0 ){
+           METLabel = "genmet";
+           METPhiLabel = "genmetphi";
         }
 
         // Form TLorentzVector of MET
@@ -105,6 +146,8 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         int nMuons = AnaFunctions::countMuons(tr.getVec<TLorentzVector>("muonsLVec"), tr.getVec<double>("muonsMiniIso"), tr.getVec<double>("muonsMtw"), muonsFlagIDVec, AnaConsts::muonsMiniIsoArr);
         int nElectrons = AnaFunctions::countElectrons(tr.getVec<TLorentzVector>("elesLVec"), tr.getVec<double>("elesMiniIso"), tr.getVec<double>("elesMtw"), tr.getVec<unsigned int>("elesisEB"), elesFlagIDVec, AnaConsts::elesMiniIsoArr);
         int nIsoTrks = AnaFunctions::countIsoTrks(tr.getVec<TLorentzVector>("loose_isoTrksLVec"), tr.getVec<double>("loose_isoTrks_iso"), tr.getVec<double>("loose_isoTrks_mtw"), tr.getVec<int>("loose_isoTrks_pdgId"));
+        int nIsoLepTrks = AnaFunctions::countIsoLepTrks(tr.getVec<TLorentzVector>("loose_isoTrksLVec"), tr.getVec<double>("loose_isoTrks_iso"), tr.getVec<double>("loose_isoTrks_mtw"), tr.getVec<int>("loose_isoTrks_pdgId"));
+        int nIsoPionTrks = AnaFunctions::countIsoPionTrks(tr.getVec<TLorentzVector>("loose_isoTrksLVec"), tr.getVec<double>("loose_isoTrks_iso"), tr.getVec<double>("loose_isoTrks_mtw"), tr.getVec<int>("loose_isoTrks_pdgId"));
 
         // Calculate number of jets and b-tagged jets
         int cntCSVS = AnaFunctions::countCSVS(tr.getVec<TLorentzVector>(jetVecLabel), tr.getVec<double>(CSVVecLabel), AnaConsts::cutCSVS, AnaConsts::bTagArr);
@@ -123,6 +166,7 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
 
         // Pass lepton veto?
         bool passMuonVeto = (nMuons == AnaConsts::nMuonsSel), passEleVeto = (nElectrons == AnaConsts::nElectronsSel), passIsoTrkVeto = (nIsoTrks == AnaConsts::nIsoTrksSel);
+        bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTrksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTrksSel);
         bool passLeptVeto = passMuonVeto && passEleVeto && passIsoTrkVeto;
         if( doMuonVeto && !passMuonVeto ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
         if( doEleVeto && !passEleVeto ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
@@ -133,29 +177,29 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
 
         // Pass number of jets?
         bool passnJets = true;
-        if( cntNJetsPt50Eta24 < AnaConsts::nJetsSelPt50Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; }
-        if( cntNJetsPt30Eta24 < AnaConsts::nJetsSelPt30Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; }
+        if( cntNJetsPt50Eta24 < AnaConsts::nJetsSelPt50Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; passBaselineNoLepVeto = false; }
+        if( cntNJetsPt30Eta24 < AnaConsts::nJetsSelPt30Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; passBaselineNoLepVeto = false; }
         if( debug ) std::cout<<"cntNJetsPt50Eta24 : "<<cntNJetsPt50Eta24<<"  cntNJetsPt30Eta24 : "<<cntNJetsPt30Eta24<<"  cntNJetsPt30 : "<<cntNJetsPt30<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass deltaPhi?
         bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
-        if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
+        if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
         if( debug ) std::cout<<"dPhi0 : "<<dPhiVec->at(0)<<"  dPhi1 : "<<dPhiVec->at(1)<<"  dPhi2 : "<<dPhiVec->at(2)<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass number of b-tagged jets?
         bool passBJets = true;
-        if( !( (AnaConsts::low_nJetsSelBtagged == -1 || cntCSVS >= AnaConsts::low_nJetsSelBtagged) && (AnaConsts::high_nJetsSelBtagged == -1 || cntCSVS < AnaConsts::high_nJetsSelBtagged ) ) ){ passBaseline = false; passBJets = false; }
+        if( !( (AnaConsts::low_nJetsSelBtagged == -1 || cntCSVS >= AnaConsts::low_nJetsSelBtagged) && (AnaConsts::high_nJetsSelBtagged == -1 || cntCSVS < AnaConsts::high_nJetsSelBtagged ) ) ){ passBaseline = false; passBJets = false; passBaselineNoLepVeto = false; }
         if( debug ) std::cout<<"cntCSVS : "<<cntCSVS<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass the baseline MET requirement?
         bool passMET = (metLVec.Pt() >= AnaConsts::defaultMETcut);
-        if( doMET && !passMET ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
+        if( doMET && !passMET ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
         if( debug ) std::cout<<"met : "<<tr.getVar<double>("met")<<"  defaultMETcut : "<<AnaConsts::defaultMETcut<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass the HT cut for trigger?
         double HT = AnaFunctions::calcHT(tr.getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt30Eta24Arr);
         bool passHT = true;
-        if( HT < AnaConsts::defaultHTcut ){ passHT = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
+        if( HT < AnaConsts::defaultHTcut ){ passHT = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
         if( debug ) std::cout<<"HT : "<<HT<<"  defaultHTcut : "<<AnaConsts::defaultHTcut<<"  passHT : "<<passHT<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Calculate top tagger related variables. 
@@ -170,17 +214,27 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
 
         // Pass the baseline MT2 requirement?
         bool passMT2 = true;
-        if( type3Ptr->best_had_brJet_MT2 < AnaConsts::defaultMT2cut ){ passBaseline = false; passBaselineNoTag = false; passMT2 = false; }
+        if( type3Ptr->best_had_brJet_MT2 < AnaConsts::defaultMT2cut ){ passBaseline = false; passBaselineNoTag = false; passMT2 = false; passBaselineNoLepVeto = false; }
         if( debug ) std::cout<<"MT2 : "<<type3Ptr->best_had_brJet_MT2<<"  defaultMT2cut : "<<AnaConsts::defaultMT2cut<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass top tagger requirement?
         bool passTagger = type3Ptr->passNewTaggerReq() && (incZEROtop || nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel);
 
-        if( !passTagger ) passBaseline = false;
+        if( !passTagger ){ passBaseline = false; passBaselineNoLepVeto = false; }
 
         bool passNoiseEventFilter = true;
-        if( !passNoiseEventFilterFunc(tr) ) { passNoiseEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
+        if( !passNoiseEventFilterFunc(tr) ) { passNoiseEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
         if( debug ) std::cout<<"passNoiseEventFilterFunc : "<<passNoiseEventFilterFunc(tr)<<"  passBaseline : "<<passBaseline<<std::endl;
+
+        // pass QCD high MET filter
+        bool passQCDHighMETFilter = true;
+        if( !passQCDHighMETFilterFunc(tr) ) { passQCDHighMETFilter = false; }
+        if( debug ) std::cout<<"passQCDHighMETFilter : "<< passQCDHighMETFilter <<"  passBaseline : "<<passBaseline<<std::endl;
+
+        // pass the special filter for fastsim
+        bool passFastsimEventFilter = true;
+        if( !passFastsimEventFilterFunc(tr) ) { passFastsimEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
+        if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc(tr)<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Register all the calculated variables
         tr.registerDerivedVar("nMuons_CUT" + spec, nMuons);
@@ -203,6 +257,8 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         tr.registerDerivedVar("passMuonVeto" + spec, passMuonVeto);
         tr.registerDerivedVar("passEleVeto" + spec, passEleVeto);
         tr.registerDerivedVar("passIsoTrkVeto" + spec, passIsoTrkVeto);
+        tr.registerDerivedVar("passIsoLepTrkVeto" + spec, passIsoLepTrkVeto);
+        tr.registerDerivedVar("passIsoPionTrkVeto" + spec, passIsoPionTrkVeto);
         tr.registerDerivedVar("passnJets" + spec, passnJets);
         tr.registerDerivedVar("passdPhis" + spec, passdPhis);
         tr.registerDerivedVar("passBJets" + spec, passBJets);
@@ -211,9 +267,12 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         tr.registerDerivedVar("passHT" + spec, passHT);
         tr.registerDerivedVar("passTagger" + spec, passTagger);
         tr.registerDerivedVar("passNoiseEventFilter" + spec, passNoiseEventFilter);
+        tr.registerDerivedVar("passQCDHighMETFilter" + spec, passQCDHighMETFilter);
+        tr.registerDerivedVar("passFastsimEventFilter" + spec, passFastsimEventFilter);
         tr.registerDerivedVar("passBaseline" + spec, passBaseline);
         tr.registerDerivedVar("passBaselineNoTagMT2" + spec, passBaselineNoTagMT2);
         tr.registerDerivedVar("passBaselineNoTag" + spec, passBaselineNoTag);
+        tr.registerDerivedVar("passBaselineNoLepVeto" + spec, passBaselineNoLepVeto);
 
         tr.registerDerivedVar("nTopCandSortedCnt" + spec, nTopCandSortedCnt);
 
@@ -226,6 +285,23 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
 
         if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
     } 
+
+    bool GetnTops(NTupleReader *tr)
+    {
+      int nTops = tr->getVar<int>("nTopCandSortedCnt" + spec);
+      std::vector<TLorentzVector> *vTops = new std::vector<TLorentzVector>();
+
+      for(int it=0; it<nTops; it++)
+      {
+        TLorentzVector topLVec = type3Ptr->buildLVec(tr->getVec<TLorentzVector>("jetsLVec_forTagger" + spec), 
+            type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
+        vTops->push_back(topLVec);
+      }
+
+      tr->registerDerivedVec("vTops"+spec, vTops);
+
+      return true;
+    }       // -----  end of function VarPerEvent::GetnTops  -----
 
     bool passNoiseEventFilterFunc(NTupleReader &tr)
     {
@@ -244,19 +320,23 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
             }
 */
             bool passDataSpec = true;
-            if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
+//            if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
+            if( tr.getVar<unsigned int>("run") >= 100000 ){ // hack to know if it's data or MC...
                int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
-               int CSCTightHaloListFilter = tr.getVar<int>("CSCTightHaloListFilter");
+               unsigned int CSCTightHaloListFilter = tr.getVar<unsigned int>("CSCTightHaloListFilter");
                int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
-               int eeBadScListFilter = tr.getVar<int>("eeBadScListFilter");
-               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
+               unsigned int eeBadScListFilter = tr.getVar<unsigned int>("eeBadScListFilter");
+               unsigned int badResolutionTrackListFilter = tr.getVar<unsigned int>("badResolutionTrackListFilter");
+               unsigned int muonBadTrackListFilter = tr.getVar<unsigned int>("muonBadTrackListFilter");
+               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && badResolutionTrackListFilter && muonBadTrackListFilter;
+//               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
             }
 
-            bool hbheNoiseFilter = tr.getVar<bool>("HBHENoiseFilter");
-            bool hbheIsoNoiseFilter = tr.getVar<bool>("HBHEIsoNoiseFilter");
+            unsigned int hbheNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHENoiseFilter");
+            unsigned int hbheIsoNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHEIsoNoiseFilter");
             int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
 
-            int jetIDFilter = tr.getVar<int>("looseJetID_NoLep");
+            int jetIDFilter = isfastsim? 1:tr.getVar<int>("looseJetID_NoLep");
 
             //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
 //            return (vtxSize>=1) && beamHaloFilter && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
@@ -274,9 +354,54 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         return true;
     }
 
+    bool passQCDHighMETFilterFunc(NTupleReader &tr)
+    {
+      std::vector<TLorentzVector> jetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+      std::vector<double> recoJetsmuonEnergyFraction = tr.getVec<double>("recoJetsmuonEnergyFraction");
+      double metphi = tr.getVar<double>("metphi");
+
+      int nJetsLoop = recoJetsmuonEnergyFraction.size();
+      std::vector<double> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metphi, nJetsLoop, AnaConsts::dphiArr);
+
+      for(int i=0; i<nJetsLoop ; i++)
+      {
+        double thisrecoJetsmuonenergy = recoJetsmuonEnergyFraction.at(i)*(jetsLVec.at(i)).Pt();
+        if( (recoJetsmuonEnergyFraction.at(i)>0.5) && (thisrecoJetsmuonenergy>200) && (std::abs(dPhisVec.at(i)-3.1416)<0.4) ) return false;
+      }
+
+      return true;
+    }
+
+    bool passFastsimEventFilterFunc(NTupleReader &tr){
+       bool passFilter = true;
+       if( isfastsim ){
+          bool cached_rethrow = tr.getReThrow();
+          tr.setReThrow(false);
+          const std::vector<TLorentzVector> & genjetsLVec = tr.getVec<TLorentzVector>("genjetsLVec");
+          const std::vector<TLorentzVector> & recoJetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+          const std::vector<double> & recoJetschargedHadronEnergyFraction = tr.getVec<double>("recoJetschargedHadronEnergyFraction");
+
+          if( !recoJetsLVec.empty() && (&genjetsLVec) != nullptr ){
+             for(unsigned int ij=0; ij<recoJetsLVec.size(); ij++){
+                if( !AnaFunctions::jetPassCuts(recoJetsLVec[ij], AnaConsts::pt20Eta25Arr) ) continue;
+                double mindeltaR = 999.0;
+                int matchedgenJetsIdx = -1;
+                for(unsigned int ig=0; ig<genjetsLVec.size(); ig++){
+                   double dR = recoJetsLVec[ij].DeltaR(genjetsLVec[ig]);
+                   if( mindeltaR > dR ){ mindeltaR = dR; matchedgenJetsIdx = (int)ig; }
+                }
+                if( matchedgenJetsIdx != -1 && mindeltaR > 0.3 && recoJetschargedHadronEnergyFraction[ij] < 0.1 ) passFilter = false;
+             }
+          }
+          tr.setReThrow(cached_rethrow);
+       }
+       return passFilter;
+    }
+
     void operator()(NTupleReader &tr)
     {
         passBaseline(tr);
+        GetnTops(&tr);
     }
 } blv;
 

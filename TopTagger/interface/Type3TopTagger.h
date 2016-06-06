@@ -125,6 +125,7 @@ namespace topTagger{
          std::map<double, std::vector<int> > lept_brJetIdxMap;
          std::map<double, std::vector<int> > had_brJetIdxMap;
          std::map<double, TLorentzVector> lept_brJetLVecMap, had_brJetLVecMap;
+         std::vector<double> cached_MT2Vec;
 // End of internal and/or intermediate variables
 
 /* 
@@ -321,6 +322,8 @@ namespace topTagger{
 
             lept_brJetIdxMap.clear(); had_brJetIdxMap.clear(); lept_brJetLVecMap.clear(); had_brJetLVecMap.clear();
             best_lept_brJet_MT = -1; best_had_brJet_MT = -1; best_had_brJet_MT2 = -1; best_had_brJet_mTcomb = -1;
+
+            cached_MT2Vec.clear();
          }
 
          void buildOneFatJetsIndexComb(vector<int> indexVec, vector<int> &iniIndexComb, vector<vector<int> > &tmpFinalCombJets, vector<vector<int> > &tmpFinalRemaining){
@@ -1693,6 +1696,8 @@ namespace topTagger{
 
                      double perMT2 = calcMT2(topLVec0, topLVec1, metLVec);
 
+                     cached_MT2Vec.push_back(perMT2);
+
                      if( minMT2 > perMT2 ){
                         minMT2 = perMT2;
                         pickedminMT2IdxVec[0] = it; pickedminMT2IdxVec[1] = jt; 
@@ -1708,6 +1713,8 @@ namespace topTagger{
                if( maxMT2 ==  -99 ){ std::cout<<"WARNING ... maxMT2 is NOT updated and still "<<maxMT2<<"?"<<std::endl; }
                best_had_brJet_MT2 = minMT2;
 //               best_had_brJet_MT2 = maxMT2;
+            }else{
+               cached_MT2Vec.push_back(best_had_brJet_MT2);
             }
             return;
          }
