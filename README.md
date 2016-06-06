@@ -3,12 +3,12 @@
 The following installation instructions assume the user wants to process Run2015B prompt-reco data or Spring15 MC.
 
 ```
-cmsrel CMSSW_7_4_15
-cd CMSSW_7_4_15/src/
+cmsrel CMSSW_8_0_10
+cd CMSSW_8_0_10/src/
 cmsenv
 git cms-merge-topic -u kpedro88:METfix7415
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
-git clone -b Ntp_74X_04Dec2015_v4.0 git@github.com:susy2015/SusyAnaTools.git
+git clone -b 8_0_10_Ntuple_production git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 
