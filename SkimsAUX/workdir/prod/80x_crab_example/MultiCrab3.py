@@ -26,7 +26,7 @@ json_25ns = 'Cert_271036-274240_13TeV_PromptReco_Collisions16_JSON.txt'
 # TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleEG
 # Can be any of the combinations
 #selSubmitKey = 'TEST STATUS TTJets' # 'TEST STATUS': no submission of jobs but rather checking crab job status related to the TTJets. If jobs failed, automatically resubmit them.
-selSubmitKey = 'TTJets'
+selSubmitKey = 'TEST ALL'
 doAutoMonitor = False
 
 ## Format: keyword : IsData, fulldatasetname, unitperjob
