@@ -27,6 +27,7 @@ json_25ns = 'Cert_271036-274240_13TeV_PromptReco_Collisions16_JSON.txt'
 # Can be any of the combinations
 #selSubmitKey = 'TEST STATUS TTJets' # 'TEST STATUS': no submission of jobs but rather checking crab job status related to the TTJets. If jobs failed, automatically resubmit them.
 #selSubmitKey = 'TTJets_SingleLeptFrom HTMHT'
+#selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
 selSubmitKey = 'TEST ALL'
 doAutoMonitor = False
 
@@ -136,14 +137,14 @@ jobslist = {
 #    'HTMHT-Run2015B-05Oct2015'               : [True, '/HTMHT/Run2015B-05Oct2015-v1/MINIAOD', 10],
     #'HTMHT-Run2015C-25ns-05Oct2015'          : [True, '/HTMHT/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
     #'HTMHT-Run2015D-05Oct2015'               : [True, '/HTMHT/Run2015D-05Oct2015-v1/MINIAOD', 10],
-    'HTMHT-Run2016B-PromptReco-v2'           : [True, '/HTMHT/Run2016B-PromptReco-v2/MINIAOD', 1],
-    'HTMHT-Run2016B-PromptReco-v1'           : [True, '/HTMHT/Run2016B-PromptReco-v1/MINIAOD', 1],
+    'HTMHT-Run2016B-PromptReco-v2'           : [True, '/HTMHT/Run2016B-PromptReco-v2/MINIAOD', 10],
+    'HTMHT-Run2016B-PromptReco-v1'           : [True, '/HTMHT/Run2016B-PromptReco-v1/MINIAOD', 10],
 
 #    'MET-Run2015B-05Oct2015'                 : [True, '/MET/Run2015B-05Oct2015-v1/MINIAOD', 10],
     #'MET-Run2015C-25ns-05Oct2015'            : [True, '/MET/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
     #'MET-Run2015D-05Oct2015'                 : [True, '/MET/Run2015D-05Oct2015-v1/MINIAOD', 10],
-    'MET-Run2016B-PromptReco-v2'                : [True, '/MET/Run2016B-PromptReco-v2/MINIAOD', 1],
-    'MET-Run2016B-PromptReco-v1'                : [True, '/MET/Run2016B-PromptReco-v1/MINIAOD', 1],
+    'MET-Run2016B-PromptReco-v2'                : [True, '/MET/Run2016B-PromptReco-v2/MINIAOD', 10],
+    'MET-Run2016B-PromptReco-v1'                : [True, '/MET/Run2016B-PromptReco-v1/MINIAOD', 10],
 
 #    'JetHT-Run2015B-05Oct2015'               : [True, '/JetHT/Run2015B-05Oct2015-v1/MINIAOD', 10],
 #    'JetHT-Run2015C-25ns-05Oct2015'          : [True, '/JetHT/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
@@ -153,8 +154,8 @@ jobslist = {
 #    'SingleMuon-Run2015B-05Oct2015'          : [True, '/SingleMuon/Run2015B-05Oct2015-v1/MINIAOD', 10],
     #'SingleMuon-Run2015C-25ns-05Oct2015'     : [True, '/SingleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
     #'SingleMuon-Run2015D-05Oct2015'          : [True, '/SingleMuon/Run2015D-05Oct2015-v1/MINIAOD', 10],
-    'SingleMuon-Run2016B-PromptReco-v2'         : [True, '/SingleMuon/Run2016B-PromptReco-v2/MINIAOD', 1],
-    'SingleMuon-Run2016B-PromptReco-v1'         : [True, '/SingleMuon/Run2016B-PromptReco-v1/MINIAOD', 1],
+    'SingleMuon-Run2016B-PromptReco-v2'         : [True, '/SingleMuon/Run2016B-PromptReco-v2/MINIAOD', 10],
+    'SingleMuon-Run2016B-PromptReco-v1'         : [True, '/SingleMuon/Run2016B-PromptReco-v1/MINIAOD', 10],
 
 #    'SingleElectron-Run2015B-05Oct2015'      : [True, '/SingleElectron/Run2015B-05Oct2015-v1/MINIAOD', 10],
 #    'SingleElectron-Run2015C-25ns-05Oct2015' : [True, '/SingleElectron/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
