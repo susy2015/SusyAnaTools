@@ -10,11 +10,11 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 
 options.register('era', "Run2_25ns", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Run2_25ns or Run2_50ns")
-options.register('ntpVersion', "Ntp_74X_04Dec2015_v4.0", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "ntpVersion: to be same as the tag of the release. But can be used to produce 72X ntuple as well!")
+options.register('ntpVersion', "Ntp_80X_06Jun2016_v5.0", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "ntpVersion: to be same as the tag of the release. But can be used to produce 72X ntuple as well!")
 options.register('GlobalTag', "80X_mcRun2_asymptotic_2016_miniAODv2", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "74X PromptReco: 74X_dataRun2_Prompt_v0")
-options.register('cmsswVersion', '74X', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific MC fix")
+options.register('cmsswVersion', '80X', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific MC fix")
 options.register('specialFix', 'None', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "special fixes ==>   JEC : use external JEC; IVF : fix IVF")
-options.register('jecDBname', "Summer15_25nsV6_MC", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Summer15_25nsV6_DATA for data")
+options.register('jecDBname', "Spring16_25nsV1_MC", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Summer15_25nsV6_DATA for data")
 options.register('hltName', 'HLT', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT menu to use for trigger matching")
 
 options.register('mcInfo', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "process MonteCarlo data, default is data")
@@ -83,7 +83,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 ## Source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/mc/RunIISpring16MiniAODv1/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/0216816D-B902-E611-9E55-008CFA197D60.root'
+      '/store/relval/CMSSW_3_8_0_pre8/RelValTTbar/GEN-SIM-RECO/START38_V6-v1/0004/847D00B0-608E-DF11-A37D-003048678FA0.root'
     )
 )
 ## Maximal Number of Events
@@ -128,8 +128,17 @@ elif options.fileslist:
    process.source.fileNames = inputfiles
 else:
    process.source.fileNames = [
-'/store/mc/RunIISpring16MiniAODv1/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/0216816D-B902-E611-9E55-008CFA197D60.root'   
-]
+       'file:root://xrootd.unl.edu//store/mc/RunIISpring16MiniAODv1/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/0216816D-B902-E611-9E55-008CFA197D60.root'
+#       '/store/mc/RunIISpring15MiniAODv2/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/B2807D76-876F-E511-AA52-0CC47A009148.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/FastAsympt25ns_74X_mcRun2_asymptotic_v2-v1/50000/9C394DDC-E17D-E511-A5D6-0CC47A4DEDCC.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/001F4F14-786E-E511-804F-0025905A60FE.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/00B6C8DE-E76E-E511-AEDE-008CFA000BB8.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/0268EC15-ED6E-E511-A4F2-00266CFAE7E8.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/02774F35-E86E-E511-AF7C-008CFA001444.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/06CF1D64-FD6E-E511-A13C-02163E011C03.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/081543FD-EC6E-E511-8A47-7845C4FC374C.root',
+       #'/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/08BA5283-FD6E-E511-B078-02163E00F45F.root',
+   ]
 
 process.maxEvents.input = options.maxEvents
 
@@ -181,6 +190,12 @@ elif options.cmsswVersion == "74X":
    jetCorrectionLevels = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
    if options.mcInfo == False:
       jetCorrectionLevels = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None')
+elif options.cmsswVersion == "80X":
+   jetCorrectionLevels = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
+   jetCorrLevelLists = ['L1FastJet', 'L2Relative', 'L3Absolute']
+   if options.mcInfo == False:
+      jetCorrectionLevels = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None')
+      jetCorrLevelLists = ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']
 
 if options.cmsswVersion == "72X":
    addJetCollection(
@@ -249,8 +264,43 @@ elif options.cmsswVersion == "74X":
       algo = 'AK', rParam = 0.4
    )
 
-if options.specialFix == "JEC" and options.cmsswVersion == "74X":
-   print "\nApplying fix to JEC issues in 74X ...\n"
+elif options.cmsswVersion == "80X":
+   addJetCollection(
+      process,
+      postfix = "",
+      labelName = 'AK4PFCHS',
+      jetSource = cms.InputTag('myak4PFJetsCHS'),
+      pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+      pfCandidates = cms.InputTag('packedPFCandidates'),
+      svSource = cms.InputTag('slimmedSecondaryVertices'),
+      elSource = cms.InputTag('slimmedElectrons'),
+      muSource = cms.InputTag('slimmedMuons'),
+      jetCorrections = jetCorrectionLevels,
+      btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
+      genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
+      genParticles = cms.InputTag('prunedGenParticles'),
+      algo = 'AK', rParam = 0.4
+   )
+   
+   addJetCollection(
+      process,
+      postfix = "",
+      labelName = 'AK4PFCHSNoLep',
+      jetSource = cms.InputTag('ak4PFJetsCHSNoLep'),
+      pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+      pfCandidates = cms.InputTag('packedPFCandidates'),
+      svSource = cms.InputTag('slimmedSecondaryVertices'),
+      elSource = cms.InputTag('slimmedElectrons'),
+      muSource = cms.InputTag('slimmedMuons'),
+      jetCorrections = jetCorrectionLevels,
+      btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
+      genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
+      genParticles = cms.InputTag('prunedGenParticles'),
+      algo = 'AK', rParam = 0.4
+   )
+
+if options.specialFix == "JEC":
+   print ("\nApplying fix to JEC issues in %s ...\n" %(options.cmsswVersion))
 #JEC can be downloaded from https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECDataMC
 
 #   inputDB = "sqlite_file:" + os.environ['CMSSW_BASE'] + "/src/SusyAnaTools/SkimsAUX/data/PY8_RunIISpring15DR74_bx25_MC.db"
@@ -281,49 +331,68 @@ if options.specialFix == "JEC" and options.cmsswVersion == "74X":
 ## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
    process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
 
-   from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
-   process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
-      src = cms.InputTag("slimmedJets"),
-      levels = ['L1FastJet', 
-           'L2Relative', 
-           'L3Absolute'],
-      payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
-   if options.mcInfo==False: process.patJetCorrFactorsReapplyJEC.levels.append('L2L3Residual')
+   if options.cmsswVersion == "74X":
+      from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
+      process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+         src = cms.InputTag("slimmedJets"),
+         levels = ['L1FastJet', 
+              'L2Relative', 
+              'L3Absolute'],
+         payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
+      if options.mcInfo==False: process.patJetCorrFactorsReapplyJEC.levels.append('L2L3Residual')
+   
+      from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+      process.patJetsReapplyJEC = patJetsUpdated.clone(
+         jetSource = cms.InputTag("slimmedJets"),
+         jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+      )
+      process.fix74XJEC = cms.Sequence( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC )
+   
+      from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+      runMetCorAndUncFromMiniAOD(
+         process,
+         isData=not options.mcInfo, # controls gen met
+         jetCollUnskimmed="patJetsReapplyJEC",
+         jetColl="patJetsReapplyJEC",
+         postfix="Update"
+      )
+      if options.mcInfo==True: #skip residuals for data if not used
+         process.patPFMetT1T2CorrUpdate.jetCorrLabelRes = cms.InputTag("L3Absolute")
+         process.patPFMetT1T2SmearCorrUpdate.jetCorrLabelRes = cms.InputTag("L3Absolute")
+         process.patPFMetT2CorrUpdate.jetCorrLabelRes = cms.InputTag("L3Absolute")
+         process.patPFMetT2SmearCorrUpdate.jetCorrLabelRes = cms.InputTag("L3Absolute")
+         process.shiftedPatJetEnDownUpdate.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+         process.shiftedPatJetEnUpUpdate.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+      if hasattr(process,"slimmedMETsUpdate"):
+         delattr(getattr(process,"slimmedMETsUpdate"),"caloMET")
 
-   from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
-   process.patJetsReapplyJEC = patJetsUpdated.clone(
-      jetSource = cms.InputTag("slimmedJets"),
-      jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
-   )
-   process.fix74XJEC = cms.Sequence( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC )
-
-   from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-   runMetCorAndUncFromMiniAOD(
-      process,
-      isData=not options.mcInfo, # controls gen met
-      jetCollUnskimmed="patJetsReapplyJEC",
-      jetColl="patJetsReapplyJEC",
-      postfix="Update"
-   )
-   if options.mcInfo==True: #skip residuals for data if not used
-      process.patPFMetT1T2CorrUpdate.jetCorrLabelRes = cms.InputTag("L3Absolute")
-      process.patPFMetT1T2SmearCorrUpdate.jetCorrLabelRes = cms.InputTag("L3Absolute")
-      process.patPFMetT2CorrUpdate.jetCorrLabelRes = cms.InputTag("L3Absolute")
-      process.patPFMetT2SmearCorrUpdate.jetCorrLabelRes = cms.InputTag("L3Absolute")
-      process.shiftedPatJetEnDownUpdate.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-      process.shiftedPatJetEnUpUpdate.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-   if hasattr(process,"slimmedMETsUpdate"):
-      delattr(getattr(process,"slimmedMETsUpdate"),"caloMET")
- 
 #adjust MC matching
-process.patJetPartons.particles = "prunedGenParticles"
-process.patJetPartons.skipFirstN = cms.uint32(0) # do not skip first 6 particles, we already pruned some!
-process.patJetPartons.acceptNoDaughters = cms.bool(True) # as we drop intermediate stuff, we need to accept quarks with no siblings
-
+      process.patJetPartons.particles = "prunedGenParticles"
+      process.patJetPartons.skipFirstN = cms.uint32(0) # do not skip first 6 particles, we already pruned some!
+      process.patJetPartons.acceptNoDaughters = cms.bool(True) # as we drop intermediate stuff, we need to accept quarks with no siblings
 #adjust PV used for Jet Corrections
-process.patJetCorrFactorsAK4PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
-process.patJetCorrFactorsAK4PFCHSNoLep.primaryVertices = "offlineSlimmedPrimaryVertices"
+      process.patJetCorrFactorsAK4PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
+      process.patJetCorrFactorsAK4PFCHSNoLep.primaryVertices = "offlineSlimmedPrimaryVertices"
 
+   elif options.cmsswVersion == "80X":
+      from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+      updateJetCollection(
+         process,
+         jetSource = cms.InputTag('slimmedJets'),
+         postfix = 'UpdatedJEC',
+         jetCorrections = ('AK4PFchs', jetCorrLevelLists, 'None')
+      )
+# update the MET to account for the new JECs
+      from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+      runMetCorAndUncFromMiniAOD(
+         process,
+         isData=not options.mcInfo, # controls gen met
+#         jetCollUnskimmed="updatedPatJetsUpdatedJEC",
+#         jetColl="updatedPatJetsUpdatedJEC",
+#         postfix="Update"
+      )
+      process.fix80XJEC = cms.Sequence( process.patJetCorrFactorsUpdatedJEC + process.updatedPatJetsUpdatedJEC )
+    
 process.MessageLogger.suppressWarning = cms.untracked.vstring('ecalLaserCorrFilter','manystripclus53X','toomanystripclus53X')
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
@@ -386,6 +455,14 @@ process.mhtPFchs.JetCollection = cms.InputTag("ak4patJetsPFchsPt30")
 
 process.mhtPFchsFilter = process.mhtFilter.clone()
 process.mhtPFchsFilter.MHTSource = cms.InputTag("mhtPFchs")
+
+#MT2
+process.load("SusyAnaTools.SkimsAUX.mt2Producer_cfi")
+#process.load("SusyAnaTools.SkimsAUX.mt2Filter_cfi")
+process.mt2PFchs = process.mt2.clone()
+process.mt2PFchs.JetTag = cms.InputTag("ak4patJetsPFchsPt30")
+process.mt2PFchs.METTag = cms.InputTag("slimmedMETs")
+
 
 # Delta Phi
 process.load("SusyAnaTools.Skims.jetMHTDPhiFilter_cfi")
@@ -565,6 +642,7 @@ process.groomProdak4.groomingOpt = cms.untracked.int32(1)
 #process.groomProdak4.debug = cms.untracked.bool(options.debug)
 
 process.load("SusyAnaTools.SkimsAUX.prodJets_cfi")
+process.load("SusyAnaTools.SkimsAUX.prodGenJets_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodMET_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodGenInfo_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodIsoTrks_cfi")
@@ -595,7 +673,7 @@ if options.cmsswVersion == "72X":
 else:
    process.prodJets.bTagKeyString = cms.string('pfCombinedInclusiveSecondaryVertexV2BJetTags')
 
-#process.prodJets.debug = cms.bool(options.debug)
+process.prodJets.debug = cms.bool(options.debug)
 process.prodJets.jetOtherSrc = cms.InputTag('patJetsAK4PFCHS')
 
 process.prodJetsNoLep = process.prodJets.clone()
@@ -638,11 +716,12 @@ process.stopTreeMaker.varsInt.append(cms.InputTag("goodVerticesFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("eeBadScFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("EcalDeadCellTriggerPrimitiveFilter"))
 
-process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"))
-process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHENoiseFilterResult|HBHENoiseFilter")
+if options.fastsim == False:
+   process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"))
+   process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHENoiseFilterResult|HBHENoiseFilter")
 
-process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult"))
-process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHEIsoNoiseFilterResult|HBHEIsoNoiseFilter")
+   process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult"))
+   process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHEIsoNoiseFilterResult|HBHEIsoNoiseFilter")
 
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodMuons", "nMuons"))
 process.stopTreeMaker.varsIntNamesInTree.append("prodMuons:nMuons|nMuons_CUT")
@@ -661,6 +740,7 @@ process.stopTreeMaker.vectorInt.extend([cms.InputTag("prodElectronsNoIso", "eles
 
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodJets", "nJets"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "jetsLVec"))
+#process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenJets", "genjetsLVec"))
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "recoJetsFlavor"))
 
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsJecUnc"))
@@ -704,14 +784,15 @@ if options.addJetsForZinv == True:
 if options.mcInfo == True:
    process.prodGenInfo.debug = cms.bool(options.debug)
    process.stopTreeMaker.vectorString.append(cms.InputTag("prodGenInfo", "genDecayStrVec"))
-   process.stopTreeMaker.vectorInt.extend([cms.InputTag("prodGenInfo", "genDecayIdxVec"), cms.InputTag("prodGenInfo", "genDecayPdgIdVec"), cms.InputTag("prodGenInfo", "genDecayMomIdxVec"), cms.InputTag("prodGenInfo", "genDecayMomRefVec"), cms.InputTag("prodGenInfo", "WemuVec"), cms.InputTag("prodGenInfo", "WtauVec"), cms.InputTag("prodGenInfo", "WtauemuVec"), cms.InputTag("prodGenInfo", "WtauprongsVec"), cms.InputTag("prodGenInfo", "WtaunuVec")])
+   process.stopTreeMaker.vectorInt.extend([cms.InputTag("prodGenInfo", "genDecayIdxVec"), cms.InputTag("prodGenInfo", "genDecayPdgIdVec"), cms.InputTag("prodGenInfo", "genDecayMomIdxVec"), cms.InputTag("prodGenInfo", "genDecayMomRefVec"), cms.InputTag("prodGenInfo", "WemuVec"), cms.InputTag("prodGenInfo", "WtauVec"), cms.InputTag("prodGenInfo", "WtauemuVec"), cms.InputTag("prodGenInfo", "WtauprongsVec"), cms.InputTag("prodGenInfo", "WtaunuVec"),  cms.InputTag("prodGenInfo","selPDGid")])
    process.stopTreeMaker.vectorIntNamesInTree.extend(["prodGenInfo:WemuVec|W_emuVec", "prodGenInfo:WtauVec|W_tauVec", "prodGenInfo:WtauemuVec|W_tau_emuVec", "prodGenInfo:WtauprongsVec|W_tau_prongsVec", "prodGenInfo:WtaunuVec|W_tau_nuVec"])
    process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodGenInfo", "WemupfActivityVec"), cms.InputTag("prodGenInfo", "WtauemupfActivityVec"), cms.InputTag("prodGenInfo", "WtauprongspfActivityVec")])
    process.stopTreeMaker.vectorDoubleNamesInTree.extend(["prodGenInfo:WemupfActivityVec|W_emu_pfActivityVec", "prodGenInfo:WtauemupfActivityVec|W_tau_emu_pfActivityVec", "prodGenInfo:WtauprongspfActivityVec|W_tau_prongs_pfActivityVec"])
    process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenInfo", "genDecayLVec"))
-
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenInfo", "selGenParticle"))
    process.genHT = cms.EDProducer('GenHTProducer')
    process.stopTreeMaker.varsDouble.append(cms.InputTag("genHT", "genHT"))
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenJets", "genjetsLVec"))
 
    process.PDFWeights = cms.EDProducer('PDFWeightProducer')
    process.stopTreeMaker.varsDouble.append(cms.InputTag("PDFWeights", "x1"))
@@ -732,6 +813,8 @@ if options.mcInfo == True:
       process.SusyScanProducer.shouldScan = cms.bool(options.fastsim)
       process.stopTreeMaker.varsDouble.extend([cms.InputTag("SusyScanProducer", "SusyMotherMass"), cms.InputTag("SusyScanProducer", "SusyLSPMass")])
 
+      process.prodJets.jetOtherSrc = cms.InputTag('slimmedJets')
+
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodIsoTrks:trksForIsoVetoLVec"))
 
 process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodIsoTrks:trksForIsoVetocharge"), cms.InputTag("prodIsoTrks:trksForIsoVetodz"), cms.InputTag("prodIsoTrks:trksForIsoVetoiso"), cms.InputTag("prodIsoTrks:trksForIsoVetopfActivity"), cms.InputTag("prodIsoTrks:looseisoTrkscharge"), cms.InputTag("prodIsoTrks:looseisoTrksdz"), cms.InputTag("prodIsoTrks:looseisoTrksiso"), cms.InputTag("prodIsoTrks:looseisoTrksmtw"), cms.InputTag("prodIsoTrks:looseisoTrkspfActivity")])
@@ -747,6 +830,8 @@ process.stopTreeMaker.varsInt.extend([cms.InputTag("prodIsoTrks:loosenIsoTrks"),
 process.stopTreeMaker.varsIntNamesInTree.extend(["prodIsoTrks:loosenIsoTrks|loose_nIsoTrks", "prodIsoTrks:nIsoTrksForVeto|nIsoTrks_CUT"])
 
 process.stopTreeMaker.varsDouble.extend([cms.InputTag("ak4stopmhtPFchs:mht"), cms.InputTag("ak4stopmhtPFchs:mhtphi")])
+
+process.stopTreeMaker.varsDouble.append(cms.InputTag("mt2PFchs:mt2"))
 
 process.stopTreeMaker.varsDouble.append(cms.InputTag("ak4stophtPFchs"))
 process.stopTreeMaker.varsDoubleNamesInTree.append("ak4stophtPFchs|ht")
@@ -774,7 +859,10 @@ process.stopTreeMaker.varsDoubleNamesInTree.append("weightProducer:weight|evtWei
 
 #process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.METFilters * process.CSCTightHaloFilter * process.HBHENoiseFilter * process.EcalDeadCellTriggerPrimitiveFilter )
 #process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.METFilters * process.CSCTightHaloFilter * process.EcalDeadCellTriggerPrimitiveFilter )
-process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.CSCTightHaloFilter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter ) 
+if options.fastsim == False:
+   process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.CSCTightHaloFilter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter ) 
+else:
+   process.trig_filter_seq = cms.Sequence( process.triggerProducer * process.CSCTightHaloFilter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter ) 
 
 if options.externalFilterList:
    process.load("SusyAnaTools.SkimsAUX.EventListFilter_cfi")
@@ -790,6 +878,14 @@ if options.externalFilterList:
          process.CSCTightHaloListFilter = process.EventListFilter.clone(inputFileList=flist)
          process.trig_filter_seq += process.CSCTightHaloListFilter
          process.stopTreeMaker.varsBool.append(cms.InputTag("CSCTightHaloListFilter"))
+      elif flist.find("badResolutionTrack") !=-1:
+         process.badResolutionTrackListFilter = process.EventListFilter.clone(inputFileList=flist)
+         process.trig_filter_seq += process.badResolutionTrackListFilter
+         process.stopTreeMaker.varsBool.append(cms.InputTag("badResolutionTrackListFilter"))
+      elif flist.find("muonBadTrack") != -1:
+         process.muonBadTrackListFilter = process.EventListFilter.clone(inputFileList=flist)
+         process.trig_filter_seq += process.muonBadTrackListFilter
+         process.stopTreeMaker.varsBool.append(cms.InputTag("muonBadTrackListFilter"))
       else:
          print "Do NOT support externalFilterList with name : ", flist
 
@@ -816,46 +912,104 @@ if options.mcInfo == False:
 if options.selSMSpts == True:
    process.ak4Stop_Path.replace(process.hltFilter, process.hltFilter*process.smsModelFilter)
 
-if options.specialFix == "JEC" and options.cmsswVersion == "74X":
-   process.comb_seq.replace(process.weightProducer, process.fix74XJEC*process.weightProducer)
-
-   process.patJetsReapplyJECPt10 = process.selectedPatJetsRA2.clone()
-   process.patJetsReapplyJECPt10.jetSrc = cms.InputTag("patJetsReapplyJEC")
-   process.patJetsReapplyJECPt10.pfJetCut = cms.string('pt >= 10')
-
-   process.prodJets.jetSrc = cms.InputTag('patJetsReapplyJECPt10')
-
-   process.ak4patJetsPFchsPt10.jetSrc = cms.InputTag('patJetsReapplyJEC')
-   process.ak4patJetsPFchsPt30.jetSrc = cms.InputTag('patJetsReapplyJEC')
-   process.ak4patJetsPFchsPt50Eta25.jetSrc = cms.InputTag('patJetsReapplyJEC')
-   process.prodJetIDEventFilter.JetSource = cms.InputTag("patJetsReapplyJEC")
-   process.ak4stopJetsPFchsPt30.jetSrc = cms.InputTag("patJetsReapplyJEC")
-   process.ak4stopJetsPFchsPt50Eta24.jetSrc = cms.InputTag("patJetsReapplyJEC")
-
-   process.stopJetsPFchsPt30.jetSrc = cms.InputTag("patJetsReapplyJEC")
-   process.stopJetsPFchsPt30Eta24.jetSrc = cms.InputTag("patJetsReapplyJEC")
-   process.stopJetsPFchsPt50Eta24.jetSrc = cms.InputTag("patJetsReapplyJEC")
-   process.stopJetsPFchsPt70Eta24.jetSrc = cms.InputTag("patJetsReapplyJEC")
-   process.stopJetsPFchsPt70eta2p5.jetSrc = cms.InputTag("patJetsReapplyJEC")
-
-   process.ak4jetMHTDPhiForSkimsStop.MHTSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-   process.jetsMETDPhiFilter.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-   process.metPFchsFilter.MHTSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-
-   process.met175PFchsFilter.MHTSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-   process.met200PFchsFilter.MHTSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-
-   process.prodElectrons.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-   process.prodElectronsNoIso.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-
-   process.prodIsoTrks.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-   process.prodMET.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-
-   process.prodMuons.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-   process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
-
-   process.type3topTagger.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+if options.specialFix == "JEC":
+   if options.cmsswVersion == "74X":
+      process.comb_seq.replace(process.weightProducer, process.fix74XJEC*process.weightProducer)
    
+      process.patJetsReapplyJECPt10 = process.selectedPatJetsRA2.clone()
+      process.patJetsReapplyJECPt10.jetSrc = cms.InputTag("patJetsReapplyJEC")
+      process.patJetsReapplyJECPt10.pfJetCut = cms.string('pt >= 10')
+   
+      process.prodJets.jetSrc = cms.InputTag('patJetsReapplyJECPt10')
+      if options.fastsim == True:
+         process.prodJets.jetOtherSrc = cms.InputTag('patJetsReapplyJECPt10')
+   
+      process.ak4patJetsPFchsPt10.jetSrc = cms.InputTag('patJetsReapplyJEC')
+      process.ak4patJetsPFchsPt30.jetSrc = cms.InputTag('patJetsReapplyJEC')
+      process.ak4patJetsPFchsPt50Eta25.jetSrc = cms.InputTag('patJetsReapplyJEC')
+      process.prodJetIDEventFilter.JetSource = cms.InputTag("patJetsReapplyJEC")
+      process.ak4stopJetsPFchsPt30.jetSrc = cms.InputTag("patJetsReapplyJEC")
+      process.ak4stopJetsPFchsPt50Eta24.jetSrc = cms.InputTag("patJetsReapplyJEC")
+   
+      process.stopJetsPFchsPt30.jetSrc = cms.InputTag("patJetsReapplyJEC")
+      process.stopJetsPFchsPt30Eta24.jetSrc = cms.InputTag("patJetsReapplyJEC")
+      process.stopJetsPFchsPt50Eta24.jetSrc = cms.InputTag("patJetsReapplyJEC")
+      process.stopJetsPFchsPt70Eta24.jetSrc = cms.InputTag("patJetsReapplyJEC")
+      process.stopJetsPFchsPt70eta2p5.jetSrc = cms.InputTag("patJetsReapplyJEC")
+   
+      process.ak4jetMHTDPhiForSkimsStop.MHTSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+      process.jetsMETDPhiFilter.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+      process.metPFchsFilter.MHTSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+   
+      process.met175PFchsFilter.MHTSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+      process.met200PFchsFilter.MHTSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+   
+      process.prodElectrons.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+      process.prodElectronsNoIso.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+   
+      process.prodIsoTrks.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+      process.prodMET.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+   
+      process.prodMuons.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+      process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+   
+      process.type3topTagger.metSrc = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+   
+      process.patJetsReapplyJECPt30 = process.selectedPatJetsRA2.clone()
+      process.patJetsReapplyJECPt30.jetSrc = cms.InputTag("patJetsReapplyJEC")
+      process.patJetsReapplyJECPt30.pfJetCut = cms.string('pt >= 30')
+   
+      process.mt2PFchs.JetTag = cms.InputTag("patJetsReapplyJECPt30")
+      process.mt2PFchs.METTag = cms.InputTag("slimmedMETsUpdate", "", process.name_())
+   elif options.cmsswVersion == "80X":
+      process.comb_seq.replace(process.weightProducer, process.fix80XJEC*process.weightProducer)
+   
+      process.updatedPatJetsUpdatedJECPt10 = process.selectedPatJetsRA2.clone()
+      process.updatedPatJetsUpdatedJECPt10.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
+      process.updatedPatJetsUpdatedJECPt10.pfJetCut = cms.string('pt >= 10')
+   
+      process.prodJets.jetSrc = cms.InputTag('updatedPatJetsUpdatedJECPt10')
+      if options.fastsim == True:
+         process.prodJets.jetOtherSrc = cms.InputTag('updatedPatJetsUpdatedJECPt10')
+   
+      process.ak4patJetsPFchsPt10.jetSrc = cms.InputTag('updatedPatJetsUpdatedJEC')
+      process.ak4patJetsPFchsPt30.jetSrc = cms.InputTag('updatedPatJetsUpdatedJEC')
+      process.ak4patJetsPFchsPt50Eta25.jetSrc = cms.InputTag('updatedPatJetsUpdatedJEC')
+      process.prodJetIDEventFilter.JetSource = cms.InputTag("updatedPatJetsUpdatedJEC")
+      process.ak4stopJetsPFchsPt30.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
+      process.ak4stopJetsPFchsPt50Eta24.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
+   
+      process.stopJetsPFchsPt30.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
+      process.stopJetsPFchsPt30Eta24.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
+      process.stopJetsPFchsPt50Eta24.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
+      process.stopJetsPFchsPt70Eta24.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
+      process.stopJetsPFchsPt70eta2p5.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
+   
+      process.ak4jetMHTDPhiForSkimsStop.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+      process.jetsMETDPhiFilter.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+      process.metPFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+   
+      process.met175PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+      process.met200PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+   
+      process.prodElectrons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+      process.prodElectronsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+   
+      process.prodIsoTrks.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+      process.prodMET.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+   
+      process.prodMuons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+      process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+   
+      process.type3topTagger.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+   
+      process.updatedPatJetsUpdatedJECPt30 = process.selectedPatJetsRA2.clone()
+      process.updatedPatJetsUpdatedJECPt30.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
+      process.updatedPatJetsUpdatedJECPt30.pfJetCut = cms.string('pt >= 30')
+   
+      process.mt2PFchs.JetTag = cms.InputTag("updatedPatJetsUpdatedJECPt30")
+      process.mt2PFchs.METTag = cms.InputTag("slimmedMETs", "", process.name_())
+
 ###-- Dump config ------------------------------------------------------------
 if options.debug:
    file = open('allDump_cfg.py','w')

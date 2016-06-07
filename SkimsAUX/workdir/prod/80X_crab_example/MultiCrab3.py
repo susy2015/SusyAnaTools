@@ -17,9 +17,9 @@ from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
 from multiprocessing import Process
 
-workArea = 'crabProdv4p0'
-outDir =  '/store/group/lpcsusyhad/Spring16_8xX_Jun_2016_Ntp_v1X'
-Pubname = 'Spring16_8XX_Dec_2016_Ntp_v1p0'
+workArea = 'crabProdv5p0'
+outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jun_2016_Ntp_v5X'
+Pubname = 'Spring16_80X_Jun_2016_Ntp_v5p0'
 json_25ns = 'Cert_271036-274240_13TeV_PromptReco_Collisions16_JSON.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
@@ -264,8 +264,8 @@ def SubmitJob(key, value):
         else:
             pass
     else:
-        tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2']#, 'specialFix=JEC', 'jecDBname=Summer15_25nsV6_MC']
-        #tempconfig.JobType.inputFiles = ['Spring16_25nsV1_MC.db']#'Summer15_25nsV6_MC.db']
+        tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2', 'specialFix=JEC', 'jecDBname=Spring16_25nsV1_MC']
+        tempconfig.JobType.inputFiles = ['Spring16_25nsV1_MC.db']#'Summer15_25nsV6_MC.db']
         tempconfig.Data.splitting = 'FileBased'
 
     tempconfig.Data.inputDataset = value[1].strip()

@@ -110,6 +110,8 @@ prodGenInfo::~prodGenInfo() {
 
 bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  if( iEvent.isRealData() ) return true;
+
   iEvent.getByToken(GenParticleTok_, genParticles);
   iEvent.getByToken(GenDecayStrVecTok_, genDecayStrVec_);
   iEvent.getByToken(GenDecayChainParIdxVecTok_, genDecayChainPartIdxVec_);
