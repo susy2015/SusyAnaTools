@@ -2,7 +2,6 @@
 #include <memory>
 #include <algorithm>
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,441 +11,371 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CommonTools/Utils/interface/PtComparator.h"
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "TLorentzVector.h"
 
-class prodJets : public edm::EDFilter 
-{
- public:
+class prodIsoTrks : public edm::EDFilter {
 
-  explicit prodJets(const edm::ParameterSet & iConfig);
-  ~prodJets();
+  public:
 
- private:
+    explicit prodIsoTrks(const edm::ParameterSet & iConfig);
+    ~prodIsoTrks();
 
-  virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
+  private:
+  
+    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
-  edm::InputTag jetSrc_, jetOtherSrc_;
-// All have to be pat::Jet, otherwise cannot get b-tagging information!
-  edm::Handle<std::vector<pat::Jet> > jets, otherjets; 
-  std::string bTagKeyString_;
-  edm::InputTag vtxSrc_;
-  edm::InputTag metSrc_;
-  bool isPatJet;
-  bool debug_;
+    edm::InputTag vtxSrc_, metSrc_;
 
-  bool isData_;
+    edm::InputTag forVetoIsoTrkSrc_;
+    edm::Handle<pat::PackedCandidateCollection> forVetoIsoTrks_;
 
-  double jetPtCut_miniAOD_, genMatch_dR_;
-  double relPt_for_xCheck_, dR_for_xCheck_;
+    double isotrk_dR_, isotrk_dz_;
 
-  edm::InputTag W_emuVec_Src_, W_tauVec_Src_, W_tau_emuVec_Src_, W_tau_prongsVec_Src_, W_tau_nuVec_Src_;
-  edm::Handle<std::vector<int> > W_emuVec_, W_tauVec_, W_tau_emuVec_, W_tau_prongsVec_, W_tau_nuVec_;
+    edm::InputTag pfCandSrc_, loose_isoTrkSrc_, loose_isotrk_isoVecSrc_, loose_isotrk_dzpvVecSrc_;
+    edm::Handle<pat::PackedCandidateCollection> pfCandHandle_, loose_isoTrksHandle_;
 
-  edm::InputTag genDecayLVec_Src_;
-  edm::Handle<std::vector<TLorentzVector> > genDecayLVec_;
+    edm::InputTag ref_all_isoTrkSrc_, ref_all_isoTrk_isoVecSrc_;
+    edm::Handle<pat::PackedCandidateCollection> ref_all_isoTrksHandle_;
+    edm::Handle<std::vector<double> > ref_all_isoTrks_isoVecHandle_;
 
-  edm::InputTag genDecayMomRefVec_Src_;
-  edm::Handle<std::vector<int> > genDecayMomRefVec_;
+    edm::InputTag W_emuVec_Src_, W_tau_emuVec_Src_, W_tau_prongsVec_Src_;
+    edm::Handle<std::vector<int> > W_emuVec_, W_tau_emuVec_, W_tau_prongsVec_;
 
-  edm::InputTag eleLVec_Src_, muLVec_Src_;
-  edm::Handle<std::vector<TLorentzVector> > eleLVec_, muLVec_;
+    edm::InputTag genDecayLVec_Src_;
+    edm::Handle<std::vector<TLorentzVector> > genDecayLVec_;
 
-  edm::InputTag trksForIsoVetoLVec_Src_, looseisoTrksLVec_Src_;
-  edm::Handle<std::vector<TLorentzVector> > trksForIsoVetoLVec_, looseisoTrksLVec_;
-  double deltaRcon_;
+    edm::EDGetTokenT<std::vector<int> >W_EmVec_Tok_;
+    edm::EDGetTokenT<std::vector<int> >W_Tau_EmuVec_Tok_;
+    edm::EDGetTokenT<std::vector<int> >W_Tau_ProngsVec_Tok_;
+    edm::EDGetTokenT<std::vector<TLorentzVector> >GenDecayLVec_Tok_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection>PfCandTok_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection> Loose_IsoTrksHandle_Tok_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection> Ref_All_IsoTrksHandle_Tok_;
+    edm::EDGetTokenT<std::vector<double> > Ref_All_IsoTrks_IsoVecHandle_Tok_;
+    edm::EDGetTokenT< std::vector<reco::Vertex> >VtxTok_;
+    edm::EDGetTokenT<edm::View<reco::MET> >MetTok_;
+    edm::EDGetTokenT<std::vector<double> >  Loose_Isotrk_IsoVecHandle_Tok_;
+    edm::EDGetTokenT<std::vector<double> >Loose_Isotrk_DzpvVecHandle_Tok_;
+    edm::EDGetTokenT<std::vector<int> >ForVetoIsoTrks_Tok_;
+    //edm::EDGetTokenT<pat::PackedCandidateCollection> ForVetoIsoTrks_Tok_;
 
-  std::string jetType_;
+    unsigned int loose_nIsoTrks, nIsoTrksForVeto;
+    
+    bool debug_;
+
+    int find_idx(const reco::Candidate & target);
+    int find_idx(int genIdx, const std::vector<int> &genDecayIdxVec);
+
+    bool isData_;
+
+    double GetTrackActivity(const edm::Handle<pat::PackedCandidateCollection> & other_pfcands, const pat::PackedCandidate* track);
 };
 
 
-prodJets::prodJets(const edm::ParameterSet & iConfig) 
-{
+prodIsoTrks::prodIsoTrks(const edm::ParameterSet & iConfig) {
+
   isData_ = true;
 
-  jetSrc_      = iConfig.getParameter<edm::InputTag>("jetSrc");
-  jetOtherSrc_ = iConfig.getParameter<edm::InputTag>("jetOtherSrc");
   vtxSrc_      = iConfig.getParameter<edm::InputTag>("vtxSrc");
-//  metSrc_      = iConfig.getParameter<edm::InputTag>("metSrc");
-  bTagKeyString_ = iConfig.getParameter<std::string>("bTagKeyString");
 
-  debug_       = iConfig.getParameter<bool>("debug");
+  metSrc_      = iConfig.getParameter<edm::InputTag>("metSrc");
 
-  jetPtCut_miniAOD_ = iConfig.getUntrackedParameter<double>("jetPtCut_miniAOD", 10);
-  genMatch_dR_ = iConfig.getUntrackedParameter<double>("genMatch_dR", 1.0);
-  dR_for_xCheck_ = iConfig.getUntrackedParameter<double>("dR_for_xCheck", 0.2);
-  relPt_for_xCheck_ = iConfig.getUntrackedParameter<double>("relPt_for_xCheck", 1e-2);
+  forVetoIsoTrkSrc_ = iConfig.getParameter<edm::InputTag>("forVetoIsoTrkSrc");
+
+  pfCandSrc_        = iConfig.getParameter<edm::InputTag>("pfCandSrc");
+
+  isotrk_dR_        = iConfig.getParameter<double>("isotrk_dR");
+  isotrk_dz_        = iConfig.getParameter<double>("isotrk_dz");
+
+  loose_isoTrkSrc_  = iConfig.getParameter<edm::InputTag>("loose_isoTrkSrc");
+  loose_isotrk_isoVecSrc_ = iConfig.getParameter<edm::InputTag>("loose_isotrk_isoVecSrc");
+  loose_isotrk_dzpvVecSrc_ = iConfig.getParameter<edm::InputTag>("loose_isotrk_dzpvVecSrc");
+
+  ref_all_isoTrkSrc_ = iConfig.getParameter<edm::InputTag>("ref_all_isoTrkSrc");
+  ref_all_isoTrk_isoVecSrc_ = iConfig.getParameter<edm::InputTag>("ref_all_isoTrk_isoVecSrc");
 
   W_emuVec_Src_ = iConfig.getParameter<edm::InputTag>("W_emuVec");
-  W_tauVec_Src_ = iConfig.getParameter<edm::InputTag>("W_tauVec");
   W_tau_emuVec_Src_ = iConfig.getParameter<edm::InputTag>("W_tau_emuVec");
   W_tau_prongsVec_Src_ = iConfig.getParameter<edm::InputTag>("W_tau_prongsVec");
-  W_tau_nuVec_Src_ = iConfig.getParameter<edm::InputTag>("W_tau_nuVec");
 
   genDecayLVec_Src_ = iConfig.getParameter<edm::InputTag>("genDecayLVec");
-
-  genDecayMomRefVec_Src_ = iConfig.getParameter<edm::InputTag>("genDecayMomRefVec");
-
-  eleLVec_Src_ = iConfig.getParameter<edm::InputTag>("eleLVec");
-  muLVec_Src_ = iConfig.getParameter<edm::InputTag>("muLVec");
   
-  trksForIsoVetoLVec_Src_ = iConfig.getParameter<edm::InputTag>("trksForIsoVetoLVec");
-  looseisoTrksLVec_Src_ = iConfig.getParameter<edm::InputTag>("looseisoTrksLVec");
+  debug_       = iConfig.getParameter<bool>("debug");
 
-  deltaRcon_ = iConfig.getUntrackedParameter<double>("deltaRcon", 0.01);
+  W_EmVec_Tok_=consumes<std::vector<int> > (W_emuVec_Src_);
+  W_Tau_EmuVec_Tok_=consumes<std::vector<int> >  (W_tau_emuVec_Src_);
+  W_Tau_ProngsVec_Tok_=consumes<std::vector<int> >(W_tau_prongsVec_Src_);
+  GenDecayLVec_Tok_=consumes<std::vector<TLorentzVector> > (genDecayLVec_Src_);
+  PfCandTok_=consumes<pat::PackedCandidateCollection> (pfCandSrc_);
+  Loose_IsoTrksHandle_Tok_=consumes<pat::PackedCandidateCollection> (loose_isoTrkSrc_);
+  Ref_All_IsoTrksHandle_Tok_=consumes<pat::PackedCandidateCollection> (ref_all_isoTrkSrc_);
+  Ref_All_IsoTrks_IsoVecHandle_Tok_=consumes<std::vector<double> > (ref_all_isoTrk_isoVecSrc_);
+  VtxTok_=consumes< std::vector<reco::Vertex> >(vtxSrc_);
+  MetTok_=consumes<edm::View<reco::MET> >(metSrc_);
+  Loose_Isotrk_IsoVecHandle_Tok_=consumes<std::vector<double> >  (loose_isotrk_isoVecSrc_),
+  Loose_Isotrk_DzpvVecHandle_Tok_=consumes<std::vector<double> >  (loose_isotrk_dzpvVecSrc_);
+  ForVetoIsoTrks_Tok_=consumes<std::vector<int> >(forVetoIsoTrkSrc_);
+  //ForVetoIsoTrks_Tok_=consumes<pat::PackedCandidateCollection> (forVetoIsoTrkSrc_);
 
-  jetType_ = iConfig.getParameter<std::string>("jetType");
+  produces<std::vector<TLorentzVector> >("trksForIsoVetoLVec");
+  produces<std::vector<double> >("trksForIsoVetocharge");
+  produces<std::vector<double> >("trksForIsoVetodz");
+  produces<std::vector<int> >("trksForIsoVetopdgId");
+  produces<std::vector<int> >("trksForIsoVetoidx");
+  produces<std::vector<double> >("trksForIsoVetoiso");
+  produces<std::vector<double> >("trksForIsoVetopfActivity");
 
-  //produces<std::vector<pat::Jet> >("");
-  produces<std::vector<TLorentzVector> >("jetsLVec");
-  produces<std::vector<int> >("recoJetsFlavor");
-  produces<std::vector<double> >("recoJetsBtag");
-  produces<std::vector<double> >("recoJetsJecUnc");
-  produces<std::vector<double> >("recoJetsJecScaleRawToFull");
-  produces<int>("nJets");
+  produces<std::vector<TLorentzVector> >("looseisoTrksLVec");
+  produces<std::vector<double> >("looseisoTrkscharge");
+  produces<std::vector<double> >("looseisoTrksdz");
+  produces<std::vector<int> >("looseisoTrkspdgId");
+  produces<std::vector<int> >("looseisoTrksidx");
+  produces<std::vector<double> >("looseisoTrksiso");
+  produces<std::vector<double> >("looseisoTrksmtw");
+  produces<std::vector<double> >("looseisoTrkspfActivity");
 
-  //produce variables needed for Lost Lepton study, added by hua.wei@cern.ch
-  produces<std::vector<double> >("recoJetschargedHadronEnergyFraction");
-  produces<std::vector<double> >("recoJetschargedEmEnergyFraction");
-  produces<std::vector<double> >("recoJetsneutralEmEnergyFraction");
+  produces<std::vector<int> >("forVetoIsoTrksidx");
 
-  produces<std::vector<double> >("recoJetsmuonEnergyFraction");
-
-  produces<std::vector<int> >("muMatchedJetIdx");
-  produces<std::vector<int> >("eleMatchedJetIdx");
-
-  produces<std::vector<int> >("trksForIsoVetoMatchedJetIdx");
-  produces<std::vector<int> >("looseisoTrksMatchedJetIdx");
+  produces<int>("loosenIsoTrks");
+  produces<int>("nIsoTrksForVeto");
 }
 
 
-prodJets::~prodJets() 
-{
+prodIsoTrks::~prodIsoTrks() {
 }
 
 
-bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
-{
+bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
   if( !iEvent.isRealData() ) isData_ = false;
 
-  iEvent.getByLabel(jetSrc_, jets);
+  std::auto_ptr<std::vector<TLorentzVector> > trksForIsoVetoLVec(new std::vector<TLorentzVector>());
+  std::auto_ptr<std::vector<double> > trksForIsoVeto_charge(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > trksForIsoVeto_dz(new std::vector<double>());
+  std::auto_ptr<std::vector<int> > trksForIsoVeto_pdgId(new std::vector<int>());
+  std::auto_ptr<std::vector<int> > trksForIsoVeto_idx(new std::vector<int>());
+  std::auto_ptr<std::vector<double> > trksForIsoVeto_iso(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > trksForIsoVeto_pfActivity(new std::vector<double>());
 
-  //get the JEC uncertainties
-  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-  iSetup.get<JetCorrectionsRecord>().get(jetType_, JetCorParColl);
-  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-  std::auto_ptr<JetCorrectionUncertainty> jecUnc( new JetCorrectionUncertainty(JetCorPar) );
+  std::auto_ptr<std::vector<TLorentzVector> > loose_isoTrksLVec(new std::vector<TLorentzVector>());
+  std::auto_ptr<std::vector<double> > loose_isoTrks_charge(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > loose_isoTrks_dz(new std::vector<double>());
+  std::auto_ptr<std::vector<int> > loose_isoTrks_pdgId(new std::vector<int>());
+  std::auto_ptr<std::vector<int> > loose_isoTrks_idx(new std::vector<int>());
+  std::auto_ptr<std::vector<double> > loose_isoTrks_iso(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > loose_isoTrks_mtw(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > loose_isoTrks_pfActivity(new std::vector<double>());
+
+  std::auto_ptr<std::vector<int> > forVetoIsoTrks_idx(new std::vector<int>());
 
   if( !isData_ ){
-     iEvent.getByLabel(jetOtherSrc_, otherjets);
-     iEvent.getByLabel(W_emuVec_Src_, W_emuVec_);
-     iEvent.getByLabel(W_tauVec_Src_, W_tauVec_);
-     iEvent.getByLabel(W_tau_emuVec_Src_, W_tau_emuVec_);
-     iEvent.getByLabel(W_tau_prongsVec_Src_, W_tau_prongsVec_);
-     iEvent.getByLabel(W_tau_nuVec_Src_, W_tau_nuVec_);
-
-     iEvent.getByLabel(genDecayLVec_Src_, genDecayLVec_);
-     iEvent.getByLabel(genDecayMomRefVec_Src_, genDecayMomRefVec_);
+     iEvent.getByToken(W_EmVec_Tok_, W_emuVec_);
+     iEvent.getByToken(W_Tau_EmuVec_Tok_, W_tau_emuVec_);
+     iEvent.getByToken(W_Tau_ProngsVec_Tok_, W_tau_prongsVec_);
+     iEvent.getByToken(GenDecayLVec_Tok_, genDecayLVec_);
   }
 
-  iEvent.getByLabel(eleLVec_Src_, eleLVec_);
-  iEvent.getByLabel(muLVec_Src_, muLVec_);
-
-  iEvent.getByLabel(trksForIsoVetoLVec_Src_, trksForIsoVetoLVec_);
-  iEvent.getByLabel(looseisoTrksLVec_Src_,looseisoTrksLVec_);
-
-  // read in the objects
   edm::Handle< std::vector<reco::Vertex> > vertices;
-  iEvent.getByLabel(vtxSrc_, vertices);
-  // reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
-//  edm::Handle<edm::View<reco::MET> > met;
-//  iEvent.getByLabel(metSrc_, met);
+  iEvent.getByToken(VtxTok_, vertices);
+  //  reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
 
-  std::vector<pat::Jet> extJets = (*jets);
+  edm::Handle<edm::View<reco::MET> > met;
+  iEvent.getByToken(MetTok_, met);
 
-  // check which ones to keep
-  // std::auto_ptr<std::vector<pat::Jet> > prod(new std::vector<pat::Jet>());
-  std::auto_ptr<std::vector<TLorentzVector> > jetsLVec(new std::vector<TLorentzVector>());
-  std::auto_ptr<std::vector<int> > recoJetsFlavor(new std::vector<int>());
-  std::auto_ptr<std::vector<double> > recoJetsBtag(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > recoJetsJecUnc(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > recoJetsJecScaleRawToFull(new std::vector<double>());
+  iEvent.getByToken(Loose_Isotrk_IsoVecHandle_Tok_, loose_isoTrksHandle_);
+  if( loose_isoTrksHandle_.isValid() ) loose_nIsoTrks = loose_isoTrksHandle_->size(); else loose_nIsoTrks =0;
+  iEvent.getByToken(ForVetoIsoTrks_Tok_, forVetoIsoTrks_);
+  if( forVetoIsoTrks_.isValid() ) nIsoTrksForVeto = forVetoIsoTrks_->size(); else nIsoTrksForVeto =0;
 
-  std::auto_ptr<std::vector<double> > recoJetschargedHadronEnergyFraction(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > recoJetschargedEmEnergyFraction(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > recoJetsneutralEmEnergyFraction(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > recoJetsmuonEnergyFraction(new std::vector<double>());
+  iEvent.getByToken(Ref_All_IsoTrksHandle_Tok_, ref_all_isoTrksHandle_);
+  iEvent.getByToken(Ref_All_IsoTrks_IsoVecHandle_Tok_, ref_all_isoTrks_isoVecHandle_);
 
-  std::auto_ptr<std::vector<int> > muMatchedJetIdx(new std::vector<int>(muLVec_->size(), -1));
-  std::auto_ptr<std::vector<int> > eleMatchedJetIdx(new std::vector<int>(eleLVec_->size(), -1));
-
-  std::auto_ptr<std::vector<int> > trksForIsoVetoMatchedJetIdx(new std::vector<int>(trksForIsoVetoLVec_->size(), -1));
-  std::auto_ptr<std::vector<int> > looseisoTrksMatchedJetIdx(new std::vector<int>(looseisoTrksLVec_->size(), -1));
-
-  if( !isData_ ){
-     int cntJetPassPtCut = 0;
-     for(unsigned int io=0; io < otherjets->size(); io++){
-        const double otjet_pt = otherjets->at(io).pt(), otjet_eta = otherjets->at(io).eta(), otjet_phi = otherjets->at(io).phi();
-        TLorentzVector perLVec; perLVec.SetPtEtaPhiE(otjet_pt, otjet_eta, otjet_phi, otherjets->at(io).energy());
-        int cntFound = 0, matchedIdx = -1;
-        double minDR = 999.0;
-        for(unsigned int ij=0; ij< jets->size(); ij++){
-           const double jet_eta = jets->at(ij).eta(), jet_phi = jets->at(ij).phi();
-           const double dR = reco::deltaR(otjet_eta, otjet_phi, jet_eta, jet_phi);
-           if( minDR > dR ){
-              minDR = dR; matchedIdx = ij;
-           }
-        }
-        if( matchedIdx != -1 ){
-           if( minDR < dR_for_xCheck_ && std::abs(otjet_pt - jets->at(matchedIdx).pt())/jets->at(matchedIdx).pt() < relPt_for_xCheck_ ){
-              cntFound ++;
-           }
-        }
-        if( otjet_pt >= jetPtCut_miniAOD_ ){
-           cntJetPassPtCut ++;
-           if( cntFound != 1 && debug_ ){
-              std::cout<<"WARNING ... jet mis-matching between otherjets and jets for pt > "<<jetPtCut_miniAOD_<<"  matchedIdx : "<<matchedIdx<<"  cntFound : "<<cntFound<<std::endl;
-              std::cout<<"otjet_pt : "<<otjet_pt<<"  otjet_eta : "<<otjet_eta<<"  otjet_phi : "<<otjet_phi<<std::endl;
-              if( matchedIdx != -1 ) std::cout<<"  jet_pt : "<<jets->at(matchedIdx).pt()<<"    jet_eta : "<<jets->at(matchedIdx).eta()<<"    jet_phi : "<<jets->at(matchedIdx).phi()<<std::endl;
-           }
-        }else{
-           if( cntFound && debug_ ){
-              std::cout<<"WARNING ... otjet with pt : "<<otjet_pt<<"  matching to one of the jets for pt > "<<jetPtCut_miniAOD_<<" ?!"<<std::endl;
-              std::cout<<"otjet_pt : "<<otjet_pt<<"  otjet_eta : "<<otjet_eta<<"  otjet_phi : "<<otjet_phi<<std::endl;
-              std::cout<<"  jet_pt : "<<jets->at(matchedIdx).pt()<<"    jet_eta : "<<jets->at(matchedIdx).eta()<<"    jet_phi : "<<jets->at(matchedIdx).phi()<<std::endl;
-           }else{
-              int cntgenMatch = 0;
-              for(unsigned int ig=0; ig<W_emuVec_->size(); ig++){
-                 int perIdx = W_emuVec_->at(ig);
-                 TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-                 double perdeltaR = perLVec.DeltaR(genLVec);
-                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-              }
-              for(unsigned int ig=0; ig<W_tauVec_->size(); ig++){
-                 int perIdx = W_tauVec_->at(ig);
-                 TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-                 double perdeltaR = perLVec.DeltaR(genLVec);
-                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-              }
-              for(unsigned int ig=0; ig<W_tau_emuVec_->size(); ig++){
-                 int perIdx = W_tau_emuVec_->at(ig);
-                 TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-                 double perdeltaR = perLVec.DeltaR(genLVec);
-                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-              }
-              for(unsigned int ig=0; ig<W_tau_prongsVec_->size(); ig++){
-                 int perIdx = W_tau_prongsVec_->at(ig);
-                 TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-                 double perdeltaR = perLVec.DeltaR(genLVec);
-                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-              }
-              for(unsigned int ig=0; ig<W_tauVec_->size(); ig++){
-                 int perIdx = W_tauVec_->at(ig);
-                 TLorentzVector genLVec = genDecayLVec_->at(perIdx);
-                 for(unsigned int in=0; in<W_tau_nuVec_->size(); in++){
-                    int perJdx = W_tau_nuVec_->at(in);
-                    TLorentzVector gennuLVec = genDecayLVec_->at(perJdx);
-   
-                    int momIdx = perJdx;
-                    bool isFound = false;
-                    while( momIdx != -1 ){
-                       momIdx = genDecayMomRefVec_->at(momIdx);
-                       if( momIdx == perIdx ){ isFound = true; break; }
-                    }
-                    if( isFound ) genLVec -= gennuLVec;
-                 }
-                 double perdeltaR = perLVec.DeltaR(genLVec);
-                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-              }
-              for(unsigned int im=0; im<muLVec_->size(); im++){
-                 double perdeltaR = perLVec.DeltaR(muLVec_->at(im));
-                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-              }
-              for(unsigned int ie=0; ie<eleLVec_->size(); ie++){
-                 double perdeltaR = perLVec.DeltaR(eleLVec_->at(ie));
-                 if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
-              }
-              if( cntgenMatch ){
-                 extJets.push_back(otherjets->at(io));
-              }
-           }
-        }
-     } 
-   
-     if( cntJetPassPtCut != (int)jets->size() && debug_ ) std::cout<<"WARNING ... cntJetPassPtCut : "<<cntJetPassPtCut<<"  NOT EQUAL jets->size : "<<jets->size()<<std::endl;
-     if( (int)jets->size() >= 4 && std::abs(1.0*cntJetPassPtCut - 1.0*jets->size())/(1.0*jets->size()) > 0.1 ){
-        std::cout<<"\nWARNING ... cntJetPassPtCut : "<<cntJetPassPtCut<<"  slimmedJets.size : "<<jets->size()<<std::endl;
-        std::cout<<"Please checking if global tag used for re-clustering the jets is the same as used to produce the miniAOD!"<<std::endl<<std::endl;
+  edm::Handle<std::vector<double> >  loose_isotrk_isoVecHandle, loose_isotrk_dzpvVecHandle;
+  iEvent.getByToken(Loose_Isotrk_IsoVecHandle_Tok_, loose_isotrk_isoVecHandle);
+  iEvent.getByToken(Loose_Isotrk_DzpvVecHandle_Tok_, loose_isotrk_dzpvVecHandle);
+  if( loose_isoTrksHandle_.isValid() && loose_isotrk_isoVecHandle.isValid() && loose_isotrk_dzpvVecHandle.isValid() ){
+     if( loose_nIsoTrks != loose_isotrk_isoVecHandle->size() || loose_nIsoTrks != loose_isotrk_dzpvVecHandle->size() ){
+        std::cout<<"ERROR ... mis-matching between loose_nIsoTrks : "<<loose_nIsoTrks<<"  loose_isotrk_isoVecHandle->size : "<<loose_isotrk_isoVecHandle->size()<<"  loose_isotrk_dzpvVecHandle->size : "<<loose_isotrk_dzpvVecHandle->size()<<std::endl;
      }
   }
 
-  int cntJetLowPt = 0;
-  for(unsigned int ij=0; ij < extJets.size(); ij++)
-  {
-    const pat::Jet& jet = extJets[ij];
+  if( debug_ ) std::cout<<"\nloose_nIsoTrks : "<<loose_nIsoTrks<<"  nIsoTrksForVeto : "<<nIsoTrksForVeto<<std::endl;
+  for(unsigned int is=0; is<loose_nIsoTrks; is++){
+     const pat::PackedCandidate isoTrk = (*loose_isoTrksHandle_)[is];
+     double isoTrkpt = isoTrk.pt(), isoTrketa = isoTrk.eta(), isoTrkphi = isoTrk.phi(), isoTrkenergy = isoTrk.energy();
+     double isoTrkcharge = isoTrk.charge();
 
-    TLorentzVector perJetLVec;
-    perJetLVec.SetPtEtaPhiE( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
-    jetsLVec->push_back(perJetLVec);
+     TLorentzVector perIsoTrkLVec;
+     perIsoTrkLVec.SetPtEtaPhiE(isoTrkpt, isoTrketa, isoTrkphi, isoTrkenergy);
+     loose_isoTrksLVec->push_back(perIsoTrkLVec);
 
-// Additional jec qualities
-    std::vector<std::string> availableJECSets   = jet.availableJECSets();
-    std::vector<std::string> availableJECLevels = jet.availableJECLevels(jet.currentJECSet());
-    double scaleRawToFull = jet.jecFactor(jet.currentJECLevel(), "none", jet.currentJECSet())/jet.jecFactor("Uncorrected", "none", jet.currentJECSet());
-//    double scaleRawToFull = jet.jecFactor(availableJECLevels.back())/jet.jecFactor("Uncorrected");
-    recoJetsJecScaleRawToFull->push_back(scaleRawToFull);
-    if( debug_ && ij==0 ){
-       std::cout<<"\nAvailable JEC sets:"<<"   current : "<<jet.currentJECSet().c_str()<<std::endl;
-       for(unsigned int ia=0; ia<availableJECSets.size(); ia++){
-          std::cout<<"ia : "<<ia<<"  --> "<<availableJECSets[ia].c_str()<<std::endl;
-       }
-       std::cout<<"\nAvailable JEC levels:"<<"   current : "<<jet.currentJECLevel().c_str()<<std::endl;
-       for(unsigned int ia=0; ia<availableJECLevels.size(); ia++){
-          std::cout<<"ia : "<<ia<<"  --> "<<availableJECLevels[ia].c_str()<<std::endl;
-       }
-       std::cout<<"scaleRawToFull : "<<scaleRawToFull<<"  current : "<<jet.jecFactor(availableJECLevels.back())<<"  uncor : "<<jet.jecFactor("Uncorrected")<<std::endl;
-    }
+     double mtw = sqrt( 2*( (*met)[0].pt()*(*loose_isoTrksHandle_)[is].pt() -( (*met)[0].px()*(*loose_isoTrksHandle_)[is].px() + (*met)[0].py()*(*loose_isoTrksHandle_)[is].py() ) ) );
 
-//get JEC unc for this jet, using corrected pT
-    jecUnc->setJetEta(jet.eta());
-    jecUnc->setJetPt(jet.pt());
+     loose_isoTrks_charge->push_back(isoTrkcharge);
+     loose_isoTrks_dz->push_back((*loose_isotrk_dzpvVecHandle)[is]);
+     loose_isoTrks_pdgId->push_back((*loose_isoTrksHandle_)[is].pdgId());
+          loose_isoTrks_iso->push_back((*loose_isotrk_isoVecHandle)[is]);
+     loose_isoTrks_mtw->push_back(mtw);
 
-    double uncertainty = jecUnc->getUncertainty(true);
-//safety check if uncertainty is not available for a jet
-    if( uncertainty==-999. ) uncertainty = 0;
-    recoJetsJecUnc->push_back(uncertainty);
+     if( debug_ ){
+        std::cout<<"  --> is : "<<is<<"  pt/eta/phi/chg : "<<isoTrkpt<<"/"<<isoTrketa<<"/"<<isoTrkphi<<"/"<<isoTrkcharge<<"  mtw : "<<mtw<<"  pdgId : "<<(*loose_isoTrksHandle_)[is].pdgId()<<"  dz : "<<(*loose_isotrk_dzpvVecHandle)[is]<<"  iso/pt : "<<(*loose_isotrk_isoVecHandle)[is]/isoTrkpt<<std::endl;
+     }
+  }
+  if( debug_ ) std::cout<<std::endl;
 
-    if( perJetLVec.Pt() < jetPtCut_miniAOD_ && ij < jets->size() ) cntJetLowPt ++;
+  iEvent.getByToken(PfCandTok_, pfCandHandle_);
+  if( pfCandHandle_.isValid() ){
+     for(unsigned int ip=0; ip<pfCandHandle_->size(); ip++){
 
-    int flavor = jet.partonFlavour();
-    recoJetsFlavor->push_back(flavor);
+        if( std::isnan((*pfCandHandle_)[ip].pt()) ) continue;
 
-    double btag = jet.bDiscriminator(bTagKeyString_.c_str());
-    recoJetsBtag->push_back(btag);
-
-    double chargedHadronEnergyFraction = jet.chargedHadronEnergyFraction();
-    recoJetschargedHadronEnergyFraction->push_back( chargedHadronEnergyFraction );
-
-    double chargedEmEnergyFraction = jet.chargedEmEnergyFraction();
-    recoJetschargedEmEnergyFraction->push_back( chargedEmEnergyFraction );
-
-    double neutralEmEnergyFraction = jet.neutralEmEnergyFraction();
-    recoJetsneutralEmEnergyFraction->push_back( neutralEmEnergyFraction );
-
-    double muonEnergyFraction = jet.muonEnergyFraction();
-    recoJetsmuonEnergyFraction->push_back( muonEnergyFraction );
-
-    //std::cout << chargedEmEnergyFraction << std::endl;
-
-//    const std::vector<reco::PFCandidatePtr> & constituents = jet.getPFConstituents();
-//    const unsigned int numConstituents = constituents.size();
-    const unsigned int numConstituents = jet.numberOfDaughters();
-
-    for(unsigned int im=0; im < muLVec_->size(); im++){
-       double muEta = muLVec_->at(im).Eta(), muPhi = muLVec_->at(im).Phi();
-       double mindRmuonCon = 999.;
-       for (unsigned int iCon = 0; iCon < numConstituents; ++iCon){
-//          const reco::PFCandidatePtr& constituent = constituents[iCon];
-          const reco::Candidate * constituent = jet.daughter(iCon);
-          const double dRmuonCon = reco::deltaR(constituent->eta(), constituent->phi(), muEta, muPhi);
-          if( mindRmuonCon > dRmuonCon ){
-             mindRmuonCon = dRmuonCon;
-          }
-       }
-       if( mindRmuonCon < deltaRcon_ ) (*muMatchedJetIdx)[im] = ij;
-    }
-
-    for(unsigned int ie=0; ie < eleLVec_->size(); ie++){
-       double eleEta = eleLVec_->at(ie).Eta(), elePhi = eleLVec_->at(ie).Phi();
-       double mindReleCon = 999.;
-       for (unsigned int iCon = 0; iCon < numConstituents; ++iCon){
-//          const reco::PFCandidatePtr& constituent = constituents[iCon];
-          const reco::Candidate * constituent = jet.daughter(iCon);
-          const double dReleCon = reco::deltaR(constituent->eta(), constituent->phi(), eleEta, elePhi);
-          if( mindReleCon > dReleCon ){
-             mindReleCon = dReleCon;
-          }
-       }
-       if( mindReleCon < deltaRcon_ ) (*eleMatchedJetIdx)[ie] = ij;
-    }
-
-    for(unsigned int it=0; it < trksForIsoVetoLVec_->size(); it++){
-      double trkEta = trksForIsoVetoLVec_->at(it).Eta(), trkPhi = trksForIsoVetoLVec_->at(it).Phi();
-      double mindRtrkCon = 999.;
-      for (unsigned int iCon = 0; iCon < numConstituents; ++iCon){
-	//          const reco::PFCandidatePtr& constituent = constituents[iCon];
-	const reco::Candidate * constituent = jet.daughter(iCon);
-	const double dRtrkCon = reco::deltaR(constituent->eta(), constituent->phi(), trkEta, trkPhi);
-	if( mindRtrkCon > dRtrkCon ){
-	  mindRtrkCon = dRtrkCon;
-	}
-      }
-      if( mindRtrkCon < deltaRcon_ ) (*trksForIsoVetoMatchedJetIdx)[it] = ij;
-    }
-
-    for(unsigned int ist=0; ist < looseisoTrksLVec_->size(); ist++){
-      double isotrkEta = looseisoTrksLVec_->at(ist).Eta(), isotrkPhi = looseisoTrksLVec_->at(ist).Phi();
-      double mindRisotrkCon = 999.;
-      for (unsigned int iCon = 0; iCon < numConstituents; ++iCon){
-        //          const reco::PFCandidatePtr& constituent = constituents[iCon];
-        const reco::Candidate * constituent = jet.daughter(iCon);
-        const double dRisotrkCon = reco::deltaR(constituent->eta(), constituent->phi(), isotrkEta, isotrkPhi);
-        if( mindRisotrkCon > dRisotrkCon ){
-          mindRisotrkCon = dRisotrkCon;
+        double perIso = 9999.0;
+        for(unsigned int is=0; is< ref_all_isoTrksHandle_->size(); is++){
+           if( (*ref_all_isoTrksHandle_)[is].pt() == (*pfCandHandle_)[ip].pt() && (*ref_all_isoTrksHandle_)[is].eta() == (*pfCandHandle_)[ip].eta() && (*ref_all_isoTrksHandle_)[is].phi() == (*pfCandHandle_)[ip].phi() && (*ref_all_isoTrksHandle_)[is].energy() == (*pfCandHandle_)[ip].energy() && (*ref_all_isoTrksHandle_)[is].pdgId() == (*pfCandHandle_)[ip].pdgId() ){
+              perIso = (*ref_all_isoTrks_isoVecHandle_)[is];
+           }
         }
-      }
-      if( mindRisotrkCon < deltaRcon_ ) (*looseisoTrksMatchedJetIdx)[ist] = ij;
-    }
 
+        TLorentzVector perLVec;
+        perLVec.SetPtEtaPhiE( (*pfCandHandle_)[ip].pt(), (*pfCandHandle_)[ip].eta(), (*pfCandHandle_)[ip].phi(), (*pfCandHandle_)[ip].energy() );
+
+        for(unsigned int is=0; is<forVetoIsoTrks_->size(); is++){
+           if( (*forVetoIsoTrks_)[is].pt() == (*pfCandHandle_)[ip].pt() && (*forVetoIsoTrks_)[is].eta() == (*pfCandHandle_)[ip].eta() && (*forVetoIsoTrks_)[is].phi() == (*pfCandHandle_)[ip].phi() && (*forVetoIsoTrks_)[is].energy() == (*pfCandHandle_)[ip].energy() && (*forVetoIsoTrks_)[is].pdgId() == (*pfCandHandle_)[ip].pdgId() ){
+              forVetoIsoTrks_idx->push_back(ip);
+           }
+        }
+
+        int perCharge = pfCandHandle_->at(ip).charge();
+        if( perCharge ==0 ) continue;
+        
+        double dz = (*pfCandHandle_)[ip].dz();
+        if( fabs(dz) > isotrk_dz_ ) continue;
+
+        double pfActivity = GetTrackActivity(pfCandHandle_, &(*pfCandHandle_)[ip]);
+
+        int matched = 0;
+        for(unsigned int is=0; is<loose_nIsoTrks; is++){
+           double perdeltaR = perLVec.DeltaR(loose_isoTrksLVec->at(is));
+           if( perdeltaR < isotrk_dR_ ) matched ++;
+           if( (*loose_isoTrksHandle_)[is].pt() == (*pfCandHandle_)[ip].pt() && (*loose_isoTrksHandle_)[is].eta() == (*pfCandHandle_)[ip].eta() && (*loose_isoTrksHandle_)[is].phi() == (*pfCandHandle_)[ip].phi() && (*loose_isoTrksHandle_)[is].energy() == (*pfCandHandle_)[ip].energy() && (*loose_isoTrksHandle_)[is].pdgId() == (*pfCandHandle_)[ip].pdgId() ){
+              loose_isoTrks_idx->push_back(ip);
+              loose_isoTrks_pfActivity->push_back(pfActivity);
+           }
+        }
+        if( !isData_ ){
+           for(unsigned int ig=0; ig<W_emuVec_->size(); ig++){
+              int perIdx = W_emuVec_->at(ig);
+              TLorentzVector genLVec = genDecayLVec_->at(perIdx);
+              double perdeltaR = perLVec.DeltaR(genLVec);
+              if( perdeltaR < isotrk_dR_ ) matched ++;
+           }
+
+           for(unsigned int ig=0; ig<W_tau_emuVec_->size(); ig++){
+              int perIdx = W_tau_emuVec_->at(ig);
+              TLorentzVector genLVec = genDecayLVec_->at(perIdx);
+              double perdeltaR = perLVec.DeltaR(genLVec);
+              if( perdeltaR < isotrk_dR_ ) matched ++;
+           }
+
+           for(unsigned int ig=0; ig<W_tau_prongsVec_->size(); ig++){
+              int perIdx = W_tau_prongsVec_->at(ig);
+              TLorentzVector genLVec = genDecayLVec_->at(perIdx);
+              double perdeltaR = perLVec.DeltaR(genLVec);
+              if( perdeltaR < isotrk_dR_ ) matched ++;
+           }
+        }
+        
+        if( !matched ) continue;
+
+        trksForIsoVetoLVec->push_back(perLVec);
+        trksForIsoVeto_charge->push_back(perCharge);
+        trksForIsoVeto_dz->push_back(dz);
+        trksForIsoVeto_pdgId->push_back(pfCandHandle_->at(ip).pdgId());
+        trksForIsoVeto_idx->push_back(ip);
+        trksForIsoVeto_iso->push_back(perIso);
+        trksForIsoVeto_pfActivity->push_back(pfActivity);
+     }
+  }
+  if( debug_ ){
+     std::cout<<"\nntrksForIsoVeto : "<<trksForIsoVetoLVec->size()<<std::endl;
+     std::cout<<"idx of forVetoIsoTrks : ";
+     for(unsigned int is=0; is<nIsoTrksForVeto; is++){
+        std::cout<<"  "<<forVetoIsoTrks_idx->at(is);
+     }
+     std::cout<<std::endl;
+     std::cout<<"idx of loose_isoTrks : ";
+     for(unsigned int is=0; is<loose_nIsoTrks; is++){
+        std::cout<<"  "<<loose_isoTrks_idx->at(is);
+     }
+     std::cout<<std::endl;
   }
 
-  if( cntJetLowPt ) std::cout<<"WARNING ... NON ZERO ("<<cntJetLowPt<<") number of jets with pt < "<<jetPtCut_miniAOD_<<std::endl;
-
-  std::auto_ptr<int> nJets (new int);
-
-  *nJets = jetsLVec->size();
-
   // store in the event
-  // iEvent.put(prod);
-  iEvent.put(jetsLVec, "jetsLVec");
-  iEvent.put(recoJetsFlavor, "recoJetsFlavor");
-  iEvent.put(recoJetsBtag, "recoJetsBtag");
-  iEvent.put(recoJetsJecUnc, "recoJetsJecUnc");
-  iEvent.put(recoJetsJecScaleRawToFull, "recoJetsJecScaleRawToFull");
-  iEvent.put(nJets, "nJets");
 
-  iEvent.put(recoJetschargedHadronEnergyFraction, "recoJetschargedHadronEnergyFraction");
-  iEvent.put(recoJetschargedEmEnergyFraction, "recoJetschargedEmEnergyFraction");
-  iEvent.put(recoJetsneutralEmEnergyFraction, "recoJetsneutralEmEnergyFraction");
+  std::auto_ptr<int>  loose_nIsoTrksPtr(new int);
+  *loose_nIsoTrksPtr = loose_nIsoTrks;
 
-  iEvent.put(recoJetsmuonEnergyFraction, "recoJetsmuonEnergyFraction");
+  std::auto_ptr<int> nIsoTrksForVetoPtr(new int);
+  *nIsoTrksForVetoPtr = nIsoTrksForVeto;
 
-  iEvent.put(muMatchedJetIdx, "muMatchedJetIdx");
-  iEvent.put(eleMatchedJetIdx, "eleMatchedJetIdx");
+  iEvent.put(trksForIsoVetoLVec, "trksForIsoVetoLVec");
+  iEvent.put(trksForIsoVeto_charge, "trksForIsoVetocharge");
+  iEvent.put(trksForIsoVeto_dz, "trksForIsoVetodz");
+  iEvent.put(trksForIsoVeto_pdgId, "trksForIsoVetopdgId");
+  iEvent.put(trksForIsoVeto_idx, "trksForIsoVetoidx");
+    iEvent.put(trksForIsoVeto_iso, "trksForIsoVetoiso");
+  iEvent.put(trksForIsoVeto_pfActivity, "trksForIsoVetopfActivity");
 
-  iEvent.put(trksForIsoVetoMatchedJetIdx, "trksForIsoVetoMatchedJetIdx");
-  iEvent.put(looseisoTrksMatchedJetIdx, "looseisoTrksMatchedJetIdx");
+  iEvent.put(loose_isoTrksLVec, "looseisoTrksLVec");
+  iEvent.put(loose_isoTrks_charge, "looseisoTrkscharge");
+  iEvent.put(loose_isoTrks_dz, "looseisoTrksdz");
+  iEvent.put(loose_isoTrks_pdgId, "looseisoTrkspdgId");
+  iEvent.put(loose_isoTrks_idx, "looseisoTrksidx");
+  iEvent.put(loose_isoTrks_iso, "looseisoTrksiso");
+  iEvent.put(loose_isoTrks_mtw, "looseisoTrksmtw");
+  iEvent.put(loose_isoTrks_pfActivity, "looseisoTrkspfActivity");
+
+  iEvent.put(forVetoIsoTrks_idx, "forVetoIsoTrksidx");
+
+  iEvent.put(loose_nIsoTrksPtr, "loosenIsoTrks");
+  iEvent.put(nIsoTrksForVetoPtr, "nIsoTrksForVeto");
 
   return true;
 }
 
+double prodIsoTrks::GetTrackActivity(const edm::Handle<pat::PackedCandidateCollection> & other_pfcands, const pat::PackedCandidate* track) {
+  if (track->pt()<5.) return -1.0;
+  double trkiso(0.);
+  double r_iso = 0.3;
+  for (const pat::PackedCandidate &other_pfc : *other_pfcands) {
+      if (other_pfc.charge()==0) continue;
+      double dr = deltaR(other_pfc, *track);
+      if (dr < r_iso || dr > 0.4) continue; // activity annulus
+      float dz_other = other_pfc.dz();
+      if( fabs(dz_other) > 0.1 ) continue;
+      trkiso += other_pfc.pt();
+    }
+    double activity = trkiso/track->pt();
+    return activity;
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(prodJets);
+DEFINE_FWK_MODULE(prodIsoTrks);
