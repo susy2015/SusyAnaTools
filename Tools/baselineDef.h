@@ -112,22 +112,29 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         {
             doMET = false;
             dodPhis = false;
-        }else if( spec.compare("jecUp") == 0 || spec.compare("jecDn") == 0 || spec.compare("metMagUp") == 0 || spec.compare("metMagDn") == 0 || spec.compare("metPhiUp") == 0 || spec.compare("metPhiDn") == 0 ){
-           if( spec.compare("jecUp") == 0 ){
+        }else if( spec.find("jecUp") != std::string::npos || spec.find("jecDn") != std::string::npos || spec.find("metMagUp") != std::string::npos || spec.find("metMagDn") != std::string::npos || spec.find("metPhiUp") != std::string::npos || spec.find("metPhiDn") != std::string::npos ){
+           if( spec.find("jecUp") != std::string::npos ){
               jetVecLabel = "jetLVec_jecUp";
               CSVVecLabel = "recoJetsBtag_jecUp";
-           }else if(spec.compare("jecDn") == 0 ){
+           }else if(spec.find("jecDn") != std::string::npos ){
               jetVecLabel = "jetLVec_jecDn";
               CSVVecLabel = "recoJetsBtag_jecDn";
-           }else if(spec.compare("metMagUp") == 0 ){
+           }else if(spec.find("metMagUp") != std::string::npos ){
               METLabel = "met_metMagUp";
-           }else if(spec.compare("metMagDn") == 0 ){
+           }else if(spec.find("metMagDn") != std::string::npos ){
               METLabel = "met_metMagDn";
-           }else if(spec.compare("metPhiUp") == 0 ){
+           }else if(spec.find("metPhiUp") != std::string::npos ){
               METPhiLabel = "metphi_metPhiUp";
-           }else if(spec.compare("metPhiDn") == 0 ){
+           }else if(spec.find("metPhiDn") != std::string::npos ){
               METPhiLabel = "metphi_metPhiDn";
            }
+           if( spec.find("usegenmet") != std::string::npos ){
+              METLabel = "genmet";
+              METPhiLabel = "genmetphi";
+           } 
+        }else if( spec.compare("usegenmet") == 0 ){
+           METLabel = "genmet";
+           METPhiLabel = "genmetphi";
         }
 
         // Form TLorentzVector of MET
@@ -219,6 +226,16 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         if( !passNoiseEventFilterFunc(tr) ) { passNoiseEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
         if( debug ) std::cout<<"passNoiseEventFilterFunc : "<<passNoiseEventFilterFunc(tr)<<"  passBaseline : "<<passBaseline<<std::endl;
 
+        // pass QCD high MET filter
+        bool passQCDHighMETFilter = true;
+        if( !passQCDHighMETFilterFunc(tr) ) { passQCDHighMETFilter = false; }
+        if( debug ) std::cout<<"passQCDHighMETFilter : "<< passQCDHighMETFilter <<"  passBaseline : "<<passBaseline<<std::endl;
+
+        // pass the special filter for fastsim
+        bool passFastsimEventFilter = true;
+        if( !passFastsimEventFilterFunc(tr) ) { passFastsimEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
+        if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc(tr)<<"  passBaseline : "<<passBaseline<<std::endl;
+
         // Register all the calculated variables
         tr.registerDerivedVar("nMuons_CUT" + spec, nMuons);
         tr.registerDerivedVar("nElectrons_CUT" + spec, nElectrons);
@@ -250,6 +267,8 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         tr.registerDerivedVar("passHT" + spec, passHT);
         tr.registerDerivedVar("passTagger" + spec, passTagger);
         tr.registerDerivedVar("passNoiseEventFilter" + spec, passNoiseEventFilter);
+        tr.registerDerivedVar("passQCDHighMETFilter" + spec, passQCDHighMETFilter);
+        tr.registerDerivedVar("passFastsimEventFilter" + spec, passFastsimEventFilter);
         tr.registerDerivedVar("passBaseline" + spec, passBaseline);
         tr.registerDerivedVar("passBaselineNoTagMT2" + spec, passBaselineNoTagMT2);
         tr.registerDerivedVar("passBaselineNoTag" + spec, passBaselineNoTag);
@@ -288,8 +307,21 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
     {
         try
         {
+//            int vtxSize = tr.getVar<int>("vtxSize");
+            //int beamHaloFilter = tr.getVar<int>("CSCTightHaloFilter");
+/*
+            bool beamHaloFilter = true;
+            if(filter.Initialized()) 
+            {
+                const unsigned int& run =   tr.getVar<unsigned int>("run");
+                const unsigned int& lumi  = tr.getVar<unsigned int>("lumi");
+                const unsigned int& event = tr.getVar<unsigned int>("event");
+                beamHaloFilter = filter.CheckEvent(run, lumi, event);
+            }
+*/
             bool passDataSpec = true;
-            if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
+//            if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
+            if( tr.getVar<unsigned int>("run") >= 100000 ){ // hack to know if it's data or MC...
                int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
                unsigned int CSCTightHaloListFilter = tr.getVar<unsigned int>("CSCTightHaloListFilter");
                int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
@@ -297,6 +329,7 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
                unsigned int badResolutionTrackListFilter = tr.getVar<unsigned int>("badResolutionTrackListFilter");
                unsigned int muonBadTrackListFilter = tr.getVar<unsigned int>("muonBadTrackListFilter");
                passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && badResolutionTrackListFilter && muonBadTrackListFilter;
+//               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
             }
 
             unsigned int hbheNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHENoiseFilter");
@@ -305,6 +338,9 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
 
             int jetIDFilter = isfastsim? 1:tr.getVar<int>("looseJetID_NoLep");
 
+            //return (vtxSize>=1) && beamHaloFilter && ecalTPFilter && hbheNoiseFilter && jetIDFilter;
+//            return (vtxSize>=1) && beamHaloFilter && jetIDFilter && ecalTPFilter && hbheNoiseFilter && hbheIsoNoiseFilter;
+//            return goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
             return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
         }
         catch (std::string var)
@@ -316,6 +352,50 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
             }
         }
         return true;
+    }
+
+    bool passQCDHighMETFilterFunc(NTupleReader &tr)
+    {
+      std::vector<TLorentzVector> jetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+      std::vector<double> recoJetsmuonEnergyFraction = tr.getVec<double>("recoJetsmuonEnergyFraction");
+      double metphi = tr.getVar<double>("metphi");
+
+      int nJetsLoop = recoJetsmuonEnergyFraction.size();
+      std::vector<double> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metphi, nJetsLoop, AnaConsts::dphiArr);
+
+      for(int i=0; i<nJetsLoop ; i++)
+      {
+        double thisrecoJetsmuonenergy = recoJetsmuonEnergyFraction.at(i)*(jetsLVec.at(i)).Pt();
+        if( (recoJetsmuonEnergyFraction.at(i)>0.5) && (thisrecoJetsmuonenergy>200) && (std::abs(dPhisVec.at(i)-3.1416)<0.4) ) return false;
+      }
+
+      return true;
+    }
+
+    bool passFastsimEventFilterFunc(NTupleReader &tr){
+       bool passFilter = true;
+       if( isfastsim ){
+          bool cached_rethrow = tr.getReThrow();
+          tr.setReThrow(false);
+          const std::vector<TLorentzVector> & genjetsLVec = tr.getVec<TLorentzVector>("genjetsLVec");
+          const std::vector<TLorentzVector> & recoJetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+          const std::vector<double> & recoJetschargedHadronEnergyFraction = tr.getVec<double>("recoJetschargedHadronEnergyFraction");
+
+          if( !recoJetsLVec.empty() && (&genjetsLVec) != nullptr ){
+             for(unsigned int ij=0; ij<recoJetsLVec.size(); ij++){
+                if( !AnaFunctions::jetPassCuts(recoJetsLVec[ij], AnaConsts::pt20Eta25Arr) ) continue;
+                double mindeltaR = 999.0;
+                int matchedgenJetsIdx = -1;
+                for(unsigned int ig=0; ig<genjetsLVec.size(); ig++){
+                   double dR = recoJetsLVec[ij].DeltaR(genjetsLVec[ig]);
+                   if( mindeltaR > dR ){ mindeltaR = dR; matchedgenJetsIdx = (int)ig; }
+                }
+                if( matchedgenJetsIdx != -1 && mindeltaR > 0.3 && recoJetschargedHadronEnergyFraction[ij] < 0.1 ) passFilter = false;
+             }
+          }
+          tr.setReThrow(cached_rethrow);
+       }
+       return passFilter;
     }
 
     void operator()(NTupleReader &tr)
