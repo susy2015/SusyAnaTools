@@ -28,6 +28,8 @@ bool SearchBins::searchBinDef::compare(const int ibJet, const int iTop, const do
 
 SearchBins::SearchBins(std::string binEra)
 {
+    NSearchRegions_ = 0;
+
     if(binEra.compare("SB_37_2015") == 0)
     {
         SearchBins_37_2015();
@@ -68,7 +70,7 @@ void SearchBins::addNbNtBin(int bJet_lo, int bJet_hi, int top_lo, int top_hi, co
 
 void SearchBins::build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::vector<double> > > & outBinning) const
 {
-    const double max_MT2_for_binEdge = 400, max_met_for_binEdge = 600;
+    const double max_MT2_for_binEdge = 450, max_met_for_binEdge = 800;
     //const double max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25;
     const double pseudoMax_MT2_for_hist = max_MT2_for_binEdge + 100, pseudoMax_met_for_hist = max_met_for_binEdge + 50;
     
@@ -77,7 +79,7 @@ void SearchBins::build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::v
     outBinning.clear();
     for(auto& sb : searchBins_)
     {
-        double MT2_lo = sb.met_lo_;
+        double MT2_lo = sb.MT2_lo_;
         double MT2_hi = sb.MT2_hi_;
         double met_lo = sb.met_lo_;
         double met_hi = sb.met_hi_;
@@ -88,11 +90,11 @@ void SearchBins::build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::v
         if(sb.idx_SR_ != currentSR)
         {
             currentSR = sb.idx_SR_;
-            outBinning.emplace_back(std::vector<std::vector<double> >({{MT2_lo, MT2_hi, met_lo, met_hi}}));
+            outBinning.emplace_back(std::vector<std::vector<double> >({{met_lo, MT2_lo, met_hi, MT2_hi}}));
         }
         else
         {
-            outBinning.back().push_back({MT2_lo, MT2_hi, met_lo, met_hi});
+            outBinning.back().push_back({met_lo, MT2_lo, met_hi, MT2_hi});
         }
     }
     //   std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
@@ -105,7 +107,7 @@ void SearchBins::build_MT2_met_Binning(std::vector<std::vector<std::vector<doubl
     outBinning.clear();
     for(auto& sb : searchBins_)
     {
-        double MT2_lo = sb.met_lo_;
+        double MT2_lo = sb.MT2_lo_;
         double MT2_hi = sb.MT2_hi_;
         double met_lo = sb.met_lo_;
         double met_hi = sb.met_hi_;
@@ -114,11 +116,11 @@ void SearchBins::build_MT2_met_Binning(std::vector<std::vector<std::vector<doubl
         if(sb.idx_SR_ != currentSR)
         {
             currentSR = sb.idx_SR_;
-            outBinning.emplace_back(std::vector<std::vector<double> >({{MT2_lo, MT2_hi, met_lo, met_hi}}));
+            outBinning.emplace_back(std::vector<std::vector<double> >({{met_lo, MT2_lo, met_hi, MT2_hi}}));
         }
         else
         {
-            outBinning.back().push_back({MT2_lo, MT2_hi, met_lo, met_hi});
+            outBinning.back().push_back({met_lo, MT2_lo, met_hi, MT2_hi});
         }
     }
     std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
@@ -162,8 +164,8 @@ void SearchBins::print_searchBins() const
             preiSR = sbDef.idx_SR_;
         }
         char tmpnbJetStr[20], tmpnTopStr[20], tmpMT2Str[20], tmpmetStr[20];
-        if( sbDef.top_hi_ != -1 ) sprintf(tmpnTopStr, "=%1.0f", sbDef.top_lo_); else sprintf(tmpnTopStr, ">=%1.0f", sbDef.top_lo_);
-        if( sbDef.bJet_hi_ != -1 ) sprintf(tmpnbJetStr, "=%1.0f", sbDef.bJet_lo_); else sprintf(tmpnbJetStr, ">=%1.0f", sbDef.bJet_lo_);
+        if( sbDef.top_hi_ != -1 ) sprintf(tmpnTopStr, "=%d", sbDef.top_lo_); else sprintf(tmpnTopStr, ">=%d", sbDef.top_lo_);
+        if( sbDef.bJet_hi_ != -1 ) sprintf(tmpnbJetStr, "=%d", sbDef.bJet_lo_); else sprintf(tmpnbJetStr, ">=%d", sbDef.bJet_lo_);
         if( sbDef.MT2_hi_ != -1 ) sprintf(tmpMT2Str, "[%3.0f, %3.0f)", sbDef.MT2_lo_, sbDef.MT2_hi_); else sprintf(tmpMT2Str, "[%3.0f, inf)", sbDef.MT2_lo_);
         if( sbDef.met_hi_ != -1 ) sprintf(tmpmetStr, "[%3.0f, %3.0f)", sbDef.met_lo_, sbDef.met_hi_); else sprintf(tmpmetStr, "[%3.0f, inf)", sbDef.met_lo_);
         printf("%6d        %12s        %12s        %12s        %12s\n", ib, tmpnTopStr, tmpnbJetStr, tmpMT2Str, tmpmetStr);
