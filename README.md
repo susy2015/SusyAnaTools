@@ -8,7 +8,7 @@ cd CMSSW_7_4_15/src/
 cmsenv
 git cms-merge-topic -u kpedro88:METfix7415
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
-git clone -b Ntp_74X_04Dec2015_v4.0 git@github.com:susy2015/SusyAnaTools.git
+git clone -b Ana_74X_June08_2016_SearchBins_69_2016 git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 
