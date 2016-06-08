@@ -121,6 +121,7 @@ namespace topTagger{
          std::vector<int> pickedTopCandSortedVec, ori_pickedTopCandSortedVec;
          int nTopCandSortedCnt;
 // New variables
+         TLorentzVector best_had_brJet;
          double best_lept_brJet_MT, best_had_brJet_MT, best_had_brJet_MT2, best_had_brJet_mTcomb;
          std::map<double, std::vector<int> > lept_brJetIdxMap;
          std::map<double, std::vector<int> > had_brJetIdxMap;
@@ -1676,7 +1677,8 @@ namespace topTagger{
                best_lept_brJet_MT = calcMT(best_lept_brJet, metLVec);
             }
             if( !had_brJetLVecMap.empty() ){
-               TLorentzVector best_had_brJet = had_brJetLVecMap.begin()->second;
+               best_had_brJet.SetPtEtaPhiM(0, 0, 0, 0);
+               best_had_brJet = had_brJetLVecMap.begin()->second;
                best_had_brJet_MT = calcMT(best_had_brJet, metLVec);
                best_had_brJet_MT2 = calcMT2(topLVec, best_had_brJet, metLVec);
                best_had_brJet_mTcomb = 0.5*best_had_brJet_MT + 0.5 * top_MT;

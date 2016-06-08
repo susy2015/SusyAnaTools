@@ -5,19 +5,45 @@
 #include "customize.h"
 #include "EventListFilter.h"
 
+#include "TopTagger/TopTagger/include/TopTagger.h"
+#include "TopTagger/TopTagger/include/TopTaggerResults.h"
+#include "TopTagger/TopTagger/include/TopTaggerUtilities.h"
+
 #include "Math/VectorUtil.h"
 
 #include <iostream>
+#include <memory>
 
 class BaselineVessel
 {
 private:
+    //If you add new parameters make sure they are added to the copy and move constructors!!!
     const std::string spec;
     //EventListFilter filter;
     bool isfastsim;
 
+    std::unique_ptr<TopTagger> tt_;
+
 public:
-BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization) { if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; }
+    BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization)
+    {
+        if(filterString.compare("fastsim") ==0) isfastsim = true; 
+        else                                    isfastsim = false;
+
+        tt_ = std::unique_ptr<TopTagger>(new TopTagger("baselineTopTager.cfg"));
+    }
+
+    //copy constructor
+    BaselineVessel(BaselineVessel& blv) : spec(blv.spec), isfastsim(blv.isfastsim), tt_(std::move(tt_))
+    {
+        
+    }
+
+    //move constructor
+    BaselineVessel(BaselineVessel&& blv) : spec(blv.spec), isfastsim(blv.isfastsim), tt_(std::move(tt_))
+    {
+        
+    }
 
     void passBaseline(NTupleReader &tr)
     {
@@ -206,19 +232,27 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         // Note that to save speed, only do the calculation after previous base line requirements.
         int nTopCandSortedCnt = -1;
 
-        if( passnJets && cntNJetsPt30 >= AnaConsts::nJetsSel ){
-            type3Ptr->setCSVToFake(bToFake);
-            type3Ptr->processEvent((*jetsLVec_forTagger), (*recoJetsBtag_forTagger), metLVec);
-            nTopCandSortedCnt = type3Ptr->nTopCandSortedCnt;
+        const TopTaggerResults* ttr = nullptr;
+        if( passnJets && cntNJetsPt30 >= AnaConsts::nJetsSel )
+        {
+            std::vector<Constituent> constituents = ttUtility::packageConstituents(*jetsLVec_forTagger, *recoJetsBtag_forTagger);
+
+            //run tagger
+            tt_->runTagger(constituents);
+
+            //get output of tagger
+            ttr = &(tt_->getResults());
+            nTopCandSortedCnt = ttr->getTops().size();
         }
 
         // Pass the baseline MT2 requirement?
         bool passMT2 = true;
-        if( type3Ptr->best_had_brJet_MT2 < AnaConsts::defaultMT2cut ){ passBaseline = false; passBaselineNoTag = false; passMT2 = false; passBaselineNoLepVeto = false; }
-        if( debug ) std::cout<<"MT2 : "<<type3Ptr->best_had_brJet_MT2<<"  defaultMT2cut : "<<AnaConsts::defaultMT2cut<<"  passBaseline : "<<passBaseline<<std::endl;
+        double MT2 = ttUtility::calculateMT2(*ttr);
+        if( MT2 < AnaConsts::defaultMT2cut ){ passBaseline = false; passBaselineNoTag = false; passMT2 = false; passBaselineNoLepVeto = false; }
+        if( debug ) std::cout<<"MT2 : "<< MT2 <<"  defaultMT2cut : "<<AnaConsts::defaultMT2cut<<"  passBaseline : "<<passBaseline<<std::endl;
 
         // Pass top tagger requirement?
-        bool passTagger = type3Ptr->passNewTaggerReq() && (incZEROtop || nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel);
+        bool passTagger = (incZEROtop || nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel);
 
         if( !passTagger ){ passBaseline = false; passBaselineNoLepVeto = false; }
 
@@ -403,12 +437,7 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
         passBaseline(tr);
         GetnTops(&tr);
     }
-} blv;
-
-void passBaselineFunc(NTupleReader &tr)
-{
-    blv(tr);
-}
+};
 
 namespace stopFunctions
 {
@@ -748,12 +777,7 @@ namespace stopFunctions
             tr.registerDerivedVec("rejectJetIdx_foreleVec", rejectJetIdx_foreleVec);
         }
 
-    } cjh;
-
-    void cleanJets(NTupleReader& tr)
-    {
-        cjh(tr);
-    }
+    };
 }
 
 #endif
