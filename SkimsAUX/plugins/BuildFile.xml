@@ -24,6 +24,7 @@
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/VertexReco"/>
   <use   name="DataFormats/HepMCCandidate"/>
+  <use   name="DataFormats/Common/interface"/>
   <use   name="lhapdf"/>
   <use   name="fastjet"/>
   <use   name="PhysicsTools/Heppy"/>
