@@ -8,7 +8,7 @@
 class SearchBins
 {
 public:
-    SearchBins(std::string binEra = "SB_37_2015");
+    SearchBins(std::string binEra = "SB_69_2016");
 
     int find_Binning_Index(const int ibJet, const int iTop, const double MT2, const double met) const;
 
@@ -53,6 +53,7 @@ private:
 
     void SearchBins_37_2015();
     void SearchBins_45_2015();
+    void SearchBins_69_2016();
 };
 
 #endif
