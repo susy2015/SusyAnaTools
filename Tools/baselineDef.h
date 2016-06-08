@@ -17,6 +17,7 @@
 class BaselineVessel
 {
 private:
+    //If you add new parameters make sure they are added to the copy and move constructors!!!
     const std::string spec;
     //EventListFilter filter;
     bool isfastsim;
@@ -29,7 +30,19 @@ public:
         if(filterString.compare("fastsim") ==0) isfastsim = true; 
         else                                    isfastsim = false;
 
-        tt_ = new TopTagger("baselineTopTager.cfg");
+        tt_ = std::unique_ptr<TopTagger>(new TopTagger("baselineTopTager.cfg"));
+    }
+
+    //copy constructor
+    BaselineVessel(BaselineVessel& blv) : spec(blv.spec), isfastsim(blv.isfastsim), tt_(std::move(tt_))
+    {
+        
+    }
+
+    //move constructor
+    BaselineVessel(BaselineVessel&& blv) : spec(blv.spec), isfastsim(blv.isfastsim), tt_(std::move(tt_))
+    {
+        
     }
 
     void passBaseline(NTupleReader &tr)
@@ -215,14 +228,14 @@ public:
         const TopTaggerResults* ttr = nullptr;
         if( passnJets && cntNJetsPt30 >= AnaConsts::nJetsSel )
         {
-            vector<Constituent> constituents = ttUtility::packageConstituents(*jetsLVec_forTagger, *recoJetsBtag_forTagger);
+            std::vector<Constituent> constituents = ttUtility::packageConstituents(*jetsLVec_forTagger, *recoJetsBtag_forTagger);
 
             //run tagger
             tt_->runTagger(constituents);
 
             //get output of tagger
-            ttr = &(tt.getResults());
-            nTopCandSortedCnt = ttr->getNTops();
+            ttr = &(tt_->getResults());
+            nTopCandSortedCnt = ttr->getTops().size();
         }
 
         // Pass the baseline MT2 requirement?
