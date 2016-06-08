@@ -75,7 +75,7 @@ public:
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
 
-    template<typename T> void registerFunction(T& f)
+    template<typename T> void registerFunction(T f)
     {
         if(isFirstEvent_) functionVec_.emplace_back(f);
         else printf("NTupleReader::registerFunction(...): new functions cannot be registered after tuple reading begins!\n");
