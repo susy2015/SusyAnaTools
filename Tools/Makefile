@@ -23,7 +23,8 @@ LIBS       = $(shell root-config --glibs)
 MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2 -L$(CMSSW_RELEASE_BASE)/lib/${SCRAM_ARCH}/ -lPhysicsToolsHeppy
 LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
-PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards batchSignalPlots
+#PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards batchSignalPlots
+PROGRAMS = tupleTest nEvts makeCombPlots makeSignalHistograms
 
 all: mkobj sampPyWrap $(PROGRAMS)
 
@@ -70,7 +71,7 @@ makeSignalCards: $(ODIR)/samples.o $(ODIR)/makeSignalCards.o
 batchSignalPlots: $(ODIR)/samples.o $(ODIR)/batchSignalPlots.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
-makeSignalHistograms: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/makeSignalHistograms.o
+makeSignalHistograms: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/makeSignalHistograms.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 clean:

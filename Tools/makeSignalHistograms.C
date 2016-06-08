@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <functional>
 
 #include "TH1.h"
 #include "TH2.h"
@@ -104,14 +105,14 @@ public:
         }
 };
 
-void calcSearchBin(NTupleReader& tr)
+void calcSearchBin(NTupleReader& tr, SearchBins& sb)
 {
     const double& met                = tr.getVar<double>("met");
     const double& best_had_brJet_MT2 = tr.getVar<double>("best_had_brJet_MT2");
     const int& cntCSVS               = tr.getVar<int>("cntCSVS");
     const int& nTopCandSortedCnt     = tr.getVar<int>("nTopCandSortedCnt");
 
-    int nSearchBin = find_Binning_Index(cntCSVS, nTopCandSortedCnt, best_had_brJet_MT2, met);
+    int nSearchBin = sb.find_Binning_Index(cntCSVS, nTopCandSortedCnt, best_had_brJet_MT2, met);
 
     tr.registerDerivedVar("nSearchBin", nSearchBin);
 }
@@ -119,6 +120,8 @@ void calcSearchBin(NTupleReader& tr)
 int main()
 {
     TH1::AddDirectory(false);
+
+    SearchBins sb("SB_45_2015");
 
     try
     {
@@ -141,7 +144,7 @@ int main()
 
             NTupleReader tr(t, activatedBranch);
             tr.registerFunction(blv);
-            tr.registerFunction(&calcSearchBin);
+            tr.registerFunction(static_cast<std::function<void(NTupleReader&)>>(std::bind(&calcSearchBin, std::placeholders::_1, sb)));
 
             while(tr.getNextEvent())
             {
