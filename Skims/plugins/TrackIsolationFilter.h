@@ -28,9 +28,9 @@
 #include "TLorentzVector.h"
 #include "TTree.h"
 
-#include "SusyAnaTools/SkimsAUX/plugins/common.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
 //
 // class decleration
 //
@@ -56,7 +56,7 @@ private:
 
   edm::InputTag pfCandidatesTag_;
   edm::InputTag vertexInputTag_;
-  edm::EDGetTokenT<edm::View<pat::PackedCandidate>> PfcandTok_;
+  edm::EDGetTokenT<pat::PackedCandidateCollection> PfcandTok_;
   edm::EDGetTokenT<edm::View<reco::Vertex> > VertexInputTok_;
   int vtxSize;
 };

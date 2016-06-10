@@ -76,7 +76,7 @@ TrackIsolationFilter::TrackIsolationFilter(const edm::ParameterSet& iConfig) {
   doTrkIsoVeto_     = iConfig.getParameter<bool>            ("doTrkIsoVeto");
 
   exclPdgIdVec_     = iConfig.getParameter<std::vector<int> > ("exclPdgIdVec"); 
-  PfcandTok_ = consumes<edm::View<pat::PackedCandidate>>(pfCandidatesTag_);
+  PfcandTok_ = consumes<pat::PackedCandidateCollection>(pfCandidatesTag_);
   VertexInputTok_ =consumes<edm::View<reco::Vertex> >(vertexInputTag_);
   produces<std::vector<pat::PackedCandidate> >(""); 
   produces<vector<double> >("pfcandstrkiso").setBranchAlias("pfcands_trkiso");
@@ -104,8 +104,8 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   //---------------------------------
   // get PFCandidate collection
   //---------------------------------
-  
-  edm::Handle<edm::View<pat::PackedCandidate>> pfCandidatesHandle;
+ 
+  edm::Handle<pat::PackedCandidateCollection> pfCandidatesHandle;
   iEvent.getByToken(PfcandTok_, pfCandidatesHandle);
 
   //---------------------------------
@@ -127,10 +127,8 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   if( vertices->size() > 0) {
 
-    // for( pat::PackedCandidateCollection::const_iterator pf_it = pfCandidatesHandle->begin(); pf_it != pfCandidatesHandle->end(); pf_it++ ) {
-for(size_t i=0; i<pfCandidatesHandle->size();i++)
-    {
-  const pat::PackedCandidate* pf_it = &(*pfCandidatesHandle)[i];
+     for( pat::PackedCandidateCollection::const_iterator pf_it = pfCandidatesHandle->begin(); pf_it != pfCandidatesHandle->end(); pf_it++ ) {
+
         //-------------------------------------------------------------------------------------
         // only store PFCandidate values if pt > minPt
         //-------------------------------------------------------------------------------------
@@ -141,7 +139,7 @@ for(size_t i=0; i<pfCandidatesHandle->size();i++)
            pfcands_chg->push_back(pf_it->charge());
         }
 
-        if( std::isnan(pf_it->pt()) ) continue;
+        if( std::isnan(pf_it->pt()) || std::isinf(pf_it->pt()) ) continue;
 
         if( pf_it->pt() < minPt_ ) continue;
 
@@ -165,12 +163,10 @@ for(size_t i=0; i<pfCandidatesHandle->size();i++)
 
            double trkiso = 0.0;
 
-           //for( pat::PackedCandidateCollection::const_iterator pf_other = pfCandidatesHandle->begin(); pf_other != pfCandidatesHandle->end(); pf_other++ ) {
-for(size_t j=0; j<pfCandidatesHandle->size();j++)
-    {
-  const pat::PackedCandidate* pf_other = &(*pfCandidatesHandle)[j];
+           for( pat::PackedCandidateCollection::const_iterator pf_other = pfCandidatesHandle->begin(); pf_other != pfCandidatesHandle->end(); pf_other++ ) {
+
               // don't count the PFCandidate in its own isolation sum
-              if( i == j       ) continue;
+              if( pf_it == pf_other       ) continue;
 
 	      // require the PFCandidate to be charged
 	      if( pf_other->charge() == 0 ) continue;
