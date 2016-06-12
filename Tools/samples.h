@@ -55,7 +55,7 @@ namespace AnaSamples
             return collections_;
         }
         
-        void readFileList();
+        void readFileList() const;
 
     private:
         double weight_;
