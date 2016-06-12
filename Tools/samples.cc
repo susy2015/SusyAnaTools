@@ -7,6 +7,7 @@
 namespace AnaSamples
 {
     void FileSummary::readFileList() const
+    {
         if(filelist_.size()) filelist_.clear();
         
         FILE *f = fopen(filePath.c_str(), "r");
