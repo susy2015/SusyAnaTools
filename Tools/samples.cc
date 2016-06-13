@@ -178,7 +178,7 @@ namespace AnaSamples
 //	addSample("Data_DoubleEG_2015D_PromptReco", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1669.92, 1.0,  kBlack);
 	
 	//HT-MHT
-	addSample("Data_HTMHT_2016", fDir_ + DATAloc + "HTMHT.txt","stopTreeMaker/AUX", 806, 1.0,  kBlack);
+	addSample("Data_HTMHT_2016", fDir_ + MCloc + "HTMHT.txt","stopTreeMaker/AUX", 806, 1.0,  kBlack);
 	//old
 	addSample("Data_HTMHT_2015C", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_HTMHT-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
 	addSample("Data_HTMHT_2015D_05Oct2015", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_HTMHT-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 574.23, 1.0,  kBlack);
