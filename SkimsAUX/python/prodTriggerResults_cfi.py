@@ -66,6 +66,14 @@ triggerProducer = cms.EDProducer('prodTriggerResults',
             'HLT_Mu30_TkMu11_v',
             'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v',
             'HLT_Mu30_Ele30_CaloIdL_GsfTrkIdVL_v',
+            # New for 2016
+            'HLT_PFHT300_PFMET100_v1',
+            'HLT_PFHT300_v2',
+            'HLT_Mu15_IsoVVVL_PFHT350_v2',
+            'HLT_Mu45_eta2p1_v2',
+            'HLT_Mu50_v2',
    ),
    debug = cms.bool(False),
 )
+
+
