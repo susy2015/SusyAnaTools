@@ -160,6 +160,8 @@ bool genDecayStringMakerPythia8::hasValidDaughters( const reco::Candidate & c ) 
 
 bool genDecayStringMakerPythia8::filter(edm::Event & event, const edm::EventSetup & es) {
 
+  if( event.isRealData() ) return true;
+
   std::auto_ptr<std::vector<std::string> > decayStrPtr (new std::vector<std::string> );
   std::auto_ptr<std::vector<std::string> > keyStrPtr (new std::vector<std::string> );
   std::auto_ptr<std::vector<int> > decayTypePtr (new std::vector<int> );

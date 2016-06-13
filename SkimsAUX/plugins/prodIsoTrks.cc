@@ -241,7 +241,7 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if( pfCandHandle_.isValid() ){
      for(unsigned int ip=0; ip<pfCandHandle_->size(); ip++){
 
-        if( std::isnan((*pfCandHandle_)[ip].pt()) ) continue;
+        if( std::isnan((*pfCandHandle_)[ip].pt()) || std::isinf((*pfCandHandle_)[ip].pt()) ) continue;
 
         double perIso = 9999.0;
         for(unsigned int is=0; is< ref_all_isoTrksHandle_->size(); is++){
