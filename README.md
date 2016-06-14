@@ -8,9 +8,11 @@ cd CMSSW_7_4_15/src/
 cmsenv
 git cms-merge-topic -u kpedro88:METfix7415
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
+# master branch is now for 80X analysis
 git clone git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 cd SusyAnaTools/Tools
+# The samples.cc(h) are for 80X analysis
 git checkout remotes/origin/FromKash samples.cc
 git checkout remotes/origin/FromKash samples.h
 ```
