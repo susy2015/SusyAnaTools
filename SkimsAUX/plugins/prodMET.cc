@@ -37,6 +37,8 @@ class prodMET : public edm::EDFilter {
     edm::InputTag metSrc_;
     bool debug_;
 
+    bool isData_;
+
     edm::EDGetTokenT<edm::View<pat::MET> >MetTok_;
 
     std::vector<pat::MET::METUncertainty> uncUpList, uncDownList;
@@ -44,6 +46,9 @@ class prodMET : public edm::EDFilter {
 
 
 prodMET::prodMET(const edm::ParameterSet & iConfig) {
+
+  isData_ = true;
+
   metSrc_      = iConfig.getParameter<edm::InputTag>("metSrc");
 
   debug_       = iConfig.getParameter<bool>("debug");
@@ -55,6 +60,10 @@ prodMET::prodMET(const edm::ParameterSet & iConfig) {
 
   produces<double>("met");
   produces<double>("metphi");
+  produces<double>("genmet");
+  produces<double>("genmetphi");
+  produces<double>("calomet");
+  produces<double>("calometphi");
   produces<std::vector<double> >("metMagUp");
   produces<std::vector<double> >("metMagDown");
   produces<std::vector<double> >("metPhiUp");
@@ -68,11 +77,19 @@ prodMET::~prodMET() {
 
 bool prodMET::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  if( !iEvent.isRealData() ) isData_ = false;
+
   edm::Handle<edm::View<pat::MET> > met;
   iEvent.getByToken(MetTok_, met);
 
   std::auto_ptr<double> metPtr(new double);
   std::auto_ptr<double> metphiPtr(new double);
+
+  std::auto_ptr<double> genmetPtr(new double);
+  std::auto_ptr<double> genmetphiPtr(new double);
+
+  std::auto_ptr<double> calometPtr(new double);
+  std::auto_ptr<double> calometphiPtr(new double);
 
   std::auto_ptr<std::vector<double> > metMagUp_ (new std::vector<double>(uncUpList.size(), 0.));
   std::auto_ptr<std::vector<double> > metPhiUp_ (new std::vector<double>(uncUpList.size(), 0.));
@@ -91,12 +108,29 @@ bool prodMET::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
      (*metPhiDown_)[iu] = met->at(0).shiftedPhi(uncDownList[iu], pat::MET::Type1);
   }
 
+  if( met.isValid() && !isData_ ){
+     if( met->at(0).genMET() ){
+        const reco::GenMET * theGenMET(met->at(0).genMET());
+        *genmetPtr = theGenMET->pt();
+        *genmetphiPtr = theGenMET->phi();
+     }
+  }
+
+  if( met.isValid() ){
+     *calometPtr = met->at(0).caloMETPt();
+     *calometphiPtr = met->at(0).caloMETPhi();
+  }
+
   iEvent.put(metMagUp_, "metMagUp");
   iEvent.put(metPhiUp_, "metPhiUp");
   iEvent.put(metMagDown_, "metMagDown");
   iEvent.put(metPhiDown_, "metPhiDown");
   iEvent.put(metPtr, "met");
   iEvent.put(metphiPtr, "metphi");
+  iEvent.put(genmetPtr, "genmet");
+  iEvent.put(genmetphiPtr, "genmetphi");
+  iEvent.put(calometPtr, "calomet");
+  iEvent.put(calometphiPtr, "calometphi");
 
   return true;
 }
