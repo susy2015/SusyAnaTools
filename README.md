@@ -8,11 +8,6 @@ cmsrel CMSSW_8_0_10
 cd CMSSW_8_0_10/src/
 cmsenv
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
-# master branch is now for 80X analysis
-git clone -b Ana_June14_2016_fix_event_filter_bugs git@github.com:susy2015/SusyAnaTools.git
+git clone -b Ana_Prod_merged_June16_2016 git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
-cd SusyAnaTools/Tools
-# The samples.cc(h) are for 80X analysis
-git checkout remotes/origin/FromKash samples.cc
-git checkout remotes/origin/FromKash samples.h
 ```
