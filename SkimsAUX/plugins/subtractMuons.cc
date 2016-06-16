@@ -30,6 +30,9 @@ class subtractMuons : public edm::EDProducer {
     edm::InputTag oriMuonSrc_;
     edm::InputTag subSetMuonSrc_;
 
+    edm::EDGetTokenT<std::vector<pat::Muon>> OriMuonTok_;
+    edm::EDGetTokenT<std::vector<pat::Muon>> SubSetMuonTok_;
+
     double deltaR_;
 
     bool debug_;
@@ -42,6 +45,9 @@ subtractMuons::subtractMuons(const edm::ParameterSet & iConfig) {
 
   oriMuonSrc_ = iConfig.getParameter<edm::InputTag>("oriMuonSrc");
   subSetMuonSrc_ = iConfig.getParameter<edm::InputTag>("subSetMuonSrc");
+
+  OriMuonTok_ = consumes<std::vector<pat::Muon>>(oriMuonSrc_);
+  SubSetMuonTok_ = consumes<std::vector<pat::Muon>>(subSetMuonSrc_);
 
   deltaR_ = iConfig.getParameter<double>("deltaR");
 
@@ -58,10 +64,10 @@ subtractMuons::~subtractMuons() {
 void subtractMuons::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<edm::View<pat::Muon> > oriMuons;
-  iEvent.getByLabel(oriMuonSrc_, oriMuons);
+  iEvent.getByToken(OriMuonTok_, oriMuons);
 
   edm::Handle<edm::View<pat::Muon> > subSetMuons;
-  iEvent.getByLabel(subSetMuonSrc_, subSetMuons);
+  iEvent.getByToken(SubSetMuonTok_, subSetMuons);
 
   // check which ones to keep
   std::auto_ptr<std::vector<pat::Muon> > prod(new std::vector<pat::Muon>());

@@ -76,6 +76,7 @@ class myGenJetsPartSelector : public edm::EDProducer {
   myGenJetsPartSelector(){} //should not be used!
   
   edm::InputTag inTag;
+  edm::EDGetTokenT<std::vector<reco::GenParticleCollection>> InTagTok_;
   int testPartonChildren(ParticleBitmap &invalid,
 			 const ParticleVector &p,
 			 const reco::GenParticle *particle) const;

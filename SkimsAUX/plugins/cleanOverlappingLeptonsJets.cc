@@ -53,6 +53,18 @@ class cleanOverlappingLeptonsJets : public edm::EDProducer {
     edm::InputTag genParticleSrc_;
     edm::Handle<std::vector<reco::GenParticle > > genParticles;
     edm::Handle<std::vector<reco::GenJet > > genJets;
+
+    edm::EDGetTokenT<std::vector<pat::Jet> > JetTok_;
+    edm::EDGetTokenT<std::vector<reco::GenJet > > GenJetTok_;
+    edm::EDGetTokenT<std::vector<reco::GenParticle > > GenParticlesTok_;
+    edm::EDGetTokenT<std::vector<pat::Muon>> MuonTok_;
+    edm::EDGetTokenT<std::vector<pat::Electron>> ElecTok_;
+    edm::EDGetTokenT<std::vector<edm::ProductID> >ElecProductIDTok_;
+    edm::EDGetTokenT<std::vector<edm::ProductID> >MuonsProductIDTok_;
+    edm::EDGetTokenT<std::vector<key_type>> ElecKeyTok_;
+    edm::EDGetTokenT<std::vector<key_type> > MuonsKeyTok_;
+    edm::EDGetTokenT<std::vector<reco::Candidate> > MuonsCSTok_;
+
     double genJetMinPt_, genJetMaxEta_;
     double deltaR_, deltaRcon_, deltaRtighterForEle_;
 
@@ -124,6 +136,17 @@ cleanOverlappingLeptonsJets::cleanOverlappingLeptonsJets(const edm::ParameterSet
   noRemovalOfBigJetMuonPtDiff_ = iConfig.getUntrackedParameter<bool>("noRemovalOfBigJetMuonPtDiff", false);
   diffJetMuonPt_ = iConfig.getUntrackedParameter<double>("diffJetMuonPt", 30);
 
+  MuonTok_ = consumes<std::vector<pat::Muon>>(muonSrc_);
+  ElecTok_ = consumes<std::vector<pat::Electron>>(eleSrc_);
+  GenJetTok_= consumes<std::vector<reco::GenJet > > (genJetSrc_);
+  GenParticlesTok_  = consumes<std::vector<reco::GenParticle > > (genParticleSrc_);
+  ElecProductIDTok_ = consumes<std::vector<edm::ProductID> >(eleProductIDSrc_);
+  MuonsProductIDTok_= consumes<std::vector<edm::ProductID> >(muonProductIDSrc_);
+  ElecKeyTok_       = consumes<std::vector<key_type>> (eleKeySrc_);
+  MuonsKeyTok_      = consumes<std::vector<key_type> > (muonKeySrc_);
+  MuonsCSTok_       = consumes<std::vector<reco::Candidate> > (muonCSSrc_);
+  JetTok_  = consumes<std::vector<pat::Jet> > (jetSrc_);
+
   produces<std::vector<pat::Jet> >("");
 // size same as the input muons
 // content is the index of the jet
@@ -155,28 +178,28 @@ void cleanOverlappingLeptonsJets::produce(edm::Event& iEvent, const edm::EventSe
 
   // read in the jets
   edm::Handle<edm::View<pat::Jet> > jets;
-  iEvent.getByLabel(jetSrc_, jets);
+  iEvent.getByToken(JetTok_, jets);
   
   edm::Handle<edm::View<reco::Candidate> > muons;
-  iEvent.getByLabel(muonSrc_, muons);
+   iEvent.getByToken(MuonTok_, muons);
 
   edm::Handle<edm::View<reco::Candidate> > muonsCS;
-  iEvent.getByLabel(muonCSSrc_, muonsCS);
+  iEvent.getByToken( MuonsCSTok_, muonsCS);
 
   edm::Handle<edm::View<reco::Candidate> > eles;
-  iEvent.getByLabel(eleSrc_, eles);
+  iEvent.getByToken(ElecTok_, eles);
 
   edm::Handle<std::vector<edm::ProductID> > muonsProductID;
-  iEvent.getByLabel(muonProductIDSrc_, muonsProductID);
+  iEvent.getByToken(MuonsProductIDTok_, muonsProductID);
 
   edm::Handle<std::vector<key_type> > muonsKey;
-  iEvent.getByLabel(muonKeySrc_, muonsKey);
+  iEvent.getByToken(MuonsKeyTok_, muonsKey);
 
   edm::Handle<std::vector<edm::ProductID> > elesProductID;
-  iEvent.getByLabel(eleProductIDSrc_, elesProductID);
+  iEvent.getByToken( ElecProductIDTok_, elesProductID);
 
   edm::Handle<std::vector<key_type> > elesKey;
-  iEvent.getByLabel(eleKeySrc_, elesKey);
+  iEvent.getByToken(ElecKeyTok_, elesKey);
 
   _totInputMuonSizeCnt += (int)muons->size();
   if( eles.isValid() ) _totInputEleSizeCnt += (int)eles->size();
@@ -531,10 +554,10 @@ void cleanOverlappingLeptonsJets::produce(edm::Event& iEvent, const edm::EventSe
  }
 
  void cleanOverlappingLeptonsJets::loadGenParticles(const edm::Event& iEvent){
-    iEvent.getByLabel(genParticleSrc_, genParticles);
+    iEvent.getByToken(GenParticlesTok_, genParticles);
  }
  void cleanOverlappingLeptonsJets::loadGenJets(const edm::Event& iEvent){
-    iEvent.getByLabel(genJetSrc_, genJets);
+    iEvent.getByToken(GenJetTok_, genJets);
  }
 
  int cleanOverlappingLeptonsJets::searchToPFbase(const edm::Event &iEvent, const reco::CandidatePtr& inPtr, reco::CandidatePtr & outPtr){

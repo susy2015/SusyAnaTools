@@ -76,7 +76,8 @@ TrackIsolationFilter::TrackIsolationFilter(const edm::ParameterSet& iConfig) {
   doTrkIsoVeto_     = iConfig.getParameter<bool>            ("doTrkIsoVeto");
 
   exclPdgIdVec_     = iConfig.getParameter<std::vector<int> > ("exclPdgIdVec"); 
-
+  PfcandTok_ = consumes<pat::PackedCandidateCollection>(pfCandidatesTag_);
+  VertexInputTok_ =consumes<edm::View<reco::Vertex> >(vertexInputTag_);
   produces<std::vector<pat::PackedCandidate> >(""); 
   produces<vector<double> >("pfcandstrkiso").setBranchAlias("pfcands_trkiso");
   produces<vector<double> >("pfcandsdzpv"  ).setBranchAlias("pfcands_dzpv");
@@ -103,16 +104,16 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   //---------------------------------
   // get PFCandidate collection
   //---------------------------------
-  
+ 
   edm::Handle<pat::PackedCandidateCollection> pfCandidatesHandle;
-  iEvent.getByLabel(pfCandidatesTag_, pfCandidatesHandle);
+  iEvent.getByToken(PfcandTok_, pfCandidatesHandle);
 
   //---------------------------------
   // get Vertex Collection
   //---------------------------------
 
   edm::Handle<edm::View<reco::Vertex> > vertices;
-  iEvent.getByLabel(vertexInputTag_, vertices);
+  iEvent.getByToken(VertexInputTok_, vertices);
 //  reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
 
   vtxSize = vertices->size();
@@ -138,7 +139,7 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
            pfcands_chg->push_back(pf_it->charge());
         }
 
-        if( std::isnan(pf_it->pt()) ) continue;
+        if( std::isnan(pf_it->pt()) || std::isinf(pf_it->pt()) ) continue;
 
         if( pf_it->pt() < minPt_ ) continue;
 

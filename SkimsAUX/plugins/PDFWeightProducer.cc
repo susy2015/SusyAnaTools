@@ -15,6 +15,11 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "SusyAnaTools/SkimsAUX/plugins/common.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "TVector2.h"
 
 //
@@ -28,6 +33,7 @@ public:
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
       
 private:
+   //generatorSource= cms.InputTag("generator")
    virtual void beginJob() ;
    virtual void produce(edm::Event&, const edm::EventSetup&);
    virtual void endJob() ;
@@ -37,7 +43,8 @@ private:
    virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
    virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
    edm::GetterOfProducts<LHEEventProduct> getterOfProducts_;
-      
+   edm::EDGetTokenT<GenEventInfoProduct> GenTok_;
+  // edm::InputTag GenSrc_; 
 // ----------member data ---------------------------
 };
 namespace LHAPDF {
@@ -55,7 +62,10 @@ namespace LHAPDF {
 PDFWeightProducer::PDFWeightProducer(const edm::ParameterSet& iConfig) : getterOfProducts_(edm::ProcessMatch("*"), this)
 {
    callWhenNewProductsRegistered(getterOfProducts_);
-      
+   //GenSrc_== iConfig.getParameter<GenEventInfoProduct>("generatorSource");
+   //tracks_ = consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generalTracks")));
+   GenTok_ = consumes<GenEventInfoProduct>(iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator")));
+     
    //From LHAPDF Grid
    produces<std::vector<double> >("PDFweights");
    produces<std::vector<int> >("PDFids");
@@ -95,7 +105,7 @@ void PDFWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    //For LHAPDF Grid
       
    edm::Handle<GenEventInfoProduct> GenInfo;
-   iEvent.getByLabel("generator",GenInfo);
+   iEvent.getByToken(GenTok_,GenInfo);
       
    //***************************
    // From LHAPDF Grid

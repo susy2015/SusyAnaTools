@@ -51,6 +51,15 @@ class prodElectrons : public edm::EDFilter {
     edm::InputTag metSrc_;
     edm::InputTag beamSpotSrc_;
     edm::InputTag pfCandsSrc_;
+    edm::InputTag rhoSrc_;
+    edm::EDGetTokenT< edm::View<pat::Electron> > ElecTok_;
+    edm::EDGetTokenT< std::vector<reco::Vertex> > VtxTok_;
+    edm::EDGetTokenT<edm::View<reco::MET> > MetTok_;
+    edm::EDGetTokenT< std::vector<reco::Conversion> > ConversionsTok_;
+    edm::EDGetTokenT<reco::BeamSpot> BeamSpotTok_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection>  PfcandTok_;
+    edm::EDGetTokenT<double> RhoTok_;
+
     bool   doEleVeto_;
     int doEleIso_; // 0: don't do any isolation; 1: relIso;  2: miniIso
     double minElePt_, maxEleEta_;
@@ -79,8 +88,17 @@ prodElectrons::prodElectrons(const edm::ParameterSet & iConfig) {
   doEleIso_      = iConfig.getParameter<int>("DoElectronIsolation");
   maxEleMiniIso_ = iConfig.getParameter<double>("MaxEleMiniIso");
   debug_         = iConfig.getParameter<bool>("Debug");
+  rhoSrc_       = iConfig.getParameter<edm::InputTag>("RhoSource");
 
   minElePtForElectron2Clean_ = iConfig.getUntrackedParameter<double>("minElePtForElectron2Clean", 10);
+  
+  ConversionsTok_ = consumes< std::vector<reco::Conversion> >(conversionsSrc_);
+  BeamSpotTok_ = consumes<reco::BeamSpot>(beamSpotSrc_);
+  ElecTok_ = consumes< edm::View<pat::Electron> >(electronSrc_);
+  MetTok_ = consumes<edm::View<reco::MET>>(metSrc_);
+  VtxTok_ = consumes<std::vector<reco::Vertex>>(vtxSrc_);
+  PfcandTok_ = consumes<pat::PackedCandidateCollection>(pfCandsSrc_);
+  RhoTok_ = consumes<double>(rhoSrc_);
 
   produces<std::vector<pat::Electron> >("");
   produces<std::vector<pat::Electron> >("ele2Clean");  
@@ -106,29 +124,30 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // electrons
   edm::Handle< edm::View<pat::Electron> > electrons;   
-  iEvent.getByLabel(electronSrc_, electrons);
+  iEvent.getByToken(ElecTok_, electrons);
 
   // conversions
   edm::Handle< std::vector<reco::Conversion> > conversions;
-  iEvent.getByLabel(conversionsSrc_, conversions);
+  iEvent.getByToken(ConversionsTok_, conversions);
 
   // beam spot
   edm::Handle<reco::BeamSpot> beamspot;
-  iEvent.getByLabel(beamSpotSrc_, beamspot);
+  iEvent.getByToken(BeamSpotTok_, beamspot);
 //  const reco::BeamSpot &beamSpot = *(beamspot.product());
   
   // vertices
   edm::Handle< std::vector<reco::Vertex> > vertices;
-  iEvent.getByLabel(vtxSrc_, vertices);
+  iEvent.getByToken(VtxTok_, vertices);
 
   edm::Handle<edm::View<reco::MET> > met;
-  iEvent.getByLabel(metSrc_, met);
+  iEvent.getByToken(MetTok_, met);
 
   edm::Handle<pat::PackedCandidateCollection> pfcands;
-  iEvent.getByLabel(pfCandsSrc_, pfcands);
+  iEvent.getByToken(PfcandTok_, pfcands);
 
   edm::Handle< double > rho_;
-  iEvent.getByLabel("fixedGridRhoFastjetCentralNeutral", rho_); // Central rho recommended for SUSY
+  //iEvent.getByLabel("fixedGridRhoFastjetCentralNeutral", rho_); // Central rho recommended for SUSY
+  iEvent.getByToken(RhoTok_,rho_);
   double rho = *rho_;
 
   // check which ones to keep

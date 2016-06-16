@@ -39,6 +39,9 @@ class testRead : public edm::EDProducer {
     edm::InputTag muonSrc_;
     edm::InputTag eleSrc_;
 
+    edm::EDGetTokenT<std::vector<pat::Muon>> MuonTok_;
+    edm::EDGetTokenT<std::vector<pat::Electron>> ElecTok_;
+
     bool debug_;
 
     bool isData;
@@ -55,6 +58,9 @@ testRead::testRead(const edm::ParameterSet & iConfig) {
   muonSrc_ = iConfig.getParameter<edm::InputTag>("muonSource");
   eleSrc_ = iConfig.getParameter<edm::InputTag>("eleSource");
 
+  MuonTok_ = consumes<std::vector<pat::Muon>>(muonSrc_);
+  ElecTok_ = consumes<std::vector<pat::Electron>>(eleSrc_);
+
   debug_ = iConfig.getParameter<bool>("debug");
 }
 
@@ -68,10 +74,10 @@ void testRead::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if( !iEvent.isRealData() ) isData = false;
 
   edm::Handle<edm::View<pat::Muon> > muons;
-  iEvent.getByLabel(muonSrc_, muons);
+  iEvent.getByToken(MuonTok_, muons);
 
   edm::Handle<edm::View<pat::Electron> > eles;
-  iEvent.getByLabel(eleSrc_, eles);
+  iEvent.getByToken(ElecTok_, eles);
 
   for (edm::View<pat::Muon>::const_iterator m = muons->begin(); m != muons->end(); ++m) {
 

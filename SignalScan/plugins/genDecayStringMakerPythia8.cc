@@ -16,6 +16,8 @@ private:
   virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
   edm::InputTag src_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > srcTok_;
+
   std::string decay( const reco::Candidate &, std::list<const reco::Candidate *> &, std::vector<int> &idxVec ) ;
   edm::ESHandle<ParticleDataTable> pdt_;
   /// print parameters
@@ -63,7 +65,9 @@ genDecayStringMakerPythia8::genDecayStringMakerPythia8( const ParameterSet & cfg
   printPtEtaPhi_( cfg.getUntrackedParameter<bool>( "printPtEtaPhi", false ) ),
   printVertex_( cfg.getUntrackedParameter<bool>( "printVertex", false ) ),
   keyDecayStrs_( cfg.getParameter<std::vector<std::string> >("keyDecayStrs") ) {
- 
+
+  srcTok_= consumes<edm::View<reco::Candidate> > (src_);
+
   produces<std::vector<std::string> >("decayStr");
   produces<std::vector<int> >("decayType");
   produces<std::vector<std::string> >("keyStr");
@@ -156,6 +160,8 @@ bool genDecayStringMakerPythia8::hasValidDaughters( const reco::Candidate & c ) 
 
 bool genDecayStringMakerPythia8::filter(edm::Event & event, const edm::EventSetup & es) {
 
+  if( event.isRealData() ) return true;
+
   std::auto_ptr<std::vector<std::string> > decayStrPtr (new std::vector<std::string> );
   std::auto_ptr<std::vector<std::string> > keyStrPtr (new std::vector<std::string> );
   std::auto_ptr<std::vector<int> > decayTypePtr (new std::vector<int> );
@@ -164,7 +170,7 @@ bool genDecayStringMakerPythia8::filter(edm::Event & event, const edm::EventSetu
   std::auto_ptr<std::vector<std::string> > decayChainPartStrPtr(new std::vector<std::string> );
 
   es.getData( pdt_ );
-  event.getByLabel( src_, particles );
+  event.getByToken( srcTok_, particles );
   list<const Candidate *> skip;
   vector<const Candidate *> nodes, moms;
   for( View<Candidate>::const_iterator p = particles->begin();

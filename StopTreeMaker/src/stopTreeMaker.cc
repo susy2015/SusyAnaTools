@@ -64,7 +64,42 @@ stopTreeMaker::stopTreeMaker(const edm::ParameterSet& iConfig)
   vectorStringNames_= iConfig.getParameter< std::vector<std::string> >  ("vectorStringNamesInTree");
   vectorTLorentzVectorTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("vectorTLorentzVector");
   vectorTLorentzVectorNames_= iConfig.getParameter< std::vector<std::string> >  ("vectorTLorentzVectorNamesInTree");
-
+/*
+  for(const auto& tag : varsDoubleTags_){
+ VarsDoubleTok_ .push_back(consumes<std::vector<double>>(varsDoubleTags_));
+  //VarsDoubleTok_ =consumes<std::vector<double>>(varsDoubleTags_);
+}
+*/
+for(const auto& tag : varsDoubleTags_){
+  VarsDoubleTok_ .push_back(consumes<double>(tag));//varsDoubleTags_));
+}
+for(const auto& tag : varsIntTags_){
+  VarsIntTok_ .push_back(consumes <int>(tag));//varsIntTags_);
+}
+for(const auto& tag : varsBoolTags_){
+VarsBoolTok_ .push_back(consumes <bool>(tag));
+}
+for(const auto& tag : varsStringTags_){
+VarsStringTok_.push_back(consumes <std::string>(tag));
+}
+for(const auto& tag : varsTLorentzVectorTags_){
+VarsTLorentzVectorTok_.push_back(consumes <TLorentzVector>(tag));
+}
+for(const auto& tag : vectorDoubleTags_){
+VectorDoubleTok_.push_back(consumes<std::vector<double> >(tag));
+}
+for(const auto& tag : vectorIntTags_){
+VectorIntTok_.push_back(consumes<std::vector<int> >(tag));
+}
+for(const auto& tag : vectorBoolTags_){
+VectorBoolTok_.push_back(consumes<std::vector<bool> >(tag));
+}
+for(const auto& tag : vectorStringTags_){
+VectorStringTok_.push_back(consumes<std::vector<std::string> >(tag));
+}
+for(const auto& tag : vectorTLorentzVectorTags_){
+VectorTLorentzVectorTags_.push_back(consumes<std::vector<TLorentzVector> >(tag));
+}
   cachedNames_.clear();
 
   varsDouble_.clear();
@@ -245,7 +280,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //Float variables
   for(unsigned int i = 0; i < varsDoubleTags_.size(); ++i) {
      edm::Handle<double> var;
-     iEvent.getByLabel(varsDoubleTags_.at(i),var);
+     iEvent.getByToken(VarsDoubleTok_.at(i),var);
      if( var.isValid() ) {
         varsDouble_.at(i) = *var;
      }else{
@@ -255,7 +290,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
   for(unsigned int i = 0; i < varsIntTags_.size(); ++i) {
     edm::Handle<int> var;
-    iEvent.getByLabel(varsIntTags_.at(i),var);
+    iEvent.getByToken(VarsIntTok_.at(i),var);
     if( var.isValid() ) {
        varsInt_.at(i) = *var;
     }else{
@@ -265,7 +300,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(unsigned int i = 0; i < varsBoolTags_.size(); ++i) {
     edm::Handle<bool> var;
-    iEvent.getByLabel(varsBoolTags_.at(i),var);
+    iEvent.getByToken(VarsBoolTok_.at(i),var);
     if( var.isValid() ) {
       if( *var ) varsBool_.at(i) = 1;
       else varsBool_.at(i) = 0;
@@ -276,7 +311,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
   for(unsigned int i = 0; i < varsStringTags_.size(); ++i) {
     edm::Handle<std::string> var;
-    iEvent.getByLabel(varsStringTags_.at(i),var);
+    iEvent.getByToken(VarsStringTok_.at(i),var);
     if( var.isValid() ) {
       varsString_.at(i) = *var;
     }else{
@@ -286,7 +321,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
   for(unsigned int i = 0; i < varsTLorentzVectorTags_.size(); ++i) {
     edm::Handle<TLorentzVector> var;
-    iEvent.getByLabel(varsTLorentzVectorTags_.at(i),var);
+    iEvent.getByToken(VarsTLorentzVectorTok_.at(i),var);
     if( var.isValid() ) {
       varsTLorentzVector_.at(i) = *var;
     }else{
@@ -296,7 +331,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(unsigned int i = 0; i < vectorDoubleTags_.size(); ++i) {
     edm::Handle<std::vector<double> > var;
-    iEvent.getByLabel(vectorDoubleTags_.at(i),var);
+    iEvent.getByToken(VectorDoubleTok_.at(i),var);
     if( var.isValid() ){
       for(unsigned int j=0; j< var->size(); j++){
         vectorDoubleVector_.at(i).push_back(var->at(j));
@@ -308,7 +343,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(unsigned int i = 0; i < vectorIntTags_.size(); ++i) {
     edm::Handle<std::vector<int> > var;
-    iEvent.getByLabel(vectorIntTags_.at(i),var);
+    iEvent.getByToken(VectorIntTok_.at(i),var);
     if( var.isValid() ){
       for(unsigned int j=0; j< var->size(); j++){
         vectorIntVector_.at(i).push_back(var->at(j));
@@ -320,7 +355,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(unsigned int i = 0; i < vectorBoolTags_.size(); ++i) {
     edm::Handle<std::vector<bool> > var;
-    iEvent.getByLabel(vectorBoolTags_.at(i),var);
+    iEvent.getByToken(VectorBoolTok_.at(i),var);
     if( var.isValid() ){
       for(unsigned int j=0; j< var->size(); j++){
         if( var->at(j) ) vectorBoolVector_.at(i).push_back(1);
@@ -333,7 +368,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(unsigned int i = 0; i < vectorStringTags_.size(); ++i) {
     edm::Handle<std::vector<std::string> > var;
-    iEvent.getByLabel(vectorStringTags_.at(i),var);
+    iEvent.getByToken(VectorStringTok_.at(i),var);
     if( var.isValid() ){
       for(unsigned int j=0; j< var->size(); j++){
         vectorStringVector_.at(i).push_back(var->at(j));
@@ -345,7 +380,7 @@ stopTreeMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(unsigned int i = 0; i < vectorTLorentzVectorTags_.size(); ++i) {
     edm::Handle<std::vector<TLorentzVector> > var;
-    iEvent.getByLabel(vectorTLorentzVectorTags_.at(i),var);
+    iEvent.getByToken(VectorTLorentzVectorTags_.at(i),var);
     if( var.isValid() ) {
       for(unsigned int j=0; j< var->size();j++){
         vectorTLorentzVector_.at(i).push_back(var->at(j));

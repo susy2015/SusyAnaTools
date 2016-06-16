@@ -7,6 +7,7 @@ prodMuons = cms.EDFilter(
   VertexSource  = cms.InputTag('goodVertices'),
   metSource     = cms.InputTag('slimmedMETs'),
   PFCandSource  = cms.InputTag('packedPFCandidates'),
+  RhoSource     = cms.InputTag('fixedGridRhoFastjetCentralNeutral'),
   MinMuPt       = cms.double(5),
   MaxMuEta      = cms.double(2.4),
   MaxMuD0       = cms.double(0.2),

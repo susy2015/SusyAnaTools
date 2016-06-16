@@ -29,6 +29,8 @@ class DPhiFilter : public edm::EDFilter {
     const unsigned int ndPhiCuts_;
 
     const bool debug_;
+    edm::EDGetTokenT<edm::View<reco::MET> > MetTok_;
+    edm::EDGetTokenT<edm::View<reco::Jet> > JetRTok_;
 
 };
 
@@ -42,6 +44,8 @@ DPhiFilter::DPhiFilter(const edm::ParameterSet & iConfig) :
 {
   metSrc_ = iConfig.getParameter<edm::InputTag>("metSrc");
   jetSrc_ = iConfig.getParameter<edm::InputTag>("jetSrc");
+  MetTok_ = consumes<edm::View<reco::MET> >(metSrc_);
+  JetRTok_ = consumes<edm::View<reco::Jet> >(jetSrc_);
 }
 
 
@@ -49,9 +53,9 @@ bool DPhiFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   // read in the objects
   edm::Handle<edm::View<reco::MET> > met;
-  iEvent.getByLabel(metSrc_, met);
+  iEvent.getByToken(MetTok_, met);
   edm::Handle<edm::View<reco::Jet> > jets;
-  iEvent.getByLabel(jetSrc_, jets);
+  iEvent.getByToken(JetRTok_, jets);
 
   if( debug_ ){
      printf("DEBUG ... %s :  met--> pt : %8.3f  eta : % 6.3f  phi : % 6.3f  mass : %8.3f\n", __FUNCTION__, (*met)[0].pt(), (*met)[0].eta(), (*met)[0].phi(), (*met)[0].mass());

@@ -1,3 +1,5 @@
+#include <memory>
+#include <algorithm>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -8,6 +10,10 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "SusyAnaTools/SkimsAUX/plugins/common.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "TLorentzVector.h"
 
 class nJetsForSkimsRA2 : public edm::EDFilter {
 
@@ -21,6 +27,7 @@ class nJetsForSkimsRA2 : public edm::EDFilter {
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
     
     edm::InputTag jetSrc_;
+    edm::EDGetTokenT<edm::View<reco::Jet> > JetTok_;
     double minJetPt_;
     double maxJetEta_;
 
@@ -31,7 +38,7 @@ nJetsForSkimsRA2::nJetsForSkimsRA2(const edm::ParameterSet & iConfig) {
   jetSrc_ = iConfig.getParameter<edm::InputTag>("JetSource");
   minJetPt_    = iConfig.getParameter<double>("MinJetPt");
   maxJetEta_   = iConfig.getParameter<double>("MaxJetEta");
-
+  JetTok_  = consumes<edm::View<reco::Jet> > (jetSrc_);
   produces<int>("nJets");
 }
 
@@ -40,7 +47,7 @@ bool nJetsForSkimsRA2::filter(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   // read in the objects
   edm::Handle<edm::View<reco::Jet> > jets;
-  iEvent.getByLabel(jetSrc_, jets);
+  iEvent.getByToken(JetTok_, jets);
 
   int nJets =0;
   for (edm::View<reco::Jet>::const_iterator it = jets->begin(); it != jets->end(); ++it) {

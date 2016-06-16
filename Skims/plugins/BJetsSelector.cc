@@ -31,6 +31,7 @@ class BJetsSelector : public edm::EDFilter {
   double        btagvalue_;
   bool          selecOnBJets_;
   bool          debug_;
+  edm::EDGetTokenT<edm::View<pat::Jet> > JetTok_;
 };
 
 
@@ -43,6 +44,7 @@ BJetsSelector::BJetsSelector(const edm::ParameterSet & iConfig)
   btagvalue_   = iConfig.getParameter<double>       ("bTagValue");
   selecOnBJets_= iConfig.getParameter<bool>         ("SelecOnBJets");
   debug_       = iConfig.getUntrackedParameter<bool>("debug", false);
+  JetTok_  = consumes<edm::View<pat::Jet> > (jetSrc_);
   produces<std::vector<pat::Jet> >("");
 }
 
@@ -54,7 +56,7 @@ bool BJetsSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // read jet collection
   edm::Handle<edm::View<pat::Jet> > jets;
-  iEvent.getByLabel(jetSrc_, jets);
+  iEvent.getByToken(JetTok_, jets);
   
   // collection of b-tagged jets
   std::auto_ptr<std::vector<pat::Jet> > prod(new std::vector<pat::Jet>());

@@ -22,7 +22,7 @@ class MHTProducer : public edm::EDProducer {
     edm::InputTag theJetLabel_;
     double minJetPt_;
     double maxJetEta_;
-
+    edm::EDGetTokenT<edm::View<reco::Jet> >TheJetLabelTok_;
 };
 
 
@@ -31,6 +31,7 @@ MHTProducer::MHTProducer(const edm::ParameterSet & iConfig) {
   theJetLabel_ = iConfig.getParameter<edm::InputTag>("JetCollection");
   minJetPt_    = iConfig.getParameter<double>("MinJetPt");
   maxJetEta_   = iConfig.getParameter<double>("MaxJetEta");
+  TheJetLabelTok_ = consumes<edm::View<reco::Jet> >(theJetLabel_);
   produces<std::vector<reco::MET> >("");
   produces<double>("mht");
   produces<double>("mhtphi");
@@ -45,7 +46,7 @@ void MHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   // read in the objects
   edm::Handle<edm::View<reco::Jet> > jets;
-  iEvent.getByLabel(theJetLabel_, jets);
+  iEvent.getByToken(TheJetLabelTok_, jets);
 
   // calculate MHT
   std::auto_ptr<std::vector<reco::MET> > mhtp(new std::vector<reco::MET>());

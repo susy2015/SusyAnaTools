@@ -9,6 +9,7 @@ prodElectrons = cms.EDFilter(
   metSource         = cms.InputTag('slimmedMETs'),
   PFCandSource = cms.InputTag('packedPFCandidates'),
   BeamSpotSource    = cms.InputTag("offlineBeamSpot"),
+  RhoSource     = cms.InputTag('fixedGridRhoFastjetCentralNeutral'),
   MinElePt       = cms.double(5),
   MaxEleEta      = cms.double(2.5),
   MaxEleMiniIso  = cms.double(0.10),

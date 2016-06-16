@@ -17,6 +17,7 @@ class FilterDoubles : public edm::EDFilter {
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
     
     edm::InputTag doubleSrc_;
+    edm::EDGetTokenT<double>DoubleTok_;
 //              lowCut_                 highCut_
 // > b:            b        (dohighCut_ == false) 
 // < a:         (dolowCut_ == false)      a
@@ -34,13 +35,14 @@ FilterDoubles::FilterDoubles(const edm::ParameterSet & iConfig) {
    iConfig.existsAs<double>("lowCut") ? dolowCut_ = true, lowCut_ = iConfig.getParameter<double>("lowCut") : dolowCut_ = false;
    iConfig.existsAs<double>("highCut") ? dohighCut_ = true, highCut_ = iConfig.getParameter<double>("highCut") : dohighCut_ = false;
    doubleSrc_ = iConfig.getParameter<edm::InputTag>("ResultSource");
+   DoubleTok_= consumes<double>(doubleSrc_);
 }
 
 
 bool FilterDoubles::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   edm::Handle<double> result;
-  iEvent.getByLabel(doubleSrc_, result);
+  iEvent.getByToken(DoubleTok_, result);
 
   bool passCut = true;
  

@@ -47,6 +47,8 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
   edm::InputTag trigTagSrc_;
   edm::InputTag trigPrescalesTagSrc_;
+  edm::EDGetTokenT<pat::PackedTriggerPrescales>TrigPrescalesTagTok_;
+  edm::EDGetTokenT<edm::TriggerResults>TrigTagTok_;
   std::vector<std::string> parsedTrigNamesVec_;
 
   bool debug_;
@@ -69,7 +71,8 @@ prodTriggerResults::prodTriggerResults(const edm::ParameterSet& iConfig)
   parsedTrigNamesVec_ = iConfig.getParameter <std::vector<std::string> > ("triggerNameList");
   trigTagSrc_ = iConfig.getParameter<edm::InputTag> ("trigTagSrc");
   trigPrescalesTagSrc_ = iConfig.getParameter<edm::InputTag> ("trigPrescalesTagSrc"); 
-
+  TrigPrescalesTagTok_=consumes<pat::PackedTriggerPrescales>(trigPrescalesTagSrc_);
+  TrigTagTok_=consumes<edm::TriggerResults>(trigTagSrc_);
   debug_ = iConfig.getParameter<bool>("debug");
 
   if( debug_ ){
@@ -99,9 +102,9 @@ prodTriggerResults::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   int passesTrigger;
   edm::Handle<edm::TriggerResults> trigResults; //our trigger result object
-  iEvent.getByLabel(trigTagSrc_,trigResults);
+  iEvent.getByToken(TrigTagTok_,trigResults);
   edm::Handle<pat::PackedTriggerPrescales> trigPrescales;
-  iEvent.getByLabel(trigPrescalesTagSrc_,trigPrescales);
+  iEvent.getByToken(TrigPrescalesTagTok_,trigPrescales);
   const edm::TriggerNames& trigNames = iEvent.triggerNames(*trigResults);
 
   const std::vector<std::string> & allNames = trigNames.triggerNames();

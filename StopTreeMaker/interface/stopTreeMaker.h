@@ -55,6 +55,9 @@ private:
   std::vector<std::string> varsDoubleNames_;
   std::vector<double> varsDouble_;
   std::vector<TString> varsDoubleNamesCached_;
+ 
+  std::vector<edm::EDGetTokenT<double>>VarsDoubleTok_;
+  std::vector<edm::EDGetTokenT<int>>VarsIntTok_;
   // any int precision varialbes
   std::vector<edm::InputTag> varsIntTags_;
   std::vector<std::string> varsIntNames_;
@@ -65,42 +68,63 @@ private:
   std::vector<std::string> varsBoolNames_;
   std::vector<unsigned int> varsBool_;
   std::vector<TString> varsBoolNamesCached_;
+  
+  std::vector<edm::EDGetTokenT<bool>>VarsBoolTok_;
   // any string precision varialbes
   std::vector<edm::InputTag> varsStringTags_;
   std::vector<std::string> varsStringNames_;
   std::vector<std::string> varsString_;
   std::vector<TString> varsStringNamesCached_;
+  
+  std::vector<edm::EDGetTokenT<std::string>>VarsStringTok_;  
+
   // any TLorentzVector precision varialbes
   std::vector<edm::InputTag> varsTLorentzVectorTags_;
   std::vector<std::string> varsTLorentzVectorNames_;
   std::vector<TLorentzVector> varsTLorentzVector_;
   std::vector<TString> varsTLorentzVectorNamesCached_;
   
+  std::vector<edm::EDGetTokenT<TLorentzVector>> VarsTLorentzVectorTok_;
+  
   // any float precision varialbes
   std::vector<edm::InputTag> vectorDoubleTags_;
   std::vector<std::string> vectorDoubleNames_;
   std::vector<std::vector<double> > vectorDoubleVector_;
   std::vector<TString> vectorDoubleNamesCached_;
+
+  std::vector<edm::EDGetTokenT<std::vector<double> >>VectorDoubleTok_;
+
   // any int precision varialbes
   std::vector<edm::InputTag> vectorIntTags_;
   std::vector<std::string> vectorIntNames_;
   std::vector<std::vector<int> > vectorIntVector_;
   std::vector<TString> vectorIntNamesCached_;
-  // any bool precision varialbes
+ 
+  std::vector<edm::EDGetTokenT<std::vector<int> >>VectorIntTok_; 
+ 
+ // any bool precision varialbes
   std::vector<edm::InputTag> vectorBoolTags_;
   std::vector<std::string> vectorBoolNames_;
   std::vector<std::vector<unsigned int> > vectorBoolVector_;
   std::vector<TString> vectorBoolNamesCached_;
+
+  std::vector<edm::EDGetTokenT<std::vector<bool> >>VectorBoolTok_;  
+
   // any string precision varialbes
   std::vector<edm::InputTag> vectorStringTags_;
   std::vector<std::string> vectorStringNames_;
   std::vector<std::vector<std::string> > vectorStringVector_;
   std::vector<TString> vectorStringNamesCached_;
+  
+  std::vector<edm::EDGetTokenT<std::vector<std::string> >>VectorStringTok_;
+  
   // any TLorentzVector precision varialbes
   std::vector<edm::InputTag> vectorTLorentzVectorTags_;
   std::vector<std::string> vectorTLorentzVectorNames_;
   std::vector<std::vector<TLorentzVector> > vectorTLorentzVector_;
   std::vector<TString> vectorTLorentzVectorNamesCached_;
+
+  std::vector<edm::EDGetTokenT<std::vector<TLorentzVector> >>VectorTLorentzVectorTags_;
 
   TString formBranchName(const edm::InputTag & varTag, const std::vector<std::string> & vectorNames);
 

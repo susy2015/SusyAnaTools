@@ -28,6 +28,9 @@
 #include "TLorentzVector.h"
 #include "TTree.h"
 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
 //
 // class decleration
 //
@@ -53,7 +56,8 @@ private:
 
   edm::InputTag pfCandidatesTag_;
   edm::InputTag vertexInputTag_;
-
+  edm::EDGetTokenT<pat::PackedCandidateCollection> PfcandTok_;
+  edm::EDGetTokenT<edm::View<reco::Vertex> > VertexInputTok_;
   int vtxSize;
 };
 
