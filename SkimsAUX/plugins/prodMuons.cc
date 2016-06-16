@@ -193,7 +193,7 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
 
       //add muons to clean from jets 
-   //   if(isMediumID && miniIso < maxMuMiniIso_ && m->pt() > minMuPtForMuon2Clean_) mu2Clean->push_back(*m);
+      if(isMediumID && miniIso < maxMuMiniIso_ && m->pt() > minMuPtForMuon2Clean_) mu2Clean->push_back(*m);
     }
   }
     
