@@ -323,12 +323,13 @@ BaselineVessel(const std::string specialization = "", const std::string filterSt
 //            if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
             if( tr.getVar<unsigned int>("run") >= 100000 ){ // hack to know if it's data or MC...
                int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
-               unsigned int CSCTightHaloListFilter = tr.getVar<unsigned int>("CSCTightHaloListFilter");
+//               unsigned int CSCTightHaloListFilter = tr.getVar<unsigned int>("CSCTightHaloListFilter");
                int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
-               unsigned int eeBadScListFilter = tr.getVar<unsigned int>("eeBadScListFilter");
-               unsigned int badResolutionTrackListFilter = tr.getVar<unsigned int>("badResolutionTrackListFilter");
-               unsigned int muonBadTrackListFilter = tr.getVar<unsigned int>("muonBadTrackListFilter");
-               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && badResolutionTrackListFilter && muonBadTrackListFilter;
+//               unsigned int eeBadScListFilter = tr.getVar<unsigned int>("eeBadScListFilter");
+//               unsigned int badResolutionTrackListFilter = tr.getVar<unsigned int>("badResolutionTrackListFilter");
+//               unsigned int muonBadTrackListFilter = tr.getVar<unsigned int>("muonBadTrackListFilter");
+//               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && badResolutionTrackListFilter && muonBadTrackListFilter;
+               passDataSpec = goodVerticesFilter && eeBadScFilter;
 //               passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter;
             }
 
