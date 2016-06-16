@@ -178,6 +178,10 @@ namespace AnaSamples
 //	addSample("Data_DoubleEG_2015D_05Oct2015", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_DoubleEG-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
 //	addSample("Data_DoubleEG_2015D_PromptReco", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_DoubleEG-Run2015D-PromptReco.txt","stopTreeMaker/AUX", 1669.92, 1.0,  kBlack);
 	
+	//Single Electron
+	// new 2016
+	addSample("Data_SingleElectron_2016", fDir_ + MCloc + "SingleElectron.txt","stopTreeMaker/AUX", 816.27, 1.0,  kBlack);
+	
 	//HT-MHT
 	addSample("Data_HTMHT_2016", fDir_ + MCloc + "HTMHT.txt","stopTreeMaker/AUX", 816.27, 1.0,  kBlack);
 	//old
@@ -415,6 +419,8 @@ namespace AnaSamples
 	addSampleSet(samples, "Rare", {"TTWJetsToLNu", "TTWJetsToQQ", "TTGJets", "WWZ", "WZZ", "ZZZ", "ttHJetTobb", "ttHJetToNonbb"});
 
         addSampleSet(samples, "Data_SingleMuon", {"Data_SingleMuon_2016"});
+
+	addSampleSet(samples, "Data_SingleElectron_16", {"Data_SingleElectron_2016"});
 
 //	addSampleSet(samples, "Data_SingleMuon", {"Data_SingleMuon_2015C", "Data_SingleMuon_2015D_05Oct2015", "Data_SingleMuon_2015D_PromptReco"});
 
