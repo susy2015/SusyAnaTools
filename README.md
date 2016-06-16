@@ -30,6 +30,6 @@ To test the ntuple production interactively:
 cd SusyAnaTools/SkimsAUX/workdir/prod/80X_crab_example
 # do "cmsRun treeMaker_stopRA2.py" but with commandline options extracted from the MultiCrab3.py.
 # For instance, for 2016 MC, do the following from
-# https://github.com/susy2015/SusyAnaTools/blob/master/SkimsAUX/workdir/prod/80X_crab_example/MultiCrab3.py#L271
+# https://github.com/susy2015/SusyAnaTools/blob/master/SkimsAUX/workdir/prod/80X_crab_example/MultiCrab3.py#L271:
 # cmsRun treeMaker_stopRA2.py mcInfo=1 GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2 specialFix=JEC jecDBname=Spring16_25nsV1_MC maxEvents=1000
 ```
