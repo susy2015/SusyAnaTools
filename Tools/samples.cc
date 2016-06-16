@@ -96,10 +96,10 @@ namespace AnaSamples
         addSample("ZJetsToNuNu_HT_400to600", fDir_ + MCloc1 + "ZJetsToNuNu_HT-400To600_13TeV-madgraph.txt", "stopTreeMaker/AUX", 10.73,  lumi, 9591908, 1.23,  kTeal+4);
         addSample("ZJetsToNuNu_HT_600toInf", fDir_ + MCloc1 + "ZJetsToNuNu_HT-600ToInf_13TeV-madgraph.txt", "stopTreeMaker/AUX", 4.116,  lumi, 10202299, 1.23,  kTeal+4);
         addSample("ZJetsToNuNu_HT_200to400", fDir_ + MCloc + "ZJetsToNuNu_HT-200To400_13TeV-madgraph.txt", "stopTreeMaker/AUX", 77.67,  lumi, 19634721, 1.23,  kTeal+4);
-        addSample("ZJetsToNuNu_HT_600to800", fDir_ + MCloc + "ZJetsToNuNu_HT-600To800_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.853,  lumi, 5650700, 1.23,  kTeal+4);
-        addSample("ZJetsToNuNu_HT_800to1200", fDir_ + MCloc + "ZJetsToNuNu_HT-800To1200_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.394,  lumi, 2156175, 1.23,  kTeal+4);
-        addSample("ZJetsToNuNu_HT_1200to2500", fDir_ + MCloc + "ZJetsToNuNu_HT-1200To2500_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.0974,  lumi, 365216, 1.23,  kTeal+4);
-        addSample("ZJetsToNuNu_HT_2500toInf", fDir_ + MCloc + "ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.00230,  lumi, 405752, 1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_600to800", fDir_ + MCloc + "ZJetsToNuNu_HT-600To800_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.853*3,  lumi, 5650700, 1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_800to1200", fDir_ + MCloc + "ZJetsToNuNu_HT-800To1200_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.394*3,  lumi, 2156175, 1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_1200to2500", fDir_ + MCloc + "ZJetsToNuNu_HT-1200To2500_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.0974*3,  lumi, 365216, 1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_2500toInf", fDir_ + MCloc + "ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.00230*3,  lumi, 405752, 1.23,  kTeal+4);
         //DY->ll
         // kz = 1.23
         addSample("DYJetsToLL_HT_100to200", fDir_ + MCloc + "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 147.4, lumi, 8415286, 1.23,  kYellow-7);
