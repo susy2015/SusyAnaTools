@@ -12,7 +12,7 @@ git clone -b Ana_Prod_merged_June17_2016_fix_top_projection_bug git@github.com:s
 scram b -j9
 ```
 
-To produce ntuples with crab submission:
+To produce ntuples with crab submission (google doc for production signup is https://docs.google.com/spreadsheets/d/17Hpp5S-UkiKvuugKxqbW0-3aLhiJrJP8MEEyHce_Lzw/edit#gid=0):
 ```
 cd SusyAnaTools/SkimsAUX/workdir/prod/80X_crab_example
 # Edit the line in MultiCrab3.py
