@@ -420,7 +420,7 @@ namespace AnaSamples
 
         addSampleSet(samples, "Data_SingleMuon", {"Data_SingleMuon_2016"});
 
-	addSampleSet(samples, "Data_SingleElectron", {"Data_SingleElectron_2016"});
+	addSampleSet(samples, "Data_SingleElectron_16", {"Data_SingleElectron_2016"});
 
 //	addSampleSet(samples, "Data_SingleMuon", {"Data_SingleMuon_2015C", "Data_SingleMuon_2015D_05Oct2015", "Data_SingleMuon_2015D_PromptReco"});
 
