@@ -159,7 +159,7 @@ namespace AnaSamples
         // - data -
         // --------
 	//Single Muon
-	addSample("Data_SingleMuon_2016", fDir_ + MCloc + "SingleMuon.txt","stopTreeMaker/AUX", 806, 1.0,  kBlack);
+	addSample("Data_SingleMuon_2016", fDir_ + MCloc + "SingleMuon.txt","stopTreeMaker/AUX", 815.077, 1.0,  kBlack);
 	//old
 	addSample("Data_SingleMuon_2015C", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_SingleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
 	addSample("Data_SingleMuon_2015D_05Oct2015", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_SingleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
