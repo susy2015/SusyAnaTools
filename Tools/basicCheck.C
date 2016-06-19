@@ -29,13 +29,18 @@
 
 #include "../SkimsAUX/plugins/MT2CalcCore.h"
 
+SearchBins * sb =0;
+int nTotBins;
+std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
+
 const bool doSingleMuonCS = false;
 const bool doInvDphi = false;
+const bool usegenmet = false;
 
 MT2CalcCore * mt2Calc;
 
 BaselineVessel * SRblv =0;
-const std::string spec = "MY";
+std::string spec = "MY";
 
 void mypassBaselineFunc(NTupleReader &tr){
    (*SRblv)(tr);
@@ -65,7 +70,8 @@ bool find_mother(int momIdx, int dauIdx, const std::vector<int> &genDecayIdxVec,
 int find_idx(int genIdx, const std::vector<int> &genDecayIdxVec);
 double calcMT(const TLorentzVector &objLVec, const TLorentzVector &metLVec);
 
-const AnaConsts::IsoAccRec hadtau_muonsMiniIsoArr = {   -1,       2.4,      20,     -1,       0.2,     -1  };
+const AnaConsts::IsoAccRec hadtau_muonsMiniIsoArr = {   -1,       2.4,      20,     -1,       0.2,     100 };
+const AnaConsts::IsoAccRec lostle_muonsMiniIsoArr = {   -1,       2.4,      10,     -1,       0.2,     100 };
 
 void drawOverFlowBin(TH1 *histToAdjust){
    int nbins = histToAdjust->GetXaxis()->GetNbins();
@@ -92,7 +98,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 
   keyWordVec.push_back(sampleKeyStringT);
 
-  declHistPerSample(sampleKeyString);
+  declHistPerSample(sampleKeyString, nTotBins, out_MT2_met_Binning_forTH2Poly);
 
   for(unsigned int ist=0; ist<subSampleKeysVec.size(); ist++){
 
@@ -103,6 +109,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
      double scaleMC = allSamples[keyString].getWeight();
      TString keyStringT(keyString);
      if( keyStringT.Contains("Data") ){ scaleMC = 1.0; isData = true; }
+//     if( keyStringT.Contains("fastsim") && keyStringT.Contains("Signal") ){ scaleMC = 1.0; }
 
      if( tr ) delete tr;
      if( isData ) tr = new NTupleReader(treeVec[ist], AnaConsts::activatedBranchNames_DataOnly);
@@ -113,6 +120,9 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
      int entries = tr->getNEntries();
      if( entryToProcess >0 ) entries = entryToProcess;
      std::cout<<"\n\n"<<keyString.c_str()<<"_entries : "<<entries<<"  scaleMC : "<<scaleMC<<std::endl;
+
+     bool cached_rethrow = tr->getReThrow();
+     tr->setReThrow(false);
 
      while(tr->getNextEvent()){
 
@@ -136,8 +146,19 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const unsigned int & run = tr->getVar<unsigned int>("run"); 
         const unsigned int & lumi = tr->getVar<unsigned int>("lumi"); 
         const unsigned int & event = tr->getVar<unsigned int>("event"); 
-        const double met = tr->getVar<double>("met");
-        TLorentzVector metLVec; metLVec.SetPtEtaPhiM(tr->getVar<double>("met"), 0, tr->getVar<double>("metphi"), 0);
+
+        const double & genmet_tmp = tr->getVar<double>("genmet");
+        const double & genmetphi_tmp = tr->getVar<double>("genmetphi");
+        const double genmet = (&genmet_tmp) != nullptr ? tr->getVar<double>("genmet") : 0;
+        const double genmetphi = (&genmetphi_tmp) != nullptr ? tr->getVar<double>("genmetphi") : -999;
+        TLorentzVector genmetLVec;
+        if( (&genmet_tmp) != nullptr ){
+           genmetLVec.SetPtEtaPhiM(tr->getVar<double>("genmet"), 0, tr->getVar<double>("genmetphi"), 0);
+        }
+
+        const double met = ( usegenmet && (&genmet_tmp) != nullptr )? genmet : tr->getVar<double>("met");
+        const double metphi = ( usegenmet && (&genmet_tmp) != nullptr )? genmetphi : tr->getVar<double>("metphi");
+        TLorentzVector metLVec; metLVec.SetPtEtaPhiM(met, 0, metphi, 0);
         const TLorentzVector mhtLVec = AnaFunctions::calcMHT(tr->getVec<TLorentzVector>("jetsLVec"), AnaConsts::pt30Arr);
 //        metLVec.SetPtEtaPhiM(mhtLVec.Pt(), 0, mhtLVec.Phi(), 0); 
 //        const double met = mhtLVec.Pt();
@@ -189,7 +210,9 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const bool passMT2 = tr->getVar<bool>("passMT2" + spec);
         const bool passHT = tr->getVar<bool>("passHT" + spec);
         const bool passTagger = tr->getVar<bool>("passTagger" + spec);
+        const bool passNewTaggerReq = tr->getVar<bool>("passNewTaggerReq" + spec);
         const bool passNoiseEventFilter = tr->getVar<bool>("passNoiseEventFilter" + spec);
+        const bool passFastsimEventFilter = tr->getVar<bool>("passFastsimEventFilter" + spec);
 
         const bool passBaseline = tr->getVar<bool>("passBaseline" + spec);
         const bool passBaselineNoTag = tr->getVar<bool>("passBaselineNoTag" + spec);
@@ -197,7 +220,84 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         std::vector<double> tighter_dPhiVec = AnaFunctions::calcDPhi(tr->getVec<TLorentzVector>("jetsLVec"), metLVec.Phi(), 4, AnaConsts::dphiArr);
         const bool pass_tighter_dPhis = passdPhis && tighter_dPhiVec.at(3) >= 0.3;
 
-        const int searchBinIdx = find_Binning_Index(nbJets, nTops, MT2, met);
+        int nbJetsCopy_TMP = nbJets, nTopsCopy_TMP = nTops, nJetsCopy_TMP = nJets;
+        if( nbJetsCopy_TMP >=4 ) nbJetsCopy_TMP = 4; if( nTopsCopy_TMP >=4 ) nTopsCopy_TMP = 4; if( nJetsCopy_TMP >= 14 ) nJetsCopy_TMP = 14;
+
+        const int searchBinIdx = sb->find_Binning_Index(nbJets, nTops, MT2, met);
+
+        int cnt_eleTop =0, cnt_muTop =0, cnt_taumuTop =0, cnt_taueleTop =0, cnt_tauhadTop =0, cnt_allhadTop =0;
+        int cnt_genTops =0;
+        if( !isData ){
+           const std::vector<int> & genDecayIdxVec = tr->getVec<int>("genDecayIdxVec");
+           const std::vector<int> & genDecayMomIdxVec = tr->getVec<int>("genDecayMomIdxVec");
+           const std::vector<int> & genDecayPdgIdVec = tr->getVec<int>("genDecayPdgIdVec");
+           const std::vector<TLorentzVector> & genDecayLVec = tr->getVec<TLorentzVector>("genDecayLVec");
+           const std::vector<std::string> & genDecayStrVec = tr->getVec<std::string>("genDecayStrVec");
+
+           for(unsigned int ig=0; ig<genDecayPdgIdVec.size(); ig++){
+              if( std::abs(genDecayPdgIdVec[ig]) != 6 ) continue;
+
+              cnt_genTops ++;
+
+              bool islepTop = false;
+              int per_cnt_ele =0, per_cnt_mu =0, per_cnt_tau =0;
+              for(unsigned int jg=0; jg<genDecayPdgIdVec.size(); jg++){
+                 int pdgId = genDecayPdgIdVec.at(jg);
+                 if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15 ){
+                    if( find_mother(ig, jg, genDecayIdxVec, genDecayMomIdxVec) ){
+                       islepTop = true;
+                       if( abs(pdgId) == 11 ) per_cnt_ele ++;
+                       if( abs(pdgId) == 13 ) per_cnt_mu ++;
+                       if( abs(pdgId) == 15 ) per_cnt_tau ++;
+                    }
+                 }
+              }
+              if( per_cnt_tau !=0 && per_cnt_mu != 0 ) cnt_taumuTop ++;
+              if( per_cnt_tau !=0 && per_cnt_ele !=0 ) cnt_taueleTop ++;
+              if( per_cnt_tau !=0 && per_cnt_mu ==0 && per_cnt_ele ==0 ) cnt_tauhadTop ++;
+
+              if( per_cnt_tau ==0 && per_cnt_mu != 0 ) cnt_muTop ++;
+              if( per_cnt_tau ==0 && per_cnt_ele != 0 ) cnt_eleTop ++;
+
+              if( per_cnt_tau ==0 && per_cnt_mu ==0 && per_cnt_ele ==0 ) cnt_allhadTop ++;
+           }
+
+// if cnt_genTops ==0, all the cnt_eleTop, cnt_muTop, cnt_taumuTop, cnt_taueleTop, cnt_tauhadTop and cnt_allhadTop are 0!
+// This can happen when stop -> b W neutralino
+// In this case, reuse the counters!
+           if( cnt_genTops == 0 ){
+              for(unsigned int ig=0; ig<genDecayPdgIdVec.size(); ig++){
+                 if( std::abs(genDecayPdgIdVec[ig]) != 1000006 ) continue;
+
+                 int per_cnt_ele =0, per_cnt_mu = 0, per_cnt_tau = 0;
+                 for(unsigned int jg=0; jg<genDecayPdgIdVec.size(); jg++){
+                    int pdgId = genDecayPdgIdVec.at(jg);
+                    if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15 ){
+                       if( find_mother(ig, jg, genDecayIdxVec, genDecayMomIdxVec) ){
+                          if( abs(pdgId) == 11 ) per_cnt_ele ++;
+                          if( abs(pdgId) == 13 ) per_cnt_mu ++;
+                          if( abs(pdgId) == 15 ) per_cnt_tau ++;
+                       }
+                    }
+                 }
+
+                 if( per_cnt_tau !=0 && per_cnt_mu != 0 ) cnt_taumuTop ++;
+                 if( per_cnt_tau !=0 && per_cnt_ele !=0 ) cnt_taueleTop ++;
+                 if( per_cnt_tau !=0 && per_cnt_mu ==0 && per_cnt_ele ==0 ) cnt_tauhadTop ++;
+
+                 if( per_cnt_tau ==0 && per_cnt_mu != 0 ) cnt_muTop ++;
+                 if( per_cnt_tau ==0 && per_cnt_ele != 0 ) cnt_eleTop ++;
+
+                 if( per_cnt_tau ==0 && per_cnt_mu ==0 && per_cnt_ele ==0 ) cnt_allhadTop ++;
+              }
+           }
+        }
+
+        bool is_gen_allHad = (cnt_eleTop ==0 && cnt_muTop ==0 && cnt_taumuTop ==0 && cnt_taueleTop ==0 && cnt_tauhadTop ==0 && cnt_allhadTop !=0);
+        bool is_gen_lostLep = (cnt_eleTop !=0 || cnt_muTop !=0 || cnt_taumuTop !=0 || cnt_taueleTop !=0 );
+        bool is_gen_hadTau = (!is_gen_lostLep && cnt_tauhadTop !=0 );
+
+        bool is_gen_allHad_alt = (cnt_allhadTop !=0);
 
         h1_cutFlowVec.back()->Fill("all", evtWeight * scaleMC);
 
@@ -236,6 +336,20 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            if( !foundTrigger ) continue;
         }
 
+        int cntMuons_LostLepton = 0, cntMuons_HadTau = 0;
+        std::vector<int> selMuonIdx_LostLeptonVec, selMuonIdx_HadTauVec;
+        for(unsigned int im=0; im<muonsLVec.size(); im++){
+//           if( AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), AnaConsts::muonsMiniIsoArr) ){
+           if( AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), lostle_muonsMiniIsoArr) ){
+              cntMuons_LostLepton ++;
+              selMuonIdx_LostLeptonVec.push_back(im);
+           }
+           if( AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), hadtau_muonsMiniIsoArr) ){
+              cntMuons_HadTau ++;
+              selMuonIdx_HadTauVec.push_back(im);
+           }
+        }
+
 // Can directly use passBaseline to get to baseline distribution, but can also configure this
         h1_cutFlowVec.back()->Fill("original", evtWeight * scaleMC);
 /*
@@ -251,7 +365,34 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         if( !(tr->getVar<int>("vtxSize")>=1) ) continue; h1_cutFlowVec.back()->Fill("passVtx", evtWeight * scaleMC);
         if( !tr->getVar<int>("looseJetID_NoLep") ) continue; h1_cutFlowVec.back()->Fill("passJetId", evtWeight * scaleMC);
 */
+
+        if( passNoiseEventFilter && passMuonVeto && passEleVeto && passIsoTrkVeto && passnJets && passBJets && passHT && passMET && passdPhis * passTagger * passMT2 ){
+           h1_no_fastsimFilter_searchBinYieldsVec.back()->Fill(searchBinIdx, evtWeight * scaleMC);
+        }
+
         if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
+        if( !passFastsimEventFilter ) continue; h1_cutFlowVec.back()->Fill("passFastsimEventFilter", evtWeight * scaleMC);
+
+// The plots make sense only after fastsim bug fixes
+        if( is_gen_allHad ){
+           h1_met_loose_allHadVec.back()->Fill(met, evtWeight * scaleMC);
+           h1_MT2_loose_allHadVec.back()->Fill(MT2, evtWeight * scaleMC);
+           h1_nJets_loose_allHadVec.back()->Fill(nJets, evtWeight * scaleMC);
+           h1_nTops_loose_allHadVec.back()->Fill(nTops, evtWeight * scaleMC);
+           h1_nbJets_loose_allHadVec.back()->Fill(nbJets, evtWeight * scaleMC);
+           h1_genmet_loose_allHadVec.back()->Fill(genmet, evtWeight * scaleMC);
+           h1_met_absres_loose_allHadVec.back()->Fill(met-genmet, evtWeight * scaleMC);
+           if( genmet!=0 ) h1_met_relres_loose_allHadVec.back()->Fill((met-genmet)/genmet, evtWeight * scaleMC);
+        }else{
+           h1_met_loose_leptonicVec.back()->Fill(met, evtWeight * scaleMC);
+           h1_MT2_loose_leptonicVec.back()->Fill(MT2, evtWeight * scaleMC);
+           h1_nJets_loose_leptonicVec.back()->Fill(nJets, evtWeight * scaleMC);
+           h1_nTops_loose_leptonicVec.back()->Fill(nTops, evtWeight * scaleMC);
+           h1_nbJets_loose_leptonicVec.back()->Fill(nbJets, evtWeight * scaleMC);
+           h1_genmet_loose_leptonicVec.back()->Fill(genmet, evtWeight * scaleMC);
+           h1_met_absres_loose_leptonicVec.back()->Fill(met-genmet, evtWeight * scaleMC);
+           if( genmet!=0 ) h1_met_relres_loose_leptonicVec.back()->Fill((met-genmet)/genmet, evtWeight * scaleMC);
+        }
 
         if( !doSingleMuonCS && !passMuonVeto ) continue; h1_cutFlowVec.back()->Fill("passMuonVeto", evtWeight * scaleMC);
         if( !passEleVeto ) continue; h1_cutFlowVec.back()->Fill("passEleVeto", evtWeight * scaleMC);
@@ -259,34 +400,26 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 
         if( !passnJets ) continue; h1_cutFlowVec.back()->Fill("passnJets", evtWeight * scaleMC);
 
-        const double alt_MT2 = mt2Calc->getMT2Hemi(jetsLVec_forTagger, metLVec);
-
-        int cntMuons_LostLepton = 0, cntMuons_HadTau = 0;
-        std::vector<int> selMuonIdx_LostLeptonVec, selMuonIdx_HadTauVec;
-        for(unsigned int im=0; im<muonsLVec.size(); im++){
-           if( AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), AnaConsts::muonsMiniIsoArr) ){
-              cntMuons_LostLepton ++;
-              selMuonIdx_LostLeptonVec.push_back(im);
-           }
-           if( AnaFunctions::passMuon(muonsLVec.at(im), muonsMiniIso.at(im), muonsMtw.at(im), muonsFlagMedium.at(im), hadtau_muonsMiniIsoArr) ){
-              cntMuons_HadTau ++;
-              selMuonIdx_HadTauVec.push_back(im);
-           }
-        }
-
 // Fill histograms with looser requirement -> trigger req. for data...
 //        const bool looseCond = doSingleMuonCS ? (passHT && nJets >=3 && nJetsPt50Eta24 >=1 && cntMuons_HadTau ==1) : (passHT && passMET && passdPhis && passBJets);
 //        const bool looseCond = doSingleMuonCS ? (passHT && passMET && cntMuons_HadTau ==1) : (passHT && passMET && passdPhis && passBJets);
 //        const bool looseCond = doSingleMuonCS ? (passHT && passMET && passdPhis && passBJets && cntMuons_LostLepton ==1) : (passHT && passMET && passdPhis && passBJets);
         const bool looseCond = doSingleMuonCS ? (passHT && passMET && passdPhis && passBJets && cntMuons_HadTau ==1) : (passHT && passMET && passdPhis && passBJets);
 //        if( passHT && nJets >=3 && nJetsPt50Eta24 >=1 && cntMuons_HadTau ==1 ){
-        if( looseCond ){
+//        if( looseCond ){
+        if( true ){
            h1_nJets_looseVec.back()->Fill(nJets, evtWeight * scaleMC);
            h1_nTops_looseVec.back()->Fill(nTops, evtWeight * scaleMC);
            h1_nbJets_looseVec.back()->Fill(nbJets, evtWeight * scaleMC);
    
-           h1_met_looseVec.back()->Fill(tr->getVar<double>("met"), evtWeight * scaleMC);
-           h1_metphi_looseVec.back()->Fill(tr->getVar<double>("metphi"), evtWeight * scaleMC);
+           h1_met_looseVec.back()->Fill(met, evtWeight * scaleMC);
+           h1_metphi_looseVec.back()->Fill(metphi, evtWeight * scaleMC);
+
+           h1_genmet_looseVec.back()->Fill(genmet, evtWeight * scaleMC);
+           h1_genmetphi_looseVec.back()->Fill(genmetphi, evtWeight * scaleMC);
+
+           h1_met_absres_looseVec.back()->Fill(met-genmet, evtWeight * scaleMC);
+           if( genmet!=0 ) h1_met_relres_looseVec.back()->Fill((met-genmet)/genmet, evtWeight * scaleMC);
 
            h1_mht_looseVec.back()->Fill(mhtLVec.Pt(), evtWeight * scaleMC);
            h1_mhtphi_looseVec.back()->Fill(mhtLVec.Phi(), evtWeight * scaleMC);
@@ -341,27 +474,43 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            if( mtw_muonCS < 100 ) continue;
         }
 
+        if( passHT && passMET && passdPhis ){
+           if( nTops>=1 && (nbJets==0 || (passNewTaggerReq && passMT2)) ) h1_nbJets_Nm1_baselineVec.back()->Fill(nbJets, evtWeight * scaleMC);
+        }
+
         if( !passBJets ) continue; h1_cutFlowVec.back()->Fill("passBJets", evtWeight * scaleMC);
 
         if( !passHT ) continue; h1_cutFlowVec.back()->Fill("passHT", evtWeight * scaleMC);
 
+        if( passdPhis && passTagger && passMT2 ) h1_met_Nm1_baselineVec.back()->Fill(met, evtWeight * scaleMC);
+
         if( !passMET ) continue; h1_cutFlowVec.back()->Fill("passMET", evtWeight * scaleMC);
 
         if( (!doInvDphi && !passdPhis) || (doInvDphi && passdPhis) ) continue; h1_cutFlowVec.back()->Fill("passdPhis", evtWeight * scaleMC);
+
+        h2_nbJets_vs_nJetsVec.back()->Fill(nJetsCopy_TMP, nbJetsCopy_TMP, evtWeight * scaleMC);
+        h2_nTops_vs_nJetsVec.back()->Fill(nJetsCopy_TMP, nTopsCopy_TMP, evtWeight * scaleMC);
+        h2_nTops_vs_nbJetsVec.back()->Fill(nbJetsCopy_TMP, nTopsCopy_TMP, evtWeight * scaleMC);
 /*
         h1_cutFlowVec.back()->Fill("Njet_4_6", (nJets>=4 && nJets<=6) * evtWeight * scaleMC);
         h1_cutFlowVec.back()->Fill("Njet_7_8", (nJets>=7 && nJets<=8) * evtWeight * scaleMC);
         h1_cutFlowVec.back()->Fill("Njet_9", (nJets>=9) * evtWeight * scaleMC);
 */
+        if( passNewTaggerReq && (nTops ==0 || (nTops>=1 && passMT2)) ){
+           h1_nTops_Nm1_baselineVec.back()->Fill(nTops, evtWeight * scaleMC);
+        }
+
         if( !passTagger ) continue; h1_cutFlowVec.back()->Fill("passTagger", evtWeight * scaleMC);
-         
-//        std::cout<<"MT2 : "<<MT2<<"  alt_MT2 : "<<alt_MT2<<std::endl;
 
         if( !(nTops>=1) ) continue; h1_cutFlowVec.back()->Fill("passnTopsLE1", evtWeight * scaleMC);
 
+        const double alt_MT2 = mt2Calc->getMT2Hemi(jetsLVec_forTagger, metLVec);
+
         h2_MT2_vs_alt_MT2_looseVec.back()->Fill(alt_MT2, MT2, evtWeight * scaleMC);
-        h2_MT2_vs_met_looseVec.back()->Fill(tr->getVar<double>("met"), MT2, evtWeight * scaleMC);
-        h2_alt_MT2_vs_met_looseVec.back()->Fill(tr->getVar<double>("met"), alt_MT2, evtWeight * scaleMC);
+        h2_MT2_vs_met_looseVec.back()->Fill(met, MT2, evtWeight * scaleMC);
+        h2_alt_MT2_vs_met_looseVec.back()->Fill(met, alt_MT2, evtWeight * scaleMC);
+
+        h1_MT2_Nm1_baselineVec.back()->Fill(MT2, evtWeight * scaleMC);
 
         if( !passMT2 ) continue; h1_cutFlowVec.back()->Fill("passMT2", evtWeight * scaleMC);
 
@@ -412,12 +561,22 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 
 //        if( !pass_tighter_dPhis ) continue;  h1_cutFlowVec.back()->Fill("passTdPhis", evtWeight * scaleMC);
 
+        h2_nbJets_vs_nJets_baselineVec.back()->Fill(nJetsCopy_TMP, nbJetsCopy_TMP, evtWeight * scaleMC);
+        h2_nTops_vs_nJets_baselineVec.back()->Fill(nJetsCopy_TMP, nTopsCopy_TMP, evtWeight * scaleMC);
+        h2_nTops_vs_nbJets_baselineVec.back()->Fill(nbJetsCopy_TMP, nTopsCopy_TMP, evtWeight * scaleMC);
+
         h1_nJets_baselineVec.back()->Fill(nJets, evtWeight * scaleMC);
         h1_nTops_baselineVec.back()->Fill(nTops, evtWeight * scaleMC);
         h1_nbJets_baselineVec.back()->Fill(nbJets, evtWeight * scaleMC);
 
-        h1_met_baselineVec.back()->Fill(tr->getVar<double>("met"), evtWeight * scaleMC);
-        h1_metphi_baselineVec.back()->Fill(tr->getVar<double>("metphi"), evtWeight * scaleMC);
+        h1_met_baselineVec.back()->Fill(met, evtWeight * scaleMC);
+        h1_metphi_baselineVec.back()->Fill(metphi, evtWeight * scaleMC);
+
+        h1_genmet_baselineVec.back()->Fill(genmet, evtWeight * scaleMC);
+        h1_genmetphi_baselineVec.back()->Fill(genmetphi, evtWeight * scaleMC);
+
+        h1_met_absres_baselineVec.back()->Fill(met-genmet, evtWeight * scaleMC);
+        if( genmet!=0 ) h1_met_relres_baselineVec.back()->Fill((met-genmet)/genmet, evtWeight * scaleMC);
 
         h1_mht_baselineVec.back()->Fill(mhtLVec.Pt(), evtWeight * scaleMC);
         h1_mhtphi_baselineVec.back()->Fill(mhtLVec.Phi(), evtWeight * scaleMC);
@@ -425,7 +584,27 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         h1_MT2_baselineVec.back()->Fill(MT2, evtWeight * scaleMC);
         h1_HT_baselineVec.back()->Fill(HT, evtWeight * scaleMC);
 
-        h2_MT2_vs_met_baselineVec.back()->Fill(tr->getVar<double>("met"), MT2, evtWeight * scaleMC);
+        if( is_gen_allHad ){
+           h1_met_baseline_allHadVec.back()->Fill(met, evtWeight * scaleMC);
+           h1_MT2_baseline_allHadVec.back()->Fill(MT2, evtWeight * scaleMC);
+           h1_nJets_baseline_allHadVec.back()->Fill(nJets, evtWeight * scaleMC);
+           h1_nTops_baseline_allHadVec.back()->Fill(nTops, evtWeight * scaleMC);
+           h1_nbJets_baseline_allHadVec.back()->Fill(nbJets, evtWeight * scaleMC);
+           h1_genmet_baseline_allHadVec.back()->Fill(genmet, evtWeight * scaleMC);
+           h1_met_absres_baseline_allHadVec.back()->Fill(met-genmet, evtWeight * scaleMC);
+           if( genmet!=0 ) h1_met_relres_baseline_allHadVec.back()->Fill((met-genmet)/genmet, evtWeight * scaleMC);
+        }else{
+           h1_met_baseline_leptonicVec.back()->Fill(met, evtWeight * scaleMC);
+           h1_MT2_baseline_leptonicVec.back()->Fill(MT2, evtWeight * scaleMC);
+           h1_nJets_baseline_leptonicVec.back()->Fill(nJets, evtWeight * scaleMC);
+           h1_nTops_baseline_leptonicVec.back()->Fill(nTops, evtWeight * scaleMC);
+           h1_nbJets_baseline_leptonicVec.back()->Fill(nbJets, evtWeight * scaleMC);
+           h1_genmet_baseline_leptonicVec.back()->Fill(genmet, evtWeight * scaleMC);
+           h1_met_absres_baseline_leptonicVec.back()->Fill(met-genmet, evtWeight * scaleMC);
+           if( genmet!=0 ) h1_met_relres_baseline_leptonicVec.back()->Fill((met-genmet)/genmet, evtWeight * scaleMC);
+        }
+
+        h2_MT2_vs_met_baselineVec.back()->Fill(met, MT2, evtWeight * scaleMC);
 
         for(unsigned int it=0; it<nTops; it++){
            TLorentzVector topLVec = type3Ptr->buildLVec(jetsLVec_forTagger, type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
@@ -518,17 +697,19 @@ void basicCheck(int argc, char *argv[]){
 
    type3Ptr->setdebug(true);
 
-   build_MT2_met_Binning_forTH2Poly(out_MT2_met_Binning_forTH2Poly);
+   sb = new SearchBins();
 
-   print_searchBins();
-   print_searchBins_latex();
+   nTotBins = sb->nSearchBins();
+
+   sb->build_MT2_met_Binning_forTH2Poly(out_MT2_met_Binning_forTH2Poly);
+
+   sb->print_searchBins();
+   sb->print_searchBins_latex();
 
    declHistGlobal();
 
    NTupleReader *tr = 0;
 
-//   SRblv = new BaselineVessel(spec, "csc_evtlist.txt");
-   SRblv = new BaselineVessel(spec);
    pdfScale = new PDFUncertainty();
 
    int startfile = 0, filerun = -1;
@@ -537,6 +718,14 @@ void basicCheck(int argc, char *argv[]){
    if( argc >=2 ){
       selKeyStr = argv[1];
       std::cout<<"selKeyStr : "<<selKeyStr<<std::endl;
+   }
+
+   if( usegenmet ) spec = "usegenmet";
+
+   if( selKeyStr.find("fastsim") != std::string::npos ){
+      SRblv = new BaselineVessel(spec, "fastsim");
+   }else{
+      SRblv = new BaselineVessel(spec);
    }
 
    bool doSel = false; std::ostringstream convert;
@@ -628,7 +817,8 @@ void basicCheck(int argc, char *argv[]){
 */
          std::cout<<"  "<<perSubStr.c_str();
 
-         TChain *aux = new TChain(file.treePath.c_str());  
+         TChain *aux = new TChain(file.treePath.c_str());
+         (*const_cast<AnaSamples::FileSummary*>(&file)).readFileList();
          file.addFilesToChain(aux, startfile, filerun);
          treeVec.push_back(aux);
 
@@ -730,19 +920,32 @@ void basicCheck(int argc, char *argv[]){
       for(int iSR=0; iSR<nSR; iSR++){
          h2_poly_MT2_vs_metVec[iSR].back()->ClearBinContents();
          int ib = nbJets_SR_lo[iSR], it = nTops_SR_lo[iSR];
-         std::vector<std::vector<double> > vMT2_vs_met_per_SR = vMT2_vs_met_all_SR.at(iSR);
-         for(unsigned int is=0; is<vMT2_vs_met_per_SR[0].size(); is++){
+         std::vector<SearchBins::searchBinDef> selBinDefVec;
+         for(int it=0; it<nTotBins; ++it){
+            SearchBins::searchBinDef outBinDef;
+            sb->find_BinBoundaries(it, outBinDef);
+            if( outBinDef.idx_SR_ == iSR ) selBinDefVec.push_back(outBinDef);
+         }
+//         std::vector<std::vector<double> > vMT2_vs_met_per_SR = vMT2_vs_met_all_SR.at(iSR);
+         for(unsigned int is=0; is<selBinDefVec.size(); is++){
+/*
             double MT2_lo = vMT2_vs_met_per_SR[0].at(is);
             double MT2_hi = vMT2_vs_met_per_SR[1].at(is);
             double met_lo = vMT2_vs_met_per_SR[2].at(is);
             double met_hi = vMT2_vs_met_per_SR[3].at(is);
+*/
+            double MT2_lo = selBinDefVec[is].MT2_lo_;
+            double MT2_hi = selBinDefVec[is].MT2_hi_;
+            double met_lo = selBinDefVec[is].met_lo_;
+            double met_hi = selBinDefVec[is].met_hi_;
 
             double med_MT2 = MT2_hi ==-1? MT2_lo+5 : (MT2_lo+MT2_hi)/2.0;
             double med_met = met_hi ==-1? met_lo+5 : (met_lo+met_hi)/2.0;
 
-            double idxBin = find_Binning_Index(ib, it, MT2_lo, met_lo);
+            double idxBin = sb->find_Binning_Index(ib, it, MT2_lo, met_lo);
             if( idxBin ==0 ) idxBin = 0.1;
             int idxPoly = h2_poly_MT2_vs_metVec[iSR].back()->FindBin(med_met, med_MT2);
+
             h2_poly_MT2_vs_metVec[iSR].back()->SetBinContent(idxPoly, idxBin);
          }
          TString titleT = h2_poly_MT2_vs_metVec[iSR].back()->GetTitle(); titleT.ReplaceAll("TTZ: ", "");
@@ -750,7 +953,7 @@ void basicCheck(int argc, char *argv[]){
          h2_poly_MT2_vs_metVec[iSR].back()->SetStats(0);
          h2_poly_MT2_vs_metVec[iSR].back()->Draw("text");
          char tmpStr[200];
-         sprintf(tmpStr, "basicCheck_poly_MT2_vs_met_%d.pdf", iSR); 
+         sprintf(tmpStr, "basicCheck_poly_MT2_vs_met_%s_%d.pdf", nameStr.c_str(), iSR); 
          c1->Print(tmpStr);
       }
    }
@@ -764,6 +967,8 @@ void basicCheck(int argc, char *argv[]){
    if( h1_keyString ) h1_keyString->Write();
    for(unsigned int ih=0; ih<h1_cutFlowVec.size(); ih++){
       h1_cutFlowVec[ih]->Write();
+      h1_cutFlow_auxVec[ih]->Write();
+      h1_cutFlow_miscVec[ih]->Write();
       h2_evtCnt_nbJets_vs_nTopsVec[ih]->Write();
 
       for(int iSR = 0; iSR < nSR; iSR++){
@@ -772,6 +977,8 @@ void basicCheck(int argc, char *argv[]){
 
       h1_nJets_looseVec[ih]->Write(); h1_nTops_looseVec[ih]->Write(); h1_nbJets_looseVec[ih]->Write();
       h1_met_looseVec[ih]->Write(); h1_MT2_looseVec[ih]->Write(); h1_HT_looseVec[ih]->Write(); h1_metphi_looseVec[ih]->Write();
+      h1_genmet_looseVec[ih]->Write(); h1_genmetphi_looseVec[ih]->Write();
+      h1_met_absres_looseVec[ih]->Write(); h1_met_relres_looseVec[ih]->Write();
       h1_mht_looseVec[ih]->Write(); h1_mhtphi_looseVec[ih]->Write();
       h1_dphi1_looseVec[ih]->Write(); h1_dphi2_looseVec[ih]->Write(); h1_dphi3_looseVec[ih]->Write();
       h1_topMass_looseVec[ih]->Write();
@@ -781,8 +988,24 @@ void basicCheck(int argc, char *argv[]){
       h1_muPt_looseVec[ih]->Write(); h1_muEta_looseVec[ih]->Write(); h1_muPhi_looseVec[ih]->Write();
       h1_elePt_looseVec[ih]->Write(); h1_eleEta_looseVec[ih]->Write(); h1_elePhi_looseVec[ih]->Write();
 
+      h1_met_loose_allHadVec[ih]->Write(); h1_MT2_loose_allHadVec[ih]->Write(); h1_nJets_loose_allHadVec[ih]->Write(); h1_nTops_loose_allHadVec[ih]->Write(); h1_nbJets_loose_allHadVec[ih]->Write();
+      h1_met_loose_leptonicVec[ih]->Write(); h1_MT2_loose_leptonicVec[ih]->Write(); h1_nJets_loose_leptonicVec[ih]->Write(); h1_nTops_loose_leptonicVec[ih]->Write(); h1_nbJets_loose_leptonicVec[ih]->Write();
+      h1_genmet_loose_allHadVec[ih]->Write(); h1_genmet_loose_leptonicVec[ih]->Write();
+      h1_met_absres_loose_allHadVec[ih]->Write(); h1_met_relres_loose_allHadVec[ih]->Write();
+      h1_met_absres_loose_leptonicVec[ih]->Write(); h1_met_relres_loose_leptonicVec[ih]->Write();
+
+      h1_met_baseline_allHadVec[ih]->Write(); h1_MT2_baseline_allHadVec[ih]->Write(); h1_nJets_baseline_allHadVec[ih]->Write(); h1_nTops_baseline_allHadVec[ih]->Write(); h1_nbJets_baseline_allHadVec[ih]->Write();
+      h1_met_baseline_leptonicVec[ih]->Write(); h1_MT2_baseline_leptonicVec[ih]->Write(); h1_nJets_baseline_leptonicVec[ih]->Write(); h1_nTops_baseline_leptonicVec[ih]->Write(); h1_nbJets_baseline_leptonicVec[ih]->Write();
+      h1_genmet_baseline_allHadVec[ih]->Write(); h1_genmet_baseline_leptonicVec[ih]->Write();
+      h1_met_absres_baseline_allHadVec[ih]->Write(); h1_met_relres_baseline_allHadVec[ih]->Write();
+      h1_met_absres_baseline_leptonicVec[ih]->Write(); h1_met_relres_baseline_leptonicVec[ih]->Write();
+
+      h1_mtw_looseVec[ih]->Write();
+
       h1_nJets_baselineVec[ih]->Write(); h1_nTops_baselineVec[ih]->Write(); h1_nbJets_baselineVec[ih]->Write();
       h1_met_baselineVec[ih]->Write(); h1_MT2_baselineVec[ih]->Write(); h1_HT_baselineVec[ih]->Write(); h1_metphi_baselineVec[ih]->Write();
+      h1_genmet_baselineVec[ih]->Write(); h1_genmetphi_baselineVec[ih]->Write();
+      h1_met_absres_baselineVec[ih]->Write(); h1_met_relres_baselineVec[ih]->Write();
       h1_mht_baselineVec[ih]->Write(); h1_mhtphi_baselineVec[ih]->Write();
       h1_topMass_baselineVec[ih]->Write();
       h1_dphi1_baselineVec[ih]->Write(); h1_dphi2_baselineVec[ih]->Write(); h1_dphi3_baselineVec[ih]->Write();
@@ -792,6 +1015,11 @@ void basicCheck(int argc, char *argv[]){
       h1_muPt_baselineVec[ih]->Write(); h1_muEta_baselineVec[ih]->Write(); h1_muPhi_baselineVec[ih]->Write();
       h1_elePt_baselineVec[ih]->Write(); h1_eleEta_baselineVec[ih]->Write(); h1_elePhi_baselineVec[ih]->Write();
 
+      h1_nTops_Nm1_baselineVec[ih]->Write(); h1_nbJets_Nm1_baselineVec[ih]->Write();
+      h1_met_Nm1_baselineVec[ih]->Write(); h1_MT2_Nm1_baselineVec[ih]->Write();
+
+      h1_mtw_baselineVec[ih]->Write();
+
       h1_searchBinYieldsVec[ih]->Write();
       h1_searchBinYields_HadTauVec[ih]->Write(); h1_searchBinYields_LostLepVec[ih]->Write(); h1_searchBinYields_OverlapVec[ih]->Write();
 
@@ -800,7 +1028,18 @@ void basicCheck(int argc, char *argv[]){
       h1_pdfUncCentral_searchBinYieldsVec[ih]->Write(); h1_pdfUncUp_searchBinYieldsVec[ih]->Write(); h1_pdfUncDown_searchBinYieldsVec[ih]->Write();
 
       h2_MT2_vs_met_baselineVec[ih]->Write();
-      h2_MT2_vs_met_looseVec[ih]->Write(); h2_MT2_vs_alt_MT2_looseVec[ih]->Write(); h2_alt_MT2_vs_met_looseVec[ih]->Write();
+
+      h2_MT2_vs_met_looseVec[ih]->Write();
+      h2_MT2_vs_alt_MT2_looseVec[ih]->Write();
+      h2_alt_MT2_vs_met_looseVec[ih]->Write();
+
+      h2_nbJets_vs_nJetsVec[ih]->Write();
+      h2_nTops_vs_nJetsVec[ih]->Write();
+      h2_nTops_vs_nbJetsVec[ih]->Write();
+
+      h2_nbJets_vs_nJets_baselineVec[ih]->Write();
+      h2_nTops_vs_nJets_baselineVec[ih]->Write();
+      h2_nTops_vs_nbJets_baselineVec[ih]->Write();
    }
    basicCheckFile->Write(); basicCheckFile->Close();
 
