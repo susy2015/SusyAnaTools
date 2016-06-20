@@ -24,7 +24,7 @@ MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2 -L$(CMSSW
 LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
 #PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards batchSignalPlots
-PROGRAMS = tupleTest nEvts makeCombPlots makeSignalHistograms basicCheck
+PROGRAMS = tupleTest nEvts makeCombPlots makeSignalHistograms 
 
 all: mkobj sampPyWrap $(PROGRAMS)
 
