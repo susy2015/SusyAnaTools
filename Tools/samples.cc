@@ -180,7 +180,7 @@ namespace AnaSamples
 	
 	//Single Electron
 	// new 2016
-	addSample("Data_SingleElectron_2016", fDir_ + MCloc + "SingleElectron.txt","stopTreeMaker/AUX", 816.27, 1.0,  kBlack);
+	addSample("Data_SingleElectron_2016", fDir_ + MCloc + "SingleElectron.txt","stopTreeMaker/AUX", 2596.910, 1.0,  kBlack);
 	
 	//HT-MHT
 	addSample("Data_HTMHT_2016", fDir_ + MCloc + "HTMHT.txt","stopTreeMaker/AUX", 2596.910, 1.0,  kBlack);
