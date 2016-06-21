@@ -159,7 +159,7 @@ namespace AnaSamples
         // - data -
         // --------
 	//Single Muon
-	addSample("Data_SingleMuon_2016", fDir_ + MCloc1 + "SingleMuon.txt","stopTreeMaker/AUX", 815.077, 1.0,  kBlack);
+	addSample("Data_SingleMuon_2016", fDir_ + MCloc + "SingleMuon.txt","stopTreeMaker/AUX", 2596.910, 1.0,  kBlack);
 	//old
 	addSample("Data_SingleMuon_2015C", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_SingleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
 	addSample("Data_SingleMuon_2015D_05Oct2015", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_SingleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
@@ -183,7 +183,7 @@ namespace AnaSamples
 	addSample("Data_SingleElectron_2016", fDir_ + MCloc + "SingleElectron.txt","stopTreeMaker/AUX", 816.27, 1.0,  kBlack);
 	
 	//HT-MHT
-	addSample("Data_HTMHT_2016", fDir_ + MCloc + "HTMHT.txt","stopTreeMaker/AUX", 816.27, 1.0,  kBlack);
+	addSample("Data_HTMHT_2016", fDir_ + MCloc + "HTMHT.txt","stopTreeMaker/AUX", 2596.910, 1.0,  kBlack);
 	//old
 	addSample("Data_HTMHT_2015C", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_HTMHT-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
 	addSample("Data_HTMHT_2015D_05Oct2015", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_HTMHT-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 574.23, 1.0,  kBlack);
@@ -388,9 +388,9 @@ namespace AnaSamples
 //        addSampleSet(samples, "WJetsToLNu_LESS", {"WJetsToLNu_HT_600toInf", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
         addSampleSet(samples, "WJetsToLNu", {"WJetsToLNu_HT_2500toInf", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
 
-        addSampleSet(samples, "ZJetsToNuNu", {"ZJetsToNuNu_HT_2500toInf", "ZJetsToNuNu_HT_1200to2500", "ZJetsToNuNu_HT_800to1200", "ZJetsToNuNu_HT_600to800", "ZJetsToNuNu_HT_200to400"});
+        addSampleSet(samples, "ZJetsToNuNu", {"ZJetsToNuNu_HT_2500toInf", "ZJetsToNuNu_HT_1200to2500", "ZJetsToNuNu_HT_800to1200", "ZJetsToNuNu_HT_600to800", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200"});
 //	 addSampleSet(samples, "ZJetsToNuNu", {"ZJetsToNuNu_HT_600toInf", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200"});
-        addSampleSet(samples, "DYJetsToLL", {"DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200"});
+        addSampleSet(samples, "DYJetsToLL", {"DYJetsToLL_HT_600toInf", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200"});
 //        addSampleSet(samples, "DYJetsToLL", {"DYJetsToLL_HT_600toInf", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200"});
         addSampleSet(samples, "IncDY", {"DYJetsToLL_Inc"});
 
