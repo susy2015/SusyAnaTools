@@ -94,10 +94,10 @@ namespace AnaSamples
         
         //Z -> nunu
         // From https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z, kz = 1.23
-        addSample("ZJetsToNuNu_HT_100to200", fDir_ + MCloc2 + "ZJetsToNuNu_HT-100To200_13TeV-madgraph.txt", "stopTreeMaker/AUX", 280.35, lumi, 5154824, 1.23,  kTeal+4);
         addSample("ZJetsToNuNu_HT_400to600", fDir_ + MCloc2 + "ZJetsToNuNu_HT-400To600_13TeV-madgraph.txt", "stopTreeMaker/AUX", 10.73,  lumi, 9591908, 1.23,  kTeal+4);
         addSample("ZJetsToNuNu_HT_600toInf", fDir_ + MCloc2 + "ZJetsToNuNu_HT-600ToInf_13TeV-madgraph.txt", "stopTreeMaker/AUX", 4.116,  lumi, 10202299, 1.23,  kTeal+4);
-        addSample("ZJetsToNuNu_HT_200to400", fDir_ + MCloc + "ZJetsToNuNu_HT-200To400_13TeV-madgraph.txt", "stopTreeMaker/AUX", 77.67,  lumi, 19634721, 1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_100to200", fDir_ + MCloc + "ZJetsToNuNu_HT-100To200_13TeV-madgraph.txt", "stopTreeMaker/AUX", 280.35, lumi, 18665303, 1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_200to400", fDir_ + MCloc + "ZJetsToNuNu_HT-200To400_13TeV-madgraph.txt", "stopTreeMaker/AUX", 77.67,  lumi, 19914665, 1.23,  kTeal+4);
         addSample("ZJetsToNuNu_HT_600to800", fDir_ + MCloc + "ZJetsToNuNu_HT-600To800_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.853*3,  lumi, 5650700, 1.23,  kTeal+4);
         addSample("ZJetsToNuNu_HT_800to1200", fDir_ + MCloc + "ZJetsToNuNu_HT-800To1200_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.394*3,  lumi, 2156175, 1.23,  kTeal+4);
         addSample("ZJetsToNuNu_HT_1200to2500", fDir_ + MCloc + "ZJetsToNuNu_HT-1200To2500_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.0974*3,  lumi, 365216, 1.23,  kTeal+4);
@@ -181,10 +181,10 @@ namespace AnaSamples
 	
 	//Single Electron
 	// new 2016
-	addSample("Data_SingleElectron_2016", fDir_ + MCloc + "SingleElectron.txt","stopTreeMaker/AUX", 2596.910, 1.0,  kBlack);
+	addSample("Data_SingleElectron_2016", fDir_ + MCloc + "SingleElectron.txt","stopTreeMaker/AUX", 2589.979, 1.0,  kBlack);
 	
 	//HT-MHT
-	addSample("Data_HTMHT_2016", fDir_ + MCloc + "HTMHT.txt","stopTreeMaker/AUX", 2596.910, 1.0,  kBlack);
+	addSample("Data_HTMHT_2016", fDir_ + MCloc + "HTMHT.txt","stopTreeMaker/AUX",  2589.485, 1.0,  kBlack);
 	//old
 	addSample("Data_HTMHT_2015C", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_HTMHT-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
 	addSample("Data_HTMHT_2015D_05Oct2015", fDir_ + DATAloc + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_HTMHT-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 574.23, 1.0,  kBlack);
@@ -389,7 +389,7 @@ namespace AnaSamples
 	addSampleSet(samples, "WJetsToLNuInc", {"WJetsToLNu_Inc"});
         addSampleSet(samples, "WJetsToLNu", {"WJetsToLNu_HT_2500toInf", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200"});
 
-        addSampleSet(samples, "ZJetsToNuNu", {"ZJetsToNuNu_HT_2500toInf", "ZJetsToNuNu_HT_1200to2500", "ZJetsToNuNu_HT_800to1200", "ZJetsToNuNu_HT_600to800", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200"});
+        addSampleSet(samples, "ZJetsToNuNu", {"ZJetsToNuNu_HT_2500toInf", "ZJetsToNuNu_HT_1200to2500", "ZJetsToNuNu_HT_800to1200", "ZJetsToNuNu_HT_600to800", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200"});
 //	 addSampleSet(samples, "ZJetsToNuNu", {"ZJetsToNuNu_HT_600toInf", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200"});
         addSampleSet(samples, "DYJetsToLL", {"DYJetsToLL_HT_600toInf", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200"});
 //        addSampleSet(samples, "DYJetsToLL", {"DYJetsToLL_HT_600toInf", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200"});
