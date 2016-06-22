@@ -19,8 +19,8 @@ from multiprocessing import Process
 
 workArea = 'crabProdv6p0'
 outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jun_2016_Ntp_v6X'
-Pubname = 'Spring16_80X_Jun_2016_Ntp_v6p0_fix_topProj_wt_data_topoff'
-json_25ns = 'Cert_271036-274443_13TeV_PromptReco_Collisions16_JSON.txt'
+Pubname = 'Spring16_80X_Jun_2016_Ntp_v6p0_fix_topProj_wt_data_topoff_4ifb'
+json_25ns = 'Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
 # TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleEG
