@@ -42,6 +42,10 @@ SearchBins::SearchBins(std::string binEra)
     {
         SearchBins_69_2016();
     }
+    else if(binEra.compare("SB_59_2016") == 0)
+    {
+        SearchBins_59_2016();
+    }
     else
     {
         std::cout << "!!!!!!!!!!!!!!!!!!!!BINS NOT ADDED!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
@@ -259,46 +263,46 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
       
 	if(NSB == 59)
 	{
-	  ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields/3 ,"N_{top} = 1");
-	  ttext_ntop->DrawLatex(39.5 + adjHalfBin, ymax_Yields/300. ,"N_{top} = 2");
+	  ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields/2 ,"N_{t} = 1");
+	  ttext_ntop->DrawLatex(39.5 + adjHalfBin, ymax_Yields/200. ,"N_{t} = 2");
 	  ttext_ntop->SetTextAngle(90.);
-	  ttext_ntop->DrawLatex(54.5 + adjHalfBin, ymax_Yields/30. ,"N_{top} #geq 3");
+	  ttext_ntop->DrawLatex(54.5 + adjHalfBin, ymax_Yields/20. ,"N_{t} #geq 3");
 
 	}
 
         else if(NSB == 45)
         {
-            ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields/3 ,"N_{top} = 1");
-            ttext_ntop->DrawLatex(32.5 + adjHalfBin, ymax_Yields/300. ,"N_{top} = 2");
+            ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields/3 ,"N_{t} = 1");
+            ttext_ntop->DrawLatex(32.5 + adjHalfBin, ymax_Yields/300. ,"N_{t} = 2");
             ttext_ntop->SetTextAngle(90.);
-            ttext_ntop->DrawLatex(42.5 + adjHalfBin, ymax_Yields/30. ,"N_{top} #geq 3"); 
+            ttext_ntop->DrawLatex(42.5 + adjHalfBin, ymax_Yields/30. ,"N_{t} #geq 3"); 
         } 
         else if (NSB == 37)
         {
-            ttext_ntop->DrawLatex(10 + adjHalfBin, ymax_Yields/1.8 ,"N_{top} = 1");
-            ttext_ntop->DrawLatex(29.5 + adjHalfBin, ymax_Yields/70. ,"N_{top} #geq 2");
+            ttext_ntop->DrawLatex(10 + adjHalfBin, ymax_Yields/1.8 ,"N_{t} = 1");
+            ttext_ntop->DrawLatex(29.5 + adjHalfBin, ymax_Yields/70. ,"N_{t} #geq 2");
         }
     }
     else
       {
 	if(NSB == 59)
 	  {
-	    ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{top} = 1");
-            ttext_ntop->DrawLatex(38.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{top} = 2");
+	    ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{t} = 1");
+            ttext_ntop->DrawLatex(38.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{t} = 2");
             ttext_ntop->SetTextAngle(90.);
-	    ttext_ntop->DrawLatex(55.5 + adjHalfBin, ymax_Yields*0.85 ,"N_{top} #geq 3");
+	    ttext_ntop->DrawLatex(55.5 + adjHalfBin, ymax_Yields*0.85 ,"N_{t} #geq 3");
 	  }
         else if(NSB == 45)
 	  {
-            ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{top} = 1");
-            ttext_ntop->DrawLatex(35.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{top} = 2");
+            ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{t} = 1");
+            ttext_ntop->DrawLatex(35.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{t} = 2");
             ttext_ntop->SetTextAngle(90.);
-            ttext_ntop->DrawLatex(43. + adjHalfBin, ymax_Yields*0.85 ,"N_{top} #geq 3");
+            ttext_ntop->DrawLatex(43. + adjHalfBin, ymax_Yields*0.85 ,"N_{t} #geq 3");
 	  }
         else if(NSB == 37)
 	  {
-            ttext_ntop->DrawLatex(10 + adjHalfBin, ymax_Yields*0.93 ,"N_{top} = 1");
-            ttext_ntop->DrawLatex(29.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{top} #geq 2");
+            ttext_ntop->DrawLatex(10 + adjHalfBin, ymax_Yields*0.93 ,"N_{t} = 1");
+            ttext_ntop->DrawLatex(29.5 + adjHalfBin, ymax_Yields*0.93 ,"N_{t} #geq 2");
 	  }
     }
 
@@ -310,12 +314,12 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
       {
 	if(NSB == 59)
 	  {
-	    tl_nb->DrawLine(11.5 + adjHalfBin,ymin_Yields,11.5 + adjHalfBin,ymax_Yields/40.);
-            tl_nb->DrawLine(22.5 + adjHalfBin,ymin_Yields,22.5 + adjHalfBin,ymax_Yields/40.);
-            tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields/400.);
-            tl_nb->DrawLine(48.5 + adjHalfBin,ymin_Yields,48.5 + adjHalfBin,ymax_Yields/400.);
-            tl_nb->DrawLine(54.5 + adjHalfBin,ymin_Yields,54.5 + adjHalfBin,ymax_Yields/400.);
-            tl_nb->DrawLine(56.5 + adjHalfBin,ymin_Yields,56.5 + adjHalfBin,ymax_Yields/400.);  
+	    tl_nb->DrawLine(11.5 + adjHalfBin,ymin_Yields,11.5 + adjHalfBin,ymax_Yields/6);
+            tl_nb->DrawLine(22.5 + adjHalfBin,ymin_Yields,22.5 + adjHalfBin,ymax_Yields/6.);
+            tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields/160.);
+            tl_nb->DrawLine(48.5 + adjHalfBin,ymin_Yields,48.5 + adjHalfBin,ymax_Yields/160.);
+            tl_nb->DrawLine(54.5 + adjHalfBin,ymin_Yields,54.5 + adjHalfBin,ymax_Yields/160.);
+            tl_nb->DrawLine(56.5 + adjHalfBin,ymin_Yields,56.5 + adjHalfBin,ymax_Yields/160.);  
 	    
 	  }
       
@@ -372,7 +376,7 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
 
     if(logscale)
       {
-        ttext2->DrawLatex( 4.5 + adjHalfBin, ymax_Yields/7, "N_{b} = 1");
+        ttext2->DrawLatex( 4.5 + adjHalfBin, ymax_Yields/4., "N_{b} = 1");
         if(NSB == 37) ttext2->DrawLatex(14.5 + adjHalfBin, ymax_Yields/3.5, "N_{b} #geq 2");
         else if(NSB == 45)
 	  {
@@ -382,9 +386,9 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
 	  }
 	else if(NSB == 59)
 	  {
-	    ttext2->DrawLatex(17.5 + adjHalfBin, ymax_Yields/7, "N_{b} = 2");
+	    ttext2->DrawLatex(17.5 + adjHalfBin, ymax_Yields/4., "N_{b} = 2");
             ttext2->SetTextAngle(90.);
-            ttext2->DrawLatex(25.5  + adjHalfBin, ymax_Yields/20 , "N_{b} #geq 3");
+            ttext2->DrawLatex(23.5  + adjHalfBin, ymax_Yields/30 , "N_{b} #geq 3");
 	  }
       } 
     else
@@ -411,18 +415,18 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
     tl_mt2->SetLineColor(49);
     if(logscale)
     {
-        tl_mt2->DrawLine(3.5 + adjHalfBin,ymin_Yields,3.5 + adjHalfBin,ymax_Yields/500.);
-        tl_mt2->DrawLine(7.5 + adjHalfBin,ymin_Yields,7.5 + adjHalfBin,ymax_Yields/500.);
+        tl_mt2->DrawLine(3.5 + adjHalfBin,ymin_Yields,3.5 + adjHalfBin,ymax_Yields/40.);
+        tl_mt2->DrawLine(7.5 + adjHalfBin,ymin_Yields,7.5 + adjHalfBin,ymax_Yields/40.);
         
 
         if(NSB == 45)
 	  {
-	    tl_mt2->DrawLine(14.5 + adjHalfBin,ymin_Yields,14.5 + adjHalfBin,ymax_Yields/500.);
-	    tl_mt2->DrawLine(18.5 + adjHalfBin,ymin_Yields,18.5 + adjHalfBin,ymax_Yields/500.);
-            tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields/1600.);
-            tl_mt2->DrawLine(29.5 + adjHalfBin,ymin_Yields,29.5 + adjHalfBin,ymax_Yields/1600.);
-            tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields/1600.);
-            tl_mt2->DrawLine(37.5 + adjHalfBin,ymin_Yields,37.5 + adjHalfBin,ymax_Yields/1600.);
+	    tl_mt2->DrawLine(14.5 + adjHalfBin,ymin_Yields,14.5 + adjHalfBin,ymax_Yields/300.);
+	    tl_mt2->DrawLine(18.5 + adjHalfBin,ymin_Yields,18.5 + adjHalfBin,ymax_Yields/300.);
+            tl_mt2->DrawLine(26.5 + adjHalfBin,ymin_Yields,26.5 + adjHalfBin,ymax_Yields/300.);
+            tl_mt2->DrawLine(29.5 + adjHalfBin,ymin_Yields,29.5 + adjHalfBin,ymax_Yields/300.);
+            tl_mt2->DrawLine(34.5 + adjHalfBin,ymin_Yields,34.5 + adjHalfBin,ymax_Yields/300.);
+            tl_mt2->DrawLine(37.5 + adjHalfBin,ymin_Yields,37.5 + adjHalfBin,ymax_Yields/300.);
         } 
         else if(NSB == 37)
 	  {
@@ -436,10 +440,10 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
 
 	else if(NSB == 59)
 	  {
-	    tl_mt2->DrawLine(15.5 + adjHalfBin,ymin_Yields,15.5 + adjHalfBin,ymax_Yields/500.);
-	    tl_mt2->DrawLine(19.5 + adjHalfBin,ymin_Yields,19.5 + adjHalfBin,ymax_Yields/500.);
-	    tl_mt2->DrawLine(25.5 + adjHalfBin,ymin_Yields,25.5 + adjHalfBin,ymax_Yields/500.);
-	    tl_mt2->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/500.);
+	    tl_mt2->DrawLine(15.5 + adjHalfBin,ymin_Yields,15.5 + adjHalfBin,ymax_Yields/40.);
+	    tl_mt2->DrawLine(19.5 + adjHalfBin,ymin_Yields,19.5 + adjHalfBin,ymax_Yields/40.);
+	    tl_mt2->DrawLine(25.5 + adjHalfBin,ymin_Yields,25.5 + adjHalfBin,ymax_Yields/100.);
+	    tl_mt2->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/100.);
             tl_mt2->DrawLine(35.5 + adjHalfBin,ymin_Yields,35.5 + adjHalfBin,ymax_Yields/320.);
             tl_mt2->DrawLine(42.5 + adjHalfBin,ymin_Yields,42.5 + adjHalfBin,ymax_Yields/320.);
             tl_mt2->DrawLine(45.5 + adjHalfBin,ymin_Yields,45.5 + adjHalfBin,ymax_Yields/320.);
@@ -495,10 +499,10 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
 	//Only done upto here
 	if(NSB == 59)
 	  {
-	    ttextmt2->DrawLatex( 2.0, ymax_Yields/2000. , "M_{T2}=[200,350]");
-	    ttextmt2->DrawLatex( 6.0, ymax_Yields/2000. , "M_{T2}=[350,450]");
-	    ttextmt2->DrawLatex( 10.5, ymax_Yields/2000. , "M_{T2}#geq450 GeV");
-	    ttextmt2->DrawLatex( 27.5, ymax_Yields/2000. , "M_{T2}#geq350 GeV");
+	    ttextmt2->DrawLatex( 2.0, ymax_Yields/40. , "M_{T2}=[200,350]");
+	    ttextmt2->DrawLatex( 6.0, ymax_Yields/100. , "M_{T2}=[350,450]");
+	    ttextmt2->DrawLatex( 10.5, ymax_Yields/100. , "M_{T2}#geq450 GeV");
+	    ttextmt2->DrawLatex( 27.5, ymax_Yields/100. , "M_{T2}#geq350 GeV");
 	  }
 	else if(NSB == 37 || NSB == 45)
 	  {
@@ -509,12 +513,12 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
       }
     else
       {
-	if(NSB == 69)
+	if(NSB == 59)
 	  {
-	    ttextmt2->DrawLatex( 2.0, ymax_Yields/2000. , "M_{T2}=[200,350]");
-	    ttextmt2->DrawLatex( 6.0, ymax_Yields/2000. , "M_{T2}=[350,450]");
-	    ttextmt2->DrawLatex( 10.5, ymax_Yields/2000. , "M_{T2}#geq450 GeV");
-	    ttextmt2->DrawLatex( 27.5, ymax_Yields/2000. , "M_{T2}#geq350 GeV");
+	    ttextmt2->DrawLatex( 2.0, deltaY*0.52 + ymin_Yields , "M_{T2}=[200,350]");
+	    ttextmt2->DrawLatex( 6.0, deltaY*0.52 + ymin_Yields , "M_{T2}=[350,450]");
+	    ttextmt2->DrawLatex( 10.5, deltaY*0.52 + ymin_Yields , "M_{T2}#geq450 GeV");
+	    ttextmt2->DrawLatex( 27.5, deltaY*0.52 + ymin_Yields , "M_{T2}#geq350 GeV");
 	  }
 	
 	else if(NSB == 37 || NSB == 45)
@@ -524,7 +528,112 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
 	    ttextmt2->DrawLatex( 9.5, deltaY*0.52 + ymin_Yields , "M_{T2}#geq400 GeV");
 	  }
       }
-}    
+
+
+}
+
+void SearchBins::SearchBins_59_2016()
+{
+    //         nb=1, ntop=1
+    addNbNtBin(1, 2, 1, 2,
+               // MT2 lo
+               {200, 200, 200, 200, /**/ 350, 350, 350, 350, /**/ 450, 450, 450, 450},
+               // MT2 hi
+               {350, 350, 350, 350, /**/ 450, 450, 450, 450, /**/  -1,  -1,  -1,  -1},
+               // met lo
+               {200, 350, 500, 650, /**/ 200, 350, 500, 650, /**/ 200, 350, 500, 650},
+               // met hi
+               {350, 500, 650,  -1, /**/ 350, 500, 650,  -1, /**/ 350, 500, 650,  -1});
+
+    //         nb=2, ntop=1
+    addNbNtBin(2, 3, 1, 2,
+               // MT2 lo
+               {200, 200, 200, 200, /**/ 350, 350, 350, 350, /**/ 450, 450, 450},
+               // MT2 hi
+               {350, 350, 350, 350, /**/ 450, 450, 450, 450, /**/  -1,  -1,  -1},
+               // met lo
+               {200, 350, 500, 650, /**/ 200, 350, 500, 650, /**/ 200, 500, 650},
+               // met hi
+               {350, 500, 650,  -1, /**/ 350, 500, 650,  -1, /**/ 500, 650,  -1});
+
+    //         nb>=3, ntop=1
+    addNbNtBin(3, -1, 1, 2,
+               // MT2 lo
+               {200, 200, 200, /**/ 350, 350},
+               // MT2 hi
+               {350, 350, 350, /**/  -1,  -1},
+               // met lo
+               {200, 350, 500, /**/ 200, 350},
+               // met hi
+               {350, 500,  -1, /**/ 350,  -1});
+
+    //         nb=1, ntop=2
+    addNbNtBin(1, 2, 2, 3,
+               // MT2 lo
+               {200, 200, 200, 200, /**/ 350, 350, 350, 350, /**/ 450, 450, 450, 450},
+               // MT2 hi
+               {350, 350, 350, 350, /**/ 450, 450, 450, 450, /**/  -1,  -1,  -1,  -1},
+               // met lo
+               {200, 350, 500, 650, /**/ 200, 350, 500, 650, /**/ 200, 350, 500, 650},
+               // met hi
+               {350, 500, 650,  -1, /**/ 350, 500, 650,  -1, /**/ 350, 500, 650,  -1});
+
+    //         nb=2, ntop=2
+    addNbNtBin(2, 3, 2, 3,
+               // MT2 lo
+               {200, 200, 200, /**/ 350, 350, 350, /**/ 450, 450, 450},
+               // MT2 hi
+               {350, 350, 350, /**/ 450, 450, 450, /**/  -1,  -1,  -1},
+               // met lo
+               {200, 350, 500, /**/ 200, 350, 500, /**/ 200, 350, 500},
+               // met hi
+               {350, 500,  -1, /**/ 350, 500,  -1, /**/ 350, 500,  -1});
+
+    //         nb>=3, ntop=2
+    addNbNtBin(3, -1, 2, 3,
+               // MT2 lo
+               {200, 200, /**/ 350, 350},
+               // MT2 hi
+               {350, 350, /**/  -1,  -1},
+               // met lo
+               {200, 350, /**/ 200, 350},
+               // met hi
+               {350,  -1, /**/ 350,  -1});
+
+    //         nb=1, ntop>=3
+    addNbNtBin(1, 2, 3, -1,
+               // MT2 lo
+               {200, 200},
+               // MT2 hi
+               { -1,  -1},
+               // met lo
+               {200, 350},
+               // met hi
+               {350,  -1});
+
+    //         nb=2, ntop>=3
+    addNbNtBin(2, 3, 3, -1,
+               // MT2 lo
+               {200, 200},
+               // MT2 hi
+               { -1,  -1},
+               // met lo
+               {200, 350},
+               // met hi
+               {350,  -1});
+
+    //         nb>=3, ntop>=3
+    addNbNtBin(3, -1, 3, -1,
+               // MT2 lo
+               {200, 200},
+               // MT2 hi
+               { -1,  -1},
+               // met lo
+               {200, 350},
+               // met hi
+               {350,  -1});
+}
+
 
 void SearchBins::SearchBins_69_2016()
 {
