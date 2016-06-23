@@ -134,6 +134,9 @@ jobslist = {
     'SMS-T2tt_mStop-500_mLSP-325'            : [False, '/SMS-T2tt_mStop-500_mLSP-325_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/MINIAODSIM', 1],
     'SMS-T2tt_mStop-850_mLSP-100'            : [False, '/SMS-T2tt_mStop-850_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/MINIAODSIM', 1],
 
+    # FastSim signals
+    'SMS-T1tttt_FastSim_scan'                : [False, '/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
+
     # Data
 #    'HTMHT-Run2015B-05Oct2015'               : [True, '/HTMHT/Run2015B-05Oct2015-v1/MINIAOD', 10],
     #'HTMHT-Run2015C-25ns-05Oct2015'          : [True, '/HTMHT/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
@@ -269,9 +272,14 @@ def SubmitJob(key, value):
         else:
             pass
     else:
-        tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2', 'specialFix=JEC', 'jecDBname=Spring16_25nsV1_MC']
-        tempconfig.JobType.inputFiles = ['Spring16_25nsV1_MC.db']#'Summer15_25nsV6_MC.db']
-        tempconfig.Data.splitting = 'FileBased'
+       if key.find('FastSim') != -1:
+          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v0', 'fastsim=1']
+#          tempconfig.JobType.inputFiles = ['MCRUN2_74_V9.db']
+          tempconfig.Data.splitting = 'FileBased'
+       else:
+          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2', 'specialFix=JEC', 'jecDBname=Spring16_25nsV1_MC']
+          tempconfig.JobType.inputFiles = ['Spring16_25nsV1_MC.db']#'Summer15_25nsV6_MC.db']
+          tempconfig.Data.splitting = 'FileBased'
 
     tempconfig.Data.inputDataset = value[1].strip()
     tempconfig.Data.unitsPerJob = value[2]
