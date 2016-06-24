@@ -44,6 +44,7 @@ private:
    virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
    edm::GetterOfProducts<LHEEventProduct> getterOfProducts_;
    edm::EDGetTokenT<GenEventInfoProduct> GenTok_;
+
   // edm::InputTag GenSrc_; 
 // ----------member data ---------------------------
 };
@@ -172,16 +173,23 @@ void PDFWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    std::vector<double> scaleweightsMiniAOD;
    std::vector<double> pdfweightsMiniAOD;
    std::vector<int> pdfidsMIniAOD;
-      
+   bool found_weights = false;
+        
    if(!handles.empty()){
+     
+
+
       edm::Handle<LHEEventProduct> LheInfo = handles[0];
          
       std::vector< gen::WeightsInfo > lheweights = LheInfo->weights();
       double lhaweight = 0.0;
       if(!lheweights.empty()){
-         // these numbers are hard-coded by the LHEEventInfo
-         //renormalization/factorization scale weights
-         for (unsigned int i = 0; i < 9; i++){
+     
+	found_weights = true;
+	
+	// these numbers are hard-coded by the LHEEventInfo
+	//renormalization/factorization scale weights
+	for (unsigned int i = 0; i < 9; i++){
             // std::cout << "lheweights " << i << " = " << lheweights[i].id << ", " << lheweights[i].wgt/lheweights[9].wgt << std::endl;
             scaleweightsMiniAOD.push_back(lheweights[i].wgt/lheweights[0].wgt);
          }
@@ -192,8 +200,25 @@ void PDFWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    pdfweightsMiniAOD.push_back(lhaweight);
             pdfidsMIniAOD.push_back(i-9);
         }
+      }
+   } //End from MiniAOD
+   //check GenEventInfoProduct if LHEEventProduct not found or empty
+   if(!found_weights){
+     edm::Handle<GenEventInfoProduct> genHandle;
+     iEvent.getByToken(GenTok_, genHandle);
+
+     const std::vector<double>& genweights = genHandle->weights();
+     // these numbers are hard-coded by the GenEventInfo (shifted by 1 wrt LHE)
+     //renormalization/factorization scale weights
+     for (unsigned int i = 1; i < 10; i++){
+       scaleweightsMiniAOD.push_back(genweights[i]/genweights[1]);
      }
-  } //End from MiniAOD
+     //pdf weights
+     for (unsigned int i = 10; i < 111; i++){
+       pdfweightsMiniAOD.push_back(genweights[i]/genweights[10]);
+       pdfidsMIniAOD.push_back(i-10);
+     }
+   }
       
   //For x1 and x2
   std::auto_ptr<double> x1Ptr_(new double);
