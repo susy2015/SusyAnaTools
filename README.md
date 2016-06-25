@@ -8,7 +8,7 @@ cmsrel CMSSW_8_0_10
 cd CMSSW_8_0_10/src/
 cmsenv
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
-git clone -b Ana_4ifb_Data git@github.com:susy2015/SusyAnaTools.git
+git clone -b new_JEC_new_filters_4ifb git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 
