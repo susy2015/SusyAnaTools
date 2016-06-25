@@ -17,9 +17,9 @@ from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
 from multiprocessing import Process
 
-workArea = 'crabProdv6p0'
-outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jun_2016_Ntp_v6X'
-Pubname = 'Spring16_80X_Jun_2016_Ntp_v6p0_fix_topProj_wt_data_topoff_4ifb'
+workArea = 'crabProdv7p0'
+outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jun_2016_Ntp_v7X'
+Pubname = 'Spring16_80X_Jun_2016_Ntp_v7p0_new_JEC_new_filters_4ifb'
 json_25ns = 'Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
@@ -265,8 +265,8 @@ def SubmitJob(key, value):
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2016B-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v8']#, 'specialFix=JEC', 'jecDBname=Summer15_25nsV6_DATA', 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-           # tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_25nsV1_DATA.db', 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v8', 'specialFix=JEC', 'jecDBname=Spring16_25nsV3_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV3_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         else:
@@ -277,8 +277,8 @@ def SubmitJob(key, value):
 #          tempconfig.JobType.inputFiles = ['MCRUN2_74_V9.db']
           tempconfig.Data.splitting = 'FileBased'
        else:
-          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2', 'specialFix=JEC', 'jecDBname=Spring16_25nsV1_MC']
-          tempconfig.JobType.inputFiles = ['Spring16_25nsV1_MC.db']#'Summer15_25nsV6_MC.db']
+          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2', 'specialFix=JEC', 'jecDBname=Spring16_25nsV3_MC']
+          tempconfig.JobType.inputFiles = ['Spring16_25nsV3_MC.db']#'Summer15_25nsV6_MC.db']
           tempconfig.Data.splitting = 'FileBased'
 
     tempconfig.Data.inputDataset = value[1].strip()
