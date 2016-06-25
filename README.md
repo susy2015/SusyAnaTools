@@ -3,7 +3,6 @@
 The following installation instructions assume the user wants to process Run2016 data or Spring16 MC.
 
 ```
-# Similar for 80X release
 cmsrel CMSSW_8_0_12
 cd CMSSW_8_0_12/src/
 cmsenv
