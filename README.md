@@ -4,9 +4,11 @@ The following installation instructions assume the user wants to process Run2016
 
 ```
 # Similar for 80X release
-cmsrel CMSSW_8_0_10
-cd CMSSW_8_0_10/src/
+cmsrel CMSSW_8_0_12
+cd CMSSW_8_0_12/src/
 cmsenv
+git cms-init
+git cms-merge-topic -u cms-met:CMSSW_8_0_X-METFilterUpdate
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
 git clone -b new_JEC_new_filters_4ifb git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
