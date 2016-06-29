@@ -111,7 +111,8 @@ namespace AnaConsts{
 //                                                  "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "CSCTightHaloFilter", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter",
                                                   "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter", "goodVerticesFilter", "eeBadScFilter", "eeBadScListFilter", "CSCTightHaloListFilter", "badResolutionTrackListFilter", "muonBadTrackListFilter",
                                                   "TriggerNames", "PassTrigger", "TriggerPrescales", 
-                                                  "stored_weight" 
+                                                  "stored_weight",
+                                                  "globalTightHalo2016Filter", "BadChargedCandidateFilter", "BadPFMuonFilter"
                                                 };
 
    std::set<std::string> activatedBranchNames = {

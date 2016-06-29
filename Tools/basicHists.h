@@ -119,9 +119,9 @@ void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, c
   TH1D * h1_pdfUncUp_searchBinYields = new TH1D(sampleKeyStringT+"_h1_pdfUncUp_searchBinYields", sampleKeyStringT+": pdf unc up", nTotBins, 0, nTotBins); h1_pdfUncUp_searchBinYields->Sumw2(); h1_pdfUncUp_searchBinYieldsVec.push_back((TH1D*)h1_pdfUncUp_searchBinYields->Clone());
   TH1D * h1_pdfUncDown_searchBinYields = new TH1D(sampleKeyStringT+"_h1_pdfUncDown_searchBinYields", sampleKeyStringT+": pdf unc down", nTotBins, 0, nTotBins); h1_pdfUncDown_searchBinYields->Sumw2(); h1_pdfUncDown_searchBinYieldsVec.push_back((TH1D*)h1_pdfUncDown_searchBinYields->Clone());
 
-  TH1D * h1_cutFlow = new TH1D(sampleKeyStringT+"_h1_cutFlow", sampleKeyStringT+": cut flow table", 20, 0, 20); h1_cutFlow->SetBit(TH1::kCanRebin); h1_cutFlow->Sumw2(); h1_cutFlowVec.push_back((TH1D*)h1_cutFlow->Clone());
-  TH1D * h1_cutFlow_aux = new TH1D(sampleKeyStringT+"_h1_cutFlow_aux", sampleKeyStringT+": more cut flow table", 20, 0, 20); h1_cutFlow_aux->SetBit(TH1::kCanRebin); h1_cutFlow_aux->Sumw2(); h1_cutFlow_auxVec.push_back((TH1D*)h1_cutFlow_aux->Clone());
-  TH1D * h1_cutFlow_misc = new TH1D(sampleKeyStringT+"_h1_cutFlow_misc", sampleKeyStringT+": more cut flow table", 20, 0, 20); h1_cutFlow_misc->SetBit(TH1::kCanRebin); h1_cutFlow_misc->Sumw2(); h1_cutFlow_miscVec.push_back((TH1D*)h1_cutFlow_misc->Clone());
+  TH1D * h1_cutFlow = new TH1D(sampleKeyStringT+"_h1_cutFlow", sampleKeyStringT+": cut flow table", 20, 0, 20); h1_cutFlow->SetCanExtend(TH1::kAllAxes); h1_cutFlow->Sumw2(); h1_cutFlowVec.push_back((TH1D*)h1_cutFlow->Clone());
+  TH1D * h1_cutFlow_aux = new TH1D(sampleKeyStringT+"_h1_cutFlow_aux", sampleKeyStringT+": more cut flow table", 20, 0, 20); h1_cutFlow_aux->SetCanExtend(TH1::kAllAxes); h1_cutFlow_aux->Sumw2(); h1_cutFlow_auxVec.push_back((TH1D*)h1_cutFlow_aux->Clone());
+  TH1D * h1_cutFlow_misc = new TH1D(sampleKeyStringT+"_h1_cutFlow_misc", sampleKeyStringT+": more cut flow table", 20, 0, 20); h1_cutFlow_misc->SetCanExtend(TH1::kAllAxes); h1_cutFlow_misc->Sumw2(); h1_cutFlow_miscVec.push_back((TH1D*)h1_cutFlow_misc->Clone());
 
   TH1D * h1_nJets_loose = new TH1D(sampleKeyStringT+"_h1_nJets_loose", sampleKeyStringT+": nJets after loose; nJets", 14, 0, 14); h1_nJets_loose->Sumw2(); h1_nJets_looseVec.push_back((TH1D*)h1_nJets_loose->Clone());
   TH1D * h1_nbJets_loose = new TH1D(sampleKeyStringT+"_h1_nbJets_loose", sampleKeyStringT+": nbJets after loose; nbJets", 5, 0, 5); h1_nbJets_loose->Sumw2(); h1_nbJets_looseVec.push_back((TH1D*)h1_nbJets_loose->Clone());
@@ -291,7 +291,7 @@ void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, c
 void declHistGlobal(){
 
    h2_evtCnt_sumSM_nbJets_vs_nTops = new TH2D("h2_evtCnt_sumSM_nbJets_vs_nTops", "SumSM: event counts nbJets versus nTops; nTops; nbJets", 4, 0, 4, 3, 1, 4); h2_evtCnt_sumSM_nbJets_vs_nTops->Sumw2();
-   h1_keyString = new TH1D("h1_keyString", "key string", 5, 0, 5); h1_keyString->SetBit(TH1::kCanRebin);
+   h1_keyString = new TH1D("h1_keyString", "key string", 5, 0, 5); h1_keyString->SetCanExtend(TH1::kAllAxes);
 
 }
 

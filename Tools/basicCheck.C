@@ -33,6 +33,7 @@ SearchBins * sb =0;
 int nTotBins;
 std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
 
+const bool isblind = false;
 const bool doSingleMuonCS = false;
 const bool doInvDphi = false;
 const bool usegenmet = false;
@@ -145,7 +146,11 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 // Get branches out directly from what stored in the tree
         const unsigned int & run = tr->getVar<unsigned int>("run"); 
         const unsigned int & lumi = tr->getVar<unsigned int>("lumi"); 
-        const unsigned int & event = tr->getVar<unsigned int>("event"); 
+        const unsigned int & event = tr->getVar<unsigned int>("event");
+
+        if( isData && isblind && (!doSingleMuonCS || !doInvDphi) ){
+           if( run > 274240 ) continue;
+        }
 
         const double & genmet_tmp = tr->getVar<double>("genmet");
         const double & genmetphi_tmp = tr->getVar<double>("genmetphi");
@@ -318,9 +323,11 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
                      || TriggerNames[it].find("HLT_PFMET150_PFMHT150_IDTight_v") != std::string::npos
                  ){
 */
-                 if(    TriggerNames[it].find("HLT_PFHT350_PFMET100_JetIdCleaned_v") != std::string::npos
+/*                 if(    TriggerNames[it].find("HLT_PFHT350_PFMET100_JetIdCleaned_v") != std::string::npos
                      || TriggerNames[it].find("HLT_PFHT350_PFMET100_NoiseCleaned_v") != std::string::npos
                      || TriggerNames[it].find("HLT_PFHT350_PFMET100_v") != std::string::npos ){
+*/
+                 if( TriggerNames[it].find("HLT_PFHT300_PFMET100_v") != std::string::npos ){
 
                     if( PassTrigger[it] ) foundTrigger = true;
                  }

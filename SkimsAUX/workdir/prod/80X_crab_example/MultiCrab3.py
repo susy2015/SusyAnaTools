@@ -28,6 +28,8 @@ json_25ns = 'Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt'
 #selSubmitKey = 'TEST STATUS TTJets' # 'TEST STATUS': no submission of jobs but rather checking crab job status related to the TTJets. If jobs failed, automatically resubmit them.
 #selSubmitKey = 'TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
+#selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon'
+#selSubmitKey = 'TEST STATUS SMS-T2tt_FastSim'
 selSubmitKey = 'TEST ALL'
 doAutoMonitor = False
 
@@ -136,6 +138,8 @@ jobslist = {
 
     # FastSim signals
     'SMS-T1tttt_FastSim_scan'                : [False, '/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
+
+    'SMS-T2tt_FastSim_mStop-400to1200'       : [False, '/SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
 
     # Data
 #    'HTMHT-Run2015B-05Oct2015'               : [True, '/HTMHT/Run2015B-05Oct2015-v1/MINIAOD', 10],
