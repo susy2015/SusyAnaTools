@@ -9,7 +9,7 @@ cmsenv
 git cms-init
 git cms-merge-topic -u cms-met:CMSSW_8_0_X-METFilterUpdate
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
-git clone -b new_JEC_new_filters_4ifb git@github.com:susy2015/SusyAnaTools.git
+git clone -b Ana_new_JEC_new_filters_4ifb git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 
