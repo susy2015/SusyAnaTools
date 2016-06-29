@@ -24,7 +24,7 @@ MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2 -L$(CMSSW
 LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
 #PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards batchSignalPlots
-PROGRAMS = tupleTest nEvts makeCombPlots makeSignalHistograms 
+PROGRAMS = tupleTest nEvts makeCombPlots makeSignalHistograms signalScan basicCheck makeSignalCards makeUnblindPlots
 
 all: mkobj sampPyWrap $(PROGRAMS)
 
@@ -59,19 +59,22 @@ nEvts: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/nEvts.o
 basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
-makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o
+makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
-signalScan: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/signalScan.o $(ODIR)/PDFUncertainty.o $(ODIR)/BTagCorrector.o $(ODIR)/BTagCalibrationStandalone.o
+signalScan: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/signalScan.o $(ODIR)/PDFUncertainty.o $(ODIR)/BTagCorrector.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
-makeSignalCards: $(ODIR)/samples.o $(ODIR)/makeSignalCards.o
+makeSignalCards: $(ODIR)/samples.o $(ODIR)/makeSignalCards.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 batchSignalPlots: $(ODIR)/samples.o $(ODIR)/batchSignalPlots.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 makeSignalHistograms: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/makeSignalHistograms.o $(ODIR)/searchBins.o
+	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+
+makeUnblindPlots: $(ODIR)/makeUnblindPlots.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 clean:

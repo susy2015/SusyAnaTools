@@ -1,0 +1,1 @@
+das_client.py --query="file dataset=/SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM" --limit=0| sed 's/\(\S*.root\)/root:\/\/xrootd.unl.edu\/\1/' > SMS-T2tt_mStop-400to1200.txt

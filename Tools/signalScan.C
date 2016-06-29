@@ -39,11 +39,20 @@
 
 #include "../TopTagger/interface/indexSort.h"
 
+#include "../SkimsAUX/plugins/MT2CalcCore.h"
+
+SearchBins * sb =0;
+int nTotBins;
+std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
+
 const bool doSingleMuonCS = false;
 const bool doInvDphi = false;
+const bool usegenmet = false;
+
+MT2CalcCore * mt2Calc;
 
 BaselineVessel * SRblv =0;
-const std::string spec = "MY";
+std::string spec = "MY";
 
 void mypassBaselineFunc(NTupleReader &tr){
    (*SRblv)(tr);
@@ -118,6 +127,92 @@ void drawOverFlowBin(TH1 *histToAdjust){
    histToAdjust->SetBinContent(nbins, overflow+lastCont);
 }
 
+double GetTriggerEffWeight (const double met) {
+   if (met<100) return 0.0130;
+   else if (met<150) return 0.3239;
+   else if (met<175) return 0.7855;
+   else if (met<200) return 0.9429;
+   else if (met<275) return 0.9736;
+   else if (met<400) return 0.9952;
+   else return 1.0;
+}
+
+double GetTriggerEffStatUncHi (const double met) {
+   if (met<100) return 0.0011;
+   else if (met<150) return 0.0131;
+   else if (met<175) return 0.0226;
+   else if (met<200) return 0.0149;
+   else if (met<275) return 0.0078;
+   else if (met<400) return 0.0040;
+   else return 0.0;
+}
+
+double GetTriggerEffStatUncLo (const double met) {
+   if (met<100) return 0.0010;
+   else if (met<150) return 0.0128;
+   else if (met<175) return 0.0244;
+   else if (met<200) return 0.0190;
+   else if (met<275) return 0.0104;
+   else if (met<400) return 0.0109;
+   else return 0.0109;
+}
+
+double GetTriggerEffSystUncHi (const double met) {
+   if (met<100) return 0.0272;
+   else if (met<150) return 0.0872;
+   else if (met<175) return 0.1505;
+   else if (met<200) return 0.0423;
+   else if (met<275) return 0.0112;
+   else if (met<400) return 0.0001;
+   else return 0.0000;
+}
+
+double GetTriggerEffSystUncLo (const double met) {
+   if (met<100) return 0.0120;
+   else if (met<150) return 0.0872;
+   else if (met<175) return 0.1505;
+   else if (met<200) return 0.0792;
+   else if (met<275) return 0.0112;
+   else if (met<400) return 0.0001;
+   else return 0.0018;
+}
+
+double GetTopPtFastToFullSF(const double genTopPt){
+   if( genTopPt < 120 ) return 1.0;
+   else if (genTopPt < 200 ) return 1.001427;
+   else if (genTopPt < 280 ) return 1.038126;
+   else if (genTopPt < 360 ) return 1.017741;
+   else if (genTopPt < 440 ) return 0.9625731;
+   else if (genTopPt < 520 ) return 0.9905459;
+   else if (genTopPt < 600 ) return 1.024005;
+   else if (genTopPt < 680 ) return 1.057722;
+   else if (genTopPt < 760 ) return 1.033730;
+   else if (genTopPt < 840 ) return 1.076965;
+   else if (genTopPt < 920 ) return 1.080135;
+   else if (genTopPt < 1000 ) return 1.061109;
+   else if (genTopPt < 1080 ) return 1.042154;
+   else if (genTopPt < 1160 ) return 0.980493;
+   else return 1.033048;
+}
+
+double GetTopPtFastToFullSF_Err(const double genTopPt){
+   if( genTopPt < 120 ) return 0.0;
+   else if (genTopPt < 200 ) return 0.05038158;
+   else if (genTopPt < 280 ) return 0.02119781;
+   else if (genTopPt < 360 ) return 0.01389809;
+   else if (genTopPt < 440 ) return 0.01131301;
+   else if (genTopPt < 520 ) return 0.01261462;
+   else if (genTopPt < 600 ) return 0.01517953;
+   else if (genTopPt < 680 ) return 0.01819345;
+   else if (genTopPt < 760 ) return 0.01968112;
+   else if (genTopPt < 840 ) return 0.02402724;
+   else if (genTopPt < 920 ) return 0.02667794;
+   else if (genTopPt < 1000 ) return 0.02791577;
+   else if (genTopPt < 1080 ) return 0.02948765;
+   else if (genTopPt < 1160 ) return 0.03255938;
+   else return 0.0391267;
+}
+
 class HistContainer
 {
 private:
@@ -133,14 +228,64 @@ private:
     TH1* xSec_;
     TH1* totEntries_;
 
+    TH1* baseline_met_Nm1_;
+    TH1* baseline_mt2_Nm1_;
+    TH1* baseline_nt_Nm1_;
+    TH1* baseline_nb_Nm1_;
+
+    TH1* cutFlow_;
+
+    TH1* baseline_nTopEQ1_nSearchBin_;
+    TH1* baseline_nTopLE2_nSearchBin_;
+
+    TH1* baseline_genInfo_allHad_;
+    TH1* baseline_genInfo_lostLep_;
+    TH1* baseline_genInfo_hadTau_;
+
+    TH1* baseline_nTopEQ1_genInfo_allHad_;
+    TH1* baseline_nTopEQ1_genInfo_lostLep_;
+    TH1* baseline_nTopEQ1_genInfo_hadTau_;
+
+    TH1* baseline_nTopLE2_genInfo_allHad_;
+    TH1* baseline_nTopLE2_genInfo_lostLep_;
+    TH1* baseline_nTopLE2_genInfo_hadTau_;
+
+    TH1* baseline_no_fastsimFilter_nSearchBin_;
+
+// Any events with any jet pT > 2 TeV
+    TH1* baseline_weirdEvt_;
+
+//    TH1* baseline_noLepVeto_;
+    TH1* baseline_muVeto_;
+    TH1* baseline_eleVeto_;
+    TH1* baseline_isoLepTrkVeto_;
+    TH1* baseline_isoPionTrkVeto_;
+
+    TH1* baseline_genTopSFUp_;
+    TH1* baseline_genTopSFCen_;
+    TH1* baseline_genTopSFDn_;
+
+    TH1* baseline_mistaggenTopSFUp_;
+    TH1* baseline_mistaggenTopSFDn_;
+
     TH1* baseline_nb_ngenbLE3_;
 
     TH1* genTopPt_;
     TH1* baseline_genTopPt_;
+ 
+    TH1* baseline_misTag_recoTopPt_;
 
     TH2* sumStopPt_vs_met_;
 
     TH2* baseline_MT2_vs_met_;
+
+    TH2* loose_MT2_vs_met_;
+    TH2* loose_alt_MT2_vs_met_;
+    TH2* loose_MT2_vs_alt_MT2_;
+
+    TH1* baseline_trigUncUp_;
+    TH1* baseline_trigUncCen_;
+    TH1* baseline_trigUncDn_;
 
     TH1* baseline_scaleUncUp_;
     TH1* baseline_scaleUncDn_;
@@ -169,6 +314,7 @@ private:
 
     int mMass_;
     int dMass_;
+    std::string sampleKeyStr_;
 
     TH2* num_eff_b_;
     TH2* num_eff_c_;
@@ -187,9 +333,12 @@ private:
        sprintf(hname, "%s_%d_%d", "mt2", mMass_, dMass_);
        mt2_ = new TH1D(hname, hname, 100, 0, 1000); mt2_->Sumw2();
        sprintf(hname, "%s_%d_%d", "nt", mMass_, dMass_);
-       nt_ = new TH1D(hname, hname,  4, 0, 4); nt_->Sumw2();
+       nt_ = new TH1D(hname, hname,  5, 0, 5); nt_->Sumw2();
        sprintf(hname, "%s_%d_%d", "nb", mMass_, dMass_);
        nb_ = new TH1D(hname, hname,  5, 0, 5); nb_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "cutFlow", mMass_, dMass_);
+       cutFlow_ = new TH1D(hname, hname, 20, 0, 20); cutFlow_->Sumw2(); cutFlow_->SetCanExtend(TH1::kAllAxes);
 
        sprintf(hname, "%s_%d_%d", "sumStopPt_vs_met", mMass_, dMass_);
        sumStopPt_vs_met_ = new TH2D(hname, hname, 100, 0, 800, 100, 0, 800); sumStopPt_vs_met_->Sumw2();
@@ -199,67 +348,161 @@ private:
        sprintf(hname, "%s_%d_%d", "baseline_mt2", mMass_, dMass_);
        baseline_mt2_ = new TH1D(hname, hname, 100, 0, 1000); baseline_mt2_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_nt", mMass_, dMass_);
-       baseline_nt_ = new TH1D(hname, hname,  4, 0, 4); baseline_nt_->Sumw2();
+       baseline_nt_ = new TH1D(hname, hname,  5, 0, 5); baseline_nt_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_nb", mMass_, dMass_);
        baseline_nb_ = new TH1D(hname, hname,  5, 0, 5); baseline_nb_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_met_Nm1", mMass_, dMass_);
+       baseline_met_Nm1_ = new TH1D(hname, hname, 100, 0, 1000); baseline_met_Nm1_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_mt2_Nm1", mMass_, dMass_);
+       baseline_mt2_Nm1_ = new TH1D(hname, hname, 100, 0, 1000); baseline_mt2_Nm1_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_nt_Nm1", mMass_, dMass_);
+       baseline_nt_Nm1_ = new TH1D(hname, hname,  5, 0, 5); baseline_nt_Nm1_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_nb_Nm1", mMass_, dMass_);
+       baseline_nb_Nm1_ = new TH1D(hname, hname,  5, 0, 5); baseline_nb_Nm1_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_nb_ngenbLE3", mMass_, dMass_);
        baseline_nb_ngenbLE3_ = new TH1D(hname, hname,  5, 0, 5); baseline_nb_ngenbLE3_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_nSearchBin", mMass_, dMass_);
-       baseline_nSearchBin_ = new TH1D(hname, hname,  45, 0, 45); baseline_nSearchBin_->Sumw2();
+       baseline_nSearchBin_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_nSearchBin_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_nTopEQ1_nSearchBin", mMass_, dMass_);
+       baseline_nTopEQ1_nSearchBin_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_nTopEQ1_nSearchBin_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_nTopLE2_nSearchBin", mMass_, dMass_);
+       baseline_nTopLE2_nSearchBin_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_nTopLE2_nSearchBin_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_genInfo_allHad", mMass_, dMass_);
+       baseline_genInfo_allHad_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_genInfo_allHad_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_genInfo_lostLep", mMass_, dMass_);
+       baseline_genInfo_lostLep_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_genInfo_lostLep_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_genInfo_hadTau", mMass_, dMass_);
+       baseline_genInfo_hadTau_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_genInfo_hadTau_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_nTopEQ1_genInfo_allHad", mMass_, dMass_);
+       baseline_nTopEQ1_genInfo_allHad_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_nTopEQ1_genInfo_allHad_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_nTopEQ1_genInfo_lostLep", mMass_, dMass_);
+       baseline_nTopEQ1_genInfo_lostLep_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_nTopEQ1_genInfo_lostLep_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_nTopEQ1_genInfo_hadTau", mMass_, dMass_);
+       baseline_nTopEQ1_genInfo_hadTau_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_nTopEQ1_genInfo_hadTau_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_nTopLE2_genInfo_allHad", mMass_, dMass_);
+       baseline_nTopLE2_genInfo_allHad_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_nTopLE2_genInfo_allHad_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_nTopLE2_genInfo_lostLep", mMass_, dMass_);
+       baseline_nTopLE2_genInfo_lostLep_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_nTopLE2_genInfo_lostLep_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_nTopLE2_genInfo_hadTau", mMass_, dMass_);
+       baseline_nTopLE2_genInfo_hadTau_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_nTopLE2_genInfo_hadTau_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_no_fastsimFilter_nSearchBin", mMass_, dMass_);
+       baseline_no_fastsimFilter_nSearchBin_ = new TH1D(hname, hname, nTotBins, 0, nTotBins);
+
+       sprintf(hname, "%s_%d_%d", "baseline_weirdEvt", mMass_, dMass_);
+       baseline_weirdEvt_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_weirdEvt_->Sumw2();
+
+//       sprintf(hname, "%s_%d_%d", "baseline_noLepVeto", mMass_, dMass_);
+//       baseline_noLepVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_noLepVeto_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_muVeto", mMass_, dMass_);
+       baseline_muVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_muVeto_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_eleVeto", mMass_, dMass_);
+       baseline_eleVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_eleVeto_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_isoLepTrkVeto", mMass_, dMass_);
+       baseline_isoLepTrkVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_isoLepTrkVeto_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_isoPionTrkVeto", mMass_, dMass_);
+       baseline_isoPionTrkVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_isoPionTrkVeto_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_trigUncUp", mMass_, dMass_);
+       baseline_trigUncUp_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_trigUncUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_trigUncCen", mMass_, dMass_);
+       baseline_trigUncCen_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_trigUncCen_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_trigUncDn", mMass_, dMass_);
+       baseline_trigUncDn_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_trigUncDn_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_scaleUncUp", mMass_, dMass_);
-       baseline_scaleUncUp_ = new TH1D(hname, hname,  45, 0, 45); baseline_scaleUncUp_->Sumw2();
+       baseline_scaleUncUp_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_scaleUncUp_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_scaleUncDn", mMass_, dMass_);
-       baseline_scaleUncDn_ = new TH1D(hname, hname,  45, 0, 45); baseline_scaleUncDn_->Sumw2();
+       baseline_scaleUncDn_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_scaleUncDn_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_pdfUncUp", mMass_, dMass_);
-       baseline_pdfUncUp_ = new TH1D(hname, hname,  45, 0, 45); baseline_pdfUncUp_->Sumw2();
+       baseline_pdfUncUp_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_pdfUncUp_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_pdfUncCen", mMass_, dMass_);
-       baseline_pdfUncCen_ = new TH1D(hname, hname,  45, 0, 45); baseline_pdfUncCen_->Sumw2();
+       baseline_pdfUncCen_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_pdfUncCen_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_pdfUncDn", mMass_, dMass_);
-       baseline_pdfUncDn_ = new TH1D(hname, hname,  45, 0, 45); baseline_pdfUncDn_->Sumw2();
+       baseline_pdfUncDn_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_pdfUncDn_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_isrUncUp", mMass_, dMass_);
-       baseline_isrUncUp_ = new TH1D(hname, hname,  45, 0, 45); baseline_isrUncUp_->Sumw2();
+       baseline_isrUncUp_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_isrUncUp_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_isrUncDn", mMass_, dMass_);
-       baseline_isrUncDn_ = new TH1D(hname, hname,  45, 0, 45); baseline_isrUncDn_->Sumw2();
+       baseline_isrUncDn_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_isrUncDn_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_metMagUp", mMass_, dMass_);
-       baseline_metMagUp_ = new TH1D(hname, hname, 45, 0, 45); baseline_metMagUp_->Sumw2();
+       baseline_metMagUp_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_metMagUp_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_metMagDn", mMass_, dMass_);
-       baseline_metMagDn_ = new TH1D(hname, hname, 45, 0, 45); baseline_metMagDn_->Sumw2();
+       baseline_metMagDn_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_metMagDn_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_metPhiUp", mMass_, dMass_);
-       baseline_metPhiUp_ = new TH1D(hname, hname, 45, 0, 45); baseline_metPhiUp_->Sumw2();
+       baseline_metPhiUp_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_metPhiUp_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_metPhiDn", mMass_, dMass_);
-       baseline_metPhiDn_ = new TH1D(hname, hname, 45, 0, 45); baseline_metPhiDn_->Sumw2();
+       baseline_metPhiDn_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_metPhiDn_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_jetJECUp", mMass_, dMass_);
-       baseline_jetJECUp_ = new TH1D(hname, hname, 45, 0, 45); baseline_jetJECUp_->Sumw2();
+       baseline_jetJECUp_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_jetJECUp_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_jetJECDn", mMass_, dMass_);
-       baseline_jetJECDn_ = new TH1D(hname, hname, 45, 0, 45); baseline_jetJECDn_->Sumw2();
+       baseline_jetJECDn_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_jetJECDn_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_bTagSFUp", mMass_, dMass_);
-       baseline_bTagSFUp_ = new TH1D(hname, hname,  45, 0, 45); baseline_bTagSFUp_->Sumw2();
+       baseline_bTagSFUp_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_bTagSFUp_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_bTagSFCen", mMass_, dMass_);
-       baseline_bTagSFCen_ = new TH1D(hname, hname,  45, 0, 45); baseline_bTagSFCen_->Sumw2();
+       baseline_bTagSFCen_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_bTagSFCen_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_bTagSFDn", mMass_, dMass_);
-       baseline_bTagSFDn_ = new TH1D(hname, hname,  45, 0, 45); baseline_bTagSFDn_->Sumw2();
+       baseline_bTagSFDn_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_bTagSFDn_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_mistagSFUp", mMass_, dMass_);
-       baseline_mistagSFUp_ = new TH1D(hname, hname,  45, 0, 45); baseline_mistagSFUp_->Sumw2();
+       baseline_mistagSFUp_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_mistagSFUp_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_mistagSFDn", mMass_, dMass_);
-       baseline_mistagSFDn_ = new TH1D(hname, hname,  45, 0, 45); baseline_mistagSFDn_->Sumw2();
+       baseline_mistagSFDn_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_mistagSFDn_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_genTopSFUp", mMass_, dMass_);
+       baseline_genTopSFUp_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_genTopSFUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_genTopSFCen", mMass_, dMass_);
+       baseline_genTopSFCen_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_genTopSFCen_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_genTopSFDn", mMass_, dMass_);
+       baseline_genTopSFDn_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_genTopSFDn_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_mistaggenTopSFUp", mMass_, dMass_);
+       baseline_mistaggenTopSFUp_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_mistaggenTopSFUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_mistaggenTopSFDn", mMass_, dMass_);
+       baseline_mistaggenTopSFDn_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_mistaggenTopSFDn_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "genTopPt", mMass_, dMass_);
-       genTopPt_ = new TH1D(hname, hname, 100, 0, 1000); genTopPt_->Sumw2();
+       genTopPt_ = new TH1D(hname, hname, 120, 0, 1200); genTopPt_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_genTopPt", mMass_, dMass_);
-       baseline_genTopPt_ = new TH1D(hname, hname, 100, 0, 1000); baseline_genTopPt_->Sumw2();
+       baseline_genTopPt_ = new TH1D(hname, hname, 120, 0, 1200); baseline_genTopPt_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_misTag_recoTopPt", mMass_, dMass_);
+       baseline_misTag_recoTopPt_ = new TH1D(hname, hname, 120, 0, 1200); baseline_misTag_recoTopPt_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_MT2_vs_met", mMass_, dMass_);
        baseline_MT2_vs_met_ = new TH2D(hname, hname, 100, 200, 700, 100, 200, 700); baseline_MT2_vs_met_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "loose_MT2_vs_met", mMass_, dMass_);
+       loose_MT2_vs_met_ = new TH2D(hname, hname, 100, 0, 1000, 100, 0, 1000); loose_MT2_vs_met_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "loose_alt_MT2_vs_met", mMass_, dMass_);
+       loose_alt_MT2_vs_met_ = new TH2D(hname, hname, 100, 0, 1000, 100, 0, 1000); loose_alt_MT2_vs_met_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "loose_MT2_vs_alt_MT2", mMass_, dMass_);
+       loose_MT2_vs_alt_MT2_ = new TH2D(hname, hname, 100, 0, 1000, 100, 0, 1000); loose_MT2_vs_alt_MT2_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "xSec", mMass_, dMass_);
        xSec_ = new TH1D(hname, hname, 10, 0, 10); xSec_->Sumw2();
@@ -290,18 +533,47 @@ private:
     }
 
 public:
-    HistContainer(int mMass, int dMass) : mMass_(mMass), dMass_(dMass)
+    HistContainer(int mMass, int dMass, std::string sampleKeyStr="T2tt") : mMass_(mMass), dMass_(dMass), sampleKeyStr_(sampleKeyStr)
     {
        bookHists();
     }
 
     void fill(const NTupleReader& tr, const double weight)
     {
-       const double& met                = tr.getVar<double>("met");
+
+       const double & genmet_tmp = tr.getVar<double>("genmet");
+       const double & genmetphi_tmp = tr.getVar<double>("genmetphi");
+       const double genmet = (&genmet_tmp) != nullptr ? tr.getVar<double>("genmet") : 0;
+       const double genmetphi = (&genmetphi_tmp) != nullptr ? tr.getVar<double>("genmetphi") : -999;
+       TLorentzVector genmetLVec;
+       if( (&genmet_tmp) != nullptr ){
+          genmetLVec.SetPtEtaPhiM(tr.getVar<double>("genmet"), 0, tr.getVar<double>("genmetphi"), 0);
+       }
+
+       const double& met                = ( usegenmet && (&genmet_tmp) != nullptr )? genmet : tr.getVar<double>("met");
+       const double& metphi             = ( usegenmet && (&genmet_tmp) != nullptr )? genmetphi : tr.getVar<double>("metphi");
        const double& best_had_brJet_MT2 = tr.getVar<double>("best_had_brJet_MT2" + spec);
        const int& cntCSVS               = tr.getVar<int>("cntCSVS" + spec);
        const int& nTopCandSortedCnt     = tr.getVar<int>("nTopCandSortedCnt" + spec);
        const bool& passBaseline         = tr.getVar<bool>("passBaseline" + spec);
+
+       const bool& passBaselineNoLepVeto = tr.getVar<bool>("passBaselineNoLepVeto" + spec);
+       const bool& passMuonVeto = tr.getVar<bool>("passMuonVeto" + spec);
+       const bool& passEleVeto = tr.getVar<bool>("passEleVeto" + spec);
+       const bool& passIsoTrkVeto = tr.getVar<bool>("passIsoTrkVeto" + spec);
+       const bool& passIsoLepTrkVeto = tr.getVar<bool>("passIsoLepTrkVeto" + spec);
+       const bool& passIsoPionTrkVeto = tr.getVar<bool>("passIsoPionTrkVeto" + spec);
+
+       const bool passnJets = tr.getVar<bool>("passnJets" + spec);
+       const bool passdPhis = tr.getVar<bool>("passdPhis" + spec);
+       const bool passBJets = tr.getVar<bool>("passBJets" + spec);
+       const bool passMET = tr.getVar<bool>("passMET" + spec);
+       const bool passMT2 = tr.getVar<bool>("passMT2" + spec);
+       const bool passHT = tr.getVar<bool>("passHT" + spec);
+       const bool passTagger = tr.getVar<bool>("passTagger" + spec);
+       const bool passNewTaggerReq = tr.getVar<bool>("passNewTaggerReq" + spec);
+       const bool passNoiseEventFilter = tr.getVar<bool>("passNoiseEventFilter" + spec);
+       const bool passFastsimEventFilter = tr.getVar<bool>("passFastsimEventFilter" + spec);
 
        const std::vector<int> & genDecayIdxVec = tr.getVec<int>("genDecayIdxVec");
        const std::vector<int> & genDecayMomIdxVec = tr.getVec<int>("genDecayMomIdxVec");
@@ -371,23 +643,110 @@ public:
        const int & nTopCandSortedCnt_jecDn = tr.getVar<int>("nTopCandSortedCnt" + spec_jecDn);
        const bool & passBaseline_jecDn = tr.getVar<bool>("passBaseline" + spec_jecDn);
 
+       const std::vector<TLorentzVector> & vTops = tr.getVec<TLorentzVector>("vTops" + spec);
+
+       double genTopSF_evt = 1.0, genTopSF_relErr_evt = 0.0; int cntgenTop_misMatched = 0;
+       std::vector<int> pickedRecoTopIdxVec;
+
+       int cnt_eleTop =0, cnt_muTop =0, cnt_taumuTop =0, cnt_taueleTop =0, cnt_tauhadTop =0, cnt_allhadTop =0;
+       int cnt_genTops =0;
        for(unsigned int ig=0; ig<genDecayPdgIdVec.size(); ig++){
 
           if( std::abs(genDecayPdgIdVec[ig]) != 6 ) continue;
+
+          cnt_genTops ++;
 
           double genTopPt = genDecayLVec[ig].Pt();
 
           genTopPt_->Fill(genTopPt, weight);
 
           if(passBaseline) baseline_genTopPt_->Fill(genTopPt, weight);
+
+          bool islepTop = false;
+          int per_cnt_ele =0, per_cnt_mu =0, per_cnt_tau =0;
+          for(unsigned int jg=0; jg<genDecayPdgIdVec.size(); jg++){
+             int pdgId = genDecayPdgIdVec.at(jg);
+             if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15 ){
+                if( find_mother(ig, jg, genDecayIdxVec, genDecayMomIdxVec) ){
+                   islepTop = true;
+                   if( abs(pdgId) == 11 ) per_cnt_ele ++;
+                   if( abs(pdgId) == 13 ) per_cnt_mu ++;
+                   if( abs(pdgId) == 15 ) per_cnt_tau ++;
+                }
+             }
+          }
+          if( per_cnt_tau !=0 && per_cnt_mu != 0 ) cnt_taumuTop ++;
+          if( per_cnt_tau !=0 && per_cnt_ele !=0 ) cnt_taueleTop ++;
+          if( per_cnt_tau !=0 && per_cnt_mu ==0 && per_cnt_ele ==0 ) cnt_tauhadTop ++;
+
+          if( per_cnt_tau ==0 && per_cnt_mu != 0 ) cnt_muTop ++;
+          if( per_cnt_tau ==0 && per_cnt_ele != 0 ) cnt_eleTop ++;
+
+          if( per_cnt_tau ==0 && per_cnt_mu ==0 && per_cnt_ele ==0 ) cnt_allhadTop ++;
+
+          bool foundMatch = false;
+          for(unsigned int iv=0; iv<vTops.size(); iv++){
+             if( genDecayLVec[ig].DeltaR(vTops[iv]) < 0.4 ){
+                genTopSF_evt *= GetTopPtFastToFullSF(genTopPt);
+                genTopSF_relErr_evt += GetTopPtFastToFullSF_Err(genTopPt) * GetTopPtFastToFullSF_Err(genTopPt);
+                foundMatch = true;
+             }
+          }
+          if( !foundMatch && !islepTop ) cntgenTop_misMatched ++;
+       }
+       genTopSF_relErr_evt = genTopSF_relErr_evt == 0? 0 : sqrt(genTopSF_relErr_evt);
+
+// if cnt_genTops ==0, all the cnt_eleTop, cnt_muTop, cnt_taumuTop, cnt_taueleTop, cnt_tauhadTop and cnt_allhadTop are 0!
+// This can happen when stop -> b W neutralino
+// In this case, reuse the counters!
+       if( cnt_genTops == 0 ){
+          for(unsigned int ig=0; ig<genDecayPdgIdVec.size(); ig++){
+             if( std::abs(genDecayPdgIdVec[ig]) != 1000006 ) continue;
+
+             int per_cnt_ele =0, per_cnt_mu = 0, per_cnt_tau = 0;
+             for(unsigned int jg=0; jg<genDecayPdgIdVec.size(); jg++){
+                int pdgId = genDecayPdgIdVec.at(jg);
+                if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15 ){
+                   if( find_mother(ig, jg, genDecayIdxVec, genDecayMomIdxVec) ){
+                      if( abs(pdgId) == 11 ) per_cnt_ele ++;
+                      if( abs(pdgId) == 13 ) per_cnt_mu ++;
+                      if( abs(pdgId) == 15 ) per_cnt_tau ++;
+                   }
+                }
+             }
+
+             if( per_cnt_tau !=0 && per_cnt_mu != 0 ) cnt_taumuTop ++;
+             if( per_cnt_tau !=0 && per_cnt_ele !=0 ) cnt_taueleTop ++;
+             if( per_cnt_tau !=0 && per_cnt_mu ==0 && per_cnt_ele ==0 ) cnt_tauhadTop ++;
+
+             if( per_cnt_tau ==0 && per_cnt_mu != 0 ) cnt_muTop ++;
+             if( per_cnt_tau ==0 && per_cnt_ele != 0 ) cnt_eleTop ++;
+
+             if( per_cnt_tau ==0 && per_cnt_mu ==0 && per_cnt_ele ==0 ) cnt_allhadTop ++;
+          }
+       }
+
+       bool is_gen_allHad = (cnt_eleTop ==0 && cnt_muTop ==0 && cnt_taumuTop ==0 && cnt_taueleTop ==0 && cnt_tauhadTop ==0 && cnt_allhadTop !=0);
+       bool is_gen_lostLep = (cnt_eleTop !=0 || cnt_muTop !=0 || cnt_taumuTop !=0 || cnt_taueleTop !=0 );
+       bool is_gen_hadTau = (!is_gen_lostLep && cnt_tauhadTop !=0 );
+
+       for(unsigned int iv=0; iv<vTops.size(); iv++){
+          bool isMatched = false;
+          for(unsigned int ig=0; ig<genDecayPdgIdVec.size(); ig++){
+             if( std::abs(genDecayPdgIdVec[ig]) != 6 ) continue;
+             if( genDecayLVec[ig].DeltaR(vTops[iv]) < 0.4 ) isMatched = true;
+          }
+          if( !isMatched ) pickedRecoTopIdxVec.push_back(iv);
        }
 
        TLorentzVector sumStopLVec;
        int cntgenb =0;
        for(unsigned int is=0; is<selGenParticle.size(); is++){
-          if( std::abs(selPDGid[is]) == 1000006 ) sumStopLVec += selGenParticle[is];
-          if( std::abs(selPDGid[is]) == 5 > 0 ){
-             if( AnaFunctions::jetPassCuts(selGenParticle[is], AnaConsts::pt30Eta24Arr) ) cntgenb ++;
+          if( sampleKeyStr_.find("T2tt") != std::string::npos && std::abs(selPDGid[is]) == 1000006 ) sumStopLVec += selGenParticle[is];
+          if( sampleKeyStr_.find("T6tt") != std::string::npos && std::abs(selPDGid[is]) == 1000005 ) sumStopLVec += selGenParticle[is];
+          if( (sampleKeyStr_.find("T1tt") != std::string::npos || sampleKeyStr_.find("T5tt") != std::string::npos) && std::abs(selPDGid[is]) == 1000021 ) sumStopLVec += selGenParticle[is];
+          if( std::abs(selPDGid[is]) == 5 ){
+//             if( AnaFunctions::jetPassCuts(selGenParticle[is], AnaConsts::pt30Eta24Arr) ) cntgenb ++;
           }
        }
 
@@ -408,9 +767,14 @@ public:
        }
 */
 
+       int cntWeirdEvt_perEvt = 0;
+       for(unsigned int ij=0; ij<jetsLVec.size(); ij++){
+          if( jetsLVec[ij].Pt() > 2000. ){ cntWeirdEvt_perEvt ++;}
+       }
+
        sumStopPt_vs_met_->Fill(met, sumStopLVec.Pt(), weight);
 
-       const int nSearchBin = find_Binning_Index(cntCSVS, nTopCandSortedCnt, best_had_brJet_MT2, met);
+       const int nSearchBin = sb->find_Binning_Index(cntCSVS, nTopCandSortedCnt, best_had_brJet_MT2, met);
 
        met_->Fill(met, weight);
        mt2_->Fill(best_had_brJet_MT2, weight);
@@ -419,8 +783,78 @@ public:
 
        totEntries_->Fill(0.0, weight);
 
+       cutFlow_->Fill("original",             weight);
+       cutFlow_->Fill("passNoiseEventFilter", weight * passNoiseEventFilter);
+       cutFlow_->Fill("passFastsimEventFilter", weight * passNoiseEventFilter * passFastsimEventFilter);
+       cutFlow_->Fill("passMuonVeto",         weight * passNoiseEventFilter * passFastsimEventFilter * passMuonVeto);
+       cutFlow_->Fill("passEleVeto",          weight * passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto);
+       cutFlow_->Fill("passIsoTrkVeto",       weight * passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto);
+       cutFlow_->Fill("passnJets",            weight * passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets);
+       cutFlow_->Fill("passBJets",            weight * passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets * passBJets);
+       cutFlow_->Fill("passHT",               weight * passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets * passBJets * passHT);
+       cutFlow_->Fill("passMET",              weight * passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets * passBJets * passHT * passMET);
+       cutFlow_->Fill("passdPhis",            weight * passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets * passBJets * passHT * passMET * passdPhis);
+       cutFlow_->Fill("passTagger",           weight * passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets * passBJets * passHT * passMET * passdPhis * passTagger);
+       cutFlow_->Fill("passMT2",              weight * passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets * passBJets * passHT * passMET * passdPhis * passTagger * passMT2);
+       cutFlow_->Fill("passBaseline",         weight * passBaseline);
+
+       if(passBaselineNoLepVeto){
+//          baseline_noLepVeto_->Fill(nSearchBin, weight);
+          if( !passMuonVeto ) baseline_muVeto_->Fill(nSearchBin, weight);
+          if( !passEleVeto ) baseline_eleVeto_->Fill(nSearchBin, weight);
+          if( passMuonVeto && passEleVeto && !passIsoLepTrkVeto ) baseline_isoLepTrkVeto_->Fill(nSearchBin, weight);
+          if( passMuonVeto && passEleVeto && passIsoLepTrkVeto && !passIsoPionTrkVeto ) baseline_isoPionTrkVeto_->Fill(nSearchBin, weight);
+       }
+
+       if( passNoiseEventFilter && passFastsimEventFilter && passMuonVeto && passEleVeto && passIsoTrkVeto && passnJets && passBJets && passHT && passMET && passdPhis && passTagger ){
+          TLorentzVector metLVec; metLVec.SetPtEtaPhiM(met, 0, metphi, 0);
+          const double alt_MT2 = mt2Calc->getMT2Hemi(tr.getVec<TLorentzVector>("jetsLVec_forTagger" + spec), metLVec);
+
+          loose_MT2_vs_met_->Fill(met, best_had_brJet_MT2, weight);
+          loose_alt_MT2_vs_met_->Fill(met, alt_MT2, weight);
+          loose_MT2_vs_alt_MT2_->Fill(alt_MT2, best_had_brJet_MT2, weight);
+       }
+
+       if( passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets * passBJets * passHT * /*passMET */ passdPhis * passTagger * passMT2 ) baseline_met_Nm1_->Fill(met, weight);
+       if( passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets * passBJets * passHT * passMET * passdPhis * passTagger /* passMT2*/ ) baseline_mt2_Nm1_->Fill(best_had_brJet_MT2, weight);
+// MT2 has to reply on ntop >=1 ...
+       if( passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets * passBJets * passHT * passMET * passdPhis * passNewTaggerReq /* passMT2*/ ){
+          if( nTopCandSortedCnt == 0 || (nTopCandSortedCnt>=1 && passMT2) ) baseline_nt_Nm1_->Fill(nTopCandSortedCnt, weight);
+       }
+       if( passNoiseEventFilter * passFastsimEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets * /*passBJets */ passHT * passMET * passdPhis * (nTopCandSortedCnt>=1) ){
+          if( cntCSVS==0 || (passNewTaggerReq && passMT2) ) baseline_nb_Nm1_->Fill(cntCSVS, weight);
+       }
+
+       if( passNoiseEventFilter * passMuonVeto * passEleVeto * passIsoTrkVeto * passnJets * passBJets * passHT * passMET * passdPhis * passTagger * passMT2 ){
+          baseline_no_fastsimFilter_nSearchBin_->Fill(nSearchBin, weight);
+       }
+
+//       if(passBaseline && !cntWeirdEvt_perEvt)
        if(passBaseline)
        {
+          cutFlow_->Fill("nbEQ1_ntEQ1", weight * (cntCSVS ==1 && nTopCandSortedCnt ==1));
+          cutFlow_->Fill("nbEQ1_ntLE2", weight * (cntCSVS ==1 && nTopCandSortedCnt >=2));
+          cutFlow_->Fill("nbLE2_ntEQ1", weight * (cntCSVS >=2 && nTopCandSortedCnt ==1));
+          cutFlow_->Fill("nbLE2_ntLE2", weight * (cntCSVS >=2 && nTopCandSortedCnt >=2));
+
+          cutFlow_->Fill("MT2_200-300", weight * (best_had_brJet_MT2 >= 200 && best_had_brJet_MT2 < 300));
+          cutFlow_->Fill("MT2_300-400", weight * (best_had_brJet_MT2 >= 300 && best_had_brJet_MT2 < 400));
+          cutFlow_->Fill("MT2_400-inf", weight * (best_had_brJet_MT2 >= 400));
+
+          cutFlow_->Fill("MT2_200-300_MET_200_275", weight * (best_had_brJet_MT2 >= 200 && best_had_brJet_MT2 < 300 && met >= 200 && met < 275));
+          cutFlow_->Fill("MT2_200-300_MET_275_350", weight * (best_had_brJet_MT2 >= 200 && best_had_brJet_MT2 < 300 && met >= 275 && met < 350));
+          cutFlow_->Fill("MT2_200-300_MET_350_450", weight * (best_had_brJet_MT2 >= 200 && best_had_brJet_MT2 < 300 && met >= 350 && met < 450));
+          cutFlow_->Fill("MT2_200-300_MET_450_inf", weight * (best_had_brJet_MT2 >= 200 && best_had_brJet_MT2 < 300 && met >= 450));
+
+          cutFlow_->Fill("MT2_300-400_MET_200_275", weight * (best_had_brJet_MT2 >= 300 && best_had_brJet_MT2 < 400 && met >= 200 && met < 275));
+          cutFlow_->Fill("MT2_300-400_MET_275_350", weight * (best_had_brJet_MT2 >= 300 && best_had_brJet_MT2 < 400 && met >= 275 && met < 350));
+          cutFlow_->Fill("MT2_300-400_MET_350_450", weight * (best_had_brJet_MT2 >= 300 && best_had_brJet_MT2 < 400 && met >= 350 && met < 450));
+          cutFlow_->Fill("MT2_300-400_MET_450_inf", weight * (best_had_brJet_MT2 >= 300 && best_had_brJet_MT2 < 400 && met >= 450));
+
+          cutFlow_->Fill("MT2_400-inf_MET_200_350", weight * (best_had_brJet_MT2 >= 400 && met >= 200 && met < 350));
+          cutFlow_->Fill("MT2_400-inf_MET_350_450", weight * (best_had_brJet_MT2 >= 400 && met >= 350 && met < 450));
+          cutFlow_->Fill("MT2_400-inf_MET_450_inf", weight * (best_had_brJet_MT2 >= 400 && met >= 450));
+
           baseline_met_->Fill(met, weight);
           baseline_mt2_->Fill(best_had_brJet_MT2, weight);
           baseline_nt_->Fill(nTopCandSortedCnt, weight);
@@ -429,6 +863,36 @@ public:
           if( cntgenb >=3 ) baseline_nb_ngenbLE3_->Fill(cntCSVS, weight);
 
           baseline_nSearchBin_->Fill(nSearchBin, weight);
+          if( nTopCandSortedCnt ==1 ) baseline_nTopEQ1_nSearchBin_->Fill(nSearchBin, weight);
+          if( nTopCandSortedCnt >=2 ) baseline_nTopLE2_nSearchBin_->Fill(nSearchBin, weight);
+
+          if( is_gen_allHad ) baseline_genInfo_allHad_->Fill(nSearchBin, weight);
+          if( is_gen_lostLep ) baseline_genInfo_lostLep_->Fill(nSearchBin, weight);
+          if( is_gen_hadTau ) baseline_genInfo_hadTau_->Fill(nSearchBin, weight);
+
+          if( is_gen_allHad && nTopCandSortedCnt ==1 ) baseline_nTopEQ1_genInfo_allHad_->Fill(nSearchBin, weight);
+          if( is_gen_lostLep && nTopCandSortedCnt ==1 ) baseline_nTopEQ1_genInfo_lostLep_->Fill(nSearchBin, weight);
+          if( is_gen_hadTau && nTopCandSortedCnt ==1 ) baseline_nTopEQ1_genInfo_hadTau_->Fill(nSearchBin, weight);
+
+          if( is_gen_allHad && nTopCandSortedCnt >=2 ) baseline_nTopLE2_genInfo_allHad_->Fill(nSearchBin, weight);
+          if( is_gen_lostLep && nTopCandSortedCnt >=2 ) baseline_nTopLE2_genInfo_lostLep_->Fill(nSearchBin, weight);
+          if( is_gen_hadTau && nTopCandSortedCnt >=2 ) baseline_nTopLE2_genInfo_hadTau_->Fill(nSearchBin, weight);
+
+          if( cntWeirdEvt_perEvt ) baseline_weirdEvt_->Fill(nSearchBin, weight);
+
+          const double trigEff = GetTriggerEffWeight(met);
+          const double trigEff_stat_up = GetTriggerEffStatUncHi(met);
+          const double trigEff_stat_dn = GetTriggerEffStatUncLo(met);
+          const double trigEff_syst_up = GetTriggerEffSystUncHi(met);
+          const double trigEff_syst_dn = GetTriggerEffSystUncLo(met);
+
+          const double trigEff_comb_up = sqrt( trigEff_stat_up*trigEff_stat_up + trigEff_syst_up*trigEff_syst_up );
+          const double trigEff_comb_dn = sqrt( trigEff_stat_dn*trigEff_stat_dn + trigEff_syst_dn*trigEff_syst_dn );
+          const double trigEff_comb_avg = (trigEff_comb_up + trigEff_comb_dn)*0.5;
+
+          baseline_trigUncUp_->Fill(nSearchBin, trigEff * (1 + trigEff_comb_avg) * weight);
+          baseline_trigUncCen_->Fill(nSearchBin, trigEff * weight);
+          baseline_trigUncDn_->Fill(nSearchBin, trigEff * (1 - trigEff_comb_avg) * weight);
 
           baseline_scaleUncUp_->Fill(nSearchBin, Scaled_Variations_Up * weight);
           baseline_scaleUncDn_->Fill(nSearchBin, Scaled_Variations_Down * weight);
@@ -462,9 +926,19 @@ public:
           baseline_mistagSFUp_->Fill(nSearchBin, method1a_mistag_Up * weight);
           baseline_mistagSFDn_->Fill(nSearchBin, method1a_mistag_Dn * weight);
 
+          baseline_genTopSFUp_->Fill(nSearchBin, genTopSF_relErr_evt * weight);
+          baseline_genTopSFCen_->Fill(nSearchBin, genTopSF_evt * weight);
+          baseline_genTopSFDn_->Fill(nSearchBin, genTopSF_relErr_evt * weight);
+
+          if( cntgenTop_misMatched ) baseline_mistaggenTopSFUp_->Fill(nSearchBin, 0.05*weight);
+          if( cntgenTop_misMatched ) baseline_mistaggenTopSFDn_->Fill(nSearchBin, 0.05*weight);
+
+          for(unsigned int ip=0; ip<pickedRecoTopIdxVec.size(); ip++){
+             baseline_misTag_recoTopPt_->Fill(vTops[pickedRecoTopIdxVec[ip]].Pt(), weight);
+          }
 /*
           for(unsigned int ib=0; ib<4; ib++){
-             const int iSB = find_Binning_Index(ib, nTopCandSortedCnt, best_had_brJet_MT2, met);
+             const int iSB = sb->find_Binning_Index(ib, nTopCandSortedCnt, best_had_brJet_MT2, met);
              if( iSB == -1 ) continue;
              baseline_bTagSFUp_->Fill(iSB, prob_Up[ib] * weight);
              baseline_bTagSFCen_->Fill(iSB, prob_Cen[ib] * weight);
@@ -474,7 +948,7 @@ public:
 /*
           for(unsigned int ib=0; ib<nTotBins; ib++){
              struct searchBinDef sbDef;
-             find_BinBoundaries(ib, sbDef);
+             sb->find_BinBoundaries(ib, sbDef);
              int tmp_cntCSVS = cntCSVS <=3 ? cntCSVS:3;
              if( sbDef.bJet_lo == tmp_cntCSVS ){
                 baseline_bTagSFUp_->Fill(ib, prob_Up[tmp_cntCSVS] * weight);
@@ -513,27 +987,27 @@ public:
        }
 
        if( passBaseline_metMagUp ){
-          const int nSearchBin_metMagUp = find_Binning_Index(cntCSVS_metMagUp, nTopCandSortedCnt_metMagUp, best_had_brJet_MT2_metMagUp, met_metMagUp);
+          const int nSearchBin_metMagUp = sb->find_Binning_Index(cntCSVS_metMagUp, nTopCandSortedCnt_metMagUp, best_had_brJet_MT2_metMagUp, met_metMagUp);
           baseline_metMagUp_->Fill(nSearchBin_metMagUp, weight);
        }
        if( passBaseline_metMagDn ){
-          const int nSearchBin_metMagDn = find_Binning_Index(cntCSVS_metMagDn, nTopCandSortedCnt_metMagDn, best_had_brJet_MT2_metMagDn, met_metMagDn);
+          const int nSearchBin_metMagDn = sb->find_Binning_Index(cntCSVS_metMagDn, nTopCandSortedCnt_metMagDn, best_had_brJet_MT2_metMagDn, met_metMagDn);
           baseline_metMagDn_->Fill(nSearchBin_metMagDn, weight);
        }
        if( passBaseline_metPhiUp ){
-          const int nSearchBin_metPhiUp = find_Binning_Index(cntCSVS_metPhiUp, nTopCandSortedCnt_metPhiUp, best_had_brJet_MT2_metPhiUp, met_metPhiUp);
+          const int nSearchBin_metPhiUp = sb->find_Binning_Index(cntCSVS_metPhiUp, nTopCandSortedCnt_metPhiUp, best_had_brJet_MT2_metPhiUp, met_metPhiUp);
           baseline_metPhiUp_->Fill(nSearchBin_metPhiUp, weight);
        }
        if( passBaseline_metPhiDn ){
-          const int nSearchBin_metPhiDn = find_Binning_Index(cntCSVS_metPhiDn, nTopCandSortedCnt_metPhiDn, best_had_brJet_MT2_metPhiDn, met_metPhiDn);
+          const int nSearchBin_metPhiDn = sb->find_Binning_Index(cntCSVS_metPhiDn, nTopCandSortedCnt_metPhiDn, best_had_brJet_MT2_metPhiDn, met_metPhiDn);
           baseline_metPhiDn_->Fill(nSearchBin_metPhiDn, weight);
        }
        if( passBaseline_jecUp ){
-          const int nSearchBin_jetUp = find_Binning_Index(cntCSVS_jecUp, nTopCandSortedCnt_jecUp, best_had_brJet_MT2_jecUp, met_jecUp);
+          const int nSearchBin_jetUp = sb->find_Binning_Index(cntCSVS_jecUp, nTopCandSortedCnt_jecUp, best_had_brJet_MT2_jecUp, met_jecUp);
           baseline_jetJECUp_->Fill(nSearchBin_jetUp, weight);
        }
        if( passBaseline_jecDn ){
-          const int nSearchBin_jetDn = find_Binning_Index(cntCSVS_jecDn, nTopCandSortedCnt_jecDn, best_had_brJet_MT2_jecDn, met_jecDn);
+          const int nSearchBin_jetDn = sb->find_Binning_Index(cntCSVS_jecDn, nTopCandSortedCnt_jecDn, best_had_brJet_MT2_jecDn, met_jecDn);
           baseline_jetJECDn_->Fill(nSearchBin_jetDn, weight);
        }
     }
@@ -550,15 +1024,57 @@ public:
        mt2_->Write();
        nt_->Write();
        nb_->Write();
+
+       cutFlow_->Write();
+
        baseline_met_->Write();
        baseline_mt2_->Write();
        baseline_nt_->Write();
        baseline_nb_->Write();
        baseline_nb_ngenbLE3_->Write();
 
+       baseline_met_Nm1_->Write();
+       baseline_mt2_Nm1_->Write();
+       baseline_nt_Nm1_->Write();
+       baseline_nb_Nm1_->Write();
+
        baseline_nSearchBin_->Write();
+       baseline_nTopEQ1_nSearchBin_->Write();
+       baseline_nTopLE2_nSearchBin_->Write();
+
+       baseline_genInfo_allHad_->Write();
+       baseline_genInfo_lostLep_->Write();
+       baseline_genInfo_hadTau_->Write();
+
+       baseline_nTopEQ1_genInfo_allHad_->Write();
+       baseline_nTopEQ1_genInfo_lostLep_->Write();
+       baseline_nTopEQ1_genInfo_hadTau_->Write();
+
+       baseline_nTopLE2_genInfo_allHad_->Write();
+       baseline_nTopLE2_genInfo_lostLep_->Write();
+       baseline_nTopLE2_genInfo_hadTau_->Write();
+ 
+       baseline_no_fastsimFilter_nSearchBin_->Write();
+
+       baseline_weirdEvt_->Write();
+
+//       baseline_noLepVeto_->Write();
+       baseline_muVeto_->Write();
+       baseline_eleVeto_->Write();
+       baseline_isoLepTrkVeto_->Write();
+       baseline_isoPionTrkVeto_->Write();
+
        baseline_MT2_vs_met_->Write();
+
+       loose_MT2_vs_met_->Write();
+       loose_alt_MT2_vs_met_->Write();
+       loose_MT2_vs_alt_MT2_->Write();
+
        totEntries_->Write();
+
+       baseline_trigUncUp_->Write();
+       baseline_trigUncCen_->Write();
+       baseline_trigUncDn_->Write();
 
        baseline_scaleUncUp_->Write();
        baseline_scaleUncDn_->Write();
@@ -586,17 +1102,28 @@ public:
        baseline_mistagSFUp_->Write();
        baseline_mistagSFDn_->Write();
 
+       baseline_genTopSFUp_->Write();
+       baseline_genTopSFCen_->Write();
+       baseline_genTopSFDn_->Write();
+
+       baseline_mistaggenTopSFUp_->Write();
+       baseline_mistaggenTopSFDn_->Write();
+
        genTopPt_->Write();
        baseline_genTopPt_->Write();
 
+//       baseline_misTag_recoTopPt_->Write();
+
        sumStopPt_vs_met_->Write();
 
+/*
        num_eff_b_->Write();
        num_eff_c_->Write();
        num_eff_udsg_->Write();
        den_eff_b_->Write();
        den_eff_c_->Write();
        den_eff_udsg_->Write();
+*/
 //       xSec_->Write();
     }
 };
@@ -614,8 +1141,13 @@ class SystematicPrep{
       const std::vector<double>& metPhiUpVec = tr.getVec<double>("metPhiUp");
       const std::vector<double>& metPhiDnVec = tr.getVec<double>("metPhiDown");
 
-      const double& met    = tr.getVar<double>("met");
-      const double& metphi = tr.getVar<double>("metphi");
+      const double & genmet_tmp = tr.getVar<double>("genmet");
+      const double & genmetphi_tmp = tr.getVar<double>("genmetphi");
+      const double genmet = (&genmet_tmp) != nullptr ? tr.getVar<double>("genmet") : 0;
+      const double genmetphi = (&genmetphi_tmp) != nullptr ? tr.getVar<double>("genmetphi") : -999;
+
+      const double& met    = ( usegenmet && (&genmet_tmp) != nullptr )? genmet : tr.getVar<double>("met");
+      const double& metphi = ( usegenmet && (&genmet_tmp) != nullptr )? genmetphi : tr.getVar<double>("metphi");
 
       std::vector<TLorentzVector> *jetLVecUp = new std::vector<TLorentzVector>;
       std::vector<TLorentzVector> *jetLVecDn = new std::vector<TLorentzVector>;
@@ -715,7 +1247,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 
   keyWordVec.push_back(sampleKeyStringT);
 
-  declHistPerSample(sampleKeyString);
+  declHistPerSample(sampleKeyString, nTotBins, out_MT2_met_Binning_forTH2Poly);
 
   for(unsigned int ist=0; ist<subSampleKeysVec.size(); ist++){
 
@@ -726,13 +1258,16 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
      double scaleMC = allSamples[keyString].getWeight();
      TString keyStringT(keyString);
      if( keyStringT.Contains("Data") ){ scaleMC = 1.0; isData = true; }
+     if( keyStringT.Contains("fastsim") ){ scaleMC = 1.0; }
+     scaleMC = 1.0;
+     std::cout<<"\nWARNING ... forcing scaleMC to be always 1.0 in the signalScan code!\n"<<std::endl;
 
      if( tr ) delete tr;
      std::set<std::string> activatedBranch;
      for(auto& branch : AnaConsts::activatedBranchNames_DataOnly) activatedBranch.insert(branch);
      for(auto& branch : AnaConsts::activatedBranchNames) activatedBranch.insert(branch);
      activatedBranch.insert("selGenParticle"); activatedBranch.insert("selPDGid");
-     activatedBranch.insert("recoJetsFlavor");
+//     activatedBranch.insert("recoJetsFlavor");
 
      tr = new NTupleReader(treeVec[ist], activatedBranch);
      tr->registerFunction(&mypassBaselineFunc);
@@ -756,6 +1291,9 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
      if( entryToProcess >0 ) entries = entryToProcess;
      std::cout<<"\n\n"<<keyString.c_str()<<"_entries : "<<entries<<"  scaleMC : "<<scaleMC<<std::endl;
 
+     bool cached_rethrow = tr->getReThrow();
+     tr->setReThrow(false);
+
      while(tr->getNextEvent()){
 
         if( entryToProcess >0 && tr->getEvtNum() > entryToProcess ) break;
@@ -768,7 +1306,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         std::pair<int, int> iMP((int)SusyMotherMass, (int)SusyLSPMass);
 
         auto iter = histVec.find(iMP);
-        if(iter == histVec.end()) iter = histVec.emplace(iMP, HistContainer(iMP.first, iMP.second)).first;
+        if(iter == histVec.end()) iter = histVec.emplace(iMP, HistContainer(iMP.first, iMP.second, sampleKeyString)).first;
 
         iter->second.fill(*tr, scaleMC);
 
@@ -788,8 +1326,19 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const unsigned int & run = tr->getVar<unsigned int>("run"); 
         const unsigned int & lumi = tr->getVar<unsigned int>("lumi"); 
         const unsigned int & event = tr->getVar<unsigned int>("event"); 
-        const double met = tr->getVar<double>("met");
-        TLorentzVector metLVec; metLVec.SetPtEtaPhiM(tr->getVar<double>("met"), 0, tr->getVar<double>("metphi"), 0);
+
+        const double & genmet_tmp = tr->getVar<double>("genmet");
+        const double & genmetphi_tmp = tr->getVar<double>("genmetphi");
+        const double genmet = (&genmet_tmp) != nullptr ? tr->getVar<double>("genmet") : 0;
+        const double genmetphi = (&genmetphi_tmp) != nullptr ? tr->getVar<double>("genmetphi") : -999;
+        TLorentzVector genmetLVec;
+        if( (&genmet_tmp) != nullptr ){
+           genmetLVec.SetPtEtaPhiM(tr->getVar<double>("genmet"), 0, tr->getVar<double>("genmetphi"), 0);
+        }
+
+        const double met = ( usegenmet && (&genmet_tmp) != nullptr )? genmet : tr->getVar<double>("met");
+        const double metphi = ( usegenmet && (&genmet_tmp) != nullptr )? genmetphi : tr->getVar<double>("metphi");
+        TLorentzVector metLVec; metLVec.SetPtEtaPhiM(met, 0, metphi, 0);
         const TLorentzVector mhtLVec = AnaFunctions::calcMHT(tr->getVec<TLorentzVector>("jetsLVec"), AnaConsts::pt30Arr);
 
         const std::vector<std::string> & TriggerNames = tr->getVec<std::string>("TriggerNames");
@@ -850,7 +1399,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const bool passBaseline = tr->getVar<bool>("passBaseline" + spec);
         const bool passBaselineNoTag = tr->getVar<bool>("passBaselineNoTag" + spec);
 
-        const int searchBinIdx = find_Binning_Index(nbJets, nTops, MT2, met);
+        const int searchBinIdx = sb->find_Binning_Index(nbJets, nTops, MT2, met);
 
         h1_cutFlowVec.back()->Fill("all", evtWeight * scaleMC);
 
@@ -886,8 +1435,8 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            h1_nTops_looseVec.back()->Fill(nTops, evtWeight * scaleMC);
            h1_nbJets_looseVec.back()->Fill(nbJets, evtWeight * scaleMC);
    
-           h1_met_looseVec.back()->Fill(tr->getVar<double>("met"), evtWeight * scaleMC);
-           h1_metphi_looseVec.back()->Fill(tr->getVar<double>("metphi"), evtWeight * scaleMC);
+           h1_met_looseVec.back()->Fill(met, evtWeight * scaleMC);
+           h1_metphi_looseVec.back()->Fill(metphi, evtWeight * scaleMC);
 
            h1_mht_looseVec.back()->Fill(mhtLVec.Pt(), evtWeight * scaleMC);
            h1_mhtphi_looseVec.back()->Fill(mhtLVec.Phi(), evtWeight * scaleMC);
@@ -953,8 +1502,8 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         h1_nTops_baselineVec.back()->Fill(nTops, evtWeight * scaleMC);
         h1_nbJets_baselineVec.back()->Fill(nbJets, evtWeight * scaleMC);
 
-        h1_met_baselineVec.back()->Fill(tr->getVar<double>("met"), evtWeight * scaleMC);
-        h1_metphi_baselineVec.back()->Fill(tr->getVar<double>("metphi"), evtWeight * scaleMC);
+        h1_met_baselineVec.back()->Fill(met, evtWeight * scaleMC);
+        h1_metphi_baselineVec.back()->Fill(metphi, evtWeight * scaleMC);
 
         h1_mht_baselineVec.back()->Fill(mhtLVec.Pt(), evtWeight * scaleMC);
         h1_mhtphi_baselineVec.back()->Fill(mhtLVec.Phi(), evtWeight * scaleMC);
@@ -962,7 +1511,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         h1_MT2_baselineVec.back()->Fill(MT2, evtWeight * scaleMC);
         h1_HT_baselineVec.back()->Fill(HT, evtWeight * scaleMC);
 
-        h2_MT2_vs_met_baselineVec.back()->Fill(tr->getVar<double>("met"), MT2, evtWeight * scaleMC);
+        h2_MT2_vs_met_baselineVec.back()->Fill(met, MT2, evtWeight * scaleMC);
 
         for(unsigned int it=0; it<nTops; it++){
            TLorentzVector topLVec = type3Ptr->buildLVec(jetsLVec_forTagger, type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
@@ -1048,28 +1597,25 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 
 void signalScan(int argc, char *argv[]){
 
+   mt2Calc = new MT2CalcCore();
+
    AnaFunctions::prepareForNtupleReader();
    AnaFunctions::prepareTopTagger();
 
    type3Ptr->setdebug(true);
 
-   build_MT2_met_Binning_forTH2Poly(out_MT2_met_Binning_forTH2Poly);
+   sb = new SearchBins();
 
-   print_searchBins();
-   print_searchBins_latex();
+   nTotBins = sb->nSearchBins();
+
+   sb->build_MT2_met_Binning_forTH2Poly(out_MT2_met_Binning_forTH2Poly);
+
+   sb->print_searchBins();
+   sb->print_searchBins_latex();
 
    declHistGlobal();
 
    NTupleReader *tr = 0;
-   SRblv = new BaselineVessel(spec, "fastsim");
-   pdfScale = new PDFUncertainty();
-
-   SRblv_jecUp = new BaselineVessel(spec_jecUp, "fastsim");
-   SRblv_jecDn = new BaselineVessel(spec_jecDn, "fastsim");
-   SRblv_metMagUp = new BaselineVessel(spec_metMagUp, "fastsim");
-   SRblv_metMagDn = new BaselineVessel(spec_metMagDn, "fastsim");
-   SRblv_metPhiUp = new BaselineVessel(spec_metPhiUp, "fastsim");
-   SRblv_metPhiDn = new BaselineVessel(spec_metPhiDn, "fastsim");
 
    int startfile = 0, filerun = -1;
 
@@ -1077,6 +1623,54 @@ void signalScan(int argc, char *argv[]){
    if( argc >=2 ){
       selKeyStr = argv[1];
       std::cout<<"selKeyStr : "<<selKeyStr<<std::endl;
+   }
+
+   if( usegenmet ){
+      spec = "usegenmet";
+   }
+
+   pdfScale = new PDFUncertainty();
+// Assume by default signal MC are all from fastsim!
+   if( selKeyStr.find("fullsim") != std::string::npos ){
+      if( usegenmet ){
+         SRblv = new BaselineVessel(spec);
+   
+         SRblv_jecUp = new BaselineVessel(spec_jecUp + " usegenmet");
+         SRblv_jecDn = new BaselineVessel(spec_jecDn + " usegenmet");
+         SRblv_metMagUp = new BaselineVessel(spec_metMagUp + " usegenmet");
+         SRblv_metMagDn = new BaselineVessel(spec_metMagDn + " usegenmet");
+         SRblv_metPhiUp = new BaselineVessel(spec_metPhiUp + " usegenmet");
+         SRblv_metPhiDn = new BaselineVessel(spec_metPhiDn + " usegenmet");
+      }else{
+         SRblv = new BaselineVessel(spec);
+   
+         SRblv_jecUp = new BaselineVessel(spec_jecUp);
+         SRblv_jecDn = new BaselineVessel(spec_jecDn);
+         SRblv_metMagUp = new BaselineVessel(spec_metMagUp);
+         SRblv_metMagDn = new BaselineVessel(spec_metMagDn);
+         SRblv_metPhiUp = new BaselineVessel(spec_metPhiUp);
+         SRblv_metPhiDn = new BaselineVessel(spec_metPhiDn);
+      }
+   }else{
+      if( usegenmet ){
+         SRblv = new BaselineVessel(spec, "fastsim");
+   
+         SRblv_jecUp = new BaselineVessel(spec_jecUp + " usegenmet", "fastsim");
+         SRblv_jecDn = new BaselineVessel(spec_jecDn + " usegenmet", "fastsim");
+         SRblv_metMagUp = new BaselineVessel(spec_metMagUp + " usegenmet", "fastsim");
+         SRblv_metMagDn = new BaselineVessel(spec_metMagDn + " usegenmet", "fastsim");
+         SRblv_metPhiUp = new BaselineVessel(spec_metPhiUp + " usegenmet", "fastsim");
+         SRblv_metPhiDn = new BaselineVessel(spec_metPhiDn + " usegenmet", "fastsim");
+      }else{
+         SRblv = new BaselineVessel(spec, "fastsim");
+   
+         SRblv_jecUp = new BaselineVessel(spec_jecUp, "fastsim");
+         SRblv_jecDn = new BaselineVessel(spec_jecDn, "fastsim");
+         SRblv_metMagUp = new BaselineVessel(spec_metMagUp, "fastsim");
+         SRblv_metMagDn = new BaselineVessel(spec_metMagDn, "fastsim");
+         SRblv_metPhiUp = new BaselineVessel(spec_metPhiUp, "fastsim");
+         SRblv_metPhiDn = new BaselineVessel(spec_metPhiDn, "fastsim");
+      }
    }
 
    bool doSel = false; std::ostringstream convert;
@@ -1169,6 +1763,7 @@ void signalScan(int argc, char *argv[]){
          std::cout<<"  "<<perSubStr.c_str();
 
          TChain *aux = new TChain(file.treePath.c_str());  
+         (*const_cast<AnaSamples::FileSummary*>(&file)).readFileList();
          file.addFilesToChain(aux, startfile, filerun);
          treeVec.push_back(aux);
 
