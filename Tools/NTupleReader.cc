@@ -155,6 +155,10 @@ void NTupleReader::setReThrow(const bool reThrow)
     reThrow_ = reThrow;
 }
 
+bool NTupleReader::getReThrow() const
+{
+    return reThrow_;
+}
 const void* NTupleReader::getPtr(const std::string var) const
 {
     //This function can be used to return the variable pointer

@@ -84,6 +84,7 @@ public:
     void getType(const std::string& name, std::string& type) const;
 
     void setReThrow(const bool);
+    bool getReThrow() const;
 
     template<typename T> void registerDerivedVar(const std::string name, T var)
     {

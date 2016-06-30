@@ -210,6 +210,16 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
   if( !passNoiseEventFilterFunc(tr) ) { passNoiseEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
   if( debug ) std::cout<<"passNoiseEventFilterFunc : "<<passNoiseEventFilterFunc(tr)<<"  passBaseline : "<<passBaseline<<std::endl;
 
+  // pass QCD high MET filter
+  bool passQCDHighMETFilter = true;
+  if( !passQCDHighMETFilterFunc(tr) ) { passQCDHighMETFilter = false; }
+  if( debug ) std::cout<<"passQCDHighMETFilter : "<< passQCDHighMETFilter <<"  passBaseline : "<<passBaseline<<std::endl;
+
+  // pass the special filter for fastsim
+  bool passFastsimEventFilter = true;
+  if( !passFastsimEventFilterFunc(tr) ) { passFastsimEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
+  if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc(tr)<<"  passBaseline : "<<passBaseline<<std::endl;
+
   // Register all the calculated variables
   tr.registerDerivedVar("nMuons_Base" + spec, nMuons);
   tr.registerDerivedVar("nElectrons_Base" + spec, nElectrons);
@@ -340,36 +350,95 @@ bool BaselineVessel::GetMHT(NTupleReader *tr) const
 }       // -----  end of function BaselineVessel::GetMHT  -----
 
 bool BaselineVessel::passNoiseEventFilterFunc(NTupleReader &tr){
-    try
-    {
+  try
+  {
+    bool cached_rethrow = tr.getReThrow();
+    tr.setReThrow(false);
 
-        bool passDataSpec = true;
-        if( tr.getVar<unsigned int>("run") != 1 ){ // hack to know if it's data or MC...
-           int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
-           unsigned int CSCTightHaloListFilter = tr.getVar<unsigned int>("CSCTightHaloListFilter");
-           int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
-           unsigned int eeBadScListFilter = tr.getVar<unsigned int>("eeBadScListFilter");
-           unsigned int badResolutionTrackListFilter = tr.getVar<unsigned int>("badResolutionTrackListFilter");
-           unsigned int muonBadTrackListFilter = tr.getVar<unsigned int>("muonBadTrackListFilter");
-           passDataSpec = goodVerticesFilter && CSCTightHaloListFilter && eeBadScFilter && eeBadScListFilter && badResolutionTrackListFilter && muonBadTrackListFilter;
-        }
+    bool passDataSpec = true;
+    if( tr.getVar<unsigned int>("run") >= 100000 ){ // hack to know if it's data or MC...
+      int goodVerticesFilter = tr.getVar<int>("goodVerticesFilter");
+      // new filters
+      const int & globalTightHalo2016Filter = tr.getVar<int>("globalTightHalo2016Filter");
+      bool passglobalTightHalo2016Filter = (&globalTightHalo2016Filter) != nullptr? tr.getVar<int>("globalTightHalo2016Filter") !=0 : true;
 
-        unsigned int hbheNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHENoiseFilter");
-        unsigned int hbheIsoNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHEIsoNoiseFilter");
-        int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
+      int eeBadScFilter = tr.getVar<int>("eeBadScFilter");
 
-        int jetIDFilter = isfastsim? 1:tr.getVar<int>("looseJetID_NoLep");
-        return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter;
+      passDataSpec = goodVerticesFilter && eeBadScFilter && passglobalTightHalo2016Filter;
     }
-    catch (std::string var)
+
+    unsigned int hbheNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHENoiseFilter");
+    unsigned int hbheIsoNoiseFilter = isfastsim? 1:tr.getVar<unsigned int>("HBHEIsoNoiseFilter");
+    int ecalTPFilter = tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
+
+    int jetIDFilter = isfastsim? 1:tr.getVar<int>("looseJetID_NoLep");
+    // new filters
+    const unsigned int & BadPFMuonFilter = tr.getVar<unsigned int>("BadPFMuonFilter");
+    bool passBadPFMuonFilter = (&BadPFMuonFilter) != nullptr? tr.getVar<unsigned int>("BadPFMuonFilter") !=0 : true;
+
+    const unsigned int & BadChargedCandidateFilter = tr.getVar<unsigned int>("BadChargedCandidateFilter");
+    bool passBadChargedCandidateFilter = (&BadChargedCandidateFilter) != nullptr? tr.getVar<unsigned int>("BadChargedCandidateFilter") !=0 : true;
+
+    tr.setReThrow(cached_rethrow);
+    return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter && passBadPFMuonFilter && passBadChargedCandidateFilter;
+  }
+  catch (std::string var)
+  {
+    if(tr.IsFirstEvent()) 
     {
-        if(tr.IsFirstEvent()) 
-        {
-            printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
-            printf("Running with PHYS14 Config\n");
-        }
+      printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
+      printf("Running with PHYS14 Config\n");
     }
-    return true;
+  }
+  return true;
+}
+
+bool BaselineVessel::passQCDHighMETFilterFunc(NTupleReader &tr)
+{
+  std::vector<TLorentzVector> jetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+  std::vector<double> recoJetsmuonEnergyFraction = tr.getVec<double>("recoJetsmuonEnergyFraction");
+  double metphi = tr.getVar<double>("metphi");
+
+  int nJetsLoop = recoJetsmuonEnergyFraction.size();
+  std::vector<double> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metphi, nJetsLoop, AnaConsts::dphiArr);
+
+  for(int i=0; i<nJetsLoop ; i++)
+  {
+    double thisrecoJetsmuonenergy = recoJetsmuonEnergyFraction.at(i)*(jetsLVec.at(i)).Pt();
+    if( (recoJetsmuonEnergyFraction.at(i)>0.5) && (thisrecoJetsmuonenergy>200) && (std::abs(dPhisVec.at(i)-3.1416)<0.4) ) return false;
+  }
+
+  return true;
+}
+
+bool BaselineVessel::passFastsimEventFilterFunc(NTupleReader &tr){
+  bool passFilter = true;
+  //       if( isfastsim ){
+  if( false ){
+    bool cached_rethrow = tr.getReThrow();
+    tr.setReThrow(false);
+    const std::vector<TLorentzVector> & genjetsLVec = tr.getVec<TLorentzVector>("genjetsLVec");
+    const std::vector<TLorentzVector> & recoJetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+    const std::vector<double> & recoJetschargedHadronEnergyFraction = tr.getVec<double>("recoJetschargedHadronEnergyFraction");
+
+    if( recoJetschargedHadronEnergyFraction.size() != recoJetsLVec.size() ) std::cout<<"\nWARNING ... Non-equal recoJetschargedHadronEnergyFraction.size : "<<recoJetschargedHadronEnergyFraction.size()<<"  recoJetsLVec.size : "<<recoJetsLVec.size()<<std::endl<<std::endl;
+
+    if( !recoJetsLVec.empty() && (&genjetsLVec) != nullptr ){
+      for(unsigned int ij=0; ij<recoJetsLVec.size(); ij++){
+        //                if( !AnaFunctions::jetPassCuts(recoJetsLVec[ij], AnaConsts::pt20Eta25Arr) ) continue;
+        if( !AnaFunctions::jetPassCuts(recoJetsLVec[ij], AnaConsts::pt30Eta24Arr) ) continue;
+        double mindeltaR = 999.0;
+        int matchedgenJetsIdx = -1;
+        for(unsigned int ig=0; ig<genjetsLVec.size(); ig++){
+          double dR = recoJetsLVec[ij].DeltaR(genjetsLVec[ig]);
+          if( mindeltaR > dR ){ mindeltaR = dR; matchedgenJetsIdx = (int)ig; }
+        }
+        if( matchedgenJetsIdx != -1 && mindeltaR > 0.3 && recoJetschargedHadronEnergyFraction[ij] < 0.1 ) passFilter = false;
+      }
+    }
+    tr.setReThrow(cached_rethrow);
+  }
+  return passFilter;
 }
 
 void stopFunctions::CleanJets::setMuonIso(const std::string muIsoFlag) 

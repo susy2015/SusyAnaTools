@@ -97,8 +97,8 @@ void Pileup_Sys::getPileup_Sys(NTupleReader& tr)
 
 
     tr.registerDerivedVar("_PUweightFactor", _PUweightFactor);
-    tr.registerDerivedVar("_PUSysUp", _PUSysUp );
-    tr.registerDerivedVar("_PUSysDown", _PUSysDown );
+    tr.registerDerivedVar("_PUSysUp", _PUSysUp);
+    tr.registerDerivedVar("_PUSysDown", _PUSysDown);
 
 
 }

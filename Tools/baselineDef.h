@@ -3,6 +3,7 @@
 
 #include "NTupleReader.h"
 #include "customize.h"
+#include "EventListFilter.h"
 
 #include "Math/VectorUtil.h"
 
@@ -36,6 +37,8 @@ public:
     bool GetnTops(NTupleReader *tr) const;
     bool passNoiseEventFilterFunc(NTupleReader &tr);
     bool GetMHT(NTupleReader *tr) const;
+    bool passQCDHighMETFilterFunc(NTupleReader &tr);
+    bool passFastsimEventFilterFunc(NTupleReader &tr);
 
     topTagger::type3TopTagger * GetType3Ptr() const {return type3Ptr;};
     inline void operator()(NTupleReader &tr) { passBaseline(tr); }
