@@ -190,8 +190,8 @@ std::string SearchBins::get_searchBins_defstr(const int binIdx, const std::strin
     SearchBins::searchBinDef sbDef;
     find_BinBoundaries(binIdx, sbDef);
     char tmpnbJetStr[50], tmpnTopStr[50], tmpMT2Str[50], tmpmetStr[50];
-    if( sbDef.top_hi_ != -1 ) sprintf(tmpnTopStr, "%1.0f", sbDef.top_lo_); else sprintf(tmpnTopStr, "%1.0f+", sbDef.top_lo_);
-    if( sbDef.bJet_hi_ != -1 ) sprintf(tmpnbJetStr, "%1.0f", sbDef.bJet_lo_); else sprintf(tmpnbJetStr, "%1.0f+", sbDef.bJet_lo_);
+    if( sbDef.top_hi_ != -1 ) sprintf(tmpnTopStr, "%d", sbDef.top_lo_); else sprintf(tmpnTopStr, "%d+", sbDef.top_lo_);
+    if( sbDef.bJet_hi_ != -1 ) sprintf(tmpnbJetStr, "%d", sbDef.bJet_lo_); else sprintf(tmpnbJetStr, "%d+", sbDef.bJet_lo_);
     if( sbDef.MT2_hi_ != -1 ) sprintf(tmpMT2Str, "%3.0f-%3.0f", sbDef.MT2_lo_, sbDef.MT2_hi_); else sprintf(tmpMT2Str, "%3.0f+", sbDef.MT2_lo_);
     if( sbDef.met_hi_ != -1 ) sprintf(tmpmetStr, "%3.0f-%3.0f", sbDef.met_lo_, sbDef.met_hi_); else sprintf(tmpmetStr, "%3.0f+", sbDef.met_lo_);
 
