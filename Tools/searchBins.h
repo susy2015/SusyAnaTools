@@ -38,6 +38,7 @@ public:
     std::string get_searchBins_defstr(const int binIdx, const std::string addstr="\\\\") const;
     void print_searchBins_latex() const;
     void print_searchBins_latex(const std::vector<double>& prediction, const std::vector<double>& uncertainty, const std::string label) const;
+    void print_searchBinsPred_latex(const std::vector<double>& prediction, const std::vector<double>& StatUp,  const std::vector<double>& StatDown, const std::vector<double>& SysUp, const std::vector<double>& SysDown, std::string label) const;
     static void drawSBregionDef(const double ymin_Yields = 0.05, const double ymax_Yields = 500., const bool logscale=true);
 
 private:
