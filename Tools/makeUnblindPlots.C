@@ -38,7 +38,10 @@ int nTotBins;
 std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
 
 bool noobs = false;
-bool addStatUnc = true;
+bool addStatUnc = false;
+bool addSigPts = false;
+// 0: T2tt; 1: T1tttt
+int addSigOpt = 1;
 
 int nTotBins_loc = 45;
 
@@ -87,10 +90,10 @@ std::vector<std::vector<TH1D*> > cached_h1Vec(todraw_h1_keyStrVec.size());
 std::vector<std::string> cached_sampleStrVec;
 std::vector<int> cached_sampleColorVec;
 
-std::vector<std::string> sel_fastsim_sampleKeyStrVec = {"300_225", "350_150", "350_175", "500_325", "600_200", "650_250", "700_0", "700_100", "750_50"};
-std::vector<std::string> sel_fastsim_dispt_sampleKeyStrVec = {"T2tt(300,225)", "T2tt(350,150)", "T2tt(350,175)", "T2tt(500,325)", "T2tt(600,200)", "T2tt(650,250)", "T2tt(700,1)", "T2tt(700,100)", "T2tt(750,50)"};
-std::vector<int>         sel_fastsim_momMassVec = {300, 350, 350, 500, 600, 650, 700, 700, 750};
-std::vector<int>         sel_fastsim_dauMassVec = {225, 150, 175, 325, 200, 250,   0, 100,  50};
+std::vector<std::string> sel_fastsim_sampleKeyStrVec = {"300_225", "350_150", "350_175", "500_325", "600_200", "650_250", "700_0", "800_300", "850_50"};
+std::vector<std::string> sel_fastsim_dispt_sampleKeyStrVec = {"T2tt(300,225)", "T2tt(350,150)", "T2tt(350,175)", "T2tt(500,325)", "T2tt(600,200)", "T2tt(650,250)", "T2tt(700,1)", "T2tt(800,300)", "T2tt(850,50)"};
+std::vector<int>         sel_fastsim_momMassVec = {300, 350, 350, 500, 600, 650, 700, 800, 850};
+std::vector<int>         sel_fastsim_dauMassVec = {225, 150, 175, 325, 200, 250,   0, 300,  50};
 std::vector<int>         sel_fastsim_color_sampleKeyVec = {kRed, kBlue, kGreen+4, kMagenta, kTeal+4, kYellow-7};
 std::vector<int>         todraw_h1_fastsim_rebinVec  = {         2,                   2,             1,             1,              5,                  5,                          1};
 std::vector<std::string> todraw_h1_fastsim_xLabelVec = {"P_{T}^{gen} (GeV)", "P_{T}^{gen} (GeV)", "N_{b}", "N_{t}", "#slash{E}_{T} (GeV)", "M_{T2} (GeV)", "Search region bin number"};
@@ -103,10 +106,10 @@ std::vector<int>         sel_fastsim_T2tb_momMassVec = {350, 350, 500, 600, 650,
 std::vector<int>         sel_fastsim_T2tb_dauMassVec = {150, 175, 325, 200, 250,   0, 100,  50};
 std::vector<std::vector<TH1D*> > sel_fastsim_T2tb_h1Vec(todraw_h1_fastsim_keyStrVec.size());
 
-std::vector<std::string> sel_fastsim_T1tttt_sampleKeyStrVec = {"1200_800", "1400_900", "1500_100", "1500_200"};
-std::vector<std::string> sel_fastsim_T1tttt_dispt_sampleKeyStrVec = {"T1tttt(1200,800)", "T1tttt(1400,900)", "T1tttt(1500,100)", "T1tttt(1500,200)"};
-std::vector<int>         sel_fastsim_T1tttt_momMassVec = {1200, 1400, 1500, 1500};
-std::vector<int>         sel_fastsim_T1tttt_dauMassVec = { 800,  900,  100,  200};
+std::vector<std::string> sel_fastsim_T1tttt_sampleKeyStrVec = {"1200_800", "1400_900", "1500_900", "1650_100"};
+std::vector<std::string> sel_fastsim_T1tttt_dispt_sampleKeyStrVec = {"T1tttt(1200,800)", "T1tttt(1400,900)", "T1tttt(1500,900)", "T1tttt(1650,100)"};
+std::vector<int>         sel_fastsim_T1tttt_momMassVec = {1200, 1400, 1500, 1650};
+std::vector<int>         sel_fastsim_T1tttt_dauMassVec = { 800,  900,  900,  100};
 std::vector<std::vector<TH1D*> > sel_fastsim_T1tttt_h1Vec(todraw_h1_fastsim_keyStrVec.size());
 
 std::vector<std::string> sel_fastsim_T5ttcc_sampleKeyStrVec = {"1200_800", "1400_900", "1500_100", "1500_200"};
@@ -172,7 +175,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    }
    std::cout<<std::endl;
    infile.close();
-/*
+
    TFile * signal_fastsim_file = new TFile("signalScan_SMS-T2tt.root");
    for(unsigned int ik=0; ik<todraw_h1_fastsim_keyStrVec.size(); ik++){
       for(unsigned int is=0; is<sel_fastsim_sampleKeyStrVec.size(); is++){
@@ -198,7 +201,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
          sel_fastsim_h1Vec[ik].push_back((TH1D*)tmpHist);
       }
    }
-*/
+
 // T1tttt
    TFile * signal_fastsim_T1tttt_file = new TFile("signalScan_SMS-T1tttt.root");
    for(unsigned int ik=0; ik<todraw_h1_fastsim_keyStrVec.size(); ik++){
@@ -237,6 +240,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    Float_t legendY1 = .60;
    Float_t legendY2 = .85;
    TLegend* catLeg1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
+   if( addSigPts ){ delete(catLeg1); catLeg1 = new TLegend(legendX1+0.10,legendY1+0.15,legendX2,legendY2); }
    catLeg1->SetTextSize(0.060);
 
    legendX1 = .76;
@@ -244,6 +248,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    legendY1 = .60;
    legendY2 = .85;
    TLegend* catLeg2 = new TLegend(legendX1,legendY1,legendX2,legendY2);
+   if( addSigPts ){ delete(catLeg2); catLeg2 = new TLegend(legendX1,legendY1+0.15,legendX2,legendY2); }
    catLeg2->SetTextSize(0.060);
 
    legendX1 = .36;
@@ -251,6 +256,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    legendY1 = .60;
    legendY2 = .68;
    TLegend* catLeg_unc = new TLegend(legendX1,legendY1,legendX2,legendY2);
+   if( addSigPts ){ delete(catLeg_unc); catLeg_unc = new TLegend(legendX1+0.10,legendY1+0.10,legendX2+0.10,legendY2+0.10); }
    catLeg_unc->SetTextSize(0.050);
 
    legendX1 = .36;
@@ -258,6 +264,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    legendY1 = .52;
    legendY2 = .60;
    TLegend* catLeg_sig1 = new TLegend(legendX1,legendY1,legendX2,legendY2);
+   if( addSigPts ){ delete(catLeg_sig1); catLeg_sig1 = new TLegend(legendX1+0.10,legendY1+0.10,legendX2+0.10,legendY2+0.10); }
    catLeg_sig1->SetTextSize(0.045);
 
    legendX1 = .555;
@@ -265,6 +272,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    legendY1 = .52;
    legendY2 = .60;
    TLegend* catLeg_sig2 = new TLegend(legendX1,legendY1,legendX2,legendY2);
+   if( addSigPts ){ delete(catLeg_sig2); catLeg_sig2 = new TLegend(legendX1+0.10,legendY1+0.10,legendX2+0.10,legendY2+0.10); }
    catLeg_sig2->SetTextSize(0.045);
 
    legendX1 = .74;
@@ -272,6 +280,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    legendY1 = .52;
    legendY2 = .60;
    TLegend* catLeg_sig3 = new TLegend(legendX1,legendY1,legendX2,legendY2);
+   if( addSigPts ){ delete(catLeg_sig3); catLeg_sig3 = new TLegend(legendX1+0.10,legendY1+0.10,legendX2+0.10,legendY2+0.10); }
    catLeg_sig3->SetTextSize(0.045);
 
 // Plotting
@@ -409,11 +418,13 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    hs_sum_SM->Add(h1_lostle);
    hs2_sum_SM->Add(h1_lostle_syst);
 
-   catLeg1->AddEntry(h1_lostle, "t#bar{t}/W+jets(e,#mu)");
-   catLeg1->AddEntry(h1_hadtau, "t#bar{t}/W+jets(#tau_{had})");
-   catLeg2->AddEntry(h1_zinv, "Z(#nu#bar{#nu})+jets");
-   catLeg2->AddEntry(h1_qcd, "QCD");
-   catLeg2->AddEntry(h1_ttz, "t#bar{t}Z(#nu#bar{#nu})");
+   if( !addSigPts ){
+      catLeg1->AddEntry(h1_lostle, "t#bar{t}/W+jets(e,#mu)");
+      catLeg1->AddEntry(h1_hadtau, "t#bar{t}/W+jets(#tau_{had})");
+      catLeg2->AddEntry(h1_zinv, "Z(#nu#bar{#nu})+jets");
+      catLeg2->AddEntry(h1_qcd, "QCD");
+      catLeg2->AddEntry(h1_ttz, "t#bar{t}Z(#nu#bar{#nu})");
+   }
 
    //TLegend - ends
    
@@ -426,12 +437,21 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    h1_data->GetYaxis()->SetTitleSize(0.07);
    h1_data->GetYaxis()->SetLabelSize(0.04);
    h1_data->GetYaxis()->SetTitleOffset(0.6);
-   if( !noobs ){
+   if( !noobs || addSigPts ){
       h1_data->Draw("");
       h1_data->SetMaximum(ymax_Yields); h1_data->SetMinimum(ymin_Yields);
 
-      hs_sum_SM->Draw("hist same");
-      hs_sum_SM->SetMaximum(hs_sum_SM->GetMaximum()*2.5);
+      if( !addSigPts ){
+         hs_sum_SM->Draw("hist same");
+         hs_sum_SM->SetMaximum(hs_sum_SM->GetMaximum()*2.5);
+      }else{
+         TH1D * tmp_sum_SM = (TH1D*) hs_sum_SM->GetStack()->Last();
+         tmp_sum_SM->SetFillColor(kAzure+2); tmp_sum_SM->SetLineColor(kAzure+2); tmp_sum_SM->SetMarkerColor(kAzure+2);
+         tmp_sum_SM->Draw("hist same");
+         tmp_sum_SM->SetMaximum(tmp_sum_SM->GetMaximum()*2.5);
+
+         catLeg2->AddEntry(tmp_sum_SM, "Sum Bkg.");
+      }
 
       h1_data->Draw("same");
    }else{
@@ -462,51 +482,55 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 // draw signal point here!
    int lineStyleIdx =2, redCntIdx =1;
 
-   if( do37Bins ){
-
-      for(unsigned int ik=0; ik<sel_fastsim_h1Vec.size(); ik++){
-         if( todraw_h1_fastsim_keyStrVec[ik] != "baseline_nSearchBin" ) continue;
-         for(unsigned int is=0; is<sel_fastsim_h1Vec[ik].size(); is++){
-            if( sel_fastsim_sampleKeyStrVec[is] != "750_50" && sel_fastsim_sampleKeyStrVec[is] != "500_325" ) continue;
+   if( addSigPts ){
+      if( addSigOpt == 0 ){
+         for(unsigned int ik=0; ik<sel_fastsim_h1Vec.size(); ik++){
+            if( todraw_h1_fastsim_keyStrVec[ik] != "baseline_nSearchBin" ) continue;
+            int cntDraw = -1;
+            for(unsigned int is=0; is<sel_fastsim_h1Vec[ik].size(); is++){
+               if( sel_fastsim_sampleKeyStrVec[is] != "850_50" && sel_fastsim_sampleKeyStrVec[is] != "800_300" ) continue;
+      
+               drawOverFlowBin(sel_fastsim_h1Vec[ik][is]);
    
-            drawOverFlowBin(sel_fastsim_h1Vec[ik][is]);
-   
-            sel_fastsim_h1Vec[ik][is]->Rebin(todraw_h1_fastsim_rebinVec[ik]);
-            sel_fastsim_h1Vec[ik][is]->SetLineColor(kRed+redCntIdx); sel_fastsim_h1Vec[ik][is]->SetMarkerColor(kRed+redCntIdx);
-            sel_fastsim_h1Vec[ik][is]->SetLineStyle(lineStyleIdx); sel_fastsim_h1Vec[ik][is]->SetLineWidth(2);
-            if( lineStyleIdx == 3) sel_fastsim_h1Vec[ik][is]->SetLineStyle(9);
-   
-            if( sel_fastsim_sampleKeyStrVec[is] == "500_325" ) catLeg_sig1->AddEntry(sel_fastsim_h1Vec[ik][is], "T2tt(500,325)");
-            if( sel_fastsim_sampleKeyStrVec[is] == "750_50" ) catLeg_sig2->AddEntry(sel_fastsim_h1Vec[ik][is], "T2tt(750,50)");
-   
-            sel_fastsim_h1Vec[ik][is]->Draw("hist same");
-            lineStyleIdx ++; //redCntIdx ++;
+               cntDraw++;
+      
+               sel_fastsim_h1Vec[ik][is]->Rebin(todraw_h1_fastsim_rebinVec[ik]);
+               if( cntDraw ==0 ){ sel_fastsim_h1Vec[ik][is]->SetLineColor(kRed+redCntIdx); sel_fastsim_h1Vec[ik][is]->SetMarkerColor(kRed+redCntIdx); }
+               if( cntDraw ==1 ){ sel_fastsim_h1Vec[ik][is]->SetLineColor(kGreen+redCntIdx); sel_fastsim_h1Vec[ik][is]->SetMarkerColor(kGreen+redCntIdx); }
+               sel_fastsim_h1Vec[ik][is]->SetLineStyle(lineStyleIdx); sel_fastsim_h1Vec[ik][is]->SetLineWidth(2);
+               if( lineStyleIdx == 3) sel_fastsim_h1Vec[ik][is]->SetLineStyle(9);
+      
+               if( sel_fastsim_sampleKeyStrVec[is] == "800_300" ) catLeg_sig1->AddEntry(sel_fastsim_h1Vec[ik][is], "T2tt(800,300)");
+               if( sel_fastsim_sampleKeyStrVec[is] == "850_50" ) catLeg_sig2->AddEntry(sel_fastsim_h1Vec[ik][is], "T2tt(850,50)");
+      
+               sel_fastsim_h1Vec[ik][is]->Draw("hist same");
+               lineStyleIdx ++; //redCntIdx ++;
+            }
          }
       }
-   
-   }else{
-
-      for(unsigned int ik=0; ik<sel_fastsim_T1tttt_h1Vec.size(); ik++){
-         if( todraw_h1_fastsim_keyStrVec[ik] != "baseline_nSearchBin" ) continue;
-         for(unsigned int is=0; is<sel_fastsim_T1tttt_h1Vec[ik].size(); is++){
-   //         if( sel_fastsim_T1tttt_sampleKeyStrVec[is] != "1500_200" && sel_fastsim_T1tttt_sampleKeyStrVec[is] != "1400_900" ) continue;
-            if( sel_fastsim_T1tttt_sampleKeyStrVec[is] != "N/A" ) continue;
-//            if( sel_fastsim_T1tttt_sampleKeyStrVec[is] != "1500_100" && sel_fastsim_T1tttt_sampleKeyStrVec[is] != "1200_800" ) continue;
-   
-            drawOverFlowBin(sel_fastsim_T1tttt_h1Vec[ik][is]);
-   
-            sel_fastsim_T1tttt_h1Vec[ik][is]->Rebin(todraw_h1_fastsim_rebinVec[ik]);
-   //         sel_fastsim_T1tttt_h1Vec[ik][is]->SetLineColor(kRed+redCntIdx); sel_fastsim_T1tttt_h1Vec[ik][is]->SetMarkerColor(kRed+redCntIdx); 
-            sel_fastsim_T1tttt_h1Vec[ik][is]->SetLineColor(kGreen+4); sel_fastsim_T1tttt_h1Vec[ik][is]->SetMarkerColor(kGreen+4); 
-            sel_fastsim_T1tttt_h1Vec[ik][is]->SetLineStyle(lineStyleIdx); sel_fastsim_T1tttt_h1Vec[ik][is]->SetLineWidth(2);
-   
-            if( lineStyleIdx == 3) sel_fastsim_T1tttt_h1Vec[ik][is]->SetLineStyle(9);
-   
-            if( sel_fastsim_T1tttt_sampleKeyStrVec[is] == "1200_800" ) catLeg_sig1->AddEntry(sel_fastsim_T1tttt_h1Vec[ik][is], "T1tttt(1200,800)");
-            if( sel_fastsim_T1tttt_sampleKeyStrVec[is] == "1500_100" ) catLeg_sig2->AddEntry(sel_fastsim_T1tttt_h1Vec[ik][is], "T1tttt(1500,100)");
-   
-            sel_fastsim_T1tttt_h1Vec[ik][is]->Draw("hist same");
-            lineStyleIdx ++; //redCntIdx ++;
+      if( addSigOpt == 1 ){
+         for(unsigned int ik=0; ik<sel_fastsim_T1tttt_h1Vec.size(); ik++){
+            if( todraw_h1_fastsim_keyStrVec[ik] != "baseline_nSearchBin" ) continue;
+            int cntDraw = -1;
+            for(unsigned int is=0; is<sel_fastsim_T1tttt_h1Vec[ik].size(); is++){
+               if( sel_fastsim_T1tttt_sampleKeyStrVec[is] != "1650_100" && sel_fastsim_T1tttt_sampleKeyStrVec[is] != "1500_900" ) continue;
+      
+               drawOverFlowBin(sel_fastsim_T1tttt_h1Vec[ik][is]);
+      
+               cntDraw++;
+      
+               sel_fastsim_T1tttt_h1Vec[ik][is]->Rebin(todraw_h1_fastsim_rebinVec[ik]);
+               if( cntDraw ==0 ){ sel_fastsim_T1tttt_h1Vec[ik][is]->SetLineColor(kRed+redCntIdx); sel_fastsim_T1tttt_h1Vec[ik][is]->SetMarkerColor(kRed+redCntIdx); }
+               if( cntDraw ==1 ){ sel_fastsim_T1tttt_h1Vec[ik][is]->SetLineColor(kGreen+redCntIdx); sel_fastsim_T1tttt_h1Vec[ik][is]->SetMarkerColor(kGreen+redCntIdx); }
+               sel_fastsim_T1tttt_h1Vec[ik][is]->SetLineStyle(lineStyleIdx); sel_fastsim_T1tttt_h1Vec[ik][is]->SetLineWidth(2);
+               if( lineStyleIdx == 3) sel_fastsim_T1tttt_h1Vec[ik][is]->SetLineStyle(9);
+      
+               if( sel_fastsim_T1tttt_sampleKeyStrVec[is] == "1500_900" ) catLeg_sig1->AddEntry(sel_fastsim_T1tttt_h1Vec[ik][is], "T1tttt(1500,900)");
+               if( sel_fastsim_T1tttt_sampleKeyStrVec[is] == "1650_100" ) catLeg_sig2->AddEntry(sel_fastsim_T1tttt_h1Vec[ik][is], "T1tttt(1650,100)");
+      
+               sel_fastsim_T1tttt_h1Vec[ik][is]->Draw("hist same");
+               lineStyleIdx ++; //redCntIdx ++;
+            }
          }
       }
    }
@@ -650,25 +674,25 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    }
    
    TLatex mark;
-    mark.SetNDC(true);
-    double fontScale = 1.6;
-    char lumistamp[128];
-    if( !noobs ) sprintf(lumistamp, "%.1f fb^{-1} (13 TeV)", dataLumi/1000.0);
-    else sprintf(lumistamp, "%.1f fb^{-1} (13 TeV)", bkgLumi/1000.0);
-    //Draw CMS mark
+   mark.SetNDC(true);
+   double fontScale = 1.6;
+   char lumistamp[128];
+   if( !noobs ) sprintf(lumistamp, "%.1f fb^{-1} (13 TeV)", dataLumi/1000.0);
+   else sprintf(lumistamp, "%.1f fb^{-1} (13 TeV)", bkgLumi/1000.0);
+   //Draw CMS mark
 
-    mark.SetTextAlign(11);
-    mark.SetTextSize(0.042 * fontScale * 1.25);
-    mark.SetTextFont(61);
-    mark.DrawLatex(gPad->GetLeftMargin(), 1 - (gPad->GetTopMargin() - 0.017), "CMS"); // #scale[0.8]{#it{Preliminary}}");        
-    mark.SetTextSize(0.042 * fontScale);
-    mark.SetTextFont(52);
-    mark.DrawLatex(gPad->GetLeftMargin() + 0.09, 1 - (gPad->GetTopMargin() - 0.017), "Preliminary");
-    //Draw lumistamp                                                                                                                         
-    mark.SetTextFont(42);
-    mark.SetTextAlign(31);
-    mark.DrawLatex(1 - gPad->GetRightMargin(), 1 - (gPad->GetTopMargin() - 0.017), lumistamp);
-      
+   mark.SetTextAlign(11);
+   mark.SetTextSize(0.042 * fontScale * 1.25);
+   mark.SetTextFont(61);
+   mark.DrawLatex(gPad->GetLeftMargin(), 1 - (gPad->GetTopMargin() - 0.017), "CMS"); // #scale[0.8]{#it{Preliminary}}");        
+   mark.SetTextSize(0.042 * fontScale);
+   mark.SetTextFont(52);
+   mark.DrawLatex(gPad->GetLeftMargin() + 0.09, 1 - (gPad->GetTopMargin() - 0.017), "Preliminary");
+   //Draw lumistamp                                                                                                                         
+   mark.SetTextFont(42);
+   mark.SetTextAlign(31);
+   mark.DrawLatex(1 - gPad->GetRightMargin(), 1 - (gPad->GetTopMargin() - 0.017), lumistamp);
+   
    catLeg1->SetFillColor(kWhite);
    catLeg1->SetBorderSize(0);
    catLeg1->Draw();
@@ -678,13 +702,13 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 
    catLeg_sig1->SetFillColor(kWhite);
    catLeg_sig1->SetBorderSize(0);
-//   catLeg_sig1->Draw();
+   if( addSigPts ) catLeg_sig1->Draw();
    catLeg_sig2->SetFillColor(kWhite);
    catLeg_sig2->SetBorderSize(0);
-//   catLeg_sig2->Draw();
+   if( addSigPts ) catLeg_sig2->Draw();
    catLeg_sig3->SetFillColor(kWhite);
    catLeg_sig3->SetBorderSize(0);
-//   catLeg_sig3->Draw();
+   if( addSigPts ) catLeg_sig3->Draw();
 
    catLeg_unc->SetFillColor(kWhite);
    catLeg_unc->SetBorderSize(0);
