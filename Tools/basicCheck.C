@@ -530,14 +530,20 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 
         if( keyStringT.Contains("Data_HTMHT") ){
 //           if( nTops >=3 || searchBinIdx == 0 || searchBinIdx == 5 || searchBinIdx == 11 ){
-           if( nTops >=3 || nTops ==1 ){
-              std::cout<<"\n"<<keyStringT<<"  searchBinIdx : "<<searchBinIdx<<"  run : "<<run<<"  lumi : "<<lumi<<"  event : "<<event<<"  nJets : "<<nJets<<"  nTops : "<<nTops<<"  nbJets : "<<nbJets<<"  met : "<<met<<"  metphi : "<<metLVec.Phi()<<"  MT2 : "<<MT2<<"  HT : "<<HT<<"  mht : "<<mhtLVec.Pt()<<"  mhtphi : "<<mhtLVec.Phi()<<std::endl;
+           if( nTops>=2 && MT2<=350 && met<=350 ){
+//           if( nTops >=3 || nTops ==1 ){
+              int cntTopness = 0;
+              int cnt_extra_bJets = 0;
+              std::vector<int> cached_bJets_idxVec;
+              std::cout<<"\n"<<keyStringT<<"  searchBinIdx : "<<searchBinIdx<<"  run : "<<run<<"  lumi : "<<lumi<<"  event : "<<event<<"  nJets : "<<nJets<<"  nTops : "<<nTops<<"  nbJets : "<<nbJets<<"  met : "<<met<<"  metphi : "<<metLVec.Phi()<<"  MT2 : "<<MT2<<"  HT : "<<HT<<"  mht : "<<mhtLVec.Pt()<<"  mhtphi : "<<mhtLVec.Phi()<<"  alt_MT2 : "<<alt_MT2<<std::endl;
               std::cout<<"  --> bJets idx : ";
               for(unsigned int ib=0; ib<recoJetsBtag_forTagger.size(); ib++){
                  if( !AnaFunctions::jetPassCuts(jetsLVec_forTagger[ib], AnaConsts::bTagArr) ) continue;
                  if( std::isnan(recoJetsBtag_forTagger[ib]) ) continue;
                  if( recoJetsBtag_forTagger[ib] <= AnaConsts::cutCSVS ) continue;
                  std::cout<<"  "<<ib;
+                 cached_bJets_idxVec.push_back(ib);
+                 cnt_extra_bJets ++;
               }
               std::cout<<std::endl;
               for(unsigned int it=0; it<nTops; it++){
@@ -547,7 +553,14 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
                  std::cout<<std::endl;
                  TLorentzVector topLVec = type3Ptr->buildLVec(jetsLVec_forTagger, type3Ptr->finalCombfatJets[combIdx]);
                  std::cout<<"  --> topLVec  Pt : "<<topLVec.Pt()<<"  Eta : "<<topLVec.Eta()<<"  Phi : "<<topLVec.Phi()<<"  M : "<<topLVec.M()<<std::endl;
+                 if( std::abs(topLVec.M() - 173.21) < 173.21*0.05 ){
+                    cntTopness++;
+                    for(unsigned int ib=0; ib< cached_bJets_idxVec.size(); ib++){
+                       if( std::find(type3Ptr->finalCombfatJets[combIdx].begin(), type3Ptr->finalCombfatJets[combIdx].end(), cached_bJets_idxVec[ib]) != type3Ptr->finalCombfatJets[combIdx].end() ) cnt_extra_bJets --;
+                    }
+                 }
               }
+              std::cout<<"==> for searchBinIdx : "<<searchBinIdx<<"  summarizing top/b ness : "<<cntTopness+cnt_extra_bJets<<"  cntTopness : "<<cntTopness<<"  cnt_extra_bJets : "<<cnt_extra_bJets<<std::endl;
               std::cout<<"cached_MT2Vec : ";
               for(unsigned int im=0; im<type3Ptr->cached_MT2Vec.size(); im++){ std::cout<<"  "<<type3Ptr->cached_MT2Vec[im]; }
               std::cout<<std::endl;

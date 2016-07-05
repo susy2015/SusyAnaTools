@@ -149,6 +149,8 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    std::vector<double> ySumErrUpVec, ySumErrDnVec;
    std::vector<double> yRatioVec, yRatioSysErrUpVec, yRatioSysErrDnVec;
 
+   double sumObs =0, sumPred =0;
+
    while(infile >> prt_chn >> prt_data >> prt_data_stat >> prt_pred >> prt_pred_stat_up >> prt_pred_stat_dn >> prt_pred_syst_up >> prt_pred_syst_dn >> prt_lostle_rate >> prt_lostle_stat_up >> prt_lostle_stat_dn >> prt_lostle_syst_up >> prt_lostle_syst_dn >> prt_hadtau_rate >> prt_hadtau_stat_up >> prt_hadtau_stat_dn >> prt_hadtau_syst_up >> prt_hadtau_syst_dn >> prt_zinv_rate >> prt_zinv_stat_up >> prt_zinv_stat_dn >> prt_zinv_syst_up >> prt_zinv_syst_dn >> prt_qcd_rate >> prt_qcd_stat_up >> prt_qcd_stat_dn >> prt_qcd_syst_up >> prt_qcd_syst_dn >> prt_ttz_rate >> prt_ttz_stat_up >> prt_ttz_stat_dn >> prt_ttz_syst_up >> prt_ttz_syst_dn >> prt_rare_rate >> prt_rare_stat_up >> prt_rare_stat_dn >> prt_rare_syst_up >> prt_rare_syst_dn){
       char tmpstr[500];
 // Complete table in AN
@@ -160,6 +162,9 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
       
       std::string outstr = sb->get_searchBins_defstr(prt_chn, tmpstr);
       printf("%s", outstr.c_str());
+
+      sumObs += prt_data;
+      sumPred += prt_pred;
 
       xVec.push_back(prt_chn+0.5);
       yVec.push_back(prt_pred*norm_bkg_to_data);
@@ -175,6 +180,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    }
    std::cout<<std::endl;
    infile.close();
+   std::cout<<"\nsumObs : "<<sumObs<<"  sumPred : "<<sumPred<<std::endl;
 
    TFile * signal_fastsim_file = new TFile("signalScan_SMS-T2tt.root");
    for(unsigned int ik=0; ik<todraw_h1_fastsim_keyStrVec.size(); ik++){
