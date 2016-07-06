@@ -98,6 +98,9 @@ batchSignalPlots: $(ODIR)/samples.o $(ODIR)/batchSignalPlots.o
 makeSignalHistograms: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/makeSignalHistograms.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
+stopNTuple_skim: $(ODIR)/stopNTuple_skim.o
+	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+
 clean:
 	rm -f $(ODIR)/*.o $(ODIR)/*.d $(PROGRAMS) core 
 

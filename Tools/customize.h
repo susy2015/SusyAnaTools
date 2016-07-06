@@ -68,7 +68,8 @@ namespace AnaConsts{
 
 //   const double cutCSVS = 0.814, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
 // Note the new working points are for Spring15 samples & data: cutCSVS is the medium working point
-   const double cutCSVS = 0.890, cutCSVL = 0.605, cutCSVT = 0.97, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
+   //const double cutCSVS = 0.890, cutCSVL = 0.605, cutCSVT = 0.97, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
+   const double cutCSVS = 0.800, cutCSVL = 0.605, cutCSVT = 0.97, cutCSVSold = 0.679; // 2016 ICHEP working point
    const double defaultMETcut = 200;
    const double defaultMT2cut = 200;
    const double defaultHTcut = 500;
