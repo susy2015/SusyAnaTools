@@ -46,7 +46,7 @@ namespace AnaSamples
         double TTbar_DiLept_BR = 0.10614564; // W_Lept_BR^2
 
 	std::string MCloc = "Spring16_80X_Jun_2016_Ntp_v7X/";
-	std::string MClocv6X = "Spring16_80X_Jun_2016_Ntp_v6X/";
+        std::string MClocv6X = "Spring16_80X_Jun_2016_Ntp_v6X/";
         std::string MCloc1 ="Spring16_80X_Jun_2016_Ntp_v5X/"; 
         std::string MCloc2 = "Spring15_74X_Feb_2016_Ntp_v6X_forMoriond/";
         std::string DATAloc = "Spring16_80X_Jun_2016_Ntp_v7X/";
@@ -110,7 +110,7 @@ namespace AnaSamples
         // kz = 1.23
         addSample("DYJetsToLL_HT_100to200", fDir_ + MCloc + "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 147.4, lumi, 8415286, 1.23,  kYellow-7);
         addSample("DYJetsToLL_HT_200to400", fDir_ + MCloc + "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 40.99, lumi, 8757478,  1.23,  kYellow-7);
-        addSample("DYJetsToLL_HT_400to600", fDir_ + MClocv6X + "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 5.678, lumi, 7560760, 1.23,  kYellow-7);
+        addSample("DYJetsToLL_HT_400to600", fDir_ + MCloc + "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 5.678, lumi, 10868754, 1.23,  kYellow-7);
         addSample("DYJetsToLL_HT_600toInf", fDir_ + MCloc + "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 2.198, lumi, 5150414,  1.23,  kYellow-7);
         // NNLO
         addSample("DYJetsToLL_Inc", fDir_ + MCloc + "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 6025.2, lumi, 49868990, 1.0,  kYellow-7);
@@ -134,8 +134,8 @@ namespace AnaSamples
 
         // NLO --> negative weights!
         // (sign of gen weight) * (lumi*xsec)/(effective number of events): effective number of events = N(evt) with positive weight - N(evt) with negative weight
-        addSample("TTZToLLNuNu", fDir_ + MClocv6X + "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.2529, lumi, 291916 - 106684,  1.0,  kOrange+2);
-        addSample("TTZToQQ", fDir_ + MClocv6X + "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt",          "stopTreeMaker/AUX", 0.5297, lumi, 550282 - 199118,  1.0,  kOrange+2);
+        addSample("TTZToLLNuNu", fDir_ + MCloc + "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.2529, lumi, 291916 - 106684,  1.0,  kOrange+2);
+        addSample("TTZToQQ", fDir_ + MCloc + "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt",          "stopTreeMaker/AUX", 0.5297, lumi, 550282 - 199118,  1.0,  kOrange+2);
 
         // NLO --> negative weights!
         addSample("TTWJetsToLNu", fDir_ + MCloc + "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 0.2043, lumi, 191474 - 61199,   1.0,  kSpring+2);
@@ -145,20 +145,20 @@ namespace AnaSamples
         addSample("TTGJets", fDir_ + MClocv6X + "TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 3.697, lumi, 3226484 - 1647607,  1.0,  kOrange+2);
 
         // ttH --> negative weights!
-	addSample("ttHJetTobb", fDir_ + MClocv6X + "ttHJetTobb_M125_13TeV_amcatnloFXFX_madspin_pythia8.txt",             "stopTreeMaker/AUX", 0.2934,  lumi, 6396214 - 3465582,   1.0,  kOrange+2);
-	addSample("ttHJetToNonbb", fDir_ + MClocv6X + "ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8_mWCutfix.txt", "stopTreeMaker/AUX", 0.2151,  lumi, 6492902 - 3520958,  1.0,  kOrange+2);
+	addSample("ttHJetTobb", fDir_ + MCloc + "ttHJetTobb_M125_13TeV_amcatnloFXFX_madspin_pythia8.txt",             "stopTreeMaker/AUX", 0.2934,  lumi, 6363866 - 3448031,   1.0,  kOrange+2);
+	addSample("ttHJetToNonbb", fDir_ + MCloc + "ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8_mWCutfix.txt", "stopTreeMaker/AUX", 0.2151,  lumi, 6430043 - 3486588,  1.0,  kOrange+2);
         
         // Di-boson
 	// Ref. https://indico.cern.ch/event/439995/session/0/contribution/6/attachments/1143460/1638648/diboson_final.pdf (NNLO is given)
-        addSample("WW", fDir_ + MClocv6X + "WW_TuneCUETP8M1_13TeV-pythia8.txt", "stopTreeMaker/AUX", 115.0,  lumi, 993214,  1.0,  kViolet+4); 
+        addSample("WW", fDir_ + MCloc + "WW_TuneCUETP8M1_13TeV-pythia8.txt", "stopTreeMaker/AUX", 115.0,  lumi, 993214,  1.0,  kViolet+4); 
 	// Ref. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns (NLO from MCFM)
-        addSample("WZ", fDir_ + MClocv6X + "WZ_TuneCUETP8M1_13TeV-pythia8.txt", "stopTreeMaker/AUX", 47.13,  lumi, 1000000,  1.0,  kViolet+4);
-        addSample("ZZ", fDir_ + MClocv6X + "ZZ_TuneCUETP8M1_13TeV-pythia8.txt", "stopTreeMaker/AUX", 16.523, lumi, 989312,  1.0,  kViolet+4);
+        addSample("WZ", fDir_ + MCloc + "WZ_TuneCUETP8M1_13TeV-pythia8.txt", "stopTreeMaker/AUX", 47.13,  lumi, 953360,  1.0,  kViolet+4);
+        addSample("ZZ", fDir_ + MCloc + "ZZ_TuneCUETP8M1_13TeV-pythia8.txt", "stopTreeMaker/AUX", 16.523, lumi, 989312,  1.0,  kViolet+4);
 
         // Tri-boson: negative weights!
-        addSample("WWZ", fDir_ + MClocv6X + "WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.1651,  lumi, 234991 - 14209,  1.0,  kViolet+2);
-        addSample("WZZ", fDir_ + MClocv6X + "WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.05565, lumi, 234393 - 15407,  1.0,  kViolet+2);
-        addSample("ZZZ", fDir_ + MClocv6X + "ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.01398, lumi, 231925 - 18075,  1.0,  kViolet+2);
+        addSample("WWZ", fDir_ + MCloc + "WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.1651,  lumi, 234991 - 14209,  1.0,  kViolet+2);
+        addSample("WZZ", fDir_ + MCloc + "WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.05565, lumi, 234393 - 15407,  1.0,  kViolet+2);
+        addSample("ZZZ", fDir_ + MCloc + "ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.txt", "stopTreeMaker/AUX", 0.01398, lumi, 231925 - 18075,  1.0,  kViolet+2);
 
         // --------
         // - data -
