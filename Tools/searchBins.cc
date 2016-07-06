@@ -190,8 +190,8 @@ std::string SearchBins::get_searchBins_defstr(const int binIdx, const std::strin
     SearchBins::searchBinDef sbDef;
     find_BinBoundaries(binIdx, sbDef);
     char tmpnbJetStr[50], tmpnTopStr[50], tmpMT2Str[50], tmpmetStr[50];
-    if( sbDef.top_hi_ != -1 ) sprintf(tmpnTopStr, "%1.0f", sbDef.top_lo_); else sprintf(tmpnTopStr, "%1.0f+", sbDef.top_lo_);
-    if( sbDef.bJet_hi_ != -1 ) sprintf(tmpnbJetStr, "%1.0f", sbDef.bJet_lo_); else sprintf(tmpnbJetStr, "%1.0f+", sbDef.bJet_lo_);
+    if( sbDef.top_hi_ != -1 ) sprintf(tmpnTopStr, "%d", sbDef.top_lo_); else sprintf(tmpnTopStr, "%d+", sbDef.top_lo_);
+    if( sbDef.bJet_hi_ != -1 ) sprintf(tmpnbJetStr, "%d", sbDef.bJet_lo_); else sprintf(tmpnbJetStr, "%d+", sbDef.bJet_lo_);
     if( sbDef.MT2_hi_ != -1 ) sprintf(tmpMT2Str, "%3.0f-%3.0f", sbDef.MT2_lo_, sbDef.MT2_hi_); else sprintf(tmpMT2Str, "%3.0f+", sbDef.MT2_lo_);
     if( sbDef.met_hi_ != -1 ) sprintf(tmpmetStr, "%3.0f-%3.0f", sbDef.met_lo_, sbDef.met_hi_); else sprintf(tmpmetStr, "%3.0f+", sbDef.met_lo_);
 
@@ -224,6 +224,19 @@ void SearchBins::print_searchBins_latex(const std::vector<double>& prediction, c
 	printf("%s", outstr.c_str());
     }
     std::cout<<std::endl<<std::endl;
+}
+void SearchBins:: print_searchBinsPred_latex(const std::vector<double>& prediction, const std::vector<double>& StatUp,  const std::vector<double>& StatDown, const std::vector<double>& SysUp, const std::vector<double>& SysDown, std::string label)const
+{
+  print_searchBins_headerstr(label);
+  for(int ib=0; ib<searchBins_.size(); ib++)
+    {
+      char addon[128];
+      if( prediction[ib] > 0.01) sprintf(addon, "& $%.2f^{+%.2f +%.2f}_{-%.2f -%.2f}$ \\\\", prediction[ib], StatUp[ib], SysUp[ib], StatDown[ib], SysDown[ib]);
+      else                       sprintf(addon, "& $%.3f^{+%.3f +%.3f}_{-%.3f -%.3f}$ \\\\", prediction[ib], StatUp[ib], SysUp[ib], StatDown[ib], SysDown[ib]);
+      std::string outstr = get_searchBins_defstr(ib, std::string(addon));
+      printf("%s", outstr.c_str());
+    }
+  std::cout<<std::endl<<std::endl;
 }
 
 // Function to draw the signal bin definition
