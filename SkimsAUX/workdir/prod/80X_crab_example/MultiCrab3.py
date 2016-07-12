@@ -20,7 +20,7 @@ from multiprocessing import Process
 workArea = 'crabProdv8p0'
 outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jul_2016_Ntp_v8X'
 Pubname = 'Spring16_80X_Jul_2016_Ntp_v8p0_new_JEC_new_muonID_top_up'
-json_25ns = 'Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt'
+json_25ns = 'Cert_271036-276097_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
 # TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleEG
@@ -294,8 +294,8 @@ def SubmitJob(key, value):
             pass
     else:
        if key.find('FastSim') != -1:
-          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v0', 'fastsim=1']
-#          tempconfig.JobType.inputFiles = ['MCRUN2_74_V9.db']
+          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v0', 'specialFix=JEC', 'jecDBname=Spring16_25nsFastSimMC_V1', 'fastsim=1']
+          tempconfig.JobType.inputFiles = ['Spring16_25nsFastSimMC_V1.db']
           tempconfig.Data.splitting = 'FileBased'
        else:
           tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_MC']
