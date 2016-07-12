@@ -17,10 +17,10 @@ from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
 from multiprocessing import Process
 
-workArea = 'crabProdv7p0'
-outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jun_2016_Ntp_v7X'
-Pubname = 'Spring16_80X_Jun_2016_Ntp_v7p0_new_JEC_new_filters_4ifb'
-json_25ns = 'Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt'
+workArea = 'crabProdv8p0'
+outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jul_2016_Ntp_v8X'
+Pubname = 'Spring16_80X_Jul_2016_Ntp_v8p0_new_JEC_new_muonID_top_up'
+json_25ns = 'Cert_271036-276097_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
 # TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleEG
@@ -147,7 +147,7 @@ jobslist = {
     'SMS-T2tt_FastSim_scan_350to400'         : [False, '/SMS-T2tt_mStop-350to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
     'SMS-T2tt_FastSim_scan_400to1200'        : [False, '/SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
 
-    'SMS-T2tt_FastSim_mStop-400to1200'       : [False, '/SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
+#    'SMS-T2tt_FastSim_mStop-400to1200'       : [False, '/SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
 
     # Data
 #    'HTMHT-Run2015B-05Oct2015'               : [True, '/HTMHT/Run2015B-05Oct2015-v1/MINIAOD', 10],
@@ -281,8 +281,13 @@ def SubmitJob(key, value):
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2016B-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v8', 'specialFix=JEC', 'jecDBname=Spring16_25nsV3_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV3_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v8', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+            tempconfig.Data.splitting = 'LumiBased'
+            tempconfig.Data.lumiMask = json_25ns
+        elif key.find('Run2016C-PromptReco') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v9', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2016C-PromptReco') != -1:
@@ -294,12 +299,12 @@ def SubmitJob(key, value):
             pass
     else:
        if key.find('FastSim') != -1:
-          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v0', 'fastsim=1']
-#          tempconfig.JobType.inputFiles = ['MCRUN2_74_V9.db']
+          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v0', 'specialFix=JEC', 'jecDBname=Spring16_25nsFastSimMC_V1', 'fastsim=1']
+          tempconfig.JobType.inputFiles = ['Spring16_25nsFastSimMC_V1.db']
           tempconfig.Data.splitting = 'FileBased'
        else:
-          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2', 'specialFix=JEC', 'jecDBname=Spring16_25nsV3_MC']
-          tempconfig.JobType.inputFiles = ['Spring16_25nsV3_MC.db']#'Summer15_25nsV6_MC.db']
+          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_MC']
+          tempconfig.JobType.inputFiles = ['Spring16_25nsV6_MC.db']#'Summer15_25nsV6_MC.db']
           tempconfig.Data.splitting = 'FileBased'
 
     tempconfig.Data.inputDataset = value[1].strip()

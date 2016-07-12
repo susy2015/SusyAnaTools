@@ -244,7 +244,8 @@ bool prodMuons::isMediumMuon(const pat::Muon & muon, const reco::Vertex::Point &
 		   muon.combinedQuality().trkKink < 20; 
    if(doMuonID_){
       isMedium = muon.isLooseMuon() && 
-		 muon.innerTrack()->validFraction() > 0.8 && 
+//		 muon.innerTrack()->validFraction() > 0.8 &&
+		 muon.innerTrack()->validFraction() > 0.49 && // Short term ID tunning to mitigate the HIP impact on lower tracker hit efficiencies
 		 muon.segmentCompatibility() > (goodGlob ? 0.303 : 0.451);
    }
 

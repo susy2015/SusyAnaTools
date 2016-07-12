@@ -38,10 +38,10 @@ int nTotBins;
 std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
 
 bool noobs = false;
-bool addStatUnc = false;
+bool addStatUnc = true;
 bool addSigPts = false;
 // 0: T2tt; 1: T1tttt
-int addSigOpt = 1;
+int addSigOpt = 0;
 
 int nTotBins_loc = 45;
 
@@ -67,7 +67,7 @@ const double ymax_Ratio= 4.6;
 const double ymin_Ratio= 0.0;
 */
 // For 45 bins
-const double ymax_Yields = noobs? 1000000.: 200000.;
+const double ymax_Yields = noobs? 1000000.: 800000.;
 const double ymin_Yields = noobs? 0.005: 0.003;
 const double ymax_Ratio= 4.6;
 const double ymin_Ratio= 0.0;
@@ -148,6 +148,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    std::vector<double> yStatErrUpVec, yStatErrDnVec;
    std::vector<double> ySumErrUpVec, ySumErrDnVec;
    std::vector<double> yRatioVec, yRatioSysErrUpVec, yRatioSysErrDnVec;
+   std::vector<double> yRatioSumErrUpVec, yRatioSumErrDnVec;
 
    double sumObs =0, sumPred =0;
 
@@ -171,12 +172,17 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
       xSysErrUpVec.push_back(0.5); xSysErrDnVec.push_back(0.5); 
       ySysErrUpVec.push_back(prt_pred_syst_up*norm_bkg_to_data); ySysErrDnVec.push_back(prt_pred_syst_dn*norm_bkg_to_data);
       yStatErrUpVec.push_back(prt_pred_stat_up*norm_bkg_to_data); yStatErrDnVec.push_back(prt_pred_stat_dn*norm_bkg_to_data);
-      ySumErrUpVec.push_back(sqrt(prt_pred_syst_up*prt_pred_syst_up + prt_pred_stat_up*prt_pred_stat_up)*norm_bkg_to_data);
-      ySumErrDnVec.push_back(sqrt(prt_pred_syst_dn*prt_pred_syst_dn + prt_pred_stat_dn*prt_pred_stat_dn)*norm_bkg_to_data);
+
+      const double sumErrUp = sqrt(prt_pred_syst_up*prt_pred_syst_up + prt_pred_stat_up*prt_pred_stat_up);
+      const double sumErrDn = sqrt(prt_pred_syst_dn*prt_pred_syst_dn + prt_pred_stat_dn*prt_pred_stat_dn);
+
+      ySumErrUpVec.push_back(sumErrUp*norm_bkg_to_data);
+      ySumErrDnVec.push_back(sumErrDn*norm_bkg_to_data);
 
       yRatioVec.push_back(1.0);
 //      yRatioSysErrUpVec.push_back(prt_pred_syst_up/prt_pred*prt_data/prt_pred); yRatioSysErrDnVec.push_back(prt_pred_syst_dn/prt_pred*prt_data/prt_pred);
       yRatioSysErrUpVec.push_back(prt_pred_syst_up/prt_pred); yRatioSysErrDnVec.push_back(prt_pred_syst_dn/prt_pred);
+      yRatioSumErrUpVec.push_back(sumErrUp/prt_pred); yRatioSumErrDnVec.push_back(sumErrDn/prt_pred);
    }
    std::cout<<std::endl;
    infile.close();
@@ -480,10 +486,14 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    }
 
    TGraphAsymmErrors * gr_AsymErr = new TGraphAsymmErrors(xVec.size(), &xVec[0], &yVec[0], &xSysErrDnVec[0], &xSysErrUpVec[0], &ySysErrDnVec[0], &ySysErrUpVec[0]);
-   gr_AsymErr->SetFillColor(kGray+2); gr_AsymErr->SetFillStyle(3244); gr_AsymErr->SetLineWidth(1); gr_AsymErr->SetLineColor(0); gr_AsymErr->SetMarkerSize(0); gr_AsymErr->SetMarkerColor(0);
+   gr_AsymErr->SetFillColor(kGray+2); gr_AsymErr->SetFillStyle(3244); gr_AsymErr->SetLineWidth(1); gr_AsymErr->SetLineColor(0); //gr_AsymErr->SetMarkerSize(0); gr_AsymErr->SetMarkerColor(0);
    gr_AsymErr->Draw("2");
 
    catLeg_unc->AddEntry(gr_AsymErr, "Bkg. Syst. Unc.", "F");
+
+   if( !noobs || addSigPts ){
+      h1_data->Draw("same");
+   }
 
 // draw signal point here!
    int lineStyleIdx =2, redCntIdx =1;
@@ -622,7 +632,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
       ttext_ntop->DrawLatex(11.5 + adjHalfBin, ymax_Yields/3 ,"N_{t} = 1");
       ttext_ntop->DrawLatex(39.5 + adjHalfBin, ymax_Yields/1500. ,"N_{t} = 2");
       ttext_ntop->SetTextAngle(90.); 
-      ttext_ntop->DrawLatex(55.5 + adjHalfBin, ymax_Yields/1500. ,"N_{t} #geq 3");
+      ttext_ntop->DrawLatex(55.5 + adjHalfBin, ymax_Yields/2500. ,"N_{t} #geq 3");
 
       // Nb separation lines
       TLine *tl_nb = new TLine();
@@ -722,7 +732,12 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 
    TH1D * h1_ratio = (TH1D*) h1_data->Clone();
    if( !noobs ){
-      h1_ratio->Divide(tmp_sum_SM);
+      TH1D * tmp_sum_SM_cloned = (TH1D*) tmp_sum_SM->Clone();
+      for(int ib=0; ib<tmp_sum_SM_cloned->GetXaxis()->GetNbins()+1; ib++){
+         tmp_sum_SM_cloned->SetBinError(ib, 0);
+      }
+//      h1_ratio->Divide(tmp_sum_SM);
+      h1_ratio->Divide(tmp_sum_SM_cloned);
    }else{
       h1_ratio = (TH1D*) tmp_sum_SM->Clone();
       h1_ratio->Divide(tmp_sum_SM);
@@ -766,6 +781,12 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    fline->SetLineColor(1);
    fline->SetLineStyle(2);   
    fline->Draw("same");
+
+   if( addStatUnc ){
+      TGraphAsymmErrors * gr_Ratio_Sum_AsymErr = new TGraphAsymmErrors(xVec.size(), &xVec[0], &yRatioVec[0], &xSysErrDnVec[0], &xSysErrUpVec[0], &yRatioSumErrUpVec[0], &yRatioSumErrDnVec[0]);
+      gr_Ratio_Sum_AsymErr->SetFillColor(kGray); gr_Ratio_Sum_AsymErr->SetFillStyle(3244); gr_Ratio_Sum_AsymErr->SetLineWidth(1); gr_Ratio_Sum_AsymErr->SetLineColor(0); gr_Ratio_Sum_AsymErr->SetMarkerSize(0); gr_Ratio_Sum_AsymErr->SetMarkerColor(0);
+      gr_Ratio_Sum_AsymErr->Draw("2");
+   }
 
    TGraphAsymmErrors * gr_Ratio_AsymErr = new TGraphAsymmErrors(xVec.size(), &xVec[0], &yRatioVec[0], &xSysErrDnVec[0], &xSysErrUpVec[0], &yRatioSysErrDnVec[0], &yRatioSysErrUpVec[0]);
    gr_Ratio_AsymErr->SetFillColor(kGray+2); gr_Ratio_AsymErr->SetFillStyle(3244);
