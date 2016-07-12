@@ -160,6 +160,8 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       TString v_mLSP=obj_mLSP->GetString();
       int mLSP = v_mLSP.Atoi();
 
+      if( !(mStop%25 == 0 && (mLSP ==1 || mLSP%25 ==0 )) ) continue;
+
     // read object from first source file
       TObject *obj = key->ReadObj();
       TH1D * h1_nSearchBin = (TH1D*) obj;

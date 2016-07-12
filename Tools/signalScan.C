@@ -177,6 +177,7 @@ double GetTriggerEffSystUncLo (const double met) {
    else return 0.0018;
 }
 
+/*
 double GetTopPtFastToFullSF(const double genTopPt){
    if( genTopPt < 120 ) return 1.0;
    else if (genTopPt < 200 ) return 1.001427;
@@ -211,6 +212,32 @@ double GetTopPtFastToFullSF_Err(const double genTopPt){
    else if (genTopPt < 1080 ) return 0.02948765;
    else if (genTopPt < 1160 ) return 0.03255938;
    else return 0.0391267;
+}
+*/
+double GetTopPtFastToFullSF(const double genTopPt){
+   if( genTopPt < 120 ) return 1.148379;
+   else if (genTopPt < 240 ) return 1.0073;
+   else if (genTopPt < 360 ) return 1.038126;
+   else if (genTopPt < 480 ) return 0.998553;
+   else if (genTopPt < 600 ) return 1.003213;
+   else if (genTopPt < 720 ) return 0.988763;
+   else if (genTopPt < 840 ) return 0.9639427;
+   else if (genTopPt < 960 ) return 1.023113;
+   else if (genTopPt < 1080 ) return 1.023506;
+   else return 1.05658;
+}
+
+double GetTopPtFastToFullSF_Err(const double genTopPt){
+   if( genTopPt < 120 ) return 0.1735079;
+   else if (genTopPt < 240 ) return 0.02812018;
+   else if (genTopPt < 360 ) return 0.01610866;
+   else if (genTopPt < 480 ) return 0.01515754;
+   else if (genTopPt < 600 ) return 0.01842747;
+   else if (genTopPt < 720 ) return 0.02223577;
+   else if (genTopPt < 840 ) return 0.02327411;
+   else if (genTopPt < 960 ) return 0.03152949;
+   else if (genTopPt < 1080 ) return 0.03847371;
+   else return 0.03686977;
 }
 
 class HistContainer

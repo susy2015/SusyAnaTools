@@ -154,7 +154,7 @@ public:
         }
 
         if( !printOnce ){
-//           printOnce = true;
+           printOnce = true;
            std::cout<<"spec : "<<spec.c_str()<<"  jetVecLabel : "<<jetVecLabel.c_str() <<"  CSVVecLabel : "<<CSVVecLabel.c_str() <<"  METLabel : "<<METLabel.c_str()<< std::endl;
         }
 
@@ -391,12 +391,11 @@ public:
 
     bool passFastsimEventFilterFunc(NTupleReader &tr){
        bool passFilter = true;
-//       if( isfastsim ){
-       if( !printOnce ){
-          printOnce = true;
-          std::cout<<"\n\nCurrently disable the fastsim filter until SUSY group decides everyone should use it for every signal samples...!"<<std::endl<<std::endl;
-       }
-       if( false ){
+
+       if( isfastsim ){
+
+//       if( false ){
+
           bool cached_rethrow = tr.getReThrow();
           tr.setReThrow(false);
           const std::vector<TLorentzVector> & genjetsLVec = tr.getVec<TLorentzVector>("genjetsLVec");
