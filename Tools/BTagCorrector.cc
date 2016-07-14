@@ -150,7 +150,7 @@ double BTagCorrector::GetSimpleCorrection(const vector<TLorentzVector> *Jets, co
         if(debug) cout << "Jet " << ja << ": " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << ", " << abs(Jets_flavor->at(ja))  << ", " << Jets_bDiscriminatorCSV->at(ja)
                        << ", " << sfEffLists[ja][0] << ", " << sfEffLists[ja][1] << ", " << sfEffLists[ja][2] << endl;
     
-        if(Jets_bDiscriminatorCSV->at(ja) > 0.890){
+        if(Jets_bDiscriminatorCSV->at(ja) > 0.800){
             mcTag *= eff_a*cf_a;
             dataTag *= eff_a*cf_a*sf_a;
         } else {
@@ -227,13 +227,13 @@ void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& s
         if ( eta_bin > h_eff_c->GetYaxis()->GetNbins() ) eta_bin = h_eff_c->GetYaxis()->GetNbins();
         sfEffList[0] =h_eff_c->GetBinContent(pt_bin, eta_bin);
 
-        sfEffList[1] = (ctagSFunc==0 ? reader.eval(BTagEntry::FLAV_C,eta,pt) :
-                        (ctagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_C,eta,pt) :
+        sfEffList[1] = (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_C,eta,pt) :
+                        (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_C,eta,pt) :
                          readerDown.eval(BTagEntry::FLAV_C,eta,pt) ) );
         if(pt > max_ctagSF_pt)
 	{
-            sfEffList[1] = 2*( (ctagSFunc==0 ? reader.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2) :
-                                (ctagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2) :
+            sfEffList[1] = 2*( (btagSFunc==0 ? reader.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2) :
+                                (btagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2) :
                                  readerDown.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2) ) ) - reader.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2)) + reader.eval(BTagEntry::FLAV_C,eta,max_ctagSF_pt-1e-2);
 	}
         if(fastsim)
@@ -253,12 +253,12 @@ void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& s
     /********************************************************************/
     else if(flav<4 || flav==21)
     { //udsg mistag
-        int pt_bin = h_eff_udsg->GetXaxis()->FindBin(pt); 
-        if( pt_bin > h_eff_udsg->GetXaxis()->GetNbins() ) pt_bin = h_eff_udsg->GetXaxis()->GetNbins(); 
-        int eta_bin = h_eff_udsg->GetYaxis()->FindBin(eta); 
-        if ( eta_bin > h_eff_udsg->GetYaxis()->GetNbins() ) eta_bin = h_eff_udsg->GetYaxis()->GetNbins();
+      int pt_bin = h_eff_udsg->GetXaxis()->FindBin(pt); 
+      if( pt_bin > h_eff_udsg->GetXaxis()->GetNbins() ) pt_bin = h_eff_udsg->GetXaxis()->GetNbins(); 
+      int eta_bin = h_eff_udsg->GetYaxis()->FindBin(eta); 
+      if ( eta_bin > h_eff_udsg->GetYaxis()->GetNbins() ) eta_bin = h_eff_udsg->GetYaxis()->GetNbins();
 
-        sfEffList[0] = h_eff_udsg->GetBinContent(pt_bin, eta_bin);
+      sfEffList[0] = h_eff_udsg->GetBinContent( pt_bin, eta_bin);
 
         sfEffList[1] = (mistagSFunc==0 ? reader.eval(BTagEntry::FLAV_UDSG,eta,pt) :
                         (mistagSFunc==1 ? readerUp.eval(BTagEntry::FLAV_UDSG,eta,pt) :
