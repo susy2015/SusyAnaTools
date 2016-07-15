@@ -17,12 +17,12 @@
 class BTagCorrector {
 public:
     //constructor
-BTagCorrector(std::string file = "batchSignalPlots.root", std::string CSVFilePath = "", bool isFastSim = false) : debug(false), fastsim(false), btagSFunc(0), ctagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL) {
+BTagCorrector(std::string file = "TTbarNoHad_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false) : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL) {
         //Stops unwanted segfaults.
         TH1::AddDirectory(false);
 
         //Hard Coded here.
-        // Replace "bTagEfficiency_test.root" with desirable efficiency file
+        // Replace "TTbarNoHad_bTagEff.root" in constuctor  with desirable efficiency file
         // Same "efficiency file and MC sample to run over must be same
         //Efficiency can be calculated using bTagEfficiencyCalc.C
 
@@ -30,18 +30,20 @@ BTagCorrector(std::string file = "batchSignalPlots.root", std::string CSVFilePat
         SetEffs(inFile);
         if(CSVFilePath.size())
         {
-            SetCalib((CSVFilePath + "/CSVv2_mod.csv").c_str());
+	  SetCalib((CSVFilePath + "/CSVv2_4invfb.csv").c_str());
+	  
         }
         else
         {
-            SetCalib("CSVv2_mod.csv");
+	  SetCalib("CSVv2_4invfb.csv");
+	  
         }
 
         if(isFastSim)
         {
             //FastSim
-            SetFastSim(true);
-            SetCalibFastSim("CSVFiles/CSV_13TEV_Combined_20_11_2015.csv");
+            SetFastSim(false);
+            SetCalibFastSim("CSV_13TEV_TTJets_11_7_2016.csv");
         }
 
     }
@@ -55,15 +57,35 @@ BTagCorrector(std::string file = "batchSignalPlots.root", std::string CSVFilePat
     {
         if(suffix.size())
         {
-            h_eff_b = (TH2F*)file->Get(("eff_b_" + suffix).c_str());
-            h_eff_c = (TH2F*)file->Get(("eff_c_" + suffix).c_str());
-            h_eff_udsg = (TH2F*)file->Get(("eff_udsg_" + suffix).c_str());
+            h_eff_b = (TH2F*)file->Get(("n_eff_b_" + suffix).c_str());
+            h_eff_c = (TH2F*)file->Get(("n_eff_c_" + suffix).c_str());
+            h_eff_udsg = (TH2F*)file->Get(("n_eff_udsg_" + suffix).c_str());
+	    TH2F *d_eff_b = (TH2F*)file->Get(("d_eff_b_" + suffix).c_str());
+	    TH2F *d_eff_c = (TH2F*)file->Get(("d_eff_c_" + suffix).c_str());
+	    TH2F *d_eff_udsg = (TH2F*)file->Get(("d_eff_udsg_" + suffix).c_str());
+
+	    
+	    h_eff_b->Divide(d_eff_b);
+	    h_eff_c->Divide(d_eff_c);
+	    h_eff_udsg->Divide(d_eff_udsg);
+
+
         }
         else
         {
-            h_eff_b = (TH2F*)file->Get("eff_b");
-            h_eff_c = (TH2F*)file->Get("eff_c");
-            h_eff_udsg = (TH2F*)file->Get("eff_udsg");
+            h_eff_b = (TH2F*)file->Get("n_eff_b");
+            h_eff_c = (TH2F*)file->Get("n_eff_c");
+            h_eff_udsg = (TH2F*)file->Get("n_eff_udsg");
+
+	    TH2F *d_eff_b = (TH2F*)file->Get("d_eff_b");
+	    TH2F *d_eff_c = (TH2F*)file->Get("d_eff_c");
+            TH2F *d_eff_udsg = (TH2F*)file->Get("d_eff_udsg");
+
+            h_eff_b->Divide(d_eff_b);
+            h_eff_c->Divide(d_eff_c);
+            h_eff_udsg->Divide(d_eff_udsg);
+
+
         }
     }
     void resetEffs(std::string suffix)
@@ -74,21 +96,34 @@ BTagCorrector(std::string file = "batchSignalPlots.root", std::string CSVFilePat
         SetEffs(inFile, suffix);
     }
     void SetCalib(std::string cfile){
-        //initialize btag helper classes
-        calib = BTagCalibration("",cfile);
-        reader = BTagCalibrationReader(&calib, BTagEntry::OP_MEDIUM, "comb", "central");
-        readerUp = BTagCalibrationReader(&calib, BTagEntry::OP_MEDIUM, "comb", "up");
-        readerDown = BTagCalibrationReader(&calib, BTagEntry::OP_MEDIUM, "comb", "down");
-    }
+      
+      //initialize btag helper classes. Interface has been changed.
+      calib = BTagCalibration("",cfile);
+      reader = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central");
+      reader.load(calib, BTagEntry::FLAV_B, "comb"); reader.load(calib, BTagEntry::FLAV_C, "comb");  reader.load(calib, BTagEntry::FLAV_UDSG, "incl");
+      readerUp = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "up");
+      readerUp.load(calib, BTagEntry::FLAV_B, "comb"); readerUp.load(calib, BTagEntry::FLAV_C, "comb");  readerUp.load(calib, BTagEntry::FLAV_UDSG, "incl");
+      readerDown = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "down");
+      readerDown.load(calib, BTagEntry::FLAV_B, "comb"); readerDown.load(calib, BTagEntry::FLAV_C, "comb");  readerDown.load(calib, BTagEntry::FLAV_UDSG, "incl");
+	
+
+   }
     void SetCalibFastSim(std::string cfile){
-        //read CFs
-        calibFast = BTagCalibration("",cfile);
-        readerFast = BTagCalibrationReader(&calibFast, BTagEntry::OP_MEDIUM, "fastsim", "central");
-        readerFastUp = BTagCalibrationReader(&calibFast, BTagEntry::OP_MEDIUM, "fastsim", "up");
-        readerFastDown = BTagCalibrationReader(&calibFast, BTagEntry::OP_MEDIUM, "fastsim", "down");
-    }
+      
+      //read CFs  New 2016 Modifications
+      calibFast = BTagCalibration("",cfile);
+	readerFast = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central");
+	readerFast.load(calibFast, BTagEntry::FLAV_B, "fastsim"); readerFast.load(calibFast, BTagEntry::FLAV_C, "fastsim");  readerFast.load(calibFast, BTagEntry::FLAV_UDSG, "fastsim");
+	readerFastUp = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "up");
+	readerFastUp.load(calibFast, BTagEntry::FLAV_B, "fastsim"); readerFastUp.load(calibFast, BTagEntry::FLAV_C, "fastsim");  readerFastUp.load(calibFast, BTagEntry::FLAV_UDSG, "fastsim");
+	readerFastDown = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "down");
+	readerFastDown.load(calibFast, BTagEntry::FLAV_B, "fastsim"); readerFastDown.load(calibFast, BTagEntry::FLAV_C, "fastsim");  readerFastDown.load(calibFast, BTagEntry::FLAV_UDSG, "fastsim"); 
+	
+
+}
     void SetBtagSFunc(int u) { btagSFunc = u; }
-    void SetCtagSFunc(int u) { ctagSFunc = u; }
+    //void SetCtagSFunc(int u) { ctagSFunc = u; }
+    void SetCtagSFunc(int u) { btagSFunc = u; } //ctag and btag are correlated
     void SetMistagSFunc(int u) { mistagSFunc = u; }
     void SetBtagCFunc(int u) { btagCFunc = u; }
     void SetCtagCFunc(int u) { ctagCFunc = u; }
@@ -113,7 +148,7 @@ BTagCorrector(std::string file = "batchSignalPlots.root", std::string CSVFilePat
 
     //member variables
     bool debug, fastsim;
-    int btagSFunc, ctagSFunc, mistagSFunc;
+    int btagSFunc, mistagSFunc;
     int btagCFunc, ctagCFunc, mistagCFunc;
     BTagCalibration calib, calibFast;
     BTagCalibrationReader reader, readerUp, readerDown;
