@@ -77,9 +77,9 @@ int main(int argc, char* argv[])
     /*************************************************************/
 
     TH1::AddDirectory(kFALSE);
-    TH2* n_eff_b =    new TH2D("h_eff_b", "bTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
-    TH2* n_eff_c =    new TH2D("h_eff_c", "cTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
-    TH2* n_eff_udsg = new TH2D("h_eff_udsg", "udsgTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* n_eff_b =    new TH2D("n_eff_b", "bTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* n_eff_c =    new TH2D("n_eff_c", "cTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* n_eff_udsg = new TH2D("n_eff_udsg", "udsgTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
     TH2* d_eff_b =    new TH2D("d_eff_b", "bTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
     TH2* d_eff_c =    new TH2D("d_eff_c", "cTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
     TH2* d_eff_udsg = new TH2D("d_eff_udsg", "udsgTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
@@ -147,19 +147,16 @@ int main(int argc, char* argv[])
     // End of Event loop
     /*************************************************************/
       
-    //n_eff_b->Write();
-    //n_eff_c->Write();
-    //n_eff_udsg->Write();
     d_eff_b->Write();
     d_eff_c->Write();
     d_eff_udsg->Write();
-
-    n_eff_b->Divide(d_eff_b);
-    n_eff_c->Divide(d_eff_c);
-    n_eff_udsg->Divide(d_eff_udsg);
+    
+    
     n_eff_b->Write();
     n_eff_c->Write();
     n_eff_udsg->Write();  
+    
+
     infile->Close();
      
 
