@@ -280,6 +280,10 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
     //Method 1a) ignoring b-tag status 
     double evtWeightSimple_Central  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    if( std::isnan(( evtWeightSimple_Central) || std::isinf(evtWeightSimple_Central)) ){
+      evtWeightSimple_Central = 1.0;
+    } 
+
     // Method 1b) in different b-jet mullticipity bins.
     vector<double> *evtWeightProb_Central = new vector<double>();
     (*evtWeightProb_Central) = GetCorrections(&inputJets, &recoJetsFlavor);
@@ -300,6 +304,9 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
     double evtWeightSimple_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    if( std::isnan(( evtWeightSimple_Up) || std::isinf(evtWeightSimple_Up)) ){
+      evtWeightSimple_Up= 1.0;
+    }
     vector<double> *evtWeightProb_Up = new vector<double>();
     (*evtWeightProb_Up) = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("bTagSF_EventWeightSimple_Up", evtWeightSimple_Up);
@@ -315,6 +322,9 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
     double evtWeightSimple_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    if( std::isnan(( evtWeightSimple_Down) || std::isinf(evtWeightSimple_Down)) ){
+      evtWeightSimple_Down= 1.0;
+    }
     vector<double> *evtWeightProb_Down = new vector<double>();
     (*evtWeightProb_Down) = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("bTagSF_EventWeightSimple_Down", evtWeightSimple_Down);
@@ -330,6 +340,9 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
     double evtWeightSimple_mistag_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    if( std::isnan(( evtWeightSimple_mistag_Up) || std::isinf(evtWeightSimple_mistag_Up)) ){
+      evtWeightSimple_mistag_Up= 1.0;
+    }
     vector<double> *evtWeightProb_mistag_Up = new vector<double>();
     (*evtWeightProb_Up) = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("mistagSF_EventWeightSimple_Up", evtWeightSimple_mistag_Up);
@@ -345,6 +358,9 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
     double evtWeightSimple_mistag_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    if( std::isnan(( evtWeightSimple_mistag_Down) || std::isinf(evtWeightSimple_mistag_Down)) ){
+      evtWeightSimple_mistag_Down= 1.0;
+    }
     vector<double> *evtWeightProb_mistag_Down = new vector<double>();
     (*evtWeightProb_Down) = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("mistagSF_EventWeightSimple_Down", evtWeightSimple_mistag_Down);
