@@ -864,12 +864,10 @@ void basicCheck(int argc, char *argv[]){
    tdrStyle->SetTitleFillColor(0);
    tdrStyle->SetTitleFontSize(0.1);
    tdrStyle->SetTitleAlign(13);
-   tdrStyle->SetTitleX(0.6);
-   tdrStyle->SetTitleH(0.05);
    tdrStyle->SetTitleBorderSize(0);
    tdrStyle->SetTitleAlign(13);
-   tdrStyle->SetTitleX(0.19);
-   tdrStyle->SetTitleH(0.038);
+   tdrStyle->SetTitleX(0.08);
+   tdrStyle->SetTitleH(0.07);
                                                                          
      //  For the frame
    tdrStyle->SetFrameBorderMode(0);
@@ -937,7 +935,10 @@ void basicCheck(int argc, char *argv[]){
       tdrStyle->SetPaintTextFormat("2.0f");
 
       TCanvas *c1 = new TCanvas("c1", "c1", 800, 800); 
+      c1->SetBottomMargin(0.145); c1->SetLeftMargin(0.160); c1->SetTopMargin(0.110); c1->SetRightMargin(0.1);
+      char names[200], dispt[200];
       for(int iSR=0; iSR<nSR; iSR++){
+         sprintf(dispt, "                 N_{b}%s & N_{t}%s; #slash{E}_{T} (GeV); M_{T2} (GeV)", disStr_nbJets_SR[iSR].c_str(), disStr_nTops_SR[iSR].c_str());
          h2_poly_MT2_vs_metVec[iSR].back()->ClearBinContents();
          int ib = nbJets_SR_lo[iSR], it = nTops_SR_lo[iSR];
          std::vector<SearchBins::searchBinDef> selBinDefVec;
@@ -968,8 +969,15 @@ void basicCheck(int argc, char *argv[]){
 
             h2_poly_MT2_vs_metVec[iSR].back()->SetBinContent(idxPoly, idxBin);
          }
-         TString titleT = h2_poly_MT2_vs_metVec[iSR].back()->GetTitle(); titleT.ReplaceAll("TTZ: ", "");
-         h2_poly_MT2_vs_metVec[iSR].back()->SetTitle(titleT);
+//         TString titleT = h2_poly_MT2_vs_metVec[iSR].back()->GetTitle(); titleT.ReplaceAll("TTZ: ", "");
+         h2_poly_MT2_vs_metVec[iSR].back()->SetTitle(dispt);
+         h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->SetLabelSize(h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->GetLabelSize()*1.5);
+         h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetLabelSize(h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->GetLabelSize()*1.5);
+         h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->SetTitleSize(h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->GetTitleSize()*1.8);
+         h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetTitleSize(h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->GetTitleSize()*1.8);
+         h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->SetTitleOffset(0.9);
+         h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetTitleOffset(1.2);
+         h2_poly_MT2_vs_metVec[iSR].back()->SetMarkerSize(h2_poly_MT2_vs_metVec[iSR].back()->GetMarkerSize()*1.5);
          h2_poly_MT2_vs_metVec[iSR].back()->SetStats(0);
          h2_poly_MT2_vs_metVec[iSR].back()->Draw("text");
          char tmpStr[200];
