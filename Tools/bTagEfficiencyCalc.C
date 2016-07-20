@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
 
     TFile *infile = nullptr;
     infile = new TFile(samplesT+"_bTagEff"+nmStrT+"_"+std::to_string(startFile)+".root", "RECREATE");
+    //infile = new TFile("bTagEff"+samplesT+"_"+nmStrT+"_"+std::to_string(startFile)+".root", "RECREATE");
 
     /*************************************************************/      
     //Declare efficiency histograms. n-> numerator d-> denominator
@@ -83,6 +84,13 @@ int main(int argc, char* argv[])
     TH2* d_eff_b =    new TH2D("d_eff_b", "bTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
     TH2* d_eff_c =    new TH2D("d_eff_c", "cTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
     TH2* d_eff_udsg = new TH2D("d_eff_udsg", "udsgTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
+
+    // TH2* n_eff_b =    new TH2D("n_eff_b_"+samplesT, "bTag_Efficiency"+samplesT, nPtBins, ptBins, nEtaBins, etaBins);
+    // TH2* n_eff_c =    new TH2D("n_eff_c_"+samplesT, "cTag_Efficiency"+samplesT, nPtBins, ptBins, nEtaBins, etaBins);
+    // TH2* n_eff_udsg = new TH2D("n_eff_udsg_"+samplesT, "udsgTag_Efficiency"+samplesT, nPtBins, ptBins, nEtaBins, etaBins);
+    // TH2* d_eff_b =    new TH2D("d_eff_b_"+samplesT, "bTag_Efficiency"+samplesT, nPtBins, ptBins, nEtaBins, etaBins);
+    // TH2* d_eff_c =    new TH2D("d_eff_c_"+samplesT, "cTag_Efficiency"+samplesT, nPtBins, ptBins, nEtaBins, etaBins);
+    // TH2* d_eff_udsg = new TH2D("d_eff_udsg_"+samplesT, "udsgTag_Efficiency"+samplesT, nPtBins, ptBins, nEtaBins, etaBins);
       
     n_eff_b->GetXaxis()->SetTitle("p_{T} [GeV]");
     n_eff_b->GetYaxis()->SetTitle("#eta");
