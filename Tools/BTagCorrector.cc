@@ -344,7 +344,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
       evtWeightSimple_mistag_Up= 1.0;
     }
     vector<double> *evtWeightProb_mistag_Up = new vector<double>();
-    (*evtWeightProb_Up) = GetCorrections(&inputJets, &recoJetsFlavor);
+    (*evtWeightProb_mistag_Up) = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("mistagSF_EventWeightSimple_Up", evtWeightSimple_mistag_Up);
     tr.registerDerivedVec("mistagSF_EventWeightProb_Up", evtWeightProb_mistag_Up);
 
@@ -362,7 +362,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
       evtWeightSimple_mistag_Down= 1.0;
     }
     vector<double> *evtWeightProb_mistag_Down = new vector<double>();
-    (*evtWeightProb_Down) = GetCorrections(&inputJets, &recoJetsFlavor);
+    (*evtWeightProb_mistag_Down) = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("mistagSF_EventWeightSimple_Down", evtWeightSimple_mistag_Down);
     tr.registerDerivedVec("mistagSF_EventWeightProb_Down", evtWeightProb_mistag_Down);
 
