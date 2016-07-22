@@ -251,6 +251,15 @@ namespace AnaSamples
         addSampleSet(samples, "TTbarHT", {"TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
         addSampleSet(samples, "TTbarNoHad", {"TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
 
+        //MC samples for Zinv
+        addSampleSet(samples, "ZinvAllMC", {"TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", 
+                    "ZJetsToNuNu_HT_2500toInf", "ZJetsToNuNu_HT_1200to2500", "ZJetsToNuNu_HT_800to1200", "ZJetsToNuNu_HT_600to800", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200", 
+                    "WW", "WZ", "ZZ", 
+                    "TTWJetsToLNu", "TTWJetsToQQ", "TTGJets", "WWZ", "WZZ", "ZZZ", "ttHJetTobb", "ttHJetToNonbb",
+                    "TTZToLLNuNu", "TTZToQQ",
+                    "DYJetsToLL_HT_600toInf", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200", "DYJetsToLL_Inc",
+                    "tW_top", "tW_antitop"});
+
         // Only all had. part of TTbarInc
         addSampleSet(samples, "TTbarAll", {"TTbarInc", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
 
