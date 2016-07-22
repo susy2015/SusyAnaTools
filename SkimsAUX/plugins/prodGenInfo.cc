@@ -32,7 +32,7 @@ class prodGenInfo : public edm::EDFilter {
   private:
 
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
-
+    
     edm::InputTag genParticleSrc_;
     edm::Handle<edm::View<reco::GenParticle > > genParticles;
 
@@ -50,7 +50,7 @@ class prodGenInfo : public edm::EDFilter {
     edm::EDGetTokenT<pat::PackedCandidateCollection> PfCandsTok_;
     edm::EDGetTokenT<double> RhoTok_;
 
-    bool debug_;
+     bool debug_;
 
     int find_idx(const reco::Candidate & target);
     int find_idx(int genIdx, const std::vector<int> &genDecayIdxVec);
@@ -79,6 +79,8 @@ prodGenInfo::prodGenInfo(const edm::ParameterSet & iConfig) {
   GenDecayChainParIdxVecTok_ =consumes<std::vector<int> >(genDecayChainPartIdxVecSrc_);
   PfCandsTok_= consumes<pat::PackedCandidateCollection>(pfCandsSrc_);
   RhoTok_ = consumes<double>(rhoSrc_);
+
+
 
   produces<std::vector<std::string> >("genDecayStrVec");
   produces<std::vector<int> >("genDecayIdxVec");
@@ -117,6 +119,7 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(GenDecayChainParIdxVecTok_, genDecayChainPartIdxVec_);
 
   iEvent.getByToken(PfCandsTok_, pfcands);
+
 
   edm::Handle< double > rho_;
   //iEvent.getByLabel("fixedGridRhoFastjetCentralNeutral", rho_); // Central rho recommended for SUSY
