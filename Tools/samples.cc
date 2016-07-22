@@ -49,7 +49,7 @@ namespace AnaSamples
         std::string MClocv6X = "Spring16_80X_Jun_2016_Ntp_v6X/";
         std::string MCloc1 ="Spring16_80X_Jun_2016_Ntp_v5X/"; 
         std::string MCloc2 = "Spring15_74X_Feb_2016_Ntp_v6X_forMoriond/";
-        std::string DATAloc = "Spring16_80X_Jul_2016_Ntp_v8X/";
+        std::string DATAloc = "Spring16_80X_Jul_2016_Ntp_v9X/";
         std::string DATAloc74X = "Spring15_74X_Feb_2016_Ntp_v6X_forMoriond/";
         std::string sigMCloc = "Spring16_80X_Jul_2016_Ntp_v8X/";
         std::string addSigMCloc = "Spring15_74X_v5X_top_corridor/";
@@ -165,7 +165,7 @@ namespace AnaSamples
         // - data -
         // --------
 	//Single Muon
-	addSample("Data_SingleMuon_2016", fDir_ + DATAloc + "SingleMuon.txt","stopTreeMaker/AUX", 5873.991728023 + 1760.842972044, 1.0,  kBlack);
+	addSample("Data_SingleMuon_2016", fDir_ + DATAloc + "SingleMuon.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
 	//old
 	addSample("Data_SingleMuon_2015C", fDir_ + DATAloc74X + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_SingleMuon-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
 	addSample("Data_SingleMuon_2015D_05Oct2015", fDir_ + DATAloc74X + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_SingleMuon-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 575.34, 1.0,  kBlack);
@@ -180,7 +180,7 @@ namespace AnaSamples
 	addSample("Data_SingleElectron_2016", fDir_ + MCloc + "SingleElectron.txt","stopTreeMaker/AUX", 4006.593, 1.0,  kBlack);
 	
 	//HT-MHT
-	addSample("Data_HTMHT_2016", fDir_ + DATAloc + "HTMHT.txt","stopTreeMaker/AUX",  5871.102343734 + 1760.842972044, 1.0,  kBlack);
+	addSample("Data_HTMHT_2016", fDir_ + DATAloc + "HTMHT.txt","stopTreeMaker/AUX",  5926.7518 + 2646.1215 + 4329.5899, 1.0,  kBlack);
 	//old
 	addSample("Data_HTMHT_2015C", fDir_ + DATAloc74X + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_HTMHT-Run2015C-25ns-05Oct2015.txt","stopTreeMaker/AUX", 17.226, 1.0,  kBlack);
 	addSample("Data_HTMHT_2015D_05Oct2015", fDir_ + DATAloc74X + "Spring15_74X_Feb_2016_Ntp_v6p0_forMoriond_HTMHT-Run2015D-05Oct2015.txt","stopTreeMaker/AUX", 574.23, 1.0,  kBlack);
