@@ -1,1 +1,3 @@
+hadd signalScan_SMS-T1tttt.root Signal_fastsim_T1tttt_scan/signalScan_SMS-T1tttt*.root
 hadd signalScan_SMS-T2tt.root Signal_fastsim_T2tt_scan/signalScan_SMS-T2tt*.root
+hadd signalScan_SMS-T5ttcc.root Signal_fastsim_T5ttcc_scan/signalScan_SMS-T5ttcc*.root

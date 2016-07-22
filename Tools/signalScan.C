@@ -99,6 +99,8 @@ void myPDFUncertaintyFunc(NTupleReader &tr){
    (*pdfScale)(tr);
 }
 
+TFile * bTagEffFile =0;
+
 // 0 is used to set to process all events
 int entryToProcess = -1;
 
@@ -620,6 +622,8 @@ public:
        const std::vector<double> & prob_Up = tr.getVec<double>("bTagSF_EventWeightProb_Up");
        const std::vector<double> & prob_Cen = tr.getVec<double>("bTagSF_EventWeightProb_Central");
        const std::vector<double> & prob_Dn = tr.getVec<double>("bTagSF_EventWeightProb_Down");
+       const std::vector<double> & prob_mistag_Up = tr.getVec<double>("mistagSF_EventWeightProb_Up");
+       const std::vector<double> & prob_mistag_Dn = tr.getVec<double>("mistagSF_EventWeightProb_Down");
 
        const double & method1a_Up = tr.getVar<double>("bTagSF_EventWeightSimple_Up");
        const double & method1a_Cen = tr.getVar<double>("bTagSF_EventWeightSimple_Central");
@@ -946,12 +950,26 @@ public:
              }
           }
 
+// Method 1a
           baseline_bTagSFUp_->Fill(nSearchBin, method1a_Up * weight);
           baseline_bTagSFCen_->Fill(nSearchBin, method1a_Cen * weight);
           baseline_bTagSFDn_->Fill(nSearchBin, method1a_Dn * weight);
 
           baseline_mistagSFUp_->Fill(nSearchBin, method1a_mistag_Up * weight);
           baseline_mistagSFDn_->Fill(nSearchBin, method1a_mistag_Dn * weight);
+
+/*
+// Method 1b
+          for(int ib=0; ib<3; ib++){
+             int per_nSearchBin = sb->find_Binning_Index(ib+1, nTopCandSortedCnt, best_had_brJet_MT2, met);
+             baseline_bTagSFUp_->Fill(per_nSearchBin, prob_Up[ib+1] * weight);
+             baseline_bTagSFCen_->Fill(per_nSearchBin, prob_Cen[ib+1] * weight);
+             baseline_bTagSFDn_->Fill(per_nSearchBin, prob_Dn[ib+1] * weight);
+
+             baseline_mistagSFUp_->Fill(per_nSearchBin, prob_mistag_Up[ib+1] * weight);
+             baseline_mistagSFDn_->Fill(per_nSearchBin, prob_mistag_Dn[ib+1] * weight);
+          }
+*/
 
           baseline_genTopSFUp_->Fill(nSearchBin, genTopSF_relErr_evt * weight);
           baseline_genTopSFCen_->Fill(nSearchBin, genTopSF_evt * weight);
@@ -1311,7 +1329,17 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
      tr->registerFunction(&metPhiDnBaselineFunc);
 
      BTagCorrector btagcorr;
-     btagcorr.SetFastSim(true); btagcorr.SetCalibFastSim("CSV_13TEV_Combined_20_11_2015.csv");
+     btagcorr.SetFastSim(true); btagcorr.SetCalibFastSim("CSV_13TEV_Combined_14_7_2016.csv");
+     if( bTagEffFile ) delete bTagEffFile;
+     if( sampleKeyString.find("T2tt") != std::string::npos ){
+        std::cout<<"\nBTagCorrector ...  Using the SMS-T2tt_mStop-400to1200_bTagEff.root ...\n"<<std::endl;
+        bTagEffFile = new TFile("SMS-T2tt_mStop-400to1200_bTagEff.root");
+        btagcorr.SetEffs(bTagEffFile);
+     }else if( sampleKeyString.find("T1tt") != std::string::npos || sampleKeyString.find("T5tt") != std::string::npos ){
+        std::cout<<"\nBTagCorrector ...  Using the SMS-T1tttt_2016_bTagEff.root ...\n"<<std::endl;
+        bTagEffFile = new TFile("SMS-T1tttt_2016_bTagEff.root");
+        btagcorr.SetEffs(bTagEffFile);
+     }
      tr->registerFunction(btagcorr);
 
      int entries = tr->getNEntries();

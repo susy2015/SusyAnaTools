@@ -42,7 +42,7 @@ BTagCorrector(std::string file = "TTbarNoHad_bTagEff.root", std::string CSVFileP
         if(isFastSim)
         {
             //FastSim
-            SetFastSim(false);
+            SetFastSim(true);
             SetCalibFastSim("CSV_13TEV_Combined_14_7_2016.csv");
         }
 
@@ -64,9 +64,11 @@ BTagCorrector(std::string file = "TTbarNoHad_bTagEff.root", std::string CSVFileP
 	    TH2F *d_eff_c = (TH2F*)file->Get(("d_eff_c_" + suffix).c_str());
 	    TH2F *d_eff_udsg = (TH2F*)file->Get(("d_eff_udsg_" + suffix).c_str());
 
+	    
 	    h_eff_b->Divide(d_eff_b);
 	    h_eff_c->Divide(d_eff_c);
 	    h_eff_udsg->Divide(d_eff_udsg);
+
 
         }
         else
@@ -79,11 +81,12 @@ BTagCorrector(std::string file = "TTbarNoHad_bTagEff.root", std::string CSVFileP
 	    TH2F *d_eff_c = (TH2F*)file->Get("d_eff_c");
             TH2F *d_eff_udsg = (TH2F*)file->Get("d_eff_udsg");
 
-	    if(h_eff_b){
-	      h_eff_b->Divide(d_eff_b);
-	      h_eff_c->Divide(d_eff_c);
-	      h_eff_udsg->Divide(d_eff_udsg);
-	    }
+            if(h_eff_b){
+               h_eff_b->Divide(d_eff_b);
+               h_eff_c->Divide(d_eff_c);
+               h_eff_udsg->Divide(d_eff_udsg);
+            }
+
         }
     }
     void resetEffs(std::string suffix)

@@ -38,6 +38,8 @@ const bool doSingleMuonCS = false;
 const bool doInvDphi = false;
 const bool usegenmet = false;
 
+const bool evtFilterFor_ttZ_rare = true;
+
 MT2CalcCore * mt2Calc;
 
 BaselineVessel * SRblv =0;
@@ -80,6 +82,20 @@ void drawOverFlowBin(TH1 *histToAdjust){
    double lastCont = histToAdjust->GetBinContent(nbins);
    histToAdjust->SetBinContent(nbins, overflow+lastCont);
 }
+
+std::vector<int> GetGenChilds(const std::vector<int> &genDecayPdgIdVec, const std::vector<int> &genDecayMomIdxVec, int parent, const std::vector<int> &pdgs){
+  std::vector<int> outs;
+  for (unsigned int i = 0; i < genDecayMomIdxVec.size(); ++i) {
+    if (abs(genDecayMomIdxVec[i]) == parent) {
+      for(unsigned int j=0; j < pdgs.size(); ++j) {
+        if (abs(genDecayPdgIdVec.at(i)) == pdgs.at(j)) {
+          outs.push_back(i);
+        }
+      }
+    }
+  }
+  return outs;
+} // -----  end of function GetGenChilds  ----
 
 void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<std::string> &subSampleKeysVec, const std::string sampleKeyString,
   const AnaSamples::SampleSet  & allSamples,
@@ -295,6 +311,36 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 
                  if( per_cnt_tau ==0 && per_cnt_mu ==0 && per_cnt_ele ==0 ) cnt_allhadTop ++;
               }
+           }
+
+           if( evtFilterFor_ttZ_rare && (keyStringT.Contains("TTZ") || keyStringT.Contains("TTW") || keyStringT.Contains("Diboson") || keyStringT.Contains("Triboson")) ){
+// If there are any gen leptons of e, mu, tau, we assume they are covered by either lost lepton or hadronic tau.
+// Things that are not covered are:
+// TTZ: leptonic ttbar with whatever Z decays would be covered. Not covered is all-hadronic ttbar + Z->vv
+// TTW: only all-hadronic of TTW are NOT covered (neglible)
+// WW, WZ, ZZ: leptonic of W decay would be covered. If Z->ee,mumu,tautau, probably not covered but no real MET. If any of Z->vv with others decay hadronically or di-leptonic Z, then not covered.
+// WWZ, WZZ, ZZZ: leptonic of W decay would be covered.
+              int cntGenLep = 0, cntGenZinv = 0; 
+              for (unsigned int ig = 0; ig < genDecayMomIdxVec.size(); ++ig){
+                 if (abs(genDecayPdgIdVec[ig]) == 23){
+          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Getting the leptons  ~~~~~
+                    std::vector<int> out = GetGenChilds( genDecayPdgIdVec, genDecayMomIdxVec, genDecayIdxVec[ig], {12, 14, 16});
+                    if (out.size() > 0){
+                       assert(out.size() == 2);
+                       cntGenZinv ++;
+                    }
+                 }
+                 if (abs(genDecayPdgIdVec[ig]) == 24){
+          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Getting the leptons  ~~~~~
+                    std::vector<int> out = GetGenChilds( genDecayPdgIdVec, genDecayMomIdxVec, genDecayIdxVec[ig], {11, 13, 15});
+                    if (out.size() > 0){
+                       assert(out.size() == 1);
+                       cntGenLep ++;
+                    }
+                 }
+              }
+              if( cntGenLep != 0 ) continue;
+              if( cntGenZinv == 0 ) continue;
            }
         }
 

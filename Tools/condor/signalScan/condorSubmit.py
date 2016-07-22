@@ -10,7 +10,7 @@ Executable = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/signalScan/goScan.sh
 Requirements = OpSys == "LINUX"&& (Arch != "DUMMY" )
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/signalScan, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/signalScan/goScan.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/data/batchSignalPlots.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSVFiles/CSV_13TEV_Combined_20_11_2015.csv, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSVFiles/CSVv2_mod.csv
+Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/signalScan, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/signalScan/goScan.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/data/SMS-T1tttt_2016_bTagEff.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/data/SMS-T2tt_mStop-400to1200_bTagEff.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/data/batchSignalPlots.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSVFiles/CSV_13TEV_Combined_14_7_2016.csv, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSVFiles/CSVv2_4invfb.csv
 notify_user = ${LOGNAME}@FNAL.GOV
 x509userproxy = $ENV(X509_USER_PROXY)
 

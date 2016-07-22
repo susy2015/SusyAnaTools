@@ -17,10 +17,10 @@ from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
 from multiprocessing import Process
 
-workArea = 'crabProdv8p0'
-outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jul_2016_Ntp_v8X'
-Pubname = 'Spring16_80X_Jul_2016_Ntp_v8p0_new_JEC_new_muonID_top_up'
-json_25ns = 'Cert_271036-276097_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt'
+workArea = 'crabProdv9p0'
+outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jul_2016_Ntp_v9X'
+Pubname = 'Spring16_80X_Jul_2016_Ntp_v8p0_new_JEC_new_muonID_top_up_FINAL'
+json_25ns = 'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
 # TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleEG
@@ -30,13 +30,15 @@ json_25ns = 'Cert_271036-276097_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon'
 #selSubmitKey = 'TEST STATUS SMS-T2tt_FastSim'
+#selSubmitKey = 'TEST STATUS SingleMuon'
 selSubmitKey = 'TEST ALL'
+#selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon SMS-T2tt_FastSim SMS-T1tttt_FastSim'
 doAutoMonitor = False
 
 ## Format: keyword : IsData, fulldatasetname, unitperjob
 jobslist = {
     # TTbar
-'TTJets_Inc'                                 : [False, '/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
+    'TTJets_Inc'                             : [False, '/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
     'TTJets_SingleLeptFromT'                 : [False, '/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
     'TTJets_SingleLeptFromT_ext1'            : [False, '/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3_ext1-v1/MINIAODSIM', 1], # TODO
     'TTJets_SingleLeptFromTbar'              : [False, '/TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
@@ -143,16 +145,18 @@ jobslist = {
 
     # FastSim signals
     'SMS-T1tttt_FastSim_scan'                : [False, '/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
+    'SMS-T2tt_FastSim_scan_150to250'         : [False, '/SMS-T2tt_mStop-150to250_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
     'SMS-T2tt_FastSim_scan_250to350'         : [False, '/SMS-T2tt_mStop-250to350_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
     'SMS-T2tt_FastSim_scan_350to400'         : [False, '/SMS-T2tt_mStop-350to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
     'SMS-T2tt_FastSim_scan_400to1200'        : [False, '/SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
-
-#    'SMS-T2tt_FastSim_mStop-400to1200'       : [False, '/SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
+    'SMS-T5ttcc_FastSim_scan'                : [False, '/SMS-T5ttcc_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v3/MINIAODSIM', 1],
 
     # Data
 #    'HTMHT-Run2015B-05Oct2015'               : [True, '/HTMHT/Run2015B-05Oct2015-v1/MINIAOD', 10],
     #'HTMHT-Run2015C-25ns-05Oct2015'          : [True, '/HTMHT/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
     #'HTMHT-Run2015D-05Oct2015'               : [True, '/HTMHT/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    'HTMHT-Run2016E-PromptReco-v2'           : [True, '/HTMHT/Run2016E-PromptReco-v2/MINIAOD', 10],
+    'HTMHT-Run2016D-PromptReco-v2'           : [True, '/HTMHT/Run2016D-PromptReco-v2/MINIAOD', 10],
     'HTMHT-Run2016C-PromptReco-v2'           : [True, '/HTMHT/Run2016C-PromptReco-v2/MINIAOD', 10],
     'HTMHT-Run2016B-PromptReco-v2'           : [True, '/HTMHT/Run2016B-PromptReco-v2/MINIAOD', 10],
     'HTMHT-Run2016B-PromptReco-v1'           : [True, '/HTMHT/Run2016B-PromptReco-v1/MINIAOD', 10],
@@ -160,6 +164,8 @@ jobslist = {
 #    'MET-Run2015B-05Oct2015'                 : [True, '/MET/Run2015B-05Oct2015-v1/MINIAOD', 10],
     #'MET-Run2015C-25ns-05Oct2015'            : [True, '/MET/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
     #'MET-Run2015D-05Oct2015'                 : [True, '/MET/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    'MET-Run2016E-PromptReco-v2'                : [True, '/MET/Run2016E-PromptReco-v2/MINIAOD', 10],
+    'MET-Run2016D-PromptReco-v2'                : [True, '/MET/Run2016D-PromptReco-v2/MINIAOD', 10],
     'MET-Run2016C-PromptReco-v2'                : [True, '/MET/Run2016C-PromptReco-v2/MINIAOD', 10],
     'MET-Run2016B-PromptReco-v2'                : [True, '/MET/Run2016B-PromptReco-v2/MINIAOD', 10],
     'MET-Run2016B-PromptReco-v1'                : [True, '/MET/Run2016B-PromptReco-v1/MINIAOD', 10],
@@ -172,10 +178,14 @@ jobslist = {
 #    'SingleMuon-Run2015B-05Oct2015'          : [True, '/SingleMuon/Run2015B-05Oct2015-v1/MINIAOD', 10],
     #'SingleMuon-Run2015C-25ns-05Oct2015'     : [True, '/SingleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
     #'SingleMuon-Run2015D-05Oct2015'          : [True, '/SingleMuon/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    'SingleMuon-Run2016E-PromptReco-v2'         : [True, '/SingleMuon/Run2016E-PromptReco-v2/MINIAOD', 10],
+    'SingleMuon-Run2016D-PromptReco-v2'         : [True, '/SingleMuon/Run2016D-PromptReco-v2/MINIAOD', 10],
     'SingleMuon-Run2016C-PromptReco-v2'         : [True, '/SingleMuon/Run2016C-PromptReco-v2/MINIAOD', 10],
     'SingleMuon-Run2016B-PromptReco-v2'         : [True, '/SingleMuon/Run2016B-PromptReco-v2/MINIAOD', 10],
     'SingleMuon-Run2016B-PromptReco-v1'         : [True, '/SingleMuon/Run2016B-PromptReco-v1/MINIAOD', 10],
 
+    'SingleElectron-Run2016E-PromptReco-v2'     : [True, '/SingleElectron/Run2016E-PromptReco-v2/MINIAOD', 10],
+    'SingleElectron-Run2016D-PromptReco-v2'     : [True, '/SingleElectron/Run2016D-PromptReco-v2/MINIAOD', 10],
     'SingleElectron-Run2016C-PromptReco-v2'     : [True, '/SingleElectron/Run2016C-PromptReco-v2/MINIAOD', 10],
     'SingleElectron-Run2016B-PromptReco-v2'     : [True, '/SingleElectron/Run2016B-PromptReco-v2/MINIAOD', 10],
 #    'SingleElectron-Run2015B-05Oct2015'      : [True, '/SingleElectron/Run2015B-05Oct2015-v1/MINIAOD', 10],
@@ -290,9 +300,14 @@ def SubmitJob(key, value):
             tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016C-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v9', 'specialFix=JEC', 'jecDBname=Spring16_25nsV3_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV3_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+        elif key.find('Run2016D-PromptReco') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v9', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+            tempconfig.Data.splitting = 'LumiBased'
+            tempconfig.Data.lumiMask = json_25ns
+        elif key.find('Run2016E-PromptReco') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v10', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         else:
