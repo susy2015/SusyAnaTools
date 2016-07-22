@@ -814,6 +814,7 @@ if options.mcInfo == True:
    process.stopTreeMaker.vectorDoubleNamesInTree.extend(["prodGenInfo:WemupfActivityVec|W_emu_pfActivityVec", "prodGenInfo:WtauemupfActivityVec|W_tau_emu_pfActivityVec", "prodGenInfo:WtauprongspfActivityVec|W_tau_prongs_pfActivityVec"])
    process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenInfo", "genDecayLVec"))
    process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenInfo", "selGenParticle"))
+   process.stopTreeMaker.varsInt.append(cms.InputTag("prodGenInfo", "NJetsISR"))
    process.genHT = cms.EDProducer('GenHTProducer')
    process.stopTreeMaker.varsDouble.append(cms.InputTag("genHT", "genHT"))
    process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenJets", "genjetsLVec"))
