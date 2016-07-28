@@ -46,6 +46,10 @@ SearchBins::SearchBins(std::string binEra)
     {
         SearchBins_59_2016();
     }
+    else if(binEra.compare("SB_Aggregate_ICHEP_2016") == 0)
+    {
+        SearchBins_Aggregate_ICHEP_2016();
+    }
     else
     {
         std::cout << "!!!!!!!!!!!!!!!!!!!!BINS NOT ADDED!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
@@ -544,6 +548,76 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
 
 
 }
+
+void SearchBins::SearchBins_Aggregate_ICHEP_2016()
+{
+    //         Baseline
+    addNbNtBin(1, -1, 1, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {200},
+               // met hi
+               {-1});
+
+    //         StopE (compressed)
+    addNbNtBin(1, -1, 2, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {350},
+               // met lo
+               {200},
+               // met hi
+               {350});
+
+    //         StopD (medium) and StopB (high)
+    addNbNtBin(2, -1, 1, -1,
+               // MT2 lo
+               {350, 450},
+               // MT2 hi
+               {-1, -1},
+               // met lo
+               {350, 650},
+               // met hi
+               {-1, -1});
+
+    //         StopC (medium) and StopA (high)  
+    addNbNtBin(2, -1, 2, -1,
+               // MT2 lo
+               {350, 450},
+               // MT2 hi
+               {-1, -1},
+               // met lo
+               {350, 500},
+               // met hi
+               {-1, -1});
+
+    //         gluinoA
+    addNbNtBin(2, -1, 3, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               { -1},
+               // met lo
+               {350},
+               // met hi
+               {-1});
+
+    //         gluinoB
+    addNbNtBin(3, -1, 1, -1,
+               // MT2 lo
+               {350},
+               // MT2 hi
+               { -1},
+               // met lo
+               {350},
+               // met hi
+               {-1});
+}
+
 
 void SearchBins::SearchBins_59_2016()
 {

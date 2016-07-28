@@ -56,6 +56,7 @@ private:
     void SearchBins_45_2015();
     void SearchBins_69_2016();
     void SearchBins_59_2016();
+    void SearchBins_Aggregate_ICHEP_2016();
 };
 
 #endif
