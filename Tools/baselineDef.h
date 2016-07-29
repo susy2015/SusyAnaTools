@@ -28,7 +28,9 @@ public:
 
     BaselineVessel(const std::string specialization = "", const std::string filterString = "") : spec(specialization),
       jetVecLabel("jetsLVec"), CSVVecLabel("recoJetsBtag_0"), METLabel("met"), METPhiLabel("metphi") 
-    { if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; }
+    { 
+      if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
+    }
 
     ~BaselineVessel() {delete type3Ptr;};
 

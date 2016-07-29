@@ -203,8 +203,9 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
 
   // Pass top tagger requirement?
   bool passTagger = type3Ptr->passNewTaggerReq() && (incZEROtop || nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel);
+  bool passNewTaggerReq = type3Ptr->passNewTaggerReq();
 
-  if( !passTagger ) passBaseline = false;
+  if( !passTagger ){ passBaseline = false; passBaselineNoLepVeto = false; }
 
   bool passNoiseEventFilter = true;
   if( !passNoiseEventFilterFunc(tr) ) { passNoiseEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
@@ -254,7 +255,10 @@ void BaselineVessel::passBaseline(NTupleReader &tr)
   tr.registerDerivedVar("passMT2" + spec, passMT2);
   tr.registerDerivedVar("passHT" + spec, passHT);
   tr.registerDerivedVar("passTagger" + spec, passTagger);
+  tr.registerDerivedVar("passNewTaggerReq" + spec, passNewTaggerReq);
   tr.registerDerivedVar("passNoiseEventFilter" + spec, passNoiseEventFilter);
+  tr.registerDerivedVar("passQCDHighMETFilter" + spec, passQCDHighMETFilter);
+  tr.registerDerivedVar("passFastsimEventFilter" + spec, passFastsimEventFilter);
   tr.registerDerivedVar("passBaseline" + spec, passBaseline);
   tr.registerDerivedVar("passBaselineNoTagMT2" + spec, passBaselineNoTagMT2);
   tr.registerDerivedVar("passBaselineNoTag" + spec, passBaselineNoTag);

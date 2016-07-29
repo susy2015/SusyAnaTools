@@ -16,7 +16,7 @@
 #include <vector>
 #include <algorithm>
 #include <cstdlib>
-
+#include <sstream>
 using namespace std;
 
 const int nPtBins = 17;
@@ -25,17 +25,18 @@ const int nEtaBins = 3;
 const double ptBins[]    =  {20,30,40,50,60,70,80,100,120,160,210,260,320,400,500,600,800,99999};
 const double etaBins[]  =  {0.0,0.8,1.6,2.4};
 
+const double csv_btag = 0.800;
 int main(int argc, char* argv[])
 {
 
-    std::string condor = AnaSamples::fileDir;
+  std::string condor = "";
     if(argc >= 5) condor = argv[4];
-    AnaSamples::SampleSet        ss(condor, 3.0);
+    AnaSamples::SampleSet        ss(argv[4], 8000.0);
     AnaSamples::SampleCollection sc(ss);
 
     std::string ssName;
     int numFiles;
-    int startFile = -1;
+    int startFile;
 
     if(argc >= 4)
     {
@@ -45,7 +46,7 @@ int main(int argc, char* argv[])
     }
 
     const std::string samples = argv[1];
-      
+    TString samplesT = samples;
     TChain* ch = 0;
     if(ss[ssName] != ss.null())
     {
@@ -56,11 +57,20 @@ int main(int argc, char* argv[])
     NTupleReader tr(ch);
     std::cout << "NEVTS: " << tr.getNEntries() << std::endl;
 
-    const std::string nmStr = "_"+samples;
-    const TString nmStrT = nmStr;
-      
+
+    std::string nmStr;
+    std::ostringstream convert;
+    if( startFile != 0 || numFiles != -1 ){
+      int idx = startFile/numFiles;
+      convert << idx;
+      nmStr += "_"+convert.str();
+    }
+    TString nmStrT = nmStr;
+    
+
     TFile *infile = nullptr;
-    infile = new TFile("bTagEfficiency"+(nmStrT+"_"+std::to_string(startFile))+".root", "RECREATE");
+    infile = new TFile(samplesT+"_bTagEff"+nmStrT+"_"+std::to_string(startFile)+".root", "RECREATE");
+    //infile = new TFile("bTagEff"+samplesT+"_"+nmStrT+"_"+std::to_string(startFile)+".root", "RECREATE");
 
     /*************************************************************/      
     //Declare efficiency histograms. n-> numerator d-> denominator
@@ -68,9 +78,9 @@ int main(int argc, char* argv[])
     /*************************************************************/
 
     TH1::AddDirectory(kFALSE);
-    TH2* n_eff_b =    new TH2D("h_eff_b", "bTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
-    TH2* n_eff_c =    new TH2D("h_eff_c", "cTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
-    TH2* n_eff_udsg = new TH2D("h_eff_udsg", "udsgTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* n_eff_b =    new TH2D("n_eff_b", "bTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* n_eff_c =    new TH2D("n_eff_c", "cTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* n_eff_udsg = new TH2D("n_eff_udsg", "udsgTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
     TH2* d_eff_b =    new TH2D("d_eff_b", "bTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
     TH2* d_eff_c =    new TH2D("d_eff_c", "cTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
     TH2* d_eff_udsg = new TH2D("d_eff_udsg", "udsgTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
@@ -119,17 +129,17 @@ int main(int argc, char* argv[])
             if(flav==5) //b Jets
             {
                 d_eff_b->Fill(pt,eta);
-                if(csv > 0.890) n_eff_b->Fill(pt,eta);
+                if(csv > csv_btag) n_eff_b->Fill(pt,eta);
             }
             else if(flav==4) // c jets
             {
                 d_eff_c->Fill(pt,eta);
-                if(csv > 0.890) n_eff_c->Fill(pt,eta);
+                if(csv > csv_btag) n_eff_c->Fill(pt,eta);
             }
             else if(flav<4 || flav==21) // other flavours
             {
                 d_eff_udsg->Fill(pt,eta);
-                if(csv > 0.890) n_eff_udsg->Fill(pt,eta);
+                if(csv > csv_btag) n_eff_udsg->Fill(pt,eta);
             }
 	      
         }
@@ -138,19 +148,16 @@ int main(int argc, char* argv[])
     // End of Event loop
     /*************************************************************/
       
-    n_eff_b->Write();
-    n_eff_c->Write();
-    n_eff_udsg->Write();
     d_eff_b->Write();
     d_eff_c->Write();
     d_eff_udsg->Write();
+    
+    
+    n_eff_b->Write();
+    n_eff_c->Write();
+    n_eff_udsg->Write();  
+    
 
-    //n_eff_b->Divide(d_eff_b);
-    //n_eff_c->Divide(d_eff_c);
-    //n_eff_udsg->Divide(d_eff_udsg);
-    //n_eff_b->Write();
-    //n_eff_c->Write();
-    //n_eff_udsg->Write();  
     infile->Close();
      
 
