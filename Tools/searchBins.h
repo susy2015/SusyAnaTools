@@ -11,6 +11,7 @@ public:
     SearchBins(std::string binEra = "SB_59_2016");
 
     int find_Binning_Index(const int ibJet, const int iTop, const double MT2, const double met) const;
+    std::vector<int> find_Binning_Indices(const int ibJet, const int iTop, const double MT2, const double met) const;
 
     struct searchBinDef
     {

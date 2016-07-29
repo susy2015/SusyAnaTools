@@ -146,6 +146,19 @@ int SearchBins::find_Binning_Index(int ibJet, int iTop, double MT2, double met) 
     return -1;
 }
 
+std::vector<int> SearchBins::find_Binning_Indices(int ibJet, int iTop, double MT2, double met) const
+{
+    std::vector<int> iBins;
+    for(int iBin = 0; iBin < searchBins_.size(); ++iBin)
+    {
+        if(searchBins_[iBin].compare(ibJet, iTop, MT2, met))
+        {
+            iBins.push_back(iBin);
+        }
+    }
+    return iBins;
+}
+
 void SearchBins::find_BinBoundaries(int inputIdx, searchBinDef & outBinDef) const
 {
     if(inputIdx >= 0 && inputIdx < searchBins_.size())
