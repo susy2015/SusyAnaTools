@@ -328,6 +328,10 @@ public:
 
     bool passNoiseEventFilterFunc(NTupleReader &tr)
     {
+// According to https://twiki.cern.ch/twiki/bin/view/CMS/SUSRecommendationsICHEP16#Filters_to_be_applied,
+// "Do not apply filters to signal monte carlo (fastsim)"
+        if( isfastsim ) return true;
+
         try
         {
             bool cached_rethrow = tr.getReThrow();
