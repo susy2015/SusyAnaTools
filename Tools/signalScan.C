@@ -41,6 +41,8 @@
 
 #include "../SkimsAUX/plugins/MT2CalcCore.h"
 
+#include "ISRCorrector.h"
+
 SearchBins * sb =0;
 int nTotBins;
 std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
@@ -129,54 +131,81 @@ void drawOverFlowBin(TH1 *histToAdjust){
    histToAdjust->SetBinContent(nbins, overflow+lastCont);
 }
 
+TH2D * mu_mediumID_SF = 0, * mu_miniISO_SF = 0;
+TH1D * mu_trkptGT10_SF = 0, * mu_trkptLT10_SF = 0;
+
+TH2D * ele_VetoID_SF = 0, * ele_miniISO_SF = 0;
+TH2D * ele_trkpt_SF = 0;
+
 double GetTriggerEffWeight (const double met) {
-   if (met<100) return 0.0130;
-   else if (met<150) return 0.3239;
-   else if (met<175) return 0.7855;
-   else if (met<200) return 0.9429;
-   else if (met<275) return 0.9736;
-   else if (met<400) return 0.9952;
+   if (met<25) return 0.002;
+   else if (met<50) return 0.003;
+   else if (met<75) return 0.012;
+   else if (met<100) return 0.055;
+   else if (met<125) return 0.217;
+   else if (met<150) return 0.491;
+   else if (met<175) return 0.757;
+   else if (met<200) return 0.900;
+   else if (met<275) return 0.974;
+   else if (met<400) return 0.993;
    else return 1.0;
 }
 
 double GetTriggerEffStatUncHi (const double met) {
-   if (met<100) return 0.0011;
-   else if (met<150) return 0.0131;
-   else if (met<175) return 0.0226;
-   else if (met<200) return 0.0149;
-   else if (met<275) return 0.0078;
-   else if (met<400) return 0.0040;
-   else return 0.0;
+   if (met<25) return 0.000;
+   else if (met<50) return 0.000;
+   else if (met<75) return 0.000;
+   else if (met<100) return 0.001;
+   else if (met<125) return 0.004;
+   else if (met<150) return 0.006;
+   else if (met<175) return 0.006;
+   else if (met<200) return 0.005;
+   else if (met<275) return 0.002;
+   else if (met<400) return 0.002;
+   else return 0.000;
 }
 
 double GetTriggerEffStatUncLo (const double met) {
-   if (met<100) return 0.0010;
-   else if (met<150) return 0.0128;
-   else if (met<175) return 0.0244;
-   else if (met<200) return 0.0190;
-   else if (met<275) return 0.0104;
-   else if (met<400) return 0.0109;
-   else return 0.0109;
+   if (met<25) return 0.000;
+   else if (met<50) return 0.000;
+   else if (met<75) return 0.000;
+   else if (met<100) return 0.001;
+   else if (met<125) return 0.004;
+   else if (met<150) return 0.006;
+   else if (met<175) return 0.007;
+   else if (met<200) return 0.006;
+   else if (met<275) return 0.003;
+   else if (met<400) return 0.002;
+   else return 0.004;
 }
 
+// Not available for ICHEP ...
 double GetTriggerEffSystUncHi (const double met) {
-   if (met<100) return 0.0272;
-   else if (met<150) return 0.0872;
-   else if (met<175) return 0.1505;
-   else if (met<200) return 0.0423;
-   else if (met<275) return 0.0112;
-   else if (met<400) return 0.0001;
-   else return 0.0000;
+   if (met<25) return 0.000;
+   else if (met<50) return 0.000;
+   else if (met<75) return 0.000;
+   else if (met<100) return 0.000;
+   else if (met<125) return 0.000;
+   else if (met<150) return 0.000;
+   else if (met<175) return 0.000;
+   else if (met<200) return 0.000;
+   else if (met<275) return 0.000;
+   else if (met<400) return 0.000;
+   else return 0.000;
 }
 
 double GetTriggerEffSystUncLo (const double met) {
-   if (met<100) return 0.0120;
-   else if (met<150) return 0.0872;
-   else if (met<175) return 0.1505;
-   else if (met<200) return 0.0792;
-   else if (met<275) return 0.0112;
-   else if (met<400) return 0.0001;
-   else return 0.0018;
+   if (met<25) return 0.000;
+   else if (met<50) return 0.000;
+   else if (met<75) return 0.000;
+   else if (met<100) return 0.000;
+   else if (met<125) return 0.000;
+   else if (met<150) return 0.000;
+   else if (met<175) return 0.000;
+   else if (met<200) return 0.000;
+   else if (met<275) return 0.000;
+   else if (met<400) return 0.000;
+   else return 0.000;
 }
 
 /*
@@ -286,7 +315,13 @@ private:
 
 //    TH1* baseline_noLepVeto_;
     TH1* baseline_muVeto_;
+    TH1* baseline_muVeto_SF_;
+    TH1* baseline_muVeto_Up_;
+    TH1* baseline_muVeto_Dn_;
     TH1* baseline_eleVeto_;
+    TH1* baseline_eleVeto_SF_;
+    TH1* baseline_eleVeto_Up_;
+    TH1* baseline_eleVeto_Dn_;
     TH1* baseline_isoLepTrkVeto_;
     TH1* baseline_isoPionTrkVeto_;
 
@@ -324,6 +359,7 @@ private:
     TH1* baseline_pdfUncDn_;
 
     TH1* baseline_isrUncUp_;
+    TH1* baseline_isrUncCen_;
     TH1* baseline_isrUncDn_;
 
     TH1* baseline_metMagUp_;
@@ -441,8 +477,26 @@ private:
        sprintf(hname, "%s_%d_%d", "baseline_muVeto", mMass_, dMass_);
        baseline_muVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_muVeto_->Sumw2();
 
+       sprintf(hname, "%s_%d_%d", "baseline_muVeto_SF", mMass_, dMass_);
+       baseline_muVeto_SF_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_muVeto_SF_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_muVeto_Up", mMass_, dMass_);
+       baseline_muVeto_Up_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_muVeto_Up_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_muVeto_Dn", mMass_, dMass_);
+       baseline_muVeto_Dn_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_muVeto_Dn_->Sumw2();
+
        sprintf(hname, "%s_%d_%d", "baseline_eleVeto", mMass_, dMass_);
        baseline_eleVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_eleVeto_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_eleVeto_SF", mMass_, dMass_);
+       baseline_eleVeto_SF_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_eleVeto_SF_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_eleVeto_Up", mMass_, dMass_);
+       baseline_eleVeto_Up_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_eleVeto_Up_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_eleVeto_Dn", mMass_, dMass_);
+       baseline_eleVeto_Dn_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_eleVeto_Dn_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_isoLepTrkVeto", mMass_, dMass_);
        baseline_isoLepTrkVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_isoLepTrkVeto_->Sumw2();
@@ -471,6 +525,8 @@ private:
 
        sprintf(hname, "%s_%d_%d", "baseline_isrUncUp", mMass_, dMass_);
        baseline_isrUncUp_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_isrUncUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_isrUncCen", mMass_, dMass_);
+       baseline_isrUncCen_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_isrUncCen_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_isrUncDn", mMass_, dMass_);
        baseline_isrUncDn_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_isrUncDn_->Sumw2();
 
@@ -561,10 +617,23 @@ private:
        den_eff_udsg_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); den_eff_udsg_->Sumw2();
     }
 
+    ISRCorrector * isrCorr;
+
 public:
     HistContainer(int mMass, int dMass, std::string sampleKeyStr="T2tt") : mMass_(mMass), dMass_(dMass), sampleKeyStr_(sampleKeyStr)
     {
        bookHists();
+
+       TString massPointStrT;
+       massPointStrT.Form("%d_%d", mMass_, dMass_);
+//       std::cout<<"massPointStrT : "<<massPointStrT<<std::endl;
+
+       if( sampleKeyStr_.find("T2tt") != std::string::npos ) isrCorr = new ISRCorrector("Signal_fastsim_T2tt_scan_ISR.root", "", massPointStrT);
+       else if( sampleKeyStr_.find("T1tttt") != std::string::npos ) isrCorr = new ISRCorrector("Signal_fastsim_T1tttt_scan_ISR.root", "", massPointStrT);
+       else if( sampleKeyStr_.find("T5ttcc") != std::string::npos ) isrCorr = new ISRCorrector("Signal_fastsim_T5ttcc_scan_ISR.root", "", massPointStrT);
+       else{
+          std::cout<<"Signal points do NOT support right now. Please provide the NJetsISR distribution root file first!"<<std::endl;
+       }
     }
 
     void fill(const NTupleReader& tr, const double weight)
@@ -675,6 +744,8 @@ public:
        const bool & passBaseline_jecDn = tr.getVar<bool>("passBaseline" + spec_jecDn);
 
        const std::vector<TLorentzVector> & vTops = tr.getVec<TLorentzVector>("vTops" + spec);
+
+       const int & NJetsISR = tr.getVar<int>("NJetsISR");
 
        double genTopSF_evt = 1.0, genTopSF_relErr_evt = 0.0; int cntgenTop_misMatched = 0;
        std::vector<int> pickedRecoTopIdxVec;
@@ -831,8 +902,88 @@ public:
 
        if(passBaselineNoLepVeto){
 //          baseline_noLepVeto_->Fill(nSearchBin, weight);
-          if( !passMuonVeto ) baseline_muVeto_->Fill(nSearchBin, weight);
-          if( !passEleVeto ) baseline_eleVeto_->Fill(nSearchBin, weight);
+          const std::vector<TLorentzVector> & muonsLVec = tr.getVec<TLorentzVector>("muonsLVec");
+          const std::vector<double> & muonsMiniIso = tr.getVec<double>("muonsMiniIso");
+          const std::vector<double> & muonsMtw = tr.getVec<double>("muonsMtw");
+          const std::vector<int> & muonsFlagMedium = tr.getVec<int>("muonsFlagMedium");
+
+          const std::vector<TLorentzVector> & elesLVec = tr.getVec<TLorentzVector>("elesLVec");
+          const std::vector<double> & elesMiniIso = tr.getVec<double>("elesMiniIso");
+          const std::vector<double> & elesMtw = tr.getVec<double>("elesMtw");
+          const std::vector<unsigned int> & elesisEB = tr.getVec<unsigned int>("elesisEB");
+          const std::vector<int> & elesFlagVeto = tr.getVec<int>("elesFlagVeto");
+
+          if( !passMuonVeto ){
+// If multiple muons selected, since any of them could trigger the veto we use the most probable muon which is in general lowest in pt.
+// This is because the muon pt spectrum drops quickly for high values
+             int pickedMuonIdx = -1;
+             for(unsigned int im=0; im<muonsLVec.size(); im++){
+                if( AnaFunctions::passMuon(muonsLVec[im], muonsMiniIso[im], muonsMtw[im], muonsFlagMedium[im], AnaConsts::muonsMiniIsoArr) ){
+                   if( pickedMuonIdx == -1 ) pickedMuonIdx = (int)im;
+                   else if( muonsLVec[pickedMuonIdx].Pt() > muonsLVec[im].Pt() ) pickedMuonIdx = (int)im;
+                }
+             }
+             baseline_muVeto_->Fill(nSearchBin, weight);
+             double mu_id_SF = 1.0, mu_iso_SF = 1.0, mu_trk_SF = 1.0;
+             if( pickedMuonIdx != -1 ){
+                const double eta = muonsLVec[pickedMuonIdx].Eta(), pt = muonsLVec[pickedMuonIdx].Pt();
+                const double abseta = std::abs(eta);
+                if( mu_mediumID_SF ){
+                   mu_id_SF = mu_mediumID_SF->GetBinContent(mu_mediumID_SF->FindBin(pt, abseta));
+                   if( mu_id_SF == 0 ) mu_id_SF = 1.0; // very simple way dealing with out of range issue of the TH2D
+                }
+                if( mu_miniISO_SF ){
+                   mu_iso_SF = mu_miniISO_SF->GetBinContent(mu_miniISO_SF->FindBin(pt, abseta));
+                   if( mu_iso_SF == 0 ) mu_iso_SF = 1.0;
+                }
+                if( pt < 10 && mu_trkptLT10_SF ){
+                   mu_trk_SF = mu_trkptLT10_SF->GetBinContent(mu_trkptLT10_SF->FindBin(eta));
+                   if( mu_trk_SF == 0 ) mu_trk_SF = 1.0;
+                }
+                if( pt >= 10 && mu_trkptGT10_SF ){
+                   mu_trk_SF = mu_trkptGT10_SF->GetBinContent(mu_trkptGT10_SF->FindBin(eta));
+                   if( mu_trk_SF == 0 ) mu_trk_SF = 1.0;
+                }
+             }
+             baseline_muVeto_SF_->Fill(nSearchBin, weight*mu_id_SF*mu_iso_SF*mu_trk_SF);
+             baseline_muVeto_Up_->Fill(nSearchBin, weight*(1+0.03));
+             baseline_muVeto_Dn_->Fill(nSearchBin, weight*(1-0.03));
+          }
+          if( !passEleVeto ){
+             int pickedEleIdx = -1;
+             for(unsigned int ie=0; ie<elesLVec.size(); ie++){
+                if( AnaFunctions::passElectron(elesLVec[ie], elesMiniIso[ie], elesMtw[ie], elesisEB[ie], elesFlagVeto[ie], AnaConsts::elesMiniIsoArr) ){
+                   if( pickedEleIdx == -1 ) pickedEleIdx = (int)ie;
+                   else if( elesLVec[pickedEleIdx].Pt() > elesLVec[ie].Pt() ) pickedEleIdx = (int)ie;
+                }
+             }
+             baseline_eleVeto_->Fill(nSearchBin, weight);
+             double ele_id_SF = 1.0, ele_iso_SF = 1.0, ele_trk_SF = 1.0;
+             double ele_id_SF_err = 0.0, ele_iso_SF_err = 0.0, ele_trk_SF_err = 0.0;
+             if( pickedEleIdx != -1 ){
+                const double eta = elesLVec[pickedEleIdx].Eta(), pt = elesLVec[pickedEleIdx].Pt();
+                const double abseta = std::abs(eta);
+                if( ele_VetoID_SF ){
+                   ele_id_SF = ele_VetoID_SF->GetBinContent(ele_VetoID_SF->FindBin(pt, abseta));
+                   ele_id_SF_err = ele_VetoID_SF->GetBinError(ele_VetoID_SF->FindBin(pt, abseta));
+                   if( ele_id_SF == 0 ){ ele_id_SF = 1.0; ele_id_SF_err = 0.0; }
+                }
+                if( ele_miniISO_SF ){
+                   ele_iso_SF = ele_miniISO_SF->GetBinContent(ele_miniISO_SF->FindBin(pt, abseta));
+                   ele_iso_SF_err = ele_miniISO_SF->GetBinError(ele_miniISO_SF->FindBin(pt, abseta));
+                   if( ele_iso_SF == 0 ){ ele_iso_SF = 1.0; ele_iso_SF_err = 0.0; }
+                }
+                if( ele_trkpt_SF ){
+                   ele_trk_SF = ele_trkpt_SF->GetBinContent(ele_trkpt_SF->FindBin(eta, pt));
+                   ele_trk_SF_err = pt<20? 0.03: 0.00;
+                   if( ele_trk_SF == 0 ){ ele_trk_SF = 1.0; ele_trk_SF_err = 0.0; }
+                }
+             }
+             double ele_tot_SF_err = sqrt(ele_id_SF_err*ele_id_SF_err + ele_iso_SF_err*ele_iso_SF_err + ele_trk_SF_err*ele_trk_SF_err);
+             baseline_eleVeto_SF_->Fill(nSearchBin, weight*ele_id_SF*ele_iso_SF*ele_trk_SF);
+             baseline_eleVeto_Up_->Fill(nSearchBin, weight*(1+ele_tot_SF_err));
+             baseline_eleVeto_Dn_->Fill(nSearchBin, weight*(1-ele_tot_SF_err));
+          }
           if( passMuonVeto && passEleVeto && !passIsoLepTrkVeto ) baseline_isoLepTrkVeto_->Fill(nSearchBin, weight);
           if( passMuonVeto && passEleVeto && passIsoLepTrkVeto && !passIsoPionTrkVeto ) baseline_isoPionTrkVeto_->Fill(nSearchBin, weight);
        }
@@ -1019,6 +1170,18 @@ public:
 */
           baseline_MT2_vs_met_->Fill(met, best_had_brJet_MT2, weight);
 
+          double isr_cen_wt = 1.0, isr_up_wt = 1.0, isr_dn_wt = 1.0;
+
+          if( isrCorr ){
+             isr_up_wt = isrCorr->GetCorrection_Up(NJetsISR);
+             isr_cen_wt = isrCorr->GetCorrection_Cent(NJetsISR);
+             isr_dn_wt = isrCorr->GetCorrection_Down(NJetsISR);
+          }
+
+          baseline_isrUncUp_->Fill(nSearchBin, weight*isr_up_wt);
+          baseline_isrUncCen_->Fill(nSearchBin, weight*isr_cen_wt);
+          baseline_isrUncDn_->Fill(nSearchBin, weight*isr_dn_wt);
+/*
           if( sumStopLVec.Pt() < 400 ){
              baseline_isrUncUp_->Fill(nSearchBin, weight);
              baseline_isrUncDn_->Fill(nSearchBin, weight);
@@ -1029,6 +1192,7 @@ public:
              baseline_isrUncUp_->Fill(nSearchBin, (1+0.30) * weight);
              baseline_isrUncDn_->Fill(nSearchBin, (1-0.30) * weight);
           }
+*/
        }
 
        if( passBaseline_metMagUp ){
@@ -1105,7 +1269,13 @@ public:
 
 //       baseline_noLepVeto_->Write();
        baseline_muVeto_->Write();
+       baseline_muVeto_SF_->Write();
+       baseline_muVeto_Up_->Write();
+       baseline_muVeto_Dn_->Write();
        baseline_eleVeto_->Write();
+       baseline_eleVeto_SF_->Write();
+       baseline_eleVeto_Up_->Write();
+       baseline_eleVeto_Dn_->Write();
        baseline_isoLepTrkVeto_->Write();
        baseline_isoPionTrkVeto_->Write();
 
@@ -1129,6 +1299,7 @@ public:
        baseline_pdfUncDn_->Write();
 
        baseline_isrUncUp_->Write();
+       baseline_isrUncCen_->Write();
        baseline_isrUncDn_->Write();
 
        baseline_metMagUp_->Write();
@@ -1669,6 +1840,18 @@ void signalScan(int argc, char *argv[]){
    sb->print_searchBins_latex();
 
    declHistGlobal();
+
+   TFile * allINone_leptonSF_file = new TFile("allINone_leptonSF.root");
+   if( !allINone_leptonSF_file->IsZombie() ){
+      mu_mediumID_SF = (TH2D*) allINone_leptonSF_file->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0");
+      mu_miniISO_SF = (TH2D*) allINone_leptonSF_file->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0_&_Medium2016_pass");
+      mu_trkptGT10_SF = (TH1D*) allINone_leptonSF_file->Get("mutrksfptg10");
+      mu_trkptLT10_SF = (TH1D*) allINone_leptonSF_file->Get("mutrksfptl10");
+
+      ele_VetoID_SF = (TH2D*) allINone_leptonSF_file->Get("GsfElectronToVeto");
+      ele_miniISO_SF = (TH2D*) allINone_leptonSF_file->Get("MVAVLooseElectronToMini");
+      ele_trkpt_SF = (TH2D*) allINone_leptonSF_file->Get("EGamma_SF2D");
+   }
 
    NTupleReader *tr = 0;
 

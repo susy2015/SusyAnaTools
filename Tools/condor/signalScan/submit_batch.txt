@@ -1,12 +1,11 @@
-cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T1tttt_scan; ./condorSubmit.py -d Signal_fastsim_T1tttt_scan -n 5;
+cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T1tttt_scan; ./condorSubmit.py -d Signal_fastsim_T1tttt_scan -n 1;
+cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/
+
+cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T2tt_scan; ./condorSubmit.py -d Signal_fastsim_T2tt_scan -n 2;
+cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/
+
+cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T5ttcc_scan; ./condorSubmit.py -d Signal_fastsim_T5ttcc_scan -n 1;
 cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/
 
 #cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T2tt_wt_genJets_wt_genMET_scan; ./condorSubmit.py -d Signal_fastsim_T2tt_wt_genJets_wt_genMET_scan -n 1;
 #cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/
-
-cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T2tt_scan; ./condorSubmit.py -d Signal_fastsim_T2tt_scan -n 5;
-cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/
-
-cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T5ttcc_scan; ./condorSubmit.py -d Signal_fastsim_T5ttcc_scan -n 5;
-cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/Tools/condor/signalScan/
-

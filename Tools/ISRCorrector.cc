@@ -25,7 +25,7 @@ void ISRCorrector::SetWeights_Up(TH1D* weights, TH1D* all){
   h_njetsisrW->Multiply(h_weights_up);
   double A_NLO = h_njetsisrW->Integral(0,h_njetsisrW->GetNbinsX()+1);
   h_weights_up->Scale(A_LO/A_NLO);
-  std::cout << "COrrection Up: " << A_LO/A_NLO << std::endl;
+//  std::cout << "COrrection Up: " << A_LO/A_NLO << std::endl;
 }
 
 void ISRCorrector::SetWeights_Cent(TH1D* weights, TH1D* all){
@@ -38,7 +38,7 @@ void ISRCorrector::SetWeights_Cent(TH1D* weights, TH1D* all){
   h_njetsisrW->Multiply(h_weights_central);
   double A_NLO = h_njetsisrW->Integral(0,h_njetsisrW->GetNbinsX()+1);
   h_weights_central->Scale(A_LO/A_NLO);
-  std::cout << "COrrection Cent: " << A_LO/A_NLO << std::endl;
+//  std::cout << "COrrection Cent: " << A_LO/A_NLO << std::endl;
 }
 
 void ISRCorrector::SetWeights_Down(TH1D* weights, TH1D* all){
@@ -51,7 +51,7 @@ void ISRCorrector::SetWeights_Down(TH1D* weights, TH1D* all){
   h_njetsisrW->Multiply(h_weights_down);
   double A_NLO = h_njetsisrW->Integral(0,h_njetsisrW->GetNbinsX()+1);
   h_weights_down->Scale(A_LO/A_NLO);
-  std::cout << "COrrection Down: " << A_LO/A_NLO << std::endl;
+//  std::cout << "COrrection Down: " << A_LO/A_NLO << std::endl;
 }
 
 double ISRCorrector::GetCorrection_Up(int NJetsISR){
