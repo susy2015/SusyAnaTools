@@ -15,40 +15,40 @@
 #include <vector>
 #include <map>
 
-namespace topTagger{
+namespace topTagger
+{
+  using namespace stdindexSort;
+  using namespace stdcomb;
+  using namespace std;
 
-   using namespace stdindexSort;
-   using namespace stdcomb;
-   using namespace std;
+  typedef unsigned int size;
+  typedef std::vector<int>::iterator vii;
 
-   typedef unsigned int size;
-   typedef std::vector<int>::iterator vii;
+  const std::string defaultOrderingOptArr[] = {"mass", "mass"};
+  const int defaultMaxIndexForOrderingArr[] = { 1,         1 };
 
-   const std::string defaultOrderingOptArr[] = {"mass", "mass"};
-   const int defaultMaxIndexForOrderingArr[] = { 1,         1 };
+  const double minCSVS_disablebtag = -1e10;
+  const double maxEta_disablebtag = 99.0;
 
-   const double minCSVS_disablebtag = -1e10;
-   const double maxEta_disablebtag = 99.0;
+  class type3TopTagger 
+  {
+   public:
 
-   class type3TopTagger {
+    //type3TopTagger();
+    ~type3TopTagger() {};
 
-      public:
-
-//         type3TopTagger();
-       ~type3TopTagger() {};
-
-// Make these variables public so that they can be easily accessed
-// They should be actually internal and/or intermediate variables
-// The better way is to make a get function for each of them, 
-// but then there will be so many of them...
-// DON'T OVERRIDE THEM!
-         bool isTopEvent;
-         vector<vector<int> > finalCombfatJets; vector<vector<int> > finalRemaining; vector<vector<vector<int> > > finalCombJetSubStruc;
-         vector<double> fatJetMassVec; vector<vector<double> > fatJetSubMassVec;
-         vector<double> finalCombMaxDR;
-         int cntnbJetsCSVS;
-         int combSize;
-         vector<vector<int> > finalCombfatJetsPassStatusVec;
+    // Make these variables public so that they can be easily accessed
+    // They should be actually internal and/or intermediate variables
+    // The better way is to make a get function for each of them, 
+    // but then there will be so many of them...
+    // DON'T OVERRIDE THEM!
+    bool isTopEvent;
+    vector<vector<int> > finalCombfatJets; vector<vector<int> > finalRemaining; vector<vector<vector<int> > > finalCombJetSubStruc;
+    vector<double> fatJetMassVec; vector<vector<double> > fatJetSubMassVec;
+    vector<double> finalCombMaxDR;
+    int cntnbJetsCSVS;
+    int combSize;
+    vector<vector<int> > finalCombfatJetsPassStatusVec;
          vector<int> cntTopCandPassCSVSVec, cntRemainingPassCSVSVec;
          int nTopJetCandCnt, nTopJetCandWithBtagCnt;
          int bestTopJetIdx;
@@ -104,37 +104,36 @@ namespace topTagger{
          int closebJetIdx; double closebJetDphi; TLorentzVector closebJetLVec;
          double mTbJet;
          
-         double MT2;
-// For HepTopTagger
-         std::vector<TLorentzVector> modiforiJetsVec; std::vector<double> modifrecoJetsBtagCSVS;
+    double MT2;
+    // For HepTopTagger
+    std::vector<TLorentzVector> modiforiJetsVec; std::vector<double> modifrecoJetsBtagCSVS;
 
-// For groomed jets
-         std::vector<TLorentzVector> groomedJetsVec_;
+    // For groomed jets
+    std::vector<TLorentzVector> groomedJetsVec_;
 
-// For top candidate counting
-         std::map<double, std::vector<int> > topJetCand_deltaM_idx123Map; 
-         std::vector<std::vector<int> > topJetCand_idx123Vec;
-// 0: mass ordered
-// 1: pt ordered
-         int topCandOrderMethod_;
-         std::vector<int> allIdxCacheVec;
-         std::vector<int> pickedTopCandSortedVec, ori_pickedTopCandSortedVec;
-         int nTopCandSortedCnt;
-// New variables
-         double best_lept_brJet_MT, best_had_brJet_MT, best_had_brJet_MT2, best_had_brJet_mTcomb;
-         std::map<double, std::vector<int> > lept_brJetIdxMap;
-         std::map<double, std::vector<int> > had_brJetIdxMap;
-         std::map<double, TLorentzVector> lept_brJetLVecMap, had_brJetLVecMap;
-         std::vector<double> cached_MT2Vec;
-// End of internal and/or intermediate variables
+    // For top candidate counting
+    std::map<double, std::vector<int> > topJetCand_deltaM_idx123Map; 
+    std::vector<std::vector<int> > topJetCand_idx123Vec;
+    // 0: mass ordered
+    // 1: pt ordered
+    int topCandOrderMethod_;
+    std::vector<int> allIdxCacheVec;
+    std::vector<int> pickedTopCandSortedVec, ori_pickedTopCandSortedVec;
+    int nTopCandSortedCnt;
+    // New variables
+    double best_lept_brJet_MT, best_had_brJet_MT, best_had_brJet_MT2, best_had_brJet_mTcomb;
+    std::map<double, std::vector<int> > lept_brJetIdxMap;
+    std::map<double, std::vector<int> > had_brJetIdxMap;
+    std::map<double, TLorentzVector> lept_brJetLVecMap, had_brJetLVecMap;
+    std::vector<double> cached_MT2Vec;
+    // End of internal and/or intermediate variables
 
-/* 
-// Please add function pre-declaration here for quick look-up
-// FIXME: Currently make all function inline to avoid "multiple definition" link errors
+    /* 
+    // Please add function pre-declaration here for quick look-up
+    // FIXME: Currently make all function inline to avoid "multiple definition" link errors
+    void setDefaultVars();
 
-         void setDefaultVars();
-
-// The functions driving the topTagger procedure
+    // The functions driving the topTagger procedure
          void prepareFindingBestTopCandidate(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS);
          void findBestTopCandidate(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS);
          void fillingBestTopCandidateVars(const std::vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS);
@@ -182,7 +181,8 @@ namespace topTagger{
          void makeTopjetfatJets(const vector<TLorentzVector> &oriJetsVec, const std::vector<double> &recoJetsBtagCSVS, vector<vector<int> > &tmpFinalCombfatJets, vector<vector<int> > &tmpFinalRemaining, vector<vector<vector<int> > > &tmpFinalCombJetSubStruc);
 */
 
-         type3TopTagger(){
+    type3TopTagger()
+    {
             mWoverTop_ = -1; lowRatioWoverTop_ = -1; highRatioWoverTop_ = -1;
             setdoExtraCuts(true);
             setdoInvertTopCriteria(false);
@@ -254,10 +254,10 @@ namespace topTagger{
             groomedJetsVec_.clear();
 
             settopCandOrderMethod(0);
-         }
+    }
 
-         void setDefaultVars(){
-
+    void setDefaultVars()
+    {
             isTopEvent = false;
             finalCombfatJets.clear(); finalRemaining.clear(); finalCombJetSubStruc.clear();
             fatJetMassVec.clear(); fatJetSubMassVec.clear();
@@ -324,15 +324,15 @@ namespace topTagger{
             best_lept_brJet_MT = -1; best_had_brJet_MT = -1; best_had_brJet_MT2 = -1; best_had_brJet_mTcomb = -1;
 
             cached_MT2Vec.clear();
-         }
+    }
 
-         void buildOneFatJetsIndexComb(vector<int> indexVec, vector<int> &iniIndexComb, vector<vector<int> > &tmpFinalCombJets, vector<vector<int> > &tmpFinalRemaining){
+    void buildOneFatJetsIndexComb(vector<int> indexVec, vector<int> &iniIndexComb, vector<vector<int> > &tmpFinalCombJets, vector<vector<int> > &tmpFinalRemaining)
+    {
+      tmpFinalCombJets.clear(); tmpFinalRemaining.clear();
+      vector<vector<int> > combHolder;
 
-            tmpFinalCombJets.clear(); tmpFinalRemaining.clear();
-
-            vector<vector<int> > combHolder;
-
-            do{
+            do
+      {
                combHolder.push_back(iniIndexComb);
             }while(next_combination(indexVec.begin(),indexVec.end(),iniIndexComb.begin(),iniIndexComb.end()) );
 
@@ -2196,32 +2196,25 @@ namespace topTagger{
 
          void settopCandOrderMethod( const int orderMethod ){ topCandOrderMethod_ = orderMethod; }
 
-      private:
-
-// doExtraCuts: extra cuts other than the top tagger related, e.g., dphi cuts, HT cut and so on.
-         bool doExtraCuts_;
-
-// doInvertTopCriteria: do inversion of top criteria or not. default is false.
-         bool doInvertTopCriteria_;
-
-         double mTbcut_, mTtcut_, MT2cut_, mTWcut_;
-// doMTMT2cuts: numbers are counted. But if enabled, some plots will be filled after all the cuts.
-         bool doMTMT2cuts_;
-
-// PDG values (in GeV)
-         double mW_, mTop_, mWoverTop_;
-
-// double lowRatioWoverTop = 0.85, highRatioWoverTop = 1.15;
-         double lowRatioWoverTop_, highRatioWoverTop_;
-         double lowArcTanm13overm12_, highArcTanm13overm12_, lowm23overm123_;
-
-         double Rmin_, Rmax_;
-
-         double defaultJetCone_;
-         double simuCAdeltaR_;
-// Eta ranges from 0 to 5, phi ranges from 0 to 3.14.
-// sqrt(5./2.*5./2. + 3.14/2. * 3.14/2.) ~ 2.95
-// double simuCALargerdeltaR = 3.0;
+ private:
+  // doExtraCuts: extra cuts other than the top tagger related, e.g., dphi cuts, HT cut and so on.
+  bool doExtraCuts_;
+  // doInvertTopCriteria: do inversion of top criteria or not. default is false.
+  bool doInvertTopCriteria_;
+  double mTbcut_, mTtcut_, MT2cut_, mTWcut_;
+  // doMTMT2cuts: numbers are counted. But if enabled, some plots will be filled after all the cuts.
+  bool doMTMT2cuts_;
+  // PDG values (in GeV)
+  double mW_, mTop_, mWoverTop_;
+  // double lowRatioWoverTop = 0.85, highRatioWoverTop = 1.15;
+  double lowRatioWoverTop_, highRatioWoverTop_;
+  double lowArcTanm13overm12_, highArcTanm13overm12_, lowm23overm123_;
+  double Rmin_, Rmax_;
+  double defaultJetCone_;
+  double simuCAdeltaR_;
+  // Eta ranges from 0 to 5, phi ranges from 0 to 3.14.
+  // sqrt(5./2.*5./2. + 3.14/2. * 3.14/2.) ~ 2.95
+  // double simuCALargerdeltaR = 3.0;
          double simuCALargerdeltaR_; // -1 means no deltaR requirement
 
          double lowTopCut_, highTopCut_;
@@ -2229,17 +2222,17 @@ namespace topTagger{
          double lowWCut_, highWCut_;
          double lowTopEtaCut_, highTopEtaCut_;
 
-// -1 or not set means using looselowTopCut or loosehighTopCut
-// Exceptions: if bestTopJetIdx != -1, mass cuts follow the lowTopCut_ and highTopCut_
-// (whatever cuts set in the 0th index will be ingored). This is to make sure consistency between counting and the best one used in reconstructions!
-// However if bestTopJetIdx == -1, the 0th index setup will be used anyway.
-         std::vector<double> lowTopCutforCountVec_, highTopCutforCountVec_;
-         std::vector<double> lowTopEtaCutforCountVec_, highTopEtaCutforCountVec_;
+  // -1 or not set means using looselowTopCut or loosehighTopCut
+  // Exceptions: if bestTopJetIdx != -1, mass cuts follow the lowTopCut_ and highTopCut_
+  // (whatever cuts set in the 0th index will be ingored). This is to make sure consistency between counting and the best one used in reconstructions!
+  // However if bestTopJetIdx == -1, the 0th index setup will be used anyway.
+  std::vector<double> lowTopCutforCountVec_, highTopCutforCountVec_;
+  std::vector<double> lowTopEtaCutforCountVec_, highTopEtaCutforCountVec_;
 
-// Choose CSVM point for now
-// --> A good top fat jet might indicate a b-jet already,
-// so requiring another tight b-jet is NOT good. (TODO: to be studied)
-//    double CSVL = 0.244, CSVM = 0.679, CSVT = 0.898;
+  // Choose CSVM point for now
+  // --> A good top fat jet might indicate a b-jet already,
+  // so requiring another tight b-jet is NOT good. (TODO: to be studied)
+  //double CSVL = 0.244, CSVM = 0.679, CSVT = 0.898;
          double CSVS_, globalCachedCSVS_;
          int CSVToFake_;
 
@@ -2280,20 +2273,18 @@ namespace topTagger{
 // Disable/enable b-tag check for checkTopCriteria function
          bool dobTagCheck_;
 
-// Mass ranges for picking a W jet
-// Default: lowWjetMass_ = 70, highWjetMass_ = 110. They come from reading the mass distributions of the signal samples.
-// The range here is quite loose.
-         double lowWjetMass_, highWjetMass_;
-         bool doWjetfatJets_;
-         double lowTopjetMass_, highTopjetMass_;
-         bool doTopjetfatJets_;
-         double lowBhadjetMass_, highBhadjetMass_;
-         bool doBhadjetfatJets_;
-
-         bool doCombTopTagger_;
-         double lowTopPtToComb_;
-   };
-
+    // Mass ranges for picking a W jet
+    // Default: lowWjetMass_ = 70, highWjetMass_ = 110. They come from reading the mass distributions of the signal samples.
+    // The range here is quite loose.
+    double lowWjetMass_, highWjetMass_;
+    bool doWjetfatJets_;
+    double lowTopjetMass_, highTopjetMass_;
+    bool doTopjetfatJets_;
+    double lowBhadjetMass_, highBhadjetMass_;
+    bool doBhadjetfatJets_;
+    bool doCombTopTagger_;
+    double lowTopPtToComb_;
+  };
 }
 
 #endif
