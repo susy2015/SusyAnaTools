@@ -150,6 +150,10 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   produces<std::vector<double> >("recoJetsJecUnc");
   produces<std::vector<double> >("recoJetsJecScaleRawToFull");
   produces<int>("nJets");
+  produces<std::vector<double> >("qgLikelihood");
+  produces<std::vector<double> >("qgPtD");
+  produces<std::vector<double> >("qgAxis2");
+  produces<std::vector<int> >("qgMult");
 
   //produce variables needed for Lost Lepton study, added by hua.wei@cern.ch
   produces<std::vector<double> >("recoJetschargedHadronEnergyFraction");
@@ -217,6 +221,11 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<double> > recoJetsBtag(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetsJecUnc(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetsJecScaleRawToFull(new std::vector<double>());
+
+  std::auto_ptr<std::vector<double> > qgLikelihood(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > qgPtD(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > qgAxis2(new std::vector<double>());
+  std::auto_ptr<std::vector<int> > qgMult(new std::vector<int>());
 
   std::auto_ptr<std::vector<double> > recoJetschargedHadronEnergyFraction(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetschargedEmEnergyFraction(new std::vector<double>());
@@ -367,6 +376,18 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int flavor = jet.partonFlavour();
     recoJetsFlavor->push_back(flavor);
 
+    double thisqgLikelihood = jet.userFloat("QGTagger:qgLikelihood");
+    qgLikelihood->push_back(thisqgLikelihood);
+    
+    double thisqgPtD = jet.userFloat("QGTagger:ptD");
+    qgPtD->push_back(thisqgPtD);
+    
+    double thisqgAxis2 = jet.userFloat("QGTagger:axis2");
+    qgAxis2->push_back(thisqgAxis2);
+    
+    int thisqgMult = jet.userFloat("QGTagger:mult");
+    qgMult->push_back(thisqgMult);
+
     double btag = jet.bDiscriminator(bTagKeyString_.c_str());
     recoJetsBtag->push_back(btag);
 
@@ -460,6 +481,11 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(recoJetsJecUnc, "recoJetsJecUnc");
   iEvent.put(recoJetsJecScaleRawToFull, "recoJetsJecScaleRawToFull");
   iEvent.put(nJets, "nJets");
+
+  iEvent.put(qgLikelihood, "qgLikelihood");
+  iEvent.put(qgPtD, "qgPtD");
+  iEvent.put(qgAxis2, "qgAxis2");
+  iEvent.put(qgMult, "qgMult");
 
   iEvent.put(recoJetschargedHadronEnergyFraction, "recoJetschargedHadronEnergyFraction");
   iEvent.put(recoJetschargedEmEnergyFraction, "recoJetschargedEmEnergyFraction");
