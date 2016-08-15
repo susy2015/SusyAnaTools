@@ -100,9 +100,7 @@ public:
             }
             branchMap_[name] = new T();
 
-            std::string type;
-            demangle<T>(type);
-            typeMap_[name] = type;
+            typeMap_[name] = demangle<T>();
         }
         setDerived(var, branchMap_[name]);
     }
@@ -118,9 +116,7 @@ public:
             }
             branchVecMap_[name] = new T*();
             
-            std::string type;
-            demangle<T>(type);
-            typeMap_[name] = type;
+            typeMap_[name] = demangle<T>();
         }
         void * vecloc = branchVecMap_[name];
         T *vecptr = *static_cast<T**>(branchVecMap_[name]);
@@ -204,18 +200,14 @@ private:
     {
         branchMap_[name] = new T();
 
-        std::string type;
-        demangle<T>(type);
-        typeMap_[name] = type;
+        typeMap_[name] = demangle<T>();
     }
     
     template<typename T> void registerVecBranch(const std::string name)
     {
         branchVecMap_[name] = new std::vector<T>*();
 
-        std::string type;
-        demangle<std::vector<T>>(type);
-        typeMap_[name] = type;
+        typeMap_[name] = demangle<std::vector<T>>();
     }
 
     template<typename T> void updateTupleVar(const std::string name, const T& var)
@@ -225,9 +217,8 @@ private:
             if(branchMap_.find(name) == branchMap_.end())
             {
                 branchMap_[name] = new T();
-                std::string type;
-                demangle<T>(type);
-                typeMap_[name] = type;
+                
+                typeMap_[name] = demangle<T>();
             }
         }
 
@@ -256,13 +247,14 @@ private:
         *static_cast<T*>(loc) = retval;
     }
 
-    template<typename T> void demangle(std::string& s)
+    template<typename T> std::string demangle()
     {
         // unmangled
         int status = 0;
         char* demangled = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
-        s = demangled;
+        std::string s = demangled;
         delete [] demangled;
+        return s;
     }
 };
 

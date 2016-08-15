@@ -64,8 +64,6 @@ void NTupleReader::populateBranchList()
         std::string type(branch->GetTitle());
         std::string name(branch->GetName());
 
-        if(activeBranches_.size() > 0 && activeBranches_.count(name) == 0) continue;
-
         if(type.compare(name) == 0)
         {
             TObjArray *lol = branch->GetListOfLeaves();
@@ -77,6 +75,13 @@ void NTupleReader::populateBranchList()
             else continue;
         }
 
+        if(activeBranches_.size() > 0 && activeBranches_.count(name) == 0)
+        {
+            //allow typeMap_ to track that the branch exists without filling type
+            typeMap_[name] = "";
+            continue;
+        }
+
         if(type.find("vector") != std::string::npos)
         {
             if     (type.find("double")         != std::string::npos) registerVecBranch<double>(name);
@@ -84,6 +89,7 @@ void NTupleReader::populateBranchList()
             else if(type.find("int")            != std::string::npos) registerVecBranch<int>(name);
             else if(type.find("string")         != std::string::npos) registerVecBranch<std::string>(name);
             else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<TLorentzVector>(name);
+            else if(type.find("float")          != std::string::npos) registerVecBranch<float>(name);
         }
         else
         {
