@@ -75,7 +75,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
    for(const auto & file : allCollections[colName]) dataLumi += file.lumi;
 //   dataLumi = 2153.736;
 //   dataLumi = 10000.0;
-   dataLumi = 5871.102343734 + 1760.842972044;
+   dataLumi = 5926.7518 + 2646.1215 + 4329.5899;
    double scaleMCtoData = dataLumi/AnaSamples::luminosity;
    std::cout<<"\ndataLumi : "<<dataLumi<<"  mc assumed lumi : "<<AnaSamples::luminosity<<"  scaleMCtoData : "<<scaleMCtoData<<std::endl<<std::endl;
 

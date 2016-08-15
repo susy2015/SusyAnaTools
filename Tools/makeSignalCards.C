@@ -76,7 +76,7 @@ std::vector<int> cached_sampleColorVec;
 void makeSignalCards(const std::string inputRootName, const std::string inputRootName_hadtau_cont, const std::string inputRootName_lostle_cont){
 
 //   double dataLumi = 4004.345;
-   double dataLumi = 7631.95;
+   double dataLumi = 12877.1;
 
    TFile * sig_cont_hadtau_file = 0, * sig_cont_lostle_file = 0;
    if( !inputRootName_hadtau_cont.empty() ) sig_cont_hadtau_file = new TFile(inputRootName_hadtau_cont.c_str());
@@ -161,7 +161,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       TString v_mLSP=obj_mLSP->GetString();
       int mLSP = v_mLSP.Atoi();
 
-      if( !(mStop%25 == 0 && (mLSP ==1 || mLSP%25 ==0 )) ) continue;
+//      if( !(mStop%25 == 0 && (mLSP ==1 || mLSP%25 ==0 )) ) continue;
 
     // read object from first source file
       TObject *obj = key->ReadObj();
@@ -175,6 +175,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       TString pdfUncDn_str = "baseline_pdfUncDn_" + v_mStop + "_" + v_mLSP;
 
       TString isrUncUp_str = "baseline_isrUncUp_" + v_mStop + "_" + v_mLSP;
+      TString isrUncCen_str = "baseline_isrUncCen_" + v_mStop + "_" + v_mLSP;
       TString isrUncDn_str = "baseline_isrUncDn_" + v_mStop + "_" + v_mLSP;
 
       TString metMagUp_str = "baseline_metMagUp_" + v_mStop + "_" + v_mLSP;
@@ -201,7 +202,13 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       TString lostleCont_str = "h_signal_pred_" + v_mStop + "_" + v_mLSP;
 
       TString muVetoed_str = "baseline_muVeto_" + v_mStop + "_" + v_mLSP;
+      TString muVetoed_SF_str = "baseline_muVeto_SF_" + v_mStop + "_" + v_mLSP;
+      TString muVetoed_Up_str = "baseline_muVeto_Up_" + v_mStop + "_" + v_mLSP;
+      TString muVetoed_Dn_str = "baseline_muVeto_Dn_" + v_mStop + "_" + v_mLSP;
       TString eleVetoed_str = "baseline_eleVeto_" + v_mStop + "_" + v_mLSP;
+      TString eleVetoed_SF_str = "baseline_eleVeto_SF_" + v_mStop + "_" + v_mLSP;
+      TString eleVetoed_Up_str = "baseline_eleVeto_Up_" + v_mStop + "_" + v_mLSP;
+      TString eleVetoed_Dn_str = "baseline_eleVeto_Dn_" + v_mStop + "_" + v_mLSP;
       TString isoLepTrkVetoed_str = "baseline_isoLepTrkVeto_" + v_mStop + "_" + v_mLSP;
       TString isoPionTrkVetoed_str = "baseline_isoPionTrkVeto_" + v_mStop + "_" + v_mLSP;
 
@@ -220,6 +227,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       TH1D * h1_pdfUncDn = (TH1D*) sig_file->Get(pdfUncDn_str);
 
       TH1D * h1_isrUncUp = (TH1D*) sig_file->Get(isrUncUp_str);
+      TH1D * h1_isrUncCen = (TH1D*) sig_file->Get(isrUncCen_str);
       TH1D * h1_isrUncDn = (TH1D*) sig_file->Get(isrUncDn_str);
 
       TH1D * h1_metMagUp = (TH1D*) sig_file->Get(metMagUp_str);
@@ -243,7 +251,13 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       TH1D * h1_trigUncDn = (TH1D*) sig_file->Get(trigUncDn_str);
 
       TH1D * h1_muVetoed = (TH1D*) sig_file->Get(muVetoed_str);
+      TH1D * h1_muVetoed_SF = (TH1D*) sig_file->Get(muVetoed_SF_str);
+      TH1D * h1_muVetoed_Up = (TH1D*) sig_file->Get(muVetoed_Up_str);
+      TH1D * h1_muVetoed_Dn = (TH1D*) sig_file->Get(muVetoed_Dn_str);
       TH1D * h1_eleVetoed = (TH1D*) sig_file->Get(eleVetoed_str);
+      TH1D * h1_eleVetoed_SF = (TH1D*) sig_file->Get(eleVetoed_SF_str);
+      TH1D * h1_eleVetoed_Up = (TH1D*) sig_file->Get(eleVetoed_Up_str);
+      TH1D * h1_eleVetoed_Dn = (TH1D*) sig_file->Get(eleVetoed_Dn_str);
       TH1D * h1_isoLepTrkVetoed = (TH1D*) sig_file->Get(isoLepTrkVetoed_str);
       TH1D * h1_isoPionTrkVetoed = (TH1D*) sig_file->Get(isoPionTrkVetoed_str);
 
@@ -263,6 +277,9 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          if( xSecMap.find(mStop) != xSecMap.end() ){
             xSec = xSecMap.find(mStop)->second;
             xSecErr = xSecErrMap.find(mStop)->second * xSec;   
+         }else if( xSecMap_ext.find(mStop) != xSecMap_ext.end() ){
+            xSec = xSecMap_ext.find(mStop)->second;
+            xSecErr = 0.14 * xSec; // averaged for simplicity
          }
       }
       if( sampleKeyStr == "T1tttt" || sampleKeyStr == "T5ttcc" || sampleKeyStr == "T5tttt_degen" || sampleKeyStr == "T5ttttDM175" || sampleKeyStr == "T1ttbb"){
@@ -351,12 +368,64 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          double mistaggenTopSFDn_relUnc = cent != 0 ? mistaggenTopSFDn_cent/cent : 0;
          mistaggenTopSFUpVec[ib] = mistaggenTopSFUp_relUnc; mistaggenTopSFDnVec[ib] = mistaggenTopSFDn_relUnc;
 
+         double isrUncUp_cent = h1_isrUncUp->GetBinContent(ib+1);
+         double isrUncCen_cent = h1_isrUncCen->GetBinContent(ib+1);
+         double isrUncDn_cent = h1_isrUncDn->GetBinContent(ib+1);
+         double isrUncUp_relUnc = isrUncCen_cent !=0 ? isrUncUp_cent/isrUncCen_cent -1 : 0;
+         double isrUncDn_relUnc = isrUncCen_cent !=0 ? 1 - isrUncDn_cent/isrUncCen_cent : 0;
+         double isrUncCen_scale =  cent != 0 ? isrUncCen_cent/cent : 1.0;
+         isrUncUpVec[ib] = isrUncUp_relUnc; isrUncDnVec[ib] = isrUncDn_relUnc;
+
+         double muVetoed_cent = h1_muVetoed->GetBinContent(ib+1);
+         double muVetoed_SF_cent = h1_muVetoed_SF->GetBinContent(ib+1);
+         double muVetoed_Up_cent = h1_muVetoed_Up->GetBinContent(ib+1);
+         double muVetoed_Dn_cent = h1_muVetoed_Dn->GetBinContent(ib+1);
+         double eleVetoed_cent = h1_eleVetoed->GetBinContent(ib+1);
+         double eleVetoed_SF_cent = h1_eleVetoed_SF->GetBinContent(ib+1);
+         double eleVetoed_Up_cent = h1_eleVetoed_Up->GetBinContent(ib+1);
+         double eleVetoed_Dn_cent = h1_eleVetoed_Dn->GetBinContent(ib+1);
+         double isoLepTrkVetoed_cent = h1_isoLepTrkVetoed->GetBinContent(ib+1);
+         double isoPionTrkVetoed_cent = h1_isoPionTrkVetoed->GetBinContent(ib+1);
+/* OLD -- 2015 recipe
+// ] mu and electron efficiency syst. are assumed to be 1% (https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSLeptonSF)
+// ] mu and electron track syst. are assumed to be 10% (AN2015_003_v15 table 14): average mu and electron assuming equal amount
+//   , i.e., 0.5*(8% + 15%) ~ 11.5% -> approx. 10%
+// ] pion track syst. are: sqrt( 2%*2% + 0.2%*0.2% + 3%*3% + 3.9%*3.9% ) = 5.3% -> approx. 5%
+         double muVetoed_var = 0.01 * muVetoed_cent;
+         double eleVetoed_var = 0.01 * eleVetoed_cent;
+         double isoLepTrkVetoed_var = 0.1 * isoLepTrkVetoed_cent; 
+         double isoPionTrkVetoed_var = 0.05 * isoPionTrkVetoed_cent; 
+         double sumVetoed_var = sqrt( muVetoed_var*muVetoed_var + eleVetoed_var*eleVetoed_var + isoLepTrkVetoed_var*isoLepTrkVetoed_var + isoPionTrkVetoed_var*isoPionTrkVetoed_var );
+//         double tot_noLepVetoed_cent = cent + muVetoed_cent + eleVetoed_cent + isoLepTrkVetoed_cent + isoPionTrkVetoed_cent;
+*/
+         double muVetoed_var = (muVetoed_Up_cent - muVetoed_Dn_cent)/2.0;
+         double eleVetoed_var = (eleVetoed_Up_cent - eleVetoed_Dn_cent)/2.0;
+         double isoLepTrkVetoed_var = 0.1 * isoLepTrkVetoed_cent; 
+         double isoPionTrkVetoed_var = 0.05 * isoPionTrkVetoed_cent; 
+         double sumVetoed_var = sqrt( muVetoed_var*muVetoed_var + eleVetoed_var*eleVetoed_var + isoLepTrkVetoed_var*isoLepTrkVetoed_var + isoPionTrkVetoed_var*isoPionTrkVetoed_var );
+         lepVetoUncUpVec[ib] = cent !=0 ? sumVetoed_var/cent : 0;
+         lepVetoUncDnVec[ib] = cent !=0 ? sumVetoed_var/cent : 0;
+         if( sampleKeyStr == "T1tttt" || sampleKeyStr == "T5ttcc" || sampleKeyStr == "T5tttt_degen" || sampleKeyStr == "T5ttttDM175" || sampleKeyStr == "T1ttbb"){
+            if( lepVetoUncUpVec[ib] > 0.068 || lepVetoUncDnVec[ib] > 0.068 ){
+               lepVetoUncUpVec[ib] = 0.068; lepVetoUncDnVec[ib] = 0.068;
+            }
+         }else{
+            if( lepVetoUncUpVec[ib] > 0.047 || lepVetoUncDnVec[ib] > 0.047 ){
+//               std::cout<<"v_mStop : "<<v_mStop<<"  v_mLSP : "<<v_mLSP<<"  ib : "<<ib<<"  rate : "<<cent<<"  muVetoed_cent : "<<muVetoed_cent<<"  eleVetoed_cent : "<<eleVetoed_cent<<"  isoLepTrkVetoed_cent : "<<isoLepTrkVetoed_cent<<"  isoPionTrkVetoed_cent : "<<isoPionTrkVetoed_cent<<"  lepVetoUncUpVec : "<<lepVetoUncUpVec[ib]<<std::endl;
+               lepVetoUncUpVec[ib] = 0.047; lepVetoUncDnVec[ib] = 0.047;
+            }
+         }
+// If ID/ISO efficiency in data is lower than MC, it means we veto more leptonic events in MC than data. So we should compenstate for this!
+         double muVetoed_SF_scale = cent !=0 ? 1.0 + (muVetoed_cent - muVetoed_SF_cent)/cent: 1.0;
+         double eleVetoed_SF_scale = cent !=0 ? 1.0 + (eleVetoed_cent - eleVetoed_SF_cent)/cent: 1.0;
+         double isoTrkVetoed_scale = cent !=0 ? 1.0 + 0.03*(isoLepTrkVetoed_cent + isoPionTrkVetoed_cent)/cent: 1.0; //Note that assume 3% data/MC SF lower than 1.0 from mu and ele track measurements
+
          double bTagSFCen_cent = h1_btagSFCen->GetBinContent(ib+1);
          double bTagSFCen_scale = cent !=0 ? bTagSFCen_cent/cent : 1.0;
 //         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale;
-         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale;
-         sum_cent_wt += cent * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale;
-         sum_err_wt += err*err*pow(bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale, 2.0); 
+         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+         sum_cent_wt += cent * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+         sum_err_wt += err*err*pow(bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale, 2.0); 
 
          double bTagSFUp_cent = h1_btagSFUp->GetBinContent(ib+1);
          double bTagSFDn_cent = h1_btagSFDn->GetBinContent(ib+1);
@@ -392,12 +461,6 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          scaleUncUpVec[ib] = (scaleUncUpVec[ib] + 1) * (sum_cent/sum_scaleUncUp) -1;
          scaleUncDnVec[ib] = 1 - (1 - scaleUncDnVec[ib]) * (sum_cent/sum_scaleUncDn);
 
-         double isrUncUp_cent = h1_isrUncUp->GetBinContent(ib+1);
-         double isrUncDn_cent = h1_isrUncDn->GetBinContent(ib+1);
-         double isrUncUp_relUnc = cent !=0 ? isrUncUp_cent/cent -1 : 0;
-         double isrUncDn_relUnc = cent !=0 ? 1 - isrUncDn_cent/cent : 0;
-         isrUncUpVec[ib] = isrUncUp_relUnc; isrUncDnVec[ib] = isrUncDn_relUnc;
-
          double metMagUp_cent = h1_metMagUp->GetBinContent(ib+1);
          double metMagDn_cent = h1_metMagDn->GetBinContent(ib+1);
          double metMagUp_relUnc = cent !=0 ? metMagUp_cent/cent -1 : 0;
@@ -416,41 +479,16 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          double jetJECDn_relUnc = cent !=0 ? 1 - jetJECDn_cent/cent : 0;
          jetJECUpVec[ib] = jetJECUp_relUnc; jetJECDnVec[ib] = jetJECDn_relUnc;
 
-         double muVetoed_cent = h1_muVetoed->GetBinContent(ib+1);
-         double eleVetoed_cent = h1_eleVetoed->GetBinContent(ib+1);
-         double isoLepTrkVetoed_cent = h1_isoLepTrkVetoed->GetBinContent(ib+1);
-         double isoPionTrkVetoed_cent = h1_isoPionTrkVetoed->GetBinContent(ib+1);
-
-// ] mu and electron efficiency syst. are assumed to be 1% (https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSLeptonSF)
-// ] mu and electron track syst. are assumed to be 10% (AN2015_003_v15 table 14): average mu and electron assuming equal amount
-//   , i.e., 0.5*(8% + 15%) ~ 11.5% -> approx. 10%
-// ] pion track syst. are: sqrt( 2%*2% + 0.2%*0.2% + 3%*3% + 3.9%*3.9% ) = 5.3% -> approx. 5%
-         double muVetoed_var = 0.01 * muVetoed_cent;
-         double eleVetoed_var = 0.01 * eleVetoed_cent;
-         double isoLepTrkVetoed_var = 0.1 * isoLepTrkVetoed_cent; 
-         double isoPionTrkVetoed_var = 0.05 * isoPionTrkVetoed_cent; 
-         double sumVetoed_var = sqrt( muVetoed_var*muVetoed_var + eleVetoed_var*eleVetoed_var + isoLepTrkVetoed_var*isoLepTrkVetoed_var + isoPionTrkVetoed_var*isoPionTrkVetoed_var );
-//         double tot_noLepVetoed_cent = cent + muVetoed_cent + eleVetoed_cent + isoLepTrkVetoed_cent + isoPionTrkVetoed_cent;
-         lepVetoUncUpVec[ib] = cent !=0 ? sumVetoed_var/cent : 0;
-         lepVetoUncDnVec[ib] = cent !=0 ? sumVetoed_var/cent : 0;
-//         lepVetoUncUpVec[ib] = 0.02; lepVetoUncDnVec[ib] = 0.02;
-         if( sampleKeyStr == "T1tttt" || sampleKeyStr == "T5ttcc" || sampleKeyStr == "T5tttt_degen" || sampleKeyStr == "T5ttttDM175" || sampleKeyStr == "T1ttbb"){
-            if( lepVetoUncUpVec[ib] > 0.039 || lepVetoUncDnVec[ib] > 0.039 ){
-               lepVetoUncUpVec[ib] = 0.039; lepVetoUncDnVec[ib] = 0.039;
-            }
-         }else{
-            if( lepVetoUncUpVec[ib] > 0.033 || lepVetoUncDnVec[ib] > 0.033 ){
-//               std::cout<<"v_mStop : "<<v_mStop<<"  v_mLSP : "<<v_mLSP<<"  ib : "<<ib<<"  rate : "<<cent<<"  muVetoed_cent : "<<muVetoed_cent<<"  eleVetoed_cent : "<<eleVetoed_cent<<"  isoLepTrkVetoed_cent : "<<isoLepTrkVetoed_cent<<"  isoPionTrkVetoed_cent : "<<isoPionTrkVetoed_cent<<"  lepVetoUncUpVec : "<<lepVetoUncUpVec[ib]<<std::endl;
-               lepVetoUncUpVec[ib] = 0.033; lepVetoUncDnVec[ib] = 0.033;
-            }
+         double hadtauCont_cent = 0.0, lostleCont_cent =0.0, totCont_cent =0.0;
+         if( h1_hadtauCont ){
+            hadtauCont_cent = h1_hadtauCont->GetBinContent(ib+1);
+         }
+         if( h1_lostleCont ){
+            lostleCont_cent = h1_lostleCont->GetBinContent(ib+1);
          }
 
-         double hadtauCont_cent = 0.0, lostleCont_cent =0.0, totCont_cent =0.0;
-         if( h1_hadtauCont ) hadtauCont_cent = h1_hadtauCont->GetBinContent(ib+1);
-         if( h1_lostleCont ) lostleCont_cent = h1_lostleCont->GetBinContent(ib+1);
-
-//         if( h1_hadtauCont && !h1_lostleCont ){ lostleCont_cent = hadtauCont_cent; if( ib==0 ) std::cout<<"Missing lostle signal contamination for v_mStop : "<<v_mStop<<"  v_mLSP : "<<v_mLSP<<std::endl; }
-//         if( !h1_hadtauCont && h1_lostleCont ){ hadtauCont_cent = lostleCont_cent; if( ib==0 ) std::cout<<"Missing hadtau signal contamination for v_mStop : "<<v_mStop<<"  v_mLSP : "<<v_mLSP<<std::endl; }
+         if( h1_hadtauCont && !h1_lostleCont ){ lostleCont_cent = hadtauCont_cent; if( ib==0 ) std::cout<<"Missing lostle signal contamination for v_mStop : "<<v_mStop<<"  v_mLSP : "<<v_mLSP<<std::endl; }
+         if( !h1_hadtauCont && h1_lostleCont ){ hadtauCont_cent = lostleCont_cent; if( ib==0 ) std::cout<<"Missing hadtau signal contamination for v_mStop : "<<v_mStop<<"  v_mLSP : "<<v_mLSP<<std::endl; }
 
          totCont_cent = hadtauCont_cent + lostleCont_cent;
          double hadtauCont_rel = cent!=0 ? hadtauCont_cent/cent : 0;
@@ -589,27 +627,27 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       std::ofstream ofs;
       ofs.open(tmpStr, std::ofstream::out);
       ofs<<"luminosity = "<<dataLumi<<std::endl;
-      ofs<<"channels = 45"<<std::endl;
+      ofs<<"channels = 59"<<std::endl;
       ofs<<"sample = signal"<<std::endl;
       
       ofs<<"channel     = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr2, "bin%d", ib+1);
-         sprintf(tmpStr, "%10s", tmpStr2);
+         sprintf(tmpStr, "%11s", tmpStr2);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"rate        = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "%10.5f", rateVec[ib]*rate_scaleVec[ib]);
+         sprintf(tmpStr, "%11.5f", rateVec[ib]*rate_scaleVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"cs_event    = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "%10.0f", rateVec[ib]);
+         sprintf(tmpStr, "%11.0f", rateVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
@@ -618,226 +656,226 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
 // signal yield (possible due to stat. flucturation), only can force total to be the signal yield.
       ofs<<"contam      = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "%10.5f", totContVec[ib]);
+         sprintf(tmpStr, "%11.5f", totContVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"avg_weight  = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "%10.7f", rate_scaleVec[ib]);
+         sprintf(tmpStr, "%11.7f", rate_scaleVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"stat_unc_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "%10.3f", statUncVec[ib]);
+         sprintf(tmpStr, "%11.3f", statUncVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"stat_unc_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "%10.3f", statUncVec[ib]);
+         sprintf(tmpStr, "%11.3f", statUncVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"lumi_unc_up = ";
       for(int ib=0; ib<nBins; ib++){
-//         sprintf(tmpStr, "%10.3f", 0.046);
-         sprintf(tmpStr, "%10.3f", 0.027);
+//         sprintf(tmpStr, "%11.3f", 0.046);
+         sprintf(tmpStr, "%11.3f", 0.062);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"lumi_unc_dn = ";
       for(int ib=0; ib<nBins; ib++){
-//         sprintf(tmpStr, "%10.3f", 0.046);
-         sprintf(tmpStr, "%10.3f", 0.027);
+//         sprintf(tmpStr, "%11.3f", 0.046);
+         sprintf(tmpStr, "%11.3f", 0.062);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"bTagSF_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", bTagSFUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", bTagSFUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"bTagSF_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", bTagSFDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", bTagSFDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"mistagSF_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", mistagSFUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", mistagSFUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"mistagSF_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", mistagSFDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", mistagSFDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"pdfUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", pdfUncUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", pdfUncUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"pdfUnc_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", pdfUncDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", pdfUncDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"scaleUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", scaleUncUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", scaleUncUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"scaleUnc_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", scaleUncDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", scaleUncDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"isrUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", isrUncUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", isrUncUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"isrUnc_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", isrUncDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", isrUncDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"metMag_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", metMagUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", metMagUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"metMag_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", metMagDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", metMagDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"metPhi_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", metPhiUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", metPhiUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"metPhi_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", metPhiDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", metPhiDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"jetJEC_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", jetJECUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", jetJECUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"jetJEC_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", jetJECDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", jetJECDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"trigUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", trigUncUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", trigUncUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"trigUnc_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", trigUncDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", trigUncDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"lepVetoUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", lepVetoUncUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", lepVetoUncUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"lepVetoUnc_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", lepVetoUncDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", lepVetoUncDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"genTopSF_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", genTopSFUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", genTopSFUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"genTopSF_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", genTopSFDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", genTopSFDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"mistaggenTopSF_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", mistaggenTopSFUpVec[ib]);
+         sprintf(tmpStr, "% 11.3f", mistaggenTopSFUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"mistaggenTopSF_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "% 10.3f", mistaggenTopSFDnVec[ib]);
+         sprintf(tmpStr, "% 11.3f", mistaggenTopSFDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"data_vs_MC_recoTop_unc_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "%10.3f", 0.05);
+         sprintf(tmpStr, "%11.3f", 0.05);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"data_vs_MC_recoTop_unc_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "%10.3f", 0.05);
+         sprintf(tmpStr, "%11.3f", 0.05);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
@@ -845,14 +883,14 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
 /*
       ofs<<"syst_unc_up = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "%10.3f", systUncVec[ib]);
+         sprintf(tmpStr, "%11.3f", systUncVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
       ofs<<"syst_unc_dn = ";
       for(int ib=0; ib<nBins; ib++){
-         sprintf(tmpStr, "%10.3f", systUncVec[ib]);
+         sprintf(tmpStr, "%11.3f", systUncVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;

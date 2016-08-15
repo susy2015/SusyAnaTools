@@ -125,7 +125,8 @@ namespace AnaConsts{
                                                   "W_emu_pfActivityVec", "W_tau_emu_pfActivityVec", "W_tau_prongs_pfActivityVec", "ScaleWeightsMiniAOD",
                                                   "recoJetsJecUncLepCleaned", "metMagUp", "metMagDown", "metPhiUp", "metPhiDown",
                                                   "SusyMotherMass", "SusyLSPMass", "recoJetsFlavor",
-                                                  "genjetsLVec", "genmet", "genmetphi"
+                                                  "genjetsLVec", "genmet", "genmetphi",
+                                                  "NJetsISR"
                                                 };
 
 }

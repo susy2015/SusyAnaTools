@@ -67,9 +67,9 @@ const double ymax_Ratio= 4.6;
 const double ymin_Ratio= 0.0;
 */
 // For 45 bins
-const double ymax_Yields = noobs? 1000000.: 800000.;
+const double ymax_Yields = noobs? 1000000.: 900000.;
 const double ymin_Yields = noobs? 0.005: 0.003;
-const double ymax_Ratio= 4.6;
+const double ymax_Ratio=  4.6;
 const double ymin_Ratio= 0.0;
 
 const double adjHalfBin = 0.5;
@@ -129,8 +129,8 @@ TH1D * h1_searchBinYields_topW = 0, * h1_searchBinYields_HadTau_topW = 0, * h1_s
 void makeUnblindPlots(const std::string cutLev="baseline", const std::string datatype="HTMHT"){
 
 //   const double dataLumi = 816.27;
-   const double dataLumi = 7631.95;
-   const double bkgLumi = 7631.95; 
+   const double dataLumi = 12877.1;
+   const double bkgLumi = 12877.1;
 //   const double dataLumi = 4004.345;
 //   const double bkgLumi = 4004.345; 
    const double norm_bkg_to_data = noobs? 1.0 : dataLumi/bkgLumi;
@@ -163,7 +163,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 // for ttZ and rare
 //      sprintf(tmpstr, " & %6.3f $^{+%5.3f}_{-%5.3f}$ & %6.3f $^{+%5.3f}_{-%5.3f}$  \\\\", prt_ttz_rate, sqrt(prt_ttz_stat_up*prt_ttz_stat_up + prt_ttz_syst_up*prt_ttz_syst_up), sqrt(prt_ttz_stat_dn*prt_ttz_stat_dn + prt_ttz_syst_dn*prt_ttz_syst_dn), prt_rare_rate, sqrt(prt_rare_stat_up*prt_rare_stat_up + prt_rare_syst_up*prt_rare_syst_up), sqrt(prt_rare_stat_dn*prt_rare_stat_dn + prt_rare_syst_dn*prt_rare_syst_dn) );
 // No break down
-      sprintf(tmpstr, " & %6.0f & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ \\\\", prt_data, prt_pred, prt_pred_stat_up, prt_pred_stat_dn, prt_pred_syst_up, prt_pred_syst_dn);
+//      sprintf(tmpstr, " & %6.0f & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ \\\\", prt_data, prt_pred, prt_pred_stat_up, prt_pred_stat_dn, prt_pred_syst_up, prt_pred_syst_dn);
       
       std::string outstr = sb->get_searchBins_defstr(prt_chn, tmpstr);
       printf("%s", outstr.c_str());
@@ -364,24 +364,28 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    TH1D * h1_zinv = (TH1D*) sr_file->Get("zinv");
    TH1D * h1_qcd = (TH1D*) sr_file->Get("qcd");
    TH1D * h1_ttz = (TH1D*) sr_file->Get("ttz");
+   TH1D * h1_rare = (TH1D*) sr_file->Get("rare");
 
    TH1D * h1_lostle_syst = (TH1D*) sr_file->Get("lostle_syst");
    TH1D * h1_hadtau_syst = (TH1D*) sr_file->Get("hadtau_syst");
    TH1D * h1_zinv_syst = (TH1D*) sr_file->Get("zinv_syst");
    TH1D * h1_qcd_syst = (TH1D*) sr_file->Get("qcd_syst");
    TH1D * h1_ttz_syst = (TH1D*) sr_file->Get("ttz_syst");
+   TH1D * h1_rare_syst = (TH1D*) sr_file->Get("rare_syst");
 
    h1_lostle->Scale(norm_bkg_to_data);
    h1_hadtau->Scale(norm_bkg_to_data);
    h1_zinv->Scale(norm_bkg_to_data);
    h1_qcd->Scale(norm_bkg_to_data);
    h1_ttz->Scale(norm_bkg_to_data);
+   h1_rare->Scale(norm_bkg_to_data);
 
    h1_lostle_syst->Scale(norm_bkg_to_data);
    h1_hadtau_syst->Scale(norm_bkg_to_data);
    h1_zinv_syst->Scale(norm_bkg_to_data);
    h1_qcd_syst->Scale(norm_bkg_to_data);
    h1_ttz_syst->Scale(norm_bkg_to_data);
+   h1_rare_syst->Scale(norm_bkg_to_data);
 
    h1_data->SetBinErrorOption(TH1::kPoisson);
 
@@ -393,12 +397,16 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    h1_zinv->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_qcd->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_ttz->GetXaxis()->SetRangeUser(0, nTotBins_loc);
+   h1_rare->GetXaxis()->SetRangeUser(0, nTotBins_loc);
 
    h1_lostle_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_hadtau_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_zinv_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_qcd_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_ttz_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
+   h1_rare_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
+
+   h1_ttz->Add(h1_rare);
 
    ct->cd(); catLeg1->Clear();
    TPad *pad1 = new TPad("pad1", "pad1", 0, 0.30, 1, 1.0);
@@ -481,9 +489,18 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    TH1D * tmp_sum_SM = (TH1D*) hs_sum_SM->GetStack()->Last();
    TH1D * tmp2_sum_SM = (TH1D*) hs2_sum_SM->GetStack()->Last();
 
+   for(int ib=0; ib<nTotBins_loc; ib++){
+      double pred_cent = tmp_sum_SM->GetBinContent(ib+1);
+//      std::cout<<" drt root --> ib : "<<ib<<"  pred_cent : "<<pred_cent<<std::endl;
+//      yRatioSysErrUpVec[ib] = ySysErrUpVec[ib]/pred_cent;
+//      yRatioSysErrDnVec[ib] = ySysErrDnVec[ib]/pred_cent;
+//      yRatioSumErrUpVec[ib] = ySumErrUpVec[ib]/pred_cent;
+//      yRatioSumErrDnVec[ib] = ySumErrDnVec[ib]/pred_cent;
+   }
+
    if( addStatUnc ){
       TGraphAsymmErrors * gr_Sum_AsymErr = new TGraphAsymmErrors(xVec.size(), &xVec[0], &yVec[0], &xSysErrDnVec[0], &xSysErrUpVec[0], &ySumErrDnVec[0], &ySumErrUpVec[0]);
-      gr_Sum_AsymErr->SetFillColor(kGray); gr_Sum_AsymErr->SetFillStyle(3244); gr_Sum_AsymErr->SetLineWidth(1); gr_Sum_AsymErr->SetLineColor(0); gr_Sum_AsymErr->SetMarkerSize(0); gr_Sum_AsymErr->SetMarkerColor(0);
+      gr_Sum_AsymErr->SetFillColor(kGray+2); gr_Sum_AsymErr->SetFillStyle(3244); gr_Sum_AsymErr->SetLineWidth(1); gr_Sum_AsymErr->SetLineColor(0); gr_Sum_AsymErr->SetMarkerSize(0); gr_Sum_AsymErr->SetMarkerColor(0);
       gr_Sum_AsymErr->Draw("2");
 
       catLeg_unc->AddEntry(gr_Sum_AsymErr, "Bkg. Stat. Unc.", "F");
@@ -788,7 +805,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 
    if( addStatUnc ){
       TGraphAsymmErrors * gr_Ratio_Sum_AsymErr = new TGraphAsymmErrors(xVec.size(), &xVec[0], &yRatioVec[0], &xSysErrDnVec[0], &xSysErrUpVec[0], &yRatioSumErrUpVec[0], &yRatioSumErrDnVec[0]);
-      gr_Ratio_Sum_AsymErr->SetFillColor(kGray); gr_Ratio_Sum_AsymErr->SetFillStyle(3244); gr_Ratio_Sum_AsymErr->SetLineWidth(1); gr_Ratio_Sum_AsymErr->SetLineColor(0); gr_Ratio_Sum_AsymErr->SetMarkerSize(0); gr_Ratio_Sum_AsymErr->SetMarkerColor(0);
+      gr_Ratio_Sum_AsymErr->SetFillColor(kGray+1); gr_Ratio_Sum_AsymErr->SetFillStyle(3244); gr_Ratio_Sum_AsymErr->SetLineWidth(1); gr_Ratio_Sum_AsymErr->SetLineColor(0); gr_Ratio_Sum_AsymErr->SetMarkerSize(0); gr_Ratio_Sum_AsymErr->SetMarkerColor(0);
       gr_Ratio_Sum_AsymErr->Draw("2");
    }
 
@@ -833,34 +850,34 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
       //Ntop separation lines
       TLine *tl_ntop = new TLine();
       tl_ntop->SetLineStyle(2);
-      tl_ntop->DrawLine(27.5 + adjHalfBin,ymin_Yields,27.5 + adjHalfBin,ymax_Yields);
-      tl_ntop->DrawLine(52.5 + adjHalfBin,ymin_Yields,52.5 + adjHalfBin,ymax_Yields);
+      tl_ntop->DrawLine(27.5 + adjHalfBin,ymin_Ratio,27.5 + adjHalfBin,ymax_Yields);
+      tl_ntop->DrawLine(52.5 + adjHalfBin,ymin_Ratio,52.5 + adjHalfBin,ymax_Yields);
 
       // Nb separation lines
       TLine *tl_nb = new TLine();
       tl_nb->SetLineStyle(3);
       tl_nb->SetLineColor(1);
-      tl_nb->DrawLine(11.5 + adjHalfBin,ymin_Yields,11.5 + adjHalfBin,ymax_Yields/6);
-      tl_nb->DrawLine(22.5 + adjHalfBin,ymin_Yields,22.5 + adjHalfBin,ymax_Yields/6.);
-      tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Yields,39.5 + adjHalfBin,ymax_Yields/160.);
-      tl_nb->DrawLine(48.5 + adjHalfBin,ymin_Yields,48.5 + adjHalfBin,ymax_Yields/160.);
-      tl_nb->DrawLine(54.5 + adjHalfBin,ymin_Yields,54.5 + adjHalfBin,ymax_Yields/160.);
-      tl_nb->DrawLine(56.5 + adjHalfBin,ymin_Yields,56.5 + adjHalfBin,ymax_Yields/160.);
+      tl_nb->DrawLine(11.5 + adjHalfBin,ymin_Ratio,11.5 + adjHalfBin,ymax_Yields/6);
+      tl_nb->DrawLine(22.5 + adjHalfBin,ymin_Ratio,22.5 + adjHalfBin,ymax_Yields/6.);
+      tl_nb->DrawLine(39.5 + adjHalfBin,ymin_Ratio,39.5 + adjHalfBin,ymax_Yields/160.);
+      tl_nb->DrawLine(48.5 + adjHalfBin,ymin_Ratio,48.5 + adjHalfBin,ymax_Yields/160.);
+      tl_nb->DrawLine(54.5 + adjHalfBin,ymin_Ratio,54.5 + adjHalfBin,ymax_Yields/160.);
+      tl_nb->DrawLine(56.5 + adjHalfBin,ymin_Ratio,56.5 + adjHalfBin,ymax_Yields/160.);
 
       // MT2 separation lines
       TLine *tl_mt2 = new TLine();
       tl_mt2->SetLineStyle(4);
       tl_mt2->SetLineColor(1);
-      tl_mt2->DrawLine(3.5 + adjHalfBin,ymin_Yields,3.5 + adjHalfBin,ymax_Yields/40.);
-      tl_mt2->DrawLine(7.5 + adjHalfBin,ymin_Yields,7.5 + adjHalfBin,ymax_Yields/40.);
-      tl_mt2->DrawLine(15.5 + adjHalfBin,ymin_Yields,15.5 + adjHalfBin,ymax_Yields/40.);
-      tl_mt2->DrawLine(19.5 + adjHalfBin,ymin_Yields,19.5 + adjHalfBin,ymax_Yields/40.);
-      tl_mt2->DrawLine(25.5 + adjHalfBin,ymin_Yields,25.5 + adjHalfBin,ymax_Yields/100.);
-      tl_mt2->DrawLine(31.5 + adjHalfBin,ymin_Yields,31.5 + adjHalfBin,ymax_Yields/100.);
-      tl_mt2->DrawLine(35.5 + adjHalfBin,ymin_Yields,35.5 + adjHalfBin,ymax_Yields/320.);
-      tl_mt2->DrawLine(42.5 + adjHalfBin,ymin_Yields,42.5 + adjHalfBin,ymax_Yields/320.);
-      tl_mt2->DrawLine(45.5 + adjHalfBin,ymin_Yields,45.5 + adjHalfBin,ymax_Yields/320.);
-      tl_mt2->DrawLine(50.5 + adjHalfBin,ymin_Yields,50.5 + adjHalfBin,ymax_Yields/320.);
+      tl_mt2->DrawLine(3.5 + adjHalfBin,ymin_Ratio,3.5 + adjHalfBin,ymax_Yields/40.);
+      tl_mt2->DrawLine(7.5 + adjHalfBin,ymin_Ratio,7.5 + adjHalfBin,ymax_Yields/40.);
+      tl_mt2->DrawLine(15.5 + adjHalfBin,ymin_Ratio,15.5 + adjHalfBin,ymax_Yields/40.);
+      tl_mt2->DrawLine(19.5 + adjHalfBin,ymin_Ratio,19.5 + adjHalfBin,ymax_Yields/40.);
+      tl_mt2->DrawLine(25.5 + adjHalfBin,ymin_Ratio,25.5 + adjHalfBin,ymax_Yields/100.);
+      tl_mt2->DrawLine(31.5 + adjHalfBin,ymin_Ratio,31.5 + adjHalfBin,ymax_Yields/100.);
+      tl_mt2->DrawLine(35.5 + adjHalfBin,ymin_Ratio,35.5 + adjHalfBin,ymax_Yields/320.);
+      tl_mt2->DrawLine(42.5 + adjHalfBin,ymin_Ratio,42.5 + adjHalfBin,ymax_Yields/320.);
+      tl_mt2->DrawLine(45.5 + adjHalfBin,ymin_Ratio,45.5 + adjHalfBin,ymax_Yields/320.);
+      tl_mt2->DrawLine(50.5 + adjHalfBin,ymin_Ratio,50.5 + adjHalfBin,ymax_Yields/320.);
 
       //-----------------------------------------------------------
    }

@@ -62,7 +62,7 @@ basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR
 makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
-signalScan: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/signalScan.o $(ODIR)/PDFUncertainty.o $(ODIR)/BTagCorrector.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/searchBins.o
+signalScan: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/signalScan.o $(ODIR)/PDFUncertainty.o $(ODIR)/BTagCorrector.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/searchBins.o $(ODIR)/ISRCorrector.o
 	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
 makeSignalCards: $(ODIR)/samples.o $(ODIR)/makeSignalCards.o $(ODIR)/searchBins.o
