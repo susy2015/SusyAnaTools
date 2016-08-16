@@ -46,7 +46,6 @@ class NTupleReader
 {
     friend void baselineUpdate(NTupleReader& tr);
 public:
-    // List of all variables used in tuple
 
     NTupleReader(TTree * tree, std::set<std::string>& activeBranches_);
     NTupleReader(TTree * tree);
@@ -56,9 +55,9 @@ public:
         return nevt_;
     }
 
-    bool IsFirstEvent() const
+    bool isFirstEvent() const
     {
-      return isFirstEvent_;
+        return isFirstEvent_;
     }
 
     int getNEntries() const

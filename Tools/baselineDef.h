@@ -366,7 +366,7 @@ public:
         }
         catch (std::string var)
         {
-            if(tr.IsFirstEvent()) 
+            if(tr.isFirstEvent()) 
             {
                 printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
                 printf("Running with PHYS14 Config\n");
