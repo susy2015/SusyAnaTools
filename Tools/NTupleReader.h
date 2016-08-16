@@ -183,27 +183,29 @@ private:
     bool isUpdateDisabled_, isFirstEvent_, reThrow_;
     
     // stl collections to hold branch list and associated info
-    std::map<std::string, void *> branchMap_;
-    std::map<std::string, void *> branchVecMap_;
+    mutable std::map<std::string, void *> branchMap_;
+    mutable std::map<std::string, void *> branchVecMap_;
     std::vector<std::function<void(NTupleReader&)> > functionVec_;
-    std::map<std::string, std::string> typeMap_;
+    mutable std::map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
+
+    void init();
 
     void activateBranches();
     void populateBranchList();
     
+    void registerBranch(TBranch * const branch) const;
+
     void calculateDerivedVariables();
 
-    void init();
-
-    template<typename T> void registerBranch(const std::string name)
+    template<typename T> void registerBranch(const std::string name) const
     {
         branchMap_[name] = new T();
 
         typeMap_[name] = demangle<T>();
     }
     
-    template<typename T> void registerVecBranch(const std::string name)
+    template<typename T> void registerVecBranch(const std::string name) const
     {
         branchVecMap_[name] = new std::vector<T>*();
 
@@ -237,7 +239,31 @@ private:
         {
             return *static_cast<T*>(tuple_iter->second);
         }
+        else if(typeMap_.find(var) != typeMap_.end()) //If it is not found, check in typeMap_ 
+        {
+            //If found in typeMap_, it can be added on the fly
+            TBranch *branch = tree_->FindBranch(var.c_str());
 
+            //If branch not found continue on to throw exception
+            if(branch != nullptr)
+            {
+                registerBranch(branch);
+
+                //get iterator
+                tuple_iter = v_tuple.find(var);
+
+                tree_->SetBranchStatus(var.c_str(), 1);
+                tree_->SetBranchAddress(var.c_str(), tuple_iter->second);
+
+                //force read just this branch
+                branch->GetEvent(nevt_ - 1);
+
+                //return value
+                return *static_cast<T*>(tuple_iter->second);
+            }
+        }
+
+        //It really does not exist, throw exception 
         if(isFirstEvent_) printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
         throw var;
     }
@@ -247,7 +273,7 @@ private:
         *static_cast<T*>(loc) = retval;
     }
 
-    template<typename T> std::string demangle()
+    template<typename T> std::string demangle() const
     {
         // unmangled
         int status = 0;

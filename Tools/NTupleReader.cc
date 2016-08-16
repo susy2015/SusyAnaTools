@@ -61,19 +61,7 @@ void NTupleReader::populateBranchList()
 
     while(branch = (TBranch*)next()) 
     {
-        std::string type(branch->GetTitle());
         std::string name(branch->GetName());
-
-        if(type.compare(name) == 0)
-        {
-            TObjArray *lol = branch->GetListOfLeaves();
-            if (lol->GetEntries() == 1) 
-            {
-                TLeaf *leaf = (TLeaf*)lol->UncheckedAt(0);
-                type = leaf->GetTypeName();
-            }
-            else continue;
-        }
 
         if(activeBranches_.size() > 0 && activeBranches_.count(name) == 0)
         {
@@ -82,29 +70,48 @@ void NTupleReader::populateBranchList()
             continue;
         }
 
-        if(type.find("vector") != std::string::npos)
+        registerBranch(branch);
+    }
+}
+
+void NTupleReader::registerBranch(TBranch * const branch) const
+{
+    std::string type(branch->GetTitle());
+    std::string name(branch->GetName());
+
+    if(type.compare(name) == 0)
+    {
+        TObjArray *lol = branch->GetListOfLeaves();
+        if (lol->GetEntries() == 1) 
         {
-            if     (type.find("double")         != std::string::npos) registerVecBranch<double>(name);
-            else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<unsigned int>(name);
-            else if(type.find("int")            != std::string::npos) registerVecBranch<int>(name);
-            else if(type.find("string")         != std::string::npos) registerVecBranch<std::string>(name);
-            else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<TLorentzVector>(name);
-            else if(type.find("float")          != std::string::npos) registerVecBranch<float>(name);
+            TLeaf *leaf = (TLeaf*)lol->UncheckedAt(0);
+            type = leaf->GetTypeName();
         }
-        else
-        {
-            if     (type.find("/D") != std::string::npos) registerBranch<double>(name);
-            else if(type.find("/I") != std::string::npos) registerBranch<int>(name);
-            else if(type.find("/i") != std::string::npos) registerBranch<unsigned int>(name);
-            else if(type.find("/F") != std::string::npos) registerBranch<float>(name);
-            else if(type.find("/C") != std::string::npos) registerBranch<char>(name);
-            else if(type.find("/c") != std::string::npos) registerBranch<unsigned char>(name);
-            else if(type.find("/S") != std::string::npos) registerBranch<short>(name);
-            else if(type.find("/s") != std::string::npos) registerBranch<unsigned short>(name);
-            else if(type.find("/O") != std::string::npos) registerBranch<bool>(name);
-            else if(type.find("/L") != std::string::npos) registerBranch<unsigned long>(name);
-            else if(type.find("/l") != std::string::npos) registerBranch<long>(name);
-        }
+        //else continue;
+    }
+
+    if(type.find("vector") != std::string::npos)
+    {
+        if     (type.find("double")         != std::string::npos) registerVecBranch<double>(name);
+        else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<unsigned int>(name);
+        else if(type.find("int")            != std::string::npos) registerVecBranch<int>(name);
+        else if(type.find("string")         != std::string::npos) registerVecBranch<std::string>(name);
+        else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<TLorentzVector>(name);
+        else if(type.find("float")          != std::string::npos) registerVecBranch<float>(name);
+    }
+    else
+    {
+        if     (type.find("/D") != std::string::npos) registerBranch<double>(name);
+        else if(type.find("/I") != std::string::npos) registerBranch<int>(name);
+        else if(type.find("/i") != std::string::npos) registerBranch<unsigned int>(name);
+        else if(type.find("/F") != std::string::npos) registerBranch<float>(name);
+        else if(type.find("/C") != std::string::npos) registerBranch<char>(name);
+        else if(type.find("/c") != std::string::npos) registerBranch<unsigned char>(name);
+        else if(type.find("/S") != std::string::npos) registerBranch<short>(name);
+        else if(type.find("/s") != std::string::npos) registerBranch<unsigned short>(name);
+        else if(type.find("/O") != std::string::npos) registerBranch<bool>(name);
+        else if(type.find("/L") != std::string::npos) registerBranch<unsigned long>(name);
+        else if(type.find("/l") != std::string::npos) registerBranch<long>(name);
     }
 }
 
