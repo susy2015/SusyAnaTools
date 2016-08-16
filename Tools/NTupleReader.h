@@ -70,6 +70,11 @@ public:
         }
     }
 
+    bool checkBranch(const std::string name) const
+    {
+        return (typeMap_.find(name) != typeMap_.end());
+    }
+
     bool getNextEvent();
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
