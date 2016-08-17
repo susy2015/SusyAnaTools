@@ -8,7 +8,7 @@
 NTupleReader::NTupleReader(TTree * tree, std::set<std::string>& activeBranches) : activeBranches_(activeBranches)
 {
     tree_ = tree;
-    if(!tree_) throw "NTupleReader(...): TTree " + std::string(tree_->GetName()) + " is invalid!!!!";
+    if(!tree_) THROW_SATEXCEPTION("NTupleReader(...): TTree " + std::string(tree_->GetName()) + " is invalid!!!!");
     init();
 }
 
@@ -24,7 +24,7 @@ void NTupleReader::init()
     //gInterpreter->GenerateDictionary("vector<TLorentzVector>","TLorentzVector.h;vector");
 
     nEvtTotal_ = tree_->GetEntries();
-    if(nEvtTotal_ <= 0) throw "NTupleReader::init(): TTree " + std::string(tree_->GetName()) + " has 0 events!!!!";
+    if(nEvtTotal_ <= 0) THROW_SATEXCEPTION("NTupleReader::init(): TTree " + std::string(tree_->GetName()) + " has 0 events!!!!");
     nevt_ = 0;
     isUpdateDisabled_ = false;
     isFirstEvent_ = true;
@@ -98,6 +98,7 @@ void NTupleReader::registerBranch(TBranch * const branch) const
         else if(type.find("string")         != std::string::npos) registerVecBranch<std::string>(name);
         else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<TLorentzVector>(name);
         else if(type.find("float")          != std::string::npos) registerVecBranch<float>(name);
+        else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
     }
     else
     {
@@ -112,6 +113,7 @@ void NTupleReader::registerBranch(TBranch * const branch) const
         else if(type.find("/O") != std::string::npos) registerBranch<bool>(name);
         else if(type.find("/L") != std::string::npos) registerBranch<unsigned long>(name);
         else if(type.find("/l") != std::string::npos) registerBranch<long>(name);
+        else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
     }
 }
 
@@ -167,27 +169,42 @@ bool NTupleReader::getReThrow() const
 const void* NTupleReader::getPtr(const std::string var) const
 {
     //This function can be used to return the variable pointer
-
-    auto tuple_iter = branchMap_.find(var);
-    if(tuple_iter != branchMap_.end())
+    try
     {
-        return tuple_iter->second;
-    }
+        auto tuple_iter = branchMap_.find(var);
+        if(tuple_iter != branchMap_.end())
+        {
+            return tuple_iter->second;
+        }
 
-    throw "NTupleReader::getPtr(...): Variable not found: " + var;
+        THROW_SATEXCEPTION("NTupleReader::getPtr(...): Variable not found: " + var);
+    }
+    catch(const SATException& e)
+    {
+        e.print();
+        if(reThrow_) throw;
+    }
 }
 
 const void* NTupleReader::getVecPtr(const std::string var) const
 {
     //This function can be used to return the variable pointer
 
-    auto tuple_iter = branchVecMap_.find(var);
-    if(tuple_iter != branchVecMap_.end())
+    try
     {
-        return tuple_iter->second;
-    }
+        auto tuple_iter = branchVecMap_.find(var);
+        if(tuple_iter != branchVecMap_.end())
+        {
+            return tuple_iter->second;
+        }
 
-    throw "NTupleReader::getVecPtr(...): Variable not found: " + var;
+        THROW_SATEXCEPTION("NTupleReader::getVecPtr(...): Variable not found: " + var);
+    }
+    catch(const SATException& e)
+    {
+        e.print();
+        if(reThrow_) throw;
+    }
 }
 
 void NTupleReader::printTupleMembers(FILE *f) const

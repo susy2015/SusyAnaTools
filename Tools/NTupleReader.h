@@ -1,6 +1,8 @@
 #ifndef NTUPLE_READER_H
 #define NTUPLE_READER_H
 
+#include "SATException.h"
+
 #include "TFile.h"
 #include "TBranch.h"
 #include "TTree.h"
@@ -62,11 +64,18 @@ public:
 
     int getNEntries() const
     {
-        if(tree_) return nEvtTotal_;
-        else 
+        try
         {
-            printf("NTupleReader::getNEntries() - NO tree defined yet!!!\n");
-            return -1;
+            if(tree_) return nEvtTotal_;
+            else 
+            {
+                THROW_SATEXCEPTION("NO tree defined yet!!!");
+            }
+        }
+        catch(const SATException& e)
+        {
+            e.print();
+            if(reThrow_) throw;
         }
     }
 
@@ -95,40 +104,54 @@ public:
 
     template<typename T> void registerDerivedVar(const std::string name, T var)
     {
-        if(isFirstEvent_)
+        try
         {
-            if(branchMap_.find(name) != branchMap_.end())
+            if(isFirstEvent_)
             {
-                printf("NTupleReader::registerDerivedVar(...): You are trying to redefine a base tuple var: \"%s\".  This is not allowed!  Please choose a unique name.\n", name.c_str());
-                throw name;
-            }
-            branchMap_[name] = new T();
+                if(branchMap_.find(name) != branchMap_.end())
+                {
+                    THROW_SATEXCEPTION("You are trying to redefine a base tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
+                }
+                branchMap_[name] = new T();
 
-            typeMap_[name] = demangle<T>();
+                typeMap_[name] = demangle<T>();
+            }
+            setDerived(var, branchMap_[name]);
         }
-        setDerived(var, branchMap_[name]);
+        catch(const SATException& e)
+        {
+            e.print();
+            if(reThrow_) throw;
+        }
     }
 
     template<typename T> void registerDerivedVec(const std::string name, T* var)
     {
-        if(isFirstEvent_)
+        try
         {
-            if(branchVecMap_.find(name) != branchVecMap_.end())
+            if(isFirstEvent_)
             {
-                printf("NTupleReader::registerDerivedVar(...): You are trying to redefine a base tuple var: \"%s\".  This is not allowed!  Please choose a unique name.\n", name.c_str());
-                throw name;
-            }
-            branchVecMap_[name] = new T*();
+                if(branchVecMap_.find(name) != branchVecMap_.end())
+                {
+                    THROW_SATEXCEPTION("You are trying to redefine a base tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
+                }
+                branchVecMap_[name] = new T*();
             
-            typeMap_[name] = demangle<T>();
+                typeMap_[name] = demangle<T>();
+            }
+            void * vecloc = branchVecMap_[name];
+            T *vecptr = *static_cast<T**>(branchVecMap_[name]);
+            if(vecptr != nullptr)
+            {
+                delete vecptr;
+            }
+            setDerived(var, vecloc);
         }
-        void * vecloc = branchVecMap_[name];
-        T *vecptr = *static_cast<T**>(branchVecMap_[name]);
-        if(vecptr != nullptr)
+        catch(const SATException& e)
         {
-            delete vecptr;
+            e.print();
+            if(reThrow_) throw;
         }
-        setDerived(var, vecloc);
     }
 
     const void* getPtr(const std::string var) const;
@@ -142,8 +165,9 @@ public:
         {
             return getTupleObj<T>(var, branchMap_);
         }
-        catch(const std::string e)
+        catch(const SATException& e)
         {
+            e.print();
             if(reThrow_) throw;
             return *static_cast<T*>(nullptr);
         }
@@ -157,8 +181,9 @@ public:
         {
             return *getTupleObj<std::vector<T>*>(var, branchVecMap_);
         }
-        catch(const std::string e)
+        catch(const SATException& e)
         {
+            e.print();
             if(reThrow_) throw;
             return *static_cast<std::vector<T>*>(nullptr);
         }
@@ -172,8 +197,9 @@ public:
         {
             return *getTupleObj<std::map<T, V>*>(var, branchVecMap_);
         }
-        catch(const std::string e)
+        catch(const SATException& e)
         {
+            e.print();
             if(reThrow_) throw;
             return *static_cast<std::map<T, V>*>(nullptr);
         }
@@ -268,8 +294,7 @@ private:
         }
 
         //It really does not exist, throw exception 
-        if(isFirstEvent_) printf("NTupleReader::getTupleObj(const std::string var):  Variable not found: \"%s\"!!!\n", var.c_str());
-        throw var;
+        THROW_SATEXCEPTION("Variable not found: \"" + var + "\"!!!");
     }
 
     template<typename T> inline static void setDerived(const T& retval, void* const loc)
