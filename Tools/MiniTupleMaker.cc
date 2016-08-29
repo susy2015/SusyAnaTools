@@ -2,12 +2,23 @@
 
 #include "TLorentzVector.h"
 #include <iostream>
-MiniTupleMaker::MiniTupleMaker(TTree * const t) : tree_(t)
+
+MiniTupleMaker::MiniTupleMaker(TTree * const t) : file_(nullptr), tree_(t)
+{
+}
+
+MiniTupleMaker::MiniTupleMaker(std::string fname, std::string treeName) : file_(new TFile(fname.c_str(), "RECREATE")), tree_(new TTree(treeName.c_str(), treeName.c_str()))
 {
 }
 
 MiniTupleMaker::~MiniTupleMaker()
 {
+    if(file_)
+    {
+        file_->cd();
+        tree_->Write();
+        file_->Close();
+    }
 }
 
 void MiniTupleMaker::setTupleVars(const std::set<std::string> tv)
