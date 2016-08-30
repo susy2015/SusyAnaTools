@@ -4,6 +4,7 @@
 #include "NTupleReader.h"
 
 #include "TTree.h"
+#include "TFile.h"
 
 #include <vector>
 #include <set>
@@ -19,6 +20,8 @@ class MiniTupleMaker
 public:
     MiniTupleMaker(TTree *);
 
+    MiniTupleMaker(std::string, std::string = "tree");
+
     ~MiniTupleMaker();
 
     void setTupleVars(const std::set<std::string>);
@@ -29,6 +32,7 @@ public:
     void fill();
 
 private:
+    TFile* const file_;
     TTree* const tree_;
     std::set<std::string> tupleVars_;
 
