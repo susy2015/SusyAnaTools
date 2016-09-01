@@ -128,8 +128,7 @@ elif options.fileslist:
    process.source.fileNames = inputfiles
 else:
    process.source.fileNames = [
-       '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/08341A1D-2633-E611-B9D5-44A84225CABC.root',
-#       '/store/mc/RunIISpring16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/041F3A63-431E-E611-9E1E-008CFA1112CC.root',
+       '/store/mc/RunIISpring16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/041F3A63-431E-E611-9E1E-008CFA1112CC.root',
 
 #       '/store/mc/RunIISpring16MiniAODv2/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/004A27F0-5132-E611-A936-02163E016171.root',
 #       '/store/mc/RunIISpring16MiniAODv2/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00775AA9-5132-E611-A4FE-001E675049F5.root',
@@ -310,40 +309,6 @@ elif options.cmsswVersion == "80X":
       algo = 'AK', rParam = 0.4
    )
 
-qgDatabaseVersion = 'v1' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
-
-#import QG database
-from CondCore.DBCommon.CondDBSetup_cfi import *
-QGPoolDBESSource = cms.ESSource("PoolDBESSource",
-      CondDBSetup,
-      toGet = cms.VPSet(),
-      connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'),
-)
-
-for type in ['AK4PFchs','AK4PFchs_antib']:
-  QGPoolDBESSource.toGet.extend(cms.VPSet(cms.PSet(
-    record = cms.string('QGLikelihoodRcd'),
-    tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_'+type),
-    label  = cms.untracked.string('QGL_'+type)
-  )))
-process.load('RecoJets.JetProducers.QGTagger_cfi')
-process.QGTagger.srcJets          = cms.InputTag('slimmedJets')    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
-process.QGTagger.jetsLabel        = cms.string('QGL_AK4PFchs')        # Other options: see https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
-
-from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets as patJetsUpdated
-
-JetTagOut = cms.InputTag('QGAK4PFCHS')
-
-patJetsAuxiliary = patJetsUpdated.clone(
-        jetSource = cms.InputTag('slimmedJets'),
-        #jetSource = cms.InputTag('patJetsAK4PFCHS'),
-        addJetCorrFactors = cms.bool(False),
-)
-patJetsAuxiliary.userData.userFloats.src += ['QGTagger:qgLikelihood','QGTagger:ptD', 'QGTagger:axis2']
-patJetsAuxiliary.userData.userInts.src += ['QGTagger:mult']
-#process.QGAK4PFCHS = patJetsAuxiliary
-setattr(process,JetTagOut.value(),patJetsAuxiliary)
-
 if options.specialFix == "JEC":
    print ("\nApplying fix to JEC issues in %s ...\n" %(options.cmsswVersion))
 #JEC can be downloaded from https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECDataMC
@@ -441,16 +406,6 @@ if options.specialFix == "JEC":
 process.MessageLogger.suppressWarning = cms.untracked.vstring('ecalLaserCorrFilter','manystripclus53X','toomanystripclus53X')
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
-#Analysis related configuration
-import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
-if options.hltSelection:
-   process.hltFilter = hlt.hltHighLevel.clone(
-      TriggerResultsTag = cms.InputTag("TriggerResults","",options.hltName),
-      HLTPaths = cms.vstring(options.hltSelection),
-      throw = True, # Don't throw?!
-      andOr = True
-   )
-
 process.load("SusyAnaTools.SkimsAUX.simpleJetSelector_cfi")
 process.selectedPatJetsRA2 = process.simpleJetSelector.clone()
 
@@ -482,6 +437,73 @@ process.countak4JetsPFchsPt50Eta25.src       = cms.InputTag('ak4patJetsPFchsPt50
 process.countak4JetsPFchsPt50Eta25.minNumber = cms.uint32(3)
 
 process.ra2PFchsJets = cms.Sequence( process.ak4patJetsPFchsPt10 * process.ak4patJetsPFchsPt30 * process.ak4patJetsPFchsPt50Eta25 )
+
+#Analysis related configuration
+import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
+if options.hltSelection:
+   process.hltFilter = hlt.hltHighLevel.clone(
+      TriggerResultsTag = cms.InputTag("TriggerResults","",options.hltName),
+      HLTPaths = cms.vstring(options.hltSelection),
+      throw = True, # Don't throw?!
+      andOr = True
+   )
+
+# Q/G discriminator
+qgDatabaseVersion = 'v1' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
+
+#import QG database
+from CondCore.DBCommon.CondDBSetup_cfi import *
+QGPoolDBESSource = cms.ESSource("PoolDBESSource",
+      CondDBSetup,
+      toGet = cms.VPSet(),
+      connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'),
+)
+
+for type in ['AK4PFchs','AK4PFchs_antib']:
+  QGPoolDBESSource.toGet.extend(cms.VPSet(cms.PSet(
+    record = cms.string('QGLikelihoodRcd'),
+    tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_'+type),
+    label  = cms.untracked.string('QGL_'+type)
+  )))
+process.load('RecoJets.JetProducers.QGTagger_cfi')
+process.QGTagger.jetsLabel        = cms.string('QGL_AK4PFchs')        # Other options: see https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
+process.QGTagger.srcJets          = cms.InputTag('slimmedJets')    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
+
+process.QGTaggerOther = process.QGTagger.clone()
+process.QGTaggerOther.srcJets = cms.InputTag("patJetsAK4PFCHS")
+
+process.QGTaggerNoLep = process.QGTagger.clone()
+process.QGTaggerNoLep.srcJets = cms.InputTag("patJetsAK4PFCHSPt10NoLep")
+
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets as patJetsUpdated
+
+JetTagOut = cms.InputTag('QGAK4PFCHS')
+JetTagOutOther = cms.InputTag('QGAK4PFCHSOther')
+JetTagOutNoLep = cms.InputTag('QGAK4PFCHSNoLep')
+
+patJetsAuxiliary = patJetsUpdated.clone(
+   jetSource = cms.InputTag('slimmedJets'),
+   addJetCorrFactors = cms.bool(False),
+)
+patJetsAuxiliary.userData.userFloats.src += ['QGTagger:qgLikelihood','QGTagger:ptD', 'QGTagger:axis2']
+patJetsAuxiliary.userData.userInts.src += ['QGTagger:mult']
+setattr(process,JetTagOut.value(),patJetsAuxiliary)
+
+patJetsAuxiliaryOther = patJetsUpdated.clone(
+   jetSource = cms.InputTag('patJetsAK4PFCHS'),
+   addJetCorrFactors = cms.bool(False),
+)
+patJetsAuxiliaryOther.userData.userFloats.src += ['QGTaggerOther:qgLikelihood','QGTaggerOther:ptD', 'QGTaggerOther:axis2']
+patJetsAuxiliaryOther.userData.userInts.src += ['QGTaggerOther:mult']
+setattr(process,JetTagOutOther.value(),patJetsAuxiliaryOther)
+
+patJetsAuxiliaryNoLep = patJetsUpdated.clone(
+   jetSource = cms.InputTag('patJetsAK4PFCHSPt10NoLep'),
+   addJetCorrFactors = cms.bool(False),
+)
+patJetsAuxiliaryNoLep.userData.userFloats.src += ['QGTaggerNoLep:qgLikelihood','QGTaggerNoLep:ptD', 'QGTaggerNoLep:axis2']
+patJetsAuxiliaryNoLep.userData.userInts.src += ['QGTaggerNoLep:mult']
+setattr(process,JetTagOutNoLep.value(),patJetsAuxiliaryNoLep)
 
 # HT 
 process.load("SusyAnaTools.Skims.htProducer_cfi")
@@ -580,7 +602,6 @@ process.refalltrackIsolation.mintPt_PFCandidate = cms.double (-1.0)
 process.refalltrackIsolation.isoCut           = cms.double(9999.0)
 
 process.load('SusyAnaTools.Skims.StopJets_drt_from_AOD_cff')
-
 process.load("SusyAnaTools.SkimsAUX.nJetsForSkimsRA2_cfi")
 process.load("SusyAnaTools.SkimsAUX.jetMHTDPhiForSkimsRA2_cfi")
 
@@ -687,8 +708,6 @@ process.groomProdak4.groomingOpt = cms.untracked.int32(1)
 #process.groomProdak4.debug = cms.untracked.bool(options.debug)
 
 process.load("SusyAnaTools.SkimsAUX.prodJets_cfi")
-process.prodJets.jetSrc = cms.InputTag('QGAK4PFCHS')
-#process.prodJets.jetOtherSrc = cms.InputTag('QGAK4PFCHS')
 process.load("SusyAnaTools.SkimsAUX.prodGenJets_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodMET_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodGenInfo_cfi")
@@ -733,13 +752,15 @@ else:
    process.prodJets.bTagKeyString = cms.string('pfCombinedInclusiveSecondaryVertexV2BJetTags')
 
 process.prodJets.debug = cms.bool(options.debug)
-#process.prodJets.jetOtherSrc = cms.InputTag('patJetsAK4PFCHS')
+process.prodJets.jetOtherSrc = cms.InputTag('patJetsAK4PFCHS')
+
+process.prodJets.jetSrc = cms.InputTag('QGAK4PFCHS')
+process.prodJets.jetOtherSrc = cms.InputTag('QGAK4PFCHSOther')
 
 process.prodJetsNoLep = process.prodJets.clone()
-process.prodJetsNoLep.jetSrc = cms.InputTag('QGAK4PFCHS')
-#process.prodJetsNoLep.jetOtherSrc = cms.InputTag('QGAK4PFCHS')
-#process.prodJetsNoLep.jetSrc = cms.InputTag('patJetsAK4PFCHSPt10NoLep')
-process.prodJetsNoLep.jetOtherSrc = cms.InputTag('patJetsAK4PFCHSPt10NoLep')
+process.prodJetsNoLep.qgTaggerKey = cms.string('QGTaggerNoLep')
+process.prodJetsNoLep.jetSrc = cms.InputTag('QGAK4PFCHSNoLep')
+process.prodJetsNoLep.jetOtherSrc = cms.InputTag('QGAK4PFCHSNoLep')
 
 process.prodMuonsNoIso = process.prodMuons.clone()
 process.prodMuonsNoIso.DoMuonIsolation = cms.int32(0)
@@ -834,6 +855,11 @@ if options.addJetsForZinv == True:
 
    process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecUnc"))
    process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecUnc|recoJetsJecUncLepCleaned")
+
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgLikelihood"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgPtD"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgAxis2"))
+   process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJetsNoLep", "qgMult"))
 
    process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetschargedHadronEnergyFraction"))
    process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetschargedHadronEnergyFraction|recoJetschargedHadronEnergyFractionLepCleaned")
@@ -974,6 +1000,8 @@ process.ak4Stop_Path = cms.Path(
                                    process.printDecayPythia8 * process.prodGenInfo * 
                                    process.prodMuonsNoIso * process.prodElectronsNoIso * process.prodIsoTrks *  
                                    process.QGTagger * process.QGAK4PFCHS *
+                                   process.QGTaggerOther * process.QGAK4PFCHSOther *
+                                   process.QGTaggerNoLep * process.QGAK4PFCHSNoLep *
                                    process.prodJets * process.prodMET * process.prodEventInfo * process.trig_filter_seq * 
                                    process.type3topTagger *
                                    process.stopTreeMaker
@@ -997,9 +1025,13 @@ if options.specialFix == "JEC":
       process.patJetsReapplyJECPt10.jetSrc = cms.InputTag("patJetsReapplyJEC")
       process.patJetsReapplyJECPt10.pfJetCut = cms.string('pt >= 10')
    
-      process.prodJets.jetSrc = cms.InputTag('patJetsReapplyJECPt10')
+      process.QGTagger.srcJets = cms.InputTag('patJetsReapplyJECPt10')    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
+      process.QGTaggerOther.srcJets = cms.InputTag("patJetsReapplyJEC")
+      process.QGTaggerNoLep.srcJets = cms.InputTag("patJetsReapplyJEC")
+
+      process.prodJets.jetSrc = cms.InputTag('QGAK4PFCHS')
       if options.fastsim == True:
-         process.prodJets.jetOtherSrc = cms.InputTag('patJetsReapplyJECPt10')
+         process.prodJets.jetOtherSrc = cms.InputTag('QGAK4PFCHS')
    
       process.ak4patJetsPFchsPt10.jetSrc = cms.InputTag('patJetsReapplyJEC')
       process.ak4patJetsPFchsPt30.jetSrc = cms.InputTag('patJetsReapplyJEC')
@@ -1045,9 +1077,13 @@ if options.specialFix == "JEC":
       process.updatedPatJetsUpdatedJECPt10.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
       process.updatedPatJetsUpdatedJECPt10.pfJetCut = cms.string('pt >= 10')
    
-      process.prodJets.jetSrc = cms.InputTag('updatedPatJetsUpdatedJECPt10')
+      process.QGTagger.srcJets = cms.InputTag('updatedPatJetsUpdatedJECPt10')    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
+      process.QGTaggerOther.srcJets = cms.InputTag("updatedPatJetsUpdatedJEC")
+      process.QGTaggerNoLep.srcJets = cms.InputTag("updatedPatJetsUpdatedJEC")
+
+      process.prodJets.jetSrc = cms.InputTag('QGAK4PFCHS')
       if options.fastsim == True:
-         process.prodJets.jetOtherSrc = cms.InputTag('updatedPatJetsUpdatedJECPt10')
+         process.prodJets.jetOtherSrc = cms.InputTag('QGAK4PFCHS')
    
       process.ak4patJetsPFchsPt10.jetSrc = cms.InputTag('updatedPatJetsUpdatedJEC')
       process.ak4patJetsPFchsPt30.jetSrc = cms.InputTag('updatedPatJetsUpdatedJEC')

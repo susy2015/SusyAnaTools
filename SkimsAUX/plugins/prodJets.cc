@@ -43,7 +43,7 @@ class prodJets : public edm::EDFilter
   virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
   edm::InputTag jetSrc_, jetOtherSrc_;
-// All have to be pat::Jet, otherwise cannot get b-tagging information!
+  // All have to be pat::Jet, otherwise cannot get b-tagging information!
   edm::Handle<std::vector<pat::Jet> > jets, otherjets; 
   std::string bTagKeyString_;
   edm::InputTag vtxSrc_;
@@ -88,6 +88,7 @@ class prodJets : public edm::EDFilter
   double deltaRcon_;
 
   std::string jetType_;
+  std::string qgTaggerKey_;
 };
 
 
@@ -96,9 +97,7 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   isData_ = true;
 
   jetSrc_      = iConfig.getParameter<edm::InputTag>("jetSrc");
-  std::cout << "Input Tag Label: " << jetSrc_.label() << std::endl;
   jetOtherSrc_ = iConfig.getParameter<edm::InputTag>("jetOtherSrc");
-  std::cout << "Input Tag Label: " << jetOtherSrc_.label() << std::endl;
   vtxSrc_      = iConfig.getParameter<edm::InputTag>("vtxSrc");
   //metSrc_      = iConfig.getParameter<edm::InputTag>("metSrc");
   bTagKeyString_ = iConfig.getParameter<std::string>("bTagKeyString");
@@ -129,6 +128,7 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   deltaRcon_ = iConfig.getUntrackedParameter<double>("deltaRcon", 0.01);
 
   jetType_ = iConfig.getParameter<std::string>("jetType");
+  qgTaggerKey_ = iConfig.getParameter<std::string>("qgTaggerKey");
 
   JetTok_ = consumes<std::vector<pat::Jet> >(jetSrc_);
   OtherJetsTok_ = consumes<std::vector<pat::Jet> >(jetOtherSrc_);
@@ -180,8 +180,9 @@ prodJets::~prodJets()
 bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
   if( !iEvent.isRealData() ) isData_ = false;
+
   iEvent.getByToken(JetTok_, jets);
-  
+
   //get the JEC uncertainties
   edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
   iSetup.get<JetCorrectionsRecord>().get(jetType_, JetCorParColl);
@@ -260,10 +261,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       if( matchedIdx != -1 )
       {
-        if( minDR < dR_for_xCheck_ && std::abs(otjet_pt - jets->at(matchedIdx).pt())/jets->at(matchedIdx).pt() < relPt_for_xCheck_ )
-        {
-          cntFound ++;
-        }
+        if( minDR < dR_for_xCheck_ && std::abs(otjet_pt - jets->at(matchedIdx).pt())/jets->at(matchedIdx).pt() < relPt_for_xCheck_ ){ cntFound ++; }
       }
       if( otjet_pt >= jetPtCut_miniAOD_ )
       {
@@ -322,7 +320,6 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             {
               int perJdx = W_tau_nuVec_->at(in);
               TLorentzVector gennuLVec = genDecayLVec_->at(perJdx);
-   
               int momIdx = perJdx;
               bool isFound = false;
               while( momIdx != -1 )
@@ -345,22 +342,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             double perdeltaR = perLVec.DeltaR(eleLVec_->at(ie));
             if( perdeltaR < genMatch_dR_ ) cntgenMatch ++;
           }
-          if( cntgenMatch )
-          {
-            extJets.push_back(otherjets->at(io));
-
-            double thisqgLikelihood = (jets->at(matchedIdx)).userFloat("QGTagger:qgLikelihood");
-            qgLikelihood->push_back(thisqgLikelihood);
-
-            double thisqgPtD = (jets->at(matchedIdx)).userFloat("QGTagger:ptD");
-            qgPtD->push_back(thisqgPtD);
-
-            double thisqgAxis2 = (jets->at(matchedIdx)).userFloat("QGTagger:axis2");
-            qgAxis2->push_back(thisqgAxis2);
-
-            int thisqgMult = (jets->at(matchedIdx)).userInt("QGTagger:mult");
-            qgMult->push_back(thisqgMult);
-          }
+          if( cntgenMatch ){ extJets.push_back(otherjets->at(io)); }
         }
       }
     } 
@@ -374,10 +356,8 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   int cntJetLowPt = 0;
-  //for(unsigned int ij=0; ij < jets->size(); ij++)  
   for(unsigned int ij=0; ij < extJets.size(); ij++)
   {
-    //const pat::Jet& jet = jets->at(ij);
     const pat::Jet& jet = extJets[ij];
 
     TLorentzVector perJetLVec;
@@ -395,7 +375,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::cout<<"\nAvailable JEC sets:"<<"   current : "<<jet.currentJECSet().c_str()<<std::endl;
       for(unsigned int ia=0; ia<availableJECSets.size(); ia++)
       {
-        std::cout<<"ia : "<<ia<<"  --> "<<availableJECSets[ia].c_str()<<std::endl;
+         std::cout<<"ia : "<<ia<<"  --> "<<availableJECSets[ia].c_str()<<std::endl;
       }
       std::cout<<"\nAvailable JEC levels:"<<"   current : "<<jet.currentJECLevel().c_str()<<std::endl;
       for(unsigned int ia=0; ia<availableJECLevels.size(); ia++)
@@ -418,19 +398,27 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     int flavor = jet.partonFlavour();
     recoJetsFlavor->push_back(flavor);
-    /*
-    double thisqgLikelihood = jet.userFloat("QGTagger:qgLikelihood");
-    qgLikelihood->push_back(thisqgLikelihood);
 
-    double thisqgPtD = jet.userFloat("QGTagger:ptD");
+    std::string toGetName = qgTaggerKey_+":qgLikelihood";
+    if( ij >= jets->size() && qgTaggerKey_ == "QGTagger" ) toGetName = qgTaggerKey_+"Other:qgLikelihood";
+    double thisqgLikelihood = jet.userFloat(toGetName.c_str());
+    qgLikelihood->push_back(thisqgLikelihood);
+ 
+    toGetName = qgTaggerKey_+":ptD";
+    if( ij >= jets->size() && qgTaggerKey_ == "QGTagger" ) toGetName = qgTaggerKey_+"Other:ptD";
+    double thisqgPtD = jet.userFloat(toGetName.c_str());
     qgPtD->push_back(thisqgPtD);
-    
-    double thisqgAxis2 = jet.userFloat("QGTagger:axis2");
+   
+    toGetName = qgTaggerKey_+":axis2"; 
+    if( ij >= jets->size() && qgTaggerKey_ == "QGTagger" ) toGetName = qgTaggerKey_+"Other:axis2";
+    double thisqgAxis2 = jet.userFloat(toGetName.c_str());
     qgAxis2->push_back(thisqgAxis2);
-    
-    int thisqgMult = jet.userInt("QGTagger:mult");
+   
+    toGetName = qgTaggerKey_+":mult"; 
+    if( ij >= jets->size() && qgTaggerKey_ == "QGTagger" ) toGetName = qgTaggerKey_+"Other:mult";
+    int thisqgMult = jet.userInt(toGetName.c_str());
     qgMult->push_back(thisqgMult);
-    */
+
     double btag = jet.bDiscriminator(bTagKeyString_.c_str());
     recoJetsBtag->push_back(btag);
 
@@ -461,10 +449,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         //const reco::PFCandidatePtr& constituent = constituents[iCon];
         const reco::Candidate * constituent = jet.daughter(iCon);
         const double dRmuonCon = reco::deltaR(constituent->eta(), constituent->phi(), muEta, muPhi);
-        if( mindRmuonCon > dRmuonCon )
-        {
-          mindRmuonCon = dRmuonCon;
-        }
+        if( mindRmuonCon > dRmuonCon ){ mindRmuonCon = dRmuonCon; }
       }
       if( mindRmuonCon < deltaRcon_ ) (*muMatchedJetIdx)[im] = ij;
     }
@@ -478,10 +463,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         //const reco::PFCandidatePtr& constituent = constituents[iCon];
         const reco::Candidate * constituent = jet.daughter(iCon);
         const double dReleCon = reco::deltaR(constituent->eta(), constituent->phi(), eleEta, elePhi);
-        if( mindReleCon > dReleCon )
-        {
-          mindReleCon = dReleCon;
-        }
+        if( mindReleCon > dReleCon ){ mindReleCon = dReleCon; }
       }
       if( mindReleCon < deltaRcon_ ) (*eleMatchedJetIdx)[ie] = ij;
     }
@@ -492,13 +474,10 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       double mindRtrkCon = 999.;
       for (unsigned int iCon = 0; iCon < numConstituents; ++iCon)
       {
-	      //const reco::PFCandidatePtr& constituent = constituents[iCon];
-	      const reco::Candidate * constituent = jet.daughter(iCon);
-	      const double dRtrkCon = reco::deltaR(constituent->eta(), constituent->phi(), trkEta, trkPhi);
-	      if( mindRtrkCon > dRtrkCon )
-        {
-	        mindRtrkCon = dRtrkCon;
-	      }
+        //          const reco::PFCandidatePtr& constituent = constituents[iCon];
+        const reco::Candidate * constituent = jet.daughter(iCon);
+        const double dRtrkCon = reco::deltaR(constituent->eta(), constituent->phi(), trkEta, trkPhi);
+        if( mindRtrkCon > dRtrkCon ){ mindRtrkCon = dRtrkCon; }
       }
       if( mindRtrkCon < deltaRcon_ ) (*trksForIsoVetoMatchedJetIdx)[it] = ij;
     }
@@ -507,15 +486,12 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       double isotrkEta = looseisoTrksLVec_->at(ist).Eta(), isotrkPhi = looseisoTrksLVec_->at(ist).Phi();
       double mindRisotrkCon = 999.;
-      for (unsigned int iCon = 0; iCon < numConstituents; ++iCon)
+      for(unsigned int iCon = 0; iCon < numConstituents; ++iCon)
       {
         //const reco::PFCandidatePtr& constituent = constituents[iCon];
         const reco::Candidate * constituent = jet.daughter(iCon);
         const double dRisotrkCon = reco::deltaR(constituent->eta(), constituent->phi(), isotrkEta, isotrkPhi);
-        if( mindRisotrkCon > dRisotrkCon )
-        {
-          mindRisotrkCon = dRisotrkCon;
-        }
+        if( mindRisotrkCon > dRisotrkCon ){ mindRisotrkCon = dRisotrkCon; }
       }
       if( mindRisotrkCon < deltaRcon_ ) (*looseisoTrksMatchedJetIdx)[ist] = ij;
     }
@@ -527,8 +503,8 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   *nJets = jetsLVec->size();
 
-  //store in the event
-  //iEvent.put(prod);
+  // store in the event
+  // iEvent.put(prod);
   iEvent.put(jetsLVec, "jetsLVec");
   iEvent.put(recoJetsFlavor, "recoJetsFlavor");
   iEvent.put(recoJetsBtag, "recoJetsBtag");
