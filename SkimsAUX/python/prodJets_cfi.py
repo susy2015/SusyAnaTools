@@ -6,6 +6,7 @@ prodJets = cms.EDFilter(
   jetSrc = cms.InputTag('slimmedJets'),
   jetOtherSrc = cms.InputTag('patJetsAK4PFCHS'),
   jetType = cms.string('AK4PFchs'),
+  qgTaggerKey = cms.string('QGTagger'),
   vtxSrc = cms.InputTag('goodVertices'),
 #  metSrc = cms.InputTag('slimmedMETs'),
   bTagKeyString = cms.string('pfCombinedInclusiveSecondaryVertexV2BJetTags'),
