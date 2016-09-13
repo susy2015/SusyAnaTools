@@ -21,5 +21,16 @@ prodJets = cms.EDFilter(
   muLVec = cms.InputTag("prodMuonsNoIso:muonsLVec"), 
   trksForIsoVetoLVec = cms.InputTag("prodIsoTrks:trksForIsoVetoLVec"),
   looseisoTrksLVec = cms.InputTag("prodIsoTrks:looseisoTrksLVec"),
-  debug  = cms.bool(False)
+  puppiJetsSrc = cms.InputTag("slimmedJetsPuppi"),
+  ak8JetsSrc = cms.InputTag("slimmedJetsAK8"),
+  debug  = cms.bool(False),
+  #double tau21        = 99;
+  #double tau32        = 99;
+  #double puppi_tau21        = 99;
+  #double puppi_tau32        = 99;
+  #bool SoftDropTau32Tagged = false;
+  properties = cms.vstring(
+       "bDiscriminatorCSV",
+  ),
+  bDiscriminatorCSV = cms.vstring('pfCombinedInclusiveSecondaryVertexV2BJetTags'), 
 )
