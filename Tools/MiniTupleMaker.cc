@@ -7,7 +7,7 @@ MiniTupleMaker::MiniTupleMaker(TTree * const t) : file_(nullptr), tree_(t)
 {
 }
 
-MiniTupleMaker::MiniTupleMaker(std::string fname, std::string treeName) : file_(new TFile(fname.c_str(), "RECREATE")), tree_(new TTree(treeName.c_str(), treeName.c_str()))
+MiniTupleMaker::MiniTupleMaker(std::string fname, std::string treeName) : file_(new TFile(fname.c_str(), "RECREATE")), tree_(new TTree(treeName.c_str(), (fname + treeName).c_str()))
 {
 }
 

@@ -361,14 +361,17 @@ namespace AnaFunctions{
       return cntNIsoTrks;
    }
 
-   void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger){
+   void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger, const std::vector<double>& qgLikelihood = *static_cast<std::vector<double>*>(nullptr), std::vector<double>& qgLikelihood_forTagger = *static_cast<std::vector<double>*>(nullptr)){
 
       jetsLVec_forTagger.clear(); recoJetsBtag_forTagger.clear();
 
-      for(unsigned int ij=0; ij<inijetsLVec.size(); ij++){
-         if( !jetPassCuts(inijetsLVec[ij], AnaConsts::pt30Arr) ) continue; 
+      for(unsigned int ij=0; ij<inijetsLVec.size(); ij++)
+      {
+         if( !jetPassCuts(inijetsLVec[ij], AnaConsts::pt30Arr) ) continue;
+ 
          jetsLVec_forTagger.push_back(inijetsLVec.at(ij));
          recoJetsBtag_forTagger.push_back(inirecoJetsBtag.at(ij));
+         if(&qgLikelihood && &qgLikelihood_forTagger) qgLikelihood_forTagger.push_back(qgLikelihood[ij]);
       }
    }
 
