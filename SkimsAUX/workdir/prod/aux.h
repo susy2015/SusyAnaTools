@@ -105,6 +105,28 @@ public :
    vector<TLorentzVector> *trksForIsoVetoLVec; // TLorentzVector of the charged tracks for isolated veto studies
    vector<TLorentzVector> *loose_isoTrksLVec; // TLorentzVector of the loose isolated tracks (see loose_nIsoTrks)
 
+   std::vector<TLorentzVector> *ak8JetsLVec;
+   std::vector<TLorentzVector> *puppiJetsLVec;
+   Double_t *pt;
+   Double_t *mass;
+   Double_t *rapidity;
+   Double_t *softDropMass;
+   Double_t *tau1;
+   Double_t *tau2;
+   Double_t *tau3;
+   Double_t *tau21;
+   Double_t *tau32;
+   Double_t *puppi_pt;
+   Double_t *puppi_mass;
+   Double_t *puppi_eta;
+   Double_t *puppi_phi;
+   Double_t *puppi_tau1;
+   Double_t *puppi_tau2;
+   Double_t *puppi_tau3;
+   Double_t *puppi_tau21;
+   Double_t *puppi_tau32;
+
+
    // List of branches
    TBranch        *b_run;   //!
    TBranch        *b_lumi;   //!
@@ -178,6 +200,27 @@ public :
    TBranch        *b_genDecayLVec;   //!
    TBranch        *b_trksForIsoVetoLVec;   //!
    TBranch        *b_loose_isoTrksLVec;   //!
+
+   TBranch        *b_ak8JetsLVec;
+   TBranch        *b_puppiJetsLVec;
+   TBranch        *b_pt;
+   TBranch        *b_mass;
+   TBranch        *b_rapidity;
+   TBranch        *b_softDropMass;
+   TBranch        *b_tau1;
+   TBranch        *b_tau2;
+   TBranch        *b_tau3;
+   TBranch        *b_tau21;
+   TBranch        *b_tau32;
+   TBranch        *b_puppi_pt;
+   TBranch        *b_puppi_mass;
+   TBranch        *b_puppi_eta;
+   TBranch        *b_puppi_phi;
+   TBranch        *b_puppi_tau1;
+   TBranch        *b_puppi_tau2;
+   TBranch        *b_puppi_tau3;
+   TBranch        *b_puppi_tau21;
+   TBranch        *b_puppi_tau32;
 
    aux(TTree *tree=0);
    virtual ~aux();
@@ -357,6 +400,27 @@ void aux::Init(TTree *tree)
    fChain->SetBranchAddress("genDecayLVec", &genDecayLVec, &b_genDecayLVec);
    fChain->SetBranchAddress("trksForIsoVetoLVec", &trksForIsoVetoLVec, &b_trksForIsoVetoLVec);
    fChain->SetBranchAddress("loose_isoTrksLVec", &loose_isoTrksLVec, &b_loose_isoTrksLVec);
+
+      fChain->SetBranchAddress("ak8JetsLVec", &ak8JetsLVec, &b_ak8JetsLVec);
+   fChain->SetBranchAddress("puppiJetsLVec",&puppiJetsLVec, &b_puppiJetsLVec);
+   fChain->SetBranchAddress("pt", &pt, &b_pt);
+   fChain->SetBranchAddress("mass", &mass, &b_mass);
+   fChain->SetBranchAddress("rapidity", &rapidity, &b_rapidity);
+   fChain->SetBranchAddress("softDropMass", &softDropMass, &b_softDropMass);
+   fChain->SetBranchAddress("tau1", &tau1, &b_tau1);
+   fChain->SetBranchAddress("tau2" &tau2, &b_tau2);
+   fChain->SetBranchAddress("tau3", &tau3, &b_tau3);
+   fChain->SetBranchAddress("tau21", &tau21, &b_tau21);
+   fChain->SetBranchAddress("tau32", &tau32, &b_tau32);
+   fChain->SetBranchAddress("puppi_pt", &puppi_pt, &b_puppi_pt);
+   fChain->SetBranchAddress("puppi_mass", &puppi_mass, &b_puppi_mass);
+   fChain->SetBranchAddress("puppi_eta", &puppi_eta, &b_puppi_eta);
+   fChain->SetBranchAddress("puppi_phi", &puppi_phi, &b_puppi_phi);
+   fChain->SetBranchAddress("puppi_tau1", &puppi_tau1, &b_puppi_tau1);
+   fChain->SetBranchAddress("puppi_tau2", &puppi_tau2, &b_puppi_tau2);
+   fChain->SetBranchAddress("puppi_tau3", &puppi_tau3, &b_puppi_tau3);
+   fChain->SetBranchAddress("puppi_tau21", &puppi_tau21, &b_puppi_tau21);
+   fChain->SetBranchAddress("puppi_tau32", &puppi_tau32, &b_puppi_tau32);
    Notify();
 }
 

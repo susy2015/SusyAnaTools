@@ -18,7 +18,7 @@ from crab3Config import config as config
 from multiprocessing import Process
 
 workArea = 'crabProdv9p0'
-outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jul_2016_Ntp_v9X'
+outDir =  '/store/group/lpcsusyhad/snorberg'#/Spring16_80X_Jul_2016_Ntp_v9X'
 Pubname = 'Spring16_80X_Jul_2016_Ntp_v8p0_new_JEC_new_muonID_top_up_FINAL'
 json_25ns = 'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 # Use the common keyword to select the samples you'd like to submit
@@ -31,7 +31,7 @@ json_25ns = 'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon'
 #selSubmitKey = 'TEST STATUS SMS-T2tt_FastSim'
 #selSubmitKey = 'TEST STATUS SingleMuon'
-selSubmitKey = 'TEST ALL'
+selSubmitKey = 'TTJets SMS-T1tttt_mGluino-1200_mLSP-800 SMS-T2tt_mStop-850_mLSP-100 ZJetsToNuNu'#TEST ALL'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon SMS-T2tt_FastSim SMS-T1tttt_FastSim'
 doAutoMonitor = False
 
