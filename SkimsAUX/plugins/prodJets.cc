@@ -149,6 +149,7 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   produces<std::vector<TLorentzVector> >("jetsLVec");
   produces<std::vector<int> >("recoJetsFlavor");
   produces<std::vector<double> >("recoJetsBtag");
+  produces<std::vector<double> >("recoJetsCharge");
   produces<std::vector<double> >("recoJetsJecUnc");
   produces<std::vector<double> >("recoJetsJecScaleRawToFull");
   produces<int>("nJets");
@@ -222,6 +223,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<TLorentzVector> > jetsLVec(new std::vector<TLorentzVector>());
   std::auto_ptr<std::vector<int> > recoJetsFlavor(new std::vector<int>());
   std::auto_ptr<std::vector<double> > recoJetsBtag(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > recoJetsCharge(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetsJecUnc(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetsJecScaleRawToFull(new std::vector<double>());
 
@@ -422,6 +424,9 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double btag = jet.bDiscriminator(bTagKeyString_.c_str());
     recoJetsBtag->push_back(btag);
 
+    double charge = jet.jetCharge();
+    recoJetsCharge->push_back(charge);
+
     double chargedHadronEnergyFraction = jet.chargedHadronEnergyFraction();
     recoJetschargedHadronEnergyFraction->push_back( chargedHadronEnergyFraction );
 
@@ -508,6 +513,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(jetsLVec, "jetsLVec");
   iEvent.put(recoJetsFlavor, "recoJetsFlavor");
   iEvent.put(recoJetsBtag, "recoJetsBtag");
+  iEvent.put(recoJetsCharge, "recoJetsCharge");
   iEvent.put(recoJetsJecUnc, "recoJetsJecUnc");
   iEvent.put(recoJetsJecScaleRawToFull, "recoJetsJecScaleRawToFull");
   iEvent.put(nJets, "nJets");
