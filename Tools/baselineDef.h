@@ -616,7 +616,7 @@ namespace stopFunctions
 
             return match;
         }
-
+/*
         int ak8DRJet(const std::vector<TLorentzVector>& ak8JetsLVec, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec,  const double& jak8dRMax)
         {
             int match1 = lepMatchedJetIdx;
@@ -627,7 +627,7 @@ namespace stopFunctions
                }
             return match1;
         }
-
+*/
         void internalCleanJets(NTupleReader& tr)
         {
             const std::vector<TLorentzVector>& jetsLVec         = tr.getVec<TLorentzVector>(jetVecLabel_);
