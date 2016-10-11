@@ -465,6 +465,27 @@ namespace AnaFunctions{
        else                return -1;
    }
 
+   int jetdRMatch(const std::vector<TLorentzVector>& ak8JetsLVec, const std::vector<TLorentzVector>& jetsLVec, const double jak8dRMax)
+   {
+       double dRmin = 999.0;
+       int minJMatch = -1;
+
+       const int nJetsak8 = ak8JetsLVec.size();  
+
+       for(int iJet = 0; iJet < jetsLVec.size(); ++iJet)
+       {
+           double dR = ROOT::Math::VectorUtil::DeltaR(jetsLVec[iJet], ak8JetsLVec[iJet]);
+           if(dR < dRmin)
+           {
+               dRmin = dR;
+               minJMatch = iJet;
+           }
+       }
+       if(dRmin < jak8dRMax) return minJMatch;
+       else                return -1;
+   }
+
+
 }
 
 #endif
