@@ -33,7 +33,8 @@ json_25ns = 'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon'
 #selSubmitKey = 'TEST STATUS SMS-T2tt_FastSim'
 #selSubmitKey = 'TEST STATUS SingleMuon'
-selSubmitKey = 'TEST TTJets_SingleLeptFrom TTJets_Inc TTJets_DiLept ZJetsToNuNu_HT'
+#selSubmitKey = 'TEST TTJets_SingleLeptFrom TTJets_Inc TTJets_DiLept ZJetsToNuNu_HT'
+selSubmitKey = 'TEST ALL'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon SMS-T2tt_FastSim SMS-T1tttt_FastSim'
 doAutoMonitor = False
 
