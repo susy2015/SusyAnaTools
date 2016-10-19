@@ -54,7 +54,7 @@ namespace AnaSamples
         std::string sigMCloc = "Spring16_80X_Jul_2016_Ntp_v8X/";
         std::string addSigMCloc = "Spring15_74X_v5X_top_corridor/";
         std::string QGPloc = "Spring16_80X_Jul_2016_Ntp_v9X_QGD/";
-    std::string JetChrgloc = "hua/addJetsCharge/";
+        std::string JetChrgloc = "hua/addJetsCharge/";
 
         if(fDir.compare("condor") == 0)
         {
@@ -68,12 +68,11 @@ namespace AnaSamples
             sigMCloc = "";
             addSigMCloc = "";
             QGPloc = "";
-        JetChrgloc = "";
+            JetChrgloc = "";
         }
 
         //TTbar samples
         // TTbarInc has LO xsec on McM : 502.20 pb. The NNLO is 831.76 pb. The k-factor for ttbar is: kt = 831.76/502.20 ~ 1.656233
-    addSample("TTbarInc", fDir_ + QGPloc + "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 831.76,  lumi, 10259872, 1.0, kGreen);
         // 1.61 * kt 
         addSample("TTbar_HT-600to800", fDir_ + MCloc1 + "TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 2.666535,    lumi, 14305795, 1.0, kGreen);
         // 0.663 * kt
@@ -90,7 +89,7 @@ namespace AnaSamples
     addSample("TTbarSingleLepT", fDir_ + JetChrgloc + "TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR, lumi, 49576803, 1.0, kGreen);
         //addSample("TTbarSingleLepTbar", fDir_ + QGPloc + "TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",    "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR, lumi, 60494823, 1.0, kGreen);
  addSample("TTbarSingleLepTbar", fDir_ + JetChrgloc + "TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",    "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR, lumi, 60494823, 1.0, kGreen);
-
+	
         // From https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#W_jets, kw = 1.21
         addSample("WJetsToLNu_Inc", fDir_ + MCloc + "WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 61526.7,  lumi, 28062407,  1.21, kMagenta+1);
 
@@ -121,7 +120,6 @@ namespace AnaSamples
         addSample("ZJetsToNuNu_HT_2500toInf",  fDir_ + JetChrgloc + "ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.00230*3,  lumi, 405752, 1.23,  kTeal+4);
         //addSample("ZJetsToNuNu_HT_600toInf",   fDir_ + QGPloc + "ZJetsToNuNu_HT-600ToInf_13TeV-madgraph.txt", "stopTreeMaker/AUX", 4.116,  lumi, 10202299, 1.23,  kTeal+4);
        
-        //DY->ll
         // kz = 1.23
         addSample("DYJetsToLL_HT_100to200", fDir_ + MCloc + "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 147.4, lumi, 8434125, 1.23,  kYellow-7);
         addSample("DYJetsToLL_HT_200to400", fDir_ + MCloc + "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 40.99, lumi, 8683719,  1.23,  kYellow-7);
@@ -205,7 +203,7 @@ namespace AnaSamples
     // - signal -
         // ----------
 
-    // To be updated - no T2tt, T2bb Spring15 samples yet (update later)!
+	// To be updated - no T2tt, T2bb Spring15 samples yet (update later)!
         addSample("Signal_T1tttt_mGluino1200_mLSP800", fDir_ + QGPloc + "SMS-T1tttt_mGluino-1200_mLSP-800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.0856418, lumi, 146849, 1.0,  kRed);
         addSample("Signal_T1tttt_mGluino1500_mLSP100", fDir_ + QGPloc + "SMS-T1tttt_mGluino-1500_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.0141903, lumi, 105415, 1.0,  kRed);
         addSample("Signal_T2tt_mStop500_mLSP325",      fDir_ + QGPloc + "SMS-T2tt_mStop-500_mLSP-325_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.51848, lumi, 396079, 1.0,  kRed);

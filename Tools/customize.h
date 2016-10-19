@@ -375,7 +375,6 @@ namespace AnaFunctions{
          if(&recoJetsCharge && &recoJetsCharge_forTagger) recoJetsCharge_forTagger.push_back(recoJetsCharge[ij]);
       }
    }
-
 // cntNJetsVec stores number of jets counters from tightest requirement to loosest requirement.
 // cutCSVS is the CSV cut value
    void preparecntNJets(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, const double cutCSVS, std::vector<int> &cntNJetsVec, std::vector<int> &cntNbJetsVec){
