@@ -108,7 +108,7 @@ namespace AnaConsts{
                                                   "met", "metphi", 
                                                   "tru_npv", "vtxSize",
                                                   "recoJetsBtag_0_LepCleaned", "jetsLVecLepCleaned",
-						  "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedHadronEnergyFraction", "recoJetsmuonEnergyFraction",
+                          "recoJetschargedEmEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedHadronEnergyFraction", "recoJetsmuonEnergyFraction",
 //                                                  "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "CSCTightHaloFilter", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter",
                                                   "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter", "goodVerticesFilter", "eeBadScFilter", "eeBadScListFilter", "CSCTightHaloListFilter", "badResolutionTrackListFilter", "muonBadTrackListFilter",
                                                   "TriggerNames", "PassTrigger", "TriggerPrescales", 
@@ -361,14 +361,18 @@ namespace AnaFunctions{
       return cntNIsoTrks;
    }
 
-   void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger){
+   void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger, const std::vector<double>& qgLikelihood = *static_cast<std::vector<double>*>(nullptr), std::vector<double>& qgLikelihood_forTagger = *static_cast<std::vector<double>*>(nullptr), const std::vector<double>& recoJetsCharge = *static_cast<std::vector<double>*>(nullptr), std::vector<double>& recoJetsCharge_forTagger = *static_cast<std::vector<double>*>(nullptr)){
 
       jetsLVec_forTagger.clear(); recoJetsBtag_forTagger.clear();
 
-      for(unsigned int ij=0; ij<inijetsLVec.size(); ij++){
-         if( !jetPassCuts(inijetsLVec[ij], AnaConsts::pt30Arr) ) continue; 
+      for(unsigned int ij=0; ij<inijetsLVec.size(); ij++)
+      {
+         if( !jetPassCuts(inijetsLVec[ij], AnaConsts::pt30Arr) ) continue;
+ 
          jetsLVec_forTagger.push_back(inijetsLVec.at(ij));
          recoJetsBtag_forTagger.push_back(inirecoJetsBtag.at(ij));
+         if(&qgLikelihood && &qgLikelihood_forTagger) qgLikelihood_forTagger.push_back(qgLikelihood[ij]);
+         if(&recoJetsCharge && &recoJetsCharge_forTagger) recoJetsCharge_forTagger.push_back(recoJetsCharge[ij]);
       }
    }
 
@@ -464,27 +468,6 @@ namespace AnaFunctions{
        if(dRmin < jldRMax) return minJMatch;
        else                return -1;
    }
-
-   int jetdRMatch(const std::vector<TLorentzVector>& ak8JetsLVec, const std::vector<TLorentzVector>& jetsLVec, const double jak8dRMax)
-   {
-       double dRmin = 999.0;
-       int minJMatch = -1;
-
-       const int nJetsak8 = ak8JetsLVec.size();  
-
-       for(int iJet = 0; iJet < jetsLVec.size(); ++iJet)
-       {
-           double dR = ROOT::Math::VectorUtil::DeltaR(jetsLVec[iJet], ak8JetsLVec[iJet]);
-           if(dR < dRmin)
-           {
-               dRmin = dR;
-               minJMatch = iJet;
-           }
-       }
-       if(dRmin < jak8dRMax) return minJMatch;
-       else                return -1;
-   }
-
 
 }
 
