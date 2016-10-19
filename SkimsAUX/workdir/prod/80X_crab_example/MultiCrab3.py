@@ -21,6 +21,7 @@ workArea = 'crabProdv9p0'
 #outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jul_2016_Ntp_v9X'
 #outDir =  '/store/group/lpcsusyhad/hua/addJetsCharge'
 outDir = '/store/group/lpcsusyhad/Stop_production'
+#outDir =  '/store/group/lpcsusyhad/hua/addJetsCharge'
 Pubname = 'Spring16_80X_Jul_2016_Ntp_v8p0_new_JEC_new_muonID_top_up_FINAL'
 json_25ns = 'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 # Use the common keyword to select the samples you'd like to submit
@@ -35,6 +36,7 @@ json_25ns = 'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 #selSubmitKey = 'TEST STATUS SingleMuon'
 #selSubmitKey = 'TEST TTJets_SingleLeptFrom TTJets_Inc TTJets_DiLept ZJetsToNuNu_HT'
 selSubmitKey = 'TEST ALL'
+#selSubmitKey = 'TEST TTJets_SingleLeptFrom TTJets_Inc TTJets_DiLept ZJetsToNuNu_HT'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon SMS-T2tt_FastSim SMS-T1tttt_FastSim'
 doAutoMonitor = False
 

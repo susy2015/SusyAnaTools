@@ -68,7 +68,7 @@ namespace AnaSamples
             sigMCloc = "";
             addSigMCloc = "";
             QGPloc = "";
-            JetChrgloc = "";
+	    JetChrgloc = "";
         }
 
         //TTbar samples
@@ -120,6 +120,7 @@ namespace AnaSamples
         addSample("ZJetsToNuNu_HT_2500toInf",  fDir_ + JetChrgloc + "ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.00230*3,  lumi, 405752, 1.23,  kTeal+4);
         //addSample("ZJetsToNuNu_HT_600toInf",   fDir_ + QGPloc + "ZJetsToNuNu_HT-600ToInf_13TeV-madgraph.txt", "stopTreeMaker/AUX", 4.116,  lumi, 10202299, 1.23,  kTeal+4);
        
+        //DY->ll
         // kz = 1.23
         addSample("DYJetsToLL_HT_100to200", fDir_ + MCloc + "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 147.4, lumi, 8434125, 1.23,  kYellow-7);
         addSample("DYJetsToLL_HT_200to400", fDir_ + MCloc + "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 40.99, lumi, 8683719,  1.23,  kYellow-7);
