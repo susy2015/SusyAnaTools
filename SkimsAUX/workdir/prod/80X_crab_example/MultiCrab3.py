@@ -18,7 +18,9 @@ from crab3Config import config as config
 from multiprocessing import Process
 
 workArea = 'crabProdv9p0'
-outDir =  '/store/group/lpcsusyhad/snorberg'#/Spring16_80X_Jul_2016_Ntp_v9X'
+#outDir =  '/store/group/lpcsusyhad/Spring16_80X_Jul_2016_Ntp_v9X'
+#outDir =  '/store/group/lpcsusyhad/hua/addJetsCharge'
+outDir = '/store/group/lpcsusyhad/Stop_production'
 Pubname = 'Spring16_80X_Jul_2016_Ntp_v8p0_new_JEC_new_muonID_top_up_FINAL'
 json_25ns = 'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 # Use the common keyword to select the samples you'd like to submit
@@ -30,8 +32,8 @@ json_25ns = 'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon'
 #selSubmitKey = 'TEST STATUS SMS-T2tt_FastSim'
-#selSubmitKey = 'TEST STATUS SingleMuon'
-selSubmitKey = 'TTJets SMS-T1tttt_mGluino-1200_mLSP-800 SMS-T2tt_mStop-850_mLSP-100 ZJetsToNuNu'#TEST ALL'
+#selSubmitKey = 'TEST STATUSSingleMuon'
+selSubmitKey = 'TEST'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon SMS-T2tt_FastSim SMS-T1tttt_FastSim'
 doAutoMonitor = False
 
@@ -70,7 +72,8 @@ jobslist = {
     # Zinv,
     'ZJetsToNuNu_HT-100To200'                : [False, '/ZJetsToNuNu_HT-100To200_13TeV-madgraph/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/MINIAODSIM', 1],
     'ZJetsToNuNu_HT-200To400'                : [False, '/ZJetsToNuNu_HT-200To400_13TeV-madgraph/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3_ext1-v1/MINIAODSIM', 1], # TODO
-#    'ZJetsToNuNu_HT-400To600'                : [False, '/ZJetsToNuNu_HT-400To600_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM', 1], 
+    'ZJetsToNuNu_HT-400To600'                : [False, '/ZJetsToNuNu_HT-400To600_13TeV-madgraph/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
+    'ZJetsToNuNu_HT-400To600_ext1'           : [False, '/ZJetsToNuNu_HT-400To600_13TeV-madgraph/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/MINIAODSIM', 1],
 #    'ZJetsToNuNu_HT-600ToInf'                : [False, '/ZJetsToNuNu_HT-600ToInf_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v2/MINIAODSIM', 1],
     'ZJetsToNuNu_HT-600To800'                : [False, '/ZJetsToNuNu_HT-600To800_13TeV-madgraph/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
     'ZJetsToNuNu_HT-800To1200'               : [False, '/ZJetsToNuNu_HT-800To1200_13TeV-madgraph/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v3/MINIAODSIM', 1],
