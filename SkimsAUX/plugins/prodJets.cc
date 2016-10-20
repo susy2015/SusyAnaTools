@@ -195,26 +195,16 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   //ak8
   produces<std::vector<TLorentzVector> >("ak8JetsLVec");
   
-  produces<std::vector<double> >("tau1");
-  produces<std::vector<double> >("subjetBdisc");
-  produces<std::vector<double> >("subjetBdiscp");
-  produces<std::vector<double> >("ak8pt");
-  produces<std::vector<double> >("ak8mass");
-  produces<std::vector<double> >("ak8rapidity");
+//  produces<std::vector<double> >("subjetBdisc");
+//  produces<std::vector<double> >("subjetBdiscp");
   produces<std::vector<double> >("prunedMass");
   produces<std::vector<double> >("softDropMass");
+  produces<std::vector<double> >("tau1");
   produces<std::vector<double> >("tau2");
   produces<std::vector<double> >("tau3");
-  //produces<std::vector<double> >("tau21");
-  //produces<std::vector<double> >("tau32");
-  produces<std::vector<double> >("puppipt");
-  produces<std::vector<double> >("puppimass");
-  produces<std::vector<double> >("puppieta");
-  produces<std::vector<double> >("puppiphi");
   produces<std::vector<double> >("puppitau1");
   produces<std::vector<double> >("puppitau2");
   produces<std::vector<double> >("puppitau3");
-  produces<std::vector<double> >("deltaRpup");
 
 }
 
@@ -293,32 +283,21 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<int> > trksForIsoVetoMatchedJetIdx(new std::vector<int>(trksForIsoVetoLVec_->size(), -1));
   std::auto_ptr<std::vector<int> > looseisoTrksMatchedJetIdx(new std::vector<int>(looseisoTrksLVec_->size(), -1));
 
-
   //PUPPI
   std::auto_ptr<std::vector<TLorentzVector> > puppiJetsLVec(new std::vector<TLorentzVector>());
   //ak8
   std::auto_ptr<std::vector<TLorentzVector> > ak8JetsLVec(new std::vector<TLorentzVector>());  
 
-  std::auto_ptr<std::vector<double> > tau1(new std::vector<double>());
-  std::auto_ptr<std::vector<double> >subjetBdisc(new std::vector<double>());
-  std::auto_ptr<std::vector<double> >subjetBdiscp(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > ak8pt(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > ak8mass(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > ak8rapidity(new std::vector<double>());
+//  std::auto_ptr<std::vector<double> > subjetBdisc(new std::vector<double>());
+//  std::auto_ptr<std::vector<double> > subjetBdiscp(new std::vector<double>());
   std::auto_ptr<std::vector<double> > prunedMass(new std::vector<double>());
   std::auto_ptr<std::vector<double> > softDropMass(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > tau1(new std::vector<double>());
   std::auto_ptr<std::vector<double> > tau2(new std::vector<double>());
   std::auto_ptr<std::vector<double> > tau3(new std::vector<double>());
-  //std::auto_ptr<std::vector<double> > tau21(new std::vector<double>());
-  //std::auto_ptr<std::vector<double> > tau32(new std::vector<double>());
   std::auto_ptr<std::vector<double> > puppitau1(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > puppipt(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > puppimass(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > puppieta(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > puppiphi(new std::vector<double>());
   std::auto_ptr<std::vector<double> > puppitau2(new std::vector<double>());
   std::auto_ptr<std::vector<double> > puppitau3(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > deltaRpup(new std::vector<double>());
 
   if( !isData_ ){
      int cntJetPassPtCut = 0;
@@ -334,7 +313,6 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
               minDR = dR; matchedIdx = ij;
            }
         }
-     // }
       if( matchedIdx != -1 )
       {
         if( minDR < dR_for_xCheck_ && std::abs(otjet_pt - jets->at(matchedIdx).pt())/jets->at(matchedIdx).pt() < relPt_for_xCheck_ ){ cntFound ++; }
@@ -432,99 +410,51 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   //PUPPI
 
-  for(unsigned int ip = 0; ip < puppiJets->size(); ip++)
-    {
-
-      TLorentzVector perPuppiJetLVec;
-      perPuppiJetLVec.SetPtEtaPhiE( puppiJets->at(ip).pt(), puppiJets->at(ip).eta(), puppiJets->at(ip).phi(), puppiJets->at(ip).energy() );
-      puppiJetsLVec->push_back(perPuppiJetLVec);
-
-    }
+  for(unsigned int ip = 0; ip < puppiJets->size(); ip++){
+     TLorentzVector perPuppiJetLVec;
+     perPuppiJetLVec.SetPtEtaPhiE( puppiJets->at(ip).pt(), puppiJets->at(ip).eta(), puppiJets->at(ip).phi(), puppiJets->at(ip).energy() );
+     puppiJetsLVec->push_back(perPuppiJetLVec);
+  }
   //Puppi End ************
   //
-  //  //ak8
+  for(unsigned int ak = 0; ak < ak8Jets->size(); ak++){
 
- 
-    double tau21        = 99;
-    double tau32        = 99;
-    double puppi_tau21        = 99;
-    double puppi_tau32        = 99;
-    bool SoftDropTau32Tagged = false;
-    //double tau1 = 999;
-     
-    for(unsigned int ak = 0; ak < ak8Jets->size(); ak++)
-    {
-
-      TLorentzVector perak8JetLVec;
-      perak8JetLVec.SetPtEtaPhiE( ak8Jets->at(ak).pt(), ak8Jets->at(ak).eta(), ak8Jets->at(ak).phi(), ak8Jets->at(ak).energy() );
-      ak8JetsLVec->push_back(perak8JetLVec);
+     TLorentzVector perak8JetLVec;
+     perak8JetLVec.SetPtEtaPhiE( ak8Jets->at(ak).pt(), ak8Jets->at(ak).eta(), ak8Jets->at(ak).phi(), ak8Jets->at(ak).energy() );
+     ak8JetsLVec->push_back(perak8JetLVec);
  
    //trying to add Tua tua
-    double pt_uf           = ak8Jets->at(ak).pt();
-    ak8pt->push_back(pt_uf);
-    double mass_uf         = ak8Jets->at(ak).mass();
-    ak8mass->push_back(mass_uf);
-    double rapidity_uf     = ak8Jets->at(ak).rapidity();
-    ak8rapidity->push_back(rapidity_uf);
-    //double ndau         = ijet.numberOfDaughters();
-    double prunedMass_uf   = ak8Jets->at(ak).userFloat("ak8PFJetsCHSPrunedMass");
-    prunedMass->push_back(prunedMass_uf);
-    double softDropMass_uf = ak8Jets->at(ak).userFloat("ak8PFJetsCHSSoftDropMass");
-    softDropMass->push_back(softDropMass_uf);
-    double tau1_uf = ak8Jets->at(ak).userFloat("NjettinessAK8:tau1");
-    tau1->push_back(tau1_uf);
-    double tau2_uf         = ak8Jets->at(ak).userFloat("NjettinessAK8:tau2");
-    tau2->push_back(tau2_uf);
-    double tau3_uf         = ak8Jets->at(ak).userFloat("NjettinessAK8:tau3");
-    tau3->push_back(tau3_uf);
-    //double tau21        = 99;
-    //double tau32        = 99;
+     double prunedMass_uf   = ak8Jets->at(ak).userFloat("ak8PFJetsCHSPrunedMass");
+     prunedMass->push_back(prunedMass_uf);
+     double softDropMass_uf = ak8Jets->at(ak).userFloat("ak8PFJetsCHSSoftDropMass");
+     softDropMass->push_back(softDropMass_uf);
+     double tau1_uf = ak8Jets->at(ak).userFloat("NjettinessAK8:tau1");
+     tau1->push_back(tau1_uf);
+     double tau2_uf         = ak8Jets->at(ak).userFloat("NjettinessAK8:tau2");
+     tau2->push_back(tau2_uf);
+     double tau3_uf         = ak8Jets->at(ak).userFloat("NjettinessAK8:tau3");
+     tau3->push_back(tau3_uf);
 
-    double puppi_pt_uf           = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:pt");
-    puppipt->push_back(puppi_pt_uf);
-    double puppi_mass_uf         = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:mass");
-    puppimass->push_back(puppi_mass_uf);
-    double puppi_eta_uf          = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:eta");
-    puppieta->push_back(puppi_eta_uf);
-    double puppi_phi_uf          = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:phi");
-    puppiphi->push_back(puppi_phi_uf);
-    double puppi_tau1_uf         = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau1");
-    puppitau1->push_back(puppi_tau1_uf);
-    double puppi_tau2_uf         = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2");
-    puppitau2->push_back(puppi_tau2_uf);
-    double puppi_tau3_uf         = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau3");
-    puppitau3->push_back(puppi_tau3_uf);
-    //double puppi_tau21        = 99;
-    //double puppi_tau32        = 99;
+     double puppi_tau1_uf         = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau1");
+     puppitau1->push_back(puppi_tau1_uf);
+     double puppi_tau2_uf         = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2");
+     puppitau2->push_back(puppi_tau2_uf);
+     double puppi_tau3_uf         = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau3");
+     puppitau3->push_back(puppi_tau3_uf);
 
-    //double deltaRpup_uf = deltaR(ak8Jets->at(ak).eta(), ak8Jets->at(ak).phi(), puppi_eta, puppi_phi );
-    //deltaRpup->push_back(deltaRpup_uf);
-    //if (tau1!=0) double tau21_uf = tau2_uf/tau1_uf;
-    //tau21->push_back(tau21_uf);
-    //if (tau2!=0) double tau32_uf = tau3_uf/tau2_uf;
-    //tau32->push_back(tau32_uf);
-
-    //if (puppi_tau1!=0) double puppi_tau21 = puppi_tau2/puppi_tau1;
-    //if (puppi_tau2!=0) double puppi_tau32 = puppi_tau3/puppi_tau2;
-
-    auto const & sdSubjets = ak8Jets->at(ak).subjets("SoftDrop");
-    for ( auto const & it : sdSubjets ) {
-    double subjetBdisc_uf    = it->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
-    subjetBdisc->push_back(subjetBdisc_uf);
-    }   
-
-    auto const & sdSubjetsPuppi = ak8Jets->at(ak).subjets("SoftDropPuppi");
-    int count_pup=0;
-    for ( auto const & it : sdSubjetsPuppi ) {
-      double subjetBdiscp_uf    = it->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
-      subjetBdiscp->push_back(subjetBdiscp_uf);
-    }
+//     auto const & sdSubjets = ak8Jets->at(ak).subjets("SoftDrop");
+//     for ( auto const & it : sdSubjets ) {
+//        double subjetBdisc_uf    = it->bDiscriminator((bTagKeyString_.c_str());
+//        subjetBdisc->push_back(subjetBdisc_uf);
+//     }   
+//
+//     auto const & sdSubjetsPuppi = ak8Jets->at(ak).subjets("SoftDropPuppi");
+//     for ( auto const & it : sdSubjetsPuppi ) {
+//        double subjetBdiscp_uf    = it->bDiscriminator((bTagKeyString_.c_str());
+//        subjetBdiscp->push_back(subjetBdiscp_uf);
+//     }
   
-    // Soft Drop + Nsubjettiness tagger
-    //bool SoftDropTau32Tagged = false;
-    //if (softDropMass<230 && softDropMass>140 && tau32 <0.65) bool SoftDropTau32Tagged = true;
-
-   }
+  }
 
   int cntJetLowPt = 0;
   for(unsigned int ij=0; ij < extJets.size(); ij++)
@@ -707,29 +637,17 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(puppiJetsLVec, "puppiJetsLVec");
   //ak8
   iEvent.put(ak8JetsLVec, "ak8JetsLVec");
-  iEvent.put(tau1, "tau1");
-  iEvent.put(subjetBdisc, "subjetBdisc");
-  iEvent.put(subjetBdiscp, "subjetBdiscp");
+//  iEvent.put(subjetBdisc, "subjetBdisc");
+//  iEvent.put(subjetBdiscp, "subjetBdiscp");
   //trying
-  iEvent.put(ak8pt, "ak8pt");
-  iEvent.put(ak8mass,"ak8mass");
-  iEvent.put(ak8rapidity,"ak8rapidity");
   iEvent.put(softDropMass,"softDropMass");
   iEvent.put(prunedMass,"prunedMass");
+  iEvent.put(tau1, "tau1");
   iEvent.put(tau2, "tau2");
-  iEvent.put(tau3,"tau3");
-  //iEvent.put(tau21,"tau21");
-  //iEvent.put(tau32,"tau32");
-  iEvent.put(puppipt,"puppipt");
-  iEvent.put(puppimass,"puppimass");
-  iEvent.put(puppieta,"puppieta");
-  iEvent.put(puppiphi,"puppiphi");
+  iEvent.put(tau3, "tau3");
   iEvent.put(puppitau1,"puppitau1");
   iEvent.put(puppitau2,"puppitau2");
   iEvent.put(puppitau3,"puppitau3");
-  //iEvent.put(puppi_tau21,"puppi_tau21");
-  //iEvent.put(puppi_tau32,"puppi_tau32"); 
-  iEvent.put(deltaRpup,"deltaRpup");  
 
   return true;
 }
