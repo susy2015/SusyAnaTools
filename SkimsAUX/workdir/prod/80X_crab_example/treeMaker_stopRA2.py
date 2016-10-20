@@ -834,6 +834,27 @@ process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "eleMatchedJetId
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "looseisoTrksMatchedJetIdx"))
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "trksForIsoVetoMatchedJetIdx"))
 
+process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "puppiJetsLVec"))
+process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "ak8JetsLVec"))
+
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau1"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "subjetBdisc"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau2"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau3"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "ak8pt"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "ak8mass"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "ak8rapidity"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "prunedMass"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "softDropMass"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppipt"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau1"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau2"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau3"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppieta"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppimass"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppiphi"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "subjetBdiscp"))
+
 if options.addJetsForZinv == True: 
    process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "jetsLVec"))
    process.stopTreeMaker.vectorTLorentzVectorNamesInTree.append("prodJetsNoLep:jetsLVec|jetsLVecLepCleaned")
@@ -857,7 +878,8 @@ if options.addJetsForZinv == True:
 
    process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsBtag"))
    process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsBtag|recoJetsBtag_0_LepCleaned")
-   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsCharge"))
+   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsCharge"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsCharge"))
    process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsCharge|recoJetsCharge_0_LepCleaned")
 
    process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecScaleRawToFull"))

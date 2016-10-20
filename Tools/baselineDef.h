@@ -56,6 +56,7 @@ public:
         std::string CSVVecLabel = "recoJetsBtag_0";
         std::string METLabel    = "met";
         std::string METPhiLabel = "metphi";
+        std::string jetVecLabelAK8 = "ak8JetsLVec";
 
         std::string muonsFlagIDLabel = "muonsFlagMedium";
         std::string elesFlagIDLabel = "elesFlagVeto";
@@ -179,7 +180,7 @@ public:
         // Calculate deltaPhi
         std::vector<double> * dPhiVec = new std::vector<double>();
         (*dPhiVec) = AnaFunctions::calcDPhi(tr.getVec<TLorentzVector>(jetVecLabel), metLVec.Phi(), 3, AnaConsts::dphiArr);
-
+        
         // Prepare jets and b-tag working points for top tagger
         std::vector<TLorentzVector> *jetsLVec_forTagger = new std::vector<TLorentzVector>(); std::vector<double> *recoJetsBtag_forTagger = new std::vector<double>();
         AnaFunctions::prepareJetsForTagger(tr.getVec<TLorentzVector>(jetVecLabel), tr.getVec<double>(CSVVecLabel), (*jetsLVec_forTagger), (*recoJetsBtag_forTagger));
@@ -615,7 +616,18 @@ namespace stopFunctions
 
             return match;
         }
-
+/*
+        int ak8DRJet(const std::vector<TLorentzVector>& ak8JetsLVec, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec,  const double& jak8dRMax)
+        {
+            int match1 = lepMatchedJetIdx;
+            if(match1 < 0)
+            {
+                //If muon matching to PF candidate has failed, use dR matching as fallback
+                match1 = AnaFunctions::jetdRMatch(ak8JetsLVec, jetsLVec, jak8dRMax);
+               }
+            return match1;
+        }
+*/
         void internalCleanJets(NTupleReader& tr)
         {
             const std::vector<TLorentzVector>& jetsLVec         = tr.getVec<TLorentzVector>(jetVecLabel_);
