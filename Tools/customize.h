@@ -361,7 +361,7 @@ namespace AnaFunctions{
       return cntNIsoTrks;
    }
 
-   void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger, const std::vector<double>& qgLikelihood = *static_cast<std::vector<double>*>(nullptr), std::vector<double>& qgLikelihood_forTagger = *static_cast<std::vector<double>*>(nullptr), const std::vector<double>& recoJetsCharge = *static_cast<std::vector<double>*>(nullptr), std::vector<double>& recoJetsCharge_forTagger = *static_cast<std::vector<double>*>(nullptr)){
+   void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger, const std::vector<double>& qgLikelihood = *static_cast<std::vector<double>*>(nullptr), std::vector<double>& qgLikelihood_forTagger = *static_cast<std::vector<double>*>(nullptr)){
 
       jetsLVec_forTagger.clear(); recoJetsBtag_forTagger.clear();
 
@@ -372,7 +372,6 @@ namespace AnaFunctions{
          jetsLVec_forTagger.push_back(inijetsLVec.at(ij));
          recoJetsBtag_forTagger.push_back(inirecoJetsBtag.at(ij));
          if(&qgLikelihood && &qgLikelihood_forTagger) qgLikelihood_forTagger.push_back(qgLikelihood[ij]);
-         if(&recoJetsCharge && &recoJetsCharge_forTagger) recoJetsCharge_forTagger.push_back(recoJetsCharge[ij]);
       }
    }
 // cntNJetsVec stores number of jets counters from tightest requirement to loosest requirement.
