@@ -6,6 +6,11 @@ import sys
 import re
 import tarfile
 
+
+## --------------------------
+## -- Command line options --
+## --------------------------
+
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 
@@ -64,8 +69,25 @@ options._tagOrder =[]
 
 print options
 
+## -------------------------
+## -- Check CMSSW version --
+## -------------------------
+
 procCMSSWver = os.environ['CMSSW_RELEASE_BASE'].split("/")[-1]
 print "procCMSSWver : ", procCMSSWver, "\n"
+
+if not "CMSSW_8_0" in procCMSSWver:
+   print "You should be using CMSSW 80X!! Please change your release area"
+   sys.exit("ERROR: Not using 80X release")
+
+if not options.cmsswVersion == "80X":
+   print "You should be using CMSSW 80X as option!! Please change to be consistent with the release area"
+   sys.exit("ERROR: Not using 80X option")
+
+
+## ------------------------
+## -- Define the process --
+## ------------------------
 
 process = cms.Process("SUSY")
 
@@ -74,29 +96,23 @@ if options.era == "Run2_25ns":
 elif options.era == "Run2_50ns":
    process = cms.Process("SUSY", eras.Run2_50ns)
 
-## MessageLogger
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
-## Options and Output Report
-process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-
-## Source
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-      '/store/relval/CMSSW_3_8_0_pre8/RelValTTbar/GEN-SIM-RECO/START38_V6-v1/0004/847D00B0-608E-DF11-A37D-003048678FA0.root'
-    )
-)
-## Maximal Number of Events
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
-
-# The following is make patJets, but EI is done with the above
-#process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+
+## -- MessageLogger --
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
+if options.debug:
+   process.MessageLogger.cerr.FwkReport.reportEvery = 1
+
+## -- Options and Output Report --
+process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
+## -- Maximal Number of Events --
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 if options.debug and options.verbose ==1:
    process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck',
@@ -105,26 +121,24 @@ if options.debug and options.verbose ==1:
                                         )
    process.Timing = cms.Service("Timing")
 
-#-- Message Logger ------------------------------------------------------------
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
-if options.debug:
-   process.MessageLogger.cerr.FwkReport.reportEvery = 1
+## -- Input Source --
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+      '/store/relval/CMSSW_3_8_0_pre8/RelValTTbar/GEN-SIM-RECO/START38_V6-v1/0004/847D00B0-608E-DF11-A37D-003048678FA0.root'
+    )
+)
 
-#-- Input Source --------------------------------------------------------------
-inputfiles = cms.untracked.vstring()
-if options.fileslist:
+if options.files:
+   process.source.fileNames = options.files
+elif options.fileslist:
+   inputfiles = cms.untracked.vstring()
    if os.path.exists(options.fileslist) == False or os.path.isfile(options.fileslist) == False:
       sys.exit(5)
    else:
       ifile = open(options.fileslist, 'r')
       for line in ifile.readlines():
          inputfiles.append(line)
-
-print "inputfiles : \n", inputfiles, "\n"
-
-if options.files:
-   process.source.fileNames = options.files
-elif options.fileslist:
+   print "inputfiles : \n", inputfiles, "\n"
    process.source.fileNames = inputfiles
 else:
    process.source.fileNames = [
@@ -140,44 +154,53 @@ else:
 #       '/store/data/Run2016C/HTMHT/MINIAOD/PromptReco-v2/000/275/588/00000/BE1D644B-393A-E611-905F-02163E0124F5.root',
    ]
 
-process.maxEvents.input = options.maxEvents
+
+## ---------------------
+## -- Calibration tag --
+## ---------------------
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 
-#-- Calibration tag -----------------------------------------------------------
 if options.GlobalTag:
-#   process.GlobalTag.globaltag = options.GlobalTag
    process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 
-if options.mcInfo == False: options.jetCorrections.append('L2L3Residual')
+if options.mcInfo == False: 
+   options.jetCorrections.append('L2L3Residual')
 options.jetCorrections.insert(0, 'L1FastJet')
 
-#print "jetCorrections: "
-#print options.jetCorrections
+## ---------------------------------------
+## -- Create all needed jet collections --
+## ---------------------------------------
 
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
 
-## --- Selection sequences ---------------------------------------------
-# leptons
-process.load("PhysicsTools.PatAlgos.selectionLayer1.muonCountFilter_cfi")
-process.load("PhysicsTools.PatAlgos.selectionLayer1.electronCountFilter_cfi")
-
 ## Filter out neutrinos from packed GenParticles
-process.packedGenParticlesForJetsNoNu = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedGenParticles"), cut = cms.string("abs(pdgId) != 12 && abs(pdgId) != 14 && abs(pdgId) != 16"))
+process.packedGenParticlesForJetsNoNu = cms.EDFilter("CandPtrSelector", 
+                                                     src = cms.InputTag("packedGenParticles"), 
+                                                     cut = cms.string("abs(pdgId) != 12 && abs(pdgId) != 14 && abs(pdgId) != 16"))
 ## Define GenJets
 process.ak4GenJetsNoNu = ak4GenJets.clone(src = 'packedGenParticlesForJetsNoNu')
 
-#do projections
-process.pfCHS = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))
+## -- do projections --
+process.pfCHS = cms.EDFilter("CandPtrSelector", 
+                             src = cms.InputTag("packedPFCandidates"), 
+                             cut = cms.string("fromPV"))
 
 process.myak4PFJetsCHS = ak4PFJets.clone(src = 'pfCHS', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
 process.myak4GenJets = ak4GenJets.clone(src = 'packedGenParticles', rParam = 0.4)
 
+## leptons
+#process.load("PhysicsTools.PatAlgos.selectionLayer1.muonCountFilter_cfi") ## NS: What is this used for?
+#process.load("PhysicsTools.PatAlgos.selectionLayer1.electronCountFilter_cfi") ## NS: What is this used for?
 process.load("SusyAnaTools.SkimsAUX.prodMuons_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodElectrons_cfi")
-process.pfNoMuonCHSNoMu =  cms.EDProducer("CandPtrProjector", src = cms.InputTag("pfCHS"), veto = cms.InputTag("prodMuons", "mu2Clean"))
-process.pfNoElectronCHSNoEle = cms.EDProducer("CandPtrProjector", src = cms.InputTag("pfNoMuonCHSNoMu"), veto = cms.InputTag("prodElectrons", "ele2Clean"))
+process.pfNoMuonCHSNoMu =  cms.EDProducer("CandPtrProjector", 
+                                          src = cms.InputTag("pfCHS"), 
+                                          veto = cms.InputTag("prodMuons", "mu2Clean"))
+process.pfNoElectronCHSNoEle = cms.EDProducer("CandPtrProjector", 
+                                              src = cms.InputTag("pfNoMuonCHSNoMu"), 
+                                              veto = cms.InputTag("prodElectrons", "ele2Clean"))
 process.ak4PFJetsCHSNoLep = ak4PFJets.clone(src = 'pfNoElectronCHSNoEle', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
 
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
