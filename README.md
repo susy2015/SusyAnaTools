@@ -3,10 +3,11 @@
 The following installation instructions assume the user wants to process Run2016 data or Spring16 MC.
 
 ```
-cmsrel CMSSW_8_0_12
-cd CMSSW_8_0_12/src/
+cmsrel CMSSW_8_0_23_patch1
+cd CMSSW_8_0_23_patch1/src/
 cmsenv
 git cms-init
+git cms-merge-topic -u kpedro88:METfix8022
 git cms-merge-topic -u cms-met:CMSSW_8_0_X-METFilterUpdate
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
 git clone -b prodNtpV10_AK8_QGL_Oct20_2016 git@github.com:susy2015/SusyAnaTools.git
