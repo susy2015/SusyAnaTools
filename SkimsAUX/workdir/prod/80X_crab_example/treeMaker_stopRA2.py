@@ -484,6 +484,19 @@ process.countak4JetsPFchsPt50Eta25.src       = cms.InputTag('ak4patJetsPFchsPt50
 process.countak4JetsPFchsPt50Eta25.minNumber = cms.uint32(3)
 
 process.ra2PFchsJets = cms.Sequence( process.ak4patJetsPFchsPt10 * process.ak4patJetsPFchsPt30 * process.ak4patJetsPFchsPt50Eta25 )
+
+# Add AK8 PUPPI jet collection using Jet Toolbox
+from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
+
+jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', 
+  runOnMC = options.mcInfo, 
+  PUMethod='Puppi', 
+  addSoftDropSubjets = True, 
+  addSoftDrop = True, 
+  addNsub = True, 
+  bTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags'], 
+  addCMSTopTagger = False)
+
 #Analysis related configuration
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 if options.hltSelection:
@@ -840,11 +853,12 @@ process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "ak8J
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau1"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau2"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau3"))
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "prunedMass"))
+#process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "prunedMass"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "softDropMass"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau1"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau2"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau3"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppisoftDropMass"))
 
 if options.addJetsForZinv == True: 
    process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "jetsLVec"))
@@ -875,17 +889,17 @@ if options.addJetsForZinv == True:
    process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecScaleRawToFull"))
    process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecScaleRawToFull|recoJetsJecScaleRawToFull_LepCleaned")
 
-   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiJetsLVec"))
-   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "ak8JetsLVec"))
+   #process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiJetsLVec"))
+   #process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "ak8JetsLVec"))
 
-   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau1"))
-   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau2"))
-   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau3"))
-   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "prunedMass"))
-   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "softDropMass"))
-   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau1"))
-   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau2"))
-   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau3"))
+   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau1"))
+   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau2"))
+   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau3"))
+   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "prunedMass"))
+   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "softDropMass"))
+   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau1"))
+   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau2"))
+   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau3"))
 
 if options.mcInfo == True:
    process.prodGenInfo.debug = cms.bool(options.debug)
