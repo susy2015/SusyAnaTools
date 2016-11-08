@@ -197,11 +197,12 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   
 //  produces<std::vector<double> >("subjetBdisc");
 //  produces<std::vector<double> >("subjetBdiscp");
-  produces<std::vector<double> >("prunedMass");
+//  produces<std::vector<double> >("prunedMass");
   produces<std::vector<double> >("softDropMass");
   produces<std::vector<double> >("tau1");
   produces<std::vector<double> >("tau2");
   produces<std::vector<double> >("tau3");
+  produces<std::vector<double> >("puppisoftDropMass");
   produces<std::vector<double> >("puppitau1");
   produces<std::vector<double> >("puppitau2");
   produces<std::vector<double> >("puppitau3");
@@ -290,11 +291,12 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 //  std::auto_ptr<std::vector<double> > subjetBdisc(new std::vector<double>());
 //  std::auto_ptr<std::vector<double> > subjetBdiscp(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > prunedMass(new std::vector<double>());
+//  std::auto_ptr<std::vector<double> > prunedMass(new std::vector<double>());
   std::auto_ptr<std::vector<double> > softDropMass(new std::vector<double>());
   std::auto_ptr<std::vector<double> > tau1(new std::vector<double>());
   std::auto_ptr<std::vector<double> > tau2(new std::vector<double>());
   std::auto_ptr<std::vector<double> > tau3(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > puppisoftDropMass(new std::vector<double>());
   std::auto_ptr<std::vector<double> > puppitau1(new std::vector<double>());
   std::auto_ptr<std::vector<double> > puppitau2(new std::vector<double>());
   std::auto_ptr<std::vector<double> > puppitau3(new std::vector<double>());
@@ -414,6 +416,17 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      TLorentzVector perPuppiJetLVec;
      perPuppiJetLVec.SetPtEtaPhiE( puppiJets->at(ip).pt(), puppiJets->at(ip).eta(), puppiJets->at(ip).phi(), puppiJets->at(ip).energy() );
      puppiJetsLVec->push_back(perPuppiJetLVec);
+
+     double puppi_tau1_uf         = puppiJets->at(ip).userFloat("NjettinessAK8Puppi:tau1");
+     puppitau1->push_back(puppi_tau1_uf);
+     double puppi_tau2_uf         = puppiJets->at(ip).userFloat("NjettinessAK8Puppi:tau2");
+     puppitau2->push_back(puppi_tau2_uf);
+     double puppi_tau3_uf         = puppiJets->at(ip).userFloat("NjettinessAK8Puppi:tau3");
+     puppitau3->push_back(puppi_tau3_uf);
+
+     double puppisoftDropMass_uf = puppiJets->at(ip).userFloat("ak8PFJetsPuppiSoftDropMass");
+     puppisoftDropMass->push_back(puppisoftDropMass_uf);
+   
   }
   //Puppi End ************
   //
@@ -424,8 +437,8 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      ak8JetsLVec->push_back(perak8JetLVec);
  
    //trying to add Tua tua
-     double prunedMass_uf   = ak8Jets->at(ak).userFloat("ak8PFJetsCHSPrunedMass");
-     prunedMass->push_back(prunedMass_uf);
+   //  double prunedMass_uf   = ak8Jets->at(ak).userFloat("ak8PFJetsCHSPrunedMass");
+   //  prunedMass->push_back(prunedMass_uf);
      double softDropMass_uf = ak8Jets->at(ak).userFloat("ak8PFJetsCHSSoftDropMass");
      softDropMass->push_back(softDropMass_uf);
      double tau1_uf = ak8Jets->at(ak).userFloat("NjettinessAK8:tau1");
@@ -435,12 +448,6 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      double tau3_uf         = ak8Jets->at(ak).userFloat("NjettinessAK8:tau3");
      tau3->push_back(tau3_uf);
 
-     double puppi_tau1_uf         = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau1");
-     puppitau1->push_back(puppi_tau1_uf);
-     double puppi_tau2_uf         = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2");
-     puppitau2->push_back(puppi_tau2_uf);
-     double puppi_tau3_uf         = ak8Jets->at(ak).userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau3");
-     puppitau3->push_back(puppi_tau3_uf);
 
 //     auto const & sdSubjets = ak8Jets->at(ak).subjets("SoftDrop");
 //     for ( auto const & it : sdSubjets ) {
@@ -641,7 +648,8 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  iEvent.put(subjetBdiscp, "subjetBdiscp");
   //trying
   iEvent.put(softDropMass,"softDropMass");
-  iEvent.put(prunedMass,"prunedMass");
+  iEvent.put(puppisoftDropMass,"puppisoftDropMass");
+  //iEvent.put(prunedMass,"prunedMass");
   iEvent.put(tau1, "tau1");
   iEvent.put(tau2, "tau2");
   iEvent.put(tau3, "tau3");
