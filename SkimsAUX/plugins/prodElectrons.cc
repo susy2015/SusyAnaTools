@@ -246,29 +246,29 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   return result;
 }
 
-bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle< std::vector<reco::Vertex> > & vertices, const elesIDLevel level) {
-
+bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle< std::vector<reco::Vertex> > & vertices, const elesIDLevel level) 
+{
   // electron ID cuts, updated for Spring15 25ns MC and Run2015C-D data 
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
 
   // barrel electrons
-  double eb_ieta_cut[4] = {0.0114, 0.0103, 0.0101, 0.0101};
-  double eb_deta_cut[4] = {0.0152, 0.0105, 0.0103, 0.00926};
-  double eb_dphi_cut[4] = {0.216, 0.115, 0.0336, 0.0336};
-  double eb_hovere_cut[4] = {0.181, 0.104, 0.0876, 0.0597};
-  double eb_ooeminusoop_cut[4] = {0.207, 0.102, 0.0174, 0.012};
-  double eb_d0_cut[4] = {0.0564, 0.0261, 0.0118, 0.0111};
-  double eb_dz_cut[4] = {0.472, 0.41, 0.373, 0.0466};
-  int eb_misshits_cut[4] = {2, 2, 2, 2};
+  double eb_ieta_cut[4] = {0.0115, 0.011, 0.00998, 0.00998};
+  double eb_deta_cut[4] = {0.00749, 0.00477, 0.00311, 0.00308};
+  double eb_dphi_cut[4] = {0.228, 0.222, 0.103, 0.0816};
+  double eb_hovere_cut[4] = {0.356, 0.298, 0.253, 0.0414};
+  double eb_ooeminusoop_cut[4] = {0.299, 0.241, 0.134, 0.0129};
+  //double eb_d0_cut[4] = {0.0564, 0.0261, 0.0118, 0.0111};
+  //double eb_dz_cut[4] = {0.472, 0.41, 0.373, 0.0466};
+  int eb_misshits_cut[4] = {2, 1, 1, 1};
 
   // endcap electrons
-  double ee_ieta_cut[4] = {0.0352, 0.0301, 0.0283, 0.0279};
-  double ee_deta_cut[4] = {0.0113, 0.00814, 0.00733, 0.00724};
-  double ee_dphi_cut[4] = {0.237, 0.182, 0.114, 0.0918};
-  double ee_hovere_cut[4] = {0.116, 0.0897, 0.0678, 0.0615};
-  double ee_ooeminusoop_cut[4] = {0.174, 0.126, 0.0898, 0.00999};
-  double ee_d0_cut[4] = {0.222, 0.118, 0.0739, 0.0351};
-  double ee_dz_cut[4] = {0.921, 0.822, 0.602, 0.417};
+  double ee_ieta_cut[4] = {0.037, 0.0314, 0.0298, 0.0292};
+  double ee_deta_cut[4] = {0.00895, 0.00868, 0.00609, 0.00605};
+  double ee_dphi_cut[4] = {0.213, 0.213, 0.045, 0.0394};
+  double ee_hovere_cut[4] = {0.211, 0.101, 0.0878, 0.0641};
+  double ee_ooeminusoop_cut[4] = {0.15, 0.14, 0.13, 0.0129};
+  //double ee_d0_cut[4] = {0.222, 0.118, 0.0739, 0.0351};
+  //double ee_dz_cut[4] = {0.921, 0.822, 0.602, 0.417};
   int ee_misshits_cut[4] = {3, 1, 1, 1};
 
   // common
@@ -280,61 +280,76 @@ bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle<
   double dPhiIn        = ele.deltaPhiSuperClusterTrackAtVtx();
   double hoe           = ele.hadronicOverEm();
   double ooemoop       = 1e30;
-  if( ele.ecalEnergy() !=0 && std::isfinite(ele.ecalEnergy()) ){
-     ooemoop = std::abs(1.0/ele.ecalEnergy() - ele.eSuperClusterOverP()/ele.ecalEnergy());
+  
+  if( ele.ecalEnergy() !=0 && std::isfinite(ele.ecalEnergy()) )
+  {
+    ooemoop = std::abs(1.0/ele.ecalEnergy() - ele.eSuperClusterOverP()/ele.ecalEnergy());
   }
 
+  //Impact parameter cuts: differently from previous cut-based electron ID working points, this time the d0 and dz cuts are NOT part of the tuned ID. The reasons for this decision include: efficiency strongly dependent on the physics of the event, measurements wanting to have impact parameter handling different from per-electron d0/dz, relatively low discriminating power of the variables. Instead an average analysis is recommended to use safe highly efficient (when PV is properly found) baseline cuts given in the table below. The d0 and dz are NOT applied in the VID framework, and are left for regular users to cut on explicitly if desired.
+  /*
   // impact parameter variables
   double d0vtx         = 0.0;
   double dzvtx         = 0.0;
-  if (vertices->size() > 0) {
-      reco::VertexRef vtx(vertices, 0);    
-      d0vtx = ele.gsfTrack()->dxy(vtx->position());
-      dzvtx = ele.gsfTrack()->dz(vtx->position());
-  } else {
-      d0vtx = ele.gsfTrack()->dxy();
-      dzvtx = ele.gsfTrack()->dz();
+  if (vertices->size() > 0)
+  {
+    reco::VertexRef vtx(vertices, 0);    
+    d0vtx = ele.gsfTrack()->dxy(vtx->position());
+    dzvtx = ele.gsfTrack()->dz(vtx->position());
+  } 
+  else 
+  {
+    d0vtx = ele.gsfTrack()->dxy();
+    dzvtx = ele.gsfTrack()->dz();
   }
-
+  */
   // conversion rejection variables
   bool convVeto = ele.passConversionVeto();
   double mHits = ele.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   
-  if (ele.isEB()) {
+  if (ele.isEB()) 
+  {
     return 
          eb_ieta_cut[level] > sigmaIEtaIEta
       && eb_deta_cut[level] > fabs(dEtaIn)
       && eb_dphi_cut[level] > fabs(dPhiIn)
       && eb_hovere_cut[level] > hoe
       && eb_ooeminusoop_cut[level] > fabs(ooemoop)
-      && eb_d0_cut[level] > fabs(d0vtx)
-      && eb_dz_cut[level] > fabs(dzvtx)
+      //&& eb_d0_cut[level] > fabs(d0vtx)
+      //&& eb_dz_cut[level] > fabs(dzvtx)
       && (reqConvVeto[level] == convVeto)
       && (eb_misshits_cut[level] >= mHits);
-  } else if (ele.isEE()) {
+  } 
+  else if (ele.isEE()) 
+  {
     return 
          ee_ieta_cut[level] > sigmaIEtaIEta
       && ee_deta_cut[level] > fabs(dEtaIn)
       && ee_dphi_cut[level] > fabs(dPhiIn)
       && ee_hovere_cut[level] > hoe
       && ee_ooeminusoop_cut[level] > fabs(ooemoop)
-      && ee_d0_cut[level] > fabs(d0vtx)
-      && ee_dz_cut[level] > fabs(dzvtx)
+      //&& ee_d0_cut[level] > fabs(d0vtx)
+      //&& ee_dz_cut[level] > fabs(dzvtx)
       && (reqConvVeto[level] == convVeto)
       && (ee_misshits_cut[level] >= mHits);
   } else return false;
 
 }
 
-bool prodElectrons::passElectronISO(const pat::Electron & ele, const double relIso, const elesIDLevel level){
-   double eb_relIsoWithEA_cut[4] = {0.126, 0.0893, 0.0766, 0.0354};
-   double ee_relIsoWithEA_cut[4] = {0.144, 0.121, 0.0678, 0.0646}; 
+bool prodElectrons::passElectronISO(const pat::Electron & ele, const double relIso, const elesIDLevel level)
+{
+  double eb_relIsoWithEA_cut[4] = {0.175, 0.0994, 0.0695, 0.0588};
+  double ee_relIsoWithEA_cut[4] = {0.159, 0.1070, 0.0821, 0.0571}; 
    
-   if( ele.isEB() ){
-      return relIso < eb_relIsoWithEA_cut[level];
-   }else if (ele.isEE() ){
-      return relIso < ee_relIsoWithEA_cut[level];
-   } else return false;
+  if( ele.isEB() )
+  {
+    return relIso < eb_relIsoWithEA_cut[level];
+  }
+  else if (ele.isEE() )
+  {
+    return relIso < ee_relIsoWithEA_cut[level];
+  } 
+  else return false;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

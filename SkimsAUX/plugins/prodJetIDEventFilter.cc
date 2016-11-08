@@ -8,28 +8,24 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 
 
-class prodJetIDEventFilter : public edm::EDFilter {
-
-  public:
-
-    explicit prodJetIDEventFilter(const edm::ParameterSet & iConfig);
-    ~prodJetIDEventFilter();
-
-  private:
-
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
-
-    edm::EDGetTokenT<edm::View<pat::Jet> > theJetToken_;
-// Default are for loose ID (https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID#Recommendations_for_13_TeV_data)
-    const double minJetPt_, maxJetEta_, maxNeutHadF_, maxNeutEmF_;
-    const int minNumCon_;
-    const double minChargHadF_;  
-    const int minChargMulti_;
-    const double maxChargEmF_, maxNeutEmFHF_; 
-    const int minNumNeutPart_;
-    const double maxNeutHadFTight_, maxNeutEmFTight_;
-    const bool debug_;
-    const bool taggingMode_;
+class prodJetIDEventFilter : public edm::EDFilter
+{
+ public:
+  explicit prodJetIDEventFilter(const edm::ParameterSet & iConfig);
+  ~prodJetIDEventFilter();
+ private:
+  virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+  edm::EDGetTokenT<edm::View<pat::Jet> > theJetToken_;
+  // Default are for loose ID (https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID#Recommendations_for_13_TeV_data)
+  const double minJetPt_, maxJetEta_, maxNeutHadF_, maxNeutEmF_;
+  const int minNumCon_;
+  const double minChargHadF_;  
+  const int minChargMulti_;
+  const double maxChargEmF_, maxNeutEmFHF_; 
+  const int minNumNeutPart_;
+  const double maxNeutHadFTight_, maxNeutEmFTight_;
+  const bool debug_;
+  const bool taggingMode_;
 };
 
 
@@ -56,40 +52,41 @@ prodJetIDEventFilter::prodJetIDEventFilter(const edm::ParameterSet & iConfig)
    , debug_ (iConfig.getParameter<bool>("debug") )
    , taggingMode_ (iConfig.getParameter<bool>("taggingMode") )
 {
-   produces<bool>("looseJetID");
-   produces<bool>("tightJetID");
+  produces<bool>("looseJetID");
+  produces<bool>("tightJetID");
 }
 
 
-prodJetIDEventFilter::~prodJetIDEventFilter() {
+prodJetIDEventFilter::~prodJetIDEventFilter()
+{
 }
 
 
-bool prodJetIDEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-
+bool prodJetIDEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{
   // read in the objects
   edm::Handle<edm::View<pat::Jet> > jets;
   iEvent.getByToken(theJetToken_, jets);
 
   bool goodJetID = true, goodJetIDtight = true;
-
   int jetIdx =-1;
 
-  for (edm::View<pat::Jet>::const_iterator j = jets->begin(); j != jets->end(); ++j) {
-
-    if (j->isCaloJet()) {
+  for (edm::View<pat::Jet>::const_iterator j = jets->begin(); j != jets->end(); ++j)
+  {
+    if (j->isCaloJet())
+    {
       std::cout << "No JetId is applied to CaloJets for time being !!! " << std::endl;
-    } else if (j->isPFJet()) {
-      if (j->pt() > minJetPt_ && fabs(j->eta()) < maxJetEta_) {
-
+    } 
+    else if (j->isPFJet())
+    {
+      if (j->pt() > minJetPt_ && fabs(j->eta()) < maxJetEta_)
+      {
         jetIdx++;
-
         double eta = j->eta();
-
         double NHF = j->neutralHadronEnergyFraction();
         double NEMF = j->neutralEmEnergyFraction();
         double CHF = j->chargedHadronEnergyFraction();
-//        double MUF = j->muonEnergyFraction();
+        //double MUF = j->muonEnergyFraction();
         double CEMF = j->chargedEmEnergyFraction();
 
         int NumConst = j->chargedMultiplicity() + j->neutralMultiplicity();
@@ -97,18 +94,27 @@ bool prodJetIDEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & i
         int CHM = j->chargedMultiplicity(); 
 
         bool perlooseJetID = true, pertightJetID = true;
-        if( std::abs(eta) <= 3.0 ){
-           perlooseJetID = NHF<maxNeutHadF_ && NEMF<maxNeutEmF_ && NumConst>minNumCon_;
-           pertightJetID = NHF<maxNeutHadFTight_ && NEMF<maxNeutEmFTight_ && NumConst>minNumCon_;
-           if( std::abs(eta) <= 2.4 ){
-              perlooseJetID &= CHF>minChargHadF_ && CHM>minChargMulti_ && CEMF<maxChargEmF_;
-              pertightJetID &= CHF>minChargHadF_ && CHM>minChargMulti_ && CEMF<maxChargEmF_;
-           }
-        }else{
-           perlooseJetID = NEMF<maxNeutEmFHF_ && NumNeutralParticle>minNumNeutPart_;
-           pertightJetID = NEMF<maxNeutEmFHF_ && NumNeutralParticle>minNumNeutPart_;
+        if( std::abs(eta) <= 2.7 )
+        {
+          perlooseJetID = NHF<maxNeutHadF_ && NEMF<maxNeutEmF_ && NumConst>minNumCon_;
+          pertightJetID = NHF<maxNeutHadFTight_ && NEMF<maxNeutEmFTight_ && NumConst>minNumCon_;
+          if( std::abs(eta) <= 2.4 )
+          {
+            perlooseJetID &= CHF>minChargHadF_ && CHM>minChargMulti_ && CEMF<maxChargEmF_;
+            pertightJetID &= CHF>minChargHadF_ && CHM>minChargMulti_ && CEMF<maxChargEmF_;
+          }
         }
-/*
+        else if( std::abs(eta) > 2.7 && std::abs(eta) <= 3.0 )
+        {
+          perlooseJetID = NEMF<maxNeutEmFHF_ && NumNeutralParticle>2;
+          pertightJetID = NEMF<maxNeutEmFHF_ && NumNeutralParticle>2;
+        }
+        else
+        {
+          perlooseJetID = NEMF<maxNeutEmFHF_ && NumNeutralParticle>minNumNeutPart_;
+          pertightJetID = NEMF<maxNeutEmFHF_ && NumNeutralParticle>minNumNeutPart_;
+        }
+        /*
         bool perlooseJetID =  ( (NHF<maxNeutHadF_ && NEMF<maxNeutEmF_ && NumConst>minNumCon_) && ((abs(eta)<=2.4 && CHF>minChargHadF_ && CHM>minChargMulti_ && CEMF<maxChargEmF_) || abs(eta)>2.4) && abs(eta)<=3.0 )
                             || ( NEMF<maxNeutEmFHF_ && NumNeutralParticle>minNumNeutPart_ && abs(eta)>3.0 );
 
@@ -117,7 +123,7 @@ bool prodJetIDEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & i
 
         if( !perlooseJetID ) goodJetID = false;
         if( !pertightJetID ) goodJetIDtight = false;
-*/        
+        */        
         goodJetID &= perlooseJetID;
         goodJetIDtight &= pertightJetID;
       }
@@ -126,8 +132,7 @@ bool prodJetIDEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & i
 
   iEvent.put( std::auto_ptr<bool>(new bool(goodJetID)), "looseJetID" );
   iEvent.put( std::auto_ptr<bool>(new bool(goodJetIDtight)), "tightJetID" );
-
-// default is loose ID, but in general we use tagging mode
+  //default is loose ID, but in general we use tagging mode
   return taggingMode_ || goodJetID;
 }
 
