@@ -257,8 +257,6 @@ bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle<
   double eb_dphi_cut[4] = {0.228, 0.222, 0.103, 0.0816};
   double eb_hovere_cut[4] = {0.356, 0.298, 0.253, 0.0414};
   double eb_ooeminusoop_cut[4] = {0.299, 0.241, 0.134, 0.0129};
-  //double eb_d0_cut[4] = {0.0564, 0.0261, 0.0118, 0.0111};
-  //double eb_dz_cut[4] = {0.472, 0.41, 0.373, 0.0466};
   int eb_misshits_cut[4] = {2, 1, 1, 1};
 
   // endcap electrons
@@ -267,8 +265,6 @@ bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle<
   double ee_dphi_cut[4] = {0.213, 0.213, 0.045, 0.0394};
   double ee_hovere_cut[4] = {0.211, 0.101, 0.0878, 0.0641};
   double ee_ooeminusoop_cut[4] = {0.15, 0.14, 0.13, 0.0129};
-  //double ee_d0_cut[4] = {0.222, 0.118, 0.0739, 0.0351};
-  //double ee_dz_cut[4] = {0.921, 0.822, 0.602, 0.417};
   int ee_misshits_cut[4] = {3, 1, 1, 1};
 
   // common
@@ -287,10 +283,13 @@ bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle<
   }
 
   //Impact parameter cuts: differently from previous cut-based electron ID working points, this time the d0 and dz cuts are NOT part of the tuned ID. The reasons for this decision include: efficiency strongly dependent on the physics of the event, measurements wanting to have impact parameter handling different from per-electron d0/dz, relatively low discriminating power of the variables. Instead an average analysis is recommended to use safe highly efficient (when PV is properly found) baseline cuts given in the table below. The d0 and dz are NOT applied in the VID framework, and are left for regular users to cut on explicitly if desired.
-  /*
   // impact parameter variables
-  double d0vtx         = 0.0;
-  double dzvtx         = 0.0;
+  double eb_d0_cut[4] = {0.05, 0.05, 0.05, 0.05};
+  double eb_dz_cut[4] = {0.1, 0.1, 0.1, 0.1};
+  double ee_d0_cut[4] = {0.1, 0.1, 0.1, 0.1};
+  double ee_dz_cut[4] = {0.2, 0.2, 0.2, 0.2};
+  double d0vtx = 0.0;
+  double dzvtx = 0.0;
   if (vertices->size() > 0)
   {
     reco::VertexRef vtx(vertices, 0);    
@@ -302,7 +301,10 @@ bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle<
     d0vtx = ele.gsfTrack()->dxy();
     dzvtx = ele.gsfTrack()->dz();
   }
-  */
+  bool dod0dz = false, passd0dz_eb = true, passd0dz_ee = true;
+  dod0dz ? passd0dz_eb = (eb_d0_cut[level] > fabs(d0vtx)) && (eb_dz_cut[level] > fabs(dzvtx)) : passd0dz_eb = true;
+  dod0dz ? passd0dz_ee = (ee_d0_cut[level] > fabs(d0vtx)) && (ee_dz_cut[level] > fabs(dzvtx)) : passd0dz_ee = true;
+
   // conversion rejection variables
   bool convVeto = ele.passConversionVeto();
   double mHits = ele.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
@@ -315,6 +317,7 @@ bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle<
       && eb_dphi_cut[level] > fabs(dPhiIn)
       && eb_hovere_cut[level] > hoe
       && eb_ooeminusoop_cut[level] > fabs(ooemoop)
+      && passd0dz_eb
       //&& eb_d0_cut[level] > fabs(d0vtx)
       //&& eb_dz_cut[level] > fabs(dzvtx)
       && (reqConvVeto[level] == convVeto)
@@ -328,6 +331,7 @@ bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle<
       && ee_dphi_cut[level] > fabs(dPhiIn)
       && ee_hovere_cut[level] > hoe
       && ee_ooeminusoop_cut[level] > fabs(ooemoop)
+      && passd0dz_ee
       //&& ee_d0_cut[level] > fabs(d0vtx)
       //&& ee_dz_cut[level] > fabs(dzvtx)
       && (reqConvVeto[level] == convVeto)
