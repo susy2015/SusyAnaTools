@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 prodJetIDEventFilter = cms.EDFilter("prodJetIDEventFilter",

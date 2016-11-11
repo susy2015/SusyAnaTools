@@ -233,29 +233,30 @@ bool prodMuons::isLooseMuon(const pat::Muon & muon){
    return isLoose;
 }
 
-bool prodMuons::isMediumMuon(const pat::Muon & muon, const reco::Vertex::Point & vtxPos ){
+bool prodMuons::isMediumMuon(const pat::Muon & muon, const reco::Vertex::Point & vtxPos )
+{
+  //Always default to true. If don't do muon ID (i.e., doMuonID_ = false) or don't do muon vtx (i.e., doMuonVtx_ = false), then the muon passes!
+  bool isMedium = true, isMediumVtx = true;
+  //medium WP + dz/dxy cuts
+  bool goodGlob = muon.isGlobalMuon() && 
+                  muon.globalTrack()->normalizedChi2() < 3 && 
+                  muon.combinedQuality().chi2LocalPosition < 12 && 
+                  muon.combinedQuality().trkKink < 20; 
+  if(doMuonID_)
+  {
+    isMedium = muon.isLooseMuon() && 
+               //muon.innerTrack()->validFraction() > 0.8 &&
+               muon.innerTrack()->validFraction() > 0.49 && // Short term ID tunning to mitigate the HIP impact on lower tracker hit efficiencies
+               muon.segmentCompatibility() > (goodGlob ? 0.303 : 0.451);
+  }
 
-// Always default to true. If don't do muon ID (i.e., doMuonID_ = false) or don't do muon vtx (i.e., doMuonVtx_ = false), then the muon passes!
-   bool isMedium = true, isMediumVtx = true;
-//medium WP + dz/dxy cuts
-   bool goodGlob = muon.isGlobalMuon() && 
-                   muon.globalTrack()->normalizedChi2() < 3 && 
-		   muon.combinedQuality().chi2LocalPosition < 12 && 
-		   muon.combinedQuality().trkKink < 20; 
-   if(doMuonID_){
-      isMedium = muon.isLooseMuon() && 
-//		 muon.innerTrack()->validFraction() > 0.8 &&
-		 muon.innerTrack()->validFraction() > 0.49 && // Short term ID tunning to mitigate the HIP impact on lower tracker hit efficiencies
-		 muon.segmentCompatibility() > (goodGlob ? 0.303 : 0.451);
-   }
+  if(doMuonVtx_)
+  {
+    isMediumVtx = muon.dB() < maxMuD0_ && fabs(muon.muonBestTrack()->dz(vtxPos)) < maxMuDz_;
+  }
 
-   if(doMuonVtx_){
-      isMediumVtx = muon.dB() < maxMuD0_ && fabs(muon.muonBestTrack()->dz(vtxPos)) < maxMuDz_;
-   }
-
-   bool isMediumPlus = isMedium && isMediumVtx;
-
-   return isMediumPlus; 
+  bool isMediumPlus = isMedium && isMediumVtx;
+  return isMediumPlus; 
 }
 
 bool prodMuons::isTightMuon(const pat::Muon & muon, const reco::Vertex::Point & vtxpos){
