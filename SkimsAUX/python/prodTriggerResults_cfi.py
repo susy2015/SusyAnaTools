@@ -78,6 +78,10 @@ triggerProducer = cms.EDProducer('prodTriggerResults',
             # New for 2016
             'HLT_PFHT300_PFMET100_v',
             'HLT_PFHT300_v',
+            'HLT_CaloJet500_NoJetID_v',
+            'HLT_Photon175_v',
+            'HLT_Photon175_v',
+            'HLT_PFJet450_v',
    ),
    debug = cms.bool(False),
 )

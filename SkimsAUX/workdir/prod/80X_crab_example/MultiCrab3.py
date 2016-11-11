@@ -17,10 +17,10 @@ from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
 from multiprocessing import Process
 
-workArea = 'crabProdv10p0'
-outDir = '/store/group/lpcsusyhad/Stop_production/Spring16_80X_Oct_2016_Ntp_v10X_AK8_QGL'
-Pubname = 'Spring16_80X_Oct_2016_Ntp_v10p0_AK8_QGL'
-json_25ns = 'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
+workArea = 'crabProdv11p0'
+outDir = '/store/group/lpcsusyhad/Stop_production/Spring16_80X_Nov_2016_Ntp_v11X_new_IDs'
+Pubname = 'Spring16_80X_Nov_2016_Ntp_v11p0_new_IDs'
+json_25ns = 'Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
 # TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleEG
@@ -28,7 +28,7 @@ json_25ns = 'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 #selSubmitKey = 'TEST STATUS TTJets' # 'TEST STATUS': no submission of jobs but rather checking crab job status related to the TTJets. If jobs failed, automatically resubmit them.
 #selSubmitKey = 'TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TTJets_SingleLeptFrom TTJets_DiLept'
-selSubmitKey = 'TTJets_SingleLeptFromT_ext1 TTJets_SingleLeptFromTbar_ext1 QCD_HT100to200 QCD_HT200to300'
+selSubmitKey = 'TEST HTMHT TTJets_SingleLeptFrom TTJets_DiLept'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon'
 #selSubmitKey = 'TEST STATUS SMS-T2tt_FastSim'
@@ -160,57 +160,62 @@ jobslist = {
     'SMS-T5ttcc_FastSim_scan'                : [False, '/SMS-T5ttcc_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v3/MINIAODSIM', 1],
 
     # Data
-#    'HTMHT-Run2015B-05Oct2015'               : [True, '/HTMHT/Run2015B-05Oct2015-v1/MINIAOD', 10],
+    #'HTMHT-Run2015B-05Oct2015'               : [True, '/HTMHT/Run2015B-05Oct2015-v1/MINIAOD', 10],
     #'HTMHT-Run2015C-25ns-05Oct2015'          : [True, '/HTMHT/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
     #'HTMHT-Run2015D-05Oct2015'               : [True, '/HTMHT/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    'HTMHT-Run2016H-PromptReco-v2'           : [True, '/HTMHT/Run2016H-PromptReco-v2/MINIAOD', 10],
+    'HTMHT-Run2016G-PromptReco-v1'           : [True, '/HTMHT/Run2016G-PromptReco-v1/MINIAOD', 10],
+    'HTMHT-Run2016F-PromptReco-v1'           : [True, '/HTMHT/Run2016F-PromptReco-v1/MINIAOD', 10],
     'HTMHT-Run2016E-PromptReco-v2'           : [True, '/HTMHT/Run2016E-PromptReco-v2/MINIAOD', 10],
     'HTMHT-Run2016D-PromptReco-v2'           : [True, '/HTMHT/Run2016D-PromptReco-v2/MINIAOD', 10],
     'HTMHT-Run2016C-PromptReco-v2'           : [True, '/HTMHT/Run2016C-PromptReco-v2/MINIAOD', 10],
     'HTMHT-Run2016B-PromptReco-v2'           : [True, '/HTMHT/Run2016B-PromptReco-v2/MINIAOD', 10],
-    'HTMHT-Run2016B-PromptReco-v1'           : [True, '/HTMHT/Run2016B-PromptReco-v1/MINIAOD', 10],
 
-#    'MET-Run2015B-05Oct2015'                 : [True, '/MET/Run2015B-05Oct2015-v1/MINIAOD', 10],
+    #'MET-Run2015B-05Oct2015'                 : [True, '/MET/Run2015B-05Oct2015-v1/MINIAOD', 10],
     #'MET-Run2015C-25ns-05Oct2015'            : [True, '/MET/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
     #'MET-Run2015D-05Oct2015'                 : [True, '/MET/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    'MET-Run2016H-PromptReco-v2'                : [True, '/MET/Run2016H-PromptReco-v2/MINIAOD', 10],
+    'MET-Run2016G-PromptReco-v1'                : [True, '/MET/Run2016G-PromptReco-v1/MINIAOD', 10],
+    'MET-Run2016F-PromptReco-v1'                : [True, '/MET/Run2016F-PromptReco-v1/MINIAOD', 10],
     'MET-Run2016E-PromptReco-v2'                : [True, '/MET/Run2016E-PromptReco-v2/MINIAOD', 10],
     'MET-Run2016D-PromptReco-v2'                : [True, '/MET/Run2016D-PromptReco-v2/MINIAOD', 10],
     'MET-Run2016C-PromptReco-v2'                : [True, '/MET/Run2016C-PromptReco-v2/MINIAOD', 10],
     'MET-Run2016B-PromptReco-v2'                : [True, '/MET/Run2016B-PromptReco-v2/MINIAOD', 10],
-    'MET-Run2016B-PromptReco-v1'                : [True, '/MET/Run2016B-PromptReco-v1/MINIAOD', 10],
 
-#    'JetHT-Run2015B-05Oct2015'               : [True, '/JetHT/Run2015B-05Oct2015-v1/MINIAOD', 10],
-#    'JetHT-Run2015C-25ns-05Oct2015'          : [True, '/JetHT/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
-#    'JetHT-Run2015D-05Oct2015'               : [True, '/JetHT/Run2015D-05Oct2015-v1/MINIAOD', 10],
-#    'JetHT-Run2015D-PromptReco'              : [True, '/JetHT/Run2015D-PromptReco-v4/MINIAOD', 10],
-
-#    'SingleMuon-Run2015B-05Oct2015'          : [True, '/SingleMuon/Run2015B-05Oct2015-v1/MINIAOD', 10],
+    #'SingleMuon-Run2015B-05Oct2015'          : [True, '/SingleMuon/Run2015B-05Oct2015-v1/MINIAOD', 10],
     #'SingleMuon-Run2015C-25ns-05Oct2015'     : [True, '/SingleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
     #'SingleMuon-Run2015D-05Oct2015'          : [True, '/SingleMuon/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    'SingleMuon-Run2016H-PromptReco-v2'         : [True, '/SingleMuon/Run2016H-PromptReco-v2/MINIAOD', 10],
+    'SingleMuon-Run2016G-PromptReco-v1'         : [True, '/SingleMuon/Run2016G-PromptReco-v1/MINIAOD', 10],
+    'SingleMuon-Run2016F-PromptReco-v1'         : [True, '/SingleMuon/Run2016F-PromptReco-v1/MINIAOD', 10],
     'SingleMuon-Run2016E-PromptReco-v2'         : [True, '/SingleMuon/Run2016E-PromptReco-v2/MINIAOD', 10],
     'SingleMuon-Run2016D-PromptReco-v2'         : [True, '/SingleMuon/Run2016D-PromptReco-v2/MINIAOD', 10],
     'SingleMuon-Run2016C-PromptReco-v2'         : [True, '/SingleMuon/Run2016C-PromptReco-v2/MINIAOD', 10],
     'SingleMuon-Run2016B-PromptReco-v2'         : [True, '/SingleMuon/Run2016B-PromptReco-v2/MINIAOD', 10],
-    'SingleMuon-Run2016B-PromptReco-v1'         : [True, '/SingleMuon/Run2016B-PromptReco-v1/MINIAOD', 10],
+    #'SingleMuon-Run2016B-PromptReco-v1'         : [True, '/SingleMuon/Run2016B-PromptReco-v1/MINIAOD', 10],
 
+    #'SingleElectron-Run2015B-05Oct2015'      : [True, '/SingleElectron/Run2015B-05Oct2015-v1/MINIAOD', 10],
+    #'SingleElectron-Run2015C-25ns-05Oct2015' : [True, '/SingleElectron/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
+    #'SingleElectron-Run2015D-05Oct2015'      : [True, '/SingleElectron/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    'SingleElectron-Run2016H-PromptReco-v2'     : [True, '/SingleElectron/Run2016H-PromptReco-v2/MINIAOD', 10],
+    'SingleElectron-Run2016G-PromptReco-v1'     : [True, '/SingleElectron/Run2016G-PromptReco-v1/MINIAOD', 10],
+    'SingleElectron-Run2016F-PromptReco-v1'     : [True, '/SingleElectron/Run2016F-PromptReco-v1/MINIAOD', 10],
     'SingleElectron-Run2016E-PromptReco-v2'     : [True, '/SingleElectron/Run2016E-PromptReco-v2/MINIAOD', 10],
     'SingleElectron-Run2016D-PromptReco-v2'     : [True, '/SingleElectron/Run2016D-PromptReco-v2/MINIAOD', 10],
     'SingleElectron-Run2016C-PromptReco-v2'     : [True, '/SingleElectron/Run2016C-PromptReco-v2/MINIAOD', 10],
     'SingleElectron-Run2016B-PromptReco-v2'     : [True, '/SingleElectron/Run2016B-PromptReco-v2/MINIAOD', 10],
-#    'SingleElectron-Run2015B-05Oct2015'      : [True, '/SingleElectron/Run2015B-05Oct2015-v1/MINIAOD', 10],
-#    'SingleElectron-Run2015C-25ns-05Oct2015' : [True, '/SingleElectron/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
-#    'SingleElectron-Run2015D-05Oct2015'      : [True, '/SingleElectron/Run2015D-05Oct2015-v1/MINIAOD', 10],
-#    'SingleElectron-Run2015D-PromptReco'     : [True, '/SingleElectron/Run2015D-PromptReco-v4/MINIAOD', 10],
 
-#    'DoubleMuon-Run2015B-05Oct2015'          : [True, '/DoubleMuon/Run2015B-05Oct2015-v1/MINIAOD', 10],
-#    'DoubleMuon-Run2015C-25ns-05Oct2015'     : [True, '/DoubleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
-#    'DoubleMuon-Run2015D-05Oct2015'          : [True, '/DoubleMuon/Run2015D-05Oct2015-v1/MINIAOD', 10],
-#    'DoubleMuon-Run2015D-PromptReco'         : [True, '/DoubleMuon/Run2015D-PromptReco-v4/MINIAOD', 10],
+    #'DoubleMuon-Run2015B-05Oct2015'          : [True, '/DoubleMuon/Run2015B-05Oct2015-v1/MINIAOD', 10],
+    #'DoubleMuon-Run2015C-25ns-05Oct2015'     : [True, '/DoubleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
+    #'DoubleMuon-Run2015D-05Oct2015'          : [True, '/DoubleMuon/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    #'DoubleMuon-Run2015D-PromptReco'         : [True, '/DoubleMuon/Run2015D-PromptReco-v4/MINIAOD', 10],
 
-#    'DoubleEG-Run2015B-05Oct2015'            : [True, '/DoubleEG/Run2015B-05Oct2015-v1/MINIAOD', 10],
-#    'DoubleEG-Run2015C-25ns-05Oct2015'       : [True, '/DoubleEG/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
-#    'DoubleEG-Run2015D-05Oct2015'            : [True, '/DoubleEG/Run2015D-05Oct2015-v1/MINIAOD', 10],
-#    'DoubleEG-Run2015D-PromptReco'           : [True, '/DoubleEG/Run2015D-PromptReco-v4/MINIAOD', 10],
+    #'DoubleEG-Run2015B-05Oct2015'            : [True, '/DoubleEG/Run2015B-05Oct2015-v1/MINIAOD', 10],
+    #'DoubleEG-Run2015C-25ns-05Oct2015'       : [True, '/DoubleEG/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
+    #'DoubleEG-Run2015D-05Oct2015'            : [True, '/DoubleEG/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    #'DoubleEG-Run2015D-PromptReco'           : [True, '/DoubleEG/Run2015D-PromptReco-v4/MINIAOD', 10],
 }
+
 tasklist = {}
 
 def MonitoringJobs(tasklist):

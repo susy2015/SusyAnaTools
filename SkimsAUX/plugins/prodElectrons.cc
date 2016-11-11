@@ -32,42 +32,38 @@
 typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > >   IsoDepositMaps;
 typedef std::vector< edm::Handle< edm::ValueMap<double> > >             IsoDepositVals;
 
-class prodElectrons : public edm::EDFilter {
-
+class prodElectrons : public edm::EDFilter 
+{
   enum elesIDLevel {VETO, LOOSE, MEDIUM, TIGHT};
+ public:
+   explicit prodElectrons(const edm::ParameterSet & iConfig);
+   ~prodElectrons();
+ private:
+  virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
-  public:
+  edm::InputTag electronSrc_;
+  edm::InputTag conversionsSrc_;
+  edm::InputTag vtxSrc_;
+  edm::InputTag metSrc_;
+  edm::InputTag beamSpotSrc_;
+  edm::InputTag pfCandsSrc_;
+  edm::InputTag rhoSrc_;
+  edm::EDGetTokenT< edm::View<pat::Electron> > ElecTok_;
+  edm::EDGetTokenT< std::vector<reco::Vertex> > VtxTok_;
+  edm::EDGetTokenT<edm::View<reco::MET> > MetTok_;
+  edm::EDGetTokenT< std::vector<reco::Conversion> > ConversionsTok_;
+  edm::EDGetTokenT<reco::BeamSpot> BeamSpotTok_;
+  edm::EDGetTokenT<pat::PackedCandidateCollection>  PfcandTok_;
+  edm::EDGetTokenT<double> RhoTok_;
 
-    explicit prodElectrons(const edm::ParameterSet & iConfig);
-    ~prodElectrons();
+  bool doEleVeto_, dod0dz_;
+  int doEleIso_; // 0: don't do any isolation; 1: relIso;  2: miniIso
+  double minElePt_, maxEleEta_;
+  bool debug_;
+  double minElePtForElectron2Clean_, maxEleMiniIso_;
 
-  private:
-
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
-
-    edm::InputTag electronSrc_;
-    edm::InputTag conversionsSrc_;
-    edm::InputTag vtxSrc_;
-    edm::InputTag metSrc_;
-    edm::InputTag beamSpotSrc_;
-    edm::InputTag pfCandsSrc_;
-    edm::InputTag rhoSrc_;
-    edm::EDGetTokenT< edm::View<pat::Electron> > ElecTok_;
-    edm::EDGetTokenT< std::vector<reco::Vertex> > VtxTok_;
-    edm::EDGetTokenT<edm::View<reco::MET> > MetTok_;
-    edm::EDGetTokenT< std::vector<reco::Conversion> > ConversionsTok_;
-    edm::EDGetTokenT<reco::BeamSpot> BeamSpotTok_;
-    edm::EDGetTokenT<pat::PackedCandidateCollection>  PfcandTok_;
-    edm::EDGetTokenT<double> RhoTok_;
-
-    bool   doEleVeto_;
-    int doEleIso_; // 0: don't do any isolation; 1: relIso;  2: miniIso
-    double minElePt_, maxEleEta_;
-    bool debug_;
-    double minElePtForElectron2Clean_, maxEleMiniIso_;
-
-    bool passElectronID(const pat::Electron & ele, const edm::Handle< std::vector<reco::Vertex> > & vertices, const elesIDLevel level);
-    bool passElectronISO(const pat::Electron & ele, const double relIso, const elesIDLevel level);
+  bool passElectronID(const pat::Electron & ele, const edm::Handle< std::vector<reco::Vertex> > & vertices, const elesIDLevel level);
+  bool passElectronISO(const pat::Electron & ele, const double relIso, const elesIDLevel level);
 };
 
 
@@ -75,7 +71,8 @@ typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > >   IsoDepos
 typedef std::vector< edm::Handle< edm::ValueMap<double> > >             IsoDepositVals;
 
 
-prodElectrons::prodElectrons(const edm::ParameterSet & iConfig) {
+prodElectrons::prodElectrons(const edm::ParameterSet & iConfig)
+{
   electronSrc_   = iConfig.getParameter<edm::InputTag>("ElectronSource");
   conversionsSrc_= iConfig.getParameter<edm::InputTag>("ConversionsSource");
   vtxSrc_        = iConfig.getParameter<edm::InputTag>("VertexSource");
@@ -85,6 +82,7 @@ prodElectrons::prodElectrons(const edm::ParameterSet & iConfig) {
   minElePt_      = iConfig.getParameter<double>("MinElePt");
   maxEleEta_     = iConfig.getParameter<double>("MaxEleEta");
   doEleVeto_     = iConfig.getParameter<bool>("DoElectronVeto");
+  dod0dz_        = iConfig.getParameter<bool>("Dod0dz");
   doEleIso_      = iConfig.getParameter<int>("DoElectronIsolation");
   maxEleMiniIso_ = iConfig.getParameter<double>("MaxEleMiniIso");
   debug_         = iConfig.getParameter<bool>("Debug");
@@ -116,12 +114,13 @@ prodElectrons::prodElectrons(const edm::ParameterSet & iConfig) {
 }
 
 
-prodElectrons::~prodElectrons() {
+prodElectrons::~prodElectrons()
+{
 }
 
 
-bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
+{
   // electrons
   edm::Handle< edm::View<pat::Electron> > electrons;   
   iEvent.getByToken(ElecTok_, electrons);
@@ -133,7 +132,7 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // beam spot
   edm::Handle<reco::BeamSpot> beamspot;
   iEvent.getByToken(BeamSpotTok_, beamspot);
-//  const reco::BeamSpot &beamSpot = *(beamspot.product());
+  //const reco::BeamSpot &beamSpot = *(beamspot.product());
   
   // vertices
   edm::Handle< std::vector<reco::Vertex> > vertices;
@@ -166,8 +165,8 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> > elesFlagMedium(new std::vector<int>());
 
   // loop on electrons
-  for( edm::View<pat::Electron>::const_iterator ele = electrons->begin(); ele != electrons->end(); ele++ ){
-
+  for( edm::View<pat::Electron>::const_iterator ele = electrons->begin(); ele != electrons->end(); ele++ )
+  {
     double pt = ele->pt();
     if (ele->pt() < minElePt_) continue;
 
@@ -176,9 +175,9 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     bool isEB = ele->isEB() ? true : false;
 
     bool isVetoID = passElectronID((*ele), vertices, VETO);
-//    bool isLooseID = passElectronID((*ele), vertices, LOOSE);
+    //bool isLooseID = passElectronID((*ele), vertices, LOOSE);
     bool isMediumID = passElectronID((*ele), vertices, MEDIUM);
-//    bool isTightID = passElectronID((*ele), vertices, TIGHT);
+    //bool isTightID = passElectronID((*ele), vertices, TIGHT);
 
     if( ! (isVetoID || isMediumID) ) continue;
 
@@ -188,36 +187,39 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // compute final isolation
     double iso = absiso/pt;
-//    double miniIso = commonFunctions::getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), 0.05, 0.2, 10., false, false);
+    //double miniIso = commonFunctions::getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), 0.05, 0.2, 10., false, false);
     double miniIso = commonFunctions::GetMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), "electron", rho);
     double pfActivity = commonFunctions::GetMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), "electron", rho, true);
 
-    if (doEleIso_ == 1 ) {
-       if( !passElectronISO((*ele), iso, VETO) ) continue;
-    } else if (doEleIso_ == 2 ){
-       if( miniIso >= maxEleMiniIso_ ) continue;
+    if(doEleIso_ == 1 ) 
+    {
+      if( !passElectronISO((*ele), iso, VETO) ) continue;
+    } 
+    else if(doEleIso_ == 2 )
+    {
+      if( miniIso >= maxEleMiniIso_ ) continue;
     }
 
     // electron is ID'd and isolated! - only accept if vertex present
-    if (vertices->size()>0){
-       prod->push_back(pat::Electron(*ele));
-       TLorentzVector perLVec; perLVec.SetPtEtaPhiE(ele->pt(), ele->eta(), ele->phi(), ele->energy());
-       elesLVec->push_back(perLVec);
+    if (vertices->size()>0)
+    {
+      prod->push_back(pat::Electron(*ele));
+      TLorentzVector perLVec; perLVec.SetPtEtaPhiE(ele->pt(), ele->eta(), ele->phi(), ele->energy());
+      elesLVec->push_back(perLVec);
 
-       double mtw = sqrt( 2*( (*met)[0].pt()*ele->pt() -( (*met)[0].px()*ele->px() + (*met)[0].py()*ele->py() ) ) );
+      double mtw = sqrt( 2*( (*met)[0].pt()*ele->pt() -( (*met)[0].px()*ele->px() + (*met)[0].py()*ele->py() ) ) );
 
-       elesCharge->push_back(ele->charge());
-       elesMtw->push_back(mtw);
-       elesRelIso->push_back(iso);
-       elesisEB->push_back(isEB);
-       elesMiniIso->push_back(miniIso);
+      elesCharge->push_back(ele->charge());
+      elesMtw->push_back(mtw);
+      elesRelIso->push_back(iso);
+      elesisEB->push_back(isEB);
+      elesMiniIso->push_back(miniIso);
 
-       if( isVetoID ) elesFlagVeto->push_back(1); else elesFlagVeto->push_back(0); 
-       if( isMediumID ) elesFlagMedium->push_back(1); else elesFlagMedium->push_back(0); 
+      if( isVetoID ) elesFlagVeto->push_back(1); else elesFlagVeto->push_back(0); 
+      if( isMediumID ) elesFlagMedium->push_back(1); else elesFlagMedium->push_back(0); 
 
-       elespfActivity->push_back(pfActivity);
+      elespfActivity->push_back(pfActivity);
     }
-
     // add eles to clean from jets
     if( isVetoID && miniIso < maxEleMiniIso_ && ele->pt() > minElePtForElectron2Clean_ ) ele2Clean->push_back(*ele);
   }
@@ -246,29 +248,25 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   return result;
 }
 
-bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle< std::vector<reco::Vertex> > & vertices, const elesIDLevel level) {
-
+bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle< std::vector<reco::Vertex> > & vertices, const elesIDLevel level) 
+{
   // electron ID cuts, updated for Spring15 25ns MC and Run2015C-D data 
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
 
   // barrel electrons
-  double eb_ieta_cut[4] = {0.0114, 0.0103, 0.0101, 0.0101};
-  double eb_deta_cut[4] = {0.0152, 0.0105, 0.0103, 0.00926};
-  double eb_dphi_cut[4] = {0.216, 0.115, 0.0336, 0.0336};
-  double eb_hovere_cut[4] = {0.181, 0.104, 0.0876, 0.0597};
-  double eb_ooeminusoop_cut[4] = {0.207, 0.102, 0.0174, 0.012};
-  double eb_d0_cut[4] = {0.0564, 0.0261, 0.0118, 0.0111};
-  double eb_dz_cut[4] = {0.472, 0.41, 0.373, 0.0466};
-  int eb_misshits_cut[4] = {2, 2, 2, 2};
+  double eb_ieta_cut[4] = {0.0115, 0.011, 0.00998, 0.00998};
+  double eb_deta_cut[4] = {0.00749, 0.00477, 0.00311, 0.00308};
+  double eb_dphi_cut[4] = {0.228, 0.222, 0.103, 0.0816};
+  double eb_hovere_cut[4] = {0.356, 0.298, 0.253, 0.0414};
+  double eb_ooeminusoop_cut[4] = {0.299, 0.241, 0.134, 0.0129};
+  int eb_misshits_cut[4] = {2, 1, 1, 1};
 
   // endcap electrons
-  double ee_ieta_cut[4] = {0.0352, 0.0301, 0.0283, 0.0279};
-  double ee_deta_cut[4] = {0.0113, 0.00814, 0.00733, 0.00724};
-  double ee_dphi_cut[4] = {0.237, 0.182, 0.114, 0.0918};
-  double ee_hovere_cut[4] = {0.116, 0.0897, 0.0678, 0.0615};
-  double ee_ooeminusoop_cut[4] = {0.174, 0.126, 0.0898, 0.00999};
-  double ee_d0_cut[4] = {0.222, 0.118, 0.0739, 0.0351};
-  double ee_dz_cut[4] = {0.921, 0.822, 0.602, 0.417};
+  double ee_ieta_cut[4] = {0.037, 0.0314, 0.0298, 0.0292};
+  double ee_deta_cut[4] = {0.00895, 0.00868, 0.00609, 0.00605};
+  double ee_dphi_cut[4] = {0.213, 0.213, 0.045, 0.0394};
+  double ee_hovere_cut[4] = {0.211, 0.101, 0.0878, 0.0641};
+  double ee_ooeminusoop_cut[4] = {0.15, 0.14, 0.13, 0.0129};
   int ee_misshits_cut[4] = {3, 1, 1, 1};
 
   // common
@@ -280,61 +278,84 @@ bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle<
   double dPhiIn        = ele.deltaPhiSuperClusterTrackAtVtx();
   double hoe           = ele.hadronicOverEm();
   double ooemoop       = 1e30;
-  if( ele.ecalEnergy() !=0 && std::isfinite(ele.ecalEnergy()) ){
-     ooemoop = std::abs(1.0/ele.ecalEnergy() - ele.eSuperClusterOverP()/ele.ecalEnergy());
+  
+  if( ele.ecalEnergy() !=0 && std::isfinite(ele.ecalEnergy()) )
+  {
+    ooemoop = std::abs(1.0/ele.ecalEnergy() - ele.eSuperClusterOverP()/ele.ecalEnergy());
   }
 
+  //Impact parameter cuts: differently from previous cut-based electron ID working points, this time the d0 and dz cuts are NOT part of the tuned ID. The reasons for this decision include: efficiency strongly dependent on the physics of the event, measurements wanting to have impact parameter handling different from per-electron d0/dz, relatively low discriminating power of the variables. Instead an average analysis is recommended to use safe highly efficient (when PV is properly found) baseline cuts given in the table below. The d0 and dz are NOT applied in the VID framework, and are left for regular users to cut on explicitly if desired.
   // impact parameter variables
-  double d0vtx         = 0.0;
-  double dzvtx         = 0.0;
-  if (vertices->size() > 0) {
-      reco::VertexRef vtx(vertices, 0);    
-      d0vtx = ele.gsfTrack()->dxy(vtx->position());
-      dzvtx = ele.gsfTrack()->dz(vtx->position());
-  } else {
-      d0vtx = ele.gsfTrack()->dxy();
-      dzvtx = ele.gsfTrack()->dz();
+  double eb_d0_cut[4] = {0.05, 0.05, 0.05, 0.05};
+  double eb_dz_cut[4] = {0.1, 0.1, 0.1, 0.1};
+  double ee_d0_cut[4] = {0.1, 0.1, 0.1, 0.1};
+  double ee_dz_cut[4] = {0.2, 0.2, 0.2, 0.2};
+  double d0vtx = 0.0;
+  double dzvtx = 0.0;
+  if (vertices->size() > 0)
+  {
+    reco::VertexRef vtx(vertices, 0);    
+    d0vtx = ele.gsfTrack()->dxy(vtx->position());
+    dzvtx = ele.gsfTrack()->dz(vtx->position());
+  } 
+  else 
+  {
+    d0vtx = ele.gsfTrack()->dxy();
+    dzvtx = ele.gsfTrack()->dz();
   }
+  bool dod0dz = dod0dz_, passd0dz_eb = true, passd0dz_ee = true;
+  dod0dz ? passd0dz_eb = (eb_d0_cut[level] > fabs(d0vtx)) && (eb_dz_cut[level] > fabs(dzvtx)) : passd0dz_eb = true;
+  dod0dz ? passd0dz_ee = (ee_d0_cut[level] > fabs(d0vtx)) && (ee_dz_cut[level] > fabs(dzvtx)) : passd0dz_ee = true;
 
   // conversion rejection variables
   bool convVeto = ele.passConversionVeto();
   double mHits = ele.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   
-  if (ele.isEB()) {
+  if (ele.isEB()) 
+  {
     return 
          eb_ieta_cut[level] > sigmaIEtaIEta
       && eb_deta_cut[level] > fabs(dEtaIn)
       && eb_dphi_cut[level] > fabs(dPhiIn)
       && eb_hovere_cut[level] > hoe
       && eb_ooeminusoop_cut[level] > fabs(ooemoop)
-      && eb_d0_cut[level] > fabs(d0vtx)
-      && eb_dz_cut[level] > fabs(dzvtx)
+      && passd0dz_eb
+      //&& eb_d0_cut[level] > fabs(d0vtx)
+      //&& eb_dz_cut[level] > fabs(dzvtx)
       && (reqConvVeto[level] == convVeto)
       && (eb_misshits_cut[level] >= mHits);
-  } else if (ele.isEE()) {
+  } 
+  else if (ele.isEE()) 
+  {
     return 
          ee_ieta_cut[level] > sigmaIEtaIEta
       && ee_deta_cut[level] > fabs(dEtaIn)
       && ee_dphi_cut[level] > fabs(dPhiIn)
       && ee_hovere_cut[level] > hoe
       && ee_ooeminusoop_cut[level] > fabs(ooemoop)
-      && ee_d0_cut[level] > fabs(d0vtx)
-      && ee_dz_cut[level] > fabs(dzvtx)
+      && passd0dz_ee
+      //&& ee_d0_cut[level] > fabs(d0vtx)
+      //&& ee_dz_cut[level] > fabs(dzvtx)
       && (reqConvVeto[level] == convVeto)
       && (ee_misshits_cut[level] >= mHits);
   } else return false;
 
 }
 
-bool prodElectrons::passElectronISO(const pat::Electron & ele, const double relIso, const elesIDLevel level){
-   double eb_relIsoWithEA_cut[4] = {0.126, 0.0893, 0.0766, 0.0354};
-   double ee_relIsoWithEA_cut[4] = {0.144, 0.121, 0.0678, 0.0646}; 
+bool prodElectrons::passElectronISO(const pat::Electron & ele, const double relIso, const elesIDLevel level)
+{
+  double eb_relIsoWithEA_cut[4] = {0.175, 0.0994, 0.0695, 0.0588};
+  double ee_relIsoWithEA_cut[4] = {0.159, 0.1070, 0.0821, 0.0571}; 
    
-   if( ele.isEB() ){
-      return relIso < eb_relIsoWithEA_cut[level];
-   }else if (ele.isEE() ){
-      return relIso < ee_relIsoWithEA_cut[level];
-   } else return false;
+  if( ele.isEB() )
+  {
+    return relIso < eb_relIsoWithEA_cut[level];
+  }
+  else if (ele.isEE() )
+  {
+    return relIso < ee_relIsoWithEA_cut[level];
+  } 
+  else return false;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -13,7 +13,6 @@
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="Geometry/CaloGeometry"/>
   <use   name="RecoParticleFlow/PFProducer"/>
-  <use   name="EGamma/EGammaAnalysisTools"/>
   <use   name="JetMETCorrections/Objects"/>
   <use   name="CondFormats/JetMETObjects"/>
   <use   name="PhysicsTools/Utilities"/>
