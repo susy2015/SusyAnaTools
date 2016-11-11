@@ -32,42 +32,38 @@
 typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > >   IsoDepositMaps;
 typedef std::vector< edm::Handle< edm::ValueMap<double> > >             IsoDepositVals;
 
-class prodElectrons : public edm::EDFilter {
-
+class prodElectrons : public edm::EDFilter 
+{
   enum elesIDLevel {VETO, LOOSE, MEDIUM, TIGHT};
+ public:
+   explicit prodElectrons(const edm::ParameterSet & iConfig);
+   ~prodElectrons();
+ private:
+  virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
-  public:
+  edm::InputTag electronSrc_;
+  edm::InputTag conversionsSrc_;
+  edm::InputTag vtxSrc_;
+  edm::InputTag metSrc_;
+  edm::InputTag beamSpotSrc_;
+  edm::InputTag pfCandsSrc_;
+  edm::InputTag rhoSrc_;
+  edm::EDGetTokenT< edm::View<pat::Electron> > ElecTok_;
+  edm::EDGetTokenT< std::vector<reco::Vertex> > VtxTok_;
+  edm::EDGetTokenT<edm::View<reco::MET> > MetTok_;
+  edm::EDGetTokenT< std::vector<reco::Conversion> > ConversionsTok_;
+  edm::EDGetTokenT<reco::BeamSpot> BeamSpotTok_;
+  edm::EDGetTokenT<pat::PackedCandidateCollection>  PfcandTok_;
+  edm::EDGetTokenT<double> RhoTok_;
 
-    explicit prodElectrons(const edm::ParameterSet & iConfig);
-    ~prodElectrons();
+  bool doEleVeto_, dod0dz_;
+  int doEleIso_; // 0: don't do any isolation; 1: relIso;  2: miniIso
+  double minElePt_, maxEleEta_;
+  bool debug_;
+  double minElePtForElectron2Clean_, maxEleMiniIso_;
 
-  private:
-
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
-
-    edm::InputTag electronSrc_;
-    edm::InputTag conversionsSrc_;
-    edm::InputTag vtxSrc_;
-    edm::InputTag metSrc_;
-    edm::InputTag beamSpotSrc_;
-    edm::InputTag pfCandsSrc_;
-    edm::InputTag rhoSrc_;
-    edm::EDGetTokenT< edm::View<pat::Electron> > ElecTok_;
-    edm::EDGetTokenT< std::vector<reco::Vertex> > VtxTok_;
-    edm::EDGetTokenT<edm::View<reco::MET> > MetTok_;
-    edm::EDGetTokenT< std::vector<reco::Conversion> > ConversionsTok_;
-    edm::EDGetTokenT<reco::BeamSpot> BeamSpotTok_;
-    edm::EDGetTokenT<pat::PackedCandidateCollection>  PfcandTok_;
-    edm::EDGetTokenT<double> RhoTok_;
-
-    bool   doEleVeto_;
-    int doEleIso_; // 0: don't do any isolation; 1: relIso;  2: miniIso
-    double minElePt_, maxEleEta_;
-    bool debug_;
-    double minElePtForElectron2Clean_, maxEleMiniIso_;
-
-    bool passElectronID(const pat::Electron & ele, const edm::Handle< std::vector<reco::Vertex> > & vertices, const elesIDLevel level);
-    bool passElectronISO(const pat::Electron & ele, const double relIso, const elesIDLevel level);
+  bool passElectronID(const pat::Electron & ele, const edm::Handle< std::vector<reco::Vertex> > & vertices, const elesIDLevel level);
+  bool passElectronISO(const pat::Electron & ele, const double relIso, const elesIDLevel level);
 };
 
 
@@ -75,7 +71,8 @@ typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > >   IsoDepos
 typedef std::vector< edm::Handle< edm::ValueMap<double> > >             IsoDepositVals;
 
 
-prodElectrons::prodElectrons(const edm::ParameterSet & iConfig) {
+prodElectrons::prodElectrons(const edm::ParameterSet & iConfig)
+{
   electronSrc_   = iConfig.getParameter<edm::InputTag>("ElectronSource");
   conversionsSrc_= iConfig.getParameter<edm::InputTag>("ConversionsSource");
   vtxSrc_        = iConfig.getParameter<edm::InputTag>("VertexSource");
@@ -85,6 +82,7 @@ prodElectrons::prodElectrons(const edm::ParameterSet & iConfig) {
   minElePt_      = iConfig.getParameter<double>("MinElePt");
   maxEleEta_     = iConfig.getParameter<double>("MaxEleEta");
   doEleVeto_     = iConfig.getParameter<bool>("DoElectronVeto");
+  dod0dz_        = iConfig.getParameter<bool>("Dod0dz");
   doEleIso_      = iConfig.getParameter<int>("DoElectronIsolation");
   maxEleMiniIso_ = iConfig.getParameter<double>("MaxEleMiniIso");
   debug_         = iConfig.getParameter<bool>("Debug");
@@ -116,12 +114,13 @@ prodElectrons::prodElectrons(const edm::ParameterSet & iConfig) {
 }
 
 
-prodElectrons::~prodElectrons() {
+prodElectrons::~prodElectrons()
+{
 }
 
 
-bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
+{
   // electrons
   edm::Handle< edm::View<pat::Electron> > electrons;   
   iEvent.getByToken(ElecTok_, electrons);
@@ -133,7 +132,7 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // beam spot
   edm::Handle<reco::BeamSpot> beamspot;
   iEvent.getByToken(BeamSpotTok_, beamspot);
-//  const reco::BeamSpot &beamSpot = *(beamspot.product());
+  //const reco::BeamSpot &beamSpot = *(beamspot.product());
   
   // vertices
   edm::Handle< std::vector<reco::Vertex> > vertices;
@@ -166,8 +165,8 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> > elesFlagMedium(new std::vector<int>());
 
   // loop on electrons
-  for( edm::View<pat::Electron>::const_iterator ele = electrons->begin(); ele != electrons->end(); ele++ ){
-
+  for( edm::View<pat::Electron>::const_iterator ele = electrons->begin(); ele != electrons->end(); ele++ )
+  {
     double pt = ele->pt();
     if (ele->pt() < minElePt_) continue;
 
@@ -176,9 +175,9 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     bool isEB = ele->isEB() ? true : false;
 
     bool isVetoID = passElectronID((*ele), vertices, VETO);
-//    bool isLooseID = passElectronID((*ele), vertices, LOOSE);
+    //bool isLooseID = passElectronID((*ele), vertices, LOOSE);
     bool isMediumID = passElectronID((*ele), vertices, MEDIUM);
-//    bool isTightID = passElectronID((*ele), vertices, TIGHT);
+    //bool isTightID = passElectronID((*ele), vertices, TIGHT);
 
     if( ! (isVetoID || isMediumID) ) continue;
 
@@ -188,36 +187,39 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // compute final isolation
     double iso = absiso/pt;
-//    double miniIso = commonFunctions::getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), 0.05, 0.2, 10., false, false);
+    //double miniIso = commonFunctions::getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), 0.05, 0.2, 10., false, false);
     double miniIso = commonFunctions::GetMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), "electron", rho);
     double pfActivity = commonFunctions::GetMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*ele)), "electron", rho, true);
 
-    if (doEleIso_ == 1 ) {
-       if( !passElectronISO((*ele), iso, VETO) ) continue;
-    } else if (doEleIso_ == 2 ){
-       if( miniIso >= maxEleMiniIso_ ) continue;
+    if(doEleIso_ == 1 ) 
+    {
+      if( !passElectronISO((*ele), iso, VETO) ) continue;
+    } 
+    else if(doEleIso_ == 2 )
+    {
+      if( miniIso >= maxEleMiniIso_ ) continue;
     }
 
     // electron is ID'd and isolated! - only accept if vertex present
-    if (vertices->size()>0){
-       prod->push_back(pat::Electron(*ele));
-       TLorentzVector perLVec; perLVec.SetPtEtaPhiE(ele->pt(), ele->eta(), ele->phi(), ele->energy());
-       elesLVec->push_back(perLVec);
+    if (vertices->size()>0)
+    {
+      prod->push_back(pat::Electron(*ele));
+      TLorentzVector perLVec; perLVec.SetPtEtaPhiE(ele->pt(), ele->eta(), ele->phi(), ele->energy());
+      elesLVec->push_back(perLVec);
 
-       double mtw = sqrt( 2*( (*met)[0].pt()*ele->pt() -( (*met)[0].px()*ele->px() + (*met)[0].py()*ele->py() ) ) );
+      double mtw = sqrt( 2*( (*met)[0].pt()*ele->pt() -( (*met)[0].px()*ele->px() + (*met)[0].py()*ele->py() ) ) );
 
-       elesCharge->push_back(ele->charge());
-       elesMtw->push_back(mtw);
-       elesRelIso->push_back(iso);
-       elesisEB->push_back(isEB);
-       elesMiniIso->push_back(miniIso);
+      elesCharge->push_back(ele->charge());
+      elesMtw->push_back(mtw);
+      elesRelIso->push_back(iso);
+      elesisEB->push_back(isEB);
+      elesMiniIso->push_back(miniIso);
 
-       if( isVetoID ) elesFlagVeto->push_back(1); else elesFlagVeto->push_back(0); 
-       if( isMediumID ) elesFlagMedium->push_back(1); else elesFlagMedium->push_back(0); 
+      if( isVetoID ) elesFlagVeto->push_back(1); else elesFlagVeto->push_back(0); 
+      if( isMediumID ) elesFlagMedium->push_back(1); else elesFlagMedium->push_back(0); 
 
-       elespfActivity->push_back(pfActivity);
+      elespfActivity->push_back(pfActivity);
     }
-
     // add eles to clean from jets
     if( isVetoID && miniIso < maxEleMiniIso_ && ele->pt() > minElePtForElectron2Clean_ ) ele2Clean->push_back(*ele);
   }
@@ -301,7 +303,7 @@ bool prodElectrons::passElectronID(const pat::Electron & ele, const edm::Handle<
     d0vtx = ele.gsfTrack()->dxy();
     dzvtx = ele.gsfTrack()->dz();
   }
-  bool dod0dz = false, passd0dz_eb = true, passd0dz_ee = true;
+  bool dod0dz = dod0dz_, passd0dz_eb = true, passd0dz_ee = true;
   dod0dz ? passd0dz_eb = (eb_d0_cut[level] > fabs(d0vtx)) && (eb_dz_cut[level] > fabs(dzvtx)) : passd0dz_eb = true;
   dod0dz ? passd0dz_ee = (ee_d0_cut[level] > fabs(d0vtx)) && (ee_dz_cut[level] > fabs(dzvtx)) : passd0dz_ee = true;
 

@@ -17,9 +17,9 @@ from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
 from multiprocessing import Process
 
-workArea = 'crabProdv10p0'
-outDir = '/store/group/lpcsusyhad/Stop_production/Spring16_80X_Oct_2016_Ntp_v10X_AK8_QGL'
-Pubname = 'Spring16_80X_Oct_2016_Ntp_v10p0_AK8_QGL'
+workArea = 'crabProdv11p0'
+outDir = '/store/group/lpcsusyhad/Stop_production/Spring16_80X_Nov_2016_Ntp_v11X_new_IDs'
+Pubname = 'Spring16_80X_Nov_2016_Ntp_v11p0_new_IDs'
 json_25ns = 'Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
@@ -28,7 +28,7 @@ json_25ns = 'Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 #selSubmitKey = 'TEST STATUS TTJets' # 'TEST STATUS': no submission of jobs but rather checking crab job status related to the TTJets. If jobs failed, automatically resubmit them.
 #selSubmitKey = 'TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TTJets_SingleLeptFrom TTJets_DiLept'
-selSubmitKey = 'TTJets_SingleLeptFromT_ext1 TTJets_SingleLeptFromTbar_ext1 QCD_HT100to200 QCD_HT200to300'
+selSubmitKey = 'TEST HTMHT TTJets_SingleLeptFrom TTJets_DiLept'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT SingleMuon'
 #selSubmitKey = 'TEST STATUS SMS-T2tt_FastSim'
