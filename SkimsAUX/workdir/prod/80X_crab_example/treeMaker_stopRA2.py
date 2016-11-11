@@ -107,9 +107,11 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 if options.debug:
    process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.suppressWarning = cms.untracked.vstring('ecalLaserCorrFilter','manystripclus53X','toomanystripclus53X')
 
 ## -- Options and Output Report --
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+process.options.allowUnscheduled = cms.untracked.bool(True)
 
 ## -- Maximal Number of Events --
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
@@ -154,7 +156,6 @@ else:
 #       '/store/data/Run2016C/HTMHT/MINIAOD/PromptReco-v2/000/275/588/00000/BE1D644B-393A-E611-905F-02163E0124F5.root',
    ]
 
-
 ## ---------------------
 ## -- Calibration tag --
 ## ---------------------
@@ -174,6 +175,7 @@ options.jetCorrections.insert(0, 'L1FastJet')
 
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
+from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
 ## Filter out neutrinos from packed GenParticles
 process.packedGenParticlesForJetsNoNu = cms.EDFilter("CandPtrSelector", 
@@ -190,9 +192,7 @@ process.pfCHS = cms.EDFilter("CandPtrSelector",
 process.myak4PFJetsCHS = ak4PFJets.clone(src = 'pfCHS', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
 process.myak4GenJets = ak4GenJets.clone(src = 'packedGenParticles', rParam = 0.4)
 
-## leptons
-#process.load("PhysicsTools.PatAlgos.selectionLayer1.muonCountFilter_cfi") ## NS: What is this used for?
-#process.load("PhysicsTools.PatAlgos.selectionLayer1.electronCountFilter_cfi") ## NS: What is this used for?
+## get leptons
 process.load("SusyAnaTools.SkimsAUX.prodMuons_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodElectrons_cfi")
 process.pfNoMuonCHSNoMu =  cms.EDProducer("CandPtrProjector", 
@@ -203,21 +203,17 @@ process.pfNoElectronCHSNoEle = cms.EDProducer("CandPtrProjector",
                                               veto = cms.InputTag("prodElectrons", "ele2Clean"))
 process.ak4PFJetsCHSNoLep = ak4PFJets.clone(src = 'pfNoElectronCHSNoEle', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
 
-from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-
+## define the JECs
 if options.cmsswVersion == "80X":
    jetCorrectionLevels = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
    jetCorrLevelLists = ['L1FastJet', 'L2Relative', 'L3Absolute']
    if options.mcInfo == False:
       jetCorrectionLevels = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None')
       jetCorrLevelLists = ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']
-else:
-   print "You should be using CMSSW 80X!! Please change your release area"
-   sys.exit("ERROR: Not using 80X release")
 
-# Q/G discriminator
+## -- Add the Q/G discriminator --
 qgDatabaseVersion = 'v1' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
-#import QG database
+## import Q/G database
 from CondCore.DBCommon.CondDBSetup_cfi import *
 QGPoolDBESSource = cms.ESSource("PoolDBESSource",
       CondDBSetup,
@@ -249,7 +245,6 @@ patJetsAuxiliary = patJetsUpdated.clone(
 patJetsAuxiliary.userData.userFloats.src += ['QGTagger:qgLikelihood','QGTagger:ptD', 'QGTagger:axis2']
 patJetsAuxiliary.userData.userInts.src += ['QGTagger:mult']
 setattr(process,JetTagOut.value(),patJetsAuxiliary)
-# ^^^^^^^
 
 process.QGTaggerOther = process.QGTagger.clone()
 process.QGTaggerOther.srcJets = cms.InputTag("myak4PFJetsCHS")
@@ -298,7 +293,7 @@ if options.cmsswVersion == "80X":
 
 if options.specialFix == "JEC":
   print ("\nApplying fix to JEC issues in %s ...\n" %(options.cmsswVersion))
-  #JEC can be downloaded from https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECDataMC
+  # JEC can be downloaded from https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECDataMC
   #inputDB = "sqlite_file:" + os.environ['CMSSW_BASE'] + "/src/SusyAnaTools/SkimsAUX/data/PY8_RunIISpring15DR74_bx25_MC.db"
   #print inputDB
   process.load("CondCore.DBCommon.CondDBCommon_cfi")
@@ -337,7 +332,7 @@ if options.specialFix == "JEC":
     )
     process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['QGTagger:qgLikelihood','QGTagger:ptD', 'QGTagger:axis2']
     process.updatedPatJetsUpdatedJEC.userData.userInts.src += ['QGTagger:mult']
-    #update the MET to account for the new JECs
+    # update the MET to account for the new JECs
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
     runMetCorAndUncFromMiniAOD(
       process,
@@ -346,10 +341,8 @@ if options.specialFix == "JEC":
       #jetColl="updatedPatJetsUpdatedJEC",
       #postfix="Update"
     )
-    process.fix80XJEC = cms.Sequence( process.patJetCorrFactorsUpdatedJEC + process.updatedPatJetsUpdatedJEC )
+    process.fix80XJEC = cms.Sequence( process.patJetCorrFactorsUpdatedJEC + process.updatedPatJetsUpdatedJEC ) ## NS: What is this patJetCorrFactorsUpdatedJEC ??
     
-process.MessageLogger.suppressWarning = cms.untracked.vstring('ecalLaserCorrFilter','manystripclus53X','toomanystripclus53X')
-process.options.allowUnscheduled = cms.untracked.bool(True)
 
 process.load("SusyAnaTools.SkimsAUX.simpleJetSelector_cfi")
 process.selectedPatJetsRA2 = process.simpleJetSelector.clone()
@@ -384,7 +377,8 @@ process.countak4JetsPFchsPt50Eta25.minNumber = cms.uint32(3)
 
 process.ra2PFchsJets = cms.Sequence( process.ak4patJetsPFchsPt10 * process.ak4patJetsPFchsPt30 * process.ak4patJetsPFchsPt50Eta25 )
 
-# Add AK8 PUPPI jet collection using Jet Toolbox
+## -- Add AK8 PUPPI jet collection using Jet Toolbox --
+
 from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
 
 jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', 
