@@ -390,7 +390,27 @@ jetToolbox( process, 'ak8', 'ak8JetSubs', 'out',
   bTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags'], 
   addCMSTopTagger = False)
 
-#Analysis related configuration
+# To get the lepton cleaned collection
+# process.pfCandidatesNoMu =  cms.EDProducer("CandPtrProjector", 
+#                                           src = cms.InputTag("packedPFCandidates"), 
+#                                           veto = cms.InputTag("prodMuons", "mu2Clean"))
+# process.pfCandidatesNoEle = cms.EDProducer("CandPtrProjector", 
+#                                           src = cms.InputTag("pfCandidatesNoMu"), 
+#                                           veto = cms.InputTag("prodElectrons", "ele2Clean"))
+# jetToolbox( process, 'ak8', 'ak8JetSubsNoLep', 'out', 
+#  runOnMC = options.mcInfo, 
+#  PUMethod='Puppi', 
+#  newPFCollection=True,
+#  nameNewPFCollection='pfCandidatesNoEle',
+#  addSoftDropSubjets = True, 
+#  addSoftDrop = True, 
+#  addNsub = True, 
+#  bTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags'], 
+#  addCMSTopTagger = False,
+#  postfix="NoLep")
+
+
+## -- Other Analysis related configuration --
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 if options.hltSelection:
    process.hltFilter = hlt.hltHighLevel.clone(
@@ -647,6 +667,10 @@ process.prodJetsNoLep = process.prodJets.clone()
 process.prodJetsNoLep.jetSrc = cms.InputTag('patJetsAK4PFCHSPt10NoLep')
 process.prodJetsNoLep.jetOtherSrc = cms.InputTag('patJetsAK4PFCHSPt10NoLep')
 process.prodJetsNoLep.qgTaggerKey = cms.string('QGTaggerNoLep')
+#process.prodJetsNoLep.puppiJetsSrc = cms.InputTag('selectedPatJetsAK8PFPuppiNoLep')
+#process.prodJetsNoLep.puppiSubJetsSrc = cms.InputTag('selectedPatJetsAK8PFPuppiNoLepSoftDropPacked')
+#process.prodJetsNoLep.ak8JetsSrc = cms.string('slimmedJetsAK8NoLep')
+#process.prodJetsNoLep.ak8SubJetsSrc = cms.string('slimmedJetsAK8PFCHSSoftDropPackedNoLep') #NS To be updated
 
 process.prodMuonsNoIso = process.prodMuons.clone()
 process.prodMuonsNoIso.DoMuonIsolation = cms.int32(0)
@@ -738,16 +762,20 @@ process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "looseisoTrksMat
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "trksForIsoVetoMatchedJetIdx"))
 
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "puppiJetsLVec"))
+process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "puppiSubJetsLVec"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "ak8JetsLVec"))
+process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "ak8SubJetsLVec"))
 
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau1"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau2"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau3"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "softDropMass"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "ak8SubJetsBdisc"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau1"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau2"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau3"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppisoftDropMass"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppiSubJetsBdisc"))
 
 if options.addJetsForZinv == True: 
    process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "jetsLVec"))
@@ -784,10 +812,11 @@ if options.addJetsForZinv == True:
    #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau1"))
    #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau2"))
    #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau3"))
-   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "softDropMass"))
+   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppisoftDropMass"))
    #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau1"))
    #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau2"))
    #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau3"))
+   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsBdisc"))
 
 if options.mcInfo == True:
    process.prodGenInfo.debug = cms.bool(options.debug)
