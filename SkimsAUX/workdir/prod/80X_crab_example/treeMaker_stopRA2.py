@@ -208,7 +208,7 @@ elif options.cmsswVersion == "80X":
       jetCorrLevelLists = ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']
 
 # Q/G discriminator
-qgDatabaseVersion = 'v1' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
+qgDatabaseVersion = 'v2b' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
 #import QG database
 from CondCore.DBCommon.CondDBSetup_cfi import *
 QGPoolDBESSource = cms.ESSource("PoolDBESSource",
@@ -771,10 +771,13 @@ process.stopTreeMaker.vectorString.append(cms.InputTag("triggerProducer", "Trigg
 #process.stopTreeMaker.varsInt.append(cms.InputTag("prodFilterOutScraping"))
 process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "looseJetID"))
 process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "tightJetID"))
+process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "tightlepvetoJetID"))
 process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "looseJetID"))
 process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:looseJetID|looseJetID_NoLep")
 process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "tightJetID"))
 process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:tightJetID|tightJetID_NoLep")
+process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "tightlepvetoJetID"))
+process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:tightlepvetoJetID|tightlepvetoJetID_NoLep")
 #process.stopTreeMaker.varsInt.append(cms.InputTag("METFilters"))
 #process.stopTreeMaker.varsInt.append(cms.InputTag("CSCTightHaloFilter")) # 74X txt files are ready for the 2015 working point, use this and not the flag in miniAOD 
 process.stopTreeMaker.varsInt.append(cms.InputTag("globalTightHalo2016Filter"))
