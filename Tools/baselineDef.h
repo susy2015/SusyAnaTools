@@ -72,7 +72,7 @@ public:
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
 
-    inline void operator()(NTupleReader &tr){ PassTopTagger();};
+    inline void operator()(NTupleReader &tr_){ tr = tr_; PassTopTagger();};
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
     bool PassTopTagger() const;
@@ -81,11 +81,6 @@ public:
     int GetnTops() const;
     double CalcMT2() const;
 };
-
-//inline void BaselineVessel::operator()(NTupleReader &tr) 
-//{
-  //PassBaseline(); 
-//}
 
 inline void passBaselineFunc(NTupleReader &tr, std::string filterstring)
 {

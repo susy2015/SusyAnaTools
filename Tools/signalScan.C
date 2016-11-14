@@ -44,6 +44,7 @@
 #include "ISRCorrector.h"
 
 SearchBins * sb =0;
+topTagger::type3TopTagger * type3Ptr = 0;
 int nTotBins;
 std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
 
@@ -1826,9 +1827,6 @@ void signalScan(int argc, char *argv[]){
    mt2Calc = new MT2CalcCore();
 
    AnaFunctions::prepareForNtupleReader();
-   AnaFunctions::prepareTopTagger();
-
-   type3Ptr->setdebug(true);
 
    sb = new SearchBins();
 
@@ -1871,45 +1869,48 @@ void signalScan(int argc, char *argv[]){
 // Assume by default signal MC are all from fastsim!
    if( selKeyStr.find("fullsim") != std::string::npos ){
       if( usegenmet ){
-         SRblv = new BaselineVessel(spec);
+         SRblv = new BaselineVessel(*tr, spec);
    
-         SRblv_jecUp = new BaselineVessel(spec_jecUp + " usegenmet");
-         SRblv_jecDn = new BaselineVessel(spec_jecDn + " usegenmet");
-         SRblv_metMagUp = new BaselineVessel(spec_metMagUp + " usegenmet");
-         SRblv_metMagDn = new BaselineVessel(spec_metMagDn + " usegenmet");
-         SRblv_metPhiUp = new BaselineVessel(spec_metPhiUp + " usegenmet");
-         SRblv_metPhiDn = new BaselineVessel(spec_metPhiDn + " usegenmet");
+         SRblv_jecUp = new BaselineVessel(*tr, spec_jecUp + " usegenmet");
+         SRblv_jecDn = new BaselineVessel(*tr, spec_jecDn + " usegenmet");
+         SRblv_metMagUp = new BaselineVessel(*tr, spec_metMagUp + " usegenmet");
+         SRblv_metMagDn = new BaselineVessel(*tr, spec_metMagDn + " usegenmet");
+         SRblv_metPhiUp = new BaselineVessel(*tr, spec_metPhiUp + " usegenmet");
+         SRblv_metPhiDn = new BaselineVessel(*tr, spec_metPhiDn + " usegenmet");
       }else{
-         SRblv = new BaselineVessel(spec);
+         SRblv = new BaselineVessel(*tr, spec);
    
-         SRblv_jecUp = new BaselineVessel(spec_jecUp);
-         SRblv_jecDn = new BaselineVessel(spec_jecDn);
-         SRblv_metMagUp = new BaselineVessel(spec_metMagUp);
-         SRblv_metMagDn = new BaselineVessel(spec_metMagDn);
-         SRblv_metPhiUp = new BaselineVessel(spec_metPhiUp);
-         SRblv_metPhiDn = new BaselineVessel(spec_metPhiDn);
+         SRblv_jecUp = new BaselineVessel(*tr, spec_jecUp);
+         SRblv_jecDn = new BaselineVessel(*tr, spec_jecDn);
+         SRblv_metMagUp = new BaselineVessel(*tr, spec_metMagUp);
+         SRblv_metMagDn = new BaselineVessel(*tr, spec_metMagDn);
+         SRblv_metPhiUp = new BaselineVessel(*tr, spec_metPhiUp);
+         SRblv_metPhiDn = new BaselineVessel(*tr, spec_metPhiDn);
       }
    }else{
       if( usegenmet ){
-         SRblv = new BaselineVessel(spec, "fastsim");
+         SRblv = new BaselineVessel(*tr, spec, "fastsim");
    
-         SRblv_jecUp = new BaselineVessel(spec_jecUp + " usegenmet", "fastsim");
-         SRblv_jecDn = new BaselineVessel(spec_jecDn + " usegenmet", "fastsim");
-         SRblv_metMagUp = new BaselineVessel(spec_metMagUp + " usegenmet", "fastsim");
-         SRblv_metMagDn = new BaselineVessel(spec_metMagDn + " usegenmet", "fastsim");
-         SRblv_metPhiUp = new BaselineVessel(spec_metPhiUp + " usegenmet", "fastsim");
-         SRblv_metPhiDn = new BaselineVessel(spec_metPhiDn + " usegenmet", "fastsim");
+         SRblv_jecUp = new BaselineVessel(*tr, spec_jecUp + " usegenmet", "fastsim");
+         SRblv_jecDn = new BaselineVessel(*tr, spec_jecDn + " usegenmet", "fastsim");
+         SRblv_metMagUp = new BaselineVessel(*tr, spec_metMagUp + " usegenmet", "fastsim");
+         SRblv_metMagDn = new BaselineVessel(*tr, spec_metMagDn + " usegenmet", "fastsim");
+         SRblv_metPhiUp = new BaselineVessel(*tr, spec_metPhiUp + " usegenmet", "fastsim");
+         SRblv_metPhiDn = new BaselineVessel(*tr, spec_metPhiDn + " usegenmet", "fastsim");
       }else{
-         SRblv = new BaselineVessel(spec, "fastsim");
+         SRblv = new BaselineVessel(*tr, spec, "fastsim");
    
-         SRblv_jecUp = new BaselineVessel(spec_jecUp, "fastsim");
-         SRblv_jecDn = new BaselineVessel(spec_jecDn, "fastsim");
-         SRblv_metMagUp = new BaselineVessel(spec_metMagUp, "fastsim");
-         SRblv_metMagDn = new BaselineVessel(spec_metMagDn, "fastsim");
-         SRblv_metPhiUp = new BaselineVessel(spec_metPhiUp, "fastsim");
-         SRblv_metPhiDn = new BaselineVessel(spec_metPhiDn, "fastsim");
+         SRblv_jecUp = new BaselineVessel(*tr, spec_jecUp, "fastsim");
+         SRblv_jecDn = new BaselineVessel(*tr, spec_jecDn, "fastsim");
+         SRblv_metMagUp = new BaselineVessel(*tr, spec_metMagUp, "fastsim");
+         SRblv_metMagDn = new BaselineVessel(*tr, spec_metMagDn, "fastsim");
+         SRblv_metPhiUp = new BaselineVessel(*tr, spec_metPhiUp, "fastsim");
+         SRblv_metPhiDn = new BaselineVessel(*tr, spec_metPhiDn, "fastsim");
       }
    }
+
+   type3Ptr = SRblv->GetType3Ptr();
+   type3Ptr->setdebug(true);
 
    bool doSel = false; std::ostringstream convert;
    if( argc >=3 ){
