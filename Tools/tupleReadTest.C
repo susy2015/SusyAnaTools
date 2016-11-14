@@ -1,5 +1,6 @@
 #include "LHAPDF/LHAPDF.h"
 #include "NTupleReader.h"
+#include "baselineDef.h"
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -171,6 +172,8 @@ int main()
     */
     NTupleReader tr(ch);
     PDFweight pdfs;
+    BaselineVessel blv(tr);
+    tr.registerFunction(blv);
     tr.registerFunction(pdfs);
     std::cout << "NEVTS: " << tr.getNEntries() << std::endl;
 
