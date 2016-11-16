@@ -837,12 +837,22 @@ void basicCheck(int argc, char *argv[]){
 
    std::vector<TTree*> treeVec;
    std::vector<std::string> subSampleKeysVec;
+
+   std::vector<int> toRunVec(keyStrVec.size(), 0);
  
    for(const auto & filelist : allCollections){
 
       if( !keyStrVec.empty() ){
          bool found = false;
-         for(auto& str : keyStrVec ){ if( filelist.first == str ) found = true; }
+         for(unsigned int ik=0; ik<keyStrVec.size(); ik++){
+            if( filelist.first == keyStrVec[ik] ){
+               if( toRunVec[ik] ) found = false;
+               else{
+                  found = true;
+                  if(  entryToProcess !=0 ) toRunVec[ik]++;
+               }
+            }
+         }
          if( !found && entryToProcess !=0 ) continue;
       }
 
@@ -851,7 +861,15 @@ void basicCheck(int argc, char *argv[]){
          for(auto & file : filelist.second){
             std::string perSubStr;
             for(const auto & perST : allSamples ){ if(perST.second == file ) perSubStr = perST.first; }
-            for(auto& str : keyStrVec ){ if( perSubStr == str ) found = true; }
+            for(unsigned int ik=0; ik<keyStrVec.size(); ik++){
+               if( perSubStr == keyStrVec[ik] ){
+                  if( toRunVec[ik] ) found = false;
+                  else{
+                     found = true;
+                     toRunVec[ik]++;
+                  }
+               }
+            }
          }
          if( !found ) continue;
       }
