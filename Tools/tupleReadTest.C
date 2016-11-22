@@ -141,7 +141,7 @@ int main()
 
 
 
-  char nBase[] = "/uscms_data/d3/amrit/amrit/Production/CMSSW_7_4_15/src/SusyAnaTools/SkimsAUX/workdir/prod/stopFlatNtuples.root";
+  char nBase[] = "root://cmseos.fnal.gov//store/user/lpcsusyhad/Stop_production/Spring16_80X_Nov_2016_Ntp_v11X_new_IDs/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring16_80X_Nov_2016_Ntp_v11p0_new_IDs_TTJets_SingleLeptFromT/161111_230825/0000/stopFlatNtuples_1.root";
 
   TChain *ch = new TChain("stopTreeMaker/AUX");
 
@@ -171,6 +171,7 @@ int main()
 
     */
     NTupleReader tr(ch);
+    tr.setReThrow(false);
     PDFweight pdfs;
     BaselineVessel blv(tr);
     tr.registerFunction(blv);
@@ -178,27 +179,17 @@ int main()
     std::cout << "NEVTS: " << tr.getNEntries() << std::endl;
 
     while(tr.getNextEvent())
+    {
+      if(tr.getEvtNum() == 1)
       {
-        if(tr.getEvtNum() == 1)
-	  {
-            tr.printTupleMembers();
-            FILE * fout = fopen("NTupleTypes.txt", "w");
-            tr.printTupleMembers(fout);
-            fclose(fout);
-	  }
-
-        const std::vector<double>& pdfWeights = tr.getVec<double>("PDFWeights");  
-	const std::vector<int>& pdfIds = tr.getVec<int>("PDFIds");
-
-	for(int i = 0; i < pdfWeights.size(); i++){   
-	  if(tr.getEvtNum()%100 == 0)
-	    {
-	      std::cout << tr.getEvtNum() << "\t" << ((clock() - t0)/100.0) << std::endl;
-	      std::cout << "pdfWeights.at("<<i<<") = " << pdfWeights.at(i)<< std::endl;
-	      std::cout << "pdfIds.at("<<i<<") = " << pdfIds.at(i)<< std::endl;
-	    }
-	}
+        tr.printTupleMembers();
+        FILE * fout = fopen("NTupleTypes.txt", "w");
+        tr.printTupleMembers(fout);
+        fclose(fout);
       }
+
+      std::cout << "MET " << tr.getVar<double>("met")  << " nTop" << tr.getVar<int>("nTopCandSortedCnt") << std::endl;
+    }
 	// All Variations Initialize to zero.
     /*
 	double var_Weight[3];

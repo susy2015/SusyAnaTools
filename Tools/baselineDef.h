@@ -11,30 +11,29 @@
 
 #include "Math/VectorUtil.h"
 
+#include <memory>
 #include <iostream>
 
 class BaselineVessel
 {
 private:
     const std::string spec;
-    NTupleReader &tr;
     bool isfastsim;
     std::string firstSpec;
     bool printOnce;
-    bool UseNewTagger;
 
-    //EventListFilter filter;
-    //
+    NTupleReader *tr;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
-    topTagger::type3TopTagger * type3Ptr;
-    TopTagger *ttPtr;
+    std::shared_ptr<topTagger::type3TopTagger> type3Ptr;
+    std::shared_ptr<TopTagger> ttPtr;
 
     //  container
     TLorentzVector metLVec; 
-    std::vector<TLorentzVector> jetsLVec_forTagger;
-    std::vector<double> recoJetsBtag_forTagger;
-    std::vector<double> qgLikelihood_forTagger;
+    std::vector<TLorentzVector> *jetsLVec_forTagger;
+    std::vector<double> *recoJetsBtag_forTagger;
+    std::vector<double> *qgLikelihood_forTagger;
+    std::vector<TLorentzVector> *vTops;
 
 public:
 
@@ -42,6 +41,7 @@ public:
     int  bToFake;
     bool debug;
     bool incZEROtop;
+    bool UseNewTagger;
 
     std::string jetVecLabel;
     std::string CSVVecLabel;
@@ -64,7 +64,7 @@ public:
 
 
     BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");
-    ~BaselineVessel() {delete type3Ptr;};
+    ~BaselineVessel();
 
     void PassBaseline();
     bool passNoiseEventFilterFunc();
@@ -72,12 +72,14 @@ public:
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
 
-    inline void operator()(NTupleReader &tr_){ tr = tr_; PassTopTagger();};
+    void operator()(NTupleReader& tr);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
-    bool PassTopTagger() const;
+    bool PassTopTagger();
+    bool GetMHT() const;
     void prepareTopTagger();
-    topTagger::type3TopTagger * GetType3Ptr() const {return type3Ptr;};
+    std::shared_ptr<topTagger::type3TopTagger> GetType3Ptr() const {return type3Ptr;};
+    std::shared_ptr<TopTagger> GetTopTaggerPtr() const {return ttPtr;};
     int GetnTops() const;
     double CalcMT2() const;
 };
@@ -85,9 +87,8 @@ public:
 inline void passBaselineFunc(NTupleReader &tr, std::string filterstring)
 {
   BaselineVessel blv(tr, "", filterstring);
-  blv.prepareTopTagger();
   blv.PassBaseline();
-  blv.GetnTops();
+  blv.GetMHT();
 }
 
 namespace stopFunctions

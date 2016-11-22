@@ -44,7 +44,7 @@
 #include "ISRCorrector.h"
 
 SearchBins * sb =0;
-topTagger::type3TopTagger * type3Ptr = 0;
+std::shared_ptr<topTagger::type3TopTagger>type3Ptr(nullptr);
 int nTotBins;
 std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
 

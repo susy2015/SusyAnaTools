@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <cstdio>
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
@@ -51,6 +52,7 @@ public:
 
     NTupleReader(TTree * tree, std::set<std::string>& activeBranches_);
     NTupleReader(TTree * tree);
+    ~NTupleReader() {} ;
 
     int getEvtNum() const
     {
