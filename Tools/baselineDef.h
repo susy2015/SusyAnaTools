@@ -75,6 +75,7 @@ public:
     void operator()(NTupleReader& tr);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
+    bool SetupTopTagger(bool UseNewTagger_ = true, std::string CfgFile_ = "ICHEPTaggerConfig.cfg");
     bool PassTopTagger();
     bool GetMHT() const;
     void prepareTopTagger();

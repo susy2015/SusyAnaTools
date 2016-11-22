@@ -64,6 +64,18 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 
   PredefineSpec();
 
+  SetupTopTagger(UseNewTagger, toptaggerCfgFile);
+}
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::SetupTopTagger
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::SetupTopTagger(bool UseNewTagger_, std::string CfgFile_)
+{
+  UseNewTagger = UseNewTagger_;
+  toptaggerCfgFile = CfgFile_;
+
   if (!UseNewTagger)
   {
     type3Ptr = std::make_shared<topTagger::type3TopTagger>();
@@ -73,7 +85,9 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
     ttPtr = std::make_shared<TopTagger>();
     ttPtr->setCfgFile(toptaggerCfgFile);
   }
-}
+  
+  return true;
+}       // -----  end of function BaselineVessel::SetupTopTagger  -----
 
 void BaselineVessel::prepareTopTagger()
 {
