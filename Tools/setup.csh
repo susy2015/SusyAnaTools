@@ -24,5 +24,9 @@ if (! -f TopTaggerConfig.cfg) then
 endif
 
 if (! -f TrainingOutput.model) then
-  cp /uscms_data/d3/mandal13/MVATraining/TrainingOutput_v1.model TrainingOutput.model
+  if (`hostname` =~ *fnal.gov) then
+    cp /uscms_data/d3/mandal13/MVATraining/TrainingOutput_v1.model TrainingOutput.model
+  else
+    scp cmslpc41.fnal.gov:/uscms_data/d3/mandal13/MVATraining/TrainingOutput_v1.model TrainingOutput.model
+  endif
 endif

@@ -54,6 +54,7 @@ cmake .
 make -j 8
 
 ## Checkout Tagtagger
+cd $CMSSW_BASE/src
 git clone git@github.com:susy2015/TopTagger.git
 scram b -j 8
 cd TopTagger/TopTagger/test/

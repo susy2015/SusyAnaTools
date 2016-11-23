@@ -190,6 +190,7 @@ int main()
 
       std::cout << "MET " << tr.getVar<double>("met")  << " nTop" << tr.getVar<int>("nTopCandSortedCnt") << std::endl;
     }
+    ch->Reset();
 	// All Variations Initialize to zero.
     /*
 	double var_Weight[3];
