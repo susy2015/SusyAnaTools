@@ -38,7 +38,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   qgLikehoodLabel       = "qgLikelihood";
   muonsFlagIDLabel      = "muonsFlagMedium";
   elesFlagIDLabel       = "elesFlagVeto";
-  toptaggerCfgFile      = "ICHEPTaggerConfig.cfg";
+  toptaggerCfgFile      = "Example_TopTagger.cfg";
   doIsoTrksVeto         = true;
   doMuonVeto            = true;
   doEleVeto             = true;
@@ -127,7 +127,15 @@ void BaselineVessel::prepareTopTagger()
   {
     // top tagger
     //construct vector of constituents 
-    std::vector<Constituent> constituents = ttUtility::packageConstituents(*jetsLVec_forTagger, *recoJetsBtag_forTagger, *qgLikelihood_forTagger);
+    ttUtility::ConstAK4Inputs myConstAK4Inputs = ttUtility::ConstAK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger, *qgLikelihood_forTagger);
+    ttUtility::ConstAK8Inputs myConstAK8Inputs = ttUtility::ConstAK8Inputs(
+        tr->getVec<TLorentzVector>("puppiJetsLVec"), 
+        tr->getVec<double>("puppitau1"), 
+        tr->getVec<double>("puppitau1"), 
+        tr->getVec<double>("puppitau1"), 
+        tr->getVec<double>("puppisoftDropMass"), 
+        tr->getVec<TLorentzVector>("puppiSubJetsLVec"));
+    std::vector<Constituent> constituents = ttUtility::packageConstituents(myConstAK4Inputs, myConstAK8Inputs);
     //run tagger
     ttPtr->runTagger(constituents);
   }

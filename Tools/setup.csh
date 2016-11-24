@@ -15,12 +15,12 @@ if (! -f PileupHistograms_Nov17.root) then
 endif
 
 ## Get the Top tagger files
-if (! -f ICHEPTaggerConfig.cfg) then
-  cp  $CMSSW_BASE/src/TopTagger/Tools/ICHEPTaggerConfig.cfg .
+if (! -f Example_TopTagger.cfg) then
+  cp  $CMSSW_BASE/src/TopTagger/TopTagger/test/Example_TopTagger.cfg .
 endif
 
-if (! -f TopTaggerConfig.cfg) then
-  cp  $CMSSW_BASE/src/TopTagger/Tools/TopTaggerConfig.cfg .
+if (! -f Example_Legacy_TopTagger.cfg) then
+  cp  $CMSSW_BASE/src/TopTagger/TopTagger/test/Example_Legacy_TopTagger.cfg .
 endif
 
 if (! -f TrainingOutput.model) then
