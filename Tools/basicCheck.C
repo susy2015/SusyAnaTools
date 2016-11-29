@@ -43,6 +43,7 @@ const bool evtFilterFor_ttZ_rare = true;
 MT2CalcCore * mt2Calc;
 
 BaselineVessel * SRblv =0;
+std::shared_ptr<topTagger::type3TopTagger>type3Ptr(nullptr);
 std::string spec = "MY";
 
 void mypassBaselineFunc(NTupleReader &tr){
@@ -759,9 +760,8 @@ void basicCheck(int argc, char *argv[]){
    mt2Calc = new MT2CalcCore();
 
    AnaFunctions::prepareForNtupleReader();
-   AnaFunctions::prepareTopTagger();
+   //AnaFunctions::prepareTopTagger();
 
-   type3Ptr->setdebug(true);
 
    sb = new SearchBins();
 
@@ -789,10 +789,13 @@ void basicCheck(int argc, char *argv[]){
    if( usegenmet ) spec = "usegenmet";
 
    if( selKeyStr.find("fastsim") != std::string::npos ){
-      SRblv = new BaselineVessel(spec, "fastsim");
+      SRblv = new BaselineVessel(*tr, spec, "fastsim");
    }else{
-      SRblv = new BaselineVessel(spec);
+      SRblv = new BaselineVessel(*tr, spec);
    }
+
+   type3Ptr = SRblv->GetType3Ptr();
+   type3Ptr->setdebug(true);
 
    bool doSel = false; std::ostringstream convert;
    if( argc >=3 ){

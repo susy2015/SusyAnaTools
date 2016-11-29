@@ -140,9 +140,9 @@ int main()
             TChain * t = new TChain(fs.treePath.c_str());
             fs.addFilesToChain(t);
 
-            BaselineVessel blv;
 
             NTupleReader tr(t, activatedBranch);
+            BaselineVessel blv(tr);
             tr.registerFunction(blv);
             tr.registerFunction(static_cast<std::function<void(NTupleReader&)>>(std::bind(&calcSearchBin, std::placeholders::_1, sb)));
 

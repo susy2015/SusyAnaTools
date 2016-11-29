@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <cstdio>
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
@@ -51,6 +52,7 @@ public:
 
     NTupleReader(TTree * tree, std::set<std::string>& activeBranches_);
     NTupleReader(TTree * tree);
+    ~NTupleReader() {} ;
 
     int getEvtNum() const
     {
@@ -87,6 +89,8 @@ public:
     bool getNextEvent();
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
+    std::vector<std::string> GetTupleMembers() const;
+    std::vector<std::string> GetTupleSpecs(std::string VarName = "cntNJetsPt30Eta24") const;
 
     template<typename T> void registerFunction(T f)
     {

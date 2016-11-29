@@ -1,4 +1,6 @@
-## Instructions
+### Instructions
+
+## Production Code
 
 The following installation instructions assume the user wants to process Run2016 data or Spring16 MC.
 
@@ -11,7 +13,7 @@ git cms-merge-topic -u kpedro88:METfix8022
 git cms-merge-topic -u cms-met:CMSSW_8_0_X-METFilterUpdate
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
 git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_80X_V2
-git clone -b prodNtpV11_new_ID_Moriond_2017_Nov11_2016 git@github.com:susy2015/SusyAnaTools.git
+git clone -b Moriond2017 git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 
@@ -37,41 +39,35 @@ cd SusyAnaTools/SkimsAUX/workdir/prod/80X_crab_example
 # cmsRun treeMaker_stopRA2.py mcInfo=1 GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2 specialFix=JEC jecDBname=Spring16_25nsV1_MC maxEvents=1000
 ```
 
+## TopTagger Code
+
 To Checkout TopTagger Code:
 
-Inside CMSSW_8_0_23/src/
 ```
-git clone -b master git@github.com:susy2015/TopTagger.git
-```
-Currently OpenCV package needed to compile toptagger code.
-
-OpenCV provides a C++ interface to a random forest algorithm which can be integrated into our normal c++ workflow.
-
-Installing openCV
-
-In order to use sample weights we need the latest release of openCV 3.1.0 and a bug fix I have added to stop RTree training form crashing.  You may download the repository from github via my fork in susy2015.
-
-To install from github do the following in your "CMSSW_8_0_23_patch1/src"
-
-```
+## Checkout OpenCV
+cd $CMSSW_BASE/src
 git clone git@github.com:susy2015/opencv.git
 cd opencv
 git checkout 3.1.0_StopBugFix
-```
-
-To compile openCV run the following commands in the "opencv" folder
-
-```
 cmake .
-make -j6
-```
-Now compile full package:
+make -j 8
 
-Inside CMSSW_8_0_23_patch1/src/
-```
-scram b -j9
+## Checkout Tagtagger
+cd $CMSSW_BASE/src
+git clone git@github.com:susy2015/TopTagger.git
+scram b -j 8
+cd TopTagger/TopTagger/test/
+make -j 8 
 ```
 
-To use the toptagger or run toptagger Please check following link
+You can then compile the SUSYAnaTools
+```
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/
+make
+```
 
-https://github.com/susy2015/TopTagger#configuration-file
+## Setup Tools Environment
+Go to your working area, then do below
+```
+source $CMSSW_BASE/src/SusyAnaTools/Tools/setup.csh
+```

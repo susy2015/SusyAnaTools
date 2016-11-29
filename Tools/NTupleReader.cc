@@ -214,3 +214,30 @@ void NTupleReader::printTupleMembers(FILE *f) const
         fprintf(f, "%60s %s\n", iVar.second.c_str(), iVar.first.c_str());
     }
 }
+
+std::vector<std::string> NTupleReader::GetTupleMembers() const
+{
+  std::vector<std::string> members;
+  for(auto& iVar : typeMap_)
+  {
+    members.push_back(iVar.first);
+  }
+  return members;
+}
+
+
+std::vector<std::string> NTupleReader::GetTupleSpecs(std::string VarName) const
+{
+  std::vector<std::string> members = GetTupleMembers();
+  std::vector<std::string> specs;
+  for(auto &member : members)
+  {
+    std::string::size_type t= member.find(VarName);
+    if (t != std::string::npos)
+    {
+      specs.push_back(member.erase(t, VarName.length()));
+    }
+  }
+  
+  return specs;
+}
