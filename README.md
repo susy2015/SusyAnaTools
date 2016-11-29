@@ -3,8 +3,8 @@
 The following installation instructions assume the user wants to process Run2016 data or Spring16 MC.
 
 ```
-cmsrel CMSSW_8_0_23_patch1
-cd CMSSW_8_0_23_patch1/src/
+cmsrel CMSSW_8_0_23
+cd CMSSW_8_0_23/src/
 cmsenv
 git cms-init
 git cms-merge-topic -u kpedro88:METfix8022
@@ -39,7 +39,7 @@ cd SusyAnaTools/SkimsAUX/workdir/prod/80X_crab_example
 
 To Checkout TopTagger Code:
 
-Inside CMSSW_8_0_23_patch1/src/
+Inside CMSSW_8_0_23/src/
 ```
 git clone -b master git@github.com:susy2015/TopTagger.git
 ```
