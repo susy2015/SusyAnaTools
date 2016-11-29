@@ -39,7 +39,6 @@ cd SusyAnaTools/SkimsAUX/workdir/prod/80X_crab_example
 # cmsRun treeMaker_stopRA2.py mcInfo=1 GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2 specialFix=JEC jecDBname=Spring16_25nsV1_MC maxEvents=1000
 ```
 
-
 ## TopTagger Code
 
 To Checkout TopTagger Code:
