@@ -13,7 +13,7 @@ git cms-merge-topic -u kpedro88:METfix8022
 git cms-merge-topic -u cms-met:CMSSW_8_0_X-METFilterUpdate
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
 git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_80X_V2
-git clone -b Moriond2017 git@github.com:susy2015/SusyAnaTools.git
+git clone -b Ana_Dev_Nov29_2016_Moriond_new_code_baseline_and_tagger git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 
@@ -54,7 +54,7 @@ make -j 8
 
 ## Checkout Tagtagger
 cd $CMSSW_BASE/src
-git clone git@github.com:susy2015/TopTagger.git
+git clone -b HadStopAnaDevel_Moriond2017_Nov28_2016 git@github.com:susy2015/TopTagger.git
 scram b -j 8
 cd TopTagger/TopTagger/test/
 make -j 8 
