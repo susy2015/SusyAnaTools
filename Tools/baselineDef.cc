@@ -131,8 +131,8 @@ void BaselineVessel::prepareTopTagger()
     ttUtility::ConstAK8Inputs myConstAK8Inputs = ttUtility::ConstAK8Inputs(
         tr->getVec<TLorentzVector>("puppiJetsLVec"), 
         tr->getVec<double>("puppitau1"), 
-        tr->getVec<double>("puppitau1"), 
-        tr->getVec<double>("puppitau1"), 
+        tr->getVec<double>("puppitau2"), 
+        tr->getVec<double>("puppitau3"), 
         tr->getVec<double>("puppisoftDropMass"), 
         tr->getVec<TLorentzVector>("puppiSubJetsLVec"));
     std::vector<Constituent> constituents = ttUtility::packageConstituents(myConstAK4Inputs, myConstAK8Inputs);
