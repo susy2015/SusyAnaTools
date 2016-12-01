@@ -311,10 +311,10 @@ private:
 
     TH1* baseline_no_fastsimFilter_nSearchBin_;
 
-// Any events with any jet pT > 2 TeV
+    //Any events with any jet pT > 2 TeV
     TH1* baseline_weirdEvt_;
 
-//    TH1* baseline_noLepVeto_;
+    //TH1* baseline_noLepVeto_;
     TH1* baseline_muVeto_;
     TH1* baseline_muVeto_SF_;
     TH1* baseline_muVeto_Up_;
@@ -472,8 +472,8 @@ private:
        sprintf(hname, "%s_%d_%d", "baseline_weirdEvt", mMass_, dMass_);
        baseline_weirdEvt_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_weirdEvt_->Sumw2();
 
-//       sprintf(hname, "%s_%d_%d", "baseline_noLepVeto", mMass_, dMass_);
-//       baseline_noLepVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_noLepVeto_->Sumw2();
+       //sprintf(hname, "%s_%d_%d", "baseline_noLepVeto", mMass_, dMass_);
+       //baseline_noLepVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_noLepVeto_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_muVeto", mMass_, dMass_);
        baseline_muVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_muVeto_->Sumw2();
@@ -627,7 +627,7 @@ public:
 
        TString massPointStrT;
        massPointStrT.Form("%d_%d", mMass_, dMass_);
-//       std::cout<<"massPointStrT : "<<massPointStrT<<std::endl;
+       //std::cout<<"massPointStrT : "<<massPointStrT<<std::endl;
 
        if( sampleKeyStr_.find("T2tt") != std::string::npos ) isrCorr = new ISRCorrector("Signal_fastsim_T2tt_scan_ISR.root", "", massPointStrT);
        else if( sampleKeyStr_.find("T1tttt") != std::string::npos ) isrCorr = new ISRCorrector("Signal_fastsim_T1tttt_scan_ISR.root", "", massPointStrT);
@@ -684,8 +684,8 @@ public:
        const double & Scaled_Variations_Down = tr.getVar<double>("Scaled_Variations_Down");
 
        const double & NNPDF_From_Median_Central = tr.getVar<double>("NNPDF_From_Median_Central");
-//       const double NNPDF_From_Median_Up = tr.getVar<double>("NNPDF_From_Median_Up") * NNPDF_From_Median_Central;
-//       const double NNPDF_From_Median_Down = tr.getVar<double>("NNPDF_From_Median_Down") >0 ? tr.getVar<double>("NNPDF_From_Median_Down") * NNPDF_From_Median_Central : 0;
+       //const double NNPDF_From_Median_Up = tr.getVar<double>("NNPDF_From_Median_Up") * NNPDF_From_Median_Central;
+       //const double NNPDF_From_Median_Down = tr.getVar<double>("NNPDF_From_Median_Down") >0 ? tr.getVar<double>("NNPDF_From_Median_Down") * NNPDF_From_Median_Central : 0;
        const double NNPDF_From_Median_Up = tr.getVar<double>("NNPDF_From_Median_Up");
        const double NNPDF_From_Median_Down = tr.getVar<double>("NNPDF_From_Median_Down");
 
@@ -799,9 +799,9 @@ public:
        }
        genTopSF_relErr_evt = genTopSF_relErr_evt == 0? 0 : sqrt(genTopSF_relErr_evt);
 
-// if cnt_genTops ==0, all the cnt_eleTop, cnt_muTop, cnt_taumuTop, cnt_taueleTop, cnt_tauhadTop and cnt_allhadTop are 0!
-// This can happen when stop -> b W neutralino
-// In this case, reuse the counters!
+       // if cnt_genTops ==0, all the cnt_eleTop, cnt_muTop, cnt_taumuTop, cnt_taueleTop, cnt_tauhadTop and cnt_allhadTop are 0!
+       // This can happen when stop -> b W neutralino
+       // In this case, reuse the counters!
        if( cnt_genTops == 0 ){
           for(unsigned int ig=0; ig<genDecayPdgIdVec.size(); ig++){
              if( std::abs(genDecayPdgIdVec[ig]) != 1000006 ) continue;

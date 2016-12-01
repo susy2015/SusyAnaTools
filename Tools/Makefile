@@ -1,6 +1,6 @@
 IDIR       = .
 ODIR       = obj
-SDIR       = .
+SDIR       = $(CMSSW_BASE)/src/SusyAnaTools/Tools/
 
 CXX        = g++
 
@@ -37,7 +37,6 @@ all: mkobj $(OBJS) SusyAnaTools sampPyWrap $(PROGRAMS)
 mkobj:
 	@mkdir -p obj
 
-
 SusyAnaTools : $(OBJS)
 	ar rcs lib$@.a $^
 	gcc -shared -o $(ODIR)/lib$@.so $^
@@ -66,7 +65,7 @@ $(ODIR)/%.o : $(SDIR)/%.cpp
 tupleTest: $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o $(ODIR)/tupleReadTest.o 
 	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
-nEvts: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/nEvts.o
+nEvts: $(ODIR)/nEvts.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o
 	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
 basicCheck: $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o
