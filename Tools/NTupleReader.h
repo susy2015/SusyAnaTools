@@ -69,7 +69,7 @@ public:
     {
         try
         {
-            if(tree_) return nEvtTotal_;
+            if(tree_) return tree_->GetEntries();
             else 
             {
                 THROW_SATEXCEPTION("NO tree defined yet!!!");
@@ -214,7 +214,7 @@ public:
 private:
     // private variables for internal use
     TTree *tree_;
-    int nevt_, nEvtTotal_;
+    int nevt_;
     bool isUpdateDisabled_, isFirstEvent_, reThrow_;
     
     // stl collections to hold branch list and associated info

@@ -20,12 +20,6 @@ NTupleReader::NTupleReader(TTree * tree)
 
 void NTupleReader::init()
 {
-    //gROOT->ProcessLine(".L TupleDict.h+");
-    //gInterpreter->GenerateDictionary("vector<TLorentzVector>","TLorentzVector.h;vector");
-
-    //nEvtTotal_ = tree_->GetEntries();
-    //if(nEvtTotal_ <= 0) THROW_SATEXCEPTION("NTupleReader::init(): TTree " + std::string(tree_->GetName()) + " has 0 events!!!!");
-    nEvtTotal_ = std::numeric_limits<int>::max();
     nevt_ = 0;
     isUpdateDisabled_ = false;
     isFirstEvent_ = true;
@@ -120,7 +114,6 @@ void NTupleReader::registerBranch(TBranch * const branch) const
 
 bool NTupleReader::getNextEvent()
 {
-    if(nevt_ >= nEvtTotal_) return false;
     int status = tree_->GetEntry(nevt_);
     if (status == 0) return false;
     nevt_++;
