@@ -158,13 +158,20 @@ namespace AnaSamples
         // --------
         //Single Muon
         addSample("Data_SingleMuon_2016", fDir_ + DATAloc + "SingleMuon.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
+        addSample("Data_SingleMuon_Run2016G", fDir_ + DATAloc + "SingleMuon_Run2016G.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
     
         //Single Electron
         // new 2016
         addSample("Data_SingleElectron_2016", fDir_ + DATAloc + "SingleElectron.txt","stopTreeMaker/AUX", 4006.593, 1.0,  kBlack);
+        addSample("Data_SingleElectron_Run2016G", fDir_ + DATAloc + "SingleElectron_Run2016G.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
     
         //HT-MHT
         addSample("Data_HTMHT_2016", fDir_ + DATAloc + "HTMHT.txt","stopTreeMaker/AUX",  5926.7518 + 2646.1215 + 4329.5899, 1.0,  kBlack);
+        addSample("Data_HTMHT_Run2016G", fDir_ + DATAloc + "HTMHT_Run2016G.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
+
+        //MET
+        addSample("Data_MET_2016", fDir_ + DATAloc + "MET.txt","stopTreeMaker/AUX",  5926.7518 + 2646.1215 + 4329.5899, 1.0,  kBlack);
+        addSample("Data_MET_Run2016G", fDir_ + DATAloc + "MET_Run2016G.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
 
         // ----------
         // - signal -
@@ -278,9 +285,11 @@ namespace AnaSamples
         addSampleSet(samples, "Rare", {"TTWJetsToLNu", "TTWJetsToQQ", "TTGJets", "WWZ", "WZZ", "ZZZ", "ttHJetTobb", "ttHJetToNonbb"});
 
         addSampleSet(samples, "Data_SingleMuon", {"Data_SingleMuon_2016"});
+        addSampleSet(samples, "Data_SingleMuon_Run2016G", {"Data_SingleMuon_Run2016G"});
 
 
         addSampleSet(samples, "Data_SingleElectron", {"Data_SingleElectron_2016"});
+        addSampleSet(samples, "Data_SingleElectron_Run2016G", {"Data_SingleElectron_Run2016G"});
 
 
         //addSampleSet(samples, "Data_SingleMuon", {"Data_SingleMuon_2015C", "Data_SingleMuon_2015D_05Oct2015", "Data_SingleMuon_2015D_PromptReco"});
@@ -293,6 +302,10 @@ namespace AnaSamples
 
         addSampleSet(samples, "Data_HTMHT", {"Data_HTMHT_2016"});
 //      addSampleSet(samples, "Data_HTMHT", {"Data_HTMHT_2015C", "Data_HTMHT_2015D_05Oct2015", "Data_HTMHT_2015D_PromptReco"});
+        addSampleSet(samples, "Data_HTMHT_Run2016G", {"Data_HTMHT_Run2016G"});
+
+        addSampleSet(samples, "Data_MET", {"Data_MET_2016"});
+        addSampleSet(samples, "Data_MET_Run2016G", {"Data_MET_Run2016G"});
 
         addSampleSet(samples, "Signal_T1tttt_mGluino1200_mLSP800", {"Signal_T1tttt_mGluino1200_mLSP800"});
         addSampleSet(samples, "Signal_T1tttt_mGluino1500_mLSP100", {"Signal_T1tttt_mGluino1500_mLSP100"});
