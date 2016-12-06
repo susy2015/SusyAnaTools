@@ -28,12 +28,19 @@ LIBS      += -L$(OPENCV_DIRECTORY)/lib/ -lopencv_ml -lopencv_core
 MT2LIB     = -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lrecipeAUXOxbridgeMT2 -L$(CMSSW_RELEASE_BASE)/lib/${SCRAM_ARCH}/ -lPhysicsToolsHeppy
 LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 
+FILES = $(wildcard $(SDIR)/*.cc)
+OBJS := $(FILES:$(SDIR)/%.cc=$(ODIR)/%.o)
+
 PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots DataMC
 
-all: mkobj sampPyWrap $(PROGRAMS)
+all: mkobj SusyAnaTools sampPyWrap $(PROGRAMS)
 
 mkobj:
 	@mkdir -p obj
+
+SusyAnaTools : $(OBJS)
+	ar rcs $(ODIR)/lib$@.a $^
+	gcc -shared -o $(ODIR)/lib$@.so $^
 
 #code to compile shared library to link samples to python
 sampPyWrap: $(ODIR)/samplesModule.so
@@ -83,7 +90,10 @@ makeSignalHistograms: $(ODIR)/baselineDef.o $(ODIR)/samples.o $(ODIR)/NTupleRead
 makeUnblindPlots: $(ODIR)/makeUnblindPlots.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
+DataMC: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/samples.o $(ODIR)/customize.o $(ODIR)/customize.o $(ODIR)/searchBins.o $(ODIR)/DataMC.o
+	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+
 clean:
-	rm -f $(ODIR)/*.so $(ODIR)/*.o $(ODIR)/*.d $(PROGRAMS) core 
+	rm -f $(ODIR)/*.a $(ODIR)/*.so $(ODIR)/*.o $(ODIR)/*.d $(PROGRAMS) core 
 
 -include $(ODIR)/*.d
