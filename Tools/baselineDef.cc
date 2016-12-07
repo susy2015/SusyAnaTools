@@ -78,11 +78,11 @@ bool BaselineVessel::SetupTopTagger(bool UseNewTagger_, std::string CfgFile_)
 
   if (!UseNewTagger)
   {
-    type3Ptr = std::make_shared<topTagger::type3TopTagger>();
+    type3Ptr.reset(new topTagger::type3TopTagger);
   }
   if (UseNewTagger)
   {
-    ttPtr = std::make_shared<TopTagger>();
+    ttPtr.reset(new TopTagger);
     ttPtr->setCfgFile(toptaggerCfgFile);
   }
   
