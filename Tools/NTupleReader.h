@@ -172,7 +172,7 @@ public:
         }
         catch(const SATException& e)
         {
-            e.print();
+            if(isFirstEvent_) e.print();
             if(reThrow_) throw;
             return *static_cast<T*>(nullptr);
         }
@@ -188,7 +188,7 @@ public:
         }
         catch(const SATException& e)
         {
-            e.print();
+            if(isFirstEvent_) e.print();
             if(reThrow_) throw;
             return *static_cast<std::vector<T>*>(nullptr);
         }
@@ -204,7 +204,7 @@ public:
         }
         catch(const SATException& e)
         {
-            e.print();
+            if(isFirstEvent_) e.print();
             if(reThrow_) throw;
             return *static_cast<std::map<T, V>*>(nullptr);
         }
