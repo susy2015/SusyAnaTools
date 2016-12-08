@@ -241,7 +241,7 @@ std::vector<std::string> NTupleReader::GetTupleSpecs(std::string VarName) const
 //         Name:  NTupleReader::HasVar
 //  Description:  
 // ===========================================================================
-bool NTupleReader::HasVar(std::string name) const
+bool NTupleReader::hasVar(std::string name) const
 {
   return (typeMap_.find(name) != typeMap_.end());
 }       // -----  end of function NTupleReader::HasVar  -----
