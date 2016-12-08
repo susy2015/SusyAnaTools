@@ -90,6 +90,7 @@ public:
     bool getNextEvent();
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
+    bool hasVar(std::string name) const;
     std::vector<std::string> GetTupleMembers() const;
     std::vector<std::string> GetTupleSpecs(std::string VarName = "cntNJetsPt30Eta24") const;
 
