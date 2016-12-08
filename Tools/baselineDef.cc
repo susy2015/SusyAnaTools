@@ -21,7 +21,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   qgLikehoodLabel       = "qgLikelihood";
   muonsFlagIDLabel      = "muonsFlagMedium";
   elesFlagIDLabel       = "elesFlagVeto";
-  toptaggerCfgFile      = "Example_TopTagger.cfg";
+  toptaggerCfgFile      = "TopTagger.cfg";
   doIsoTrksVeto         = true;
   doMuonVeto            = true;
   doEleVeto             = true;
