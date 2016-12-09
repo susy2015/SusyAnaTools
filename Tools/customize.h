@@ -74,7 +74,7 @@ namespace AnaConsts{
    const double cutCSVS = 0.800, cutCSVL = 0.460, cutCSVT = 0.935, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
    const double defaultMETcut = 200;
    const double defaultMT2cut = 200;
-   const double defaultHTcut = 500;
+   const double defaultHTcut = 300;
 
 //                                    minAbsEta, maxAbsEta, minPt, maxPt,   maxIso,  maxMtw
    const IsoAccRec     muonsArr =    {   -1,       2.4,      10,     -1,       0.2,     -1  };
