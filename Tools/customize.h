@@ -72,7 +72,7 @@ namespace AnaConsts{
 // Note the new working points are for Spring15 samples & data: cutCSVS is the medium working point
 // According to https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80X, the CSVv2M cut is 0.800
    const double cutCSVS = 0.800, cutCSVL = 0.460, cutCSVT = 0.935, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
-   const double defaultMETcut = 200;
+   const double defaultMETcut = 250;
    const double defaultMT2cut = 200;
    const double defaultHTcut = 300;
 
