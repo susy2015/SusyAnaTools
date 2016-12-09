@@ -1,19 +1,3 @@
-// ===========================================================================
-// 
-//       Filename:  customize.cc
-// 
-//    Description:  
-// 
-//        Version:  1.0
-//        Created:  11/11/2016 10:59:06 AM
-//       Compiler:  g++ -std=c++11
-// 
-//         Author:  Zhenbin Wu (benwu)
-//          Email:  zhenbin.wu@gmail.com
-//        Company:  UIC, CMS@LPC, CDF@FNAL
-// 
-// ===========================================================================
-
 #include "customize.h"
 
 namespace AnaFunctions
