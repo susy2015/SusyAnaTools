@@ -76,7 +76,11 @@ source $CMSSW_BASE/src/SusyAnaTools/Tools/setup.csh
 ## Check out tagger configuration 
 Go to your working area where the code will be run from and run the following command 
 ```
-$CMSSW_BASE/src/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Medium_v1.0.0
+$CMSSW_BASE/src/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Medium_v1.0.0 -d PATH_TO_DOWNLOAD_TO
+```
+If the legacy AK4 only version of the tagger is also needed run the following to checkout this configuration file
+```
+$CMSSW_BASE/src/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.0.0 -d PATH_TO_DOWNLOAD_TO
 ```
 
-Please note that this script will download the deired tagger configuration information in a seperate folder and softlink the necessary files into your corrent directory.  If you have multiple configuration files you work with in the same working directory use the "-f name" option to specify the name of the softlink to the tagger file (the default is TopTagger.cfg).  If you do not want this directory in your working directory you may add the "-d directory" optin to specoify where it should download this information.   This is particularly useful if you have several working directories as the script will then only check out each working point once (the model files are rather large so this may save some space if you have many downloaded).  Other configuration file releases can be found here https://github.com/susy2015/TopTaggerCfg/releases
+Please note that this script will download the deired tagger configuration information in a seperate folder and softlink the necessary files into your corrent directory.  If you have multiple configuration files you work with in the same working directory use the "-f name" option to specify the name of the softlink to the tagger file (the default is TopTagger.cfg).  If you do not want this directory in your working directory you may add the "-d PATH_TO_DOWNLOAD_TO" option to specify where it should download these files.  This is particularly useful if you have several working directories as the script will then only check out each working point once and place softlinks as needed (the model files are rather large so this may save some space if you have many downloaded).  However, "-d" can be omitted and the files will be downloaded in your working directory.  Other configuration file releases can be found here https://github.com/susy2015/TopTaggerCfg/releases
