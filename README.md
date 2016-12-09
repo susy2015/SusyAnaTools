@@ -1,5 +1,13 @@
 ### Instructions
 
+## Updating a git repo to a new branch 
+
+Commit all outstanding change to a new branch.
+```
+git fetch
+git checkout NEW_TAG_NAME
+```
+
 ## Production Code
 
 The following installation instructions assume the user wants to process Run2016 data or Spring16 MC.
@@ -69,14 +77,13 @@ make
 ## Setup Tools Environment
 Go to your working area, then do below
 ```
-source $CMSSW_BASE/src/TopTagger/Tools/opencvSetup.csh
 source $CMSSW_BASE/src/SusyAnaTools/Tools/setup.csh
 ```
 
 ## Check out tagger configuration 
-Go to your working area where the code will be run from and run the following command 
+By default SusyAnaTools/Tools/setup.csh will check out the default working point of the tagger configuration. To checkout another working point go to your working area where the code will be run from and run the following command 
 ```
-$CMSSW_BASE/src/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Medium_v1.0.0 -d PATH_TO_DOWNLOAD_TO
+$CMSSW_BASE/src/TopTagger/Tools/getTaggerCfg.sh -t DESIRED_TAG -d PATH_TO_DOWNLOAD_TO
 ```
 If the legacy AK4 only version of the tagger is also needed run the following to checkout this configuration file
 ```
