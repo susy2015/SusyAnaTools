@@ -100,12 +100,12 @@ namespace AnaSamples
        
         //DY->ll
         // kz = 1.23
-        addSample("DYJetsToLL_HT_100to200", fDir_ + MCloc + "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 147.4, lumi, 8434125, 1.23,  kYellow-7);
-        addSample("DYJetsToLL_HT_200to400", fDir_ + MCloc + "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 40.99, lumi, 8683719,  1.23,  kYellow-7);
-        addSample("DYJetsToLL_HT_400to600", fDir_ + MCloc + "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 5.678, lumi, 7925352, 1.23,  kYellow-7);
-        addSample("DYJetsToLL_HT_600toInf", fDir_ + MCloc + "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 2.198, lumi, 5150414,  1.23,  kYellow-7);
+        addSample("DYJetsToLL_HT_100to200", fDir_ + MCloc + "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 147.4, lumi, 11172146, 1.23,  kYellow-7);
+        addSample("DYJetsToLL_HT_200to400", fDir_ + MCloc + "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 40.99, lumi, 9396068,  1.23,  kYellow-7);
+        addSample("DYJetsToLL_HT_400to600", fDir_ + MCloc + "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 5.678, lumi, 4266222, 1.23,  kYellow-7);
+        addSample("DYJetsToLL_HT_600toInf", fDir_ + MCloc + "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 2.198, lumi, 5015369,  1.23,  kYellow-7);
         // NNLO
-        addSample("DYJetsToLL_Inc", fDir_ + MCloc + "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 6025.2, lumi, 49877138, 1.0,  kYellow-7);
+        addSample("DYJetsToLL_Inc", fDir_ + MCloc + "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 6025.2, lumi, 49708518, 1.0,  kYellow-7);
 
         //QCD
         // Ref. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#QCD. But numbers are from McM.
@@ -158,20 +158,20 @@ namespace AnaSamples
         // --------
         //Single Muon
         addSample("Data_SingleMuon_2016", fDir_ + DATAloc + "SingleMuon.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
-        addSample("Data_SingleMuon_Run2016G", fDir_ + DATAloc + "SingleMuon_Run2016G.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
+        addSample("Data_SingleMuon_Run2016G", fDir_ + DATAloc + "SingleMuon_Run2016G.txt","stopTreeMaker/AUX", 5929.6264/* + 2646.1215 + 4329.5899*/, 1.0,  kBlack);
     
         //Single Electron
         // new 2016
         addSample("Data_SingleElectron_2016", fDir_ + DATAloc + "SingleElectron.txt","stopTreeMaker/AUX", 4006.593, 1.0,  kBlack);
-        addSample("Data_SingleElectron_Run2016G", fDir_ + DATAloc + "SingleElectron_Run2016G.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
+        addSample("Data_SingleElectron_Run2016G", fDir_ + DATAloc + "SingleElectron_Run2016G.txt","stopTreeMaker/AUX", 5929.6264/* + 2646.1215 + 4329.5899*/, 1.0,  kBlack);
     
         //HT-MHT
         addSample("Data_HTMHT_2016", fDir_ + DATAloc + "HTMHT.txt","stopTreeMaker/AUX",  5926.7518 + 2646.1215 + 4329.5899, 1.0,  kBlack);
-        addSample("Data_HTMHT_Run2016G", fDir_ + DATAloc + "HTMHT_Run2016G.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
+        addSample("Data_HTMHT_Run2016G", fDir_ + DATAloc + "HTMHT_Run2016G.txt","stopTreeMaker/AUX", 5929.6264/* + 2646.1215 + 4329.5899*/, 1.0,  kBlack);
 
         //MET
         addSample("Data_MET_2016", fDir_ + DATAloc + "MET.txt","stopTreeMaker/AUX",  5926.7518 + 2646.1215 + 4329.5899, 1.0,  kBlack);
-        addSample("Data_MET_Run2016G", fDir_ + DATAloc + "MET_Run2016G.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
+        addSample("Data_MET_Run2016G", fDir_ + DATAloc + "MET_Run2016G.txt","stopTreeMaker/AUX", 5929.6264/* + 2646.1215 + 4329.5899*/, 1.0,  kBlack);
 
         // ----------
         // - signal -

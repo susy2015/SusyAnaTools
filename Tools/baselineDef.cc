@@ -1,20 +1,3 @@
-// ===========================================================================
-// 
-//       Filename:  baselineDef.cc
-// 
-//    Description:  A class for the baselineDef of stop analysis 
-// 
-//        Version:  1.0
-//        Created:  11/11/2016 10:19:13 AM
-//       Compiler:  g++ -std=c++11
-// 
-//         Author:  Zhenbin Wu (benwu)
-//          Email:  zhenbin.wu@gmail.com
-//        Company:  UIC, CMS@LPC, CDF@FNAL
-// 
-// ===========================================================================
-
-
 #include "baselineDef.h"
 
 //**************************************************************************//
@@ -38,7 +21,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   qgLikehoodLabel       = "qgLikelihood";
   muonsFlagIDLabel      = "muonsFlagMedium";
   elesFlagIDLabel       = "elesFlagVeto";
-  toptaggerCfgFile      = "Example_TopTagger.cfg";
+  toptaggerCfgFile      = "TopTagger.cfg";
   doIsoTrksVeto         = true;
   doMuonVeto            = true;
   doEleVeto             = true;

@@ -75,7 +75,7 @@ public:
     void operator()(NTupleReader& tr);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
-    bool SetupTopTagger(bool UseNewTagger_ = true, std::string CfgFile_ = "Example_TopTagger.cfg");
+    bool SetupTopTagger(bool UseNewTagger_ = true, std::string CfgFile_ = "TopTagger.cfg");
     bool PassTopTagger();
     bool GetMHT() const;
     void prepareTopTagger();
