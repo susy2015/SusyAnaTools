@@ -250,6 +250,7 @@ bool BaselineVessel::PassTopTagger()
   int nTopCandSortedCnt = -1;
   bool passTagger = false;
   vTops = new std::vector<TLorentzVector>();
+  mTopJets = new std::map<int, std::vector<TLorentzVector> >();
 
   nTopCandSortedCnt = GetnTops();
   if (!UseNewTagger)
@@ -269,6 +270,7 @@ bool BaselineVessel::PassTopTagger()
 
   tr->registerDerivedVar("nTopCandSortedCnt" + firstSpec, nTopCandSortedCnt);
   tr->registerDerivedVec("vTops"+firstSpec, vTops);
+  tr->registerDerivedVec("mTopJets"+firstSpec, mTopJets);
 
   return passTagger;
 }       // -----  end of function BaselineVessel::PassTopTagger  -----
@@ -424,6 +426,13 @@ int BaselineVessel::GetnTops() const
       TLorentzVector topLVec = type3Ptr->buildLVec(tr->getVec<TLorentzVector>("jetsLVec_forTagger" + firstSpec), 
           type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
       vTops->push_back(topLVec);
+      std::vector<TLorentzVector> temp;
+      std::vector<int> indexCombVec = type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]];
+      for (size_t k = 0; k < indexCombVec.size(); ++k)
+      {
+        temp.push_back( (tr->getVec<TLorentzVector>("jetsLVec_forTagger"+spec)).at(indexCombVec.at(k)));
+      }
+      mTopJets->insert(std::make_pair(it, temp));
     }
   }
   if (UseNewTagger)
@@ -433,9 +442,15 @@ int BaselineVessel::GetnTops() const
     //Use result for top var
     std::vector<TopObject*> Ntop = ttr.getTops();  
     nTops = Ntop.size();
-    for(auto Top : Ntop)
+    for(int it=0; it<nTops; it++)
     {
-      vTops->push_back(Top->P());
+      vTops->push_back(Ntop.at(it)->P());
+      std::vector<TLorentzVector> temp;
+      for(auto j : Ntop.at(it)->getConstituents())
+      {
+        temp.push_back(j->P());
+      }
+      mTopJets->insert(std::make_pair(it, temp));
     }
   }
 

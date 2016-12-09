@@ -34,6 +34,7 @@ private:
     std::vector<double> *recoJetsBtag_forTagger;
     std::vector<double> *qgLikelihood_forTagger;
     std::vector<TLorentzVector> *vTops;
+    std::map<int, std::vector<TLorentzVector> > *mTopJets;
 
 public:
 
