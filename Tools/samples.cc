@@ -157,21 +157,21 @@ namespace AnaSamples
         // - data -
         // --------
         //Single Muon
-        addSample("Data_SingleMuon_2016", fDir_ + DATAloc + "SingleMuon.txt","stopTreeMaker/AUX", 5929.6264 + 2646.1215 + 4329.5899, 1.0,  kBlack);
-        addSample("Data_SingleMuon_Run2016G", fDir_ + DATAloc + "SingleMuon_Run2016G.txt","stopTreeMaker/AUX", 5929.6264/* + 2646.1215 + 4329.5899*/, 1.0,  kBlack);
+        addSample("Data_SingleMuon_2016", fDir_ + DATAloc + "SingleMuon.txt","stopTreeMaker/AUX", 36352.970569733, 1.0,  kBlack);
+        addSample("Data_SingleMuon_Run2016G", fDir_ + DATAloc + "SingleMuon_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
     
         //Single Electron
         // new 2016
-        addSample("Data_SingleElectron_2016", fDir_ + DATAloc + "SingleElectron.txt","stopTreeMaker/AUX", 4006.593, 1.0,  kBlack);
-        addSample("Data_SingleElectron_Run2016G", fDir_ + DATAloc + "SingleElectron_Run2016G.txt","stopTreeMaker/AUX", 5929.6264/* + 2646.1215 + 4329.5899*/, 1.0,  kBlack);
+        addSample("Data_SingleElectron_2016", fDir_ + DATAloc + "SingleElectron.txt","stopTreeMaker/AUX", 36352.970569733, 1.0,  kBlack);
+        addSample("Data_SingleElectron_Run2016G", fDir_ + DATAloc + "SingleElectron_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
     
         //HT-MHT
-        addSample("Data_HTMHT_2016", fDir_ + DATAloc + "HTMHT.txt","stopTreeMaker/AUX",  5926.7518 + 2646.1215 + 4329.5899, 1.0,  kBlack);
-        addSample("Data_HTMHT_Run2016G", fDir_ + DATAloc + "HTMHT_Run2016G.txt","stopTreeMaker/AUX", 5929.6264/* + 2646.1215 + 4329.5899*/, 1.0,  kBlack);
+        addSample("Data_HTMHT_2016", fDir_ + DATAloc + "HTMHT.txt","stopTreeMaker/AUX",  36352.970569733, 1.0,  kBlack);
+        addSample("Data_HTMHT_Run2016G", fDir_ + DATAloc + "HTMHT_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
 
         //MET
-        addSample("Data_MET_2016", fDir_ + DATAloc + "MET.txt","stopTreeMaker/AUX",  5926.7518 + 2646.1215 + 4329.5899, 1.0,  kBlack);
-        addSample("Data_MET_Run2016G", fDir_ + DATAloc + "MET_Run2016G.txt","stopTreeMaker/AUX", 5929.6264/* + 2646.1215 + 4329.5899*/, 1.0,  kBlack);
+        addSample("Data_MET_2016", fDir_ + DATAloc + "MET.txt","stopTreeMaker/AUX",  36352.970569733, 1.0,  kBlack);
+        addSample("Data_MET_Run2016G", fDir_ + DATAloc + "MET_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
 
         // ----------
         // - signal -
