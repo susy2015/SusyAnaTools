@@ -51,9 +51,9 @@ if ($TAGGERCFGDIR:q == "") then
 endif
 
 if ! $?LD_LIBRARY_PATH then
-    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/src/SusyAnaTools/Tools/obj/
+    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/
 else
-    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/src/SusyAnaTools/Tools/obj/:${LD_LIBRARY_PATH}
+    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/:${LD_LIBRARY_PATH}
 endif
 
 ## Get the btagging file
