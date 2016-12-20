@@ -662,6 +662,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   tr = &tr_;
   PassBaseline();
   GetMHT();
+  GetLeptons();
 }
 
 // ===  FUNCTION  ============================================================
@@ -687,6 +688,42 @@ bool BaselineVessel::GetMHT() const
   tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<double>(METLabel)/ sqrt(SumHT));
   return true;
 }       // -----  end of function BaselineVessel::GetMHT  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetLeptons
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetLeptons() const
+{
+  std::vector<TLorentzVector> *vMuons = new std::vector<TLorentzVector> ();
+  std::vector<TLorentzVector> *vEles = new std::vector<TLorentzVector> ();
+
+  const std::vector<TLorentzVector> &muonsLVec   = tr->getVec<TLorentzVector>("muonsLVec");
+  const std::vector<double>         &muonsRelIso = tr->getVec<double>("muonsMiniIso");
+  const std::vector<double>         &muonsMtw    = tr->getVec<double>("muonsMtw");
+  const std::vector<int>            &muonsFlagID = tr->getVec<int>(muonsFlagIDLabel.c_str());
+  for(unsigned int im=0; im<muonsLVec.size(); im++){
+    if(AnaFunctions::passMuon(muonsLVec[im], muonsRelIso[im], muonsMtw[im], muonsFlagID[im], AnaConsts::muonsMiniIsoArr))
+      vMuons->push_back(muonsLVec.at(im));
+  }
+
+  const std::vector<TLorentzVector> &electronsLVec = tr->getVec<TLorentzVector>("elesLVec");
+  const std::vector<double> &electronsRelIso      = tr->getVec<double>("elesMiniIso");
+  const std::vector<double> &electronsMtw         = tr->getVec<double>("elesMtw");
+  const std::vector<unsigned int> &isEBVec        = tr->getVec<unsigned int>("elesisEB");
+  const std::vector<int> &electronsFlagID         = tr->getVec<int>(elesFlagIDLabel.c_str());
+
+  for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
+    if(AnaFunctions::passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], isEBVec[ie], electronsFlagID[ie], AnaConsts::elesMiniIsoArr)) 
+      vEles->push_back(electronsLVec.at(ie));
+  }
+
+  tr->registerDerivedVec("cutMuVec"+firstSpec, vMuons);
+  tr->registerDerivedVec("cutEleVec"+firstSpec, vEles);
+
+  return true;
+}       // -----  end of function BaselineVessel::GetLeptons  -----
 
 //**************************************************************************//
 //                                 CleanJets                                //
