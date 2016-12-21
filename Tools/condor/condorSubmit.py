@@ -10,7 +10,7 @@ Executable = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goMakePlots.sh
 Requirements = OpSys == "LINUX"&& (Arch != "DUMMY" )
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/basicCheck, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goMakePlots.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so
+Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/basicCheck, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goMakePlots.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/TopTagger.cfg, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/TrainingOutput_dR20_pt30_depth14_2016_Dec2.model, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/Legacy_TopTagger.cfg
 notify_user = ${LOGNAME}@FNAL.GOV
 x509userproxy = $ENV(X509_USER_PROXY)
 
@@ -60,7 +60,7 @@ for ds in datasets:
                 if '.root' in l and not 'failed' in l:
                     count = count + 1
             for startFileNum in xrange(0, count, nFilesPerJob):
-                fileParts.append("Arguments = %s $ENV(CMSSW_BASE) %i %i %f %s\n"%(n, nFilesPerJob, startFileNum, lumi, s))
+                fileParts.append("Arguments = %s $ENV(CMSSW_BASE) %i %i %f %s %s\n"%(n, nFilesPerJob, startFileNum, lumi, s, ds))
                 fileParts.append("Output = logs/basicCheck_%s_%i.stdout\n"%(n, startFileNum/nFilesPerJob))
                 fileParts.append("Error = logs/basicCheck_%s_%i.stderr\n"%(n, startFileNum/nFilesPerJob))
                 fileParts.append("Log = logs/basicCheck_%s_%i.log\n"%(n, startFileNum/nFilesPerJob))
