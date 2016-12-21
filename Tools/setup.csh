@@ -73,4 +73,4 @@ endif
 ##Checkout latest toptagger cfg file 
 
 mkdir -p $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Medium_v1.0.0 -d $TAGGERCFGDIR
+${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_v1.1.1 -d $TAGGERCFGDIR

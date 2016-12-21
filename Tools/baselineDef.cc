@@ -566,17 +566,31 @@ double BaselineVessel::CalcMT2() const
   {
     fatJet1LVec = Ntop.at(0)->P();
     fatJet2LVec = ttr.getRsys().P();
+     
+    return coreMT2calc(fatJet1LVec, fatJet2LVec);
   }
 
   if (Ntop.size() >= 2)
   {
-    fatJet1LVec = Ntop.at(0)->P();
-    fatJet2LVec = Ntop.at(1)->P();
+    std::vector<double> cachedMT2vec;
+    for(unsigned int it=0; it<Ntop.size(); it++)
+    {
+       for(unsigned int jt=it+1; jt<Ntop.size(); jt++)
+       {
+          cachedMT2vec.push_back(coreMT2calc(Ntop.at(it)->P(), Ntop.at(jt)->P()));
+       } 
+    }
+    std::sort(cachedMT2vec.begin(), cachedMT2vec.end());
+
+    return cachedMT2vec.front();
+//    return cachedMT2vec.back();
   }
 
+  return 0.0;
+}
 
-
-
+double BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLorentzVector & fatJet2LVec) const
+{
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Calc MT2 from old top tagger ~~~~~
   // For this example we will use the "Basic_Mt2_332_Calculator" which is
