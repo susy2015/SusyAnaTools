@@ -244,7 +244,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         int nbJetsCopy_TMP = nbJets, nTopsCopy_TMP = nTops, nJetsCopy_TMP = nJets;
         if( nbJetsCopy_TMP >=4 ) nbJetsCopy_TMP = 4; if( nTopsCopy_TMP >=4 ) nTopsCopy_TMP = 4; if( nJetsCopy_TMP >= 14 ) nJetsCopy_TMP = 14;
 
-        const int searchBinIdx = sb->find_Binning_Index(nbJets, nTops, MT2, met);
+        const int searchBinIdx = sb->find_Binning_Index(nbJets, nTops, MT2, met, HT);
 
         int cnt_eleTop =0, cnt_muTop =0, cnt_taumuTop =0, cnt_taueleTop =0, cnt_tauhadTop =0, cnt_allhadTop =0;
         int cnt_genTops =0;
@@ -1060,7 +1060,7 @@ void basicCheck(int argc, char *argv[]){
             double med_MT2 = MT2_hi ==-1? MT2_lo+5 : (MT2_lo+MT2_hi)/2.0;
             double med_met = met_hi ==-1? met_lo+5 : (met_lo+met_hi)/2.0;
 
-            double idxBin = sb->find_Binning_Index(ib, it, MT2_lo, met_lo);
+            double idxBin = sb->find_Binning_Index(ib, it, MT2_lo, met_lo, MT2_lo);
             if( idxBin ==0 ) idxBin = 0.1;
             int idxPoly = h2_poly_MT2_vs_metVec[iSR].back()->FindBin(med_met, med_MT2);
 
