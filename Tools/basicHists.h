@@ -26,7 +26,7 @@ const std::string disStr_nbJets_SR[] = {  "=1",  "=2", "#geq3",  "=1",  "=2", "#
 
 const int nSR = sizeof(nTops_SR_lo)/sizeof(nTops_SR_lo[0]);
 
-const double max_MT2_for_binEdge = 450, max_met_for_binEdge = 800;
+const double max_MT2_for_binEdge = 2000, max_met_for_binEdge = 1000;
 const double max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25;
 const double pseudoMax_MT2_for_hist = max_MT2_for_binEdge + 100, pseudoMax_met_for_hist = max_met_for_binEdge + 50;
 
@@ -39,6 +39,7 @@ std::vector<TH1D*> h1_cutFlowVec, h1_cutFlow_auxVec, h1_cutFlow_miscVec;
 TH1D * h1_keyString =0;
 
 std::vector<TH2D*> h2_evtCnt_nbJets_vs_nTopsVec;
+std::vector<TH2D*> h2_evtCnt_nbJets_vs_nTops_Rsys_no_bVec, h2_evtCnt_nbJets_vs_nTops_Rsys_wt_bVec;
 
 std::vector<std::string> declaredSampleStrVec;
 std::vector<std::vector<TH2Poly*> > h2_poly_MT2_vs_metVec;
@@ -99,6 +100,11 @@ std::vector<TH2D*> h2_MT2_vs_met_baselineVec;
 std::vector<TH2D*> h2_MT2_vs_met_looseVec, h2_alt_MT2_vs_met_looseVec, h2_MT2_vs_alt_MT2_looseVec;
 
 std::vector<TH1D*> h1_mtw_looseVec, h1_mtw_baselineVec;
+
+std::vector<TH1D*> h1_genJetPtVec, h1_genJetPt_mergeWVec, h1_genJetPt_mergeTopVec;
+std::vector<TH1D*> h1_recoJetPtVec, h1_recoJetPt_mergeWVec, h1_recoJetPt_mergeTopVec;
+
+std::vector<TH1D*> h1_mvaDiscVec;
 
 void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, const std::vector<std::vector<std::vector<double> > > & out_MT2_met_Binning_forTH2Poly){
 
@@ -261,6 +267,8 @@ void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, c
   TH2D * h2_MT2_vs_alt_MT2_loose = new TH2D(sampleKeyStringT+"_h2_MT2_vs_alt_MT2_loose", sampleKeyStringT+": MT2 versus alternative MT2 after loose; alt MT2 [GeV]; MT2 [GeV]", 100,   0, 1000, 100,   0, 1000); h2_MT2_vs_alt_MT2_loose->Sumw2(); h2_MT2_vs_alt_MT2_looseVec.push_back((TH2D*)h2_MT2_vs_alt_MT2_loose->Clone());
 
   TH2D * h2_evtCnt_nbJets_vs_nTops = new TH2D(sampleKeyStringT+"_h2_evtCnt_nbJets_vs_nTops", sampleKeyStringT+": event counts nbJets versus nTops; nTops; nbJets", 4, 0, 4, 3, 1, 4); h2_evtCnt_nbJets_vs_nTops->Sumw2(); h2_evtCnt_nbJets_vs_nTopsVec.push_back((TH2D*) h2_evtCnt_nbJets_vs_nTops->Clone());
+  TH2D * h2_evtCnt_nbJets_vs_nTops_Rsys_no_b = new TH2D(sampleKeyStringT+"_h2_evtCnt_nbJets_vs_nTops_Rsys_no_b", sampleKeyStringT+": event counts nbJets versus nTops_Rsys_no_b; nTops_Rsys_no_b; nbJets", 4, 0, 4, 3, 1, 4); h2_evtCnt_nbJets_vs_nTops_Rsys_no_b->Sumw2(); h2_evtCnt_nbJets_vs_nTops_Rsys_no_bVec.push_back((TH2D*) h2_evtCnt_nbJets_vs_nTops_Rsys_no_b->Clone());
+  TH2D * h2_evtCnt_nbJets_vs_nTops_Rsys_wt_b = new TH2D(sampleKeyStringT+"_h2_evtCnt_nbJets_vs_nTops_Rsys_wt_b", sampleKeyStringT+": event counts nbJets versus nTops_Rsys_wt_b; nTops_Rsys_wt_b; nbJets", 4, 0, 4, 3, 1, 4); h2_evtCnt_nbJets_vs_nTops_Rsys_wt_b->Sumw2(); h2_evtCnt_nbJets_vs_nTops_Rsys_wt_bVec.push_back((TH2D*) h2_evtCnt_nbJets_vs_nTops_Rsys_wt_b->Clone());
 
   TH2D * h2_nbJets_vs_nJets = new TH2D(sampleKeyStringT+"_h2_nbJets_vs_nJets", sampleKeyStringT+": nbJets versus nJets; nJets; nbJets", 10, 4, 14, 4, 1, 5); h2_nbJets_vs_nJets->Sumw2(); h2_nbJets_vs_nJetsVec.push_back((TH2D*) h2_nbJets_vs_nJets->Clone());
   TH2D * h2_nTops_vs_nJets = new TH2D(sampleKeyStringT+"_h2_nTops_vs_nJets", sampleKeyStringT+": nTops versus nJets; nJets; nTops", 10, 4, 14, 5, 0, 5); h2_nTops_vs_nJets->Sumw2(); h2_nTops_vs_nJetsVec.push_back((TH2D*) h2_nTops_vs_nJets->Clone());
@@ -270,6 +278,16 @@ void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, c
   TH2D * h2_nTops_vs_nJets_baseline = new TH2D(sampleKeyStringT+"_h2_nTops_vs_nJets_baseline", sampleKeyStringT+": nTops versus nJets after baseline; nJets; nTops", 10, 4, 14, 5, 0, 5); h2_nTops_vs_nJets_baseline->Sumw2(); h2_nTops_vs_nJets_baselineVec.push_back((TH2D*) h2_nTops_vs_nJets_baseline->Clone());
   TH2D * h2_nTops_vs_nbJets_baseline = new TH2D(sampleKeyStringT+"_h2_nTops_vs_nbJets_baseline", sampleKeyStringT+": nTops versus nbJets after baseline; nbJets; nTops", 4, 1, 5, 5, 0, 5); h2_nTops_vs_nbJets_baseline->Sumw2(); h2_nTops_vs_nbJets_baselineVec.push_back((TH2D*) h2_nTops_vs_nbJets_baseline->Clone());
 
+  TH1D * h1_genJetPt = new TH1D(sampleKeyStringT+"_h1_genJetPt", sampleKeyStringT+": genJetPt; genJetPt [GeV]", 100, 0, 1000); h1_genJetPt->Sumw2(); h1_genJetPtVec.push_back((TH1D*)h1_genJetPt->Clone());
+  TH1D * h1_genJetPt_mergeW = new TH1D(sampleKeyStringT+"_h1_genJetPt_mergeW", sampleKeyStringT+": genJetPt_mergeW; genJetPt_mergeW [GeV]", 100, 0, 1000); h1_genJetPt_mergeW->Sumw2(); h1_genJetPt_mergeWVec.push_back((TH1D*)h1_genJetPt_mergeW->Clone());
+  TH1D * h1_genJetPt_mergeTop = new TH1D(sampleKeyStringT+"_h1_genJetPt_mergeTop", sampleKeyStringT+": genJetPt_mergeTop; genJetPt_mergeTop [GeV]", 100, 0, 1000); h1_genJetPt_mergeTop->Sumw2(); h1_genJetPt_mergeTopVec.push_back((TH1D*)h1_genJetPt_mergeTop->Clone());
+
+  TH1D * h1_recoJetPt = new TH1D(sampleKeyStringT+"_h1_recoJetPt", sampleKeyStringT+": recoJetPt; recoJetPt [GeV]", 100, 0, 1000); h1_recoJetPt->Sumw2(); h1_recoJetPtVec.push_back((TH1D*)h1_recoJetPt->Clone());
+  TH1D * h1_recoJetPt_mergeW = new TH1D(sampleKeyStringT+"_h1_recoJetPt_mergeW", sampleKeyStringT+": recoJetPt_mergeW; recoJetPt_mergeW [GeV]", 100, 0, 1000); h1_recoJetPt_mergeW->Sumw2(); h1_recoJetPt_mergeWVec.push_back((TH1D*)h1_recoJetPt_mergeW->Clone());
+  TH1D * h1_recoJetPt_mergeTop = new TH1D(sampleKeyStringT+"_h1_recoJetPt_mergeTop", sampleKeyStringT+": recoJetPt_mergeTop; recoJetPt_mergeTop [GeV]", 100, 0, 1000); h1_recoJetPt_mergeTop->Sumw2(); h1_recoJetPt_mergeTopVec.push_back((TH1D*)h1_recoJetPt_mergeTop->Clone());
+
+  TH1D * h1_mvaDisc = new TH1D(sampleKeyStringT+"_h1_mvaDisc", sampleKeyStringT+": mva discriminator; mvaDisc", 100, 0, 1.0); h1_mvaDisc->Sumw2(); h1_mvaDiscVec.push_back((TH1D*)h1_mvaDisc->Clone());
+
   bool isDeclared = false;
   if( std::find(declaredSampleStrVec.begin(), declaredSampleStrVec.end(), sampleKeyStringT.Data()) != declaredSampleStrVec.end() ) isDeclared = true;
   else{ declaredSampleStrVec.push_back(sampleKeyString); }
@@ -278,7 +296,7 @@ void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, c
      std::vector<TH2Poly*> h2_PS_poly_MT2_vs_metVec;
      sprintf(names, "%s_h2_poly_MT2_vs_met_nbJets%s_nTops%s", sampleKeyStringT.Data(), keyStr_nbJets_SR[iSR].c_str(), keyStr_nTops_SR[iSR].c_str());
      sprintf(dispt, "%s: MT2 versus met for nbJets%s and nTops%s; met [GeV]; MT2 [GeV]", sampleKeyStringT.Data(), disStr_nbJets_SR[iSR].c_str(), disStr_nTops_SR[iSR].c_str());
-     TH2Poly * h2_poly_MT2_vs_met = new TH2Poly(names, dispt, 200, pseudoMax_met_for_hist, 200, pseudoMax_MT2_for_hist);
+     TH2Poly * h2_poly_MT2_vs_met = new TH2Poly(names, dispt, 250, pseudoMax_met_for_hist, 200, pseudoMax_MT2_for_hist);
      h2_poly_MT2_vs_met->SetName(names); h2_poly_MT2_vs_met->SetTitle(dispt);
      for(unsigned int ib=0; ib<out_MT2_met_Binning_forTH2Poly[iSR].size(); ib++){ h2_poly_MT2_vs_met->AddBin(out_MT2_met_Binning_forTH2Poly[iSR][ib][0], out_MT2_met_Binning_forTH2Poly[iSR][ib][1], out_MT2_met_Binning_forTH2Poly[iSR][ib][2], out_MT2_met_Binning_forTH2Poly[iSR][ib][3]); }
      h2_poly_MT2_vs_met->Sumw2();
