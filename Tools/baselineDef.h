@@ -85,6 +85,7 @@ public:
     std::shared_ptr<TopTagger> GetTopTaggerPtr() const {return ttPtr;};
     int GetnTops() const;
     double CalcMT2() const;
+    double coreMT2calc(const TLorentzVector & fatJet1LVec, const TLorentzVector & fatJet2LVec) const;
 };
 
 inline void passBaselineFunc(NTupleReader &tr, std::string filterstring)
