@@ -79,6 +79,7 @@ public:
     bool SetupTopTagger(bool UseNewTagger_ = true, std::string CfgFile_ = "TopTagger.cfg");
     bool PassTopTagger();
     bool GetMHT() const;
+    bool GetLeptons() const;
     void prepareTopTagger();
     std::shared_ptr<topTagger::type3TopTagger> GetType3Ptr() const {return type3Ptr;};
     std::shared_ptr<TopTagger> GetTopTaggerPtr() const {return ttPtr;};
