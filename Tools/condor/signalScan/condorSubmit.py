@@ -10,7 +10,7 @@ Executable = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/signalScan/goScan.sh
 Requirements = OpSys == "LINUX"&& (Arch != "DUMMY" )
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/signalScan, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/signalScan/goScan.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/data/SMS-T1tttt_2016_bTagEff.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/data/SMS-T2tt_mStop-400to1200_bTagEff.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSVFiles/CSV_13TEV_Combined_14_7_2016.csv, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSVFiles/CSVv2_ichep.csv, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/ISR_Root_Files/ISRWeights.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/ISR_Root_Files/Signal_fastsim_T1tttt_scan_ISR.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/ISR_Root_Files/Signal_fastsim_T2tt_scan_ISR.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/ISR_Root_Files/Signal_fastsim_T5ttcc_scan_ISR.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/LeptonSF_Root_Files/allINone_leptonSF.root
+Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/signalScan, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/signalScan/goScan.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/data/SMS-T1tttt_2016_bTagEff.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/data/SMS-T2tt_mStop-400to1200_bTagEff.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSVFiles/CSV_13TEV_Combined_14_7_2016.csv, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/CSVFiles/CSVv2_ichep.csv, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/ISR_Root_Files/ISRWeights.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/ISR_Root_Files/Signal_fastsim_T1tttt_scan_ISR.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/ISR_Root_Files/Signal_fastsim_T2tt_scan_ISR.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/ISR_Root_Files/Signal_fastsim_T5ttcc_scan_ISR.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/LeptonSF_Root_Files/allINone_leptonSF.root, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/TopTagger.cfg, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/TrainingOutput_dR20_pt30_depth14_2016_Dec2.model
 notify_user = ${LOGNAME}@FNAL.GOV
 x509userproxy = $ENV(X509_USER_PROXY)
 
@@ -60,7 +60,7 @@ for ds in datasets:
                 if '.root' in l and not 'failed' in l:
                     count = count + 1
             for startFileNum in xrange(0, count, nFilesPerJob):
-                fileParts.append("Arguments = %s $ENV(CMSSW_BASE) %i %i %f %s\n"%(n, nFilesPerJob, startFileNum, lumi, s))
+                fileParts.append("Arguments = %s $ENV(CMSSW_BASE) %i %i %f %s %s\n"%(n, nFilesPerJob, startFileNum, lumi, s, ds))
                 fileParts.append("Output = logs/basicCheck_%s_%i.stdout\n"%(n, startFileNum/nFilesPerJob))
                 fileParts.append("Error = logs/basicCheck_%s_%i.stderr\n"%(n, startFileNum/nFilesPerJob))
                 fileParts.append("Log = logs/basicCheck_%s_%i.log\n"%(n, startFileNum/nFilesPerJob))

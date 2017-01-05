@@ -67,18 +67,17 @@ std::vector<int> cached_sampleColorVec;
 
 TH1D * h1_searchBinYields_topW = 0, * h1_searchBinYields_HadTau_topW = 0, * h1_searchBinYields_LostLep_topW = 0, * h1_searchBinYields_Overlap_topW = 0; 
 
-void makeCombPlots(const std::string cutLev="baseline", const std::string datatype="HTMHT"){
+void makeCombPlots(const std::string cutLev="baseline", const std::string datatype="MET"){
 
    double dataLumi = 0;
 
    std::string colName = "Data_"+datatype;
    for(const auto & file : allCollections[colName]) dataLumi += file.lumi;
-//   dataLumi = 2153.736;
-//   dataLumi = 10000.0;
-   dataLumi = 5926.7518 + 2646.1215 + 4329.5899;
+   dataLumi = 36352.970569733;
    double scaleMCtoData = dataLumi/AnaSamples::luminosity;
    std::cout<<"\ndataLumi : "<<dataLumi<<"  mc assumed lumi : "<<AnaSamples::luminosity<<"  scaleMCtoData : "<<scaleMCtoData<<std::endl<<std::endl;
 
+   std::cout<<"Processing TTbarNoHad ... "<<std::endl;
    TFile * TTbar_file = new TFile("basicCheck_TTbarNoHad.root");
    TH1D * TTbar_h1_keyString = (TH1D*) TTbar_file->Get("h1_keyString"); TTbar_h1_keyString->LabelsDeflate();
    std::string TTbar_sampleKey = "TTbar"; int TTbar_color = allCollections[TTbar_sampleKey].front().color;
@@ -89,7 +88,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
       for(unsigned int ib=0; ib<TTbar_h1_keyString->GetXaxis()->GetNbins(); ib++){
          std::string per_sampleKey = TTbar_h1_keyString->GetXaxis()->GetBinLabel(ib+1);
          std::string hfullname = per_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-         if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+         if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
             hfullname = per_sampleKey+"_h1_"+todraw_h1_keyStrVec[is];
          }
          if( ib== 0 ) tmpHist = (TH1D*)TTbar_file->Get(hfullname.c_str());
@@ -105,20 +104,21 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
 /*
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = TTbar_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = TTbar_sampleKey+"_h1_"+todraw_h1_keyStrVec[is];
       }
       cached_h1Vec[is].push_back((TH1D*)TTbar_file->Get(hfullname.c_str()));
    }
 */    
 
+   std::cout<<"Processing WJetstoLNu ... "<<std::endl;
    TFile * WJetsToLNu_file = new TFile("basicCheck_WJetsToLNu.root");
    TH1D * WJetsToLNu_h1_keyString = (TH1D*) WJetsToLNu_file->Get("h1_keyString"); WJetsToLNu_h1_keyString->LabelsDeflate();
    std::string WJetsToLNu_sampleKey = WJetsToLNu_h1_keyString->GetXaxis()->GetBinLabel(1); int WJetsToLNu_color = allCollections[WJetsToLNu_sampleKey].front().color;
    cached_sampleStrVec.push_back(WJetsToLNu_sampleKey); cached_sampleColorVec.push_back(WJetsToLNu_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = WJetsToLNu_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = WJetsToLNu_sampleKey+"_h1_"+todraw_h1_keyStrVec[is];
       }
       cached_h1Vec[is].push_back((TH1D*)WJetsToLNu_file->Get(hfullname.c_str()));
@@ -129,13 +129,14 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
    h1_searchBinYields_LostLep_topW->Add((TH1D*)WJetsToLNu_file->Get("WJetsToLNu_h1_searchBinYields_LostLep"));
    h1_searchBinYields_Overlap_topW->Add((TH1D*)WJetsToLNu_file->Get("WJetsToLNu_h1_searchBinYields_Overlap"));
 
+   std::cout<<"Processing tW ... "<<std::endl;
    TFile * tW_file = new TFile("basicCheck_tW.root");
    TH1D * tW_h1_keyString = (TH1D*) tW_file->Get("h1_keyString"); tW_h1_keyString->LabelsDeflate();
    std::string tW_sampleKey = tW_h1_keyString->GetXaxis()->GetBinLabel(1); int tW_color = allCollections[tW_sampleKey].front().color;
    cached_sampleStrVec.push_back(tW_sampleKey); cached_sampleColorVec.push_back(tW_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = tW_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = tW_sampleKey+"_h1_"+todraw_h1_keyStrVec[is];
       }
       cached_h1Vec[is].push_back((TH1D*)tW_file->Get(hfullname.c_str()));
@@ -146,42 +147,46 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
    h1_searchBinYields_LostLep_topW->Add((TH1D*)tW_file->Get("tW_h1_searchBinYields_LostLep"));
    h1_searchBinYields_Overlap_topW->Add((TH1D*)tW_file->Get("tW_h1_searchBinYields_Overlap"));
 
+   std::cout<<"Processing ZJetsToNuNu ... "<<std::endl;
    TFile * ZJetsToNuNu_file = new TFile("basicCheck_ZJetsToNuNu.root");
    TH1D * ZJetsToNuNu_h1_keyString = (TH1D*) ZJetsToNuNu_file->Get("h1_keyString"); ZJetsToNuNu_h1_keyString->LabelsDeflate();
    std::string ZJetsToNuNu_sampleKey = ZJetsToNuNu_h1_keyString->GetXaxis()->GetBinLabel(1); int ZJetsToNuNu_color = allCollections[ZJetsToNuNu_sampleKey].front().color;
    cached_sampleStrVec.push_back(ZJetsToNuNu_sampleKey); cached_sampleColorVec.push_back(ZJetsToNuNu_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = ZJetsToNuNu_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = ZJetsToNuNu_sampleKey+"_h1_"+todraw_h1_keyStrVec[is];
       }
       cached_h1Vec[is].push_back((TH1D*)ZJetsToNuNu_file->Get(hfullname.c_str()));
    }
     
+   std::cout<<"Processing QCD ... "<<std::endl;
    TFile * QCD_file = new TFile("basicCheck_QCD.root");
    TH1D * QCD_h1_keyString = (TH1D*) QCD_file->Get("h1_keyString"); QCD_h1_keyString->LabelsDeflate();
    std::string QCD_sampleKey = QCD_h1_keyString->GetXaxis()->GetBinLabel(1); int QCD_color = allCollections[QCD_sampleKey].front().color;
    cached_sampleStrVec.push_back(QCD_sampleKey); cached_sampleColorVec.push_back(QCD_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = QCD_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = QCD_sampleKey+"_h1_"+todraw_h1_keyStrVec[is];
       }
       cached_h1Vec[is].push_back((TH1D*)QCD_file->Get(hfullname.c_str()));
    }
     
+   std::cout<<"Processing TTZ ... "<<std::endl;
    TFile * TTZ_file = new TFile("basicCheck_TTZ.root");
    TH1D * TTZ_h1_keyString = (TH1D*) TTZ_file->Get("h1_keyString"); TTZ_h1_keyString->LabelsDeflate();
    std::string TTZ_sampleKey = TTZ_h1_keyString->GetXaxis()->GetBinLabel(1); int TTZ_color = allCollections[TTZ_sampleKey].front().color;
    cached_sampleStrVec.push_back(TTZ_sampleKey); cached_sampleColorVec.push_back(TTZ_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = TTZ_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = TTZ_sampleKey+"_h1_"+todraw_h1_keyStrVec[is];
       }
       cached_h1Vec[is].push_back((TH1D*)TTZ_file->Get(hfullname.c_str()));
    }
     
+   std::cout<<"Processing TTW ... "<<std::endl;
    TFile * TTW_file = new TFile("basicCheck_TTW.root");
    TH1D * TTW_h1_keyString = (TH1D*) TTW_file->Get("h1_keyString"); TTW_h1_keyString->LabelsDeflate();
    std::string TTW_sampleKey = TTW_h1_keyString->GetXaxis()->GetBinLabel(1); int TTW_color = allCollections[TTW_sampleKey].front().color;
@@ -189,12 +194,13 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
    cached_sampleStrVec.push_back("rare"); cached_sampleColorVec.push_back(TTW_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = TTW_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = TTW_sampleKey+"_h1_"+todraw_h1_keyStrVec[is];
       }
       cached_h1Vec[is].push_back((TH1D*)TTW_file->Get(hfullname.c_str()));
    }
     
+   std::cout<<"Processing Diboson ... "<<std::endl;
 // Summed to TTW
    TFile * Diboson_file = new TFile("basicCheck_Diboson.root");
    TH1D * Diboson_h1_keyString = (TH1D*) Diboson_file->Get("h1_keyString"); Diboson_h1_keyString->LabelsDeflate();
@@ -202,13 +208,14 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
 //   cached_sampleStrVec.push_back(Diboson_sampleKey); cached_sampleColorVec.push_back(Diboson_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = Diboson_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = Diboson_sampleKey+"_h1_"+todraw_h1_keyStrVec[is];
       }
 //      cached_h1Vec[is].push_back((TH1D*)Diboson_file->Get(hfullname.c_str()));
       cached_h1Vec[is].back()->Add((TH1D*)Diboson_file->Get(hfullname.c_str()));
    }
 
+   std::cout<<"Processing Triboson ... "<<std::endl;
 // Summed to TTW    
    TFile * Triboson_file = new TFile("basicCheck_Triboson.root");
    TH1D * Triboson_h1_keyString = (TH1D*) Triboson_file->Get("h1_keyString"); Triboson_h1_keyString->LabelsDeflate();
@@ -216,7 +223,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
 //   cached_sampleStrVec.push_back(Triboson_sampleKey); cached_sampleColorVec.push_back(Triboson_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = Triboson_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = Triboson_sampleKey+"_h1_"+todraw_h1_keyStrVec[is];
       }
 //      cached_h1Vec[is].push_back((TH1D*)Triboson_file->Get(hfullname.c_str()));
@@ -233,6 +240,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
       cached_h1Vec[is].push_back((TH1D*)TTX_file->Get(hfullname.c_str()));
    }
 */
+   std::cout<<"Processing Data ... "<<std::endl;
    std::string dataFileName = "basicCheck_Data_"+datatype+".root";
    TFile * Data_HTMHT25ns_file = new TFile(dataFileName.c_str());
    TH1D * Data_HTMHT25ns_h1_keyString = (TH1D*) Data_HTMHT25ns_file->Get("h1_keyString"); Data_HTMHT25ns_h1_keyString->LabelsDeflate();
@@ -240,12 +248,14 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
    cached_sampleStrVec.push_back(Data_HTMHT25ns_sampleKey); cached_sampleColorVec.push_back(Data_HTMHT25ns_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = Data_HTMHT25ns_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = Data_HTMHT25ns_sampleKey+"_h1_"+todraw_h1_keyStrVec[is];
       }
       cached_h1Vec[is].push_back((TH1D*)Data_HTMHT25ns_file->Get(hfullname.c_str()));
    }
+   cached_sampleStrVec.back() = "Data";
 
+   std::cout<<"Processing Signal ... "<<std::endl;
 // Signals
    TFile * signal_T2tt_mStop850_mLSP100_file = new TFile("basicCheck_Signal_T2tt_mStop850_mLSP100.root");
    TH1D * signal_T2tt_mStop850_mLSP100_h1_keyString = (TH1D*) signal_T2tt_mStop850_mLSP100_file->Get("h1_keyString"); signal_T2tt_mStop850_mLSP100_h1_keyString->LabelsDeflate();
@@ -253,7 +263,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
    cached_sampleStrVec.push_back(signal_T2tt_mStop850_mLSP100_sampleKey); cached_sampleColorVec.push_back(signal_T2tt_mStop850_mLSP100_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = signal_T2tt_mStop850_mLSP100_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = signal_T2tt_mStop850_mLSP100_sampleKey + "_h1_" + todraw_h1_keyStrVec[is]; 
       }
       cached_h1Vec[is].push_back((TH1D*)signal_T2tt_mStop850_mLSP100_file->Get(hfullname.c_str()));
@@ -265,7 +275,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
    cached_sampleStrVec.push_back(signal_T2tt_mStop500_mLSP325_sampleKey); cached_sampleColorVec.push_back(signal_T2tt_mStop500_mLSP325_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = signal_T2tt_mStop500_mLSP325_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = signal_T2tt_mStop500_mLSP325_sampleKey + "_h1_" + todraw_h1_keyStrVec[is]; 
       }
       cached_h1Vec[is].push_back((TH1D*)signal_T2tt_mStop500_mLSP325_file->Get(hfullname.c_str()));
@@ -278,7 +288,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
    cached_sampleStrVec.push_back(signal_T1tttt_mGluino1500_mLSP100_sampleKey); cached_sampleColorVec.push_back(signal_T1tttt_mGluino1500_mLSP100_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = signal_T1tttt_mGluino1500_mLSP100_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = signal_T1tttt_mGluino1500_mLSP100_sampleKey + "_h1_" + todraw_h1_keyStrVec[is]; 
       }
       cached_h1Vec[is].push_back((TH1D*)signal_T1tttt_mGluino1500_mLSP100_file->Get(hfullname.c_str()));
@@ -291,7 +301,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
    cached_sampleStrVec.push_back(signal_T1tttt_mGluino1200_mLSP800_sampleKey); cached_sampleColorVec.push_back(signal_T1tttt_mGluino1200_mLSP800_color);
    for(unsigned int is=0; is<todraw_h1_keyStrVec.size(); is++){
       std::string hfullname = signal_T1tttt_mGluino1200_mLSP800_sampleKey+"_h1_"+todraw_h1_keyStrVec[is]+"_"+cutLev;
-      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is] == "searchBinYields" ){
+      if( todraw_h1_keyStrVec[is]=="cutFlow" || todraw_h1_keyStrVec[is].find("searchBinYields") != std::string::npos ){
          hfullname = signal_T1tttt_mGluino1200_mLSP800_sampleKey + "_h1_" + todraw_h1_keyStrVec[is]; 
       }
       cached_h1Vec[is].push_back((TH1D*)signal_T1tttt_mGluino1200_mLSP800_file->Get(hfullname.c_str()));
@@ -367,6 +377,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
 
    tdrStyle->SetTitleXOffset(5.50); tdrStyle->SetTitleYOffset(6.50);
 
+   std::cout<<"Processing Yields ... "<<std::endl;
 // tmp_hs_sum_nJets used for auto scale
    double scaleToSameYield = 1.0;
    for(unsigned int ip=0; ip<todraw_h1_keyStrVec.size(); ip++){
@@ -399,17 +410,26 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
 // Search bin yields print out
    int idxSB = -1;
    for(unsigned int ik=0; ik<todraw_h1_keyStrVec.size(); ik++){
-      if( todraw_h1_keyStrVec[ik] == "searchBinYields" ) idxSB = (int) ik;
+      if( todraw_h1_keyStrVec[ik].find("searchBinYields") != std::string::npos ) idxSB = (int) ik;
    }
 
    std::cout<<"\nSearch bin yields : "<<std::endl;
-   std::cout<<"  "<<std::endl;
+   std::cout<<"\nbinIdx &";
    for(unsigned int is=0; is<cached_sampleStrVec.size(); is++){
-      printf("  %20s", cached_sampleStrVec[is].c_str());
+      if( cached_sampleStrVec[is] == "Data") continue;
+      if( cached_sampleStrVec[is].find("Signal") != std::string::npos ){
+         if( cached_sampleStrVec[is] == "Signal_T2tt_mStop850_mLSP100" ) printf("  %20s &", "T2tt(850,100)"); 
+         if( cached_sampleStrVec[is] == "Signal_T2tt_mStop500_mLSP325" ) printf("  %20s &", "T2tt(500,325)"); 
+         if( cached_sampleStrVec[is] == "Signal_T1tttt_mGluino1500_mLSP100" ) printf("  %20s &", "T1tttt(1500,100)"); 
+         if( cached_sampleStrVec[is] == "Signal_T1tttt_mGluino1200_mLSP800" ) printf("  %20s ", "T1tttt(1200,800)"); 
+      }else{
+         printf("  %20s &", cached_sampleStrVec[is].c_str());
+         if( cached_sampleStrVec[is] == "rare" ) printf("  %20s &", "sumSM");
+      }
    }
-   printf("  %20s\n", "sumSM");
+   printf("\\\\\n");
    for(unsigned int ib=0; ib<cached_h1Vec[idxSB][0]->GetXaxis()->GetNbins(); ib++){
-      printf("%2d", ib);
+      printf("%2d & ", ib);
       double sumSM = 0, sumSMerr = 0;
       for(unsigned int is=0; is<cached_h1Vec[idxSB].size(); is++){
          if( cached_sampleStrVec[is].find("Data") == std::string::npos && cached_sampleStrVec[is].find("Signal") == std::string::npos ){
@@ -421,12 +441,20 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
 
       for(unsigned int is=0; is<cached_h1Vec[idxSB].size(); is++){
          if( cached_sampleStrVec[is].find("Data") != std::string::npos ){
-            printf("  %6.3f +- %5.3f", cached_h1Vec[idxSB][is]->GetBinContent(ib+1), cached_h1Vec[idxSB][is]->GetBinError(ib+1));
+            continue;
+            printf("  %6.3f$\\pm$%5.3f &", cached_h1Vec[idxSB][is]->GetBinContent(ib+1), cached_h1Vec[idxSB][is]->GetBinError(ib+1));
          }else{
-            printf("  %6.3f +- %5.3f (%2.0f\%)", cached_h1Vec[idxSB][is]->GetBinContent(ib+1)*scaleMCtoData, cached_h1Vec[idxSB][is]->GetBinError(ib+1)*scaleMCtoData, cached_h1Vec[idxSB][is]->GetBinContent(ib+1)*scaleMCtoData/sumSM*100);
+//            printf("  %6.3f\\pm%5.3f (%2.0f\%)", cached_h1Vec[idxSB][is]->GetBinContent(ib+1)*scaleMCtoData, cached_h1Vec[idxSB][is]->GetBinError(ib+1)*scaleMCtoData, cached_h1Vec[idxSB][is]->GetBinContent(ib+1)*scaleMCtoData/sumSM*100);
+            if( cached_sampleStrVec[is].find("Signal") != std::string::npos ){
+               if( cached_sampleStrVec[is] != "Signal_T1tttt_mGluino1200_mLSP800" ) printf("  %6.3f$\\pm$%5.3f &", cached_h1Vec[idxSB][is]->GetBinContent(ib+1)*scaleMCtoData, cached_h1Vec[idxSB][is]->GetBinError(ib+1)*scaleMCtoData);
+               else printf("  %6.3f$\\pm$%5.3f", cached_h1Vec[idxSB][is]->GetBinContent(ib+1)*scaleMCtoData, cached_h1Vec[idxSB][is]->GetBinError(ib+1)*scaleMCtoData);
+            }else{
+               printf("  %6.3f$\\pm$%5.3f (%2.0f\\%) &", cached_h1Vec[idxSB][is]->GetBinContent(ib+1)*scaleMCtoData, cached_h1Vec[idxSB][is]->GetBinError(ib+1)*scaleMCtoData, cached_h1Vec[idxSB][is]->GetBinContent(ib+1)*scaleMCtoData/sumSM*100);
+               if( cached_sampleStrVec[is] == "rare" ) printf("  %7.3f$\\pm$%7.3f &", sumSM, sumSMerr);
+            }
          }
       }
-      printf("  %7.3f  +- %7.3f", sumSM, sumSMerr);
+      printf(" \\\\");
       std::cout<<std::endl;
    }
    std::cout<<std::endl;
@@ -526,7 +554,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
       pad1->Draw();             // Draw the upper pad: pad1                                                        
       pad1->cd();
 
-      if( todraw_h1_keyStrVec[ip] == "met" || todraw_h1_keyStrVec[ip] == "HT" || todraw_h1_keyStrVec[ip] == "allJetPt" || todraw_h1_keyStrVec[ip] == "leadJetPt" || todraw_h1_keyStrVec[ip] == "muPt" || todraw_h1_keyStrVec[ip] == "searchBinYields" ) 
+      if( todraw_h1_keyStrVec[ip] == "met" || todraw_h1_keyStrVec[ip] == "HT" || todraw_h1_keyStrVec[ip] == "allJetPt" || todraw_h1_keyStrVec[ip] == "leadJetPt" || todraw_h1_keyStrVec[ip] == "muPt" || todraw_h1_keyStrVec[ip].find("searchBinYields") != std::string::npos ) 
       pad1->SetLogy();
       else pad1->SetLogy(0);
 
@@ -548,7 +576,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
          }
 
          tmp_any->Rebin(todraw_h1_rebinVec[ip]);
-         if( todraw_h1_keyStrVec[ip] == "searchBinYields" ) tmp_any->Scale(scaleMCtoData);
+         if( todraw_h1_keyStrVec[ip].find("searchBinYields") != std::string::npos ) tmp_any->Scale(scaleMCtoData);
          else tmp_any->Scale(scaleMCtoData*scaleToSameYield);
          tmp_any->SetFillColor(cached_sampleColorVec[is]); tmp_any->SetLineColor(cached_sampleColorVec[is]); tmp_any->SetMarkerColor(cached_sampleColorVec[is]);
          hs_sum_SM->Add(tmp_any);
@@ -558,8 +586,8 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
       if( todraw_h1_keyStrVec[ip] == "HT" ) tmp_data->GetXaxis()->SetRangeUser(400, tmp_data->GetXaxis()->GetXmax());
       if( todraw_h1_keyStrVec[ip] == "topMass" ) tmp_data->GetXaxis()->SetRangeUser(50, tmp_data->GetXaxis()->GetXmax());
       tmp_data->Draw("");
-//      if( todraw_h1_keyStrVec[ip] == "searchBinYields" ){ tmp_data->SetMaximum(tmp_data->GetMaximum()*10.0); tmp_data->SetMinimum(5e-2); }
-      if( todraw_h1_keyStrVec[ip] == "searchBinYields" ){ tmp_data->SetMaximum(ymax_Yields); tmp_data->SetMinimum(ymin_Yields); }
+//      if( todraw_h1_keyStrVec[ip].find("searchBinYields") != std::string::npos ){ tmp_data->SetMaximum(tmp_data->GetMaximum()*10.0); tmp_data->SetMinimum(5e-2); }
+      if( todraw_h1_keyStrVec[ip].find("searchBinYields") != std::string::npos ){ tmp_data->SetMaximum(ymax_Yields); tmp_data->SetMinimum(ymin_Yields); }
       else tmp_data->SetMaximum(tmp_data->GetMaximum()*2.5);
 
       hs_sum_SM->Draw("hist same");
@@ -571,7 +599,7 @@ void makeCombPlots(const std::string cutLev="baseline", const std::string dataty
 
       pad1->RedrawAxis();
 
-      if( todraw_h1_keyStrVec[ip] == "searchBinYields" ) sb->drawSBregionDef(ymin_Yields, ymax_Yields);
+      if( todraw_h1_keyStrVec[ip].find("searchBinYields") != std::string::npos ) sb->drawSBregionDef(ymin_Yields, ymax_Yields);
 
       catLeg1->SetFillColor(kWhite);
       catLeg1->SetBorderSize(0);
@@ -626,7 +654,7 @@ int main(int argc, char *argv[]){
    sb->print_searchBins();
 
    std::string cutLev = "baseline";
-   std::string datatype = "HTMHT";
+   std::string datatype = "MET";
    if( argc >= 2 ) cutLev = argv[1];
    if( argc >= 3 ) datatype = argv[2];
    std::cout<<"\ncutLev : "<<cutLev.c_str()<<"  datatype : "<<datatype.c_str()<<std::endl;
