@@ -457,6 +457,86 @@ int BaselineVessel::GetnTops() const
   return nTops;
 }       // -----  end of function VarPerEvent::GetnTops  -----
 
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetTopCombs
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetTopCombs() const
+{
+  std::vector<TLorentzVector> *vCombs = new std::vector<TLorentzVector>();
+  std::map<int, std::vector<TLorentzVector> > *vCombJets = new std::map<int, std::vector<TLorentzVector> >();
+
+  if (!UseNewTagger)
+  {
+    for(unsigned int i=0; i < type3Ptr->finalCombfatJets.size(); ++i)
+    {
+      TLorentzVector topLVec = type3Ptr->buildLVec(*jetsLVec_forTagger, type3Ptr->finalCombfatJets.at(i));
+      vCombs->push_back(topLVec);
+
+      std::vector<TLorentzVector> temp;
+      std::vector<int> indexCombVec = type3Ptr->finalCombfatJets.at(i);
+      for (size_t k = 0; k < indexCombVec.size(); ++k)
+      {
+        temp.push_back( jetsLVec_forTagger->at(indexCombVec.at(k)));
+      }
+      vCombJets->insert(std::make_pair(i, temp));
+    }
+  }
+
+  if (UseNewTagger)
+  {
+    //get output of tagger
+    //Only MVA combs so far
+    const TopTaggerResults& ttr = ttPtr->getResults();
+    int i = 0;
+    for(auto tr : ttr.getTopCandidates() )
+    {
+      if (tr.getNConstituents() != 3) continue;
+      vCombs->push_back(tr.P());
+      std::vector<TLorentzVector> temp;
+      for(auto cons : tr.getConstituents())
+      {
+        temp.push_back(cons->P());
+      }
+      vCombJets->insert(std::make_pair(i, temp));
+      i++;
+    }
+
+    // AK8 + Ak4 for W + jet
+    const std::vector<TLorentzVector>  & AK8 = tr->getVec<TLorentzVector>("puppiJetsLVec");
+    for(auto ak8 : AK8)
+    {
+      if (ak8.Pt() < 200 ) continue;
+      for(auto ak4 : *jetsLVec_forTagger)
+      { 
+        if (ak4.Pt() < 80 ) continue; // Tight working point
+        if (ak8.DeltaR(ak4) > 1.0 ) continue; // Tight working point
+        vCombs->push_back(ak4 + ak8);
+        std::vector<TLorentzVector> temp;
+        temp.push_back(ak8);
+        temp.push_back(ak4);
+        vCombJets->insert(std::make_pair(i, temp));
+        i++;
+      }
+    }
+    // Ak8 only for top
+    for(auto ak8 : AK8)
+    {
+      if (ak8.Pt() < 400 ) continue;
+      vCombs->push_back(ak8);
+      std::vector<TLorentzVector> temp;
+      temp.push_back(ak8);
+      vCombJets->insert(std::make_pair(i, temp));
+      i++;
+    }
+  }
+
+  tr->registerDerivedVec("vCombs"+spec, vCombs);
+  tr->registerDerivedVec("mCombJets"+spec, vCombJets);
+
+  return true;
+}       // -----  end of function BaselineVessel::GetTopCombs  -----
+
 bool BaselineVessel::passNoiseEventFilterFunc()
 {
   // According to https://twiki.cern.ch/twiki/bin/view/CMS/SUSRecommendationsICHEP16#Filters_to_be_applied,
@@ -677,6 +757,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassBaseline();
   GetMHT();
   GetLeptons();
+  GetTopCombs();
 }
 
 // ===  FUNCTION  ============================================================
