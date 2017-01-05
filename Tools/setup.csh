@@ -74,3 +74,4 @@ endif
 
 mkdir -p $TAGGERCFGDIR
 ${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_v1.1.1 -d $TAGGERCFGDIR
+${SRC}/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.0 -f Legacy_TopTagger.cfg -d $TAGGERCFGDIR
