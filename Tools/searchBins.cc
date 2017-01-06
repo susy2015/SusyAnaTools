@@ -4,7 +4,7 @@
 #include "TLine.h"
 #include "TLatex.h"
 
-#include <assert.h> 
+#include "SATException.h"
 
 SearchBins::searchBinDef::searchBinDef() : idx_SR_(-1), bJet_lo_(-1), bJet_hi_(-1), top_lo_(-1), top_hi_(-1), met_lo_(-1), met_hi_(-1), MT2_lo_(-1), MT2_hi_(-1)
 {
@@ -171,7 +171,9 @@ int SearchBins::find_Binning_Index(int ibJet, int iTop, double MT2, double met, 
 
 std::vector<int> SearchBins::find_Binning_Indices(int ibJet, int iTop, double MT2, double met) const
 {
-    assert( binEra_.find("2017") == std::string::npos );
+    //assert( binEra_.find("2017") == std::string::npos );
+    if(binEra_.find("2017") != std::string::npos) THROW_SATEXCEPTION("This function is depricated for 2017 results");
+
     std::vector<int> iBins;
     for(int iBin = 0; iBin < searchBins_.size(); ++iBin)
     {
