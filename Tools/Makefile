@@ -72,13 +72,13 @@ nEvts: $(ODIR)/nEvts.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATExcep
 basicCheck: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o $(ODIR)/customize.o
 	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
-makeCombPlots: $(ODIR)/samples.o $(ODIR)/makeCombPlots.o $(ODIR)/searchBins.o
+makeCombPlots: $(ODIR)/samples.o $(ODIR)/SATException.o $(ODIR)/makeCombPlots.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 signalScan: $(ODIR)/baselineDef.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/signalScan.o $(ODIR)/PDFUncertainty.o $(ODIR)/BTagCorrector.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/searchBins.o $(ODIR)/ISRCorrector.o $(ODIR)/customize.o
 	$(LD) $^ $(LIBS) $(MT2LIB) $(LHAPDFLIB) -o $@
 
-makeSignalCards: $(ODIR)/samples.o $(ODIR)/makeSignalCards.o $(ODIR)/searchBins.o
+makeSignalCards: $(ODIR)/samples.o $(ODIR)/SATException.o $(ODIR)/makeSignalCards.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 batchSignalPlots: $(ODIR)/samples.o $(ODIR)/batchSignalPlots.o
@@ -87,7 +87,7 @@ batchSignalPlots: $(ODIR)/samples.o $(ODIR)/batchSignalPlots.o
 makeSignalHistograms: $(ODIR)/baselineDef.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/makeSignalHistograms.o $(ODIR)/searchBins.o $(ODIR)/customize.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
-makeUnblindPlots: $(ODIR)/makeUnblindPlots.o $(ODIR)/searchBins.o
+makeUnblindPlots: $(ODIR)/SATException.o $(ODIR)/makeUnblindPlots.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 #DataMC: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/samples.o $(ODIR)/customize.o $(ODIR)/customize.o $(ODIR)/searchBins.o $(ODIR)/DataMC.o

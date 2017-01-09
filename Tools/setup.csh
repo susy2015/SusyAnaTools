@@ -62,7 +62,7 @@ if (! -f CSVv2_ichep.csv) then
 endif
 
 if (! -f TTbarNoHad_bTagEff.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/TTbarNoHad_bTagEff.root .
+  ln -s ${SRC}/SusyAnaTools/Tools/data/TTbarNoHad_bTagEff.root .
 endif
 
 ## Pileup Reweighting

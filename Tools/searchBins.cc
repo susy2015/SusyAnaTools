@@ -144,7 +144,8 @@ void SearchBins::build_MT2_met_Binning(std::vector<std::vector<std::vector<doubl
 
 int SearchBins::find_Binning_Index(int ibJet, int iTop, double MT2, double met) const
 {
-    assert( binEra_.find("2017") == std::string::npos );
+//    assert( binEra_.find("2017") == std::string::npos );
+    if(binEra_.find("2017") != std::string::npos) THROW_SATEXCEPTION("This function is depricated for 2017 results");
     for(int iBin = 0; iBin < searchBins_.size(); ++iBin)
     {
         if(searchBins_[iBin].compare(ibJet, iTop, MT2, met))
