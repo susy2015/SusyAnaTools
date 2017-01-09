@@ -28,11 +28,8 @@ prodJets = cms.EDFilter(
   #ak8SubJetsSrc = cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked"),
   ak8SubJetsSrc = cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets"),
   debug  = cms.bool(False),
-  #double tau21        = 99;
-  #double tau32        = 99;
-  #double puppi_tau21        = 99;
-  #double puppi_tau32        = 99;
-  #bool SoftDropTau32Tagged = false;
+  NjettinessAK8Puppi_label = cms.string('NjettinessAK8Puppi'),
+  ak8PFJetsPuppi_label = cms.string('ak8PFJetsPuppi'),
   properties = cms.vstring(
        "bDiscriminatorCSV",
   ),
