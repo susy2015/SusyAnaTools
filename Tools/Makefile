@@ -31,7 +31,7 @@ LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 FILES = $(wildcard $(SDIR)/*.cc)
 OBJS := $(FILES:$(SDIR)/%.cc=$(ODIR)/%.o)
 
-PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots
+PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots bTagEfficiencyCalc
 
 all: mkobj SusyAnaTools sampPyWrap $(PROGRAMS)
 
@@ -88,6 +88,9 @@ makeSignalHistograms: $(ODIR)/baselineDef.o $(ODIR)/samples.o $(ODIR)/NTupleRead
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 makeUnblindPlots: $(ODIR)/makeUnblindPlots.o $(ODIR)/searchBins.o
+	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+
+bTagEfficiencyCalc: $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/bTagEfficiencyCalc.o $(ODIR)/SATException.o
 	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
 
 #DataMC: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/samples.o $(ODIR)/customize.o $(ODIR)/customize.o $(ODIR)/searchBins.o $(ODIR)/DataMC.o
