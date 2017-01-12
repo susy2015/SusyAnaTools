@@ -88,6 +88,7 @@ std::vector<TH1D*> h1_nTops_Nm1_baselineVec, h1_nbJets_Nm1_baselineVec, h1_met_N
 
 std::vector<TH1D*> h1_searchBinYieldsVec, h1_searchBinYields_HadTauVec, h1_searchBinYields_LostLepVec, h1_searchBinYields_OverlapVec;
 std::vector<TH1D*> h1_no_fastsimFilter_searchBinYieldsVec;
+std::vector<TH1D*> h1_searchBinYields_Rsys_wt_bVec, h1_searchBinYields_Rsys_no_bVec;
 
 std::vector<TH1D*> h1_scaleUncNominal_searchBinYieldsVec, h1_scaleUncUp_searchBinYieldsVec, h1_scaleUncDown_searchBinYieldsVec;
 std::vector<TH1D*> h1_pdfUncCentral_searchBinYieldsVec, h1_pdfUncUp_searchBinYieldsVec, h1_pdfUncDown_searchBinYieldsVec;
@@ -116,6 +117,9 @@ void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, c
   TH1D * h1_searchBinYields_Overlap = new TH1D(sampleKeyStringT+"_h1_searchBinYields_Overlap", sampleKeyStringT+": search bin yields for Overlap", nTotBins, 0, nTotBins); h1_searchBinYields_Overlap->Sumw2(); h1_searchBinYields_OverlapVec.push_back((TH1D*)h1_searchBinYields_Overlap->Clone());
 
   TH1D * h1_no_fastsimFilter_searchBinYields = new TH1D(sampleKeyStringT+"_h1_no_fastsimFilter_searchBinYields", sampleKeyStringT+": search bin yields", nTotBins, 0, nTotBins); h1_no_fastsimFilter_searchBinYields->Sumw2(); h1_no_fastsimFilter_searchBinYieldsVec.push_back((TH1D*)h1_no_fastsimFilter_searchBinYields->Clone());
+
+  TH1D * h1_searchBinYields_Rsys_wt_b = new TH1D(sampleKeyStringT+"_h1_searchBinYields_Rsys_wt_b", sampleKeyStringT+": search bin yields for HadTau", nTotBins, 0, nTotBins); h1_searchBinYields_Rsys_wt_b->Sumw2(); h1_searchBinYields_Rsys_wt_bVec.push_back((TH1D*)h1_searchBinYields_Rsys_wt_b->Clone());
+  TH1D * h1_searchBinYields_Rsys_no_b = new TH1D(sampleKeyStringT+"_h1_searchBinYields_Rsys_no_b", sampleKeyStringT+": search bin yields for HadTau", nTotBins, 0, nTotBins); h1_searchBinYields_Rsys_no_b->Sumw2(); h1_searchBinYields_Rsys_no_bVec.push_back((TH1D*)h1_searchBinYields_Rsys_no_b->Clone());
 
   TH1D * h1_scaleUncNominal_searchBinYields = new TH1D(sampleKeyStringT+"_h1_scaleUncNominal_searchBinYields", sampleKeyStringT+": scale unc norminal", nTotBins, 0, nTotBins); h1_scaleUncNominal_searchBinYields->Sumw2(); h1_scaleUncNominal_searchBinYieldsVec.push_back((TH1D*)h1_scaleUncNominal_searchBinYields->Clone());
   TH1D * h1_scaleUncUp_searchBinYields = new TH1D(sampleKeyStringT+"_h1_scaleUncUp_searchBinYields", sampleKeyStringT+": scale unc up", nTotBins, 0, nTotBins); h1_scaleUncUp_searchBinYields->Sumw2(); h1_scaleUncUp_searchBinYieldsVec.push_back((TH1D*)h1_scaleUncUp_searchBinYields->Clone());

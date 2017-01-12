@@ -51,9 +51,9 @@ if ($TAGGERCFGDIR:q == "") then
 endif
 
 if ! $?LD_LIBRARY_PATH then
-    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/src/SusyAnaTools/Tools/obj/
+    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/
 else
-    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/src/SusyAnaTools/Tools/obj/:${LD_LIBRARY_PATH}
+    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/:${LD_LIBRARY_PATH}
 endif
 
 ## Get the btagging file
@@ -62,7 +62,7 @@ if (! -f CSVv2_ichep.csv) then
 endif
 
 if (! -f TTbarNoHad_bTagEff.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/TTbarNoHad_bTagEff.root .
+  ln -s ${SRC}/SusyAnaTools/Tools/data/TTbarNoHad_bTagEff.root .
 endif
 
 ## Pileup Reweighting
@@ -74,3 +74,4 @@ endif
 
 mkdir -p $TAGGERCFGDIR
 ${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_v1.1.1 -d $TAGGERCFGDIR
+${SRC}/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.0 -f Legacy_TopTagger.cfg -d $TAGGERCFGDIR

@@ -27,6 +27,8 @@
 
 #include "PDFUncertainty.h"
 
+#include <assert.h>
+
 #include "../SkimsAUX/plugins/MT2CalcCore.h"
 
 SearchBins * sb =0;
@@ -41,7 +43,7 @@ const bool usegenmet = false;
 BaselineVessel * SRblv =0, * SRblv_Legacy =0, * SRblv_New_Legacy =0;
 std::string spec_def = "MY", spec_Legacy_def = "MY_Legacy", spec_New_Legacy_def = "NEW_Legacy";
 // 0 : latest MVA + AK8 tagger   1 : legacy    2 : legacy + Joe's framework configuration
-const int selTagger = 2;
+const int selTagger = 0;
 std::string spec = spec_def;
 
 const bool evtFilterFor_ttZ_rare = true;
@@ -431,9 +433,13 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
         if( !passFastsimEventFilter ) continue; h1_cutFlowVec.back()->Fill("passFastsimEventFilter", evtWeight * scaleMC);
 
+        int nb_Rsys = -1;
         if( ttPtr ){
            const TopTaggerResults& ttr = ttPtr->getResults();
            std::vector<TopObject*> Ntop = ttr.getTops();
+           assert( (int)Ntop.size() == nTops );
+           const TopObject & Rsys = ttr.getRsys();
+           nb_Rsys = Rsys.getNBConstituents(AnaConsts::cutCSVS, AnaConsts::bTagArr.maxAbsEta);
            for(auto Top : Ntop){
               const double mva_disc = Top->getDiscriminator();
               h1_mvaDiscVec.back()->Fill(mva_disc, evtWeight * scaleMC);
@@ -741,25 +747,16 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            }
         }
 */
-        if( ttPtr ){
-           const TopTaggerResults& ttr = ttPtr->getResults();
-           std::vector<TopObject*> Ntop = ttr.getTops();
-           if( Ntop.size() >=2 ){
+        if( nTops >=2 ){
+           h2_evtCnt_nbJets_vs_nTops_Rsys_wt_bVec.back()->Fill(nTopsCopy, nbJetsCopy, evtWeight*scaleMC);
+           h1_searchBinYields_Rsys_wt_bVec.back()->Fill(searchBinIdx, evtWeight * scaleMC); 
+        }else if( nTops ==1 ){
+           if( nb_Rsys >=1 ){
               h2_evtCnt_nbJets_vs_nTops_Rsys_wt_bVec.back()->Fill(nTopsCopy, nbJetsCopy, evtWeight*scaleMC);
-           }else if( Ntop.size() ==1 ){
-              const TopObject & Rsys = ttr.getRsys();
-//              std::cout<<"nJets : "<<nJets<<"  nbJets : "<<nbJets<<"  NConstituents : "<<Rsys.getNConstituents()<<"  AnaConsts::cutCSVS : "<<AnaConsts::cutCSVS<<"  AnaConsts::bTagArr.maxAbsEta : "<<AnaConsts::bTagArr.maxAbsEta<<std::endl;
-//              const std::vector<Constituent const *> & constituents = Rsys.getConstituents();
-//              for(auto con: constituents){
-//                 std::cout<<"  con->getType : "<<con->getType()<<"  px : "<<con->p().Px()<<"  py : "<<con->p().Py()<<"  pz : "<<con->p().Pz()<<"  mass : "<<con->p().M()<<std::endl;
-//              }
-              const int nb_Rsys = Rsys.getNBConstituents(AnaConsts::cutCSVS, AnaConsts::bTagArr.maxAbsEta);
-//              std::cout<<"nb_Rsys : "<<nb_Rsys<<std::endl;
-              if( nb_Rsys ){
-                 h2_evtCnt_nbJets_vs_nTops_Rsys_wt_bVec.back()->Fill(nTopsCopy, nbJetsCopy, evtWeight*scaleMC);
-              }else{
-                 h2_evtCnt_nbJets_vs_nTops_Rsys_no_bVec.back()->Fill(nTopsCopy, nbJetsCopy, evtWeight*scaleMC);
-              }
+              h1_searchBinYields_Rsys_wt_bVec.back()->Fill(searchBinIdx, evtWeight * scaleMC); 
+           }else if( nb_Rsys ==0 ){
+              h2_evtCnt_nbJets_vs_nTops_Rsys_no_bVec.back()->Fill(nTopsCopy, nbJetsCopy, evtWeight*scaleMC);
+              h1_searchBinYields_Rsys_no_bVec.back()->Fill(searchBinIdx, evtWeight * scaleMC); 
            }
         }
      }
@@ -1154,6 +1151,8 @@ void basicCheck(int argc, char *argv[]){
 
       h1_searchBinYieldsVec[ih]->Write();
       h1_searchBinYields_HadTauVec[ih]->Write(); h1_searchBinYields_LostLepVec[ih]->Write(); h1_searchBinYields_OverlapVec[ih]->Write();
+
+      h1_searchBinYields_Rsys_wt_bVec[ih]->Write(); h1_searchBinYields_Rsys_no_bVec[ih]->Write();
 
       h1_scaleUncNominal_searchBinYieldsVec[ih]->Write(); h1_scaleUncUp_searchBinYieldsVec[ih]->Write(); h1_scaleUncDown_searchBinYieldsVec[ih]->Write();
 

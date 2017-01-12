@@ -11,7 +11,7 @@
 class ISRCorrector {
  public:
   //constructor
- ISRCorrector(std::string fnISR = "TTbarNoHad_NJetsISR.root", std::string ISRJetsFilePath = "", TString massPoint = ""): massPoint_(massPoint)
+ ISRCorrector(std::string fnISR = "Signal_fastsim_T1tttt_scan_ISR.root", std::string ISRJetsFilePath = "ISR_Root_Files", TString massPoint = "1200_800"): massPoint_(massPoint)
   {
       
       if(ISRJetsFilePath.size())
@@ -25,9 +25,12 @@ class ISRCorrector {
 	  fISRWght = new TFile("ISRWeights.root");
 	}
      
+      if( massPoint.IsNull() ){
+         h_njetsisr = (TH1D*)fnISR_->Get("NJetsISR");
+      }else{
+         h_njetsisr = (TH1D*)fnISR_->Get("NJetsISR_"+ massPoint_);
+      }
 
-
-      h_njetsisr = (TH1D*)fnISR_->Get("NJetsISR");
 
       //get Weight histograms.
       TH1D *h_isr_up = (TH1D*)fISRWght->Get("isr_weights_up");
