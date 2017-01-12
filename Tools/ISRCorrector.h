@@ -24,7 +24,6 @@ class ISRCorrector {
 	  fnISR_ = new TFile(fnISR.c_str());
 	  fISRWght = new TFile("ISRWeights.root");
 	}
-     
 
       if( massPoint.IsNull() ){
          h_njetsisr = (TH1D*)fnISR_->Get("NJetsISR");
