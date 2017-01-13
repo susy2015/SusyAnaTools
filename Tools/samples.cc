@@ -173,6 +173,8 @@ namespace AnaSamples
         addSample("Data_MET_2016", fDir_ + DATAloc + "MET.txt","stopTreeMaker/AUX",  36352.970569733, 1.0,  kBlack);
         addSample("Data_MET_Run2016G", fDir_ + DATAloc + "MET_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
 
+        addSample("Data_MET_deepTrimmed", fDir_ + DATAloc + "deepTrimmed_MET_files.txt", "stopTreeMaker/AUX", 36352.970569733, 1.0,  kBlack);
+
         // ----------
         // - signal -
         // ----------
@@ -306,6 +308,7 @@ namespace AnaSamples
 
         addSampleSet(samples, "Data_MET", {"Data_MET_2016"});
         addSampleSet(samples, "Data_MET_Run2016G", {"Data_MET_Run2016G"});
+        addSampleSet(samples, "Data_MET_deepTrimmed", {"Data_MET_deepTrimmed"});
 
         addSampleSet(samples, "Signal_T1tttt_mGluino1200_mLSP800", {"Signal_T1tttt_mGluino1200_mLSP800"});
         addSampleSet(samples, "Signal_T1tttt_mGluino1500_mLSP100", {"Signal_T1tttt_mGluino1500_mLSP100"});
