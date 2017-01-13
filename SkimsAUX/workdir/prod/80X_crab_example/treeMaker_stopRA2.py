@@ -144,7 +144,9 @@ elif options.fileslist:
    process.source.fileNames = inputfiles
 else:
    process.source.fileNames = [
-        '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
+        '/store/mc/RunIISpring16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00B2B39D-5D4D-E611-8BD4-002590D9D8B6.root',
+#        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/00D97021-CFBE-E611-AD3F-0025901D08B8.root',
+#        '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
 #       '/store/mc/RunIISpring16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/041F3A63-431E-E611-9E1E-008CFA1112CC.root',
 #       '/store/mc/RunIISpring16MiniAODv2/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/004A27F0-5132-E611-A936-02163E016171.root',
 #       '/store/mc/RunIISpring16MiniAODv2/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00775AA9-5132-E611-A4FE-001E675049F5.root',
@@ -381,15 +383,6 @@ process.ra2PFchsJets = cms.Sequence( process.ak4patJetsPFchsPt10 * process.ak4pa
 
 from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
 
-jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', 
-  runOnMC = options.mcInfo, 
-  PUMethod='Puppi', 
-  addSoftDropSubjets = True, 
-  addSoftDrop = True, 
-  addNsub = True, 
-  bTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags'], 
-  addCMSTopTagger = False)
-
 # To get the lepton cleaned collection
 process.pfCandidatesNoMu =  cms.EDProducer("CandPtrProjector", 
                                           src = cms.InputTag("packedPFCandidates"), 
@@ -408,6 +401,17 @@ jetToolbox( process, 'ak8', 'ak8JetSubsNoLep', 'out',
             bTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags'], 
             addCMSTopTagger = False,
             postFix="NoLep")
+
+# Keep this behind the cleaned version for now, otherwise everything will be lepton cleaned
+jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', 
+  runOnMC = options.mcInfo, 
+  PUMethod='Puppi', 
+  addSoftDropSubjets = True, 
+  addSoftDrop = True, 
+  addNsub = True, 
+  bTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags'], 
+  addCMSTopTagger = False)
+
 
 
 ## -- Other Analysis related configuration --
