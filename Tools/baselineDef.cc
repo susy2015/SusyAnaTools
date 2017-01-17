@@ -757,6 +757,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassBaseline();
   GetMHT();
   GetLeptons();
+  GetRecoZ(81, 101);
   GetTopCombs();
 }
 
@@ -832,6 +833,66 @@ bool BaselineVessel::GetLeptons() const
 
   return true;
 }       // -----  end of function BaselineVessel::GetLeptons  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetRecoZ
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetRecoZ( const int zMassMin, const int zMassMax) const
+{
+  std::vector<TLorentzVector>* recoZVec = new std::vector<TLorentzVector>();
+  std::map<unsigned int, std::pair<unsigned int, unsigned int> > *ZLepIdx = 
+    new std::map<unsigned int, std::pair<unsigned int, unsigned int> >();
+
+  GetRecoZ("cutMuVec"+firstSpec,"cutMuCharge"+firstSpec, recoZVec, ZLepIdx, zMassMin, zMassMax );
+  GetRecoZ("cutEleVec"+firstSpec,"cutEleCharge"+firstSpec, recoZVec, ZLepIdx, zMassMin, zMassMax );
+
+  tr->registerDerivedVec("recoZVec"+spec, recoZVec);
+  tr->registerDerivedVec("ZLepIdx"+spec, ZLepIdx);
+  return true;
+}       // -----  end of function BaselineVessel::GetRecoZ  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetRecoZ
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepchg, 
+    std::vector<TLorentzVector>* recoZVec ,
+    std::map<unsigned int, std::pair<unsigned int, unsigned int> > *ZLepIdx,
+    const int zMassMin, const int zMassMax) const
+{
+  
+  const std::vector<TLorentzVector> & LepVec = tr->getVec<TLorentzVector>(leptype);
+  const std::vector<int> & LepChg = tr->getVec<int>(lepchg);
+
+  for(unsigned int i = 0; i < LepVec.size(); ++i)
+  {
+    for(unsigned int j = 0; j < i && j < LepVec.size(); ++j)
+    {
+      double zm = (LepVec.at(i) + LepVec.at(j)).M();
+      int sumchg =LepChg.at(i) + LepChg.at(j); 
+      if (sumchg == 0 && zm > zMassMin && zm < zMassMax)
+      {
+        recoZVec->push_back((LepVec.at(i) + LepVec.at(j)));
+        if (leptype.find("Mu") != std::string::npos)
+        {
+          ZLepIdx->insert(std::make_pair( recoZVec->size(), 
+                std::make_pair(i, j)));
+        }
+        if (leptype.find("Ele") != std::string::npos) // offset by 100
+        {
+          ZLepIdx->insert(std::make_pair( recoZVec->size(), 
+                std::make_pair(i+100, j+100)));
+        }
+      }
+
+    }
+  }
+  return true;
+}       // -----  end of function BaselineVessel::GetRecoZ  -----
+
 
 //**************************************************************************//
 //                                 CleanJets                                //

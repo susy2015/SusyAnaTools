@@ -80,6 +80,10 @@ public:
     bool PassTopTagger();
     bool GetMHT() const;
     bool GetLeptons() const;
+    bool GetRecoZ( const int zMassMin, const int zMassMax) const;
+    bool GetRecoZ(const std::string leptype, const std::string lepchg, std::vector<TLorentzVector>* recoZVec,
+        std::map<unsigned int, std::pair<unsigned int, unsigned int> > *TypeZLepIdx, 
+        const int zMassMin, const int zMassMax) const;
     void prepareTopTagger();
     std::shared_ptr<topTagger::type3TopTagger> GetType3Ptr() const {return type3Ptr;};
     std::shared_ptr<TopTagger> GetTopTaggerPtr() const {return ttPtr;};
