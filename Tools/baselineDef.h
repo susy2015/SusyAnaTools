@@ -84,6 +84,7 @@ public:
     std::shared_ptr<topTagger::type3TopTagger> GetType3Ptr() const {return type3Ptr;};
     std::shared_ptr<TopTagger> GetTopTaggerPtr() const {return ttPtr;};
     int GetnTops() const;
+    bool GetTopCombs() const;
     double CalcMT2() const;
     double coreMT2calc(const TLorentzVector & fatJet1LVec, const TLorentzVector & fatJet2LVec) const;
 };
