@@ -26,10 +26,9 @@ const std::string disStr_nbJets_SR[] = {  "=1",  "=2", "#geq3",  "=1",  "=2", "#
 
 const int nSR = sizeof(nTops_SR_lo)/sizeof(nTops_SR_lo[0]);
 
-//const double max_MT2_for_binEdge = 750, max_met_for_binEdge = 750;
-const double max_MT2_for_binEdge = 900, max_met_for_binEdge = 1000;
-const double max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25;
-const double pseudoMax_MT2_for_hist = max_MT2_for_binEdge + 100, pseudoMax_met_for_hist = max_met_for_binEdge + 50;
+const double max_MT2_for_binEdge = SearchBins::max_MT2_for_binEdge, max_met_for_binEdge = SearchBins::max_met_for_binEdge, max_HT_for_binEdge = SearchBins::max_HT_for_binEdge;
+const double max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25, max_HT_for_binCent = max_HT_for_binEdge + 50;
+const double pseudoMax_MT2_for_hist = SearchBins::pseudoMax_MT2_for_hist, pseudoMax_met_for_hist = SearchBins::pseudoMax_met_for_hist, pseudoMax_HT_for_hist = SearchBins::pseudoMax_HT_for_hist;
 
 char names[200], dispt[200];
 
@@ -302,9 +301,8 @@ void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, c
      sprintf(names, "%s_h2_poly_MT2_vs_met_nbJets%s_nTops%s", sampleKeyStringT.Data(), keyStr_nbJets_SR[iSR].c_str(), keyStr_nTops_SR[iSR].c_str());
      sprintf(dispt, "%s: MT2 versus met for nbJets%s and nTops%s; met [GeV]; MT2 [GeV]", sampleKeyStringT.Data(), disStr_nbJets_SR[iSR].c_str(), disStr_nTops_SR[iSR].c_str());
      TH2Poly * h2_poly_MT2_vs_met = 0;
-     if(nbJets_SR_lo[iSR] >=3 || nTops_SR_lo[iSR] >=3) h2_poly_MT2_vs_met = new TH2Poly(names, dispt, 250, pseudoMax_met_for_hist, 300, 2000);
-     else if( nTops_SR_lo[iSR] == 1 ) h2_poly_MT2_vs_met = new TH2Poly(names, dispt, 250, pseudoMax_met_for_hist, 200, pseudoMax_MT2_for_hist);
-     else h2_poly_MT2_vs_met = new TH2Poly(names, dispt, 250, pseudoMax_met_for_hist, 200, 700);
+     if(nbJets_SR_lo[iSR] >=3 || nTops_SR_lo[iSR] >=3) h2_poly_MT2_vs_met = new TH2Poly(names, dispt, 250, pseudoMax_met_for_hist, 300, pseudoMax_HT_for_hist);
+     else h2_poly_MT2_vs_met = new TH2Poly(names, dispt, 250, pseudoMax_met_for_hist, 200, pseudoMax_MT2_for_hist);
      h2_poly_MT2_vs_met->SetName(names); h2_poly_MT2_vs_met->SetTitle(dispt);
      for(unsigned int ib=0; ib<out_MT2_met_Binning_forTH2Poly[iSR].size(); ib++){
         h2_poly_MT2_vs_met->AddBin(out_MT2_met_Binning_forTH2Poly[iSR][ib][0], out_MT2_met_Binning_forTH2Poly[iSR][ib][1], out_MT2_met_Binning_forTH2Poly[iSR][ib][2], out_MT2_met_Binning_forTH2Poly[iSR][ib][3]);     }

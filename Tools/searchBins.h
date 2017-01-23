@@ -42,7 +42,10 @@ public:
     void print_searchBins_latex() const;
     void print_searchBins_latex(const std::vector<double>& prediction, const std::vector<double>& uncertainty, const std::string label) const;
     void print_searchBinsPred_latex(const std::vector<double>& prediction, const std::vector<double>& StatUp,  const std::vector<double>& StatDown, const std::vector<double>& SysUp, const std::vector<double>& SysDown, std::string label) const;
-    static void drawSBregionDef(const double ymin_Yields = 0.05, const double ymax_Yields = 500., const bool logscale=true);
+    static void drawSBregionDef(const double ymin_Yields = 0.05, const double ymax_Yields = 500., const bool logscale=true, const bool drawOnlyLines = false);
+
+    static constexpr double max_MT2_for_binEdge = 900, max_met_for_binEdge = 1000, max_HT_for_binEdge = 2000;
+    static constexpr double pseudoMax_MT2_for_hist = max_MT2_for_binEdge + 100, pseudoMax_met_for_hist = max_met_for_binEdge + 50, pseudoMax_HT_for_hist = max_HT_for_binEdge + 100;
 
 private:
     //note, this is NOT the number of search bins, but instead th enumber of sepeate bins in the Nb - Nt plane
