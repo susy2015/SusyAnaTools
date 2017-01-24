@@ -17,9 +17,9 @@ from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
 from multiprocessing import Process
 
-workArea = 'crabProdv11p0'
-outDir = '/store/group/lpcsusyhad/Stop_production/Spring16_80X_Nov_2016_Ntp_v11X_new_IDs'
-Pubname = 'Spring16_80X_Nov_2016_Ntp_v11p0_new_IDs'
+workArea = 'crabProdv12p0'
+outDir = '/store/group/lpcsusyhad/Stop_production/Summer16_80X_Jan_2017_Ntp_v12X'
+Pubname = 'Summer16_80X_Jan_2017_Ntp_v12p0'
 json_25ns = 'Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
@@ -203,7 +203,14 @@ jobslist = {
     'SMS-T1tttt_mGluino-1200_mLSP-800'       : [False, '/SMS-T1tttt_mGluino-1200_mLSP-800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
     'SMS-T1tttt_mGluino-1500_mLSP-100'       : [False, '/SMS-T1tttt_mGluino-1500_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
     'SMS-T1tttt_mGluino-2000_mLSP-100'       : [False, '/SMS-T1tttt_mGluino-2000_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
+    'SMS-T2tt_mStop-225_mLSP-50'             : [False, '/SMS-T2tt_mStop-225_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
+    'SMS-T2tt_mStop-250_mLSP-50'             : [False, '/SMS-T2tt_mStop-250_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
+    'SMS-T2tt_mStop-250_mLSP-150'            : [False, '/SMS-T2tt_mStop-250_mLSP-150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
+    'SMS-T2tt_mStop-300_mLSP-150'            : [False, '/SMS-T2tt_mStop-300_mLSP-150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
+    'SMS-T2tt_mStop-325_mLSP-150'            : [False, '/SMS-T2tt_mStop-325_mLSP-150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
+    'SMS-T2tt_mStop-425_mLSP-325'            : [False, '/SMS-T2tt_mStop-425_mLSP-325_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
     'SMS-T2tt_mStop-500_mLSP-325'            : [False, '/SMS-T2tt_mStop-500_mLSP-325_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
+    'SMS-T2tt_mStop-650_mLSP-350'            : [False, '/SMS-T2tt_mStop-650_mLSP-350_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
     'SMS-T2tt_mStop-850_mLSP-100'            : [False, '/SMS-T2tt_mStop-850_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM', 1],
 
     # FastSim signals
@@ -218,10 +225,8 @@ jobslist = {
 ', 1],
 
     # Data
-    #'HTMHT-Run2015B-05Oct2015'               : [True, '/HTMHT/Run2015B-05Oct2015-v1/MINIAOD', 10],
-    #'HTMHT-Run2015C-25ns-05Oct2015'          : [True, '/HTMHT/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
-    #'HTMHT-Run2015D-05Oct2015'               : [True, '/HTMHT/Run2015D-05Oct2015-v1/MINIAOD', 10],
-    'HTMHT-Run2016H-PromptReco-v2'           : [True, '/HTMHT/Run2016H-PromptReco-v2/MINIAOD', 10],
+    'HTMHT-Run2016H-PromptReco-v3'          : [True, '/HTMHT/Run2016H-PromptReco-v3/MINIAOD', 10],
+    'HTMHT-Run2016H-PromptReco-v2'          : [True, '/HTMHT/Run2016H-PromptReco-v2/MINIAOD', 10],
     'HTMHT-Run2016G-23Sep2016-v2'           : [True, '/HTMHT/Run2016G-23Sep2016-v2/MINIAOD', 10],
     'HTMHT-Run2016F-23Sep2016-v1'           : [True, '/HTMHT/Run2016F-23Sep2016-v1/MINIAOD', 10],
     'HTMHT-Run2016E-23Sep2016-v1'           : [True, '/HTMHT/Run2016E-23Sep2016-v1/MINIAOD', 10],
@@ -230,9 +235,7 @@ jobslist = {
     'HTMHT-Run2016B-23Sep2016-v1'           : [True, '/HTMHT/Run2016B-23Sep2016-v1/MINIAOD', 10],
     'HTMHT-Run2016B-23Sep2016-v3'           : [True, '/HTMHT/Run2016B-23Sep2016-v3/MINIAOD', 10],
 
-    #'MET-Run2015B-05Oct2015'                 : [True, '/MET/Run2015B-05Oct2015-v1/MINIAOD', 10],
-    #'MET-Run2015C-25ns-05Oct2015'            : [True, '/MET/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
-    #'MET-Run2015D-05Oct2015'                 : [True, '/MET/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    'MET-Run2016H-PromptReco-v3'               : [True, '/MET/Run2016H-PromptReco-v3/MINIAOD', 10],
     'MET-Run2016H-PromptReco-v2'               : [True, '/MET/Run2016H-PromptReco-v2/MINIAOD', 10],
     'MET-Run2016G-23Sep2016-v1'                : [True, '/MET/Run2016G-23Sep2016-v1/MINIAOD', 10],
     'MET-Run2016F-23Sep2016-v1'                : [True, '/MET/Run2016F-23Sep2016-v1/MINIAOD', 10],
@@ -242,9 +245,7 @@ jobslist = {
     'MET-Run2016B-23Sep2016-v2'                : [True, '/MET/Run2016B-23Sep2016-v2/MINIAOD', 10],
     'MET-Run2016B-23Sep2016-v3'                : [True, '/MET/Run2016B-23Sep2016-v3/MINIAOD', 10],
 
-    #'SingleMuon-Run2015B-05Oct2015'          : [True, '/SingleMuon/Run2015B-05Oct2015-v1/MINIAOD', 10],
-    #'SingleMuon-Run2015C-25ns-05Oct2015'     : [True, '/SingleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
-    #'SingleMuon-Run2015D-05Oct2015'          : [True, '/SingleMuon/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    'SingleMuon-Run2016H-PromptReco-v3'        : [True, '/SingleMuon/Run2016H-PromptReco-v3/MINIAOD', 10],
     'SingleMuon-Run2016H-PromptReco-v2'        : [True, '/SingleMuon/Run2016H-PromptReco-v2/MINIAOD', 10],
     'SingleMuon-Run2016G-23Sep2016-v1'         : [True, '/SingleMuon/Run2016G-23Sep2016-v1/MINIAOD', 10],
     'SingleMuon-Run2016F-23Sep2016-v1'         : [True, '/SingleMuon/Run2016F-23Sep2016-v1/MINIAOD', 10],
@@ -254,9 +255,7 @@ jobslist = {
     'SingleMuon-Run2016B-23Sep2016-v1'         : [True, '/SingleMuon/Run2016B-23Sep2016-v1/MINIAOD', 10],
     'SingleMuon-Run2016B-23Sep2016-v3'         : [True, '/SingleMuon/Run2016B-23Sep2016-v3/MINIAOD', 10],
 
-    #'SingleElectron-Run2015B-05Oct2015'      : [True, '/SingleElectron/Run2015B-05Oct2015-v1/MINIAOD', 10],
-    #'SingleElectron-Run2015C-25ns-05Oct2015' : [True, '/SingleElectron/Run2015C_25ns-05Oct2015-v1/MINIAOD', 10],
-    #'SingleElectron-Run2015D-05Oct2015'      : [True, '/SingleElectron/Run2015D-05Oct2015-v1/MINIAOD', 10],
+    'SingleElectron-Run2016H-PromptReco-v3'    : [True, '/SingleElectron/Run2016H-PromptReco-v3/MINIAOD', 10],
     'SingleElectron-Run2016H-PromptReco-v2'    : [True, '/SingleElectron/Run2016H-PromptReco-v2/MINIAOD', 10],
     'SingleElectron-Run2016G-23Sep2016-v1'     : [True, '/SingleElectron/Run2016G-23Sep2016-v1/MINIAOD', 10],
     'SingleElectron-Run2016F-23Sep2016-v1'     : [True, '/SingleElectron/Run2016F-23Sep2016-v1/MINIAOD', 10],
@@ -349,54 +348,49 @@ def SubmitJob(key, value):
         print "Not enough argument for %s" % key
         raise  AssertionError()
     if value[0]: # Data
-        if key.find('Run2015C') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_v4', 'specialFix=JEC', 'jecDBname=Summer15_25nsV6_DATA', 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Summer15_25nsV6_DATA.db', 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']
+        if key.find('Run2016B-23Sep2016-v3') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v4', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2015D-05Oct2015') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_reMiniAOD_v0', 'specialFix=JEC', 'jecDBname=Summer15_25nsV6_DATA', 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Summer15_25nsV6_DATA.db', 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']
+        elif key.find('Run2016B-23Sep2016-v1') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2015B-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=74X_dataRun2_reMiniAOD_v0', 'specialFix=JEC', 'jecDBname=Summer15_25nsV6_DATA', 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_25nsV1_DATA.db', 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+        elif key.find('Run2016C-23Sep2016-v1') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016B-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v8', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+        elif key.find('Run2016D-23Sep2016-v1') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016C-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v9', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+        elif key.find('Run2016E-23Sep2016-v1') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016D-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v9', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+        elif key.find('Run2016F-23Sep2016-v1') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016E-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v10', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+        elif key.find('Run2016G-23Sep2016-v1') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016F-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v10', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+        elif key.find('Run2016H-PromptReco-v2') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v14', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016G-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v10', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
-            tempconfig.Data.splitting = 'LumiBased'
-            tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016H-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v14', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_DATA']#, 'externalFilterList=csc2015_Dec01.txt.tar.gz,ecalscn1043093_Dec01.txt.tar.gz']
-            tempconfig.JobType.inputFiles = [json_25ns, 'Spring16_25nsV6_DATA.db']#, 'csc2015_Dec01.txt.tar.gz', 'ecalscn1043093_Dec01.txt.tar.gz']# Not ready in 2016 yes
+        elif key.find('Run2016H-PromptReco-v3') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v14', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         else:
@@ -407,8 +401,8 @@ def SubmitJob(key, value):
           tempconfig.JobType.inputFiles = ['Spring16_25nsFastSimMC_V1.db']
           tempconfig.Data.splitting = 'FileBased'
        else:
-          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2', 'specialFix=JEC', 'jecDBname=Spring16_25nsV6_MC']
-          tempconfig.JobType.inputFiles = ['Spring16_25nsV6_MC.db']#'Summer15_25nsV6_MC.db']
+          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v6', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016V3_MC']
+          tempconfig.JobType.inputFiles = ['Summer16_23Sep2016V3_MC.db']#'Summer15_25nsV6_MC.db']
           tempconfig.Data.splitting = 'FileBased'
 
     tempconfig.Data.inputDataset = value[1].strip()
