@@ -11,6 +11,10 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/View.h"
+
 #include "DataFormats/METReco/interface/MET.h"
 
 #include "TLorentzVector.h"
@@ -40,6 +44,9 @@ class prodMuons : public edm::EDFilter
   int doMuonIso_; // 0: don't do any isolation; 1: relIso;  2: miniIso
   double minMuPt_, maxMuEta_, maxMuD0_, maxMuDz_, maxMuRelIso_, maxMuMiniIso_, minMuNumHit_;
   double minMuPtForMuon2Clean_;
+  bool specialFix_;
+  edm::InputTag badGlobalMuonTaggerSrc_, cloneGlobalMuonTaggerSrc_;
+  edm::EDGetTokenT<edm::PtrVector<reco::Muon>> badGlobalMuonTok_, cloneGlobalMuonTok_;
 
   bool isLooseMuon(const pat::Muon & muon);
   bool isMediumMuon(const pat::Muon & muon, const reco::Vertex::Point & vtxpos);
@@ -66,6 +73,14 @@ prodMuons::prodMuons(const edm::ParameterSet & iConfig)
   doMuonVtx_    = iConfig.getParameter<bool>("DoMuonVtxAssociation");
   doMuonIso_    = iConfig.getParameter<int>("DoMuonIsolation");
   debug_        = iConfig.getParameter<bool>("Debug");
+  specialFix_   = iConfig.getParameter<bool>("specialFix");
+
+  if( specialFix_ ){
+     badGlobalMuonTaggerSrc_ = iConfig.getParameter<edm::InputTag>("badGlobalMuonTaggerSrc");   
+     cloneGlobalMuonTaggerSrc_ = iConfig.getParameter<edm::InputTag>("cloneGlobalMuonTaggerSrc");   
+     badGlobalMuonTok_ = consumes<edm::PtrVector<reco::Muon>>(badGlobalMuonTaggerSrc_);
+     cloneGlobalMuonTok_ = consumes<edm::PtrVector<reco::Muon>>(cloneGlobalMuonTaggerSrc_);
+  }
 
   minMuPtForMuon2Clean_ = iConfig.getUntrackedParameter<double>("minMuPtForMuon2Clean", 10);
 
@@ -89,6 +104,11 @@ prodMuons::prodMuons(const edm::ParameterSet & iConfig)
   produces<std::vector<double> >("muonsMiniIso");
   produces<std::vector<double> >("muonspfActivity");
   produces<int>("nMuons");
+  if( specialFix_ ){
+// 0 : good muon wrt the specialFix  1 : badGlobalMuon  2 : cloneGlobalMuon  3 : badGlobalMuon & cloneGlobalMuon
+// 00                               01                 10                   11                    
+     produces<std::vector<int>>("specialFixtype");
+  }
 }
 
 prodMuons::~prodMuons()
@@ -134,6 +154,8 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<int> > muonsFlagMedium(new std::vector<int>());
   std::auto_ptr<std::vector<int> > muonsFlagTight(new std::vector<int>());
 
+  std::auto_ptr<std::vector<int>> specialFixtype(new std::vector<int>());
+
   if (vertices->size() > 0) 
   {
     //for (std::vector<int> m = muons->begin(); m != muons->end(); ++m) {
@@ -169,6 +191,26 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // muon is ID'd and isolated! - only accept if vertex present
       if (vertices->size() > 0)
       {
+        if( specialFix_ ){
+           edm::Handle<edm::PtrVector<reco::Muon>> badGlobalMuonPtr_handle, cloneGlobalMuonPtr_handle;
+           iEvent.getByToken(badGlobalMuonTok_, badGlobalMuonPtr_handle);
+           iEvent.getByToken(cloneGlobalMuonTok_, cloneGlobalMuonPtr_handle);
+           int badGlobalMuon_type = 0, cloneGlobalMuon_type = 0;
+           for(edm::PtrVector<reco::Muon>::const_iterator itr_badGlobalMuonPtr = badGlobalMuonPtr_handle->begin(); itr_badGlobalMuonPtr != badGlobalMuonPtr_handle->end(); ++itr_badGlobalMuonPtr){
+              const reco::Muon & perMuon = **itr_badGlobalMuonPtr;
+              if( perMuon.px() == m->px() && perMuon.py() == m->py() && perMuon.pz() == m->pz() && perMuon.energy() == m->energy() ) badGlobalMuon_type = 1;
+           }
+           for(edm::PtrVector<reco::Muon>::const_iterator itr_cloneGlobalMuonPtr = cloneGlobalMuonPtr_handle->begin(); itr_cloneGlobalMuonPtr != cloneGlobalMuonPtr_handle->end(); ++itr_cloneGlobalMuonPtr){
+              const reco::Muon & perMuon = **itr_cloneGlobalMuonPtr;
+              if( perMuon.px() == m->px() && perMuon.py() == m->py() && perMuon.pz() == m->pz() && perMuon.energy() == m->energy() ) cloneGlobalMuon_type = 1;
+           }
+           int specialFix_type = 0;
+           if( badGlobalMuon_type && cloneGlobalMuon_type ) specialFix_type = 3;
+           else if( !badGlobalMuon_type && cloneGlobalMuon_type ) specialFix_type = 2;
+           else if( badGlobalMuon_type && !cloneGlobalMuon_type ) specialFix_type = 1;
+           else specialFix_type = 0;
+           specialFixtype->push_back(specialFix_type);
+        }
         prod->push_back(pat::Muon(*m));
         TLorentzVector perLVec; perLVec.SetPtEtaPhiE(m->pt(), m->eta(), m->phi(), m->energy());
         muonsLVec->push_back(perLVec);
@@ -218,6 +260,9 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(muonsMiniIso, "muonsMiniIso");
   iEvent.put(muonspfActivity, "muonspfActivity");
   iEvent.put(nMuons, "nMuons");
+  if( specialFix_ ){
+     iEvent.put(specialFixtype, "specialFixtype");
+  }
 
   return result;
 }
