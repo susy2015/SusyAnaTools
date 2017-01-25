@@ -20,4 +20,7 @@ prodMuons = cms.EDFilter(
   DoMuonVtxAssociation = cms.bool(True),
   DoMuonIsolation      = cms.int32(2), # 1 for relIso; 2 for miniIso; 0 for nothing
   Debug                = cms.bool(False),
+  specialFix    = cms.bool(False),
+  badGlobalMuonTaggerSrc = cms.InputTag("badGlobalMuonTagger", "bad"),
+  cloneGlobalMuonTaggerSrc = cms.InputTag("cloneGlobalMuonTagger", "bad"),
 )
