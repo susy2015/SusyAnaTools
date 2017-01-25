@@ -1,5 +1,6 @@
 #include <memory>
 #include <algorithm>
+#include <assert.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -107,7 +108,10 @@ prodMuons::prodMuons(const edm::ParameterSet & iConfig)
   if( specialFix_ ){
 // 0 : good muon wrt the specialFix  1 : badGlobalMuon  2 : cloneGlobalMuon  3 : badGlobalMuon & cloneGlobalMuon
 // 00                               01                 10                   11                    
+// Only store bad muons and store their LorentzVector and charge -> so should be no 0 in the specialFixtype vector
      produces<std::vector<int>>("specialFixtype");
+     produces<std::vector<TLorentzVector>>("specialFixMuonsLVec");
+     produces<std::vector<double>>("specialFixMuonsCharge");
   }
 }
 
@@ -155,6 +159,39 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<int> > muonsFlagTight(new std::vector<int>());
 
   std::auto_ptr<std::vector<int>> specialFixtype(new std::vector<int>());
+  std::auto_ptr<std::vector<TLorentzVector>> specialFixMuonsLVec(new std::vector<TLorentzVector>());
+  std::auto_ptr<std::vector<double>> specialFixMuonsCharge(new std::vector<double>());
+
+  if( specialFix_ ){
+     edm::Handle<edm::PtrVector<reco::Muon>> badGlobalMuonPtr_handle, cloneGlobalMuonPtr_handle;
+     iEvent.getByToken(badGlobalMuonTok_, badGlobalMuonPtr_handle);
+     iEvent.getByToken(cloneGlobalMuonTok_, cloneGlobalMuonPtr_handle);
+     std::vector<TLorentzVector> dupVec;
+     for(edm::PtrVector<reco::Muon>::const_iterator itr_badGlobalMuonPtr = badGlobalMuonPtr_handle->begin(); itr_badGlobalMuonPtr != badGlobalMuonPtr_handle->end(); ++itr_badGlobalMuonPtr){
+        const reco::Muon & perMuon = **itr_badGlobalMuonPtr;
+        bool isdup = false;
+        for(edm::PtrVector<reco::Muon>::const_iterator itr_cloneGlobalMuonPtr = cloneGlobalMuonPtr_handle->begin(); itr_cloneGlobalMuonPtr != cloneGlobalMuonPtr_handle->end(); ++itr_cloneGlobalMuonPtr){
+           if( *itr_cloneGlobalMuonPtr == *itr_badGlobalMuonPtr ){ isdup = true; break; }
+        }
+        if( isdup ) dupVec.emplace_back(TLorentzVector(perMuon.px(), perMuon.py(), perMuon.pz(), perMuon.energy()));
+        else{
+           specialFixtype->push_back(1);
+           specialFixMuonsLVec->emplace_back(TLorentzVector(perMuon.px(), perMuon.py(), perMuon.pz(), perMuon.energy()));
+           specialFixMuonsCharge->push_back(perMuon.charge());
+        }
+     }
+     for(edm::PtrVector<reco::Muon>::const_iterator itr_cloneGlobalMuonPtr = cloneGlobalMuonPtr_handle->begin(); itr_cloneGlobalMuonPtr != cloneGlobalMuonPtr_handle->end(); ++itr_cloneGlobalMuonPtr){
+        const reco::Muon & perMuon = **itr_cloneGlobalMuonPtr;
+        int specialFix_type = 2;
+        for(auto dup: dupVec){
+           if( perMuon.px() == dup.Px() && perMuon.py() == dup.Py() && perMuon.pz() == dup.Pz() && perMuon.energy() == dup.Energy() ) specialFix_type += 1;
+        }
+        assert( specialFix_type <= 3 ); 
+        specialFixtype->push_back( specialFix_type );
+        specialFixMuonsLVec->emplace_back(TLorentzVector(perMuon.px(), perMuon.py(), perMuon.pz(), perMuon.energy()));
+        specialFixMuonsCharge->push_back(perMuon.charge());
+     }
+  }
 
   if (vertices->size() > 0) 
   {
@@ -191,26 +228,6 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // muon is ID'd and isolated! - only accept if vertex present
       if (vertices->size() > 0)
       {
-        if( specialFix_ ){
-           edm::Handle<edm::PtrVector<reco::Muon>> badGlobalMuonPtr_handle, cloneGlobalMuonPtr_handle;
-           iEvent.getByToken(badGlobalMuonTok_, badGlobalMuonPtr_handle);
-           iEvent.getByToken(cloneGlobalMuonTok_, cloneGlobalMuonPtr_handle);
-           int badGlobalMuon_type = 0, cloneGlobalMuon_type = 0;
-           for(edm::PtrVector<reco::Muon>::const_iterator itr_badGlobalMuonPtr = badGlobalMuonPtr_handle->begin(); itr_badGlobalMuonPtr != badGlobalMuonPtr_handle->end(); ++itr_badGlobalMuonPtr){
-              const reco::Muon & perMuon = **itr_badGlobalMuonPtr;
-              if( perMuon.px() == m->px() && perMuon.py() == m->py() && perMuon.pz() == m->pz() && perMuon.energy() == m->energy() ) badGlobalMuon_type = 1;
-           }
-           for(edm::PtrVector<reco::Muon>::const_iterator itr_cloneGlobalMuonPtr = cloneGlobalMuonPtr_handle->begin(); itr_cloneGlobalMuonPtr != cloneGlobalMuonPtr_handle->end(); ++itr_cloneGlobalMuonPtr){
-              const reco::Muon & perMuon = **itr_cloneGlobalMuonPtr;
-              if( perMuon.px() == m->px() && perMuon.py() == m->py() && perMuon.pz() == m->pz() && perMuon.energy() == m->energy() ) cloneGlobalMuon_type = 1;
-           }
-           int specialFix_type = 0;
-           if( badGlobalMuon_type && cloneGlobalMuon_type ) specialFix_type = 3;
-           else if( !badGlobalMuon_type && cloneGlobalMuon_type ) specialFix_type = 2;
-           else if( badGlobalMuon_type && !cloneGlobalMuon_type ) specialFix_type = 1;
-           else specialFix_type = 0;
-           specialFixtype->push_back(specialFix_type);
-        }
         prod->push_back(pat::Muon(*m));
         TLorentzVector perLVec; perLVec.SetPtEtaPhiE(m->pt(), m->eta(), m->phi(), m->energy());
         muonsLVec->push_back(perLVec);
@@ -262,6 +279,8 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(nMuons, "nMuons");
   if( specialFix_ ){
      iEvent.put(specialFixtype, "specialFixtype");
+     iEvent.put(specialFixMuonsLVec, "specialFixMuonsLVec");
+     iEvent.put(specialFixMuonsCharge, "specialFixMuonsCharge");
   }
 
   return result;
