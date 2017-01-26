@@ -29,6 +29,7 @@ json_25ns = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #selSubmitKey = 'TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TTJets_SingleLeptFrom TTJets_DiLept'
 selSubmitKey = 'TEST HTMHT TTJets_SingleLeptFrom TTJets_DiLept'
+#selSubmitKey = 'MET TTJets_SingleLeptFrom TTJets_DiLept SMS-T1tttt_FastSim_scan'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TEST ALL'
 #selSubmitKey = 'TEST TTJets_SingleLeptFrom TTJets_Inc TTJets_DiLept ZJetsToNuNu_HT'
@@ -339,37 +340,37 @@ def SubmitJob(key, value):
         raise  AssertionError()
     if value[0]: # Data : note the version number after 23Sep2016 is complicated, so removing them
         if key.find('Run2016B-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2016C-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2016D-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2016E-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2016F-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2016G-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
         elif key.find('Run2016H-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v14', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v14', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
@@ -377,11 +378,11 @@ def SubmitJob(key, value):
             pass
     else:
        if key.find('FastSim') != -1:
-          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v0', 'specialFix=JEC', 'jecDBname=Spring16_25nsFastSimMC_V1', 'fastsim=1']
+          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v0', 'specialFix=JEC BADMUON', 'jecDBname=Spring16_25nsFastSimMC_V1', 'fastsim=1']
           tempconfig.JobType.inputFiles = ['Spring16_25nsFastSimMC_V1.db']
           tempconfig.Data.splitting = 'FileBased'
        else:
-          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v6', 'specialFix=JEC', 'jecDBname=Summer16_23Sep2016V3_MC']
+          tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v6', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016V3_MC']
           tempconfig.JobType.inputFiles = ['Summer16_23Sep2016V3_MC.db']
           tempconfig.Data.splitting = 'FileBased'
 
