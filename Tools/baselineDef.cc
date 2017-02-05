@@ -118,6 +118,7 @@ void BaselineVessel::prepareTopTagger()
         tr->getVec<double>("puppitau3"), 
         tr->getVec<double>("puppisoftDropMass"), 
         tr->getVec<TLorentzVector>("puppiSubJetsLVec"));
+    myConstAK8Inputs.setWMassCorrHistos("puppiSoftdropResol.root");
     std::vector<Constituent> constituents = ttUtility::packageConstituents(myConstAK4Inputs, myConstAK8Inputs);
     //run tagger
     ttPtr->runTagger(constituents);
