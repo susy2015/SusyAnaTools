@@ -63,7 +63,7 @@ make -j 8
 
 ## Checkout Tagtagger
 cd $CMSSW_BASE/src
-git clone -b HadStopAnaDevel_v5_Moriond2017_Dec21_2016 git@github.com:susy2015/TopTagger.git
+git clone -b HadStopAnaDevel_v6_Moriond2017_Feb5_2017 git@github.com:susy2015/TopTagger.git
 scram b -j 8
 cd TopTagger/TopTagger/test/
 make -j 8 

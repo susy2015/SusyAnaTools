@@ -70,6 +70,11 @@ if (! -f PileupHistograms_Nov17.root) then
   ln -s ${SRC}/SusyAnaTools/Tools/PileupHistograms_Nov17.root .
 endif
 
+## W softdrop mass correction 
+if (! -f PileupHistograms_Nov17.root) then
+  ln -s ${SRC}/SusyAnaTools/Tools/puppiSoftdropResol.roott .
+endif
+
 ##Checkout latest toptagger cfg file 
 
 mkdir -p $TAGGERCFGDIR
