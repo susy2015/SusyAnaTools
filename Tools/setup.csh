@@ -57,8 +57,8 @@ else
 endif
 
 ## Get the btagging file
-if (! -f CSVv2_ichep.csv) then
-  ln -s ${SRC}/SusyAnaTools/Tools/CSVv2_ichep.csv .
+if (! -f CSVv2_Moriond17_B_H.csv) then
+  ln -s ${SRC}/SusyAnaTools/Tools/CSVv2_Moriond17_B_H.csv .
 endif
 
 if (! -f TTbarNoHad_bTagEff.root) then
