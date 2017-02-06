@@ -217,7 +217,8 @@ namespace AnaSamples
         //addSample("Data_HTMHT_Run2016G", fDir_ + DATAloc + "HTMHT_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
 
         //MET
-        addSample("Data_MET_2016", fDir_ + DATAloc + "MET.txt","stopTreeMaker/AUX",  36352.970569733, 1.0,  kBlack);
+        //                                                                             Run2016B-v3     Run2016C-v1       Run2016D-v1      Run2016E-v1      Run2016F-v1      Run2016G-v1      Run2016H-v2      Run2016H-v3  -> total : 36813.714859265
+        addSample("Data_MET_2016", fDir_ + DATAloc + "MET.txt","stopTreeMaker/AUX",  (5933308579.501 + 2645968083.093 + 4353448810.554 + 4116616133.327 + 3185971993.034 + 7721367926.550 + 8635591074.540 + 221442258.666)/1000000., 1.0,  kBlack);
         addSample("Data_MET_Run2016G", fDir_ + DATAloc + "MET_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
 
         addSample("Data_MET_deepTrimmed", fDir_ + DATAloc + "deepTrimmed_MET_files.txt", "stopTreeMaker/AUX", 36352.970569733, 1.0,  kBlack);
