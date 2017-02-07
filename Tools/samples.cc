@@ -318,7 +318,7 @@ namespace AnaSamples
         addSampleSet(samples, "QCD", {"QCD_HT2000toInf", "QCD_HT1500to2000", "QCD_HT1000to1500", "QCD_HT700to1000", "QCD_HT500to700", "QCD_HT300to500", "QCD_HT200to300", "QCD_HT100to200"});
         addSampleSet(samples, "QCD_BGenFilter", {"QCD_HT2000toInf_BGenFilter", "QCD_HT1500to2000_BGenFilter", "QCD_HT1000to1500_BGenFilter", "QCD_HT700to1000_BGenFilter", "QCD_HT500to700_BGenFilter", "QCD_HT300to500_BGenFilter", "QCD_HT200to300_BGenFilter"});
 
-        addSampleSet(samples, "tW", {"tW_top", "tW_antitop"});
+        addSampleSet(samples, "tW", {"tW_top_incl", "tW_antitop_incl"});
         addSampleSet(samples, "tW_NoHad", {"tW_top_NoHad", "tW_antitop_NoHad"});
         addSampleSet(samples, "ST", {"ST_s", "ST_t_top", "ST_t_antitop", "tZq_ll", "ST_tWll", "ST_tWnunu"});
 
