@@ -251,6 +251,7 @@ bool BaselineVessel::PassTopTagger()
   int nTopCandSortedCnt = -1;
   bool passTagger = false;
   vTops = new std::vector<TLorentzVector>();
+  mTopJets = new std::map<int, std::vector<TLorentzVector> >();
 
   nTopCandSortedCnt = GetnTops();
   if (!UseNewTagger)
@@ -270,6 +271,7 @@ bool BaselineVessel::PassTopTagger()
 
   tr->registerDerivedVar("nTopCandSortedCnt" + firstSpec, nTopCandSortedCnt);
   tr->registerDerivedVec("vTops"+firstSpec, vTops);
+  tr->registerDerivedVec("mTopJets"+firstSpec, mTopJets);
 
   return passTagger;
 }       // -----  end of function BaselineVessel::PassTopTagger  -----
@@ -425,6 +427,13 @@ int BaselineVessel::GetnTops() const
       TLorentzVector topLVec = type3Ptr->buildLVec(tr->getVec<TLorentzVector>("jetsLVec_forTagger" + firstSpec), 
           type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
       vTops->push_back(topLVec);
+      std::vector<TLorentzVector> temp;
+      std::vector<int> indexCombVec = type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]];
+      for (size_t k = 0; k < indexCombVec.size(); ++k)
+      {
+        temp.push_back( (tr->getVec<TLorentzVector>("jetsLVec_forTagger"+spec)).at(indexCombVec.at(k)));
+      }
+      mTopJets->insert(std::make_pair(it, temp));
     }
   }
   if (UseNewTagger)
@@ -434,14 +443,100 @@ int BaselineVessel::GetnTops() const
     //Use result for top var
     std::vector<TopObject*> Ntop = ttr.getTops();  
     nTops = Ntop.size();
-    for(auto Top : Ntop)
+    for(int it=0; it<nTops; it++)
     {
-      vTops->push_back(Top->P());
+      vTops->push_back(Ntop.at(it)->P());
+      std::vector<TLorentzVector> temp;
+      for(auto j : Ntop.at(it)->getConstituents())
+      {
+        temp.push_back(j->P());
+      }
+      mTopJets->insert(std::make_pair(it, temp));
     }
   }
 
   return nTops;
 }       // -----  end of function VarPerEvent::GetnTops  -----
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetTopCombs
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetTopCombs() const
+{
+  std::vector<TLorentzVector> *vCombs = new std::vector<TLorentzVector>();
+  std::map<int, std::vector<TLorentzVector> > *vCombJets = new std::map<int, std::vector<TLorentzVector> >();
+
+  if (!UseNewTagger)
+  {
+    for(unsigned int i=0; i < type3Ptr->finalCombfatJets.size(); ++i)
+    {
+      TLorentzVector topLVec = type3Ptr->buildLVec(*jetsLVec_forTagger, type3Ptr->finalCombfatJets.at(i));
+      vCombs->push_back(topLVec);
+
+      std::vector<TLorentzVector> temp;
+      std::vector<int> indexCombVec = type3Ptr->finalCombfatJets.at(i);
+      for (size_t k = 0; k < indexCombVec.size(); ++k)
+      {
+        temp.push_back( jetsLVec_forTagger->at(indexCombVec.at(k)));
+      }
+      vCombJets->insert(std::make_pair(i, temp));
+    }
+  }
+
+  if (UseNewTagger)
+  {
+    //get output of tagger
+    //Only MVA combs so far
+    const TopTaggerResults& ttr = ttPtr->getResults();
+    int i = 0;
+    for(auto tr : ttr.getTopCandidates() )
+    {
+      if (tr.getNConstituents() != 3) continue;
+      vCombs->push_back(tr.P());
+      std::vector<TLorentzVector> temp;
+      for(auto cons : tr.getConstituents())
+      {
+        temp.push_back(cons->P());
+      }
+      vCombJets->insert(std::make_pair(i, temp));
+      i++;
+    }
+
+    // AK8 + Ak4 for W + jet
+    const std::vector<TLorentzVector>  & AK8 = tr->getVec<TLorentzVector>("puppiJetsLVec");
+    for(auto ak8 : AK8)
+    {
+      if (ak8.Pt() < 200 ) continue;
+      for(auto ak4 : *jetsLVec_forTagger)
+      { 
+        if (ak4.Pt() < 80 ) continue; // Tight working point
+        if (ak8.DeltaR(ak4) > 1.0 ) continue; // Tight working point
+        vCombs->push_back(ak4 + ak8);
+        std::vector<TLorentzVector> temp;
+        temp.push_back(ak8);
+        temp.push_back(ak4);
+        vCombJets->insert(std::make_pair(i, temp));
+        i++;
+      }
+    }
+    // Ak8 only for top
+    for(auto ak8 : AK8)
+    {
+      if (ak8.Pt() < 400 ) continue;
+      vCombs->push_back(ak8);
+      std::vector<TLorentzVector> temp;
+      temp.push_back(ak8);
+      vCombJets->insert(std::make_pair(i, temp));
+      i++;
+    }
+  }
+
+  tr->registerDerivedVec("vCombs"+spec, vCombs);
+  tr->registerDerivedVec("mCombJets"+spec, vCombJets);
+
+  return true;
+}       // -----  end of function BaselineVessel::GetTopCombs  -----
 
 bool BaselineVessel::passNoiseEventFilterFunc()
 {
@@ -664,6 +759,9 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   tr = &tr_;
   PassBaseline();
   GetMHT();
+  GetLeptons();
+  GetRecoZ(81, 101);
+  GetTopCombs();
 }
 
 // ===  FUNCTION  ============================================================
@@ -689,6 +787,114 @@ bool BaselineVessel::GetMHT() const
   tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<double>(METLabel)/ sqrt(SumHT));
   return true;
 }       // -----  end of function BaselineVessel::GetMHT  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetLeptons
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetLeptons() const
+{
+  std::vector<TLorentzVector> *vMuons = new std::vector<TLorentzVector> ();
+  std::vector<TLorentzVector> *vEles = new std::vector<TLorentzVector> ();
+  std::vector<int> *vMuonChg = new std::vector<int> ();
+  std::vector<int> *vEleChg = new std::vector<int> ();
+
+  const std::vector<TLorentzVector> &muonsLVec   = tr->getVec<TLorentzVector>("muonsLVec");
+  const std::vector<double>         &muonsRelIso = tr->getVec<double>("muonsMiniIso");
+  const std::vector<double>         &muonsMtw    = tr->getVec<double>("muonsMtw");
+  const std::vector<int>            &muonsFlagID = tr->getVec<int>(muonsFlagIDLabel.c_str());
+  const std::vector<double>         &muonsCharge = tr->getVec<double>("muonsCharge");
+  for(unsigned int im=0; im<muonsLVec.size(); im++){
+    if(AnaFunctions::passMuon(muonsLVec[im], muonsRelIso[im], muonsMtw[im], muonsFlagID[im], AnaConsts::muonsMiniIsoArr))
+    {
+      vMuons->push_back(muonsLVec.at(im));
+      vMuonChg->push_back(muonsCharge.at(im));
+    }
+
+  }
+
+  const std::vector<TLorentzVector> &electronsLVec   = tr->getVec<TLorentzVector>("elesLVec");
+  const std::vector<double> &electronsRelIso         = tr->getVec<double>("elesMiniIso");
+  const std::vector<double> &electronsMtw            = tr->getVec<double>("elesMtw");
+  const std::vector<unsigned int> &isEBVec           = tr->getVec<unsigned int>("elesisEB");
+  const std::vector<int> &electronsFlagID            = tr->getVec<int>(elesFlagIDLabel.c_str());
+  const std::vector<double>         &electronsCharge = tr->getVec<double>("elesCharge");
+  for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
+    if(AnaFunctions::passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], isEBVec[ie], electronsFlagID[ie], AnaConsts::elesMiniIsoArr)) 
+    {
+      vEles->push_back(electronsLVec.at(ie));
+      vEleChg->push_back(electronsCharge.at(ie));
+
+    }
+  }
+
+  tr->registerDerivedVec("cutMuVec"+firstSpec, vMuons);
+  tr->registerDerivedVec("cutEleVec"+firstSpec, vEles);
+  tr->registerDerivedVec("cutMuCharge"+firstSpec, vMuonChg);
+  tr->registerDerivedVec("cutEleCharge"+firstSpec, vEleChg);
+
+  return true;
+}       // -----  end of function BaselineVessel::GetLeptons  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetRecoZ
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetRecoZ( const int zMassMin, const int zMassMax) const
+{
+  std::vector<TLorentzVector>* recoZVec = new std::vector<TLorentzVector>();
+  std::map<unsigned int, std::pair<unsigned int, unsigned int> > *ZLepIdx = 
+    new std::map<unsigned int, std::pair<unsigned int, unsigned int> >();
+
+  GetRecoZ("cutMuVec"+firstSpec,"cutMuCharge"+firstSpec, recoZVec, ZLepIdx, zMassMin, zMassMax );
+  GetRecoZ("cutEleVec"+firstSpec,"cutEleCharge"+firstSpec, recoZVec, ZLepIdx, zMassMin, zMassMax );
+
+  tr->registerDerivedVec("recoZVec"+spec, recoZVec);
+  tr->registerDerivedVec("ZLepIdx"+spec, ZLepIdx);
+  return true;
+}       // -----  end of function BaselineVessel::GetRecoZ  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetRecoZ
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepchg, 
+    std::vector<TLorentzVector>* recoZVec ,
+    std::map<unsigned int, std::pair<unsigned int, unsigned int> > *ZLepIdx,
+    const int zMassMin, const int zMassMax) const
+{
+  
+  const std::vector<TLorentzVector> & LepVec = tr->getVec<TLorentzVector>(leptype);
+  const std::vector<int> & LepChg = tr->getVec<int>(lepchg);
+
+  for(unsigned int i = 0; i < LepVec.size(); ++i)
+  {
+    for(unsigned int j = i; j < LepVec.size(); ++j)
+    {
+      double zm = (LepVec.at(i) + LepVec.at(j)).M();
+      int sumchg = LepChg.at(i) + LepChg.at(j); 
+      if (sumchg == 0 && zm > zMassMin && zm < zMassMax)
+      {
+        recoZVec->push_back((LepVec.at(i) + LepVec.at(j)));
+        if (leptype.find("Mu") != std::string::npos)
+        {
+          ZLepIdx->insert(std::make_pair( recoZVec->size(), 
+                std::make_pair(i, j)));
+        }
+        if (leptype.find("Ele") != std::string::npos) // offset by 100
+        {
+          ZLepIdx->insert(std::make_pair( recoZVec->size(), 
+                std::make_pair(i+100, j+100)));
+        }
+      }
+    }
+  }
+  return true;
+}       // -----  end of function BaselineVessel::GetRecoZ  -----
+
 
 //**************************************************************************//
 //                                 CleanJets                                //

@@ -34,6 +34,7 @@ private:
     std::vector<double> *recoJetsBtag_forTagger;
     std::vector<double> *qgLikelihood_forTagger;
     std::vector<TLorentzVector> *vTops;
+    std::map<int, std::vector<TLorentzVector> > *mTopJets;
 
 public:
 
@@ -78,10 +79,16 @@ public:
     bool SetupTopTagger(bool UseNewTagger_ = true, std::string CfgFile_ = "TopTagger.cfg");
     bool PassTopTagger();
     bool GetMHT() const;
+    bool GetLeptons() const;
+    bool GetRecoZ( const int zMassMin, const int zMassMax) const;
+    bool GetRecoZ(const std::string leptype, const std::string lepchg, std::vector<TLorentzVector>* recoZVec,
+        std::map<unsigned int, std::pair<unsigned int, unsigned int> > *TypeZLepIdx, 
+        const int zMassMin, const int zMassMax) const;
     void prepareTopTagger();
     std::shared_ptr<topTagger::type3TopTagger> GetType3Ptr() const {return type3Ptr;};
     std::shared_ptr<TopTagger> GetTopTaggerPtr() const {return ttPtr;};
     int GetnTops() const;
+    bool GetTopCombs() const;
     double CalcMT2() const;
     double coreMT2calc(const TLorentzVector & fatJet1LVec, const TLorentzVector & fatJet2LVec) const;
 };
