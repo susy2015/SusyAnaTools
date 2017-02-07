@@ -204,13 +204,13 @@ namespace AnaSamples
         // - data -
         // --------
         //Single Muon
-        addSample("Data_SingleMuon_2016", fDir_ + DATAloc + "SingleMuon.txt","stopTreeMaker/AUX", 36352.970569733, 1.0,  kBlack);
-        addSample("Data_SingleMuon_Run2016G", fDir_ + DATAloc + "SingleMuon_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
-    
+        addSample("Data_SingleMuon_2016", fDir_ + DATAloc + "SingleMuon.txt","stopTreeMaker/AUX", 36982.173502, 1.0,  kBlack);
+        addSample("Data_SingleMuon_Run2016G", fDir_ + DATAloc + "SingleMuon_Run2016G.txt","stopTreeMaker/AUX", 7721.367916, 1.0,  kBlack);
+
         //Single Electron
         // new 2016
-        addSample("Data_SingleElectron_2016", fDir_ + DATAloc + "SingleElectron.txt","stopTreeMaker/AUX", 36352.970569733, 1.0,  kBlack);
-        addSample("Data_SingleElectron_Run2016G", fDir_ + DATAloc + "SingleElectron_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
+        addSample("Data_SingleElectron_2016", fDir_ + DATAloc + "SingleElectron.txt","stopTreeMaker/AUX", 36833.009395, 1.0,  kBlack);
+        addSample("Data_SingleElectron_Run2016G", fDir_ + DATAloc + "SingleElectron_Run2016G.txt","stopTreeMaker/AUX", 7721.367894, 1.0,  kBlack);
     
         //HT-MHT
         //addSample("Data_HTMHT_2016", fDir_ + DATAloc + "HTMHT.txt","stopTreeMaker/AUX",  36352.970569733, 1.0,  kBlack);
