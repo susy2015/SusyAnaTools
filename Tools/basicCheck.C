@@ -27,13 +27,15 @@
 
 #include "PDFUncertainty.h"
 
+#include <assert.h>
+
 #include "../SkimsAUX/plugins/MT2CalcCore.h"
 
 SearchBins * sb =0;
 int nTotBins;
 std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
 
-const bool isblind = false;
+const bool isblind = true;
 const bool doSingleMuonCS = false;
 const bool doInvDphi = false;
 const bool usegenmet = false;
@@ -41,7 +43,7 @@ const bool usegenmet = false;
 BaselineVessel * SRblv =0, * SRblv_Legacy =0, * SRblv_New_Legacy =0;
 std::string spec_def = "MY", spec_Legacy_def = "MY_Legacy", spec_New_Legacy_def = "NEW_Legacy";
 // 0 : latest MVA + AK8 tagger   1 : legacy    2 : legacy + Joe's framework configuration
-const int selTagger = 2;
+const int selTagger = 0;
 std::string spec = spec_def;
 
 const bool evtFilterFor_ttZ_rare = true;
@@ -74,6 +76,8 @@ double calcMT(const TLorentzVector &objLVec, const TLorentzVector &metLVec);
 
 const AnaConsts::IsoAccRec hadtau_muonsMiniIsoArr = {   -1,       2.4,      20,     -1,       0.2,     100 };
 const AnaConsts::IsoAccRec lostle_muonsMiniIsoArr = {   -1,       2.4,      10,     -1,       0.2,     100 };
+
+std::set<unsigned int> runNum_set;
 
 void drawOverFlowBin(TH1 *histToAdjust){
    int nbins = histToAdjust->GetXaxis()->GetNbins();
@@ -165,8 +169,13 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const unsigned int & lumi = tr->getVar<unsigned int>("lumi"); 
         const unsigned int & event = tr->getVar<unsigned int>("event");
 
+        if( runNum_set.find(run) == runNum_set.end() ) runNum_set.insert(run);
+
         if( isData && isblind && (!doSingleMuonCS || !doInvDphi) ){
-           if( run > 274240 ) continue;
+        //               ICHEP run range          ----         partial Run2016G
+//           if( !( (run >= 273158 && run <= 276811) || (run>=278820 && run<=279931) ) ) continue;
+//           if( !( (run>=278820 && run<=279931) ) ) continue;
+           if( !( (run >= 273158 && run <= 276811) ) ) continue;
         }
 
         const double genmet = tr->hasVar("genmet") ? tr->getVar<double>("genmet") : 0;
@@ -357,6 +366,11 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            bool foundTrigger = false;
            if( keyStringT.Contains("Placeholder") ) foundTrigger = true;
            for(unsigned it=0; it<TriggerNames.size(); it++){
+              if( keyStringT.Contains("MET") ){
+                 if( TriggerNames[it].find("HLT_PFMET170_NoiseCleaned_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET170_JetIdCleaned_v") != std::string::npos || TriggerNames[it].find("HLT_PFMET170_HBHECleaned_v") != std::string::npos || TriggerNames[it].find("HLT_PFMET100_PFMHT100_IDTight_v") != std::string::npos || TriggerNames[it].find("HLT_PFMET110_PFMHT110_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET120_PFMHT120_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET130_PFMHT130_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET140_PFMHT140_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET150_PFMHT150_IDTight_v")!= std::string::npos){
+                    if( PassTrigger[it] ) foundTrigger = true;
+                 }
+              }
               if( keyStringT.Contains("HTMHT") ){
 /*
                  if(    TriggerNames[it].find("HLT_PFMET170_NoiseCleaned_v") != std::string::npos
@@ -431,9 +445,13 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         if( !passNoiseEventFilter ) continue; h1_cutFlowVec.back()->Fill("passNoiseEventFilter", evtWeight * scaleMC);
         if( !passFastsimEventFilter ) continue; h1_cutFlowVec.back()->Fill("passFastsimEventFilter", evtWeight * scaleMC);
 
+        int nb_Rsys = -1;
         if( ttPtr ){
            const TopTaggerResults& ttr = ttPtr->getResults();
            std::vector<TopObject*> Ntop = ttr.getTops();
+           assert( (int)Ntop.size() == nTops );
+           const TopObject & Rsys = ttr.getRsys();
+           nb_Rsys = Rsys.getNBConstituents(AnaConsts::cutCSVS, AnaConsts::bTagArr.maxAbsEta);
            for(auto Top : Ntop){
               const double mva_disc = Top->getDiscriminator();
               h1_mvaDiscVec.back()->Fill(mva_disc, evtWeight * scaleMC);
@@ -741,25 +759,16 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            }
         }
 */
-        if( ttPtr ){
-           const TopTaggerResults& ttr = ttPtr->getResults();
-           std::vector<TopObject*> Ntop = ttr.getTops();
-           if( Ntop.size() >=2 ){
+        if( nTops >=2 ){
+           h2_evtCnt_nbJets_vs_nTops_Rsys_wt_bVec.back()->Fill(nTopsCopy, nbJetsCopy, evtWeight*scaleMC);
+           h1_searchBinYields_Rsys_wt_bVec.back()->Fill(searchBinIdx, evtWeight * scaleMC); 
+        }else if( nTops ==1 ){
+           if( nb_Rsys >=1 ){
               h2_evtCnt_nbJets_vs_nTops_Rsys_wt_bVec.back()->Fill(nTopsCopy, nbJetsCopy, evtWeight*scaleMC);
-           }else if( Ntop.size() ==1 ){
-              const TopObject & Rsys = ttr.getRsys();
-//              std::cout<<"nJets : "<<nJets<<"  nbJets : "<<nbJets<<"  NConstituents : "<<Rsys.getNConstituents()<<"  AnaConsts::cutCSVS : "<<AnaConsts::cutCSVS<<"  AnaConsts::bTagArr.maxAbsEta : "<<AnaConsts::bTagArr.maxAbsEta<<std::endl;
-//              const std::vector<Constituent const *> & constituents = Rsys.getConstituents();
-//              for(auto con: constituents){
-//                 std::cout<<"  con->getType : "<<con->getType()<<"  px : "<<con->p().Px()<<"  py : "<<con->p().Py()<<"  pz : "<<con->p().Pz()<<"  mass : "<<con->p().M()<<std::endl;
-//              }
-              const int nb_Rsys = Rsys.getNBConstituents(AnaConsts::cutCSVS, AnaConsts::bTagArr.maxAbsEta);
-//              std::cout<<"nb_Rsys : "<<nb_Rsys<<std::endl;
-              if( nb_Rsys ){
-                 h2_evtCnt_nbJets_vs_nTops_Rsys_wt_bVec.back()->Fill(nTopsCopy, nbJetsCopy, evtWeight*scaleMC);
-              }else{
-                 h2_evtCnt_nbJets_vs_nTops_Rsys_no_bVec.back()->Fill(nTopsCopy, nbJetsCopy, evtWeight*scaleMC);
-              }
+              h1_searchBinYields_Rsys_wt_bVec.back()->Fill(searchBinIdx, evtWeight * scaleMC); 
+           }else if( nb_Rsys ==0 ){
+              h2_evtCnt_nbJets_vs_nTops_Rsys_no_bVec.back()->Fill(nTopsCopy, nbJetsCopy, evtWeight*scaleMC);
+              h1_searchBinYields_Rsys_no_bVec.back()->Fill(searchBinIdx, evtWeight * scaleMC); 
            }
         }
      }
@@ -767,6 +776,8 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 }
 
 void basicCheck(int argc, char *argv[]){
+
+   runNum_set.clear();
 
    mt2Calc = new MT2CalcCore();
 
@@ -950,6 +961,13 @@ void basicCheck(int argc, char *argv[]){
 
    std::cout<<"\n"<<std::endl; timer.Print(); timer.Start();
 
+   std::cout<<"\nprinting out run numbers ... "<<std::endl;
+   std::cout<<"runNum : ";
+   for(auto run : runNum_set){
+      std::cout<<" "<<run;
+   }
+   std::cout<<std::endl<<std::endl;
+
 // Plotting
    setTDRStyle();
 
@@ -1035,9 +1053,24 @@ void basicCheck(int argc, char *argv[]){
       c1->SetBottomMargin(0.145); c1->SetLeftMargin(0.160); c1->SetTopMargin(0.110); c1->SetRightMargin(0.1);
       char names[200], dispt[200];
       for(int iSR=0; iSR<nSR; iSR++){
-         sprintf(dispt, "                 N_{b}%s & N_{t}%s; #slash{E}_{T} (GeV); M_{T2} (GeV)", disStr_nbJets_SR[iSR].c_str(), disStr_nTops_SR[iSR].c_str());
          h2_poly_MT2_vs_metVec[iSR].back()->ClearBinContents();
          int ib = nbJets_SR_lo[iSR], it = nTops_SR_lo[iSR];
+         if( ib >=3 || it >=3 ){
+            sprintf(dispt, "                 N_{b}%s & N_{t}%s; #slash{E}_{T} (GeV); H_{T} (GeV)", disStr_nbJets_SR[iSR].c_str(), disStr_nTops_SR[iSR].c_str());
+         }else{
+            sprintf(dispt, "                 N_{b}%s & N_{t}%s; #slash{E}_{T} (GeV); M_{T2} (GeV)", disStr_nbJets_SR[iSR].c_str(), disStr_nTops_SR[iSR].c_str());
+         }
+/*
+         if( ib == 1 && it ==1 ) h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetRangeUser(200, 900);
+         if( ib == 2 && it ==1 ) h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetRangeUser(200, 800);
+         if( ib == 3 && it ==1 ){ h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetRangeUser(300, 2000); h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->SetRangeUser(250, 800); }
+         if( ib == 1 && it ==2 ){ h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetRangeUser(200, 600); h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->SetRangeUser(250, 800); }
+         if( ib == 2 && it ==2 ){ h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetRangeUser(200, 600); h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->SetRangeUser(250, 800); }
+         if( ib == 3 && it ==2 ){ h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetRangeUser(300, 1800); h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->SetRangeUser(250, 800); }
+         if( ib == 1 && it ==3 ){ h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetRangeUser(200, 2000); h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->SetRangeUser(250, 800); }
+         if( ib == 2 && it ==3 ){ h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetRangeUser(200, 2000); h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->SetRangeUser(250, 800); }
+         if( ib == 3 && it ==3 ){ h2_poly_MT2_vs_metVec[iSR].back()->GetYaxis()->SetRangeUser(200, 2000); h2_poly_MT2_vs_metVec[iSR].back()->GetXaxis()->SetRangeUser(250, 800); }
+*/
          std::vector<SearchBins::searchBinDef> selBinDefVec;
          for(int it=0; it<nTotBins; ++it){
             SearchBins::searchBinDef outBinDef;
@@ -1154,6 +1187,8 @@ void basicCheck(int argc, char *argv[]){
 
       h1_searchBinYieldsVec[ih]->Write();
       h1_searchBinYields_HadTauVec[ih]->Write(); h1_searchBinYields_LostLepVec[ih]->Write(); h1_searchBinYields_OverlapVec[ih]->Write();
+
+      h1_searchBinYields_Rsys_wt_bVec[ih]->Write(); h1_searchBinYields_Rsys_no_bVec[ih]->Write();
 
       h1_scaleUncNominal_searchBinYieldsVec[ih]->Write(); h1_scaleUncUp_searchBinYieldsVec[ih]->Write(); h1_scaleUncDown_searchBinYieldsVec[ih]->Write();
 

@@ -103,6 +103,8 @@ class prodJets : public edm::EDFilter
 
   std::string jetType_;
   std::string qgTaggerKey_;
+  std::string NjettinessAK8Puppi_label_;
+  std::string ak8PFJetsPuppi_label_;
 };
 
 
@@ -151,6 +153,9 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   //ak8 jets
   ak8JetsSrc_ = iConfig.getParameter<edm::InputTag>("ak8JetsSrc");
   ak8SubJetsSrc_ = iConfig.getParameter<edm::InputTag>("ak8SubJetsSrc");
+  
+  NjettinessAK8Puppi_label_ = iConfig.getParameter<std::string>("NjettinessAK8Puppi_label");
+  ak8PFJetsPuppi_label_ = iConfig.getParameter<std::string>("ak8PFJetsPuppi_label");
 
 
   JetTok_ = consumes<std::vector<pat::Jet> >(jetSrc_);
@@ -429,14 +434,14 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      perPuppiJetLVec.SetPtEtaPhiE( puppiJets->at(ip).pt(), puppiJets->at(ip).eta(), puppiJets->at(ip).phi(), puppiJets->at(ip).energy() );
      puppiJetsLVec->push_back(perPuppiJetLVec);
 
-     double puppi_tau1_uf         = puppiJets->at(ip).userFloat("NjettinessAK8Puppi:tau1");
+     double puppi_tau1_uf         = puppiJets->at(ip).userFloat(NjettinessAK8Puppi_label_+":tau1");
      puppitau1->push_back(puppi_tau1_uf);
-     double puppi_tau2_uf         = puppiJets->at(ip).userFloat("NjettinessAK8Puppi:tau2");
+     double puppi_tau2_uf         = puppiJets->at(ip).userFloat(NjettinessAK8Puppi_label_+":tau2");
      puppitau2->push_back(puppi_tau2_uf);
-     double puppi_tau3_uf         = puppiJets->at(ip).userFloat("NjettinessAK8Puppi:tau3");
+     double puppi_tau3_uf         = puppiJets->at(ip).userFloat(NjettinessAK8Puppi_label_+":tau3");
      puppitau3->push_back(puppi_tau3_uf);
 
-     double puppisoftDropMass_uf = puppiJets->at(ip).userFloat("ak8PFJetsPuppiSoftDropMass");
+     double puppisoftDropMass_uf = puppiJets->at(ip).userFloat(ak8PFJetsPuppi_label_+"SoftDropMass");
      puppisoftDropMass->push_back(puppisoftDropMass_uf);
   }
 

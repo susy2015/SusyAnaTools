@@ -30,12 +30,12 @@ BTagCorrector(std::string file = "TTbarNoHad_bTagEff.root", std::string CSVFileP
         SetEffs(inFile);
         if(CSVFilePath.size())
         {
-	  SetCalib((CSVFilePath + "/CSVv2_ichep.csv").c_str());
+	  SetCalib((CSVFilePath + "/CSVv2_Moriond17_B_H.csv").c_str());
 	  
         }
         else
         {
-	  SetCalib("CSVv2_ichep.csv");
+	  SetCalib("CSVv2_Moriond17_B_H.csv");
 	  
         }
 
@@ -43,7 +43,7 @@ BTagCorrector(std::string file = "TTbarNoHad_bTagEff.root", std::string CSVFileP
         {
             //FastSim
             SetFastSim(true);
-            SetCalibFastSim("CSV_13TEV_Combined_14_7_2016.csv");
+            SetCalibFastSim("fastsim_csvv2_ttbar_26_1_2017.csv");
         }
 
     }

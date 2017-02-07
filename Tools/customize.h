@@ -71,7 +71,7 @@ namespace AnaConsts{
 //   const double cutCSVS = 0.814, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
 // Note the new working points are for Spring15 samples & data: cutCSVS is the medium working point
 // According to https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80X, the CSVv2M cut is 0.800
-   const double cutCSVS = 0.800, cutCSVL = 0.460, cutCSVT = 0.935, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
+   const double cutCSVS = 0.8484, cutCSVL = 0.5426, cutCSVT = 0.9535, cutCSVSold = 0.800; // old is for ICHEP working point
    const double defaultMETcut = 250;
    const double defaultMT2cut = 200;
    const double defaultHTcut = 300;
@@ -113,7 +113,8 @@ namespace AnaConsts{
                                                   "looseJetID", "tightJetID", "looseJetID_NoLep", "tightJetID_NoLep", "EcalDeadCellTriggerPrimitiveFilter", "HBHENoiseFilter", "HBHEIsoNoiseFilter", "goodVerticesFilter", "eeBadScFilter", "eeBadScListFilter", "CSCTightHaloListFilter", "badResolutionTrackListFilter", "muonBadTrackListFilter",
                                                   "TriggerNames", "PassTrigger", "TriggerPrescales", 
                                                   "stored_weight",
-                                                  "globalTightHalo2016Filter", "BadChargedCandidateFilter", "BadPFMuonFilter"
+                                                  "globalTightHalo2016Filter", "BadChargedCandidateFilter", "BadPFMuonFilter",
+                                                  "calomet"
                                                 };
 
    static std::set<std::string> activatedBranchNames = {

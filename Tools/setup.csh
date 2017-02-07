@@ -57,12 +57,12 @@ else
 endif
 
 ## Get the btagging file
-if (! -f CSVv2_ichep.csv) then
-  ln -s ${SRC}/SusyAnaTools/Tools/CSVv2_ichep.csv .
+if (! -f CSVv2_Moriond17_B_H.csv) then
+  ln -s ${SRC}/SusyAnaTools/Tools/CSVv2_Moriond17_B_H.csv .
 endif
 
 if (! -f TTbarNoHad_bTagEff.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/TTbarNoHad_bTagEff.root .
+  ln -s ${SRC}/SusyAnaTools/Tools/data/TTbarNoHad_bTagEff.root .
 endif
 
 ## Pileup Reweighting
@@ -70,7 +70,13 @@ if (! -f PileupHistograms_Nov17.root) then
   ln -s ${SRC}/SusyAnaTools/Tools/PileupHistograms_Nov17.root .
 endif
 
+## W softdrop mass correction 
+if (! -f PileupHistograms_Nov17.root) then
+  ln -s ${SRC}/SusyAnaTools/Tools/puppiSoftdropResol.root .
+endif
+
 ##Checkout latest toptagger cfg file 
 
 mkdir -p $TAGGERCFGDIR
 ${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_v1.1.1 -d $TAGGERCFGDIR
+${SRC}/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.0 -f Legacy_TopTagger.cfg -d $TAGGERCFGDIR

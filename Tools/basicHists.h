@@ -26,9 +26,9 @@ const std::string disStr_nbJets_SR[] = {  "=1",  "=2", "#geq3",  "=1",  "=2", "#
 
 const int nSR = sizeof(nTops_SR_lo)/sizeof(nTops_SR_lo[0]);
 
-const double max_MT2_for_binEdge = 2000, max_met_for_binEdge = 1000;
-const double max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25;
-const double pseudoMax_MT2_for_hist = max_MT2_for_binEdge + 100, pseudoMax_met_for_hist = max_met_for_binEdge + 50;
+const double max_MT2_for_binEdge = SearchBins::max_MT2_for_binEdge, max_met_for_binEdge = SearchBins::max_met_for_binEdge, max_HT_for_binEdge = SearchBins::max_HT_for_binEdge;
+const double max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25, max_HT_for_binCent = max_HT_for_binEdge + 50;
+const double pseudoMax_MT2_for_hist = SearchBins::pseudoMax_MT2_for_hist, pseudoMax_met_for_hist = SearchBins::pseudoMax_met_for_hist, pseudoMax_HT_for_hist = SearchBins::pseudoMax_HT_for_hist;
 
 char names[200], dispt[200];
 
@@ -88,6 +88,7 @@ std::vector<TH1D*> h1_nTops_Nm1_baselineVec, h1_nbJets_Nm1_baselineVec, h1_met_N
 
 std::vector<TH1D*> h1_searchBinYieldsVec, h1_searchBinYields_HadTauVec, h1_searchBinYields_LostLepVec, h1_searchBinYields_OverlapVec;
 std::vector<TH1D*> h1_no_fastsimFilter_searchBinYieldsVec;
+std::vector<TH1D*> h1_searchBinYields_Rsys_wt_bVec, h1_searchBinYields_Rsys_no_bVec;
 
 std::vector<TH1D*> h1_scaleUncNominal_searchBinYieldsVec, h1_scaleUncUp_searchBinYieldsVec, h1_scaleUncDown_searchBinYieldsVec;
 std::vector<TH1D*> h1_pdfUncCentral_searchBinYieldsVec, h1_pdfUncUp_searchBinYieldsVec, h1_pdfUncDown_searchBinYieldsVec;
@@ -116,6 +117,9 @@ void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, c
   TH1D * h1_searchBinYields_Overlap = new TH1D(sampleKeyStringT+"_h1_searchBinYields_Overlap", sampleKeyStringT+": search bin yields for Overlap", nTotBins, 0, nTotBins); h1_searchBinYields_Overlap->Sumw2(); h1_searchBinYields_OverlapVec.push_back((TH1D*)h1_searchBinYields_Overlap->Clone());
 
   TH1D * h1_no_fastsimFilter_searchBinYields = new TH1D(sampleKeyStringT+"_h1_no_fastsimFilter_searchBinYields", sampleKeyStringT+": search bin yields", nTotBins, 0, nTotBins); h1_no_fastsimFilter_searchBinYields->Sumw2(); h1_no_fastsimFilter_searchBinYieldsVec.push_back((TH1D*)h1_no_fastsimFilter_searchBinYields->Clone());
+
+  TH1D * h1_searchBinYields_Rsys_wt_b = new TH1D(sampleKeyStringT+"_h1_searchBinYields_Rsys_wt_b", sampleKeyStringT+": search bin yields for HadTau", nTotBins, 0, nTotBins); h1_searchBinYields_Rsys_wt_b->Sumw2(); h1_searchBinYields_Rsys_wt_bVec.push_back((TH1D*)h1_searchBinYields_Rsys_wt_b->Clone());
+  TH1D * h1_searchBinYields_Rsys_no_b = new TH1D(sampleKeyStringT+"_h1_searchBinYields_Rsys_no_b", sampleKeyStringT+": search bin yields for HadTau", nTotBins, 0, nTotBins); h1_searchBinYields_Rsys_no_b->Sumw2(); h1_searchBinYields_Rsys_no_bVec.push_back((TH1D*)h1_searchBinYields_Rsys_no_b->Clone());
 
   TH1D * h1_scaleUncNominal_searchBinYields = new TH1D(sampleKeyStringT+"_h1_scaleUncNominal_searchBinYields", sampleKeyStringT+": scale unc norminal", nTotBins, 0, nTotBins); h1_scaleUncNominal_searchBinYields->Sumw2(); h1_scaleUncNominal_searchBinYieldsVec.push_back((TH1D*)h1_scaleUncNominal_searchBinYields->Clone());
   TH1D * h1_scaleUncUp_searchBinYields = new TH1D(sampleKeyStringT+"_h1_scaleUncUp_searchBinYields", sampleKeyStringT+": scale unc up", nTotBins, 0, nTotBins); h1_scaleUncUp_searchBinYields->Sumw2(); h1_scaleUncUp_searchBinYieldsVec.push_back((TH1D*)h1_scaleUncUp_searchBinYields->Clone());
@@ -296,9 +300,12 @@ void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, c
      std::vector<TH2Poly*> h2_PS_poly_MT2_vs_metVec;
      sprintf(names, "%s_h2_poly_MT2_vs_met_nbJets%s_nTops%s", sampleKeyStringT.Data(), keyStr_nbJets_SR[iSR].c_str(), keyStr_nTops_SR[iSR].c_str());
      sprintf(dispt, "%s: MT2 versus met for nbJets%s and nTops%s; met [GeV]; MT2 [GeV]", sampleKeyStringT.Data(), disStr_nbJets_SR[iSR].c_str(), disStr_nTops_SR[iSR].c_str());
-     TH2Poly * h2_poly_MT2_vs_met = new TH2Poly(names, dispt, 250, pseudoMax_met_for_hist, 200, pseudoMax_MT2_for_hist);
+     TH2Poly * h2_poly_MT2_vs_met = 0;
+     if(nbJets_SR_lo[iSR] >=3 || nTops_SR_lo[iSR] >=3) h2_poly_MT2_vs_met = new TH2Poly(names, dispt, 250, pseudoMax_met_for_hist, 300, pseudoMax_HT_for_hist);
+     else h2_poly_MT2_vs_met = new TH2Poly(names, dispt, 250, pseudoMax_met_for_hist, 200, pseudoMax_MT2_for_hist);
      h2_poly_MT2_vs_met->SetName(names); h2_poly_MT2_vs_met->SetTitle(dispt);
-     for(unsigned int ib=0; ib<out_MT2_met_Binning_forTH2Poly[iSR].size(); ib++){ h2_poly_MT2_vs_met->AddBin(out_MT2_met_Binning_forTH2Poly[iSR][ib][0], out_MT2_met_Binning_forTH2Poly[iSR][ib][1], out_MT2_met_Binning_forTH2Poly[iSR][ib][2], out_MT2_met_Binning_forTH2Poly[iSR][ib][3]); }
+     for(unsigned int ib=0; ib<out_MT2_met_Binning_forTH2Poly[iSR].size(); ib++){
+        h2_poly_MT2_vs_met->AddBin(out_MT2_met_Binning_forTH2Poly[iSR][ib][0], out_MT2_met_Binning_forTH2Poly[iSR][ib][1], out_MT2_met_Binning_forTH2Poly[iSR][ib][2], out_MT2_met_Binning_forTH2Poly[iSR][ib][3]);     }
      h2_poly_MT2_vs_met->Sumw2();
      if( h2_poly_MT2_vs_metVec.size() < iSR+1 ) { h2_PS_poly_MT2_vs_metVec.push_back((TH2Poly*)h2_poly_MT2_vs_met->Clone()); h2_poly_MT2_vs_metVec.push_back(h2_PS_poly_MT2_vs_metVec); }
      else{ h2_poly_MT2_vs_metVec[iSR].push_back((TH2Poly*)h2_poly_MT2_vs_met->Clone());}

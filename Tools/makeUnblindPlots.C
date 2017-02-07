@@ -67,7 +67,7 @@ const double ymax_Ratio= 4.6;
 const double ymin_Ratio= 0.0;
 */
 // For 45 bins
-const double ymax_Yields = noobs? 1000000.: 900000.;
+const double ymax_Yields = noobs? 1000000.: 4000000.;
 const double ymin_Yields = noobs? 0.005: 0.003;
 const double ymax_Ratio=  4.6;
 const double ymin_Ratio= 0.0;
@@ -129,8 +129,11 @@ TH1D * h1_searchBinYields_topW = 0, * h1_searchBinYields_HadTau_topW = 0, * h1_s
 void makeUnblindPlots(const std::string cutLev="baseline", const std::string datatype="HTMHT"){
 
 //   const double dataLumi = 816.27;
-   const double dataLumi = 12877.1;
-   const double bkgLumi = 12877.1;
+//   const double dataLumi = 5189.90;
+   const double dataLumi = 12891.528090802;
+//   const double dataLumi = 36352.970569733;
+//   const double dataLumi = 5189.90*1.30;
+   const double bkgLumi = 36352.970569733;
 //   const double dataLumi = 4004.345;
 //   const double bkgLumi = 4004.345; 
    const double norm_bkg_to_data = noobs? 1.0 : dataLumi/bkgLumi;
@@ -157,7 +160,8 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    while(infile >> prt_chn >> prt_data >> prt_data_stat >> prt_pred >> prt_pred_stat_up >> prt_pred_stat_dn >> prt_pred_syst_up >> prt_pred_syst_dn >> prt_lostle_rate >> prt_lostle_stat_up >> prt_lostle_stat_dn >> prt_lostle_syst_up >> prt_lostle_syst_dn >> prt_hadtau_rate >> prt_hadtau_stat_up >> prt_hadtau_stat_dn >> prt_hadtau_syst_up >> prt_hadtau_syst_dn >> prt_zinv_rate >> prt_zinv_stat_up >> prt_zinv_stat_dn >> prt_zinv_syst_up >> prt_zinv_syst_dn >> prt_qcd_rate >> prt_qcd_stat_up >> prt_qcd_stat_dn >> prt_qcd_syst_up >> prt_qcd_syst_dn >> prt_ttz_rate >> prt_ttz_stat_up >> prt_ttz_stat_dn >> prt_ttz_syst_up >> prt_ttz_syst_dn >> prt_rare_rate >> prt_rare_stat_up >> prt_rare_stat_dn >> prt_rare_syst_up >> prt_rare_syst_dn){
       char tmpstr[500];
 // Complete table in AN
-      sprintf(tmpstr, " & %6.0f & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ \\\\", prt_data, prt_pred, prt_pred_stat_up, prt_pred_stat_dn, prt_pred_syst_up, prt_pred_syst_dn, prt_lostle_rate, prt_lostle_stat_up, prt_lostle_stat_dn, prt_lostle_syst_up, prt_lostle_syst_dn, prt_hadtau_rate, prt_hadtau_stat_up, prt_hadtau_stat_dn, prt_hadtau_syst_up, prt_hadtau_syst_dn, prt_zinv_rate, prt_zinv_stat_up, prt_zinv_stat_dn, prt_zinv_syst_up, prt_zinv_syst_dn, prt_qcd_rate, prt_qcd_stat_up, prt_qcd_stat_dn, prt_qcd_syst_up, prt_qcd_syst_dn, prt_ttz_rate, prt_ttz_stat_up, prt_ttz_stat_dn, prt_ttz_syst_up, prt_ttz_syst_dn, prt_rare_rate, prt_rare_stat_up, prt_rare_stat_dn, prt_rare_syst_up, prt_rare_syst_dn);
+      sprintf(tmpstr, " & %6.0f & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ \\\\", prt_data, 
+                        prt_pred*norm_bkg_to_data, prt_pred_stat_up*norm_bkg_to_data, prt_pred_stat_dn*norm_bkg_to_data, prt_pred_syst_up*norm_bkg_to_data, prt_pred_syst_dn*norm_bkg_to_data, prt_lostle_rate*norm_bkg_to_data, prt_lostle_stat_up*norm_bkg_to_data, prt_lostle_stat_dn*norm_bkg_to_data, prt_lostle_syst_up*norm_bkg_to_data, prt_lostle_syst_dn*norm_bkg_to_data, prt_hadtau_rate*norm_bkg_to_data, prt_hadtau_stat_up*norm_bkg_to_data, prt_hadtau_stat_dn*norm_bkg_to_data, prt_hadtau_syst_up*norm_bkg_to_data, prt_hadtau_syst_dn*norm_bkg_to_data, prt_zinv_rate*norm_bkg_to_data, prt_zinv_stat_up*norm_bkg_to_data, prt_zinv_stat_dn*norm_bkg_to_data, prt_zinv_syst_up*norm_bkg_to_data, prt_zinv_syst_dn*norm_bkg_to_data, prt_qcd_rate*norm_bkg_to_data, prt_qcd_stat_up*norm_bkg_to_data, prt_qcd_stat_dn*norm_bkg_to_data, prt_qcd_syst_up*norm_bkg_to_data, prt_qcd_syst_dn*norm_bkg_to_data, prt_ttz_rate*norm_bkg_to_data, prt_ttz_stat_up*norm_bkg_to_data, prt_ttz_stat_dn*norm_bkg_to_data, prt_ttz_syst_up*norm_bkg_to_data, prt_ttz_syst_dn*norm_bkg_to_data, prt_rare_rate*norm_bkg_to_data, prt_rare_stat_up*norm_bkg_to_data, prt_rare_stat_dn*norm_bkg_to_data, prt_rare_syst_up*norm_bkg_to_data, prt_rare_syst_dn*norm_bkg_to_data);
 // for QCD only
 //      sprintf(tmpstr, " & %6.3f $^{+%5.3f}_{-%5.3f}$ $^{+%5.3f}_{-%5.3f}$  \\\\", prt_qcd_rate, prt_qcd_stat_up, prt_qcd_stat_dn, prt_qcd_syst_up, prt_qcd_syst_dn);
 // for ttZ and rare
@@ -169,7 +173,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
       printf("%s", outstr.c_str());
 
       sumObs += prt_data;
-      sumPred += prt_pred;
+      sumPred += prt_pred*norm_bkg_to_data;
 
       xVec.push_back(prt_chn+0.5);
       yVec.push_back(prt_pred*norm_bkg_to_data);
@@ -191,57 +195,58 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    std::cout<<std::endl;
    infile.close();
    std::cout<<"\nsumObs : "<<sumObs<<"  sumPred : "<<sumPred<<std::endl;
-
-   TFile * signal_fastsim_file = new TFile("signalScan_SMS-T2tt.root");
-   for(unsigned int ik=0; ik<todraw_h1_fastsim_keyStrVec.size(); ik++){
-      for(unsigned int is=0; is<sel_fastsim_sampleKeyStrVec.size(); is++){
-         std::string hfullname = todraw_h1_fastsim_keyStrVec[ik]+"_"+sel_fastsim_sampleKeyStrVec[is];
-
-         double xSec = 0, xSecErr = 0;
-         if( xSecMap.find(sel_fastsim_momMassVec[is]) != xSecMap.end() ){
-            xSec = xSecMap.find(sel_fastsim_momMassVec[is])->second;
-            xSecErr = xSecErrMap.find(sel_fastsim_momMassVec[is])->second * xSec;
+   if( addSigPts ){
+      TFile * signal_fastsim_file = new TFile("signalScan_SMS-T2tt.root");
+      for(unsigned int ik=0; ik<todraw_h1_fastsim_keyStrVec.size(); ik++){
+         for(unsigned int is=0; is<sel_fastsim_sampleKeyStrVec.size(); is++){
+            std::string hfullname = todraw_h1_fastsim_keyStrVec[ik]+"_"+sel_fastsim_sampleKeyStrVec[is];
+   
+            double xSec = 0, xSecErr = 0;
+            if( xSecMap.find(sel_fastsim_momMassVec[is]) != xSecMap.end() ){
+               xSec = xSecMap.find(sel_fastsim_momMassVec[is])->second;
+               xSecErr = xSecErrMap.find(sel_fastsim_momMassVec[is])->second * xSec;
+            }
+   
+            char tmpStr[200];
+            sprintf(tmpStr, "totEntries_%d_%d", sel_fastsim_momMassVec[is], sel_fastsim_dauMassVec[is]);
+            TH1D * h1_totEntries = (TH1D*) signal_fastsim_file->Get(tmpStr);
+   
+            double totEntries = h1_totEntries->GetBinContent(1);
+            double totEntriesErr = sqrt(totEntries);
+   
+            double lumi_scale = dataLumi*xSec/totEntries;
+   
+            TH1D * tmpHist = (TH1D*) signal_fastsim_file->Get(hfullname.c_str());
+            tmpHist->Scale(lumi_scale);
+            sel_fastsim_h1Vec[ik].push_back((TH1D*)tmpHist);
          }
-
-         char tmpStr[200];
-         sprintf(tmpStr, "totEntries_%d_%d", sel_fastsim_momMassVec[is], sel_fastsim_dauMassVec[is]);
-         TH1D * h1_totEntries = (TH1D*) signal_fastsim_file->Get(tmpStr);
-
-         double totEntries = h1_totEntries->GetBinContent(1);
-         double totEntriesErr = sqrt(totEntries);
-
-         double lumi_scale = dataLumi*xSec/totEntries;
-
-         TH1D * tmpHist = (TH1D*) signal_fastsim_file->Get(hfullname.c_str());
-         tmpHist->Scale(lumi_scale);
-         sel_fastsim_h1Vec[ik].push_back((TH1D*)tmpHist);
       }
-   }
-
-// T1tttt
-   TFile * signal_fastsim_T1tttt_file = new TFile("signalScan_SMS-T1tttt.root");
-   for(unsigned int ik=0; ik<todraw_h1_fastsim_keyStrVec.size(); ik++){
-      for(unsigned int is=0; is<sel_fastsim_T1tttt_sampleKeyStrVec.size(); is++){
-         std::string hfullname = todraw_h1_fastsim_keyStrVec[ik]+"_"+sel_fastsim_T1tttt_sampleKeyStrVec[is];
-
-         double xSec = 0, xSecErr = 0;
-         if( xSecMap_glgl.find(sel_fastsim_T1tttt_momMassVec[is]) != xSecMap_glgl.end() ){
-            xSec = xSecMap_glgl.find(sel_fastsim_T1tttt_momMassVec[is])->second;
-            xSecErr = xSecErrMap_glgl.find(sel_fastsim_T1tttt_momMassVec[is])->second * xSec;
+   
+   // T1tttt
+      TFile * signal_fastsim_T1tttt_file = new TFile("signalScan_SMS-T1tttt.root");
+      for(unsigned int ik=0; ik<todraw_h1_fastsim_keyStrVec.size(); ik++){
+         for(unsigned int is=0; is<sel_fastsim_T1tttt_sampleKeyStrVec.size(); is++){
+            std::string hfullname = todraw_h1_fastsim_keyStrVec[ik]+"_"+sel_fastsim_T1tttt_sampleKeyStrVec[is];
+   
+            double xSec = 0, xSecErr = 0;
+            if( xSecMap_glgl.find(sel_fastsim_T1tttt_momMassVec[is]) != xSecMap_glgl.end() ){
+               xSec = xSecMap_glgl.find(sel_fastsim_T1tttt_momMassVec[is])->second;
+               xSecErr = xSecErrMap_glgl.find(sel_fastsim_T1tttt_momMassVec[is])->second * xSec;
+            }
+   
+            char tmpStr[200];
+            sprintf(tmpStr, "totEntries_%d_%d", sel_fastsim_T1tttt_momMassVec[is], sel_fastsim_T1tttt_dauMassVec[is]);
+            TH1D * h1_totEntries = (TH1D*) signal_fastsim_T1tttt_file->Get(tmpStr);
+   
+            double totEntries = h1_totEntries->GetBinContent(1);
+            double totEntriesErr = sqrt(totEntries);
+   
+            double lumi_scale = dataLumi*xSec/totEntries;
+   
+            TH1D * tmpHist = (TH1D*) signal_fastsim_T1tttt_file->Get(hfullname.c_str());
+            tmpHist->Scale(lumi_scale);
+            sel_fastsim_T1tttt_h1Vec[ik].push_back((TH1D*)tmpHist);
          }
-
-         char tmpStr[200];
-         sprintf(tmpStr, "totEntries_%d_%d", sel_fastsim_T1tttt_momMassVec[is], sel_fastsim_T1tttt_dauMassVec[is]);
-         TH1D * h1_totEntries = (TH1D*) signal_fastsim_T1tttt_file->Get(tmpStr);
-
-         double totEntries = h1_totEntries->GetBinContent(1);
-         double totEntriesErr = sqrt(totEntries);
-
-         double lumi_scale = dataLumi*xSec/totEntries;
-
-         TH1D * tmpHist = (TH1D*) signal_fastsim_T1tttt_file->Get(hfullname.c_str());
-         tmpHist->Scale(lumi_scale);
-         sel_fastsim_T1tttt_h1Vec[ik].push_back((TH1D*)tmpHist);
       }
    }
 
@@ -574,6 +579,8 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 
    pad1->RedrawAxis();
 
+   sb->drawSBregionDef(ymin_Yields, ymax_Yields, true);
+/*
    if( do37Bins ){
 //For 37 bins
    //KH drawSBregionDef(ymin_Yields*10, ymax_Yields, true);
@@ -709,6 +716,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
       ttextmt2->DrawLatex( 10.5, ymax_Yields/8000. , "M_{T2}#geq450 GeV");
       ttextmt2->DrawLatex( 27.0, ymax_Yields/50000. , "M_{T2}#geq350 GeV");
    }
+*/
    
    TLatex mark;
    mark.SetNDC(true);
@@ -815,9 +823,11 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    fline->Draw("same");
    h1_ratio->Draw("E1same");
 
+   sb->drawSBregionDef(0, ymin_Yields, false, true);
       //-----------------------------------------------------------
       // Putting lines and labels explaining search region definitions
       //-----------------------------------------------------------
+/*
    if( do37Bins ){
       //Ntop separation lines
       TLine *tl_ntop = new TLine();
@@ -881,7 +891,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 
       //-----------------------------------------------------------
    }
-   
+*/   
    ct->Print("UnblindPlots.pdf");
    ct->Print("UnblindPlots.eps");
 

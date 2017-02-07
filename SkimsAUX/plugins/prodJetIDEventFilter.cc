@@ -37,9 +37,9 @@ class prodJetIDEventFilter : public edm::EDFilter
   const int minChargMulti_TightLepVeto_EtaLe24_;
   const double maxChargEmF_TightLepVeto_EtaLe24_;
   //Eta 2.7 to 3.0
-  const double maxNeutEmF_Loose_Eta27to30_; 
+  const double minNeutEmF_Loose_Eta27to30_, maxNeutHadF_Loose_Eta27to30_; 
   const int minNumNeutPart_Loose_Eta27to30_;
-  const double maxNeutEmF_Tight_Eta27to30_;
+  const double minNeutEmF_Tight_Eta27to30_, maxNeutHadF_Tight_Eta27to30_;
   const int minNumNeutPart_Tight_Eta27to30_;
   //Eta greater than 3.0
   const double maxNeutEmF_Loose_EtaGe30_; 
@@ -80,9 +80,11 @@ prodJetIDEventFilter::prodJetIDEventFilter(const edm::ParameterSet & iConfig)
    , minChargMulti_TightLepVeto_EtaLe24_ (iConfig.getUntrackedParameter<int>("MinChargedMultiplicity_TightLepVeto_EtaLe24", 0) )
    , maxChargEmF_TightLepVeto_EtaLe24_ (iConfig.getUntrackedParameter<double>("MaxChargedEMFrac_TightLepVeto_EtaLe24", 0.90) )
    //Eta 2.7 to 3.0
-   , maxNeutEmF_Loose_Eta27to30_ (iConfig.getUntrackedParameter<double>("MaxNeutralEMFracHF_Loose_Eta27to30", 0.90) )
+   , minNeutEmF_Loose_Eta27to30_ (iConfig.getUntrackedParameter<double>("MinNeutralEMFracHF_Loose_Eta27to30", 0.01) )
+   , maxNeutHadF_Loose_Eta27to30_ (iConfig.getUntrackedParameter<double>("MaxNeutralHadFrac_Loose_Eta27to30", 0.98) )
    , minNumNeutPart_Loose_Eta27to30_ (iConfig.getUntrackedParameter<int>("MinNumberOfNeutralParticles_Loose_Eta27to30", 2) )
-   , maxNeutEmF_Tight_Eta27to30_ (iConfig.getUntrackedParameter<double>("MaxNeutralEMFracHF_Tight_Eta27to30", 0.90) )
+   , minNeutEmF_Tight_Eta27to30_ (iConfig.getUntrackedParameter<double>("MinNeutralEMFracHF_Tight_Eta27to30", 0.01) )
+   , maxNeutHadF_Tight_Eta27to30_ (iConfig.getUntrackedParameter<double>("MaxNeutralHadFrac_Tight_Eta27to30", 0.98) )
    , minNumNeutPart_Tight_Eta27to30_ (iConfig.getUntrackedParameter<int>("MinNumberOfNeutralParticles_Tight_Eta27to30", 2) )
    //Eta greater than 3.0
    , maxNeutEmF_Loose_EtaGe30_ (iConfig.getUntrackedParameter<double>("MaxNeutralEMFracHF_Loose_EtaGe30", 0.90) )
@@ -152,8 +154,8 @@ bool prodJetIDEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & i
         }
         else if( std::abs(eta) > 2.7 && std::abs(eta) <= 3.0 )
         {
-          perlooseJetID = NEMF<maxNeutEmF_Loose_Eta27to30_ && NumNeutralParticle>minNumNeutPart_Loose_Eta27to30_;
-          pertightJetID = NEMF<maxNeutEmF_Tight_Eta27to30_ && NumNeutralParticle>minNumNeutPart_Tight_Eta27to30_;
+          perlooseJetID = NHF<maxNeutHadF_Loose_Eta27to30_ && NEMF>minNeutEmF_Loose_Eta27to30_ && NumNeutralParticle>minNumNeutPart_Loose_Eta27to30_;
+          pertightJetID = NHF<maxNeutHadF_Tight_Eta27to30_ && NEMF>minNeutEmF_Tight_Eta27to30_ && NumNeutralParticle>minNumNeutPart_Tight_Eta27to30_;
           pertightlepvetoJetID = pertightJetID;
         }
         else

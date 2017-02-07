@@ -18,7 +18,7 @@ options.register('era', "Run2_25ns", VarParsing.VarParsing.multiplicity.singleto
 options.register('ntpVersion', "Ntp_80X_12Jul2016_v8.0", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "ntpVersion: to be same as the tag of the release. But can be used to produce 72X ntuple as well!")
 options.register('GlobalTag', "80X_mcRun2_asymptotic_2016_miniAODv2", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "74X PromptReco: 74X_dataRun2_Prompt_v0")
 options.register('cmsswVersion', '80X', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific MC fix")
-options.register('specialFix', 'JEC', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "special fixes ==>   JEC : use external JEC; IVF : fix IVF")
+options.register('specialFix', 'JEC', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "special fixes ==>   JEC : use external JEC; IVF : fix IVF; BADMUON : bad muon filters")
 options.register('jecDBname', "Spring16_25nsV6_MC", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Summer15_25nsV6_DATA for data")
 options.register('hltName', 'HLT', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT menu to use for trigger matching")
 
@@ -144,7 +144,9 @@ elif options.fileslist:
    process.source.fileNames = inputfiles
 else:
    process.source.fileNames = [
-        '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
+#        '/store/mc/RunIISpring16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00B2B39D-5D4D-E611-8BD4-002590D9D8B6.root',
+        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/00D97021-CFBE-E611-AD3F-0025901D08B8.root',
+#        '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
 #       '/store/mc/RunIISpring16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/041F3A63-431E-E611-9E1E-008CFA1112CC.root',
 #       '/store/mc/RunIISpring16MiniAODv2/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/004A27F0-5132-E611-A936-02163E016171.root',
 #       '/store/mc/RunIISpring16MiniAODv2/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00775AA9-5132-E611-A4FE-001E675049F5.root',
@@ -291,7 +293,7 @@ if options.cmsswVersion == "80X":
    process.patJetsAK4PFCHSNoLep.userData.userFloats.src += ['QGTaggerNoLep:qgLikelihood','QGTaggerNoLep:ptD', 'QGTaggerNoLep:axis2']
    process.patJetsAK4PFCHSNoLep.userData.userInts.src += ['QGTaggerNoLep:mult']
 
-if options.specialFix == "JEC":
+if "JEC" in options.specialFix:
   print ("\nApplying fix to JEC issues in %s ...\n" %(options.cmsswVersion))
   # JEC can be downloaded from https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECDataMC
   #inputDB = "sqlite_file:" + os.environ['CMSSW_BASE'] + "/src/SusyAnaTools/SkimsAUX/data/PY8_RunIISpring15DR74_bx25_MC.db"
@@ -381,6 +383,26 @@ process.ra2PFchsJets = cms.Sequence( process.ak4patJetsPFchsPt10 * process.ak4pa
 
 from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
 
+# To get the lepton cleaned collection
+process.pfCandidatesNoMu =  cms.EDProducer("CandPtrProjector", 
+                                          src = cms.InputTag("packedPFCandidates"), 
+                                          veto = cms.InputTag("prodMuons", "mu2Clean"))
+process.pfCandidatesNoEle = cms.EDProducer("CandPtrProjector", 
+                                          src = cms.InputTag("pfCandidatesNoMu"), 
+                                          veto = cms.InputTag("prodElectrons", "ele2Clean"))
+jetToolbox( process, 'ak8', 'ak8JetSubsNoLep', 'out', 
+            runOnMC = options.mcInfo, 
+            PUMethod='Puppi', 
+            newPFCollection=True,
+            nameNewPFCollection='pfCandidatesNoEle',
+            addSoftDropSubjets = True, 
+            addSoftDrop = True, 
+            addNsub = True, 
+            bTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags'], 
+            addCMSTopTagger = False,
+            postFix="NoLep")
+
+# Keep this behind the cleaned version for now, otherwise everything will be lepton cleaned
 jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', 
   runOnMC = options.mcInfo, 
   PUMethod='Puppi', 
@@ -390,24 +412,6 @@ jetToolbox( process, 'ak8', 'ak8JetSubs', 'out',
   bTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags'], 
   addCMSTopTagger = False)
 
-# To get the lepton cleaned collection
-# process.pfCandidatesNoMu =  cms.EDProducer("CandPtrProjector", 
-#                                           src = cms.InputTag("packedPFCandidates"), 
-#                                           veto = cms.InputTag("prodMuons", "mu2Clean"))
-# process.pfCandidatesNoEle = cms.EDProducer("CandPtrProjector", 
-#                                           src = cms.InputTag("pfCandidatesNoMu"), 
-#                                           veto = cms.InputTag("prodElectrons", "ele2Clean"))
-# jetToolbox( process, 'ak8', 'ak8JetSubsNoLep', 'out', 
-#  runOnMC = options.mcInfo, 
-#  PUMethod='Puppi', 
-#  newPFCollection=True,
-#  nameNewPFCollection='pfCandidatesNoEle',
-#  addSoftDropSubjets = True, 
-#  addSoftDrop = True, 
-#  addNsub = True, 
-#  bTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags'], 
-#  addCMSTopTagger = False,
-#  postfix="NoLep")
 
 
 ## -- Other Analysis related configuration --
@@ -648,6 +652,11 @@ process.BadPFMuonFilter.taggingMode = cms.bool(True)
 process.BadPFMuonFilter.muons = cms.InputTag("slimmedMuons")
 process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
 
+#Bad muon filger for Moriond 2017 https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/2786.html
+process.load('RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff')
+process.badGlobalMuonTagger.taggingMode = cms.bool(True)
+process.cloneGlobalMuonTagger.taggingMode = cms.bool(True)
+
 process.triggerProducer.trigTagSrc = cms.InputTag("TriggerResults","",options.hltName)
 #process.METFilters = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_METFilters") )
 process.CSCTightHaloFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_CSCTightHaloFilter") )
@@ -667,8 +676,10 @@ process.prodJetsNoLep = process.prodJets.clone()
 process.prodJetsNoLep.jetSrc = cms.InputTag('patJetsAK4PFCHSPt10NoLep')
 process.prodJetsNoLep.jetOtherSrc = cms.InputTag('patJetsAK4PFCHSPt10NoLep')
 process.prodJetsNoLep.qgTaggerKey = cms.string('QGTaggerNoLep')
-#process.prodJetsNoLep.puppiJetsSrc = cms.InputTag('selectedPatJetsAK8PFPuppiNoLep')
-#process.prodJetsNoLep.puppiSubJetsSrc = cms.InputTag('selectedPatJetsAK8PFPuppiNoLepSoftDropPacked')
+process.prodJetsNoLep.puppiJetsSrc = cms.InputTag('selectedPatJetsAK8PFPuppiNoLep')
+process.prodJetsNoLep.puppiSubJetsSrc = cms.InputTag('selectedPatJetsAK8PFPuppiNoLepSoftDropPacked')
+process.prodJetsNoLep.NjettinessAK8Puppi_label = cms.string('NjettinessAK8PuppiNoLep')
+process.prodJetsNoLep.ak8PFJetsPuppi_label = cms.string('ak8PFJetsPuppiNoLep')
 #process.prodJetsNoLep.ak8JetsSrc = cms.string('slimmedJetsAK8NoLep')
 #process.prodJetsNoLep.ak8SubJetsSrc = cms.string('slimmedJetsAK8PFCHSSoftDropPackedNoLep') #NS To be updated
 
@@ -727,6 +738,13 @@ process.stopTreeMaker.varsInt.append(cms.InputTag("prodMuonsNoIso", "nMuons"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodMuonsNoIso", "muonsLVec"))
 process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodMuonsNoIso", "muonsCharge"), cms.InputTag("prodMuonsNoIso", "muonsMtw"), cms.InputTag("prodMuonsNoIso", "muonsRelIso"), cms.InputTag("prodMuonsNoIso", "muonsMiniIso"), cms.InputTag("prodMuonsNoIso", "muonspfActivity")])
 process.stopTreeMaker.vectorInt.extend([cms.InputTag("prodMuonsNoIso", "muonsFlagMedium"), cms.InputTag("prodMuonsNoIso", "muonsFlagTight")])
+if "BADMUON" in options.specialFix:
+   print ("\nAdding bad muon special filter information in prodMuon & prodMuonNoIso ...\n")
+   process.prodMuons.specialFix      = cms.bool(True)
+   process.prodMuonsNoIso.specialFix = cms.bool(True)
+   process.stopTreeMaker.vectorInt.append(cms.InputTag("prodMuonsNoIso", "specialFixtype"))
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodMuonsNoIso", "specialFixMuonsLVec"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodMuonsNoIso", "specialFixMuonsCharge"))
 
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodElectrons", "nElectrons"))
 process.stopTreeMaker.varsIntNamesInTree.append("prodElectrons:nElectrons|nElectrons_CUT")
@@ -809,17 +827,18 @@ if options.addJetsForZinv == True:
    process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecScaleRawToFull"))
    process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecScaleRawToFull|recoJetsJecScaleRawToFull_LepCleaned")
 
-   #process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiJetsLVec"))
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiJetsLVec"))
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsLVec"))
    #process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "ak8JetsLVec"))
 
-   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau1"))
-   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau2"))
-   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau3"))
-   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppisoftDropMass"))
-   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau1"))
-   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau2"))
-   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau3"))
-   #process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsBdisc"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau1"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau2"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau3"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppisoftDropMass"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau1"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau2"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau3"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsBdisc"))
 
 if options.mcInfo == True:
    process.prodGenInfo.debug = cms.bool(options.debug)
@@ -957,7 +976,7 @@ if options.mcInfo == False:
 if options.selSMSpts == True:
    process.ak4Stop_Path.replace(process.hltFilter, process.hltFilter*process.smsModelFilter)
 
-if options.specialFix == "JEC":
+if "JEC" in options.specialFix:
    if options.cmsswVersion == "80X":
 
       process.comb_seq.replace(process.weightProducer, process.fix80XJEC*process.weightProducer)

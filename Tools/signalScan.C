@@ -57,50 +57,25 @@ MT2CalcCore * mt2Calc;
 BaselineVessel * SRblv =0;
 std::string spec = "MY";
 
-void mypassBaselineFunc(NTupleReader &tr){
-   (*SRblv)(tr);
-}
-
 const std::string spec_jecUp = "jecUp";
 BaselineVessel * SRblv_jecUp =0;
-void jecUpBaselineFunc(NTupleReader &tr){
-   (*SRblv_jecUp)(tr);
-}
 
 const std::string spec_jecDn = "jecDn";
 BaselineVessel * SRblv_jecDn =0;
-void jecDnBaselineFunc(NTupleReader &tr){
-   (*SRblv_jecDn)(tr);
-}
 
 const std::string spec_metMagUp = "metMagUp";
 BaselineVessel * SRblv_metMagUp =0;
-void metMagUpBaselineFunc(NTupleReader &tr){
-   (*SRblv_metMagUp)(tr);
-}
 
 const std::string spec_metMagDn = "metMagDn";
 BaselineVessel * SRblv_metMagDn =0;
-void metMagDnBaselineFunc(NTupleReader &tr){
-   (*SRblv_metMagDn)(tr);
-}
 
 const std::string spec_metPhiUp = "metPhiUp";
 BaselineVessel * SRblv_metPhiUp =0;
-void metPhiUpBaselineFunc(NTupleReader &tr){
-   (*SRblv_metPhiUp)(tr);
-}
 
 const std::string spec_metPhiDn = "metPhiDn";
 BaselineVessel * SRblv_metPhiDn =0;
-void metPhiDnBaselineFunc(NTupleReader &tr){
-   (*SRblv_metPhiDn)(tr);
-}
 
 PDFUncertainty * pdfScale =0;
-void myPDFUncertaintyFunc(NTupleReader &tr){
-   (*pdfScale)(tr);
-}
 
 TFile * bTagEffFile =0;
 
@@ -640,21 +615,20 @@ public:
     void fill(const NTupleReader& tr, const double weight)
     {
 
-       const double & genmet_tmp = tr.getVar<double>("genmet");
-       const double & genmetphi_tmp = tr.getVar<double>("genmetphi");
-       const double genmet = (&genmet_tmp) != nullptr ? tr.getVar<double>("genmet") : 0;
-       const double genmetphi = (&genmetphi_tmp) != nullptr ? tr.getVar<double>("genmetphi") : -999;
+       const double genmet = tr.hasVar("genmet") ? tr.getVar<double>("genmet") : 0;
+       const double genmetphi = tr.hasVar("genmetphi") ? tr.getVar<double>("genmetphi") : -999;
        TLorentzVector genmetLVec;
-       if( (&genmet_tmp) != nullptr ){
+       if( tr.hasVar("genmet") ){
           genmetLVec.SetPtEtaPhiM(tr.getVar<double>("genmet"), 0, tr.getVar<double>("genmetphi"), 0);
        }
 
-       const double& met                = ( usegenmet && (&genmet_tmp) != nullptr )? genmet : tr.getVar<double>("met");
-       const double& metphi             = ( usegenmet && (&genmet_tmp) != nullptr )? genmetphi : tr.getVar<double>("metphi");
+       const double met = ( usegenmet && tr.hasVar("genmet") )? genmet : tr.getVar<double>("met");
+       const double metphi = ( usegenmet && tr.hasVar("genmetphi") )? genmetphi : tr.getVar<double>("metphi");
        const double& best_had_brJet_MT2 = tr.getVar<double>("best_had_brJet_MT2" + spec);
        const int& cntCSVS               = tr.getVar<int>("cntCSVS" + spec);
        const int& nTopCandSortedCnt     = tr.getVar<int>("nTopCandSortedCnt" + spec);
        const bool& passBaseline         = tr.getVar<bool>("passBaseline" + spec);
+       const double HT = tr.getVar<double>("HT" + spec);
 
        const bool& passBaselineNoLepVeto = tr.getVar<bool>("passBaselineNoLepVeto" + spec);
        const bool& passMuonVeto = tr.getVar<bool>("passMuonVeto" + spec);
@@ -670,7 +644,7 @@ public:
        const bool passMT2 = tr.getVar<bool>("passMT2" + spec);
        const bool passHT = tr.getVar<bool>("passHT" + spec);
        const bool passTagger = tr.getVar<bool>("passTagger" + spec);
-       const bool passNewTaggerReq = tr.getVar<bool>("passNewTaggerReq" + spec);
+       const bool passNewTaggerReq = tr.hasVar("passNewTaggerReq" + spec)? tr.getVar<bool>("passNewTaggerReq" + spec) : tr.getVar<bool>("passTagger" + spec);
        const bool passNoiseEventFilter = tr.getVar<bool>("passNoiseEventFilter" + spec);
        const bool passFastsimEventFilter = tr.getVar<bool>("passFastsimEventFilter" + spec);
 
@@ -877,7 +851,7 @@ public:
 
        sumStopPt_vs_met_->Fill(met, sumStopLVec.Pt(), weight);
 
-       const int nSearchBin = sb->find_Binning_Index(cntCSVS, nTopCandSortedCnt, best_had_brJet_MT2, met);
+       const int nSearchBin = sb->find_Binning_Index(cntCSVS, nTopCandSortedCnt, best_had_brJet_MT2, met, HT);
 
        met_->Fill(met, weight);
        mt2_->Fill(best_had_brJet_MT2, weight);
@@ -1197,27 +1171,27 @@ public:
        }
 
        if( passBaseline_metMagUp ){
-          const int nSearchBin_metMagUp = sb->find_Binning_Index(cntCSVS_metMagUp, nTopCandSortedCnt_metMagUp, best_had_brJet_MT2_metMagUp, met_metMagUp);
+          const int nSearchBin_metMagUp = sb->find_Binning_Index(cntCSVS_metMagUp, nTopCandSortedCnt_metMagUp, best_had_brJet_MT2_metMagUp, met_metMagUp, HT);
           baseline_metMagUp_->Fill(nSearchBin_metMagUp, weight);
        }
        if( passBaseline_metMagDn ){
-          const int nSearchBin_metMagDn = sb->find_Binning_Index(cntCSVS_metMagDn, nTopCandSortedCnt_metMagDn, best_had_brJet_MT2_metMagDn, met_metMagDn);
+          const int nSearchBin_metMagDn = sb->find_Binning_Index(cntCSVS_metMagDn, nTopCandSortedCnt_metMagDn, best_had_brJet_MT2_metMagDn, met_metMagDn, HT);
           baseline_metMagDn_->Fill(nSearchBin_metMagDn, weight);
        }
        if( passBaseline_metPhiUp ){
-          const int nSearchBin_metPhiUp = sb->find_Binning_Index(cntCSVS_metPhiUp, nTopCandSortedCnt_metPhiUp, best_had_brJet_MT2_metPhiUp, met_metPhiUp);
+          const int nSearchBin_metPhiUp = sb->find_Binning_Index(cntCSVS_metPhiUp, nTopCandSortedCnt_metPhiUp, best_had_brJet_MT2_metPhiUp, met_metPhiUp, HT);
           baseline_metPhiUp_->Fill(nSearchBin_metPhiUp, weight);
        }
        if( passBaseline_metPhiDn ){
-          const int nSearchBin_metPhiDn = sb->find_Binning_Index(cntCSVS_metPhiDn, nTopCandSortedCnt_metPhiDn, best_had_brJet_MT2_metPhiDn, met_metPhiDn);
+          const int nSearchBin_metPhiDn = sb->find_Binning_Index(cntCSVS_metPhiDn, nTopCandSortedCnt_metPhiDn, best_had_brJet_MT2_metPhiDn, met_metPhiDn, HT);
           baseline_metPhiDn_->Fill(nSearchBin_metPhiDn, weight);
        }
        if( passBaseline_jecUp ){
-          const int nSearchBin_jetUp = sb->find_Binning_Index(cntCSVS_jecUp, nTopCandSortedCnt_jecUp, best_had_brJet_MT2_jecUp, met_jecUp);
+          const int nSearchBin_jetUp = sb->find_Binning_Index(cntCSVS_jecUp, nTopCandSortedCnt_jecUp, best_had_brJet_MT2_jecUp, met_jecUp, HT);
           baseline_jetJECUp_->Fill(nSearchBin_jetUp, weight);
        }
        if( passBaseline_jecDn ){
-          const int nSearchBin_jetDn = sb->find_Binning_Index(cntCSVS_jecDn, nTopCandSortedCnt_jecDn, best_had_brJet_MT2_jecDn, met_jecDn);
+          const int nSearchBin_jetDn = sb->find_Binning_Index(cntCSVS_jecDn, nTopCandSortedCnt_jecDn, best_had_brJet_MT2_jecDn, met_jecDn, HT);
           baseline_jetJECDn_->Fill(nSearchBin_jetDn, weight);
        }
     }
@@ -1358,13 +1332,11 @@ class SystematicPrep{
       const std::vector<double>& metPhiUpVec = tr.getVec<double>("metPhiUp");
       const std::vector<double>& metPhiDnVec = tr.getVec<double>("metPhiDown");
 
-      const double & genmet_tmp = tr.getVar<double>("genmet");
-      const double & genmetphi_tmp = tr.getVar<double>("genmetphi");
-      const double genmet = (&genmet_tmp) != nullptr ? tr.getVar<double>("genmet") : 0;
-      const double genmetphi = (&genmetphi_tmp) != nullptr ? tr.getVar<double>("genmetphi") : -999;
+      const double genmet = tr.hasVar("genmet") ? tr.getVar<double>("genmet") : 0;
+      const double genmetphi = tr.hasVar("genmetphi") ? tr.getVar<double>("genmetphi") : -999;
 
-      const double& met    = ( usegenmet && (&genmet_tmp) != nullptr )? genmet : tr.getVar<double>("met");
-      const double& metphi = ( usegenmet && (&genmet_tmp) != nullptr )? genmetphi : tr.getVar<double>("metphi");
+      const double met = ( usegenmet && tr.hasVar("genmet") )? genmet : tr.getVar<double>("met");
+      const double metphi = ( usegenmet && tr.hasVar("genmetphi") )? genmetphi : tr.getVar<double>("metphi");
 
       std::vector<TLorentzVector> *jetLVecUp = new std::vector<TLorentzVector>;
       std::vector<TLorentzVector> *jetLVecDn = new std::vector<TLorentzVector>;
@@ -1487,18 +1459,18 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 //     activatedBranch.insert("recoJetsFlavor");
 
      tr = new NTupleReader(treeVec[ist], activatedBranch);
-     tr->registerFunction(&mypassBaselineFunc);
-     if(!isData) tr->registerFunction(&myPDFUncertaintyFunc);
+     tr->registerFunction((*SRblv));
+     if(!isData) tr->registerFunction((*pdfScale));
 
 //     tr->registerFunction(&sysPrepFunc);
      tr->registerFunction(sysPrep);
 
-     tr->registerFunction(&jecUpBaselineFunc);
-     tr->registerFunction(&jecDnBaselineFunc);
-     tr->registerFunction(&metMagUpBaselineFunc);
-     tr->registerFunction(&metMagDnBaselineFunc);
-     tr->registerFunction(&metPhiUpBaselineFunc);
-     tr->registerFunction(&metPhiDnBaselineFunc);
+     tr->registerFunction((*SRblv_jecUp));
+     tr->registerFunction((*SRblv_jecDn));
+     tr->registerFunction((*SRblv_metMagUp));
+     tr->registerFunction((*SRblv_metMagDn));
+     tr->registerFunction((*SRblv_metPhiUp));
+     tr->registerFunction((*SRblv_metPhiDn));
 
      BTagCorrector btagcorr;
      btagcorr.SetFastSim(true); btagcorr.SetCalibFastSim("CSV_13TEV_Combined_14_7_2016.csv");
@@ -1554,17 +1526,15 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const unsigned int & lumi = tr->getVar<unsigned int>("lumi"); 
         const unsigned int & event = tr->getVar<unsigned int>("event"); 
 
-        const double & genmet_tmp = tr->getVar<double>("genmet");
-        const double & genmetphi_tmp = tr->getVar<double>("genmetphi");
-        const double genmet = (&genmet_tmp) != nullptr ? tr->getVar<double>("genmet") : 0;
-        const double genmetphi = (&genmetphi_tmp) != nullptr ? tr->getVar<double>("genmetphi") : -999;
+        const double genmet = tr->hasVar("genmet") ? tr->getVar<double>("genmet") : 0;
+        const double genmetphi = tr->hasVar("genmetphi") ? tr->getVar<double>("genmetphi") : -999;
         TLorentzVector genmetLVec;
-        if( (&genmet_tmp) != nullptr ){
+        if( tr->hasVar("genmet") ){
            genmetLVec.SetPtEtaPhiM(tr->getVar<double>("genmet"), 0, tr->getVar<double>("genmetphi"), 0);
         }
 
-        const double met = ( usegenmet && (&genmet_tmp) != nullptr )? genmet : tr->getVar<double>("met");
-        const double metphi = ( usegenmet && (&genmet_tmp) != nullptr )? genmetphi : tr->getVar<double>("metphi");
+        const double met = ( usegenmet && tr->hasVar("genmet") )? genmet : tr->getVar<double>("met");
+        const double metphi = ( usegenmet && tr->hasVar("genmetphi") )? genmetphi : tr->getVar<double>("metphi");
         TLorentzVector metLVec; metLVec.SetPtEtaPhiM(met, 0, metphi, 0);
         const TLorentzVector mhtLVec = AnaFunctions::calcMHT(tr->getVec<TLorentzVector>("jetsLVec"), AnaConsts::pt30Arr);
 
@@ -1626,7 +1596,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         const bool passBaseline = tr->getVar<bool>("passBaseline" + spec);
         const bool passBaselineNoTag = tr->getVar<bool>("passBaselineNoTag" + spec);
 
-        const int searchBinIdx = sb->find_Binning_Index(nbJets, nTops, MT2, met);
+        const int searchBinIdx = sb->find_Binning_Index(nbJets, nTops, MT2, met, HT);
 
         h1_cutFlowVec.back()->Fill("all", evtWeight * scaleMC);
 
@@ -1741,8 +1711,8 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
         h2_MT2_vs_met_baselineVec.back()->Fill(met, MT2, evtWeight * scaleMC);
 
         for(unsigned int it=0; it<nTops; it++){
-           TLorentzVector topLVec = type3Ptr->buildLVec(jetsLVec_forTagger, type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
-           h1_topMass_baselineVec.back()->Fill(topLVec.M(), evtWeight * scaleMC);
+//           TLorentzVector topLVec = type3Ptr->buildLVec(jetsLVec_forTagger, type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
+//           h1_topMass_baselineVec.back()->Fill(topLVec.M(), evtWeight * scaleMC);
         }
    
         h1_dphi1_baselineVec.back()->Fill(dPhiVec[0], evtWeight * scaleMC);
@@ -1839,7 +1809,7 @@ void signalScan(int argc, char *argv[]){
 
    declHistGlobal();
 
-   TFile * allINone_leptonSF_file = new TFile("allINone_leptonSF.root");
+   TFile * allINone_leptonSF_file = new TFile("allINone_leptonSF_Moriond17.root");
    if( !allINone_leptonSF_file->IsZombie() ){
       mu_mediumID_SF = (TH2D*) allINone_leptonSF_file->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0");
       mu_miniISO_SF = (TH2D*) allINone_leptonSF_file->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0_&_Medium2016_pass");
@@ -1855,7 +1825,7 @@ void signalScan(int argc, char *argv[]){
 
    int startfile = 0, filerun = -1;
 
-   std::string selKeyStr;
+   std::string selKeyStr, specColKeyStr;
    if( argc >=2 ){
       selKeyStr = argv[1];
       std::cout<<"selKeyStr : "<<selKeyStr<<std::endl;
@@ -1909,8 +1879,8 @@ void signalScan(int argc, char *argv[]){
       }
    }
 
-   type3Ptr = SRblv->GetType3Ptr();
-   type3Ptr->setdebug(true);
+//   type3Ptr = SRblv->GetType3Ptr();
+//   type3Ptr->setdebug(true);
 
    bool doSel = false; std::ostringstream convert;
    if( argc >=3 ){
@@ -1924,13 +1894,17 @@ void signalScan(int argc, char *argv[]){
          filerun = atoi(argv[3]);
          if( argc >=5 ){
             startfile = atoi(argv[4]);
+            if( argc >=6 ){
+               specColKeyStr = argv[5];
+               std::cout<<"specColKeyStr : "<<specColKeyStr<<std::endl;
+            }
          }
       }
    }
 
    std::string condorSpec;
-   if( argc >=6 ){
-      condorSpec = argv[5];
+   if( argc >=7 ){
+      condorSpec = argv[6];
    }
 
    AnaSamples::SampleSet        allSamples = condorSpec.empty()? AnaSamples::SampleSet():AnaSamples::SampleSet(condorSpec);
@@ -1955,12 +1929,24 @@ void signalScan(int argc, char *argv[]){
 
    std::vector<TTree*> treeVec;
    std::vector<std::string> subSampleKeysVec;
+
+   std::vector<int> toRunVec(keyStrVec.size(), 0);
  
    for(const auto & filelist : allCollections){
 
+      if( !specColKeyStr.empty() && specColKeyStr != filelist.first ) continue;
+
       if( !keyStrVec.empty() ){
          bool found = false;
-         for(auto& str : keyStrVec ){ if( filelist.first == str ) found = true; }
+         for(unsigned int ik=0; ik<keyStrVec.size(); ik++){
+            if( filelist.first == keyStrVec[ik] ){
+               if( toRunVec[ik] ) found = false;
+               else{
+                  found = true;
+                  if(  entryToProcess !=0 ) toRunVec[ik]++;
+               }
+            }
+         }
          if( !found && entryToProcess !=0 ) continue;
       }
 
@@ -1969,7 +1955,15 @@ void signalScan(int argc, char *argv[]){
          for(auto & file : filelist.second){
             std::string perSubStr;
             for(const auto & perST : allSamples ){ if(perST.second == file ) perSubStr = perST.first; }
-            for(auto& str : keyStrVec ){ if( perSubStr == str ) found = true; }
+            for(unsigned int ik=0; ik<keyStrVec.size(); ik++){
+               if( perSubStr == keyStrVec[ik] ){
+                  if( toRunVec[ik] ) found = false;
+                  else{
+                     found = true;
+                     toRunVec[ik]++;
+                  }
+               }
+            }
          }
          if( !found ) continue;
       }
@@ -1993,12 +1987,6 @@ void signalScan(int argc, char *argv[]){
             if( !found ) continue;
          }
 
-// Throw away low HT bin samples since we have HT>500 GeV cut...
-/*
-         if(filelist.first == "WJetsToLNu" && (perSubStr == "WJetsToLNu_HT_100to200" || perSubStr == "WJetsToLNu_HT_200to400") ) continue;
-         if(filelist.first == "ZJetsToNuNu" && (perSubStr == "ZJetsToNuNu_HT_100to200" || perSubStr == "ZJetsToNuNu_HT_200to400") ) continue;
-         if(filelist.first == "QCD" && (perSubStr == "QCD_HT100to200" || perSubStr == "QCD_HT200to300" || perSubStr == "QCD_HT300to500") ) continue;
-*/
          std::cout<<"  "<<perSubStr.c_str();
 
          TChain *aux = new TChain(file.treePath.c_str());  

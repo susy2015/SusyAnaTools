@@ -24,10 +24,13 @@ class ISRCorrector {
 	  fnISR_ = new TFile(fnISR.c_str());
 	  fISRWght = new TFile("ISRWeights.root");
 	}
-     
 
+      if( massPoint.IsNull() ){
+         h_njetsisr = (TH1D*)fnISR_->Get("NJetsISR");
+      }else{
+         h_njetsisr = (TH1D*)fnISR_->Get("NJetsISR_"+ massPoint_);
+      }
 
-      h_njetsisr = (TH1D*)fnISR_->Get("NJetsISR_"+ massPoint_);
 
       //get Weight histograms.
       TH1D *h_isr_up = (TH1D*)fISRWght->Get("isr_weights_up");

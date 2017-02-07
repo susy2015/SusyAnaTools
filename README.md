@@ -13,15 +13,16 @@ git checkout NEW_TAG_NAME
 The following installation instructions assume the user wants to process Run2016 data or Spring16 MC.
 
 ```
-cmsrel CMSSW_8_0_23
-cd CMSSW_8_0_23/src/
+cmsrel CMSSW_8_0_25
+cd CMSSW_8_0_25/src/
 cmsenv
 git cms-init
 git cms-merge-topic -u kpedro88:METfix8022
-git cms-merge-topic -u cms-met:CMSSW_8_0_X-METFilterUpdate
+git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
-git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_80X_V2
-git clone -b Ana_Dec21_2016_Moriond2017_forBkgPred git@github.com:susy2015/SusyAnaTools.git
+git clone git@github.com:susy2015/JetToolbox.git JMEAnalysis/JetToolbox -b fix_NoLep_jetToolbox_80X_V3
+git cms-merge-topic gpetruc:badMuonFilters_80X_v2
+git clone -b prodNtpV12_Moriond_2017_Jan26_2017 git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 
@@ -62,7 +63,7 @@ make -j 8
 
 ## Checkout Tagtagger
 cd $CMSSW_BASE/src
-git clone -b HadStopAnaDevel_v5_Moriond2017_Dec21_2016 git@github.com:susy2015/TopTagger.git
+git clone -b HadStopAnaDevel_v6_Moriond2017_Feb5_2017 git@github.com:susy2015/TopTagger.git
 scram b -j 8
 cd TopTagger/TopTagger/test/
 make -j 8 
