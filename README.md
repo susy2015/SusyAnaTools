@@ -22,7 +22,7 @@ git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
 git clone git@github.com:susy2015/JetToolbox.git JMEAnalysis/JetToolbox -b fix_NoLep_jetToolbox_80X_V3
 git cms-merge-topic gpetruc:badMuonFilters_80X_v2
-git clone -b prodNtpV12_Moriond_2017_Jan26_2017 git@github.com:susy2015/SusyAnaTools.git
+git clone -b ana_Summer16_MC_23Sep2016_Data_Feb07_2017 git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 
