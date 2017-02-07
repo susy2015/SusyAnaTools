@@ -58,7 +58,7 @@ endif
 
 ## Get the btagging file
 if (! -f CSVv2_Moriond17_B_H.csv) then
-  ln -s ${SRC}/SusyAnaTools/Tools/CSVv2_Moriond17_B_H.csv .
+  ln -s ${SRC}/SusyAnaTools/Tools/CSVFiles/CSVv2_Moriond17_B_H.csv .
 endif
 
 if (! -f TTbarNoHad_bTagEff.root) then
@@ -71,7 +71,7 @@ if (! -f PileupHistograms_Nov17.root) then
 endif
 
 ## W softdrop mass correction 
-if (! -f PileupHistograms_Nov17.root) then
+if (! -f puppiSoftdropResol.root) then
   ln -s ${SRC}/SusyAnaTools/Tools/puppiSoftdropResol.root .
 endif
 
