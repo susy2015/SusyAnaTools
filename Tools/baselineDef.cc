@@ -869,10 +869,10 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
 
   for(unsigned int i = 0; i < LepVec.size(); ++i)
   {
-    for(unsigned int j = 0; j < i && j < LepVec.size(); ++j)
+    for(unsigned int j = i; j < LepVec.size(); ++j)
     {
       double zm = (LepVec.at(i) + LepVec.at(j)).M();
-      int sumchg =LepChg.at(i) + LepChg.at(j); 
+      int sumchg = LepChg.at(i) + LepChg.at(j); 
       if (sumchg == 0 && zm > zMassMin && zm < zMassMax)
       {
         recoZVec->push_back((LepVec.at(i) + LepVec.at(j)));
@@ -887,7 +887,6 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
                 std::make_pair(i+100, j+100)));
         }
       }
-
     }
   }
   return true;
