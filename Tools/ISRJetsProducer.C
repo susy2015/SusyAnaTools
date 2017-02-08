@@ -70,10 +70,12 @@ TChain *fChain = 0;
       NTupleReader *tr =0;
       tr = new NTupleReader(fChain);
 
+/*
       BaselineVessel *CSBaseline = 0;
       CSBaseline = new BaselineVessel(*tr, spec);
       tr->registerFunction((*CSBaseline));
       CSBaseline->SetupTopTagger(true,"TopTagger.cfg");
+*/
 
       // --- Analyse events --------------------------------------------
       std::cout<<"First loop begin: "<<std::endl;

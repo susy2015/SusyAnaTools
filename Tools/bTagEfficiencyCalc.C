@@ -116,12 +116,12 @@ TChain *fChain = 0;
       AnaFunctions::prepareForNtupleReader();
       NTupleReader *tr =0;
       tr = new NTupleReader(fChain);
-
+/*
       BaselineVessel *CSBaseline = 0;
       CSBaseline = new BaselineVessel(*tr, spec);
       tr->registerFunction((*CSBaseline));
       CSBaseline->SetupTopTagger(true,"TopTagger.cfg");
-
+*/
       // --- Analyse events --------------------------------------------
       std::cout<<"First loop begin: "<<std::endl;
       int entries = tr->getNEntries();
@@ -137,9 +137,6 @@ TChain *fChain = 0;
     /*************************************************************/
     while(tr->getNextEvent())
     {
-
-
-
 
 	if(maxEvent>=0 && tr->getEvtNum() > maxEvent ) break;
 	// Add print out of the progress of looping
