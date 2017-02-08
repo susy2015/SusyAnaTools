@@ -1,8 +1,10 @@
 
 //Tools Headers
-#include "NTupleReader.h"
-#include "samples.h"
 
+#include "SusyAnaTools/Tools/SATException.h"
+#include "SusyAnaTools/Tools/NTupleReader.h"
+#include "SusyAnaTools/Tools/samples.h"
+#include "SusyAnaTools/Tools/baselineDef.h"
 
 //ROOT headers
 #include "TFile.h"
@@ -25,52 +27,47 @@ const int nEtaBins = 3;
 const double ptBins[]    =  {20,30,40,50,60,70,80,100,120,160,210,260,320,400,500,600,800,99999};
 const double etaBins[]  =  {0.0,0.8,1.6,2.4};
 
-const double csv_btag = 0.800;
-int main(int argc, char* argv[])
+const double csv_btag = 0.8484;
+
+const std::string spec = "bTagEff";
+
+// === Main Function ===================================================
+int main(int argc, char* argv[]) 
 {
 
-  std::string condor = "";
-    if(argc >= 5) condor = argv[4];
-    AnaSamples::SampleSet        ss(argv[4], 8000.0);
-    AnaSamples::SampleCollection sc(ss);
 
-    std::string ssName;
-    int numFiles;
-    int startFile;
-
-    if(argc >= 4)
-    {
-        ssName = argv[1];
-        numFiles = atoi(argv[2]);
-        startFile = atoi(argv[3]);
-    }
-
-    const std::string samples = argv[1];
-    TString samplesT = samples;
-    TChain* ch = 0;
-    if(ss[ssName] != ss.null())
-    {
-        ch = new TChain(ss[ssName].treePath.c_str());
-	  
-        ss[ssName].addFilesToChain(ch, startFile, numFiles);
-    }
-    NTupleReader tr(ch);
-    std::cout << "NEVTS: " << tr.getNEntries() << std::endl;
-
-
-    std::string nmStr;
-    std::ostringstream convert;
-    if( startFile != 0 || numFiles != -1 ){
-      int idx = startFile/numFiles;
-      convert << idx;
-      nmStr += "_"+convert.str();
-    }
-    TString nmStrT = nmStr;
+TChain *fChain = 0;
+  
     
+      if (argc < 5)
+      {
+	std::cerr <<"Please give 4 arguments "<<"SubsampleName"<< " MaxEvent"<< "Startfile"<<" No. of Files to run" <<std::endl;
+      std::cerr <<" Valid configurations are " << std::endl;
+      std::cerr <<" ./remnantSys TTbarInc 1000 1 0" << std::endl;
+        return -1;
+	}
 
-    TFile *infile = nullptr;
-    infile = new TFile(samplesT+"_bTagEff"+nmStrT+"_"+std::to_string(startFile)+".root", "RECREATE");
-    //infile = new TFile("bTagEff"+samplesT+"_"+nmStrT+"_"+std::to_string(startFile)+".root", "RECREATE");
+      const char *subSampleName = argv[1];
+      const char *maxevent = argv[2];
+    
+      int numFiles = -1;
+      int startFile = 0;
+      // Change string arg to int
+      int  maxEvent =  std::atoi(maxevent);
+      numFiles =  std::atoi(argv[4]);
+      startFile =  std::atoi(argv[3]);
+
+      // Prepare file list and finalize it
+      //TChain *fChain = 0;
+      TString subSampleNameT = subSampleName;
+
+      const std::string stFile = std::to_string(startFile);
+      TString stFileT = stFile;
+      TString specT = spec;
+
+      TString FileName = subSampleNameT+"_"+spec+"_"+stFileT;
+      TFile *f = nullptr;
+      f =  new TFile(FileName+".root", "RECREATE");
 
     /*************************************************************/      
     //Declare efficiency histograms. n-> numerator d-> denominator
@@ -78,12 +75,12 @@ int main(int argc, char* argv[])
     /*************************************************************/
 
     TH1::AddDirectory(kFALSE);
-    TH2* n_eff_b =    new TH2D("n_eff_b", "bTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
-    TH2* n_eff_c =    new TH2D("n_eff_c", "cTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
-    TH2* n_eff_udsg = new TH2D("n_eff_udsg", "udsgTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
-    TH2* d_eff_b =    new TH2D("d_eff_b", "bTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
-    TH2* d_eff_c =    new TH2D("d_eff_c", "cTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
-    TH2* d_eff_udsg = new TH2D("d_eff_udsg", "udsgTag_Efficiency"+nmStrT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* n_eff_b =    new TH2D("n_eff_b", "bTag_Efficiency"+stFileT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* n_eff_c =    new TH2D("n_eff_c", "cTag_Efficiency"+stFileT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* n_eff_udsg = new TH2D("n_eff_udsg", "udsgTag_Efficiency"+stFileT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* d_eff_b =    new TH2D("d_eff_b", "bTag_Efficiency"+stFileT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* d_eff_c =    new TH2D("d_eff_c", "cTag_Efficiency"+stFileT, nPtBins, ptBins, nEtaBins, etaBins);
+    TH2* d_eff_udsg = new TH2D("d_eff_udsg", "udsgTag_Efficiency"+stFileT, nPtBins, ptBins, nEtaBins, etaBins);
 
     // TH2* n_eff_b =    new TH2D("n_eff_b_"+samplesT, "bTag_Efficiency"+samplesT, nPtBins, ptBins, nEtaBins, etaBins);
     // TH2* n_eff_c =    new TH2D("n_eff_c_"+samplesT, "cTag_Efficiency"+samplesT, nPtBins, ptBins, nEtaBins, etaBins);
@@ -100,27 +97,61 @@ int main(int argc, char* argv[])
       
     n_eff_udsg->GetXaxis()->SetTitle("p_{T} [GeV]");
     n_eff_udsg->GetYaxis()->SetTitle("#eta");
+ 
+
+      const string condor =  (argc == 6) ? argv[5]: "";
+  
+      AnaSamples::SampleSet ss = condor.empty()? AnaSamples::SampleSet():AnaSamples::SampleSet(argv[5]);
+      AnaSamples::SampleCollection sc(ss);
+                                   
+      double ScaleMC = 1.;                                                                              
+      if(ss[subSampleName] != ss.null())                                                                             
+      {                                                                                                               
+        fChain = new TChain(ss[subSampleName].treePath.c_str());                                                           
+	  ss[subSampleName].addFilesToChain(fChain, startFile, numFiles);
+
+	    ScaleMC = ss[subSampleName].getWeight();
+      } 
+
+      AnaFunctions::prepareForNtupleReader();
+      NTupleReader *tr =0;
+      tr = new NTupleReader(fChain);
+
+      BaselineVessel *CSBaseline = 0;
+      CSBaseline = new BaselineVessel(*tr, spec);
+      tr->registerFunction((*CSBaseline));
+      CSBaseline->SetupTopTagger(true,"TopTagger.cfg");
+
+      // --- Analyse events --------------------------------------------
+      std::cout<<"First loop begin: "<<std::endl;
+      int entries = tr->getNEntries();
+      std::cout<<"\nentries : "<<entries<<"\t MC Scale: "<<ScaleMC<<std::endl; 
+      cout<<"maxevent: "<<maxEvent<<endl;
+
+      std::cout << "Arrived Here 1" << std::endl;
+
+
       
     /*************************************************************/
     // Event loop begins                                                                                                            
     /*************************************************************/
-    while(tr.getNextEvent())
+    while(tr->getNextEvent())
     {
 
-        if(tr.getEvtNum() == 1)
-        {
-            tr.printTupleMembers();
-            FILE * fout = fopen("NTupleTypes.txt", "w");
-            tr.printTupleMembers(fout);
-            fclose(fout);
-        }
 
-        if( tr.getEvtNum()%100 == 0 ) cout<<"\n   Processing the "<<tr.getEvtNum()-1<<"th event ..."<<endl;
+
+
+	if(maxEvent>=0 && tr->getEvtNum() > maxEvent ) break;
+	// Add print out of the progress of looping
+	if( tr->getEvtNum()-1 == 0 || tr->getEvtNum() == entries || (tr->getEvtNum()-1)%(entries/10) == 0 ) 
+	  {
+	    std::cout<<"\n   Processing the "<<tr->getEvtNum()-1<<"th event ..."<<std::endl;
+	  }
 	  
 	  
-        const  vector<TLorentzVector> inputJets = tr.getVec<TLorentzVector>("jetsLVec");
-        const vector<double> recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
-        const vector<int> recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
+        const  vector<TLorentzVector> inputJets = tr->getVec<TLorentzVector>("jetsLVec");
+        const vector<double> recoJetsBtag = tr->getVec<double>("recoJetsBtag_0");
+        const vector<int> recoJetsFlavor = tr->getVec<int>("recoJetsFlavor");
 
 	  
      
@@ -151,25 +182,28 @@ int main(int argc, char* argv[])
 	      
         }
     }
+
     /*************************************************************/
     // End of Event loop
     /*************************************************************/
-      
+  
+    f->cd();
     d_eff_b->Write();
     d_eff_c->Write();
     d_eff_udsg->Write();
-    
-    
+
+
     n_eff_b->Write();
     n_eff_c->Write();
-    n_eff_udsg->Write();  
-    
-
-    infile->Close();
-     
+    n_eff_udsg->Write();
 
 
-    return 0;
+    f->Close();
+
+
+  fChain->Reset();
+  return 0;
+
  
 }
 
