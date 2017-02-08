@@ -89,13 +89,20 @@ TChain *fChain = 0;
 	      std::cout<<"\n   Processing the "<<tr->getEvtNum()-1<<"th event ..."<<std::endl;
 	    }
 
+           double iniWeight = tr->getVar<double>("evtWeight");
+
+           double stored_weight = subSampleNameT.Contains("Data") ? 1 : tr->getVar<double>("stored_weight");
+           int sign_of_stored_weight = (stored_weight > 0) ? 1 : ((stored_weight < 0) ? -1 : 0);
+
+           double evtWeight = iniWeight >=0 ? iniWeight * sign_of_stored_weight : iniWeight;
+
 	  /*
 	  const bool passBaseline = tr->getVar<bool>("passBaseline" + spec);
 	  if(!passBaseline) continue;
 	  */
 	  
 	  const int nJetsISR = tr->getVar<int>("NJetsISR");
-	  hISR->Fill(nJetsISR);
+	  hISR->Fill(nJetsISR, evtWeight);
 
 
 
