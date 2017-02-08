@@ -9,10 +9,14 @@
 #include <string>
 
 class ISRCorrector {
+private:
+    bool isFirst;
+
  public:
   //constructor
  ISRCorrector(std::string fnISR = "Signal_fastsim_T1tttt_scan_ISR.root", std::string ISRJetsFilePath = "ISR_Root_Files", TString massPoint = "1200_800"): massPoint_(massPoint)
   {
+      isFirst = true;
       
       if(ISRJetsFilePath.size())
         {

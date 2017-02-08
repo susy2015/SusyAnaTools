@@ -1,6 +1,6 @@
 #include "ISRCorrector.h"
 #include "NTupleReader.h"
-
+#include "SATException.h"
 
 //ROOT headers
 #include <TROOT.h>
@@ -70,15 +70,35 @@ double ISRCorrector::GetCorrection_Down(int NJetsISR){
 void ISRCorrector::registerVarToNTuples(NTupleReader& tr)
 {
 
-  const int NJetsISR = tr.getVar<int>("NJetsISR");
+    double isr_Unc_Up = 1.0;
+    double isr_Unc_Cent = 1.0;
+    double isr_Unc_Down = 1.0;
 
-  double isr_Unc_Up = GetCorrection_Up(NJetsISR);
-  double isr_Unc_Cent = GetCorrection_Cent(NJetsISR);
-  double isr_Unc_Down = GetCorrection_Down(NJetsISR); 
+    //Safety for data (where this variable does not exist)
+    if(tr.checkBranch("NJetsISR"))
+    {
+        const int NJetsISR = tr.getVar<int>("NJetsISR");
+    
+        isr_Unc_Up = GetCorrection_Up(NJetsISR);
+        isr_Unc_Cent = GetCorrection_Cent(NJetsISR);
+        isr_Unc_Down = GetCorrection_Down(NJetsISR); 
+    }
+    else
+    {
+        if(isFirst)
+        {
+            isFirst = false;
+            //Safety if it appears to be MC instead of data (not ideal ... maybe someone can improve this)
+            if(tr.checkBranch("genDecayLVec"))
+            {
+                THROW_SATEXCEPTION("It appears that this is MC, but I don't find the \"NJetsISR\" variable in the NTuple or derived variables");
+}
+        }
+    }
 
-  tr.registerDerivedVar("isr_Unc_Up", isr_Unc_Up);
-  tr.registerDerivedVar("isr_Unc_Cent", isr_Unc_Cent);
-  tr.registerDerivedVar("isr_Unc_Down", isr_Unc_Down);
+    tr.registerDerivedVar("isr_Unc_Up", isr_Unc_Up);
+    tr.registerDerivedVar("isr_Unc_Cent", isr_Unc_Cent);
+    tr.registerDerivedVar("isr_Unc_Down", isr_Unc_Down);
 
 }
 
