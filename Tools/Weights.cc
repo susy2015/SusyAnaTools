@@ -3,11 +3,11 @@
 
 #include <iostream>
 
-Pileup_Sys::Pileup_Sys()
+Pileup_Sys::Pileup_Sys(std::string filename)
 {
     TH1::AddDirectory(false); //magic incantation that lets the root file close if this is not here segfaults 
     //Calling the Jasn file from RA2b currently
-    TFile Pileup_Jasn("PileupHistograms_Nov17.root");
+    TFile Pileup_Jasn(filename.c_str());
     //These are the historgrams currently in the Jasn file
     pu_central  = (TH1F*)Pileup_Jasn.Get("pu_weights_central");
     pu_up  = (TH1F*)Pileup_Jasn.Get("pu_weights_up");
