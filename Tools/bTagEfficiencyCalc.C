@@ -54,8 +54,8 @@ TChain *fChain = 0;
       int startFile = 0;
       // Change string arg to int
       int  maxEvent =  std::atoi(maxevent);
-      numFiles =  std::atoi(argv[4]);
-      startFile =  std::atoi(argv[3]);
+      numFiles =  std::atoi(argv[3]);
+      startFile =  std::atoi(argv[4]);
 
       // Prepare file list and finalize it
       //TChain *fChain = 0;
