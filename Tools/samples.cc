@@ -71,11 +71,25 @@ namespace AnaSamples
         // 0.00143 * kt
         addSample("TTbar_HT-2500toInf", fDir_ + MCloc + "TTJets_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",  "stopTreeMaker/AUX", 0.002368413, lumi, 1519815,  1.0, kGreen);
     
+        // deep trimmed ... (keep same cross-section, number of events as the original ones)
+        addSample("TTbar_HT-600to800_deepTrimmed", fDir_ + MCloc + "TTJets_HT-600to800_deepTrimmed.txt",   "stopTreeMaker/AUX", 2.666535,    lumi, 14210872, 1.0, kGreen);
+        // 0.663 * kt
+        addSample("TTbar_HT-800to1200_deepTrimmed", fDir_ + MCloc + "TTJets_HT-800to1200_deepTrimmed.txt",  "stopTreeMaker/AUX", 1.098082,    lumi, 9982765, 1.0, kGreen);
+        // 0.12 * kt
+        addSample("TTbar_HT-1200to2500_deepTrimmed", fDir_ + MCloc + "TTJets_HT-1200to2500_deepTrimmed.txt", "stopTreeMaker/AUX", 0.198748,    lumi, 2932983, 1.0, kGreen);
+        // 0.00143 * kt
+        addSample("TTbar_HT-2500toInf_deepTrimmed", fDir_ + MCloc + "TTJets_HT-2500toInf_deepTrimmed.txt",  "stopTreeMaker/AUX", 0.002368413, lumi, 1519815,  1.0, kGreen);
+    
         // Calculated from PDG BRs'. Not from the kt * xSec in McM
         //addSample("TTbarInc",           fDir_ + MCloc + "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 831.76,         lumi, 10259872, 1.0, kGreen);
         addSample("TTbarDiLep",         fDir_ + MCloc + "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 831.76*TTbar_DiLept_BR,         lumi, 30444678, 1.0, kGreen);
         addSample("TTbarSingleLepT",    fDir_ + MCloc + "TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR, lumi, 61901450, 1.0, kGreen);
         addSample("TTbarSingleLepTbar", fDir_ + MCloc + "TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",    "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR, lumi, 59860282, 1.0, kGreen);
+
+        // deep trimmed ...
+        addSample("TTbarDiLep_deepTrimmed",         fDir_ + MCloc + "TTJets_DiLept_deepTrimmed.txt",             "stopTreeMaker/AUX", 831.76*TTbar_DiLept_BR,         lumi, 30444678, 1.0, kGreen);
+        addSample("TTbarSingleLepT_deepTrimmed",    fDir_ + MCloc + "TTJets_SingleLeptFromT_deepTrimmed.txt", "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR, lumi, 61901450, 1.0, kGreen);
+        addSample("TTbarSingleLepTbar_deepTrimmed", fDir_ + MCloc + "TTJets_SingleLeptFromTbar_deepTrimmed.txt",    "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR, lumi, 59860282, 1.0, kGreen);
 
         // From https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#W_jets, kw = 1.21
         addSample("WJetsToLNu_Inc", fDir_ + MCloc + "WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 61526.7,  lumi, 28161602,  1.21, kMagenta+1);
@@ -89,6 +103,18 @@ namespace AnaSamples
         addSample("WJetsToLNu_HT_1200to2500", fDir_ + MCloc + "WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.329,   lumi, 6801534,   1.21, kMagenta+1);
         addSample("WJetsToLNu_HT_2500toInf",  fDir_ + MCloc + "WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX",  0.03216, lumi, 2637821,   1.21, kMagenta+1);
         addSample("WJetsToLNu_HT_600toInf",   fDir_ + MCloc + "WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 18.77,  lumi, 1039152,  1.21, kMagenta+1);
+        
+        // deep trimmed ...
+//        addSample("WJetsToLNu_Inc_deepTrimmed", fDir_ + MCloc + "WJetsToLNu_deepTrimmed.txt", "stopTreeMaker/AUX", 61526.7,  lumi, 28161602,  1.21, kMagenta+1);
+
+        addSample("WJetsToLNu_HT_70to100_deepTrimmed",    fDir_ + MCloc + "WJetsToLNu_HT-70To100_deepTrimmed.txt", "stopTreeMaker/AUX", 1319,  lumi, 10034066,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_100to200_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-100To200_deepTrimmed.txt", "stopTreeMaker/AUX", 1345,  lumi, 79065975,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_200to400_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-200To400_deepTrimmed.txt", "stopTreeMaker/AUX", 359.7,  lumi, 38867206,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_400to600_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-400To600_deepTrimmed.txt", "stopTreeMaker/AUX", 48.91,  lumi, 7759701,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_600to800_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-600To800_deepTrimmed.txt", "stopTreeMaker/AUX", 12.05,  lumi, 17494743,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_800to1200_deepTrimmed",  fDir_ + MCloc + "WJetsToLNu_HT-800To1200_deepTrimmed.txt", "stopTreeMaker/AUX",  5.501,   lumi, 7745467,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_1200to2500_deepTrimmed", fDir_ + MCloc + "WJetsToLNu_HT-1200To2500_deepTrimmed.txt", "stopTreeMaker/AUX", 1.329,   lumi, 6801534,   1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_2500toInf_deepTrimmed",  fDir_ + MCloc + "WJetsToLNu_HT-2500ToInf_deepTrimmed.txt", "stopTreeMaker/AUX",  0.03216, lumi, 2637821,   1.21, kMagenta+1);
         
         //Z -> nunu
         // From https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z, kz = 1.23
@@ -141,6 +167,11 @@ namespace AnaSamples
         addSample("tW_antitop_incl", fDir_ + MCloc + "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 35.6, lumi, 6933094,  1.0,  kYellow);
         addSample("tW_top_NoHad", fDir_ + MCloc + "ST_tW_top_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 35.6*(1-W_Had_BR*W_Had_BR), lumi,  11345619,  1.0,  kYellow);
         addSample("tW_antitop_NoHad", fDir_ + MCloc + "ST_tW_antitop_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 35.6*(1-W_Had_BR*W_Had_BR), lumi, 11408144,  1.0,  kYellow);
+        // deep trimmed ...
+        addSample("tW_top_incl_deepTrimmed", fDir_ + MCloc + "ST_tW_top_5f_inclusiveDecays_deepTrimmed.txt", "stopTreeMaker/AUX", 35.6, lumi,  6774350,  1.0,  kYellow);
+        addSample("tW_antitop_incl_deepTrimmed", fDir_ + MCloc + "ST_tW_antitop_5f_inclusiveDecays_deepTrimmed.txt", "stopTreeMaker/AUX", 35.6, lumi, 6933094,  1.0,  kYellow);
+        addSample("tW_top_NoHad_deepTrimmed", fDir_ + MCloc + "ST_tW_top_5f_NoFullyHadronicDecays_deepTrimmed.txt", "stopTreeMaker/AUX", 35.6*(1-W_Had_BR*W_Had_BR), lumi,  11345619,  1.0,  kYellow);
+        addSample("tW_antitop_NoHad_deepTrimmed", fDir_ + MCloc + "ST_tW_antitop_5f_NoFullyHadronicDecays_deepTrimmed.txt", "stopTreeMaker/AUX", 35.6*(1-W_Had_BR*W_Had_BR), lumi, 11408144,  1.0,  kYellow);
 
         addSample("ST_s", fDir_ + MCloc + "ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 10.32, lumi, 811495 - 188505,  1.0,  kYellow);
         addSample("ST_t_top", fDir_ + MCloc + "ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 136.02, lumi, 66559176,  1.0,  kYellow);
@@ -221,7 +252,7 @@ namespace AnaSamples
         addSample("Data_MET_2016", fDir_ + DATAloc + "MET.txt","stopTreeMaker/AUX",  (5933308579.501 + 2645968083.093 + 4353448810.554 + 4116616133.327 + 3185971993.034 + 7721367926.550 + 8635591074.540 + 221442258.666)/1000000., 1.0,  kBlack);
         addSample("Data_MET_Run2016G", fDir_ + DATAloc + "MET_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
 
-        addSample("Data_MET_deepTrimmed", fDir_ + DATAloc + "deepTrimmed_MET_files.txt", "stopTreeMaker/AUX", 36352.970569733, 1.0,  kBlack);
+        addSample("Data_MET_deepTrimmed", fDir_ + DATAloc + "MET_deepTrimmed.txt", "stopTreeMaker/AUX", 36813.714859265, 1.0,  kBlack);
 
         // ----------
         // - signal -
@@ -290,6 +321,8 @@ namespace AnaSamples
         addSampleSet(samples, "TTbarDiLep", {"TTbarDiLep"});
         addSampleSet(samples, "TTbarHT", {"TTbar_HT-600to800", "TTbar_HT-800to1200", "TTbar_HT-1200to2500", "TTbar_HT-2500toInf"});
         addSampleSet(samples, "TTbarNoHad", {"TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"});
+        addSampleSet(samples, "TTbarHT_deepTrimmed", {"TTbar_HT-600to800_deepTrimmed", "TTbar_HT-800to1200_deepTrimmed", "TTbar_HT-1200to2500_deepTrimmed", "TTbar_HT-2500toInf_deepTrimmed"});
+        addSampleSet(samples, "TTbarNoHad_deepTrimmed", {"TTbarSingleLepT_deepTrimmed", "TTbarSingleLepTbar_deepTrimmed", "TTbarDiLep_deepTrimmed"});
 
         //MC samples for Zinv
         addSampleSet(samples, "ZinvAllMC", {"TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", 
@@ -319,7 +352,9 @@ namespace AnaSamples
         addSampleSet(samples, "QCD_BGenFilter", {"QCD_HT2000toInf_BGenFilter", "QCD_HT1500to2000_BGenFilter", "QCD_HT1000to1500_BGenFilter", "QCD_HT700to1000_BGenFilter", "QCD_HT500to700_BGenFilter", "QCD_HT300to500_BGenFilter", "QCD_HT200to300_BGenFilter"});
 
         addSampleSet(samples, "tW", {"tW_top_incl", "tW_antitop_incl"});
+        addSampleSet(samples, "tW_deepTrimmed", {"tW_top_incl_deepTrimmed", "tW_antitop_incl_deepTrimmed"});
         addSampleSet(samples, "tW_NoHad", {"tW_top_NoHad", "tW_antitop_NoHad"});
+        addSampleSet(samples, "tW_NoHad_deepTrimmed", {"tW_top_NoHad_deepTrimmed", "tW_antitop_NoHad_deepTrimmed"});
         addSampleSet(samples, "ST", {"ST_s", "ST_t_top", "ST_t_antitop", "tZq_ll", "ST_tWll", "ST_tWnunu"});
 
         addSampleSet(samples, "TTZ", {"TTZToLLNuNu", "TTZToQQ"});
