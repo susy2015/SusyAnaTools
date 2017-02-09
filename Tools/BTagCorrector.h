@@ -57,19 +57,24 @@ BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePat
     {
         if(suffix.size())
         {
-            h_eff_b = (TH2F*)file->Get(("n_eff_b_" + suffix).c_str());
-            h_eff_c = (TH2F*)file->Get(("n_eff_c_" + suffix).c_str());
-            h_eff_udsg = (TH2F*)file->Get(("n_eff_udsg_" + suffix).c_str());
-	    TH2F *d_eff_b = (TH2F*)file->Get(("d_eff_b_" + suffix).c_str());
-	    TH2F *d_eff_c = (TH2F*)file->Get(("d_eff_c_" + suffix).c_str());
-	    TH2F *d_eff_udsg = (TH2F*)file->Get(("d_eff_udsg_" + suffix).c_str());
-
-	    
-	    h_eff_b->Divide(d_eff_b);
-	    h_eff_c->Divide(d_eff_c);
-	    h_eff_udsg->Divide(d_eff_udsg);
-
-
+            std::string suffix2 = suffix;
+            h_eff_b = (TH2F*)file->Get(("n_eff_b_" + suffix2).c_str());
+            if(!h_eff_b)
+            {
+                std::cout << "Could not find n_eff_b_" << suffix2 << " in Btag file. Will use TTbarSingleLepT as default" << std::endl;
+                suffix2 = "TTbarSingleLepT"; // random default value, otherwise you get segfault
+                h_eff_b = (TH2F*)file->Get(("n_eff_b_" + suffix2).c_str());
+            }
+            h_eff_c = (TH2F*)file->Get(("n_eff_c_" + suffix2).c_str());
+            h_eff_udsg = (TH2F*)file->Get(("n_eff_udsg_" + suffix2).c_str());
+            TH2F *d_eff_b = (TH2F*)file->Get(("d_eff_b_" + suffix2).c_str());
+            TH2F *d_eff_c = (TH2F*)file->Get(("d_eff_c_" + suffix2).c_str());
+            TH2F *d_eff_udsg = (TH2F*)file->Get(("d_eff_udsg_" + suffix2).c_str());
+            
+            h_eff_b->Divide(d_eff_b);
+            h_eff_c->Divide(d_eff_c);
+            h_eff_udsg->Divide(d_eff_udsg);
+            
         }
         else
         {
