@@ -1,4 +1,4 @@
-#include "Weights.h"
+#include "PileupWeights.h"
 #include "NTupleReader.h"
 
 #include <iostream>
