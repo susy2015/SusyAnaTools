@@ -1,0 +1,4 @@
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/prod_bEff_ISRwgt_files/ISRwgt/ZinvAllMC; ./condorSubmit.py -d ZinvAllMC -n 10;
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/prod_bEff_ISRwgt_files/ISRwgt/TTbarHT; ./condorSubmit.py -d TTbarHT -n 2;
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/prod_bEff_ISRwgt_files/ISRwgt/WJetsToLNu; ./condorSubmit.py -d WJetsToLNu -n 5;
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/prod_bEff_ISRwgt_files/ISRwgt/

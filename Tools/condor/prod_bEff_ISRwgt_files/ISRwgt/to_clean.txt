@@ -1,0 +1,3 @@
+rm -fr TTbarHT/logs; rm -fr TTbarHT/*.root; echo '\nTTbarHT\n'; ls -l -t -r TTbarHT
+rm -fr WJetsToLNu/logs; rm -fr WJetsToLNu/*.root; echo '\nWJetsToLNu\n'; ls -l -t -r WJetsToLNu
+rm -fr ZinvAllMC/logs; rm -fr ZinvAllMC/*.root; echo '\nZinvAllMC\n'; ls -l -t -r ZinvAllMC

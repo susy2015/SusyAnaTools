@@ -107,14 +107,14 @@ namespace AnaSamples
         // deep trimmed ...
 //        addSample("WJetsToLNu_Inc_deepTrimmed", fDir_ + MCloc + "WJetsToLNu_deepTrimmed.txt", "stopTreeMaker/AUX", 61526.7,  lumi, 28161602,  1.21, kMagenta+1);
 
-        addSample("WJetsToLNu_HT_70to100_deepTrimmed",    fDir_ + MCloc + "WJetsToLNu_HT-70To100_deepTrimmed.txt", "stopTreeMaker/AUX", 1319,  lumi, 10034066,  1.21, kMagenta+1);
-        addSample("WJetsToLNu_HT_100to200_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-100To200_deepTrimmed.txt", "stopTreeMaker/AUX", 1345,  lumi, 79065975,  1.21, kMagenta+1);
-        addSample("WJetsToLNu_HT_200to400_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-200To400_deepTrimmed.txt", "stopTreeMaker/AUX", 359.7,  lumi, 38867206,  1.21, kMagenta+1);
-        addSample("WJetsToLNu_HT_400to600_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-400To600_deepTrimmed.txt", "stopTreeMaker/AUX", 48.91,  lumi, 7759701,  1.21, kMagenta+1);
-        addSample("WJetsToLNu_HT_600to800_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-600To800_deepTrimmed.txt", "stopTreeMaker/AUX", 12.05,  lumi, 17494743,  1.21, kMagenta+1);
-        addSample("WJetsToLNu_HT_800to1200_deepTrimmed",  fDir_ + MCloc + "WJetsToLNu_HT-800To1200_deepTrimmed.txt", "stopTreeMaker/AUX",  5.501,   lumi, 7745467,  1.21, kMagenta+1);
-        addSample("WJetsToLNu_HT_1200to2500_deepTrimmed", fDir_ + MCloc + "WJetsToLNu_HT-1200To2500_deepTrimmed.txt", "stopTreeMaker/AUX", 1.329,   lumi, 6801534,   1.21, kMagenta+1);
-        addSample("WJetsToLNu_HT_2500toInf_deepTrimmed",  fDir_ + MCloc + "WJetsToLNu_HT-2500ToInf_deepTrimmed.txt", "stopTreeMaker/AUX",  0.03216, lumi, 2637821,   1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_70to100_deepTrimmed",    fDir_ + MCloc + "WJetsToLNu_HT-70to100_deepTrimmed.txt", "stopTreeMaker/AUX", 1319,  lumi, 10034066,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_100to200_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-100to200_deepTrimmed.txt", "stopTreeMaker/AUX", 1345,  lumi, 79065975,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_200to400_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-200to400_deepTrimmed.txt", "stopTreeMaker/AUX", 359.7,  lumi, 38867206,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_400to600_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-400to600_deepTrimmed.txt", "stopTreeMaker/AUX", 48.91,  lumi, 7759701,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_600to800_deepTrimmed",   fDir_ + MCloc + "WJetsToLNu_HT-600to800_deepTrimmed.txt", "stopTreeMaker/AUX", 12.05,  lumi, 17494743,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_800to1200_deepTrimmed",  fDir_ + MCloc + "WJetsToLNu_HT-800to1200_deepTrimmed.txt", "stopTreeMaker/AUX",  5.501,   lumi, 7745467,  1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_1200to2500_deepTrimmed", fDir_ + MCloc + "WJetsToLNu_HT-1200to2500_deepTrimmed.txt", "stopTreeMaker/AUX", 1.329,   lumi, 6801534,   1.21, kMagenta+1);
+        addSample("WJetsToLNu_HT_2500toInf_deepTrimmed",  fDir_ + MCloc + "WJetsToLNu_HT-2500toInf_deepTrimmed.txt", "stopTreeMaker/AUX",  0.03216, lumi, 2637821,   1.21, kMagenta+1);
         
         //Z -> nunu
         // From https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z, kz = 1.23
@@ -341,6 +341,7 @@ namespace AnaSamples
 
         addSampleSet(samples, "WJetsToLNuInc", {"WJetsToLNu_Inc"});
         addSampleSet(samples, "WJetsToLNu", {"WJetsToLNu_HT_2500toInf", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_100to200", "WJetsToLNu_HT_70to100"});
+        addSampleSet(samples, "WJetsToLNu_deepTrimmed", {"WJetsToLNu_HT_2500toInf_deepTrimmed", "WJetsToLNu_HT_1200to2500_deepTrimmed", "WJetsToLNu_HT_800to1200_deepTrimmed", "WJetsToLNu_HT_600to800_deepTrimmed", "WJetsToLNu_HT_400to600_deepTrimmed", "WJetsToLNu_HT_200to400_deepTrimmed"});
 
         addSampleSet(samples, "ZJetsToNuNu", {"ZJetsToNuNu_HT_2500toInf", "ZJetsToNuNu_HT_1200to2500", "ZJetsToNuNu_HT_800to1200", "ZJetsToNuNu_HT_600to800", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200"});
 
