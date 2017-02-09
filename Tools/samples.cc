@@ -266,29 +266,29 @@ namespace AnaSamples
         addSample("Signal_T2tt_mStop850_mLSP100",      fDir_ + MCloc + "SMS-T2tt_mStop-850_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.0189612, lumi, 235029, 1.0,  kRed);
 
         // Fastsim signal scans
-        addSample("SMS-T2tt_mStop-150to250",  fDir_ + sigMCloc + "SMS-T2tt_mStop-150to250_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-250to350",  fDir_ + sigMCloc + "SMS-T2tt_mStop-250to350_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-350to400",  fDir_ + sigMCloc + "SMS-T2tt_mStop-350to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
-        addSample("SMS-T2tt_mStop-400to1200", fDir_ + sigMCloc + "SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_fastsim_mStop-150to250",  fDir_ + sigMCloc + "SMS-T2tt_mStop-150to250_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_fastsim_mStop-250to350",  fDir_ + sigMCloc + "SMS-T2tt_mStop-250to350_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_fastsim_mStop-350to400",  fDir_ + sigMCloc + "SMS-T2tt_mStop-350to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T2tt_fastsim_mStop-400to1200", fDir_ + sigMCloc + "SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
         // T2tb
 
         // T1tttt
-        addSample("SMS-T1tttt_2016", fDir_ + sigMCloc + "SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T1tttt_fastsim_2016", fDir_ + sigMCloc + "SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
         // T1ttbb
-        addSample("SMS-T1ttbb_2016", fDir_ + sigMCloc + "SMS-T1ttbb_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T1ttbb_fastsim_2016", fDir_ + sigMCloc + "SMS-T1ttbb_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
         // T5ttcc
-        addSample("SMS-T5ttcc_2016", fDir_ + sigMCloc + "SMS-T5ttcc_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T5ttcc_fastsim_2016", fDir_ + sigMCloc + "SMS-T5ttcc_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
         // T5ttttDM175
-        addSample("SMS-T5tttt_dM175_2016", fDir_ + sigMCloc + "SMS-T5tttt_dM175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T5tttt_dM175_fastsim_2016", fDir_ + sigMCloc + "SMS-T5tttt_dM175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
         // T5tttt_degen
 
         // T6ttWW
-
+/*
         // Additional samples for top corridor studies
         addSample("TTbar_fastsim_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "TTbar_Fastsim_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 831.76,  lumi, 10970095, 1.0, kGreen);
         addSample("TTbar_fullsim_wt_genJets_wt_genMET", fDir_ + addSigMCloc + "TTbar_Fullsim_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 831.76,  lumi, 11344206, 1.0, kGreen);
@@ -311,6 +311,7 @@ namespace AnaSamples
         addSample("Signal_fullsim_T2tt_mStop250_mLSP75",  fDir_ + addSigMCloc + "SMS-T2tt_fullsim_mStop-250_mLSP-75_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 21.5949, lumi, 1416350, 1.0,  kRed);
         addSample("Signal_fullsim_T2tt_mStop275_mLSP100", fDir_ + addSigMCloc + "SMS-T2tt_fullsim_mStop-275_mLSP-100_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 13.3231, lumi, 801385, 1.0,  kRed);
         addSample("Signal_fullsim_T2tt_mStop300_mLSP125", fDir_ + addSigMCloc + "SMS-T2tt_fullsim_mStop-300_mLSP-125_wt_genJets_wt_genMET.txt", "stopTreeMaker/AUX", 8.51615, lumi, 531262, 1.0,  kRed);
+*/
     }
 
     SampleCollection::SampleCollection(SampleSet& samples)
@@ -406,12 +407,13 @@ namespace AnaSamples
         addSampleSet(samples, "Signal_T2tt_mStop500_mLSP325", {"Signal_T2tt_mStop500_mLSP325"});
         addSampleSet(samples, "Signal_T2tt_mStop850_mLSP100", {"Signal_T2tt_mStop850_mLSP100"});
 
-        addSampleSet(samples, "Signal_fastsim_T2tt_scan", {"SMS-T2tt_mStop-150to250", "SMS-T2tt_mStop-250to350", "SMS-T2tt_mStop-350to400", "SMS-T2tt_mStop-400to1200"});
+        addSampleSet(samples, "Signal_fastsim_T2tt_scan", {"SMS-T2tt_fastsim_mStop-150to250", "SMS-T2tt_fastsim_mStop-250to350", "SMS-T2tt_fastsim_mStop-350to400", "SMS-T2tt_fastsim_mStop-400to1200"});
 
-        addSampleSet(samples, "Signal_fastsim_T1tttt_scan", {"SMS-T1tttt_2016"});
+        addSampleSet(samples, "Signal_fastsim_T1tttt_scan", {"SMS-T1tttt_fastsim_2016"});
 
-        addSampleSet(samples, "Signal_fastsim_T5ttcc_scan", {"SMS-T5ttcc_2016"});
+        addSampleSet(samples, "Signal_fastsim_T5ttcc_scan", {"SMS-T5ttcc_fastsim_2016"});
 
+/*
         addSampleSet(samples, "TTbar_fastsim_wt_genJets_wt_genMET", {"TTbar_fastsim_wt_genJets_wt_genMET"});
         addSampleSet(samples, "TTbar_fullsim_wt_genJets_wt_genMET", {"TTbar_fullsim_wt_genJets_wt_genMET"});
 
@@ -423,8 +425,15 @@ namespace AnaSamples
         addSampleSet(samples, "Signal_fullsim_T2tt_mStop250_mLSP75", {"Signal_fullsim_T2tt_mStop250_mLSP75"});
         addSampleSet(samples, "Signal_fullsim_T2tt_mStop275_mLSP100", {"Signal_fullsim_T2tt_mStop275_mLSP100"});
         addSampleSet(samples, "Signal_fullsim_T2tt_mStop300_mLSP125", {"Signal_fullsim_T2tt_mStop300_mLSP125"});
+*/
+        addSampleSet(samples, "ALL_MC", {"deepTrimmed", "600toInf", "TTbarInc"});
     }
 
+// if name contains the keyword "ALL", then:
+// ] vss serves as a SKIPPING list and support keyword matching!
+// ] if has "MC" --> refer to all fullsim MC
+// ] if has "fastsim" --> refer to all fastsim
+// ] if has "Data" --> refer to all data
     void SampleCollection::addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss)
     {
         if(vss.size() > 1)
@@ -440,6 +449,39 @@ namespace AnaSamples
         }
 
         auto& map = samples.getMap();
+
+// if keyword "ALL" appears, by-passing the regular adding procedure...
+        if( name.find("ALL") != std::string::npos )
+        {
+           bool incl_fullsim = false;
+           bool incl_fastsim = false;
+           bool incl_Data = false;
+           if( name.find("MC") != std::string::npos ) incl_fullsim = true;
+           if( name.find("fastsim") != std::string::npos ) incl_fastsim = true;
+           if( name.find("Data") != std::string::npos ) incl_Data = true;
+           if( !incl_fullsim && !incl_fastsim && !incl_Data )
+           {
+              std::cout<<"WARNING ... will not add any samples with your requests ..."<<std::endl;
+              return;
+           }
+           for(auto im : map)
+           {
+              std::string persn = im.first;
+              bool excluded = false;
+              for(std::string & exc_sn : vss )
+              {
+                 if( persn.find(exc_sn) != std::string::npos ){ excluded = true; break; }
+              }
+              if( excluded ) continue;
+              if( !incl_fastsim && persn.find("fastsim") != std::string::npos ) continue;
+              if( !incl_Data && persn.find("Data") != std::string::npos ) continue;
+              im.second.addCollection(name);
+              sampleSet_[name].push_back(im.second);
+              nameVec_[name].push_back(im.first);
+              totalLumiMap_[name] += im.second.lumi;
+           }
+           return;
+        }
 
         for(std::string& sn : vss)
         {
