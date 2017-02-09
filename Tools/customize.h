@@ -127,7 +127,8 @@ namespace AnaConsts{
                                                   "recoJetsJecUncLepCleaned", "metMagUp", "metMagDown", "metPhiUp", "metPhiDown",
                                                   "SusyMotherMass", "SusyLSPMass", "recoJetsFlavor",
                                                   "genjetsLVec", "genmet", "genmetphi",
-                                                  "NJetsISR"
+                                                  "NJetsISR",
+                                                  "specialFixtype", "specialFixMuonsCharge", "specialFixMuonsLVec"
                                                 };
 
 }
