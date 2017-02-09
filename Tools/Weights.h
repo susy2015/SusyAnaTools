@@ -8,7 +8,7 @@
 class Pileup_Sys
 {
 public:
-    Pileup_Sys();
+    Pileup_Sys(std::string filename="PileupHistograms_Nov17.root");
     virtual ~Pileup_Sys();
     void getPileup_Sys(NTupleReader& tr);
     void operator()(NTupleReader& tr);
