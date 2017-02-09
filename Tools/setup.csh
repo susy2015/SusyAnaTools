@@ -61,8 +61,12 @@ if (! -f CSVv2_Moriond17_B_H.csv) then
   ln -s ${SRC}/SusyAnaTools/Tools/CSVFiles/CSVv2_Moriond17_B_H.csv .
 endif
 
-if (! -f TTbarNoHad_bTagEff.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/data/TTbarNoHad_bTagEff.root .
+if (! -f allINone_bTagEff.root) then
+  ln -s ${SRC}/SusyAnaTools/Tools/data/allINone_bTagEff.root .
+endif
+
+if (! -f allINone_ISRJets.root) then
+  ln -s ${SRC}/SusyAnaTools/Tools/ISR_Root_Files/allINone_ISRJets.root .
 endif
 
 ## Pileup Reweighting

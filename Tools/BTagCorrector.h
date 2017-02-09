@@ -17,7 +17,7 @@
 class BTagCorrector {
 public:
     //constructor
-BTagCorrector(std::string file = "TTbarNoHad_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL) {
+BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL) {
         //Stops unwanted segfaults.
         TH1::AddDirectory(false);
 
