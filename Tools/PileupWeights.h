@@ -1,5 +1,5 @@
-#ifndef WEIGHTS_H
-#define WEIGHTS_H
+#ifndef PILEUPWEIGHTS_H
+#define PILEUPWEIGHTS_H
 
 #include "NTupleReader.h"
 #include "TH1.h"
