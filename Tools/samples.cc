@@ -331,7 +331,7 @@ namespace AnaSamples
                     "WWTo4Q", "WWTo2L2Nu", "WWToLNuQQ", "WZ", "ZZTo2Q2Nu", "ZZTo2L2Nu", "ZZTo2L2Q", "ZZTo4Q", "ZZTo4L", 
                     "TTWJetsToLNu", "TTWJetsToQQ", "TTGJets", "WWZ", "WZZ", "ZZZ", "WWW", "WWG", "WZG", "ttHTobb", "ttHToNonbb", "TTTT", 
                     "TTZToLLNuNu", "TTZToQQ",
-                    "DYJetsToLL_HT_2500toInf", "DYJetsToLL_HT_1200to2500", "DYJetsToLL_HT_800to1200", "DYJetsToLL_HT_600to800", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200", "DYJetsToLL_Inc",
+                    "DYJetsToLL_HT_2500toInf", "DYJetsToLL_HT_1200to2500", "DYJetsToLL_HT_800to1200", "DYJetsToLL_HT_600to800", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200",
                     "tW_top_NoHad", "tW_antitop_NoHad", "ST_s", "ST_t_top", "ST_t_antitop", "tZq_ll", "ST_tWll", "ST_tWnunu"});
 
         // Only all had. part of TTbarInc
