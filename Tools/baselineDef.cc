@@ -758,10 +758,10 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
   PassBaseline();
-  //GetMHT();
-  //GetLeptons();
-  //GetRecoZ(81, 101);
-  //GetTopCombs();
+  GetMHT();
+  GetLeptons();
+  GetRecoZ(81, 101);
+  GetTopCombs();
 }
 
 // ===  FUNCTION  ============================================================
@@ -829,6 +829,8 @@ bool BaselineVessel::GetLeptons() const
     }
   }
 
+  tr->registerDerivedVar("cutMuID"+firstSpec, muonsFlagIDLabel);
+  tr->registerDerivedVar("cutEleID"+firstSpec, elesFlagIDLabel);
   tr->registerDerivedVec("cutMuVec"+firstSpec, vMuons);
   tr->registerDerivedVec("cutEleVec"+firstSpec, vEles);
   tr->registerDerivedVec("cutMuCharge"+firstSpec, vMuonChg);

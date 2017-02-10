@@ -17,6 +17,7 @@ using namespace std;
 
 void ISRCorrector::SetWeights_Up(TH1D* weights, TH1D* all){
   if(!weights) return;
+  if(!all) return;
   //normalize weights using overall NJetsISR spectrum so total number of gen events will stay the same
   h_weights_up = (TH1D*)weights->Clone();
   h_njetsisr = all;
@@ -30,6 +31,7 @@ void ISRCorrector::SetWeights_Up(TH1D* weights, TH1D* all){
 
 void ISRCorrector::SetWeights_Cent(TH1D* weights, TH1D* all){
   if(!weights) return;
+  if(!all) return;
   //normalize weights using overall NJetsISR spectrum so total number of gen events will stay the same                                                  
   h_weights_central = (TH1D*)weights->Clone();
   h_njetsisr = all;
@@ -43,6 +45,7 @@ void ISRCorrector::SetWeights_Cent(TH1D* weights, TH1D* all){
 
 void ISRCorrector::SetWeights_Down(TH1D* weights, TH1D* all){
   if(!weights) return;
+  if(!all) return;
   //normalize weights using overall NJetsISR spectrum so total number of gen events will stay the same                                                  
   h_weights_down = (TH1D*)weights->Clone();
   h_njetsisr = all;

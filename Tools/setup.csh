@@ -79,6 +79,10 @@ if (! -f puppiSoftdropResol.root) then
   ln -s ${SRC}/SusyAnaTools/Tools/puppiSoftdropResol.root .
 endif
 
+if (! -f allINone_leptonSF_Moriond17.root) then
+  ln -s ${SRC}/SusyAnaTools/Tools/LeptonSF_Root_Files/allINone_leptonSF_Moriond17.root .
+endif
+
 ##Checkout latest toptagger cfg file 
 
 mkdir -p $TAGGERCFGDIR
