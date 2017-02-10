@@ -378,6 +378,8 @@ namespace AnaSamples
                     "WWW", "WWZ", "WZZ", "ZZZ", "WWG", "WZG", 
                     "ttHTobb", "ttHToNonbb", "GluGluHToZZTo4L", "VHToNonbb"});
 
+        addSampleSet(samples, "WZ_amcatnlo", {"WZTo1L1Nu2Q", "WZTo1L3Nu", "WZTo3LNu"});
+
         addSampleSet(samples, "Data_SingleMuon", {"Data_SingleMuon_2016"});
         addSampleSet(samples, "Data_SingleMuon_Run2016G", {"Data_SingleMuon_Run2016G"});
 

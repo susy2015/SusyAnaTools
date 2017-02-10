@@ -1,0 +1,6 @@
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/prod_bEff_ISRwgt_files/bEff/QCD; ./condorSubmit.py -d QCD -n 10;
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/prod_bEff_ISRwgt_files/bEff/QCD_BGenFilter; ./condorSubmit.py -d QCD_BGenFilter -n 10;
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/prod_bEff_ISRwgt_files/bEff/WJetsToLNuInc; ./condorSubmit.py -d WJetsToLNuInc -n 10;
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/prod_bEff_ISRwgt_files/bEff/Higgs; ./condorSubmit.py -d Higgs -n 10;
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/prod_bEff_ISRwgt_files/bEff/WZ_amcatnlo; ./condorSubmit.py -d WZ_amcatnlo -n 10;
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/prod_bEff_ISRwgt_files/bEff/
