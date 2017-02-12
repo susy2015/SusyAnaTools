@@ -70,8 +70,8 @@ if (! -f allINone_ISRJets.root) then
 endif
 
 ## Pileup Reweighting
-if (! -f PileupHistograms_Nov17.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/PileupHistograms_Nov17.root .
+if (! -f PileupHistograms_0121_69p2mb_pm4p6.root) then
+  ln -s ${SRC}/SusyAnaTools/Tools/data/PileupHistograms_0121_69p2mb_pm4p6.root .
 endif
 
 ## W softdrop mass correction 
