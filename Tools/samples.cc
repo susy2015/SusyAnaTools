@@ -326,12 +326,11 @@ namespace AnaSamples
         addSampleSet(samples, "TTbarNoHad_deepTrimmed", {"TTbarSingleLepT_deepTrimmed", "TTbarSingleLepTbar_deepTrimmed", "TTbarDiLep_deepTrimmed"});
 
         //MC samples for Zinv
-        addSampleSet(samples, "ZinvAllMC", {"TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", 
+        addSampleSet(samples, "ZinvAllMC", { "DYJetsToLL_HT_2500toInf", "DYJetsToLL_HT_1200to2500", "DYJetsToLL_HT_800to1200", "DYJetsToLL_HT_600to800", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200", "TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep", 
                     "ZJetsToNuNu_HT_2500toInf", "ZJetsToNuNu_HT_1200to2500", "ZJetsToNuNu_HT_800to1200", "ZJetsToNuNu_HT_600to800", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_100to200", 
                     "WWTo4Q", "WWTo2L2Nu", "WWToLNuQQ", "WZ", "ZZTo2Q2Nu", "ZZTo2L2Nu", "ZZTo2L2Q", "ZZTo4Q", "ZZTo4L", 
                     "TTWJetsToLNu", "TTWJetsToQQ", "TTGJets", "WWZ", "WZZ", "ZZZ", "WWW", "WWG", "WZG", "ttHTobb", "ttHToNonbb", "TTTT", 
                     "TTZToLLNuNu", "TTZToQQ",
-                    "DYJetsToLL_HT_2500toInf", "DYJetsToLL_HT_1200to2500", "DYJetsToLL_HT_800to1200", "DYJetsToLL_HT_600to800", "DYJetsToLL_HT_400to600", "DYJetsToLL_HT_200to400", "DYJetsToLL_HT_100to200",
                     "tW_top_NoHad", "tW_antitop_NoHad", "ST_s", "ST_t_top", "ST_t_antitop", "tZq_ll", "ST_tWll", "ST_tWnunu"});
 
         // Only all had. part of TTbarInc
