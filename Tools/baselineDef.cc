@@ -13,6 +13,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   bToFake               = 1;
   debug                 = false;
   incZEROtop            = false;
+  UseLepCleanJet        = false;
   jetVecLabel           = "jetsLVec";
   CSVVecLabel           = "recoJetsBtag_0";
   METLabel              = "met";
@@ -49,6 +50,20 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 
   SetupTopTagger(UseNewTagger, toptaggerCfgFile);
 }
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::UseLepCleanJets
+//  Description:  By default no Lep clean in Jets. Call this function to
+//  switch input labels
+// ===========================================================================
+bool BaselineVessel::UseLepCleanJets() 
+{
+  UseLepCleanJet        = true;
+  jetVecLabel           = "jetsLVecLepCleaned";
+  CSVVecLabel           = "recoJetsBtag_0_LepCleaned";
+  qgLikehoodLabel       = "prodJetsNoLep_qgLikelihood";
+  return true;
+}       // -----  end of function BaselineVessel::UseLepCleanJets  -----
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::SetupTopTagger
@@ -112,12 +127,12 @@ void BaselineVessel::prepareTopTagger()
     //construct vector of constituents 
     ttUtility::ConstAK4Inputs myConstAK4Inputs = ttUtility::ConstAK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger, *qgLikelihood_forTagger);
     ttUtility::ConstAK8Inputs myConstAK8Inputs = ttUtility::ConstAK8Inputs(
-        tr->getVec<TLorentzVector>("puppiJetsLVec"), 
-        tr->getVec<double>("puppitau1"), 
-        tr->getVec<double>("puppitau2"), 
-        tr->getVec<double>("puppitau3"), 
-        tr->getVec<double>("puppisoftDropMass"), 
-        tr->getVec<TLorentzVector>("puppiSubJetsLVec"));
+        tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec"), 
+        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau1" : "puppitau1"),
+        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau2" : "puppitau2"),
+        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau3" : "puppitau3"),
+        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass"),
+        tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiSubJetsLVec" : "puppiSubJetsLVec"));
     myConstAK8Inputs.setWMassCorrHistos("puppiSoftdropResol.root");
     std::vector<Constituent> constituents = ttUtility::packageConstituents(myConstAK4Inputs, myConstAK8Inputs);
     //run tagger

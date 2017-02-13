@@ -43,6 +43,7 @@ public:
     bool debug;
     bool incZEROtop;
     bool UseNewTagger;
+    bool UseLepCleanJet;
 
     std::string jetVecLabel;
     std::string CSVVecLabel;
@@ -72,6 +73,7 @@ public:
     bool passQCDHighMETFilterFunc();
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
+    bool UseLepCleanJets();
 
     void operator()(NTupleReader& tr);
 
