@@ -808,10 +808,11 @@ bool BaselineVessel::GetLeptons() const
   for(unsigned int im=0; im<muonsLVec.size(); im++){
     if(AnaFunctions::passMuon(muonsLVec[im], muonsRelIso[im], muonsMtw[im], muonsFlagID[im], AnaConsts::muonsMiniIsoArr))
     {
+      if (!vMuons->empty()) // Making sure the vMuons are sorted in Pt
+        assert(muonsLVec.at(im).Pt() < vMuons->back().Pt());
       vMuons->push_back(muonsLVec.at(im));
       vMuonChg->push_back(muonsCharge.at(im));
     }
-
   }
 
   const std::vector<TLorentzVector> &electronsLVec   = tr->getVec<TLorentzVector>("elesLVec");
@@ -823,6 +824,8 @@ bool BaselineVessel::GetLeptons() const
   for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
     if(AnaFunctions::passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], isEBVec[ie], electronsFlagID[ie], AnaConsts::elesMiniIsoArr)) 
     {
+      if (!vEles->empty()) // Making sure the vEles are sorted in Pt
+        assert(electronsLVec.at(ie).Pt() < vEles->back().Pt());
       vEles->push_back(electronsLVec.at(ie));
       vEleChg->push_back(electronsCharge.at(ie));
 
