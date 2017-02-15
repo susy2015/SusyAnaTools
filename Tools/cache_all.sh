@@ -17,6 +17,8 @@ cd $CMSSW_BASE/src/HadronicTau/Tool/condorHadTauLL
 cachedir
 cd $CMSSW_BASE/src/HadronicTau/Tool/condorCS
 cachedir
+cd $CMSSW_BASE/src/HadronicTau/Tool/condorCS_alt
+cachedir
 cd $CMSSW_BASE/src/HadronicTau/Tool/WorkDir
 cachedir
 cd $CMSSW_BASE/src/RecoMET
