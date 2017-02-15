@@ -69,14 +69,22 @@ if (! -f allINone_ISRJets.root) then
   ln -s ${SRC}/SusyAnaTools/Tools/ISR_Root_Files/allINone_ISRJets.root .
 endif
 
+if (! -f ISRWeights.root) then
+  ln -s ${SRC}/SusyAnaTools/Tools/ISR_Root_Files/ISRWeights.root .
+endif
+
 ## Pileup Reweighting
-if (! -f PileupHistograms_Nov17.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/PileupHistograms_Nov17.root .
+if (! -f PileupHistograms_0121_69p2mb_pm4p6.root) then
+  ln -s ${SRC}/SusyAnaTools/Tools/data/PileupHistograms_0121_69p2mb_pm4p6.root .
 endif
 
 ## W softdrop mass correction 
-if (! -f puppiSoftdropResol.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/puppiSoftdropResol.root .
+if (! -f puppiCorr.root) then
+  ln -s ${SRC}/SusyAnaTools/Tools/data/puppiCorr.root .
+endif
+
+if (! -f allINone_leptonSF_Moriond17.root) then
+  ln -s ${SRC}/SusyAnaTools/Tools/LeptonSF_Root_Files/allINone_leptonSF_Moriond17.root .
 endif
 
 ##Checkout latest toptagger cfg file 
