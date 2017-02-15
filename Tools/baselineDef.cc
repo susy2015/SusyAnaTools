@@ -8,7 +8,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   tr(&tr_), spec(specialization), 
   UseNewTagger(true),
   type3Ptr(NULL),
-  ttPtr(NULL)
+  ttPtr(NULL),
+  WMassCorFile(NULL)
 {
   bToFake               = 1;
   debug                 = false;
@@ -66,6 +67,19 @@ bool BaselineVessel::UseLepCleanJets()
 }       // -----  end of function BaselineVessel::UseLepCleanJets  -----
 
 // ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::OpenWMassCorrFile
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::OpenWMassCorrFile()
+{
+  std::string puppiCor = "puppiCorr.root";
+  WMassCorFile = TFile::Open(puppiCorr.c_str(),"READ");
+  if (!WMassCorFile)
+    std::cout << "W mass correction file not found w mass!!!!!!! " << puppiCorr <<" Will not correct W mass" << std::endl;
+  return true;
+}       // -----  end of function BaselineVessel::OpenWMassCorrFile  -----
+
+// ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::SetupTopTagger
 //  Description:  
 // ===========================================================================
@@ -82,6 +96,7 @@ bool BaselineVessel::SetupTopTagger(bool UseNewTagger_, std::string CfgFile_)
   {
     ttPtr.reset(new TopTagger);
     ttPtr->setCfgFile(toptaggerCfgFile);
+    OpenWMassCorrFile();
   }
   
   return true;
@@ -133,7 +148,13 @@ void BaselineVessel::prepareTopTagger()
         tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau3" : "puppitau3"),
         tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass"),
         tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiSubJetsLVec" : "puppiSubJetsLVec"));
-    myConstAK8Inputs.setWMassCorrHistos("puppiSoftdropResol.root");
+    if (WMassCorFile != NULL)
+    {
+      myConstAK8Inputs.setWMassCorrHistos(
+          (TF1*)WMassCorFile->Get("puppiJECcorr_gen"),
+          (TF1*)WMassCorFile->Get("puppiJECcorr_reco_0eta1v3"),
+          (TF1*)WMassCorFile->Get("puppiJECcorr_reco_1v3eta2v5"));
+    }
     std::vector<Constituent> constituents = ttUtility::packageConstituents(myConstAK4Inputs, myConstAK8Inputs);
     //run tagger
     ttPtr->runTagger(constituents);
@@ -773,10 +794,10 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
   PassBaseline();
-  GetMHT();
-  GetLeptons();
-  GetRecoZ(81, 101);
-  GetTopCombs();
+  //GetMHT();
+  //GetLeptons();
+  //GetRecoZ(81, 101);
+  //GetTopCombs();
 }
 
 // ===  FUNCTION  ============================================================
@@ -824,7 +845,7 @@ bool BaselineVessel::GetLeptons() const
     if(AnaFunctions::passMuon(muonsLVec[im], muonsRelIso[im], muonsMtw[im], muonsFlagID[im], AnaConsts::muonsMiniIsoArr))
     {
       if (!vMuons->empty()) // Making sure the vMuons are sorted in Pt
-        assert(muonsLVec.at(im).Pt() < vMuons->back().Pt());
+        assert(muonsLVec.at(im).Pt() <= vMuons->back().Pt());
       vMuons->push_back(muonsLVec.at(im));
       vMuonChg->push_back(muonsCharge.at(im));
     }
@@ -840,7 +861,7 @@ bool BaselineVessel::GetLeptons() const
     if(AnaFunctions::passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], isEBVec[ie], electronsFlagID[ie], AnaConsts::elesMiniIsoArr)) 
     {
       if (!vEles->empty()) // Making sure the vEles are sorted in Pt
-        assert(electronsLVec.at(ie).Pt() < vEles->back().Pt());
+        assert(electronsLVec.at(ie).Pt() <= vEles->back().Pt());
       vEles->push_back(electronsLVec.at(ie));
       vEleChg->push_back(electronsCharge.at(ie));
 

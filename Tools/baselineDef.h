@@ -23,6 +23,7 @@ private:
     bool printOnce;
 
     NTupleReader *tr;
+    TFile *WMassCorFile;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
     std::shared_ptr<topTagger::type3TopTagger> type3Ptr;
@@ -74,6 +75,7 @@ public:
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
     bool UseLepCleanJets();
+    bool OpenWMassCorrFile();
 
     void operator()(NTupleReader& tr);
 

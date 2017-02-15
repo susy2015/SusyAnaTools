@@ -79,8 +79,8 @@ if (! -f PileupHistograms_0121_69p2mb_pm4p6.root) then
 endif
 
 ## W softdrop mass correction 
-if (! -f puppiSoftdropResol.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/puppiSoftdropResol.root .
+if (! -f puppiCorr.root) then
+  ln -s ${SRC}/SusyAnaTools/Tools/data/puppiCorr.root .
 endif
 
 if (! -f allINone_leptonSF_Moriond17.root) then
