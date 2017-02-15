@@ -72,7 +72,7 @@ bool BaselineVessel::UseLepCleanJets()
 // ===========================================================================
 bool BaselineVessel::OpenWMassCorrFile()
 {
-  std::string puppiCor = "puppiCorr.root";
+  std::string puppiCorr = "puppiCorr.root";
   WMassCorFile = TFile::Open(puppiCorr.c_str(),"READ");
   if (!WMassCorFile)
     std::cout << "W mass correction file not found w mass!!!!!!! " << puppiCorr <<" Will not correct W mass" << std::endl;
