@@ -29,6 +29,8 @@
 
 #include "searchBins.h"
 
+#include "Math/QuantFuncMathCore.h"
+
 #include "xSec.h"
 
 bool do37Bins = false;
@@ -69,7 +71,7 @@ const double ymin_Ratio= 0.0;
 // For 45 bins
 const double ymax_Yields = noobs? 1000000.: 4000000.;
 const double ymin_Yields = noobs? 0.005: 0.003;
-const double ymax_Ratio=  4.6;
+const double ymax_Ratio=  6;
 const double ymin_Ratio= 0.0;
 
 const double adjHalfBin = 0.5;
@@ -130,10 +132,10 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 
 //   const double dataLumi = 816.27;
 //   const double dataLumi = 5189.90;
-   const double dataLumi = 12891.528090802;
+   const double dataLumi = 36813.714859265; 
 //   const double dataLumi = 36352.970569733;
 //   const double dataLumi = 5189.90*1.30;
-   const double bkgLumi = 36352.970569733;
+   const double bkgLumi = 36813.714859265;
 //   const double dataLumi = 4004.345;
 //   const double bkgLumi = 4004.345; 
    const double norm_bkg_to_data = noobs? 1.0 : dataLumi/bkgLumi;
@@ -154,6 +156,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    std::vector<double> ySumErrUpVec, ySumErrDnVec;
    std::vector<double> yRatioVec, yRatioSysErrUpVec, yRatioSysErrDnVec;
    std::vector<double> yRatioSumErrUpVec, yRatioSumErrDnVec;
+   std::vector<double> dataVec, dataErrVec, dataErrUpVec, dataErrDnVec, pullVec;
 
    double sumObs =0, sumPred =0;
 
@@ -175,6 +178,9 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
       sumObs += prt_data;
       sumPred += prt_pred*norm_bkg_to_data;
 
+      dataVec.push_back(prt_data);
+      dataErrVec.push_back(prt_data_stat);
+
       xVec.push_back(prt_chn+0.5);
       yVec.push_back(prt_pred*norm_bkg_to_data);
       xSysErrUpVec.push_back(0.5); xSysErrDnVec.push_back(0.5); 
@@ -191,6 +197,20 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 //      yRatioSysErrUpVec.push_back(prt_pred_syst_up/prt_pred*prt_data/prt_pred); yRatioSysErrDnVec.push_back(prt_pred_syst_dn/prt_pred*prt_data/prt_pred);
       yRatioSysErrUpVec.push_back(prt_pred_syst_up/prt_pred); yRatioSysErrDnVec.push_back(prt_pred_syst_dn/prt_pred);
       yRatioSumErrUpVec.push_back(sumErrUp/prt_pred); yRatioSumErrDnVec.push_back(sumErrDn/prt_pred);
+
+      // Using Poisson errors: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars
+      const double alpha = 1 - 0.6827; // the "68.27%" intervals
+      const double data_dn_bound = (prt_data ==0 )? 0. : (ROOT::Math::gamma_quantile(alpha/2, prt_data, 1.0));
+      const double data_up_bound = ROOT::Math::gamma_quantile_c(alpha/2, prt_data+1.0, 1.0);
+      const double data_dn_err = prt_data - data_dn_bound;
+      const double data_up_err = data_up_bound - prt_data;
+      dataErrUpVec.push_back(data_up_err);
+      dataErrDnVec.push_back(data_dn_err);
+
+      const double pull = prt_data > prt_pred*norm_bkg_to_data? (prt_data - prt_pred*norm_bkg_to_data)/sqrt(data_dn_err*data_dn_err + sumErrUp*sumErrUp*norm_bkg_to_data*norm_bkg_to_data)
+                        : (prt_data - prt_pred*norm_bkg_to_data)/sqrt(data_up_err*data_up_err + sumErrDn*sumErrDn*norm_bkg_to_data*norm_bkg_to_data);
+//      std::cout<<"pull : "<<pull<<"  --> prt_data : "<<prt_data<<"  prt_pred : "<<prt_pred*norm_bkg_to_data<<"  data_dn_err : "<<data_dn_err<<"  data_up_err : "<<data_up_err<<"  sumErrUp : "<<sumErrUp<<"  sumErrDn : "<<sumErrDn<<std::endl;
+      pullVec.push_back(pull);
    }
    std::cout<<std::endl;
    infile.close();
@@ -773,6 +793,13 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
       h1_ratio->Reset();
    }
 
+   TH1D * h1_pull = (TH1D*) h1_data->Clone("pull");
+   h1_pull->Reset();
+   for(unsigned int ib=0; ib<pullVec.size(); ib++){
+      h1_pull->SetBinContent(ib+1, pullVec[ib]);
+      h1_pull->SetBinError(ib+1, 0);
+   }
+
    ct->cd();
    TPad *pad2 = new TPad("pad2", "pad2", 0, 0.0, 1, 0.30);
    pad2->SetTopMargin(0);
@@ -894,6 +921,27 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 */   
    ct->Print("UnblindPlots.pdf");
    ct->Print("UnblindPlots.eps");
+
+   ct->Clear();
+   ct->cd();
+//   pad1->cd();
+//   pad1->SetLogy(0);
+   h1_pull->GetYaxis()->SetTitle("(obs. - pred.)/#sigma");
+   h1_pull->GetYaxis()->SetRangeUser(-4, 4);
+   h1_pull->SetMarkerColor(kRed);
+   h1_pull->Draw("P0 same");
+//   pad2->cd();
+//   pad2->Clear();
+   ct->Print("pull.pdf");
+
+   TH1D * h1_dist_pull = new TH1D("dist_pull", "dist_pull", 20, -2, 2);
+   for(auto p : pullVec){
+      h1_dist_pull->Fill(p);
+   }
+   h1_dist_pull->SetStats(kTRUE);
+   std::cout<<"mean : "<<h1_dist_pull->GetMean()<<"  rms : "<<h1_dist_pull->GetRMS()<<std::endl;
+   h1_dist_pull->Draw("hist");
+   ct->Print("dist_pull.pdf");
 
 /*
    std::cout<<"\nPrinting out the data vs. prediction table..."<<std::endl;

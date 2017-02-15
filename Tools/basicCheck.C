@@ -35,10 +35,12 @@ SearchBins * sb =0;
 int nTotBins;
 std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
 
-const bool isblind = true;
+const bool isblind = false;
 const bool doSingleMuonCS = false;
 const bool doInvDphi = false;
 const bool usegenmet = false;
+
+const bool dospecialFix = true;
 
 BaselineVessel * SRblv =0, * SRblv_Legacy =0, * SRblv_New_Legacy =0;
 std::string spec_def = "MY", spec_Legacy_def = "MY_Legacy", spec_New_Legacy_def = "NEW_Legacy";
@@ -367,7 +369,11 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
            if( keyStringT.Contains("Placeholder") ) foundTrigger = true;
            for(unsigned it=0; it<TriggerNames.size(); it++){
               if( keyStringT.Contains("MET") ){
-                 if( TriggerNames[it].find("HLT_PFMET170_NoiseCleaned_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET170_JetIdCleaned_v") != std::string::npos || TriggerNames[it].find("HLT_PFMET170_HBHECleaned_v") != std::string::npos || TriggerNames[it].find("HLT_PFMET100_PFMHT100_IDTight_v") != std::string::npos || TriggerNames[it].find("HLT_PFMET110_PFMHT110_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET120_PFMHT120_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET130_PFMHT130_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET140_PFMHT140_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET150_PFMHT150_IDTight_v")!= std::string::npos){
+                 if( TriggerNames[it].find("HLT_PFMET170_NoiseCleaned_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET170_JetIdCleaned_v") != std::string::npos || TriggerNames[it].find("HLT_PFMET170_HBHECleaned_v") != std::string::npos || TriggerNames[it].find("HLT_PFMET100_PFMHT100_IDTight_v") != std::string::npos || TriggerNames[it].find("HLT_PFMET110_PFMHT110_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET120_PFMHT120_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET130_PFMHT130_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET140_PFMHT140_IDTight_v")!= std::string::npos || TriggerNames[it].find("HLT_PFMET150_PFMHT150_IDTight_v")!= std::string::npos
+                    || TriggerNames[it].find("HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v") != std::string::npos
+                    || TriggerNames[it].find("HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v") != std::string::npos
+                    || TriggerNames[it].find("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v") != std::string::npos
+                 ){
                     if( PassTrigger[it] ) foundTrigger = true;
                  }
               }
@@ -396,6 +402,15 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
               }
            }
            if( !foundTrigger ) continue;
+        }
+        if(dospecialFix){
+           const std::vector<int> & specialFixtype = tr->getVec<int>("specialFixtype");
+           const std::vector<TLorentzVector> & specialFixMuonsLVec = tr->getVec<TLorentzVector>("specialFixMuonsLVec");
+           const std::vector<double> & specialFixMuonsCharge = tr->getVec<double>("specialFixMuonsCharge");
+           if( !specialFixtype.empty() ) continue;
+
+           const bool passQCDHighMETFilter = tr->getVar<bool>("passQCDHighMETFilter" + spec);
+           if( !passQCDHighMETFilter ) continue;
         }
 
         int cntMuons_LostLepton = 0, cntMuons_HadTau = 0;
