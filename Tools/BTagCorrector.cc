@@ -13,6 +13,8 @@
 #include <vector>
 #include<cmath>
 
+#include "customize.h"
+
 using namespace std;
 
 
@@ -150,7 +152,7 @@ double BTagCorrector::GetSimpleCorrection(const vector<TLorentzVector> *Jets, co
 	// if(debug) cout << "Jet " << ja << ": " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << ", " << abs(Jets_flavor->at(ja))  << ", " << Jets_bDiscriminatorCSV->at(ja)
 	//                       << ", " << sfEffLists[ja][0] << ", " << sfEffLists[ja][1] << ", " << sfEffLists[ja][2] << endl;
     
-        if(Jets_bDiscriminatorCSV->at(ja) > 0.800){
+        if(Jets_bDiscriminatorCSV->at(ja) > AnaConsts::cutCSVS){
             mcTag *= eff_a*cf_a;
             dataTag *= eff_a*cf_a*sf_a;
         } else {
