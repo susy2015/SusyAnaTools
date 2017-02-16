@@ -24,6 +24,9 @@ private:
 
     NTupleReader *tr;
     TFile *WMassCorFile;
+    TF1   *puppisd_corrGEN;
+    TF1   *puppisd_corrRECO_cen;
+    TF1   *puppisd_corrRECO_for;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
     std::shared_ptr<topTagger::type3TopTagger> type3Ptr;

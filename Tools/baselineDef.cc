@@ -76,6 +76,11 @@ bool BaselineVessel::OpenWMassCorrFile()
   WMassCorFile = TFile::Open(puppiCorr.c_str(),"READ");
   if (!WMassCorFile)
     std::cout << "W mass correction file not found w mass!!!!!!! " << puppiCorr <<" Will not correct W mass" << std::endl;
+  else{
+    puppisd_corrGEN      = (TF1*)WMassCorFile->Get("puppiJECcorr_gen");
+    puppisd_corrRECO_cen = (TF1*)WMassCorFile->Get("puppiJECcorr_reco_0eta1v3");
+    puppisd_corrRECO_for = (TF1*)WMassCorFile->Get("puppiJECcorr_reco_1v3eta2v5");
+  }
   return true;
 }       // -----  end of function BaselineVessel::OpenWMassCorrFile  -----
 
@@ -150,10 +155,7 @@ void BaselineVessel::prepareTopTagger()
         tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiSubJetsLVec" : "puppiSubJetsLVec"));
     if (WMassCorFile != NULL)
     {
-      myConstAK8Inputs.setWMassCorrHistos(
-          (TF1*)WMassCorFile->Get("puppiJECcorr_gen"),
-          (TF1*)WMassCorFile->Get("puppiJECcorr_reco_0eta1v3"),
-          (TF1*)WMassCorFile->Get("puppiJECcorr_reco_1v3eta2v5"));
+      myConstAK8Inputs.setWMassCorrHistos (puppisd_corrGEN     , puppisd_corrRECO_cen, puppisd_corrRECO_for);
     }
     std::vector<Constituent> constituents = ttUtility::packageConstituents(myConstAK4Inputs, myConstAK8Inputs);
     //run tagger
@@ -794,10 +796,10 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
   PassBaseline();
-  //GetMHT();
-  //GetLeptons();
-  //GetRecoZ(81, 101);
-  //GetTopCombs();
+  GetMHT();
+  GetLeptons();
+  GetRecoZ(81, 101);
+  GetTopCombs();
 }
 
 // ===  FUNCTION  ============================================================
