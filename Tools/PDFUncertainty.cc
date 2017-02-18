@@ -75,6 +75,7 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 
         double upperBound = *biggest1;
 	double lowerBound = *smallest1;
+        double scaleNominal = ScaleWeightsMiniAOD.size() == 9 ? ScaleWeightsMiniAOD.at(0) : 1.0;
 
 
 	//This Part for calculating PDF Uncertainty
@@ -316,6 +317,7 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 	//For Scale Variations
 	tr.registerDerivedVar("Scaled_Variations_Up",upperBound);
 	tr.registerDerivedVar("Scaled_Variations_Down",lowerBound);
+        tr.registerDerivedVar("Scaled_Variations_Nominal",scaleNominal);
 
 	// NNPDF from Mean
 	//Scaled to Mean(central value)
@@ -332,10 +334,10 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 	tr.registerDerivedVar("NNPDF_Unc_Env_Down", NNPDF_Env_down);
 
 	//NNPDF by median 68% cl
-	double NNPDF_from_median_up = central + errsymm;
-	double NNPDF_from_median_down = central - errsymm;
-	NNPDF_from_median_up = NNPDF_from_median_up/central;
-	NNPDF_from_median_down = NNPDF_from_median_down/central;
+	double NNPDF_from_median_up = central + errplus;
+	double NNPDF_from_median_down = central - errminus;
+	NNPDF_from_median_up = NNPDF_from_median_up/central>2.0? 1.0 : NNPDF_from_median_up/central<-2.0? 1.0 : NNPDF_from_median_up/central;
+	NNPDF_from_median_down = NNPDF_from_median_down/central>2.0? 1.0 : NNPDF_from_median_down/central<-2.0? 1.0 : NNPDF_from_median_down/central;
 	//Up and down are Scaled to central value
 	tr.registerDerivedVar("NNPDF_From_Median_Up", NNPDF_from_median_up);
        	tr.registerDerivedVar("NNPDF_From_Median_Down", NNPDF_from_median_down);
