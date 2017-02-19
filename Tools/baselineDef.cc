@@ -542,11 +542,21 @@ bool BaselineVessel::GetTopCombs() const
     }
 
     // AK8 + Ak4 for W + jet
-    const std::vector<TLorentzVector>  & AK8 = tr->getVec<TLorentzVector>("puppiJetsLVec");
-    for(auto ak8 : AK8)
+    ttUtility::ConstAK8Inputs myConstAK8Inputs = ttUtility::ConstAK8Inputs(
+        tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec"), 
+        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau1" : "puppitau1"),
+        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau2" : "puppitau2"),
+        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau3" : "puppitau3"),
+        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass"),
+        tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiSubJetsLVec" : "puppiSubJetsLVec"));
+    std::vector<Constituent> AK8constituents;
+    myConstAK8Inputs.packageConstituents(AK8constituents);
+
+    for(auto ak8_ : AK8constituents)
     {
+      auto ak8 = ak8_.P();
       if (ak8.Pt() < 200 ) continue;
-      for(auto ak4 : *jetsLVec_forTagger)
+      for(auto ak4 : GetAK4NoSubjet(ak8_, *jetsLVec_forTagger))
       { 
         if (ak4.Pt() < 80 ) continue; // Tight working point
         if (ak8.DeltaR(ak4) > 1.0 ) continue; // Tight working point
@@ -558,7 +568,9 @@ bool BaselineVessel::GetTopCombs() const
         i++;
       }
     }
+
     // Ak8 only for top
+    const std::vector<TLorentzVector>  & AK8 = tr->getVec<TLorentzVector>("puppiJetsLVec");
     for(auto ak8 : AK8)
     {
       if (ak8.Pt() < 400 ) continue;
@@ -575,6 +587,34 @@ bool BaselineVessel::GetTopCombs() const
 
   return true;
 }       // -----  end of function BaselineVessel::GetTopCombs  -----
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetAK4NoSubjet
+//  Description:  /* cursor */
+// ===========================================================================
+std::vector<TLorentzVector>  BaselineVessel::GetAK4NoSubjet(Constituent &ak8, std::vector<TLorentzVector> &ak4jets) const
+{
+  std::vector<TLorentzVector>  temp;
+  for(auto ak4 : ak4jets)
+  {
+    bool ismatched = false;
+    for(auto sub : ak8.getSubjets())
+    {
+      if (ak4.DeltaR(sub)<0.4)
+      {
+        ismatched = true;
+        break;
+      }
+    }
+
+    if (!ismatched)
+    {
+      temp.push_back(ak4);
+    }
+  }
+
+  return temp;
+}       // -----  end of function BaselineVessel::GetAK4NoSubjet  -----
 
 bool BaselineVessel::passNoiseEventFilterFunc()
 {
@@ -796,10 +836,10 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
   PassBaseline();
-  //GetMHT();
-  //GetLeptons();
-  //GetRecoZ(81, 101);
-  //GetTopCombs();
+  GetMHT();
+  GetLeptons();
+  GetRecoZ(81, 101);
+  GetTopCombs();
 }
 
 // ===  FUNCTION  ============================================================

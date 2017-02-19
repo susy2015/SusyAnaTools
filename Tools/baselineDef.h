@@ -40,6 +40,8 @@ private:
     std::vector<TLorentzVector> *vTops;
     std::map<int, std::vector<TLorentzVector> > *mTopJets;
 
+    std::vector<TLorentzVector> GetAK4NoSubjet(Constituent &ak8, 
+        std::vector<TLorentzVector> &ak4jets) const;
 public:
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Member ~~~~~
