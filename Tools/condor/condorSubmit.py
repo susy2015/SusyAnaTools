@@ -11,7 +11,7 @@ Executable = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goMakePlots.sh
 Requirements = OpSys == "LINUX"&& (Arch != "DUMMY" )
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/basicCheck, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goMakePlots.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/TopTagger.cfg, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/TrainingOutput_dR20_pt30_depth14_2016_Dec2.model, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/Legacy_TopTagger.cfg, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/puppiSoftdropResol.root, TRANS_TAR_BALL_CMSSW
+Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/basicCheck, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goMakePlots.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/TopTagger.cfg, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/TrainingOutput_dR20_pt30_depth14_2016_Dec2.model, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/Legacy_TopTagger.cfg, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/data/puppiCorr.root, TRANS_TAR_BALL_CMSSW
 notify_user = ${LOGNAME}@FNAL.GOV
 x509userproxy = $ENV(X509_USER_PROXY)
 
