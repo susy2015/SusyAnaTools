@@ -89,6 +89,16 @@ endif
 
 ##Checkout latest toptagger cfg file 
 
+#it is safer to clear our old cfg files, but as a safety only if they are softlinks
+set TOPTAGGERFILE=TopTagger.cfg
+if ( -f $TOPTAGGERFILE && -l $TOPTAGGERFILE ) then
+    rm $TOPTAGGERFILE
+endif
+set LEGTOPTAGGERFILE=TopTagger.cfg
+if ( -f $LEGTOPTAGGERFILE && -l $LEGTOPTAGGERFILE ) then
+    rm $LEGTOPTAGGERFILE
+endif
+
 mkdir -p $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_v1.1.1 -d $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.0 -f Legacy_TopTagger.cfg -d $TAGGERCFGDIR
+${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
+${SRC}/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
