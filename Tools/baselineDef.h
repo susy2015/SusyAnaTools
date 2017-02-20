@@ -14,6 +14,9 @@
 #include <memory>
 #include <iostream>
 
+class TFile;
+class TF1;
+
 class BaselineVessel
 {
 private:
