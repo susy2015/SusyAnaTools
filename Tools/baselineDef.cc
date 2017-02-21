@@ -559,11 +559,13 @@ bool BaselineVessel::GetTopCombs() const
     {
       auto ak8 = ak8_.P();
       if (ak8.Pt() < 200 ) continue;
+      if (ak8.M() < 65 ) continue;
       for(auto ak4 : GetAK4NoSubjet(ak8_, *jetsLVec_forTagger))
       { 
-        if (ak4.Pt() < 80 ) continue; // Tight working point
-        if (ak8.DeltaR(ak4) > 1.0 ) continue; // Tight working point
-        vCombs->push_back(ak4 + ak8);
+        if (ak4.Pt() < 30 ) continue; // Tight working point
+        TLorentzVector sumTop = ak4 + ak8;
+        if (sumTop.DeltaR(ak8) > 1.0 || sumTop.DeltaR(ak4) > 1.0 ) continue; // Tight working point
+        vCombs->push_back(sumTop);
         std::vector<TLorentzVector> temp;
         temp.push_back(ak8);
         temp.push_back(ak4);
