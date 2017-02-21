@@ -94,7 +94,7 @@ set TOPTAGGERFILE=TopTagger.cfg
 if ( -f $TOPTAGGERFILE && -l $TOPTAGGERFILE ) then
     rm $TOPTAGGERFILE
 endif
-set LEGTOPTAGGERFILE=TopTagger.cfg
+set LEGTOPTAGGERFILE=Legacy_TopTagger.cfg
 if ( -f $LEGTOPTAGGERFILE && -l $LEGTOPTAGGERFILE ) then
     rm $LEGTOPTAGGERFILE
 endif
