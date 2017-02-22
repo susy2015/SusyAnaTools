@@ -564,6 +564,7 @@ bool BaselineVessel::GetTopCombs() const
       { 
         if (ak4.Pt() < 30 ) continue; // Tight working point
         TLorentzVector sumTop = ak4 + ak8;
+        if (sumTop.M() < 100 || sumTop.M() > 250) continue;
         if (sumTop.DeltaR(ak8) > 1.0 || sumTop.DeltaR(ak4) > 1.0 ) continue; // Tight working point
         vCombs->push_back(sumTop);
         std::vector<TLorentzVector> temp;
@@ -579,6 +580,7 @@ bool BaselineVessel::GetTopCombs() const
     for(auto ak8 : AK8)
     {
       if (ak8.Pt() < 400 ) continue;
+      if (ak8.M() < 100 ) continue;
       vCombs->push_back(ak8);
       std::vector<TLorentzVector> temp;
       temp.push_back(ak8);
