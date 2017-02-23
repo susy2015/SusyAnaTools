@@ -95,9 +95,13 @@ void ISRCorrector::registerVarToNTuples(NTupleReader& tr)
             if(tr.checkBranch("genDecayLVec"))
             {
                 THROW_SATEXCEPTION("It appears that this is MC, but I don't find the \"NJetsISR\" variable in the NTuple or derived variables");
-}
+            }
         }
     }
+
+    if( std::isnan( isr_Unc_Up) || std::isinf(isr_Unc_Up) ) isr_Unc_Up= 1.0;
+    if( std::isnan( isr_Unc_Cent) || std::isinf(isr_Unc_Cent) ) isr_Unc_Cent= 1.0;
+    if( std::isnan( isr_Unc_Down) || std::isinf(isr_Unc_Down) ) isr_Unc_Down= 1.0;
 
     tr.registerDerivedVar("isr_Unc_Up", isr_Unc_Up);
     tr.registerDerivedVar("isr_Unc_Cent", isr_Unc_Cent);
