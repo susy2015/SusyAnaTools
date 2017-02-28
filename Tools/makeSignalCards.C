@@ -76,7 +76,7 @@ std::vector<int> cached_sampleColorVec;
 void makeSignalCards(const std::string inputRootName, const std::string inputRootName_hadtau_cont, const std::string inputRootName_lostle_cont){
 
 //   double dataLumi = 4004.345;
-   double dataLumi = 36352.970569733;
+   double dataLumi = 36813.714859265;
 
    TFile * sig_cont_hadtau_file = 0, * sig_cont_lostle_file = 0;
    if( !inputRootName_hadtau_cont.empty() ) sig_cont_hadtau_file = new TFile(inputRootName_hadtau_cont.c_str());
@@ -423,7 +423,8 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          double bTagSFCen_cent = h1_btagSFCen->GetBinContent(ib+1);
          double bTagSFCen_scale = cent !=0 ? bTagSFCen_cent/cent : 1.0;
 //         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale;
-         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+//         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
          sum_cent_wt += cent * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
          sum_err_wt += err*err*pow(bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale, 2.0); 
 
@@ -682,7 +683,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       }
       ofs<<std::endl;
 
-      ofs<<"lumi_unc_up = ";
+      ofs<<"syst_lumi_unc_up = ";
       for(int ib=0; ib<nBins; ib++){
 //         sprintf(tmpStr, "%11.3f", 0.046);
          sprintf(tmpStr, "%11.3f", 0.062);
@@ -690,7 +691,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       }
       ofs<<std::endl;
 
-      ofs<<"lumi_unc_dn = ";
+      ofs<<"syst_lumi_unc_dn = ";
       for(int ib=0; ib<nBins; ib++){
 //         sprintf(tmpStr, "%11.3f", 0.046);
          sprintf(tmpStr, "%11.3f", 0.062);
@@ -698,182 +699,182 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       }
       ofs<<std::endl;
 
-      ofs<<"bTagSF_up = ";
+      ofs<<"syst_bTagSF_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", bTagSFUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"bTagSF_dn = ";
+      ofs<<"syst_bTagSF_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", bTagSFDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"mistagSF_up = ";
+      ofs<<"syst_mistagSF_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", mistagSFUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"mistagSF_dn = ";
+      ofs<<"syst_mistagSF_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", mistagSFDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"pdfUnc_up = ";
+      ofs<<"syst_pdfUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", pdfUncUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"pdfUnc_dn = ";
+      ofs<<"syst_pdfUnc_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", pdfUncDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"scaleUnc_up = ";
+      ofs<<"syst_scaleUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", scaleUncUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"scaleUnc_dn = ";
+      ofs<<"syst_scaleUnc_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", scaleUncDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"isrUnc_up = ";
+      ofs<<"syst_isrUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", isrUncUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"isrUnc_dn = ";
+      ofs<<"syst_isrUnc_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", isrUncDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"metMag_up = ";
+      ofs<<"syst_metMag_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", metMagUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"metMag_dn = ";
+      ofs<<"syst_metMag_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", metMagDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"metPhi_up = ";
+      ofs<<"syst_metPhi_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", metPhiUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"metPhi_dn = ";
+      ofs<<"syst_metPhi_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", metPhiDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"jetJEC_up = ";
+      ofs<<"syst_jetJEC_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", jetJECUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"jetJEC_dn = ";
+      ofs<<"syst_jetJEC_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", jetJECDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"trigUnc_up = ";
+      ofs<<"syst_trigUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", trigUncUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"trigUnc_dn = ";
+      ofs<<"syst_trigUnc_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", trigUncDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"lepVetoUnc_up = ";
+      ofs<<"syst_lepVetoUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", lepVetoUncUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"lepVetoUnc_dn = ";
+      ofs<<"syst_lepVetoUnc_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", lepVetoUncDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"genTopSF_up = ";
+      ofs<<"syst_genTopSF_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", genTopSFUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"genTopSF_dn = ";
+      ofs<<"syst_genTopSF_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", genTopSFDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"mistaggenTopSF_up = ";
+      ofs<<"syst_mistaggenTopSF_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", mistaggenTopSFUpVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"mistaggenTopSF_dn = ";
+      ofs<<"syst_mistaggenTopSF_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", mistaggenTopSFDnVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"data_vs_MC_recoTop_unc_up = ";
+      ofs<<"syst_data_vs_MC_recoTop_unc_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "%11.3f", 0.05);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
 
-      ofs<<"data_vs_MC_recoTop_unc_dn = ";
+      ofs<<"syst_data_vs_MC_recoTop_unc_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "%11.3f", 0.05);
          ofs<<tmpStr;

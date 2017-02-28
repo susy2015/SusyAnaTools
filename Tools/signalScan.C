@@ -52,6 +52,8 @@ const bool doSingleMuonCS = false;
 const bool doInvDphi = false;
 const bool usegenmet = false;
 
+const bool prep_btag_ISR = false;
+
 MT2CalcCore * mt2Calc;
 
 BaselineVessel * SRblv =0;
@@ -357,14 +359,17 @@ private:
     int dMass_;
     std::string sampleKeyStr_;
 
-    TH2* num_eff_b_;
-    TH2* num_eff_c_;
-    TH2* num_eff_udsg_;
-    TH2* den_eff_b_;
-    TH2* den_eff_c_;
-    TH2* den_eff_udsg_;
+    TH2* n_eff_b_;
+    TH2* n_eff_c_;
+    TH2* n_eff_udsg_;
+    TH2* d_eff_b_;
+    TH2* d_eff_c_;
+    TH2* d_eff_udsg_;
+
+    TH1D* NJets_ISR_;
 
     double maxEffpt_, secMaxEffpt_;
+    double secMaxNJets_ISR_for_Hist_ = 6, maxNJets_ISR_for_hist_ = 7;
 
     void bookHists()
     {
@@ -578,22 +583,31 @@ private:
        const double ptBins[]   =  {20,30,40,50,60,70,80,100,120,160,210,260,320,400,500,600,secMaxEffpt_,maxEffpt_};
        const double etaBins[]  =  {0.0,0.8,1.6,2.4};
 
-       sprintf(hname, "%s_%d_%d", "num_eff_b", mMass_, dMass_);
-       num_eff_b_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); num_eff_b_->Sumw2();
-       sprintf(hname, "%s_%d_%d", "num_eff_c", mMass_, dMass_);
-       num_eff_c_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); num_eff_c_->Sumw2();
-       sprintf(hname, "%s_%d_%d", "num_eff_udsg", mMass_, dMass_);
-       num_eff_udsg_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); num_eff_udsg_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "n_eff_b", mMass_, dMass_);
+       n_eff_b_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); n_eff_b_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "n_eff_c", mMass_, dMass_);
+       n_eff_c_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); n_eff_c_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "n_eff_udsg", mMass_, dMass_);
+       n_eff_udsg_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); n_eff_udsg_->Sumw2();
 
-       sprintf(hname, "%s_%d_%d", "den_eff_b", mMass_, dMass_);
-       den_eff_b_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); den_eff_b_->Sumw2();
-       sprintf(hname, "%s_%d_%d", "den_eff_c", mMass_, dMass_);
-       den_eff_c_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); den_eff_c_->Sumw2();
-       sprintf(hname, "%s_%d_%d", "den_eff_udsg", mMass_, dMass_);
-       den_eff_udsg_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); den_eff_udsg_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "d_eff_b", mMass_, dMass_);
+       d_eff_b_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); d_eff_b_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "d_eff_c", mMass_, dMass_);
+       d_eff_c_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); d_eff_c_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "d_eff_udsg", mMass_, dMass_);
+       d_eff_udsg_ = new TH2D(hname, hname, nPtBins, ptBins, nEtaBins, etaBins); d_eff_udsg_->Sumw2();
+
+//       const int nisrJetBins = 9;
+//       const double isrJetBins[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 14};
+       const int nisrJetBins = 7;
+       const double isrJetBins[] = {0, 1, 2, 3, 4, 5, secMaxNJets_ISR_for_Hist_, maxNJets_ISR_for_hist_};
+      
+       sprintf(hname, "%s_%d_%d", "NJetsISR", mMass_, dMass_);
+       NJets_ISR_ = new TH1D(hname, hname, nisrJetBins, isrJetBins); NJets_ISR_->Sumw2();
     }
 
     ISRCorrector * isrCorr;
+    BTagCorrector * btagCorr;
 
 public:
     HistContainer(int mMass, int dMass, std::string sampleKeyStr="T2tt") : mMass_(mMass), dMass_(dMass), sampleKeyStr_(sampleKeyStr)
@@ -602,13 +616,23 @@ public:
 
        TString massPointStrT;
        massPointStrT.Form("%d_%d", mMass_, dMass_);
-       //std::cout<<"massPointStrT : "<<massPointStrT<<std::endl;
 
-       if( sampleKeyStr_.find("T2tt") != std::string::npos ) isrCorr = new ISRCorrector("Signal_fastsim_T2tt_scan_ISR.root", "", massPointStrT);
-       else if( sampleKeyStr_.find("T1tttt") != std::string::npos ) isrCorr = new ISRCorrector("Signal_fastsim_T1tttt_scan_ISR.root", "", massPointStrT);
-       else if( sampleKeyStr_.find("T5ttcc") != std::string::npos ) isrCorr = new ISRCorrector("Signal_fastsim_T5ttcc_scan_ISR.root", "", massPointStrT);
-       else{
-          std::cout<<"Signal points do NOT support right now. Please provide the NJetsISR distribution root file first!"<<std::endl;
+       if( !prep_btag_ISR ){
+          if( sampleKeyStr_.find("T2tt") != std::string::npos ){
+             isrCorr = new ISRCorrector("signalScan_fastsim_T2tt_bTagEff_ISR.root", "", massPointStrT);
+             btagCorr = new BTagCorrector("signalScan_fastsim_T2tt_bTagEff_ISR.root", "", true, massPointStrT.Data());
+          } else if( sampleKeyStr_.find("T1tttt") != std::string::npos ){
+             isrCorr = new ISRCorrector("signalScan_fastsim_T1tttt_bTagEff_ISR.root", "", massPointStrT);
+             btagCorr = new BTagCorrector("signalScan_fastsim_T1tttt_bTagEff_ISR.root", "", true, massPointStrT.Data());
+          } else if( sampleKeyStr_.find("T5ttcc") != std::string::npos ){
+             isrCorr = new ISRCorrector("signalScan_fastsim_T5ttcc_bTagEff_ISR.root", "", massPointStrT);
+             btagCorr = new BTagCorrector("signalScan_fastsim_T5ttcc_bTagEff_ISR.root", "", true, massPointStrT.Data());
+          } else{
+             std::cout<<"Signal points do NOT support right now. Please provide the NJetsISR distribution root file first!"<<std::endl;
+          }
+       }else{
+          isrCorr = nullptr;
+          btagCorr = nullptr;
        }
     }
 
@@ -663,24 +687,57 @@ public:
        const double NNPDF_From_Median_Up = tr.getVar<double>("NNPDF_From_Median_Up");
        const double NNPDF_From_Median_Down = tr.getVar<double>("NNPDF_From_Median_Down");
 
+       const std::vector<double> & recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
+       const std::vector<int> & recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
+       const std::vector<TLorentzVector> & jetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+
+/*
        const std::vector<double> & prob_Up = tr.getVec<double>("bTagSF_EventWeightProb_Up");
        const std::vector<double> & prob_Cen = tr.getVec<double>("bTagSF_EventWeightProb_Central");
        const std::vector<double> & prob_Dn = tr.getVec<double>("bTagSF_EventWeightProb_Down");
        const std::vector<double> & prob_mistag_Up = tr.getVec<double>("mistagSF_EventWeightProb_Up");
        const std::vector<double> & prob_mistag_Dn = tr.getVec<double>("mistagSF_EventWeightProb_Down");
+*/
+       double method1a_Up = 1.0, method1a_Cen = 1.0, method1a_Dn = 1.0, method1a_mistag_Up = 1.0, method1a_mistag_Dn = 1.0;
+       if( btagCorr ){
+          int switch_Unc = 0, switch_udsg_Unc = 0;
+          btagCorr->SetBtagSFunc(switch_Unc); btagCorr->SetBtagCFunc(switch_Unc);
+          btagCorr->SetCtagSFunc(switch_Unc); btagCorr->SetCtagCFunc(switch_Unc);
+          btagCorr->SetMistagSFunc(switch_udsg_Unc); btagCorr->SetMistagCFunc(switch_udsg_Unc);
+          method1a_Cen = btagCorr->GetSimpleCorrection(&jetsLVec, &recoJetsFlavor, &recoJetsBtag);
+          if( std::isnan( method1a_Cen) || std::isinf(method1a_Cen) ){ method1a_Cen = 1.0; }
 
-       const double & method1a_Up = tr.getVar<double>("bTagSF_EventWeightSimple_Up");
-       const double & method1a_Cen = tr.getVar<double>("bTagSF_EventWeightSimple_Central");
-       const double & method1a_Dn = tr.getVar<double>("bTagSF_EventWeightSimple_Down");
-       const double & method1a_mistag_Up = tr.getVar<double>("mistagSF_EventWeightSimple_Up");
-       const double & method1a_mistag_Dn = tr.getVar<double>("mistagSF_EventWeightSimple_Down");
+          switch_Unc = 1, switch_udsg_Unc = 0;
+          btagCorr->SetBtagSFunc(switch_Unc); btagCorr->SetBtagCFunc(switch_Unc);
+          btagCorr->SetCtagSFunc(switch_Unc); btagCorr->SetCtagCFunc(switch_Unc);
+          btagCorr->SetMistagSFunc(switch_udsg_Unc); btagCorr->SetMistagCFunc(switch_udsg_Unc);
+          method1a_Up = btagCorr->GetSimpleCorrection(&jetsLVec, &recoJetsFlavor, &recoJetsBtag);
+          if( std::isnan( method1a_Up) || std::isinf(method1a_Up) ){ method1a_Up = 1.0; }
+
+          switch_Unc = -1, switch_udsg_Unc = 0;
+          btagCorr->SetBtagSFunc(switch_Unc); btagCorr->SetBtagCFunc(switch_Unc);
+          btagCorr->SetCtagSFunc(switch_Unc); btagCorr->SetCtagCFunc(switch_Unc);
+          btagCorr->SetMistagSFunc(switch_udsg_Unc); btagCorr->SetMistagCFunc(switch_udsg_Unc);
+          method1a_Dn = btagCorr->GetSimpleCorrection(&jetsLVec, &recoJetsFlavor, &recoJetsBtag);
+          if( std::isnan( method1a_Dn) || std::isinf(method1a_Dn) ){ method1a_Dn = 1.0; }
+
+          switch_Unc = 0, switch_udsg_Unc = 1;
+          btagCorr->SetBtagSFunc(switch_Unc); btagCorr->SetBtagCFunc(switch_Unc);
+          btagCorr->SetCtagSFunc(switch_Unc); btagCorr->SetCtagCFunc(switch_Unc);
+          btagCorr->SetMistagSFunc(switch_udsg_Unc); btagCorr->SetMistagCFunc(switch_udsg_Unc);
+          method1a_mistag_Up = btagCorr->GetSimpleCorrection(&jetsLVec, &recoJetsFlavor, &recoJetsBtag);
+          if( std::isnan( method1a_mistag_Up) || std::isinf(method1a_mistag_Up) ){ method1a_mistag_Up = 1.0; }
+
+          switch_Unc = 0, switch_udsg_Unc = -1;
+          btagCorr->SetBtagSFunc(switch_Unc); btagCorr->SetBtagCFunc(switch_Unc);
+          btagCorr->SetCtagSFunc(switch_Unc); btagCorr->SetCtagCFunc(switch_Unc);
+          btagCorr->SetMistagSFunc(switch_udsg_Unc); btagCorr->SetMistagCFunc(switch_udsg_Unc);
+          method1a_mistag_Dn = btagCorr->GetSimpleCorrection(&jetsLVec, &recoJetsFlavor, &recoJetsBtag);
+          if( std::isnan( method1a_mistag_Dn) || std::isinf(method1a_mistag_Dn) ){ method1a_mistag_Dn = 1.0; }
+       }
 
        const std::vector<TLorentzVector> & selGenParticle = tr.getVec<TLorentzVector>("selGenParticle");
        const std::vector<int> & selPDGid = tr.getVec<int>("selPDGid");
-
-       const std::vector<double> & recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
-       const std::vector<int> & recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
-       const std::vector<TLorentzVector> & jetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
 
        const double & met_metMagUp = tr.getVar<double>("met_metMagUp");
        const double & best_had_brJet_MT2_metMagUp = tr.getVar<double>("best_had_brJet_MT2" + spec_metMagUp);
@@ -721,6 +778,28 @@ public:
        const std::vector<TLorentzVector> & vTops = tr.getVec<TLorentzVector>("vTops" + spec);
 
        const int & NJetsISR = tr.getVar<int>("NJetsISR");
+
+// No event weights
+       for(unsigned int ij=0; ij<jetsLVec.size(); ij++){
+          if( !AnaFunctions::jetPassCuts(jetsLVec[ij], AnaConsts::pt30Eta24Arr) ) continue;
+          double pt = jetsLVec[ij].Pt(), eta = std::abs(jetsLVec[ij].Eta());
+          if( pt > maxEffpt_ ) pt = (maxEffpt_ + secMaxEffpt_) * 0.5;
+          double csvs = recoJetsBtag[ij];
+          int flav = std::abs(recoJetsFlavor[ij]);
+          if(flav == 5){ //b jets
+             d_eff_b_->Fill(pt, eta);
+             if( csvs > AnaConsts::cutCSVS) n_eff_b_->Fill(pt, eta);
+          }else if(flav == 4){ //c jets
+             d_eff_c_->Fill(pt, eta);
+             if( csvs > AnaConsts::cutCSVS) n_eff_c_->Fill(pt, eta);
+          }else if(flav < 4 || flav == 21){ //light quark jets & gluon
+             d_eff_udsg_->Fill(pt, eta);
+             if( csvs > AnaConsts::cutCSVS) n_eff_udsg_->Fill(pt, eta);
+          }
+       }
+
+       if(NJetsISR >= secMaxNJets_ISR_for_Hist_) NJets_ISR_->Fill(secMaxNJets_ISR_for_Hist_);
+       else NJets_ISR_->Fill(NJetsISR);
 
        double genTopSF_evt = 1.0, genTopSF_relErr_evt = 0.0; int cntgenTop_misMatched = 0;
        std::vector<int> pickedRecoTopIdxVec;
@@ -1058,24 +1137,6 @@ public:
           baseline_pdfUncCen_->Fill(nSearchBin, NNPDF_From_Median_Central * weight);
           baseline_pdfUncDn_->Fill(nSearchBin, NNPDF_From_Median_Down * weight);
 
-          for(unsigned int ij=0; ij<jetsLVec.size(); ij++){
-             if( !AnaFunctions::jetPassCuts(jetsLVec[ij], AnaConsts::pt30Eta24Arr) ) continue;
-             double pt = jetsLVec[ij].Pt(), eta = std::abs(jetsLVec[ij].Eta());
-             if( pt > maxEffpt_ ) pt = (maxEffpt_ + secMaxEffpt_) * 0.5;
-             double csvs = recoJetsBtag[ij];
-             int flav = std::abs(recoJetsFlavor[ij]);
-             if(flav == 5){ //b jets
-                den_eff_b_->Fill(pt, eta, weight);
-                if( csvs > AnaConsts::cutCSVS) num_eff_b_->Fill(pt, eta, weight);
-             }else if(flav == 4){ //c jets
-                den_eff_c_->Fill(pt, eta, weight);
-                if( csvs > AnaConsts::cutCSVS) num_eff_c_->Fill(pt, eta, weight);
-             }else if(flav < 4 || flav == 21){ //light quark jets & gluon
-                den_eff_udsg_->Fill(pt, eta, weight);
-                if( csvs > AnaConsts::cutCSVS) num_eff_udsg_->Fill(pt, eta, weight);
-             }
-          }
-
 // Method 1a
           baseline_bTagSFUp_->Fill(nSearchBin, method1a_Up * weight);
           baseline_bTagSFCen_->Fill(nSearchBin, method1a_Cen * weight);
@@ -1083,19 +1144,6 @@ public:
 
           baseline_mistagSFUp_->Fill(nSearchBin, method1a_mistag_Up * weight);
           baseline_mistagSFDn_->Fill(nSearchBin, method1a_mistag_Dn * weight);
-
-/*
-// Method 1b
-          for(int ib=0; ib<3; ib++){
-             int per_nSearchBin = sb->find_Binning_Index(ib+1, nTopCandSortedCnt, best_had_brJet_MT2, met);
-             baseline_bTagSFUp_->Fill(per_nSearchBin, prob_Up[ib+1] * weight);
-             baseline_bTagSFCen_->Fill(per_nSearchBin, prob_Cen[ib+1] * weight);
-             baseline_bTagSFDn_->Fill(per_nSearchBin, prob_Dn[ib+1] * weight);
-
-             baseline_mistagSFUp_->Fill(per_nSearchBin, prob_mistag_Up[ib+1] * weight);
-             baseline_mistagSFDn_->Fill(per_nSearchBin, prob_mistag_Dn[ib+1] * weight);
-          }
-*/
 
           baseline_genTopSFUp_->Fill(nSearchBin, genTopSF_relErr_evt * weight);
           baseline_genTopSFCen_->Fill(nSearchBin, genTopSF_evt * weight);
@@ -1107,42 +1155,7 @@ public:
           for(unsigned int ip=0; ip<pickedRecoTopIdxVec.size(); ip++){
              baseline_misTag_recoTopPt_->Fill(vTops[pickedRecoTopIdxVec[ip]].Pt(), weight);
           }
-/*
-          for(unsigned int ib=0; ib<4; ib++){
-             const int iSB = sb->find_Binning_Index(ib, nTopCandSortedCnt, best_had_brJet_MT2, met);
-             if( iSB == -1 ) continue;
-             baseline_bTagSFUp_->Fill(iSB, prob_Up[ib] * weight);
-             baseline_bTagSFCen_->Fill(iSB, prob_Cen[ib] * weight);
-             baseline_bTagSFDn_->Fill(iSB, prob_Dn[ib] * weight);
-          }
-*/
-/*
-          for(unsigned int ib=0; ib<nTotBins; ib++){
-             struct searchBinDef sbDef;
-             sb->find_BinBoundaries(ib, sbDef);
-             int tmp_cntCSVS = cntCSVS <=3 ? cntCSVS:3;
-             if( sbDef.bJet_lo == tmp_cntCSVS ){
-                baseline_bTagSFUp_->Fill(ib, prob_Up[tmp_cntCSVS] * weight);
-                baseline_bTagSFCen_->Fill(ib, prob_Cen[tmp_cntCSVS] * weight);
-                baseline_bTagSFDn_->Fill(ib, prob_Dn[tmp_cntCSVS] * weight);
-             }
-          }
-*/
-/*
-          if(cntCSVS == 1){
-             baseline_bTagSFUp_->Fill(nSearchBin, prob_Up[1] * weight);
-             baseline_bTagSFCen_->Fill(nSearchBin, prob_Cen[1] * weight);
-             baseline_bTagSFDn_->Fill(nSearchBin, prob_Dn[1] * weight);
-          }else if(cntCSVS ==2 ){
-             baseline_bTagSFUp_->Fill(nSearchBin, prob_Up[2] * weight);
-             baseline_bTagSFCen_->Fill(nSearchBin, prob_Cen[2] * weight);
-             baseline_bTagSFDn_->Fill(nSearchBin, prob_Dn[2] * weight);
-          }else if(cntCSVS >=3 ){
-             baseline_bTagSFUp_->Fill(nSearchBin, prob_Up[3] * weight);
-             baseline_bTagSFCen_->Fill(nSearchBin, prob_Cen[3] * weight);
-             baseline_bTagSFDn_->Fill(nSearchBin, prob_Dn[3] * weight);
-          }
-*/
+
           baseline_MT2_vs_met_->Fill(met, best_had_brJet_MT2, weight);
 
           double isr_cen_wt = 1.0, isr_up_wt = 1.0, isr_dn_wt = 1.0;
@@ -1156,6 +1169,7 @@ public:
           baseline_isrUncUp_->Fill(nSearchBin, weight*isr_up_wt);
           baseline_isrUncCen_->Fill(nSearchBin, weight*isr_cen_wt);
           baseline_isrUncDn_->Fill(nSearchBin, weight*isr_dn_wt);
+
 /*
           if( sumStopLVec.Pt() < 400 ){
              baseline_isrUncUp_->Fill(nSearchBin, weight);
@@ -1307,14 +1321,16 @@ public:
 
        sumStopPt_vs_met_->Write();
 
-/*
-       num_eff_b_->Write();
-       num_eff_c_->Write();
-       num_eff_udsg_->Write();
-       den_eff_b_->Write();
-       den_eff_c_->Write();
-       den_eff_udsg_->Write();
-*/
+       if( prep_btag_ISR ){
+          n_eff_b_->Write();
+          n_eff_c_->Write();
+          n_eff_udsg_->Write();
+          d_eff_b_->Write();
+          d_eff_c_->Write();
+          d_eff_udsg_->Write();
+
+          NJets_ISR_->Write();
+       }
 //       xSec_->Write();
     }
 };
@@ -1471,20 +1487,6 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
      tr->registerFunction((*SRblv_metMagDn));
      tr->registerFunction((*SRblv_metPhiUp));
      tr->registerFunction((*SRblv_metPhiDn));
-
-     BTagCorrector btagcorr;
-     btagcorr.SetFastSim(true); btagcorr.SetCalibFastSim("CSV_13TEV_Combined_14_7_2016.csv");
-     if( bTagEffFile ) delete bTagEffFile;
-     if( sampleKeyString.find("T2tt") != std::string::npos ){
-        std::cout<<"\nBTagCorrector ...  Using the SMS-T2tt_mStop-400to1200_bTagEff.root ...\n"<<std::endl;
-        bTagEffFile = new TFile("SMS-T2tt_mStop-400to1200_bTagEff.root");
-        btagcorr.SetEffs(bTagEffFile);
-     }else if( sampleKeyString.find("T1tt") != std::string::npos || sampleKeyString.find("T5tt") != std::string::npos ){
-        std::cout<<"\nBTagCorrector ...  Using the SMS-T1tttt_2016_bTagEff.root ...\n"<<std::endl;
-        bTagEffFile = new TFile("SMS-T1tttt_2016_bTagEff.root");
-        btagcorr.SetEffs(bTagEffFile);
-     }
-     tr->registerFunction(btagcorr);
 
      int entries = tr->getNEntries();
      if( entryToProcess >0 ) entries = entryToProcess;

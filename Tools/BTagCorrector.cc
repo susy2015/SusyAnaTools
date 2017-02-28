@@ -145,7 +145,7 @@ double BTagCorrector::GetSimpleCorrection(const vector<TLorentzVector> *Jets, co
         double sf_a = sfEffLists[ja][1];
     
         if( sfEffLists[ja][0] ==0 || sfEffLists[ja][1] ==0 || sfEffLists[ja][2] ==0 ){
-            std::cout<<"sfEffLists[ja][0] : "<<sfEffLists[ja][0]<<"  sfEffLists[ja][1] : "<<sfEffLists[ja][1]<<"  sfEffLists[ja][2] : "<<sfEffLists[ja][2]<<std::endl; 
+           if(debug) std::cout<<"sfEffLists[ja][0] : "<<sfEffLists[ja][0]<<"  sfEffLists[ja][1] : "<<sfEffLists[ja][1]<<"  sfEffLists[ja][2] : "<<sfEffLists[ja][2]<<std::endl;
         }
 
         //jet index, pt, eta, flavor, csv, eff, sf, cf
@@ -161,7 +161,9 @@ double BTagCorrector::GetSimpleCorrection(const vector<TLorentzVector> *Jets, co
         }
     }
 
-    return (dataNoTag * dataTag)/(mcNoTag * mcTag);
+    double result = (mcNoTag * mcTag ==0) ? 1.0 : (dataNoTag * dataTag)/(mcNoTag * mcTag);
+
+    return result;
 }
 
 

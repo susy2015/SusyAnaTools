@@ -33,8 +33,10 @@ def main():
    print 'basedir :', options.basedir
    print 'destdir :', options.destdir
 
+   channels = 84
+
    list_keywords_to_avg = ['rate', 'cs_event', 'contam', 'avg_weight', 'stat_unc_up', 'stat_unc_dn']
-   list_keywords_to_skip = ['metMag_up', 'metMag_dn']
+   list_keywords_to_skip = ['syst_metMag_up', 'syst_metMag_dn']
 
    for signal_name in os.listdir(options.destdir):
       if not ("signal" in signal_name): continue
@@ -62,8 +64,6 @@ def main():
       cached_syst_for_avg = []
       cached_cs = []
       cached_rate = []
-
-      channels = 59
 
       for base_line in base_file:
          split_base_line = procline(base_line)
@@ -121,12 +121,12 @@ def main():
          if not modified:
             out_file.write(base_line)
 
-      out_file.write("%11s = " % ("metMag_up"))
+      out_file.write("%11s = " % ("syst_metMag_up"))
       for chn in range(1, int(channels)+1):
          out_file.write("%11.7f" % cached_syst_for_avg[chn-1])
       out_file.write("\n")
  
-      out_file.write("%11s = " % ("metMag_dn"))
+      out_file.write("%11s = " % ("syst_metMag_dn"))
       for chn in range(1, int(channels)+1):
          out_file.write("%11.7f" % cached_syst_for_avg[chn-1])
       out_file.write("\n")
