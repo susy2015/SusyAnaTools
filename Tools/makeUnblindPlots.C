@@ -143,6 +143,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    std::ifstream infile("prt_table.txt");
    int prt_chn;
    double prt_data, prt_data_stat, prt_pred, prt_pred_stat_up, prt_pred_stat_dn, prt_pred_syst_up, prt_pred_syst_dn;
+   double prt_ttbarW_rate, prt_ttbarW_stat_up, prt_ttbarW_stat_dn, prt_ttbarW_syst_up, prt_ttbarW_syst_dn;
    double prt_lostle_rate, prt_lostle_stat_up, prt_lostle_stat_dn, prt_lostle_syst_up, prt_lostle_syst_dn;
    double prt_hadtau_rate, prt_hadtau_stat_up, prt_hadtau_stat_dn, prt_hadtau_syst_up, prt_hadtau_syst_dn;
    double prt_zinv_rate, prt_zinv_stat_up, prt_zinv_stat_dn, prt_zinv_syst_up, prt_zinv_syst_dn;
@@ -150,7 +151,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    double prt_ttz_rate, prt_ttz_stat_up, prt_ttz_stat_dn, prt_ttz_syst_up, prt_ttz_syst_dn;
    double prt_rare_rate, prt_rare_stat_up, prt_rare_stat_dn, prt_rare_syst_up, prt_rare_syst_dn;
    std::cout<<"\nPrinting out the data vs. prediction table..."<<std::endl;   
-   sb->print_searchBins_headerstr(" & Obs. & Sum. Pred. & Lost. Lep. & Had. Tau & Z($\\nu\\nu$)+Jets & QCD & ttZ & rare \\\\");
+   sb->print_searchBins_headerstr(" & Obs. & Sum. Pred. & \ttbar/W/Single top & Z($\\nu\\nu$)+Jets & QCD & ttZ & rare \\\\");
    std::vector<double> xVec, yVec, xSysErrUpVec, xSysErrDnVec, ySysErrUpVec, ySysErrDnVec;
    std::vector<double> yStatErrUpVec, yStatErrDnVec;
    std::vector<double> ySumErrUpVec, ySumErrDnVec;
@@ -160,11 +161,11 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 
    double sumObs =0, sumPred =0;
 
-   while(infile >> prt_chn >> prt_data >> prt_data_stat >> prt_pred >> prt_pred_stat_up >> prt_pred_stat_dn >> prt_pred_syst_up >> prt_pred_syst_dn >> prt_lostle_rate >> prt_lostle_stat_up >> prt_lostle_stat_dn >> prt_lostle_syst_up >> prt_lostle_syst_dn >> prt_hadtau_rate >> prt_hadtau_stat_up >> prt_hadtau_stat_dn >> prt_hadtau_syst_up >> prt_hadtau_syst_dn >> prt_zinv_rate >> prt_zinv_stat_up >> prt_zinv_stat_dn >> prt_zinv_syst_up >> prt_zinv_syst_dn >> prt_qcd_rate >> prt_qcd_stat_up >> prt_qcd_stat_dn >> prt_qcd_syst_up >> prt_qcd_syst_dn >> prt_ttz_rate >> prt_ttz_stat_up >> prt_ttz_stat_dn >> prt_ttz_syst_up >> prt_ttz_syst_dn >> prt_rare_rate >> prt_rare_stat_up >> prt_rare_stat_dn >> prt_rare_syst_up >> prt_rare_syst_dn){
+   while(infile >> prt_chn >> prt_data >> prt_data_stat >> prt_pred >> prt_pred_stat_up >> prt_pred_stat_dn >> prt_pred_syst_up >> prt_pred_syst_dn >> prt_ttbarW_rate >> prt_ttbarW_stat_up >> prt_ttbarW_stat_dn >> prt_ttbarW_syst_up >> prt_ttbarW_syst_dn >> prt_zinv_rate >> prt_zinv_stat_up >> prt_zinv_stat_dn >> prt_zinv_syst_up >> prt_zinv_syst_dn >> prt_qcd_rate >> prt_qcd_stat_up >> prt_qcd_stat_dn >> prt_qcd_syst_up >> prt_qcd_syst_dn >> prt_ttz_rate >> prt_ttz_stat_up >> prt_ttz_stat_dn >> prt_ttz_syst_up >> prt_ttz_syst_dn >> prt_rare_rate >> prt_rare_stat_up >> prt_rare_stat_dn >> prt_rare_syst_up >> prt_rare_syst_dn){
       char tmpstr[500];
 // Complete table in AN
-      sprintf(tmpstr, " & %6.0f & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ \\\\", prt_data, 
-                        prt_pred*norm_bkg_to_data, prt_pred_stat_up*norm_bkg_to_data, prt_pred_stat_dn*norm_bkg_to_data, prt_pred_syst_up*norm_bkg_to_data, prt_pred_syst_dn*norm_bkg_to_data, prt_lostle_rate*norm_bkg_to_data, prt_lostle_stat_up*norm_bkg_to_data, prt_lostle_stat_dn*norm_bkg_to_data, prt_lostle_syst_up*norm_bkg_to_data, prt_lostle_syst_dn*norm_bkg_to_data, prt_hadtau_rate*norm_bkg_to_data, prt_hadtau_stat_up*norm_bkg_to_data, prt_hadtau_stat_dn*norm_bkg_to_data, prt_hadtau_syst_up*norm_bkg_to_data, prt_hadtau_syst_dn*norm_bkg_to_data, prt_zinv_rate*norm_bkg_to_data, prt_zinv_stat_up*norm_bkg_to_data, prt_zinv_stat_dn*norm_bkg_to_data, prt_zinv_syst_up*norm_bkg_to_data, prt_zinv_syst_dn*norm_bkg_to_data, prt_qcd_rate*norm_bkg_to_data, prt_qcd_stat_up*norm_bkg_to_data, prt_qcd_stat_dn*norm_bkg_to_data, prt_qcd_syst_up*norm_bkg_to_data, prt_qcd_syst_dn*norm_bkg_to_data, prt_ttz_rate*norm_bkg_to_data, prt_ttz_stat_up*norm_bkg_to_data, prt_ttz_stat_dn*norm_bkg_to_data, prt_ttz_syst_up*norm_bkg_to_data, prt_ttz_syst_dn*norm_bkg_to_data, prt_rare_rate*norm_bkg_to_data, prt_rare_stat_up*norm_bkg_to_data, prt_rare_stat_dn*norm_bkg_to_data, prt_rare_syst_up*norm_bkg_to_data, prt_rare_syst_dn*norm_bkg_to_data);
+      sprintf(tmpstr, " & %6.0f & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ \\\\", prt_data, 
+                        prt_pred*norm_bkg_to_data, prt_pred_stat_up*norm_bkg_to_data, prt_pred_stat_dn*norm_bkg_to_data, prt_pred_syst_up*norm_bkg_to_data, prt_pred_syst_dn*norm_bkg_to_data, prt_ttbarW_rate*norm_bkg_to_data, prt_ttbarW_stat_up*norm_bkg_to_data, prt_ttbarW_stat_dn*norm_bkg_to_data, prt_ttbarW_syst_up*norm_bkg_to_data, prt_ttbarW_syst_dn*norm_bkg_to_data, prt_zinv_rate*norm_bkg_to_data, prt_zinv_stat_up*norm_bkg_to_data, prt_zinv_stat_dn*norm_bkg_to_data, prt_zinv_syst_up*norm_bkg_to_data, prt_zinv_syst_dn*norm_bkg_to_data, prt_qcd_rate*norm_bkg_to_data, prt_qcd_stat_up*norm_bkg_to_data, prt_qcd_stat_dn*norm_bkg_to_data, prt_qcd_syst_up*norm_bkg_to_data, prt_qcd_syst_dn*norm_bkg_to_data, prt_ttz_rate*norm_bkg_to_data, prt_ttz_stat_up*norm_bkg_to_data, prt_ttz_stat_dn*norm_bkg_to_data, prt_ttz_syst_up*norm_bkg_to_data, prt_ttz_syst_dn*norm_bkg_to_data, prt_rare_rate*norm_bkg_to_data, prt_rare_stat_up*norm_bkg_to_data, prt_rare_stat_dn*norm_bkg_to_data, prt_rare_syst_up*norm_bkg_to_data, prt_rare_syst_dn*norm_bkg_to_data);
 // for QCD only
 //      sprintf(tmpstr, " & %6.3f $^{+%5.3f}_{-%5.3f}$ $^{+%5.3f}_{-%5.3f}$  \\\\", prt_qcd_rate, prt_qcd_stat_up, prt_qcd_stat_dn, prt_qcd_syst_up, prt_qcd_syst_dn);
 // for ttZ and rare
@@ -384,29 +385,25 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    TFile * sr_file = new TFile("searchBins.root");
 
    TH1D * h1_data = (TH1D*) sr_file->Get("data");
-   TH1D * h1_lostle = (TH1D*) sr_file->Get("lostle");
-   TH1D * h1_hadtau = (TH1D*) sr_file->Get("hadtau");
+   TH1D * h1_ttbarW = (TH1D*) sr_file->Get("ttbarW");
    TH1D * h1_zinv = (TH1D*) sr_file->Get("zinv");
    TH1D * h1_qcd = (TH1D*) sr_file->Get("qcd");
    TH1D * h1_ttz = (TH1D*) sr_file->Get("ttz");
    TH1D * h1_rare = (TH1D*) sr_file->Get("rare");
 
-   TH1D * h1_lostle_syst = (TH1D*) sr_file->Get("lostle_syst");
-   TH1D * h1_hadtau_syst = (TH1D*) sr_file->Get("hadtau_syst");
+   TH1D * h1_ttbarW_syst = (TH1D*) sr_file->Get("ttbarW_syst");
    TH1D * h1_zinv_syst = (TH1D*) sr_file->Get("zinv_syst");
    TH1D * h1_qcd_syst = (TH1D*) sr_file->Get("qcd_syst");
    TH1D * h1_ttz_syst = (TH1D*) sr_file->Get("ttz_syst");
    TH1D * h1_rare_syst = (TH1D*) sr_file->Get("rare_syst");
 
-   h1_lostle->Scale(norm_bkg_to_data);
-   h1_hadtau->Scale(norm_bkg_to_data);
+   h1_ttbarW->Scale(norm_bkg_to_data);
    h1_zinv->Scale(norm_bkg_to_data);
    h1_qcd->Scale(norm_bkg_to_data);
    h1_ttz->Scale(norm_bkg_to_data);
    h1_rare->Scale(norm_bkg_to_data);
 
-   h1_lostle_syst->Scale(norm_bkg_to_data);
-   h1_hadtau_syst->Scale(norm_bkg_to_data);
+   h1_ttbarW_syst->Scale(norm_bkg_to_data);
    h1_zinv_syst->Scale(norm_bkg_to_data);
    h1_qcd_syst->Scale(norm_bkg_to_data);
    h1_ttz_syst->Scale(norm_bkg_to_data);
@@ -417,15 +414,13 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    if( do37Bins ) nTotBins_loc = 37;
 
    h1_data->GetXaxis()->SetRangeUser(0, nTotBins_loc);
-   h1_lostle->GetXaxis()->SetRangeUser(0, nTotBins_loc);
-   h1_hadtau->GetXaxis()->SetRangeUser(0, nTotBins_loc);
+   h1_ttbarW->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_zinv->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_qcd->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_ttz->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_rare->GetXaxis()->SetRangeUser(0, nTotBins_loc);
 
-   h1_lostle_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
-   h1_hadtau_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
+   h1_ttbarW_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_zinv_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_qcd_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
    h1_ttz_syst->GetXaxis()->SetRangeUser(0, nTotBins_loc);
@@ -459,17 +454,12 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    hs_sum_SM->Add(h1_zinv);
    hs2_sum_SM->Add(h1_zinv_syst);
 
-   h1_hadtau->SetFillColor(kOrange+2); h1_hadtau->SetLineColor(kOrange+2); h1_hadtau->SetMarkerColor(kOrange+2);
-   hs_sum_SM->Add(h1_hadtau);
-   hs2_sum_SM->Add(h1_hadtau_syst);
-
-   h1_lostle->SetFillColor(kAzure+2); h1_lostle->SetLineColor(kAzure+2); h1_lostle->SetMarkerColor(kAzure+2);
-   hs_sum_SM->Add(h1_lostle);
-   hs2_sum_SM->Add(h1_lostle_syst);
+   h1_ttbarW->SetFillColor(kAzure+2); h1_ttbarW->SetLineColor(kAzure+2); h1_ttbarW->SetMarkerColor(kAzure+2);
+   hs_sum_SM->Add(h1_ttbarW);
+   hs2_sum_SM->Add(h1_ttbarW_syst);
 
    if( !addSigPts ){
-      catLeg1->AddEntry(h1_lostle, "t#bar{t}/W+jets(e,#mu)");
-      catLeg1->AddEntry(h1_hadtau, "t#bar{t}/W+jets(#tau_{had})");
+      catLeg1->AddEntry(h1_ttbarW, "t#bar{t}/W+jets");
       catLeg2->AddEntry(h1_zinv, "Z(#nu#bar{#nu})+jets");
       catLeg2->AddEntry(h1_qcd, "QCD");
       catLeg2->AddEntry(h1_ttz, "t#bar{t}Z(#nu#bar{#nu})");
@@ -920,6 +910,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    }
 */   
    ct->Print("UnblindPlots.pdf");
+   ct->Print("UnblindPlots.png");
    ct->Print("UnblindPlots.eps");
 
    ct->Clear();
@@ -933,15 +924,18 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 //   pad2->cd();
 //   pad2->Clear();
    ct->Print("pull.pdf");
+   ct->Print("pull.png");
 
-   TH1D * h1_dist_pull = new TH1D("dist_pull", "dist_pull", 20, -2, 2);
+   TH1D * h1_dist_pull = new TH1D("dist_pull", "Pull Distribution; (obs. - pred.)/#sigma; ", 20, -4.0, 4.0);
    for(auto p : pullVec){
       h1_dist_pull->Fill(p);
    }
    h1_dist_pull->SetStats(kTRUE);
+   h1_dist_pull->SetXTitle("(obs. - pred.)/#sigma");
    std::cout<<"mean : "<<h1_dist_pull->GetMean()<<"  rms : "<<h1_dist_pull->GetRMS()<<std::endl;
    h1_dist_pull->Draw("hist");
    ct->Print("dist_pull.pdf");
+   ct->Print("dist_pull.png");
 
 /*
    std::cout<<"\nPrinting out the data vs. prediction table..."<<std::endl;
