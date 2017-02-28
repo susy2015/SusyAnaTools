@@ -666,7 +666,10 @@ process.goodVerticesFilter = process.filterDecisionProducer.clone( filterName  =
 process.eeBadScFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_eeBadScFilter") )
 #process.HBHENoiseFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_HBHENoiseFilter") )
 process.EcalDeadCellTriggerPrimitiveFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_EcalDeadCellTriggerPrimitiveFilter") )
-process.noBadMuonsFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_noBadMuons") )
+
+process.filterDecisionProducerPAT = process.filterDecisionProducer.clone()
+process.filterDecisionProducerPAT.trigTagSrc = cms.InputTag("TriggerResults","","PAT")
+process.noBadMuonsFilter = process.filterDecisionProducerPAT.clone( filterName  =   cms.string("Flag_noBadMuons") )
 
 process.prodJets.bTagKeyString = cms.string('pfCombinedInclusiveSecondaryVertexV2BJetTags')
 
