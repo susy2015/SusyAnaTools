@@ -244,6 +244,7 @@ jobslist = {
     'HTMHT-Run2016D-03Feb2017-v1'                 : [True, '/HTMHT/Run2016D-03Feb2017-v1/MINIAOD', 10],
     'HTMHT-Run2016C-03Feb2017-v1'                 : [True, '/HTMHT/Run2016C-03Feb2017-v1/MINIAOD', 10],
     'HTMHT-Run2016B-03Feb2017_ver2-v2'            : [True, '/HTMHT/Run2016B-03Feb2017_ver2-v2/MINIAOD', 10],
+    'HTMHT-Run2016B-03Feb2017_ver1-v1'            : [True, '/HTMHT/Run2016B-03Feb2017_ver1-v1/MINIAOD', 10],
 
     #'MET-Run2016H-PromptReco-v3'               : [True, '/MET/Run2016H-PromptReco-v3/MINIAOD', 10],
     #'MET-Run2016H-PromptReco-v2'               : [True, '/MET/Run2016H-PromptReco-v2/MINIAOD', 10],
@@ -263,6 +264,7 @@ jobslist = {
     'MET-Run2016D-03Feb2017-v1'                 : [True, '/MET/Run2016D-03Feb2017-v1/MINIAOD', 10],
     'MET-Run2016C-03Feb2017-v1'                 : [True, '/MET/Run2016C-03Feb2017-v1/MINIAOD', 10],
     'MET-Run2016B-03Feb2017_ver2-v2'            : [True, '/MET/Run2016B-03Feb2017_ver2-v2/MINIAOD', 10],
+    'MET-Run2016B-03Feb2017_ver1-v1'            : [True, '/MET/Run2016B-03Feb2017_ver1-v1/MINIAOD', 10],
 
     #'SingleMuon-Run2016H-PromptReco-v3'        : [True, '/SingleMuon/Run2016H-PromptReco-v3/MINIAOD', 10],
     #'SingleMuon-Run2016H-PromptReco-v2'        : [True, '/SingleMuon/Run2016H-PromptReco-v2/MINIAOD', 10],
@@ -281,6 +283,7 @@ jobslist = {
     'SingleMuon-Run2016D-03Feb2017-v1'                 : [True, '/SingleMuon/Run2016D-03Feb2017-v1/MINIAOD', 10],
     'SingleMuon-Run2016C-03Feb2017-v1'                 : [True, '/SingleMuon/Run2016C-03Feb2017-v1/MINIAOD', 10],
     'SingleMuon-Run2016B-03Feb2017_ver2-v2'            : [True, '/SingleMuon/Run2016B-03Feb2017_ver2-v2/MINIAOD', 10],
+    'SingleMuon-Run2016B-03Feb2017_ver1-v1'            : [True, '/SingleMuon/Run2016B-03Feb2017_ver1-v1/MINIAOD', 10],
 
     #'SingleElectron-Run2016H-PromptReco-v3'    : [True, '/SingleElectron/Run2016H-PromptReco-v3/MINIAOD', 10],
     #'SingleElectron-Run2016H-PromptReco-v2'    : [True, '/SingleElectron/Run2016H-PromptReco-v2/MINIAOD', 10],
@@ -299,7 +302,7 @@ jobslist = {
     'SingleElectron-Run2016D-03Feb2017-v1'                 : [True, '/SingleElectron/Run2016D-03Feb2017-v1/MINIAOD', 10],
     'SingleElectron-Run2016C-03Feb2017-v1'                 : [True, '/SingleElectron/Run2016C-03Feb2017-v1/MINIAOD', 10],
     'SingleElectron-Run2016B-03Feb2017_ver2-v2'            : [True, '/SingleElectron/Run2016B-03Feb2017_ver2-v2/MINIAOD', 10],
-
+    'SingleElectron-Run2016B-03Feb2017_ver1-v1'            : [True, '/SingleElectron/Run2016B-03Feb2017_ver1-v1/MINIAOD', 10],
 }
 
 tasklist = {}
