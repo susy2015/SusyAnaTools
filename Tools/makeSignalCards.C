@@ -121,6 +121,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
    double minlepVetoUnc = 1.00, maxlepVetoUnc = 0.00;
 
    double mingenTopSFUnc = 1.00, maxgenTopSFUnc = 0.00;
+   double minrecoTopSFUnc = 1.00, maxrecoTopSFUnc = 0.00;
    double minmistaggenTopSFUnc = 1.00, maxmistaggenTopSFUnc = 0.00;
 
    double minhadtauCont = 1.00, maxhadtauCont = 0.00;
@@ -141,6 +142,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
    TH2D * h2_jetJEC_baseline = new TH2D("jetJEC_baseline", "jetJEC after baseline cuts", nXbins, loX, hiX, nYbins, loY, hiY);
    TH2D * h2_lepVetoUnc_baseline = new TH2D("lepVetoUnc_baseline", "lepVetoUnc after baseline cuts", nXbins, loX, hiX, nYbins, loY, hiY);
    TH2D * h2_genTopSF_baseline = new TH2D("genTopSF_baseline", "genTopSF after baseline cuts", nXbins, loX, hiX, nYbins, loY, hiY);
+   TH2D * h2_recoTopSF_baseline = new TH2D("recoTopSF_baseline", "recoTopSF after baseline cuts", nXbins, loX, hiX, nYbins, loY, hiY);
    TH2D * h2_mistaggenTopSF_baseline = new TH2D("mistaggenTopSF_baseline", "mistaggenTopSF after baseline cuts", nXbins, loX, hiX, nYbins, loY, hiY);
 
    TH2D * h2_contam_baseline = new TH2D("contam_baseline", "contam after baseline cuts", nXbins, loX, hiX, nYbins, loY, hiY);
@@ -216,6 +218,10 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       TString genTopSFCen_str = "baseline_genTopSFCen_" + v_mStop + "_" + v_mLSP;
       TString genTopSFDn_str = "baseline_genTopSFDn_" + v_mStop + "_" + v_mLSP;
 
+      TString recoTopSFUp_str = "baseline_recoTopSFUp_" + v_mStop + "_" + v_mLSP;
+      TString recoTopSFCen_str = "baseline_recoTopSFCen_" + v_mStop + "_" + v_mLSP;
+      TString recoTopSFDn_str = "baseline_recoTopSFDn_" + v_mStop + "_" + v_mLSP;
+
       TString mistaggenTopSFUp_str = "baseline_mistaggenTopSFUp_" + v_mStop + "_" + v_mLSP;
       TString mistaggenTopSFDn_str = "baseline_mistaggenTopSFDn_" + v_mStop + "_" + v_mLSP;
 
@@ -264,6 +270,10 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       TH1D * h1_genTopSFUp = (TH1D*) sig_file->Get(genTopSFUp_str);
       TH1D * h1_genTopSFCen = (TH1D*) sig_file->Get(genTopSFCen_str);
       TH1D * h1_genTopSFDn = (TH1D*) sig_file->Get(genTopSFDn_str);
+
+      TH1D * h1_recoTopSFUp = (TH1D*) sig_file->Get(recoTopSFUp_str);
+      TH1D * h1_recoTopSFCen = (TH1D*) sig_file->Get(recoTopSFCen_str);
+      TH1D * h1_recoTopSFDn = (TH1D*) sig_file->Get(recoTopSFDn_str);
 
       TH1D * h1_mistaggenTopSFUp = (TH1D*) sig_file->Get(mistaggenTopSFUp_str);
       TH1D * h1_mistaggenTopSFDn = (TH1D*) sig_file->Get(mistaggenTopSFDn_str);
@@ -317,6 +327,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       std::vector<double> lepVetoUncUpVec(nBins), lepVetoUncDnVec(nBins);
 
       std::vector<double> genTopSFUpVec(nBins), genTopSFDnVec(nBins);
+      std::vector<double> recoTopSFUpVec(nBins), recoTopSFDnVec(nBins);
       std::vector<double> mistaggenTopSFUpVec(nBins), mistaggenTopSFDnVec(nBins);
 
       std::vector<double> hadtauContVec(nBins), lostleContVec(nBins), totContVec(nBins);
@@ -336,7 +347,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       }
 
       double sum_cent_wt = 0, sum_err_wt =0;
-      double stat_ACCwt = 0, bTagSF_ACCwt = 0, mistagSF_ACCwt =0, pdfUnc_ACCwt = 0, scaleUnc_ACCwt = 0, isrUnc_ACCwt = 0, metMag_ACCwt = 0, jetJEC_ACCwt = 0, lepVetoUnc_ACCwt = 0, genTopSF_ACCwt = 0, mistaggenTopSF_ACCwt = 0;
+      double stat_ACCwt = 0, bTagSF_ACCwt = 0, mistagSF_ACCwt =0, pdfUnc_ACCwt = 0, scaleUnc_ACCwt = 0, isrUnc_ACCwt = 0, metMag_ACCwt = 0, jetJEC_ACCwt = 0, lepVetoUnc_ACCwt = 0, genTopSF_ACCwt = 0, mistaggenTopSF_ACCwt = 0, recoTopSF_ACCwt = 0;
       double syst_ACCwt = 0;
       double contam_ACCwt = 0;
       for(int ib=0; ib<nBins; ib++){
@@ -358,9 +369,17 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          double genTopSFCen_cent = h1_genTopSFCen->GetBinContent(ib+1);
          double genTopSFDn_cent = h1_genTopSFDn->GetBinContent(ib+1);
          double genTopSFCen_scale = cent !=0 ? genTopSFCen_cent/cent : 1.0;
-         double genTopSFUp_relUnc = genTopSFCen_cent !=0 ? genTopSFUp_cent/genTopSFCen_cent : 0;
-         double genTopSFDn_relUnc = genTopSFCen_cent !=0 ? genTopSFDn_cent/genTopSFCen_cent : 0;
+         double genTopSFUp_relUnc = genTopSFCen_cent !=0 ? genTopSFUp_cent/genTopSFCen_cent -1 : 0;
+         double genTopSFDn_relUnc = genTopSFCen_cent !=0 ? 1 - genTopSFDn_cent/genTopSFCen_cent : 0;
          genTopSFUpVec[ib] = genTopSFUp_relUnc; genTopSFDnVec[ib] = genTopSFDn_relUnc;
+
+         double recoTopSFUp_cent = h1_recoTopSFUp->GetBinContent(ib+1);
+         double recoTopSFCen_cent = h1_recoTopSFCen->GetBinContent(ib+1);
+         double recoTopSFDn_cent = h1_recoTopSFDn->GetBinContent(ib+1);
+         double recoTopSFCen_scale = cent !=0 ? recoTopSFCen_cent/cent : 1.0;
+         double recoTopSFUp_relUnc = recoTopSFCen_cent !=0 ? recoTopSFUp_cent/recoTopSFCen_cent -1 : 0;
+         double recoTopSFDn_relUnc = recoTopSFCen_cent !=0 ? 1 - recoTopSFDn_cent/recoTopSFCen_cent : 0;
+         recoTopSFUpVec[ib] = recoTopSFUp_relUnc; recoTopSFDnVec[ib] = recoTopSFDn_relUnc;
 
          double mistaggenTopSFUp_cent = h1_mistaggenTopSFUp->GetBinContent(ib+1);
          double mistaggenTopSFDn_cent = h1_mistaggenTopSFDn->GetBinContent(ib+1);
@@ -423,10 +442,11 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          double bTagSFCen_cent = h1_btagSFCen->GetBinContent(ib+1);
          double bTagSFCen_scale = cent !=0 ? bTagSFCen_cent/cent : 1.0;
 //         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale;
-         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
-//         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
-         sum_cent_wt += cent * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
-         sum_err_wt += err*err*pow(bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale, 2.0); 
+//         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+//         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+         sum_cent_wt += cent * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+         sum_err_wt += err*err*pow(bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale, 2.0); 
 
          double bTagSFUp_cent = h1_btagSFUp->GetBinContent(ib+1);
          double bTagSFDn_cent = h1_btagSFDn->GetBinContent(ib+1);
@@ -505,7 +525,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          }
          hadtauContVec[ib] = hadtauCont_cent; lostleContVec[ib] = lostleCont_cent; totContVec[ib] = totCont_cent;
 
-         double perBin_acc_wt = cent * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale / totEntries;
+         double perBin_acc_wt = cent * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale / totEntries;
 
          stat_ACCwt += rel_err * perBin_acc_wt;
          double avg_abs_bTagSF_relUnc = (std::abs(bTagSFUp_relUnc) + std::abs(bTagSFDn_relUnc))*0.5;
@@ -526,11 +546,13 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          lepVetoUnc_ACCwt += avg_lepVetoUnc_relUnc * perBin_acc_wt;
          double avg_genTopSF_relUnc = (genTopSFUp_relUnc + genTopSFDn_relUnc)*0.5;
          genTopSF_ACCwt += avg_genTopSF_relUnc * perBin_acc_wt;
+         double avg_recoTopSF_relUnc = (recoTopSFUp_relUnc + recoTopSFDn_relUnc)*0.5;
+         recoTopSF_ACCwt += avg_recoTopSF_relUnc * perBin_acc_wt;
          double avg_mistaggenTopSFUp_relUnc = (mistaggenTopSFUp_relUnc + mistaggenTopSFDn_relUnc)*0.5;
          mistaggenTopSF_ACCwt += avg_mistaggenTopSFUp_relUnc * perBin_acc_wt;
 
 // Added 0.05 for data/MC difference for top tagger; 0.027 is for lumi unc.
-         syst_ACCwt += sqrt(avg_abs_bTagSF_relUnc*avg_abs_bTagSF_relUnc + avg_abs_mistagSF_relUnc*avg_abs_mistagSF_relUnc + avg_scaleUnc_relUnc*avg_scaleUnc_relUnc + avg_isrUnc_relUnc*avg_isrUnc_relUnc + avg_metMag_relUnc*avg_metMag_relUnc + avg_jetJEC_relUnc*avg_jetJEC_relUnc + avg_lepVetoUnc_relUnc*avg_lepVetoUnc_relUnc + avg_genTopSF_relUnc*avg_genTopSF_relUnc + avg_mistaggenTopSFUp_relUnc*avg_mistaggenTopSFUp_relUnc
+         syst_ACCwt += sqrt(avg_abs_bTagSF_relUnc*avg_abs_bTagSF_relUnc + avg_abs_mistagSF_relUnc*avg_abs_mistagSF_relUnc + avg_scaleUnc_relUnc*avg_scaleUnc_relUnc + avg_isrUnc_relUnc*avg_isrUnc_relUnc + avg_metMag_relUnc*avg_metMag_relUnc + avg_jetJEC_relUnc*avg_jetJEC_relUnc + avg_lepVetoUnc_relUnc*avg_lepVetoUnc_relUnc + avg_genTopSF_relUnc*avg_genTopSF_relUnc + avg_recoTopSF_relUnc*avg_recoTopSF_relUnc + avg_mistaggenTopSFUp_relUnc*avg_mistaggenTopSFUp_relUnc
  + 0.05 * 0.05 + 0.027 * 0.027 ) * perBin_acc_wt;
 
          contam_ACCwt += totCont_rel * perBin_acc_wt;
@@ -544,6 +566,9 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
 
          if( mingenTopSFUnc > genTopSFUp_relUnc ) mingenTopSFUnc = genTopSFUp_relUnc; if( maxgenTopSFUnc < genTopSFUp_relUnc ) maxgenTopSFUnc = genTopSFUp_relUnc;
          if( mingenTopSFUnc > genTopSFDn_relUnc ) mingenTopSFUnc = genTopSFDn_relUnc; if( maxgenTopSFUnc < genTopSFDn_relUnc ) maxgenTopSFUnc = genTopSFDn_relUnc;
+
+         if( minrecoTopSFUnc > recoTopSFUp_relUnc ) minrecoTopSFUnc = recoTopSFUp_relUnc; if( maxrecoTopSFUnc < recoTopSFUp_relUnc ) maxrecoTopSFUnc = recoTopSFUp_relUnc;
+         if( minrecoTopSFUnc > recoTopSFDn_relUnc ) minrecoTopSFUnc = recoTopSFDn_relUnc; if( maxrecoTopSFUnc < recoTopSFDn_relUnc ) maxrecoTopSFUnc = recoTopSFDn_relUnc;
 
          if( minmistaggenTopSFUnc > mistaggenTopSFUp_relUnc ) minmistaggenTopSFUnc = mistaggenTopSFUp_relUnc; if( maxmistaggenTopSFUnc < mistaggenTopSFUp_relUnc ) maxmistaggenTopSFUnc = mistaggenTopSFUp_relUnc;
          if( minmistaggenTopSFUnc > mistaggenTopSFDn_relUnc ) minmistaggenTopSFUnc = mistaggenTopSFDn_relUnc; if( maxmistaggenTopSFUnc < mistaggenTopSFDn_relUnc ) maxmistaggenTopSFUnc = mistaggenTopSFDn_relUnc;
@@ -596,13 +621,14 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       jetJEC_ACCwt /= perSig_acc_wt;
       lepVetoUnc_ACCwt /= perSig_acc_wt;
       genTopSF_ACCwt /= perSig_acc_wt;
+      recoTopSF_ACCwt /= perSig_acc_wt;
       mistaggenTopSF_ACCwt /= perSig_acc_wt;
 
       syst_ACCwt /= perSig_acc_wt;
 
       contam_ACCwt /= perSig_acc_wt;
 
-      printf("signal_%d_%d (xSec : %5.3e +- %4.1f%) :   acc_wt : %4.2e  stat : %5.3f  bTagSF : %5.3f  mistagSF : %5.3f  pdfUnc : %5.3f  scaleUnc : %5.3f  isrUnc : %5.3f  metMag : %5.3f  jetJEC : %5.3f  lepVetoUnc : %5.3f  genTopSF : %5.3f  mistaggenTopSF : %5.3f  ->  syst : %5.3f  ->  contam : %5.3f\n", mStop, mLSP, xSec, xSecErr/xSec*100, perSig_acc_wt, stat_ACCwt, bTagSF_ACCwt, mistagSF_ACCwt, pdfUnc_ACCwt, scaleUnc_ACCwt, isrUnc_ACCwt, metMag_ACCwt, jetJEC_ACCwt, lepVetoUnc_ACCwt, genTopSF_ACCwt, mistaggenTopSF_ACCwt, syst_ACCwt, contam_ACCwt);
+      printf("signal_%d_%d (xSec : %5.3e +- %4.1f%) :   acc_wt : %4.2e  stat : %5.3f  bTagSF : %5.3f  mistagSF : %5.3f  pdfUnc : %5.3f  scaleUnc : %5.3f  isrUnc : %5.3f  metMag : %5.3f  jetJEC : %5.3f  lepVetoUnc : %5.3f  genTopSF : %5.3f  recoTopSF : %5.3f  mistaggenTopSF : %5.3f  ->  syst : %5.3f  ->  contam : %5.3f\n", mStop, mLSP, xSec, xSecErr/xSec*100, perSig_acc_wt, stat_ACCwt, bTagSF_ACCwt, mistagSF_ACCwt, pdfUnc_ACCwt, scaleUnc_ACCwt, isrUnc_ACCwt, metMag_ACCwt, jetJEC_ACCwt, lepVetoUnc_ACCwt, genTopSF_ACCwt, recoTopSF_ACCwt, mistaggenTopSF_ACCwt, syst_ACCwt, contam_ACCwt);
 
       int binXidx = h2_acc_baseline->GetXaxis()->FindBin(double(mStop));
       int binYidx = h2_acc_baseline->GetYaxis()->FindBin(double(mLSP));
@@ -620,6 +646,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       h2_jetJEC_baseline->SetBinContent(binXidx, binYidx, jetJEC_ACCwt*100);
       h2_lepVetoUnc_baseline->SetBinContent(binXidx, binYidx, lepVetoUnc_ACCwt*100);
       h2_genTopSF_baseline->SetBinContent(binXidx, binYidx, genTopSF_ACCwt*100);
+      h2_recoTopSF_baseline->SetBinContent(binXidx, binYidx, recoTopSF_ACCwt*100);
       h2_mistaggenTopSF_baseline->SetBinContent(binXidx, binYidx, mistaggenTopSF_ACCwt*100);
 
       h2_contam_baseline->SetBinContent(binXidx, binYidx, contam_ACCwt*100);
@@ -628,7 +655,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       std::ofstream ofs;
       ofs.open(tmpStr, std::ofstream::out);
       ofs<<"luminosity = "<<dataLumi<<std::endl;
-      ofs<<"channels = 59"<<std::endl;
+      ofs<<"channels = 84"<<std::endl;
       ofs<<"sample = signal"<<std::endl;
       
       ofs<<"channel     = ";
@@ -686,7 +713,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       ofs<<"syst_lumi_unc_up = ";
       for(int ib=0; ib<nBins; ib++){
 //         sprintf(tmpStr, "%11.3f", 0.046);
-         sprintf(tmpStr, "%11.3f", 0.062);
+         sprintf(tmpStr, "%11.3f", 0.026);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
@@ -694,7 +721,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       ofs<<"syst_lumi_unc_dn = ";
       for(int ib=0; ib<nBins; ib++){
 //         sprintf(tmpStr, "%11.3f", 0.046);
-         sprintf(tmpStr, "%11.3f", 0.062);
+         sprintf(tmpStr, "%11.3f", 0.026);
          ofs<<tmpStr;
       }
       ofs<<std::endl;
@@ -726,7 +753,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          ofs<<tmpStr;
       }
       ofs<<std::endl;
-
+/*
       ofs<<"syst_pdfUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", pdfUncUpVec[ib]);
@@ -740,7 +767,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          ofs<<tmpStr;
       }
       ofs<<std::endl;
-
+*/
       ofs<<"syst_scaleUnc_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", scaleUncUpVec[ib]);
@@ -853,6 +880,20 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       }
       ofs<<std::endl;
 
+      ofs<<"syst_recoTopSF_up = ";
+      for(int ib=0; ib<nBins; ib++){
+         sprintf(tmpStr, "% 11.3f", recoTopSFUpVec[ib]);
+         ofs<<tmpStr;
+      }
+      ofs<<std::endl;
+
+      ofs<<"syst_recoTopSF_dn = ";
+      for(int ib=0; ib<nBins; ib++){
+         sprintf(tmpStr, "% 11.3f", recoTopSFDnVec[ib]);
+         ofs<<tmpStr;
+      }
+      ofs<<std::endl;
+/*
       ofs<<"syst_mistaggenTopSF_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", mistaggenTopSFUpVec[ib]);
@@ -866,7 +907,8 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          ofs<<tmpStr;
       }
       ofs<<std::endl;
-
+*/
+/*
       ofs<<"syst_data_vs_MC_recoTop_unc_up = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "%11.3f", 0.05);
@@ -880,6 +922,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          ofs<<tmpStr;
       }
       ofs<<std::endl;
+*/
 
 /*
       ofs<<"syst_unc_up = ";
@@ -918,6 +961,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
    std::cout<<std::endl;
 
    std::cout<<"mingenTopSFUnc : "<<mingenTopSFUnc<<"  maxgenTopSFUnc : "<<maxgenTopSFUnc<<std::endl;
+   std::cout<<"minrecoTopSFUnc : "<<minrecoTopSFUnc<<"  maxrecoTopSFUnc : "<<maxrecoTopSFUnc<<std::endl;
    std::cout<<"minmistaggenTopSFUnc : "<<minmistaggenTopSFUnc<<"  maxmistaggenTopSFUnc : "<<maxmistaggenTopSFUnc<<std::endl;
 
    std::cout<<std::endl;

@@ -44,7 +44,10 @@
 #include "ISRCorrector.h"
 
 SearchBins * sb =0;
+
 std::shared_ptr<topTagger::type3TopTagger>type3Ptr(nullptr);
+std::shared_ptr<TopTagger>ttPtr(nullptr);
+
 int nTotBins;
 std::vector<std::vector<std::vector<double> > > out_MT2_met_Binning_forTH2Poly;
 
@@ -186,68 +189,101 @@ double GetTriggerEffSystUncLo (const double met) {
    else return 0.000;
 }
 
-/*
 double GetTopPtFastToFullSF(const double genTopPt){
-   if( genTopPt < 120 ) return 1.0;
-   else if (genTopPt < 200 ) return 1.001427;
-   else if (genTopPt < 280 ) return 1.038126;
-   else if (genTopPt < 360 ) return 1.017741;
-   else if (genTopPt < 440 ) return 0.9625731;
-   else if (genTopPt < 520 ) return 0.9905459;
-   else if (genTopPt < 600 ) return 1.024005;
-   else if (genTopPt < 680 ) return 1.057722;
-   else if (genTopPt < 760 ) return 1.033730;
-   else if (genTopPt < 840 ) return 1.076965;
-   else if (genTopPt < 920 ) return 1.080135;
-   else if (genTopPt < 1000 ) return 1.061109;
-   else if (genTopPt < 1080 ) return 1.042154;
-   else if (genTopPt < 1160 ) return 0.980493;
-   else return 1.033048;
+   if( genTopPt < 50 ) return 1.0000;
+   else if (genTopPt < 100 ) return 0.986824;
+   else if (genTopPt < 150 ) return 0.98483;
+   else if (genTopPt < 200 ) return 0.982835;
+   else if (genTopPt < 250 ) return 0.980841;
+   else if (genTopPt < 300 ) return 0.978846;
+   else if (genTopPt < 350 ) return 0.976851;
+   else if (genTopPt < 400 ) return 0.974857;
+   else if (genTopPt < 450 ) return 0.972862;
+   else if (genTopPt < 500 ) return 0.970868;
+   else if (genTopPt < 550 ) return 0.968873;
+   else if (genTopPt < 600 ) return 0.966879;
+   else if (genTopPt < 800 ) return 0.961892;
+   else if (genTopPt < 1000 ) return 0.953914;
+   else return 0.953914;
 }
 
-double GetTopPtFastToFullSF_Err(const double genTopPt){
-   if( genTopPt < 120 ) return 0.0;
-   else if (genTopPt < 200 ) return 0.05038158;
-   else if (genTopPt < 280 ) return 0.02119781;
-   else if (genTopPt < 360 ) return 0.01389809;
-   else if (genTopPt < 440 ) return 0.01131301;
-   else if (genTopPt < 520 ) return 0.01261462;
-   else if (genTopPt < 600 ) return 0.01517953;
-   else if (genTopPt < 680 ) return 0.01819345;
-   else if (genTopPt < 760 ) return 0.01968112;
-   else if (genTopPt < 840 ) return 0.02402724;
-   else if (genTopPt < 920 ) return 0.02667794;
-   else if (genTopPt < 1000 ) return 0.02791577;
-   else if (genTopPt < 1080 ) return 0.02948765;
-   else if (genTopPt < 1160 ) return 0.03255938;
-   else return 0.0391267;
-}
-*/
-double GetTopPtFastToFullSF(const double genTopPt){
-   if( genTopPt < 120 ) return 1.148379;
-   else if (genTopPt < 240 ) return 1.0073;
-   else if (genTopPt < 360 ) return 1.038126;
-   else if (genTopPt < 480 ) return 0.998553;
-   else if (genTopPt < 600 ) return 1.003213;
-   else if (genTopPt < 720 ) return 0.988763;
-   else if (genTopPt < 840 ) return 0.9639427;
-   else if (genTopPt < 960 ) return 1.023113;
-   else if (genTopPt < 1080 ) return 1.023506;
-   else return 1.05658;
+double GetTopPtFastToFullSF_relErr(const double genTopPt){
+   if( genTopPt < 50 ) return 0.00;
+   return 0.05;
 }
 
-double GetTopPtFastToFullSF_Err(const double genTopPt){
-   if( genTopPt < 120 ) return 0.1735079;
-   else if (genTopPt < 240 ) return 0.02812018;
-   else if (genTopPt < 360 ) return 0.01610866;
-   else if (genTopPt < 480 ) return 0.01515754;
-   else if (genTopPt < 600 ) return 0.01842747;
-   else if (genTopPt < 720 ) return 0.02223577;
-   else if (genTopPt < 840 ) return 0.02327411;
-   else if (genTopPt < 960 ) return 0.03152949;
-   else if (genTopPt < 1080 ) return 0.03847371;
-   else return 0.03686977;
+// type is the following
+// 1 : mono-jet
+// 2 : di-jet
+// 3 : tri-jet
+double GetTopPtDataToMCSF(const double recoTopPt, const int type){
+   if(type ==3 ){
+      if(recoTopPt < 50) return 1.000;
+      else if(recoTopPt < 100) return 1.014;
+      else if(recoTopPt < 150) return 1.039;
+      else if(recoTopPt < 200) return 1.063;
+      else if(recoTopPt < 250) return 1.038;
+      else if(recoTopPt < 300) return 1.052;
+      else if(recoTopPt < 350) return 1.049;
+      else if(recoTopPt < 400) return 0.998;
+      else if(recoTopPt < 450) return 0.914;
+      else if(recoTopPt < 1000 ) return 1.003;
+      else return 1.003;
+   }else if(type ==2){
+      if(recoTopPt < 230) return 1.000;
+      else if(recoTopPt < 300) return 0.898;
+      else if(recoTopPt < 350) return 0.963;
+      else if(recoTopPt < 400) return 0.999;
+      else if(recoTopPt < 450) return 0.981;
+      else if(recoTopPt < 500) return 0.992;
+      else if(recoTopPt < 1000) return 0.944;
+      else return 0.944;
+   }else if(type ==1){
+      if(recoTopPt < 400) return 1.000;
+      else if(recoTopPt < 450) return 0.970;
+      else if(recoTopPt < 500) return 0.964;
+      else if(recoTopPt < 550) return 0.955;
+      else if(recoTopPt < 600) return 1.046;
+      else if(recoTopPt < 1000) return 1.055;
+      else return 1.055;
+   }
+   return 1.0;
 }
+
+double GetTopPtDataToMCSF_absErr(const double recoTopPt, const int type){
+   if(type ==3 ){
+      if(recoTopPt < 50) return 0.00;
+      else if(recoTopPt < 100) return 0.016;
+      else if(recoTopPt < 150) return 0.008;
+      else if(recoTopPt < 200) return 0.006;
+      else if(recoTopPt < 250) return 0.008;
+      else if(recoTopPt < 300) return 0.011;
+      else if(recoTopPt < 350) return 0.018;
+      else if(recoTopPt < 400) return 0.019;
+      else if(recoTopPt < 450) return 0.045;
+      else if(recoTopPt < 1000 ) return 0.063;
+      else return 0.063;
+   }else if(type ==2){
+      if(recoTopPt < 230) return 0.000;
+      else if(recoTopPt < 300) return 0.022;
+      else if(recoTopPt < 350) return 0.020;
+      else if(recoTopPt < 400) return 0.022;
+      else if(recoTopPt < 450) return 0.047;
+      else if(recoTopPt < 500) return 0.065;
+      else if(recoTopPt < 1000) return 0.089;
+      else return 0.089;
+   }else if(type ==1){
+      if(recoTopPt < 400) return 0.000;
+      else if(recoTopPt < 450) return 0.031;
+      else if(recoTopPt < 500) return 0.030;
+      else if(recoTopPt < 550) return 0.044;
+      else if(recoTopPt < 600) return 0.050;
+      else if(recoTopPt < 1000) return 0.055;
+      else return 0.055;
+   }
+   return 0.0;
+}
+
 
 class HistContainer
 {
@@ -306,6 +342,10 @@ private:
     TH1* baseline_genTopSFUp_;
     TH1* baseline_genTopSFCen_;
     TH1* baseline_genTopSFDn_;
+
+    TH1* baseline_recoTopSFUp_;
+    TH1* baseline_recoTopSFCen_;
+    TH1* baseline_recoTopSFDn_;
 
     TH1* baseline_mistaggenTopSFUp_;
     TH1* baseline_mistaggenTopSFDn_;
@@ -543,6 +583,13 @@ private:
        baseline_genTopSFCen_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_genTopSFCen_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_genTopSFDn", mMass_, dMass_);
        baseline_genTopSFDn_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_genTopSFDn_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_recoTopSFUp", mMass_, dMass_);
+       baseline_recoTopSFUp_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_recoTopSFUp_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_recoTopSFCen", mMass_, dMass_);
+       baseline_recoTopSFCen_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_recoTopSFCen_->Sumw2();
+       sprintf(hname, "%s_%d_%d", "baseline_recoTopSFDn", mMass_, dMass_);
+       baseline_recoTopSFDn_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_recoTopSFDn_->Sumw2();
 
        sprintf(hname, "%s_%d_%d", "baseline_mistaggenTopSFUp", mMass_, dMass_);
        baseline_mistaggenTopSFUp_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_mistaggenTopSFUp_->Sumw2();
@@ -804,24 +851,28 @@ public:
        double genTopSF_evt = 1.0, genTopSF_relErr_evt = 0.0; int cntgenTop_misMatched = 0;
        std::vector<int> pickedRecoTopIdxVec;
 
+       const TopTaggerResults& ttr = ttPtr->getResults();
+       std::vector<TopObject*> Ntop = ttr.getTops();
+
        int cnt_eleTop =0, cnt_muTop =0, cnt_taumuTop =0, cnt_taueleTop =0, cnt_tauhadTop =0, cnt_allhadTop =0;
        int cnt_genTops =0;
        for(unsigned int ig=0; ig<genDecayPdgIdVec.size(); ig++){
 
           if( std::abs(genDecayPdgIdVec[ig]) != 6 ) continue;
 
-          cnt_genTops ++;
-
-          double genTopPt = genDecayLVec[ig].Pt();
-
-          genTopPt_->Fill(genTopPt, weight);
-
-          if(passBaseline) baseline_genTopPt_->Fill(genTopPt, weight);
+          // sometimes a gen top 'decay's to another gen top (probably just changing energy...)
+          bool dup_gentop = false;
 
           bool islepTop = false;
           int per_cnt_ele =0, per_cnt_mu =0, per_cnt_tau =0;
           for(unsigned int jg=0; jg<genDecayPdgIdVec.size(); jg++){
              int pdgId = genDecayPdgIdVec.at(jg);
+             // if there is another different gen top (abs(pdgId)==6) which has mother of this gentop (ig), this means
+             // the "duplication" happens.
+             if( jg != ig && abs(pdgId) == 6 && find_mother(ig, jg, genDecayIdxVec, genDecayMomIdxVec) ){
+                dup_gentop = true;
+                break;
+             }
              if( abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15 ){
                 if( find_mother(ig, jg, genDecayIdxVec, genDecayMomIdxVec) ){
                    islepTop = true;
@@ -831,6 +882,16 @@ public:
                 }
              }
           }
+          if( dup_gentop ) continue;
+
+          cnt_genTops ++;
+
+          double genTopPt = genDecayLVec[ig].Pt();
+
+          genTopPt_->Fill(genTopPt, weight);
+
+          if(passBaseline) baseline_genTopPt_->Fill(genTopPt, weight);
+
           if( per_cnt_tau !=0 && per_cnt_mu != 0 ) cnt_taumuTop ++;
           if( per_cnt_tau !=0 && per_cnt_ele !=0 ) cnt_taueleTop ++;
           if( per_cnt_tau !=0 && per_cnt_mu ==0 && per_cnt_ele ==0 ) cnt_tauhadTop ++;
@@ -841,16 +902,40 @@ public:
           if( per_cnt_tau ==0 && per_cnt_mu ==0 && per_cnt_ele ==0 ) cnt_allhadTop ++;
 
           bool foundMatch = false;
-          for(unsigned int iv=0; iv<vTops.size(); iv++){
-             if( genDecayLVec[ig].DeltaR(vTops[iv]) < 0.4 ){
+          // for each gen top, try to find the reco top that matches to it
+          // if found, apply (accumulate) the weight and error and break (don't apply multiple times (could match to more than 1 reco top...)
+          double min_matchDR = 999.0;
+          int matchedIdx = -1;
+          int cnt_recoTop_idx = -1;
+          for(auto Top : Ntop){
+             cnt_recoTop_idx ++;
+             TLorentzVector topLVec = Top->P();
+             if( min_matchDR > genDecayLVec[ig].DeltaR(topLVec) ){
+                min_matchDR = genDecayLVec[ig].DeltaR(topLVec);
+                matchedIdx = cnt_recoTop_idx;
+             }
+          }
+          if( min_matchDR < 0.4 ){
+             foundMatch = true;
+             if( !islepTop ){
                 genTopSF_evt *= GetTopPtFastToFullSF(genTopPt);
-                genTopSF_relErr_evt += GetTopPtFastToFullSF_Err(genTopPt) * GetTopPtFastToFullSF_Err(genTopPt);
-                foundMatch = true;
+                genTopSF_relErr_evt += GetTopPtFastToFullSF_relErr(genTopPt) * GetTopPtFastToFullSF_relErr(genTopPt);
              }
           }
           if( !foundMatch && !islepTop ) cntgenTop_misMatched ++;
        }
        genTopSF_relErr_evt = genTopSF_relErr_evt == 0? 0 : sqrt(genTopSF_relErr_evt);
+
+       // apply data/MC SF for tops
+       double recoTopSF_evt = 1.0, recoTopSF_relErr_evt = 0.0;
+       for(auto Top : Ntop){
+          int type = Top->getNConstituents();
+          TLorentzVector topLVec = Top->P();
+          recoTopSF_evt *= GetTopPtDataToMCSF(topLVec.Pt(), type);
+          double relErr = GetTopPtDataToMCSF_absErr(topLVec.Pt(), type)/GetTopPtDataToMCSF(topLVec.Pt(), type);
+          recoTopSF_relErr_evt += relErr * relErr;
+       }
+       recoTopSF_relErr_evt = recoTopSF_relErr_evt == 0? 0 : sqrt(recoTopSF_relErr_evt);
 
        // if cnt_genTops ==0, all the cnt_eleTop, cnt_muTop, cnt_taumuTop, cnt_taueleTop, cnt_tauhadTop and cnt_allhadTop are 0!
        // This can happen when stop -> b W neutralino
@@ -1145,12 +1230,18 @@ public:
           baseline_mistagSFUp_->Fill(nSearchBin, method1a_mistag_Up * weight);
           baseline_mistagSFDn_->Fill(nSearchBin, method1a_mistag_Dn * weight);
 
-          baseline_genTopSFUp_->Fill(nSearchBin, genTopSF_relErr_evt * weight);
+          baseline_genTopSFUp_->Fill(nSearchBin, (genTopSF_relErr_evt + 1) * genTopSF_evt * weight);
           baseline_genTopSFCen_->Fill(nSearchBin, genTopSF_evt * weight);
-          baseline_genTopSFDn_->Fill(nSearchBin, genTopSF_relErr_evt * weight);
+          baseline_genTopSFDn_->Fill(nSearchBin, (1 - genTopSF_relErr_evt) * genTopSF_evt * weight);
 
-          if( cntgenTop_misMatched ) baseline_mistaggenTopSFUp_->Fill(nSearchBin, 0.05*weight);
-          if( cntgenTop_misMatched ) baseline_mistaggenTopSFDn_->Fill(nSearchBin, 0.05*weight);
+          baseline_recoTopSFUp_->Fill(nSearchBin, (recoTopSF_relErr_evt + 1) * recoTopSF_evt * weight);
+          baseline_recoTopSFCen_->Fill(nSearchBin, recoTopSF_evt * weight);
+          baseline_recoTopSFDn_->Fill(nSearchBin, (1 - recoTopSF_relErr_evt) * recoTopSF_evt * weight);
+
+// mistag rate now is flat (ref to zinv measurement of ntop data/MC distribution) at 0.0 and with very small error
+// therefore it should be ignored here! Or just a flat small error later when signal card is made...
+          if( cntgenTop_misMatched ) baseline_mistaggenTopSFUp_->Fill(nSearchBin, 0.00*weight);
+          if( cntgenTop_misMatched ) baseline_mistaggenTopSFDn_->Fill(nSearchBin, 0.00*weight);
 
           for(unsigned int ip=0; ip<pickedRecoTopIdxVec.size(); ip++){
              baseline_misTag_recoTopPt_->Fill(vTops[pickedRecoTopIdxVec[ip]].Pt(), weight);
@@ -1310,6 +1401,10 @@ public:
        baseline_genTopSFUp_->Write();
        baseline_genTopSFCen_->Write();
        baseline_genTopSFDn_->Write();
+
+       baseline_recoTopSFUp_->Write();
+       baseline_recoTopSFCen_->Write();
+       baseline_recoTopSFDn_->Write();
 
        baseline_mistaggenTopSFUp_->Write();
        baseline_mistaggenTopSFDn_->Write();
@@ -1881,6 +1976,7 @@ void signalScan(int argc, char *argv[]){
       }
    }
 
+   ttPtr = SRblv->GetTopTaggerPtr();
 //   type3Ptr = SRblv->GetType3Ptr();
 //   type3Ptr->setdebug(true);
 
