@@ -36,6 +36,7 @@ class prodMET : public edm::EDFilter {
 
     edm::InputTag metSrc_;
     bool debug_;
+    bool addcalomet_;
 
     bool isData_;
 
@@ -52,6 +53,7 @@ prodMET::prodMET(const edm::ParameterSet & iConfig) {
   metSrc_      = iConfig.getParameter<edm::InputTag>("metSrc");
 
   debug_       = iConfig.getParameter<bool>("debug");
+  addcalomet_  = iConfig.getParameter<bool>("addcalomet");
 
   MetTok_  = consumes<edm::View<pat::MET> >(metSrc_);
 
@@ -116,7 +118,7 @@ bool prodMET::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
      }
   }
 
-  if( met.isValid() ){
+  if( met.isValid() && addcalomet_ ){
      *calometPtr = met->at(0).caloMETPt();
      *calometphiPtr = met->at(0).caloMETPhi();
   }
@@ -129,8 +131,10 @@ bool prodMET::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(metphiPtr, "metphi");
   iEvent.put(genmetPtr, "genmet");
   iEvent.put(genmetphiPtr, "genmetphi");
-  iEvent.put(calometPtr, "calomet");
-  iEvent.put(calometphiPtr, "calometphi");
+  if( addcalomet_ ){
+     iEvent.put(calometPtr, "calomet");
+     iEvent.put(calometphiPtr, "calometphi");
+  }
 
   return true;
 }
