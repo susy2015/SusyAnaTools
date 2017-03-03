@@ -145,7 +145,8 @@ elif options.fileslist:
 else:
    process.source.fileNames = [
 #        '/store/mc/RunIISpring16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00B2B39D-5D4D-E611-8BD4-002590D9D8B6.root',
-        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/00D97021-CFBE-E611-AD3F-0025901D08B8.root',
+#        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/120000/00271851-3CC8-E611-AFB9-002590D0AFD8.root',
+        '/store/data/Run2016C/MET/MINIAOD/03Feb2017-v1/110000/02797413-5BEB-E611-990D-0CC47A745250.root'
 #        '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
 #       '/store/mc/RunIISpring16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/041F3A63-431E-E611-9E1E-008CFA1112CC.root',
 #       '/store/mc/RunIISpring16MiniAODv2/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/004A27F0-5132-E611-A936-02163E016171.root',
@@ -654,8 +655,8 @@ process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
 
 #Bad muon filger for Moriond 2017 https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/2786.html
 process.load('RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff')
-process.badGlobalMuonTagger.taggingMode = cms.bool(True)
-process.cloneGlobalMuonTagger.taggingMode = cms.bool(True)
+process.badGlobalMuonTaggerMAOD.taggingMode = cms.bool(True)
+process.cloneGlobalMuonTaggerMAOD.taggingMode = cms.bool(True)
 
 process.triggerProducer.trigTagSrc = cms.InputTag("TriggerResults","",options.hltName)
 #process.METFilters = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_METFilters") )
@@ -665,6 +666,10 @@ process.goodVerticesFilter = process.filterDecisionProducer.clone( filterName  =
 process.eeBadScFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_eeBadScFilter") )
 #process.HBHENoiseFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_HBHENoiseFilter") )
 process.EcalDeadCellTriggerPrimitiveFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_EcalDeadCellTriggerPrimitiveFilter") )
+
+process.filterDecisionProducerPAT = process.filterDecisionProducer.clone()
+process.filterDecisionProducerPAT.trigTagSrc = cms.InputTag("TriggerResults","","PAT")
+process.noBadMuonsFilter = process.filterDecisionProducerPAT.clone( filterName  =   cms.string("Flag_noBadMuons") )
 
 process.prodJets.bTagKeyString = cms.string('pfCombinedInclusiveSecondaryVertexV2BJetTags')
 
@@ -722,6 +727,7 @@ process.stopTreeMaker.varsInt.append(cms.InputTag("globalTightHalo2016Filter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("goodVerticesFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("eeBadScFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("EcalDeadCellTriggerPrimitiveFilter"))
+process.stopTreeMaker.varsInt.append(cms.InputTag("noBadMuonsFilter"))
 process.stopTreeMaker.varsBool.append(cms.InputTag("BadChargedCandidateFilter"))
 process.stopTreeMaker.varsBool.append(cms.InputTag("BadPFMuonFilter"))
 
@@ -905,6 +911,11 @@ process.stopTreeMaker.varsInt.append(cms.InputTag("ak4nJetsForSkimsStop:nJets"))
 process.stopTreeMaker.varsIntNamesInTree.append("ak4nJetsForSkimsStop:nJets|nJets_CUT")
 
 process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:met"), cms.InputTag("prodMET:metphi")])
+if options.mcInfo == False:
+  process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:metMuCleanOnly"), cms.InputTag("prodMET:metphiMuCleanOnly")])
+  process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:metEGCleanOnly"), cms.InputTag("prodMET:metphiEGCleanOnly")])
+  process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:metNoClean"), cms.InputTag("prodMET:metphiNoClean")])
+
 process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:calomet"), cms.InputTag("prodMET:calometphi")])
 process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodMET:metMagUp"), cms.InputTag("prodMET:metMagDown"), cms.InputTag("prodMET:metPhiUp"), cms.InputTag("prodMET:metPhiDown")])
 
@@ -924,9 +935,9 @@ process.stopTreeMaker.varsDouble.append(cms.InputTag("weightProducer:weight"))
 process.stopTreeMaker.varsDoubleNamesInTree.append("weightProducer:weight|evtWeight")
 
 if options.fastsim == False:
-   process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.CSCTightHaloFilter * process.globalTightHalo2016Filter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter * process.BadChargedCandidateFilter * process.BadPFMuonFilter ) 
+   process.trig_filter_seq = cms.Sequence( process.HBHENoiseFilterResultProducer * process.triggerProducer * process.CSCTightHaloFilter * process.globalTightHalo2016Filter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter * process.noBadMuonsFilter * process.BadChargedCandidateFilter * process.BadPFMuonFilter ) 
 else:
-   process.trig_filter_seq = cms.Sequence( process.triggerProducer * process.CSCTightHaloFilter * process.globalTightHalo2016Filter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter * process.BadChargedCandidateFilter * process.BadPFMuonFilter ) 
+   process.trig_filter_seq = cms.Sequence( process.triggerProducer * process.CSCTightHaloFilter * process.globalTightHalo2016Filter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter * process.noBadMuonsFilter * process.BadChargedCandidateFilter * process.BadPFMuonFilter ) 
 
 if options.externalFilterList:
    process.load("SusyAnaTools.SkimsAUX.EventListFilter_cfi")
@@ -1001,25 +1012,52 @@ if "JEC" in options.specialFix:
       process.stopJetsPFchsPt50Eta24.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
       process.stopJetsPFchsPt70Eta24.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
       process.stopJetsPFchsPt70eta2p5.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
+ 
+      if options.mcInfo == True:
+        process.ak4jetMHTDPhiForSkimsStop.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.jetsMETDPhiFilter.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+        process.metPFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
    
-      process.ak4jetMHTDPhiForSkimsStop.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
-      process.jetsMETDPhiFilter.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
-      process.metPFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.met175PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.met200PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
    
-      process.met175PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
-      process.met200PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.prodElectrons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.prodElectronsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
    
-      process.prodElectrons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
-      process.prodElectronsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.prodIsoTrks.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+        
+        process.prodMET.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+        process.prodMET.metSrcMuCleanOnly = cms.InputTag("slimmedMETs", "", process.name_())
+        process.prodMET.metSrcEGCleanOnly = cms.InputTag("slimmedMETs", "", process.name_())
+        process.prodMET.metSrcNoClean = cms.InputTag("slimmedMETs", "", process.name_())
+  
+        process.prodMuons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
    
-      process.prodIsoTrks.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
-      process.prodMET.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+        process.type3topTagger.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+      else:
+        process.ak4jetMHTDPhiForSkimsStop.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.jetsMETDPhiFilter.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+        process.metPFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+  
+        process.met175PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.met200PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
    
-      process.prodMuons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
-      process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.prodElectrons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.prodElectronsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
    
-      process.type3topTagger.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+        process.prodIsoTrks.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+        
+        process.prodMET.metSrc = cms.InputTag("slimmedMETsMuEGClean")
+        process.prodMET.metSrcMuCleanOnly = cms.InputTag("slimmedMETs")
+        process.prodMET.metSrcEGCleanOnly = cms.InputTag("slimmedMETsEGClean")
+        process.prodMET.metSrcNoClean = cms.InputTag("slimmedMETsUncorrected")
+ 
+        process.prodMuons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+        process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
    
+        process.type3topTagger.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+        
       process.updatedPatJetsUpdatedJECPt30 = process.selectedPatJetsRA2.clone()
       process.updatedPatJetsUpdatedJECPt30.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
       process.updatedPatJetsUpdatedJECPt30.pfJetCut = cms.string('pt >= 30')

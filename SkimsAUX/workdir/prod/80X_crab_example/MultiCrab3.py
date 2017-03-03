@@ -227,45 +227,82 @@ jobslist = {
     'SMS-T1ttbb_FastSim_scan'                : [False, '/SMS-T1ttbb_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
 
     # Data
-    'HTMHT-Run2016H-PromptReco-v3'          : [True, '/HTMHT/Run2016H-PromptReco-v3/MINIAOD', 10],
-    'HTMHT-Run2016H-PromptReco-v2'          : [True, '/HTMHT/Run2016H-PromptReco-v2/MINIAOD', 10],
-    'HTMHT-Run2016G-23Sep2016-v2'           : [True, '/HTMHT/Run2016G-23Sep2016-v2/MINIAOD', 10],
-    'HTMHT-Run2016F-23Sep2016-v1'           : [True, '/HTMHT/Run2016F-23Sep2016-v1/MINIAOD', 10],
-    'HTMHT-Run2016E-23Sep2016-v1'           : [True, '/HTMHT/Run2016E-23Sep2016-v1/MINIAOD', 10],
-    'HTMHT-Run2016D-23Sep2016-v1'           : [True, '/HTMHT/Run2016D-23Sep2016-v1/MINIAOD', 10],
-    'HTMHT-Run2016C-23Sep2016-v1'           : [True, '/HTMHT/Run2016C-23Sep2016-v1/MINIAOD', 10],
-    'HTMHT-Run2016B-23Sep2016-v1'           : [True, '/HTMHT/Run2016B-23Sep2016-v1/MINIAOD', 10],
-    'HTMHT-Run2016B-23Sep2016-v3'           : [True, '/HTMHT/Run2016B-23Sep2016-v3/MINIAOD', 10],
+    #'HTMHT-Run2016H-PromptReco-v3'          : [True, '/HTMHT/Run2016H-PromptReco-v3/MINIAOD', 10],
+    #'HTMHT-Run2016H-PromptReco-v2'          : [True, '/HTMHT/Run2016H-PromptReco-v2/MINIAOD', 10],
+    #'HTMHT-Run2016G-23Sep2016-v2'           : [True, '/HTMHT/Run2016G-23Sep2016-v2/MINIAOD', 10],
+    #'HTMHT-Run2016F-23Sep2016-v1'           : [True, '/HTMHT/Run2016F-23Sep2016-v1/MINIAOD', 10],
+    #'HTMHT-Run2016E-23Sep2016-v1'           : [True, '/HTMHT/Run2016E-23Sep2016-v1/MINIAOD', 10],
+    #'HTMHT-Run2016D-23Sep2016-v1'           : [True, '/HTMHT/Run2016D-23Sep2016-v1/MINIAOD', 10],
+    #'HTMHT-Run2016C-23Sep2016-v1'           : [True, '/HTMHT/Run2016C-23Sep2016-v1/MINIAOD', 10],
+    #'HTMHT-Run2016B-23Sep2016-v1'           : [True, '/HTMHT/Run2016B-23Sep2016-v1/MINIAOD', 10],
+    #'HTMHT-Run2016B-23Sep2016-v3'           : [True, '/HTMHT/Run2016B-23Sep2016-v3/MINIAOD', 10],
+    'HTMHT-Run2016H-03Feb2017_ver3-v1'            : [True, '/HTMHT/Run2016H-03Feb2017_ver3-v1/MINIAOD', 10],
+    'HTMHT-Run2016H-03Feb2017_ver2-v1'            : [True, '/HTMHT/Run2016H-03Feb2017_ver2-v1/MINIAOD', 10],
+    'HTMHT-Run2016G-03Feb2017-v1'                 : [True, '/HTMHT/Run2016G-03Feb2017-v1/MINIAOD', 10],
+    'HTMHT-Run2016F-03Feb2017-v1'                 : [True, '/HTMHT/Run2016F-03Feb2017-v1/MINIAOD', 10],
+    'HTMHT-Run2016E-03Feb2017-v1'                 : [True, '/HTMHT/Run2016E-03Feb2017-v1/MINIAOD', 10],
+    'HTMHT-Run2016D-03Feb2017-v1'                 : [True, '/HTMHT/Run2016D-03Feb2017-v1/MINIAOD', 10],
+    'HTMHT-Run2016C-03Feb2017-v1'                 : [True, '/HTMHT/Run2016C-03Feb2017-v1/MINIAOD', 10],
+    'HTMHT-Run2016B-03Feb2017_ver2-v2'            : [True, '/HTMHT/Run2016B-03Feb2017_ver2-v2/MINIAOD', 10],
+    'HTMHT-Run2016B-03Feb2017_ver1-v1'            : [True, '/HTMHT/Run2016B-03Feb2017_ver1-v1/MINIAOD', 10],
 
-    'MET-Run2016H-PromptReco-v3'               : [True, '/MET/Run2016H-PromptReco-v3/MINIAOD', 10],
-    'MET-Run2016H-PromptReco-v2'               : [True, '/MET/Run2016H-PromptReco-v2/MINIAOD', 10],
-    'MET-Run2016G-23Sep2016-v1'                : [True, '/MET/Run2016G-23Sep2016-v1/MINIAOD', 10],
-    'MET-Run2016F-23Sep2016-v1'                : [True, '/MET/Run2016F-23Sep2016-v1/MINIAOD', 10],
-    'MET-Run2016E-23Sep2016-v1'                : [True, '/MET/Run2016E-23Sep2016-v1/MINIAOD', 10],
-    'MET-Run2016D-23Sep2016-v1'                : [True, '/MET/Run2016D-23Sep2016-v1/MINIAOD', 10],
-    'MET-Run2016C-23Sep2016-v1'                : [True, '/MET/Run2016C-23Sep2016-v1/MINIAOD', 10],
-    'MET-Run2016B-23Sep2016-v2'                : [True, '/MET/Run2016B-23Sep2016-v2/MINIAOD', 10],
-    'MET-Run2016B-23Sep2016-v3'                : [True, '/MET/Run2016B-23Sep2016-v3/MINIAOD', 10],
+    #'MET-Run2016H-PromptReco-v3'               : [True, '/MET/Run2016H-PromptReco-v3/MINIAOD', 10],
+    #'MET-Run2016H-PromptReco-v2'               : [True, '/MET/Run2016H-PromptReco-v2/MINIAOD', 10],
+    #'MET-Run2016G-23Sep2016-v1'                : [True, '/MET/Run2016G-23Sep2016-v1/MINIAOD', 10],
+    #'MET-Run2016F-23Sep2016-v1'                : [True, '/MET/Run2016F-23Sep2016-v1/MINIAOD', 10],
+    #'MET-Run2016E-23Sep2016-v1'                : [True, '/MET/Run2016E-23Sep2016-v1/MINIAOD', 10],
+    #'MET-Run2016D-23Sep2016-v1'                : [True, '/MET/Run2016D-23Sep2016-v1/MINIAOD', 10],
+    #'MET-Run2016C-23Sep2016-v1'                : [True, '/MET/Run2016C-23Sep2016-v1/MINIAOD', 10],
+    #'MET-Run2016B-23Sep2016-v2'                : [True, '/MET/Run2016B-23Sep2016-v2/MINIAOD', 10],
+    #'MET-Run2016B-23Sep2016-v3'                : [True, '/MET/Run2016B-23Sep2016-v3/MINIAOD', 10],
+    #For the explaination of the extremely confusing name of MINIAOD, look at https://twiki.cern.ch/twiki/bin/view/CMSPublic/ReMiniAOD03Feb2017Notes
+    'MET-Run2016H-03Feb2017_ver3-v1'            : [True, '/MET/Run2016H-03Feb2017_ver3-v1/MINIAOD', 10],
+    'MET-Run2016H-03Feb2017_ver2-v1'            : [True, '/MET/Run2016H-03Feb2017_ver2-v1/MINIAOD', 10],
+    'MET-Run2016G-03Feb2017-v1'                 : [True, '/MET/Run2016G-03Feb2017-v1/MINIAOD', 10],
+    'MET-Run2016F-03Feb2017-v1'                 : [True, '/MET/Run2016F-03Feb2017-v1/MINIAOD', 10],
+    'MET-Run2016E-03Feb2017-v1'                 : [True, '/MET/Run2016E-03Feb2017-v1/MINIAOD', 10],
+    'MET-Run2016D-03Feb2017-v1'                 : [True, '/MET/Run2016D-03Feb2017-v1/MINIAOD', 10],
+    'MET-Run2016C-03Feb2017-v1'                 : [True, '/MET/Run2016C-03Feb2017-v1/MINIAOD', 10],
+    'MET-Run2016B-03Feb2017_ver2-v2'            : [True, '/MET/Run2016B-03Feb2017_ver2-v2/MINIAOD', 10],
+    'MET-Run2016B-03Feb2017_ver1-v1'            : [True, '/MET/Run2016B-03Feb2017_ver1-v1/MINIAOD', 10],
 
-    'SingleMuon-Run2016H-PromptReco-v3'        : [True, '/SingleMuon/Run2016H-PromptReco-v3/MINIAOD', 10],
-    'SingleMuon-Run2016H-PromptReco-v2'        : [True, '/SingleMuon/Run2016H-PromptReco-v2/MINIAOD', 10],
-    'SingleMuon-Run2016G-23Sep2016-v1'         : [True, '/SingleMuon/Run2016G-23Sep2016-v1/MINIAOD', 10],
-    'SingleMuon-Run2016F-23Sep2016-v1'         : [True, '/SingleMuon/Run2016F-23Sep2016-v1/MINIAOD', 10],
-    'SingleMuon-Run2016E-23Sep2016-v1'         : [True, '/SingleMuon/Run2016E-23Sep2016-v1/MINIAOD', 10],
-    'SingleMuon-Run2016D-23Sep2016-v1'         : [True, '/SingleMuon/Run2016D-23Sep2016-v1/MINIAOD', 10],
-    'SingleMuon-Run2016C-23Sep2016-v1'         : [True, '/SingleMuon/Run2016C-23Sep2016-v1/MINIAOD', 10],
-    'SingleMuon-Run2016B-23Sep2016-v1'         : [True, '/SingleMuon/Run2016B-23Sep2016-v1/MINIAOD', 10],
-    'SingleMuon-Run2016B-23Sep2016-v3'         : [True, '/SingleMuon/Run2016B-23Sep2016-v3/MINIAOD', 10],
+    #'SingleMuon-Run2016H-PromptReco-v3'        : [True, '/SingleMuon/Run2016H-PromptReco-v3/MINIAOD', 10],
+    #'SingleMuon-Run2016H-PromptReco-v2'        : [True, '/SingleMuon/Run2016H-PromptReco-v2/MINIAOD', 10],
+    #'SingleMuon-Run2016G-23Sep2016-v1'         : [True, '/SingleMuon/Run2016G-23Sep2016-v1/MINIAOD', 10],
+    #'SingleMuon-Run2016F-23Sep2016-v1'         : [True, '/SingleMuon/Run2016F-23Sep2016-v1/MINIAOD', 10],
+    #'SingleMuon-Run2016E-23Sep2016-v1'         : [True, '/SingleMuon/Run2016E-23Sep2016-v1/MINIAOD', 10],
+    #'SingleMuon-Run2016D-23Sep2016-v1'         : [True, '/SingleMuon/Run2016D-23Sep2016-v1/MINIAOD', 10],
+    #'SingleMuon-Run2016C-23Sep2016-v1'         : [True, '/SingleMuon/Run2016C-23Sep2016-v1/MINIAOD', 10],
+    #'SingleMuon-Run2016B-23Sep2016-v1'         : [True, '/SingleMuon/Run2016B-23Sep2016-v1/MINIAOD', 10],
+    #'SingleMuon-Run2016B-23Sep2016-v3'         : [True, '/SingleMuon/Run2016B-23Sep2016-v3/MINIAOD', 10],
+    'SingleMuon-Run2016H-03Feb2017_ver3-v1'            : [True, '/SingleMuon/Run2016H-03Feb2017_ver3-v1/MINIAOD', 10],
+    'SingleMuon-Run2016H-03Feb2017_ver2-v1'            : [True, '/SingleMuon/Run2016H-03Feb2017_ver2-v1/MINIAOD', 10],
+    'SingleMuon-Run2016G-03Feb2017-v1'                 : [True, '/SingleMuon/Run2016G-03Feb2017-v1/MINIAOD', 10],
+    'SingleMuon-Run2016F-03Feb2017-v1'                 : [True, '/SingleMuon/Run2016F-03Feb2017-v1/MINIAOD', 10],
+    'SingleMuon-Run2016E-03Feb2017-v1'                 : [True, '/SingleMuon/Run2016E-03Feb2017-v1/MINIAOD', 10],
+    'SingleMuon-Run2016D-03Feb2017-v1'                 : [True, '/SingleMuon/Run2016D-03Feb2017-v1/MINIAOD', 10],
+    'SingleMuon-Run2016C-03Feb2017-v1'                 : [True, '/SingleMuon/Run2016C-03Feb2017-v1/MINIAOD', 10],
+    'SingleMuon-Run2016B-03Feb2017_ver2-v2'            : [True, '/SingleMuon/Run2016B-03Feb2017_ver2-v2/MINIAOD', 10],
+    'SingleMuon-Run2016B-03Feb2017_ver1-v1'            : [True, '/SingleMuon/Run2016B-03Feb2017_ver1-v1/MINIAOD', 10],
 
-    'SingleElectron-Run2016H-PromptReco-v3'    : [True, '/SingleElectron/Run2016H-PromptReco-v3/MINIAOD', 10],
-    'SingleElectron-Run2016H-PromptReco-v2'    : [True, '/SingleElectron/Run2016H-PromptReco-v2/MINIAOD', 10],
-    'SingleElectron-Run2016G-23Sep2016-v1'     : [True, '/SingleElectron/Run2016G-23Sep2016-v1/MINIAOD', 10],
-    'SingleElectron-Run2016F-23Sep2016-v1'     : [True, '/SingleElectron/Run2016F-23Sep2016-v1/MINIAOD', 10],
-    'SingleElectron-Run2016E-23Sep2016-v1'     : [True, '/SingleElectron/Run2016E-23Sep2016-v1/MINIAOD', 10],
-    'SingleElectron-Run2016D-23Sep2016-v1'     : [True, '/SingleElectron/Run2016D-23Sep2016-v1/MINIAOD', 10],
-    'SingleElectron-Run2016C-23Sep2016-v1'     : [True, '/SingleElectron/Run2016C-23Sep2016-v1/MINIAOD', 10],
-    'SingleElectron-Run2016B-23Sep2016-v2'     : [True, '/SingleElectron/Run2016B-23Sep2016-v2/MINIAOD', 10],
-    'SingleElectron-Run2016B-23Sep2016-v3'     : [True, '/SingleElectron/Run2016B-23Sep2016-v3/MINIAOD', 10],
+    #'SingleElectron-Run2016H-PromptReco-v3'    : [True, '/SingleElectron/Run2016H-PromptReco-v3/MINIAOD', 10],
+    #'SingleElectron-Run2016H-PromptReco-v2'    : [True, '/SingleElectron/Run2016H-PromptReco-v2/MINIAOD', 10],
+    #'SingleElectron-Run2016G-23Sep2016-v1'     : [True, '/SingleElectron/Run2016G-23Sep2016-v1/MINIAOD', 10],
+    #'SingleElectron-Run2016F-23Sep2016-v1'     : [True, '/SingleElectron/Run2016F-23Sep2016-v1/MINIAOD', 10],
+    #'SingleElectron-Run2016E-23Sep2016-v1'     : [True, '/SingleElectron/Run2016E-23Sep2016-v1/MINIAOD', 10],
+    #'SingleElectron-Run2016D-23Sep2016-v1'     : [True, '/SingleElectron/Run2016D-23Sep2016-v1/MINIAOD', 10],
+    #'SingleElectron-Run2016C-23Sep2016-v1'     : [True, '/SingleElectron/Run2016C-23Sep2016-v1/MINIAOD', 10],
+    #'SingleElectron-Run2016B-23Sep2016-v2'     : [True, '/SingleElectron/Run2016B-23Sep2016-v2/MINIAOD', 10],
+    #'SingleElectron-Run2016B-23Sep2016-v3'     : [True, '/SingleElectron/Run2016B-23Sep2016-v3/MINIAOD', 10],
+    'SingleElectron-Run2016H-03Feb2017_ver3-v1'            : [True, '/SingleElectron/Run2016H-03Feb2017_ver3-v1/MINIAOD', 10],
+    'SingleElectron-Run2016H-03Feb2017_ver2-v1'            : [True, '/SingleElectron/Run2016H-03Feb2017_ver2-v1/MINIAOD', 10],
+    'SingleElectron-Run2016G-03Feb2017-v1'                 : [True, '/SingleElectron/Run2016G-03Feb2017-v1/MINIAOD', 10],
+    'SingleElectron-Run2016F-03Feb2017-v1'                 : [True, '/SingleElectron/Run2016F-03Feb2017-v1/MINIAOD', 10],
+    'SingleElectron-Run2016E-03Feb2017-v1'                 : [True, '/SingleElectron/Run2016E-03Feb2017-v1/MINIAOD', 10],
+    'SingleElectron-Run2016D-03Feb2017-v1'                 : [True, '/SingleElectron/Run2016D-03Feb2017-v1/MINIAOD', 10],
+    'SingleElectron-Run2016C-03Feb2017-v1'                 : [True, '/SingleElectron/Run2016C-03Feb2017-v1/MINIAOD', 10],
+    'SingleElectron-Run2016B-03Feb2017_ver2-v2'            : [True, '/SingleElectron/Run2016B-03Feb2017_ver2-v2/MINIAOD', 10],
+    'SingleElectron-Run2016B-03Feb2017_ver1-v1'            : [True, '/SingleElectron/Run2016B-03Feb2017_ver1-v1/MINIAOD', 10],
 }
 
 tasklist = {}
@@ -340,38 +377,76 @@ def SubmitJob(key, value):
         print "Not enough argument for %s" % key
         raise  AssertionError()
     if value[0]: # Data : note the version number after 23Sep2016 is complicated, so removing them
-        if key.find('Run2016B-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        #if key.find('Run2016B-23Sep2016') != -1:
+        #    tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        #    tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
+        #    tempconfig.Data.splitting = 'LumiBased'
+        #    tempconfig.Data.lumiMask = json_25ns
+        #elif key.find('Run2016C-23Sep2016') != -1:
+        #    tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        #    tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
+        #    tempconfig.Data.splitting = 'LumiBased'
+        #    tempconfig.Data.lumiMask = json_25ns
+        #elif key.find('Run2016D-23Sep2016') != -1:
+        #    tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        #    tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
+        #    tempconfig.Data.splitting = 'LumiBased'
+        #    tempconfig.Data.lumiMask = json_25ns
+        #elif key.find('Run2016E-23Sep2016') != -1:
+        #    tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        #    tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
+        #    tempconfig.Data.splitting = 'LumiBased'
+        #    tempconfig.Data.lumiMask = json_25ns
+        #elif key.find('Run2016F-23Sep2016') != -1:
+        #    tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        #    tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
+        #    tempconfig.Data.splitting = 'LumiBased'
+        #    tempconfig.Data.lumiMask = json_25ns
+        #elif key.find('Run2016G-23Sep2016') != -1:
+        #    tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        #    tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
+        #    tempconfig.Data.splitting = 'LumiBased'
+        #    tempconfig.Data.lumiMask = json_25ns
+        #elif key.find('Run2016H-PromptReco') != -1:
+        #    tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v14', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        #    tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
+        #    tempconfig.Data.splitting = 'LumiBased'
+        #    tempconfig.Data.lumiMask = json_25ns
+        #else:
+        #    pass
+        # https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD#Run2016_03Feb2017_Re_miniAOD_80X
+        if key.find('Run2016B-03Feb2017') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v7', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016C-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        elif key.find('Run2016C-03Feb2017') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v7', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016D-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        elif key.find('Run2016D-03Feb2017') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v7', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016E-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        elif key.find('Run2016E-03Feb2017') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v7', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016F-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        elif key.find('Run2016F-03Feb2017') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v7', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016G-23Sep2016') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v3', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        elif key.find('Run2016G-03Feb2017') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_2016SeptRepro_v7', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
-        elif key.find('Run2016H-PromptReco') != -1:
-            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v14', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+        elif key.find('Run2016H-03Feb2017') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=80X_dataRun2_Prompt_v16', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
