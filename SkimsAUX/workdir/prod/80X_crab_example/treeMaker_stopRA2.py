@@ -632,6 +632,17 @@ process.load("SusyAnaTools.SkimsAUX.prodIsoTrks_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodEventInfo_cfi")
 process.load("SusyAnaTools.SkimsAUX.ISRJetProducer_cfi")
 
+# See https://twiki.cern.ch/twiki/bin/view/CMSPublic/ReMiniAOD03Feb2017Notes#MET_Recipes
+# This is special treatment for reMINIAOD DATA...
+if "BADMUON" in options.specialFix and options.mcInfo == False:
+   # Note that calo MET is stored only in the slimmedMETs collection, therefore addcalomet is True only in the slimmedMETsDefault (with slimmedMETs as source)
+   process.prodMETslimmedMETsDefault     = process.prodMET.clone(metSrc = cms.InputTag("slimmedMETs"),            addcalomet = cms.bool(True) ) # This collection is the muon cleaned MET only.
+   process.prodMETslimmedMETsUncorrected = process.prodMET.clone(metSrc = cms.InputTag("slimmedMETsUncorrected"), addcalomet = cms.bool(False)) # This is the uncleaned MET collection.
+   process.prodMETslimmedMETsEGClean     = process.prodMET.clone(metSrc = cms.InputTag("slimmedMETsEGClean"),     addcalomet = cms.bool(False)) # This collection is the e/gamma cleaned MET only.
+   # The most correct MET collection is slimmedMETsMuEGClean, this is the collection corrected by both e/gamma and muon effects
+   process.prodMET.metSrc = cms.InputTag("slimmedMETsMuEGClean") # This collection is the muon and e/gamma cleaned MET.
+   process.prodMET.addcalomet = cms.bool(False)
+
 #Addition of Filter Decision Bits and Trigger Results
 process.load("SusyAnaTools.SkimsAUX.prodTriggerResults_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodFilterFlags_cfi")
@@ -654,8 +665,8 @@ process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
 
 #Bad muon filger for Moriond 2017 https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/2786.html
 process.load('RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff')
-process.badGlobalMuonTagger.taggingMode = cms.bool(True)
-process.cloneGlobalMuonTagger.taggingMode = cms.bool(True)
+process.badGlobalMuonTaggerMAOD.taggingMode = cms.bool(True)
+process.cloneGlobalMuonTaggerMAOD.taggingMode = cms.bool(True)
 
 process.triggerProducer.trigTagSrc = cms.InputTag("TriggerResults","",options.hltName)
 #process.METFilters = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_METFilters") )
@@ -665,6 +676,12 @@ process.goodVerticesFilter = process.filterDecisionProducer.clone( filterName  =
 process.eeBadScFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_eeBadScFilter") )
 #process.HBHENoiseFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_HBHENoiseFilter") )
 process.EcalDeadCellTriggerPrimitiveFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_EcalDeadCellTriggerPrimitiveFilter") )
+
+process.filterDecisionProducerPAT = process.filterDecisionProducer.clone()
+process.filterDecisionProducerPAT.trigTagSrc = cms.InputTag("TriggerResults","","PAT")
+process.noBadMuonsFilter = process.filterDecisionProducerPAT.clone( filterName  =   cms.string("Flag_noBadMuons") )
+process.badMuonsFilter = process.filterDecisionProducerPAT.clone( filterName = cms.string("Flag_badMuons") )
+process.duplicateMuonsFilter = process.filterDecisionProducerPAT.clone( filterName = cms.string("Flag_duplicateMuons") )
 
 process.prodJets.bTagKeyString = cms.string('pfCombinedInclusiveSecondaryVertexV2BJetTags')
 
@@ -725,6 +742,10 @@ process.stopTreeMaker.varsInt.append(cms.InputTag("EcalDeadCellTriggerPrimitiveF
 process.stopTreeMaker.varsBool.append(cms.InputTag("BadChargedCandidateFilter"))
 process.stopTreeMaker.varsBool.append(cms.InputTag("BadPFMuonFilter"))
 
+process.stopTreeMaker.varsInt.append(cms.InputTag("noBadMuonsFilter"))
+process.stopTreeMaker.varsInt.append(cms.InputTag("badMuonsFilter"))
+process.stopTreeMaker.varsInt.append(cms.InputTag("duplicateMuonsFilter"))
+
 if options.fastsim == False:
    process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"))
    process.stopTreeMaker.varsBoolNamesInTree.append("HBHENoiseFilterResultProducer:HBHENoiseFilterResult|HBHENoiseFilter")
@@ -741,7 +762,11 @@ process.stopTreeMaker.vectorInt.extend([cms.InputTag("prodMuonsNoIso", "muonsFla
 if "BADMUON" in options.specialFix:
    print ("\nAdding bad muon special filter information in prodMuon & prodMuonNoIso ...\n")
    process.prodMuons.specialFix      = cms.bool(True)
+   process.prodMuons.badGlobalMuonTaggerSrc = cms.InputTag("badGlobalMuonTaggerMAOD", "bad")
+   process.prodMuons.cloneGlobalMuonTaggerSrc = cms.InputTag("cloneGlobalMuonTaggerMAOD", "bad")
    process.prodMuonsNoIso.specialFix = cms.bool(True)
+   process.prodMuonsNoIso.badGlobalMuonTaggerSrc = cms.InputTag("badGlobalMuonTaggerMAOD", "bad")
+   process.prodMuonsNoIso.cloneGlobalMuonTaggerSrc = cms.InputTag("cloneGlobalMuonTaggerMAOD", "bad")
    process.stopTreeMaker.vectorInt.append(cms.InputTag("prodMuonsNoIso", "specialFixtype"))
    process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodMuonsNoIso", "specialFixMuonsLVec"))
    process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodMuonsNoIso", "specialFixMuonsCharge"))
@@ -904,9 +929,26 @@ process.stopTreeMaker.varsDoubleNamesInTree.append("ak4stophtPFchs|ht")
 process.stopTreeMaker.varsInt.append(cms.InputTag("ak4nJetsForSkimsStop:nJets"))
 process.stopTreeMaker.varsIntNamesInTree.append("ak4nJetsForSkimsStop:nJets|nJets_CUT")
 
-process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:met"), cms.InputTag("prodMET:metphi")])
-process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:calomet"), cms.InputTag("prodMET:calometphi")])
-process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodMET:metMagUp"), cms.InputTag("prodMET:metMagDown"), cms.InputTag("prodMET:metPhiUp"), cms.InputTag("prodMET:metPhiDown")])
+if "BADMUON" in options.specialFix and options.mcInfo == False:
+   # Note that this default met from prodMET is both e/gamma and muon corrected which is the recommended one
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:met"), cms.InputTag("prodMET:metphi")])
+   # Note that calo MET is stored only in the slimmedMETs collection, therefore addcalomet is True only in the slimmedMETsDefault (with slimmedMETs as source)
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsDefault:calomet"), cms.InputTag("prodMETslimmedMETsDefault:calometphi")])
+   process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodMET:metMagUp"), cms.InputTag("prodMET:metMagDown"), cms.InputTag("prodMET:metPhiUp"), cms.InputTag("prodMET:metPhiDown")])
+
+   # Store other different met
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsDefault:met"), cms.InputTag("prodMETslimmedMETsDefault:metphi")])
+   process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodMETslimmedMETsDefault:met|metMuCleanOnly", "prodMETslimmedMETsDefault:metphi|metphiMuCleanOnly"])
+
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsUncorrected:met"), cms.InputTag("prodMETslimmedMETsUncorrected:metphi")])
+   process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodMETslimmedMETsUncorrected:met|metNoClean", "prodMETslimmedMETsUncorrected:metphi|metphiNoClean"])
+
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsEGClean:met"), cms.InputTag("prodMETslimmedMETsEGClean:metphi")])
+   process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodMETslimmedMETsEGClean:met|metEGCleanOnly", "prodMETslimmedMETsEGClean:metphi|metphiEGCleanOnly"])
+else:
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:met"), cms.InputTag("prodMET:metphi")])
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:calomet"), cms.InputTag("prodMET:calometphi")])
+   process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodMET:metMagUp"), cms.InputTag("prodMET:metMagDown"), cms.InputTag("prodMET:metPhiUp"), cms.InputTag("prodMET:metPhiDown")])
 
 process.stopTreeMaker.varsDouble.extend([cms.InputTag("ak4jetMHTDPhiForSkimsStop:dPhi0"), cms.InputTag("ak4jetMHTDPhiForSkimsStop:dPhi1"), cms.InputTag("ak4jetMHTDPhiForSkimsStop:dPhi2")])
 process.stopTreeMaker.varsDoubleNamesInTree.extend(["ak4jetMHTDPhiForSkimsStop:dPhi0|dPhi0_CUT", "ak4jetMHTDPhiForSkimsStop:dPhi1|dPhi1_CUT", "ak4jetMHTDPhiForSkimsStop:dPhi2|dPhi2_CUT"])
@@ -1002,31 +1044,54 @@ if "JEC" in options.specialFix:
       process.stopJetsPFchsPt70Eta24.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
       process.stopJetsPFchsPt70eta2p5.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
    
-      process.ak4jetMHTDPhiForSkimsStop.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
-      process.jetsMETDPhiFilter.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
-      process.metPFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
-   
-      process.met175PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
-      process.met200PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
-   
-      process.prodElectrons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
-      process.prodElectronsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
-   
-      process.prodIsoTrks.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
-      process.prodMET.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
-   
-      process.prodMuons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
-      process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
-   
-      process.type3topTagger.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
-   
       process.updatedPatJetsUpdatedJECPt30 = process.selectedPatJetsRA2.clone()
       process.updatedPatJetsUpdatedJECPt30.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
       process.updatedPatJetsUpdatedJECPt30.pfJetCut = cms.string('pt >= 30')
-   
+      
       process.mt2PFchs.JetTag = cms.InputTag("updatedPatJetsUpdatedJECPt30")
-      process.mt2PFchs.METTag = cms.InputTag("slimmedMETs", "", process.name_())
 
+      if "BADMUON" in options.specialFix and options.mcInfo == False:
+         process.ak4jetMHTDPhiForSkimsStop.MHTSource = cms.InputTag("slimmedMETsMuEGClean")
+         process.jetsMETDPhiFilter.metSrc = cms.InputTag("slimmedMETsMuEGClean")
+         process.metPFchsFilter.MHTSource = cms.InputTag("slimmedMETsMuEGClean")
+      
+         process.met175PFchsFilter.MHTSource = cms.InputTag("slimmedMETsMuEGClean")
+         process.met200PFchsFilter.MHTSource = cms.InputTag("slimmedMETsMuEGClean")
+      
+         process.prodElectrons.metSource = cms.InputTag("slimmedMETsMuEGClean")
+         process.prodElectronsNoIso.metSource = cms.InputTag("slimmedMETsMuEGClean")
+      
+         process.prodIsoTrks.metSrc = cms.InputTag("slimmedMETsMuEGClean")
+         # Already adjusted ... and we don't re-produce the slimmedMETsMuEGClean when we redo the JEC...
+         #process.prodMET.metSrc = cms.InputTag("slimmedMETsMuEGClean")
+      
+         process.prodMuons.metSource = cms.InputTag("slimmedMETsMuEGClean")
+         process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETsMuEGClean")
+      
+         process.type3topTagger.metSrc = cms.InputTag("slimmedMETsMuEGClean")
+      
+         process.mt2PFchs.METTag = cms.InputTag("slimmedMETsMuEGClean")
+      else:
+         process.ak4jetMHTDPhiForSkimsStop.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+         process.jetsMETDPhiFilter.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+         process.metPFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+      
+         process.met175PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+         process.met200PFchsFilter.MHTSource = cms.InputTag("slimmedMETs", "", process.name_())
+      
+         process.prodElectrons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+         process.prodElectronsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+      
+         process.prodIsoTrks.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+         process.prodMET.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+      
+         process.prodMuons.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+         process.prodMuonsNoIso.metSource = cms.InputTag("slimmedMETs", "", process.name_())
+      
+         process.type3topTagger.metSrc = cms.InputTag("slimmedMETs", "", process.name_())
+      
+         process.mt2PFchs.METTag = cms.InputTag("slimmedMETs", "", process.name_())
+   
 ###-- Dump config ------------------------------------------------------------
 if options.debug:
    file = open('allDump_cfg.py','w')

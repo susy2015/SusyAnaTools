@@ -55,6 +55,7 @@ public:
     NTupleReader(TTree * tree);
     ~NTupleReader() {} ;
 
+    bool GetCurrentInfo();
     int getEvtNum() const
     {
         return nevt_;

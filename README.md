@@ -13,16 +13,14 @@ git checkout NEW_TAG_NAME
 The following installation instructions assume the user wants to process Run2016 data or Spring16 MC.
 
 ```
-cmsrel CMSSW_8_0_25
-cd CMSSW_8_0_25/src/
+cmsrel CMSSW_8_0_26_patch1
+cd CMSSW_8_0_26_patch1/src/
 cmsenv
 git cms-init
-git cms-merge-topic -u kpedro88:METfix8022
-git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter
+git cms-merge-topic cms-met:METRecipe_8020 -u
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
 git clone git@github.com:susy2015/JetToolbox.git JMEAnalysis/JetToolbox -b fix_NoLep_jetToolbox_80X_V3
-git cms-merge-topic gpetruc:badMuonFilters_80X_v2
-git clone -b ana_v2_Summer16_MC_23Sep2016_Data_Feb20_2017 git@github.com:susy2015/SusyAnaTools.git
+git clone -b prod_reMINIAOD_Mar03_2017 git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 

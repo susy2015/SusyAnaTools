@@ -28,6 +28,18 @@ void NTupleReader::init()
     activateBranches();    
 }
 
+
+// ===  FUNCTION  ============================================================
+//         Name:  NTupleReader::GetCurrentInfo
+//  Description:  Useful function for debuging
+// ===========================================================================
+bool NTupleReader::GetCurrentInfo()
+{
+  std::cout << "In Run " << getVar<int>("run") << " event " << getVar<int>("event")  << " from file: "
+    << tree_->GetCurrentFile()->GetName()<< std::endl;
+  return true;
+}       // -----  end of function NTupleReader::GetCurrentInfo  -----
+
 void NTupleReader::activateBranches()
 {
     tree_->SetBranchStatus("*", 0);

@@ -199,7 +199,7 @@ namespace AnaSamples
         addSample("TTGJets", fDir_ + MCloc + "TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.txt", "stopTreeMaker/AUX", 3.697, lumi, 3224372 - 1646539,  1.0,  kOrange+2);
 
         // ttH 
-        addSample("ttHTobb",    fDir_ + MCloc + "/ttHTobb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8.txt",   "stopTreeMaker/AUX", 0.2934,  lumi, 3809292 - 36700,   1.0,  kOrange+2);
+        addSample("ttHTobb",    fDir_ + MCloc + "ttHTobb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8.txt",   "stopTreeMaker/AUX", 0.2934,  lumi, 3809292 - 36700,   1.0,  kOrange+2);
         addSample("ttHToNonbb", fDir_ + MCloc + "ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8.txt", "stopTreeMaker/AUX", 0.2151,  lumi, 3943524 - 37726,  1.0,  kOrange+2);
         addSample("GluGluHToZZTo4L", fDir_ + MCloc + "GluGluHToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8.txt", "stopTreeMaker/AUX", 0.01212,  lumi, 999800,  1.0,  kOrange+2);
         // VH --> negative weights!
@@ -367,7 +367,7 @@ namespace AnaSamples
         addSampleSet(samples, "TTTT", {"TTTT"});
         addSampleSet(samples, "ttH", {"ttHTobb", "ttHToNonbb"});
         addSampleSet(samples, "Higgs", {"GluGluHToZZTo4L", "VHToNonbb"});
-
+        addSampleSet(samples, "SingleTopZinv", {"ST_s", "ST_t_top", "ST_t_antitop", "tZq_ll", "ST_tWll", "ST_tWnunu","tW_top_NoHad", "tW_antitop_NoHad"});
         // For now keep WZ inclusive since it got an extension, if needed we can add the other samples and use the WZ inclusive only for the parts for which we don't have another samples, e.g. fully hadronic
         addSampleSet(samples, "Diboson", {"WWTo4Q", "WWTo2L2Nu", "WWToLNuQQ", 
                     "WZ", 
