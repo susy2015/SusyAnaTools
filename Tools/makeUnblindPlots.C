@@ -936,7 +936,15 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    h1_dist_pull->Draw("hist");
    ct->Print("dist_pull.pdf");
    ct->Print("dist_pull.png");
+   h1_dist_pull->Fit("gaus");
+   TF1 *fit = h1_dist_pull->GetFunction("gaus");
+   std::cout<<"Chisquare : "<<fit->GetChisquare()<<"  ndof : "<<fit->GetNDF()<<"  Chisquare/ndof : "<<fit->GetChisquare()/fit->GetNDF()<<std::endl;
 
+   TFile * pull_file = new TFile("pull.root", "RECREATE");
+   h1_pull->Write();
+   h1_dist_pull->Write();
+   pull_file->Write();
+   pull_file->Close();
 /*
    std::cout<<"\nPrinting out the data vs. prediction table..."<<std::endl;
    print_searchBins_headerstr(" & Obs. & Sum. Pred. & Stat. Unc. & Syst. Unc. \\\\");
