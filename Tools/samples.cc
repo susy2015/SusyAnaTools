@@ -47,7 +47,7 @@ namespace AnaSamples
         double TTbar_DiLept_BR = 0.10614564; // W_Lept_BR^2
 
         std::string MCloc       = "Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/";
-        std::string DATAloc     = "Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/";
+        std::string DATAloc     = "Stop_production/Summer16_80X_Mar_2017_Ntp_v13X/";
         std::string sigMCloc    = "Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/";
         std::string addSigMCloc = "Spring15_74X_v5X_top_corridor/";
         std::string deepTrimmed_loc       = "Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/DeepTrimmed/";
@@ -250,11 +250,11 @@ namespace AnaSamples
         //addSample("Data_HTMHT_Run2016G", fDir_ + DATAloc + "HTMHT_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
 
         //MET
-        //                                                                             Run2016B-v3     Run2016C-v1       Run2016D-v1      Run2016E-v1      Run2016F-v1      Run2016G-v1      Run2016H-v2      Run2016H-v3  -> total : 36813.714859265
-        addSample("Data_MET_2016", fDir_ + DATAloc + "MET.txt","stopTreeMaker/AUX",  (5933308579.501 + 2645968083.093 + 4353448810.554 + 4116616133.327 + 3185971993.034 + 7721367926.550 + 8635591074.540 + 221442258.666)/1000000., 1.0,  kBlack);
+        //                                                                             Run2016B-v3     Run2016C-v1       Run2016D-v1      Run2016E-v1      Run2016F-v1      Run2016G-v1      Run2016H-v2      Run2016H-v3  -> total : 35866.210733056
+        addSample("Data_MET_2016", fDir_ + DATAloc + "MET.txt","stopTreeMaker/AUX",  (5787968233.150 + 2573399420.069 + 4248383597.366 + 4008663475.924 + 3101618402.006 + 7540487746.602 + 8390540442.688 + 215149415.251)/1000000., 1.0,  kBlack);
         addSample("Data_MET_Run2016G", fDir_ + DATAloc + "MET_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
 
-        addSample("Data_MET_deepTrimmed", fDir_ + deepTrimmed_loc + "MET_deepTrimmed.txt", "stopTreeMaker/AUX", 36813.714859265, 1.0,  kBlack);
+        addSample("Data_MET_deepTrimmed", fDir_ + deepTrimmed_loc + "MET_deepTrimmed.txt", "stopTreeMaker/AUX", 35866.210733056, 1.0,  kBlack);
 
         // ----------
         // - signal -

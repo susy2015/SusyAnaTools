@@ -189,6 +189,7 @@ double GetTriggerEffSystUncLo (const double met) {
    else return 0.000;
 }
 
+/*
 double GetTopPtFastToFullSF(const double genTopPt){
    if( genTopPt < 50 ) return 1.0000;
    else if (genTopPt < 100 ) return 0.986824;
@@ -210,6 +211,43 @@ double GetTopPtFastToFullSF(const double genTopPt){
 double GetTopPtFastToFullSF_relErr(const double genTopPt){
    if( genTopPt < 50 ) return 0.00;
    return 0.05;
+}
+*/
+
+double GetTopPtFastToFullSF(const double genTopPt){
+   if( genTopPt < 100 ) return 0.988;
+   else if (genTopPt < 200 ) return 0.984;
+   else if (genTopPt < 300 ) return 0.980;
+   else if (genTopPt < 400 ) return 0.976;
+   else if (genTopPt < 600 ) return 0.970;
+   else if (genTopPt < 800 ) return 0.962;
+   else if (genTopPt < 1000 ) return 0.954;
+   else return 0.954;
+}
+
+// side 1 : up   -1 : dn
+double GetTopPtFastToFullSF_relErr(const double genTopPt, const int side=1){
+   if( side ==1 ){
+      if( genTopPt < 100 ) return 0.061;
+      else if( genTopPt < 200 ) return 0.089;
+      else if( genTopPt < 300 ) return 0.044;
+      else if( genTopPt < 400 ) return 0.013;
+      else if( genTopPt < 600 ) return 0.011;
+      else if( genTopPt < 800 ) return 0.005;
+      else if( genTopPt < 1000 ) return 0.121;
+      else return 0.121;
+   }
+   if( side ==-1 ){
+      if( genTopPt < 100 ) return 0.136;
+      else if( genTopPt < 200 ) return 0.039;
+      else if( genTopPt < 300 ) return 0.011;
+      else if( genTopPt < 400 ) return 0.028;
+      else if( genTopPt < 600 ) return 0.074;
+      else if( genTopPt < 800 ) return 0.012;
+      else if( genTopPt < 1000 ) return 0.009;
+      else return 0.009;
+   }
+   return 0.00;
 }
 
 // type is the following
@@ -338,6 +376,10 @@ private:
     TH1* baseline_eleVeto_Dn_;
     TH1* baseline_isoLepTrkVeto_;
     TH1* baseline_isoPionTrkVeto_;
+
+    // For signal contamination
+    TH1* baseline_muCS_;
+    TH1* baseline_eleCS_;
 
     TH1* baseline_genTopSFUp_;
     TH1* baseline_genTopSFCen_;
@@ -525,6 +567,12 @@ private:
        sprintf(hname, "%s_%d_%d", "baseline_isoPionTrkVeto", mMass_, dMass_);
        baseline_isoPionTrkVeto_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_isoPionTrkVeto_->Sumw2();
 
+       sprintf(hname, "%s_%d_%d", "baseline_muCS", mMass_, dMass_);
+       baseline_muCS_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_muCS_->Sumw2();
+
+       sprintf(hname, "%s_%d_%d", "baseline_eleCS", mMass_, dMass_);
+       baseline_eleCS_ = new TH1D(hname, hname, nTotBins, 0, nTotBins); baseline_eleCS_->Sumw2();
+
        sprintf(hname, "%s_%d_%d", "baseline_trigUncUp", mMass_, dMass_);
        baseline_trigUncUp_ = new TH1D(hname, hname,  nTotBins, 0, nTotBins); baseline_trigUncUp_->Sumw2();
        sprintf(hname, "%s_%d_%d", "baseline_trigUncCen", mMass_, dMass_);
@@ -701,6 +749,11 @@ public:
        const bool& passBaseline         = tr.getVar<bool>("passBaseline" + spec);
        const double HT = tr.getVar<double>("HT" + spec);
 
+       TLorentzVector metLVec; metLVec.SetPtEtaPhiM(met, 0, metphi, 0);
+
+       const int nElectrons = tr.getVar<int>("nElectrons_CUT"+spec);
+       const int nMuons = tr.getVar<int>("nMuons_CUT"+spec);
+
        const bool& passBaselineNoLepVeto = tr.getVar<bool>("passBaselineNoLepVeto" + spec);
        const bool& passMuonVeto = tr.getVar<bool>("passMuonVeto" + spec);
        const bool& passEleVeto = tr.getVar<bool>("passEleVeto" + spec);
@@ -848,7 +901,7 @@ public:
        if(NJetsISR >= secMaxNJets_ISR_for_Hist_) NJets_ISR_->Fill(secMaxNJets_ISR_for_Hist_);
        else NJets_ISR_->Fill(NJetsISR);
 
-       double genTopSF_evt = 1.0, genTopSF_relErr_evt = 0.0; int cntgenTop_misMatched = 0;
+       double genTopSF_evt = 1.0, genTopSF_relErr_evt_up = 0.0, genTopSF_relErr_evt_dn = 0.0; int cntgenTop_misMatched = 0;
        std::vector<int> pickedRecoTopIdxVec;
 
        const TopTaggerResults& ttr = ttPtr->getResults();
@@ -919,12 +972,14 @@ public:
              foundMatch = true;
              if( !islepTop ){
                 genTopSF_evt *= GetTopPtFastToFullSF(genTopPt);
-                genTopSF_relErr_evt += GetTopPtFastToFullSF_relErr(genTopPt) * GetTopPtFastToFullSF_relErr(genTopPt);
+                genTopSF_relErr_evt_up += GetTopPtFastToFullSF_relErr(genTopPt, 1) * GetTopPtFastToFullSF_relErr(genTopPt, 1);
+                genTopSF_relErr_evt_dn += GetTopPtFastToFullSF_relErr(genTopPt, -1) * GetTopPtFastToFullSF_relErr(genTopPt, -1);
              }
           }
           if( !foundMatch && !islepTop ) cntgenTop_misMatched ++;
        }
-       genTopSF_relErr_evt = genTopSF_relErr_evt == 0? 0 : sqrt(genTopSF_relErr_evt);
+       genTopSF_relErr_evt_up = genTopSF_relErr_evt_up == 0? 0 : sqrt(genTopSF_relErr_evt_up);
+       genTopSF_relErr_evt_dn = genTopSF_relErr_evt_dn == 0? 0 : sqrt(genTopSF_relErr_evt_dn);
 
        // apply data/MC SF for tops
        double recoTopSF_evt = 1.0, recoTopSF_relErr_evt = 0.0;
@@ -1087,6 +1142,12 @@ public:
              baseline_muVeto_SF_->Fill(nSearchBin, weight*mu_id_SF*mu_iso_SF*mu_trk_SF);
              baseline_muVeto_Up_->Fill(nSearchBin, weight*(1+0.03));
              baseline_muVeto_Dn_->Fill(nSearchBin, weight*(1-0.03));
+             if( nMuons ==1 && nElectrons == AnaConsts::nElectronsSel ){
+                const TLorentzVector muLVec = muonsLVec[pickedMuonIdx];
+                const double mtw = calcMT(muLVec, metLVec);
+                const bool pass_mtw = mtw<100 ? true : false;
+                if( pass_mtw ) baseline_muCS_->Fill(nSearchBin, weight);
+             }
           }
           if( !passEleVeto ){
              int pickedEleIdx = -1;
@@ -1122,13 +1183,18 @@ public:
              baseline_eleVeto_SF_->Fill(nSearchBin, weight*ele_id_SF*ele_iso_SF*ele_trk_SF);
              baseline_eleVeto_Up_->Fill(nSearchBin, weight*(1+ele_tot_SF_err));
              baseline_eleVeto_Dn_->Fill(nSearchBin, weight*(1-ele_tot_SF_err));
+             if( nElectrons ==1 & nMuons == AnaConsts::nMuonsSel ){
+                const TLorentzVector eleLVec = elesLVec[pickedEleIdx];
+                const double mtw = calcMT(eleLVec, metLVec);
+                const bool pass_mtw = mtw<100 ? true : false;
+                if( pass_mtw ) baseline_eleCS_->Fill(nSearchBin, weight);
+             }
           }
           if( passMuonVeto && passEleVeto && !passIsoLepTrkVeto ) baseline_isoLepTrkVeto_->Fill(nSearchBin, weight);
           if( passMuonVeto && passEleVeto && passIsoLepTrkVeto && !passIsoPionTrkVeto ) baseline_isoPionTrkVeto_->Fill(nSearchBin, weight);
        }
 
        if( passNoiseEventFilter && passFastsimEventFilter && passMuonVeto && passEleVeto && passIsoTrkVeto && passnJets && passBJets && passHT && passMET && passdPhis && passTagger ){
-          TLorentzVector metLVec; metLVec.SetPtEtaPhiM(met, 0, metphi, 0);
           const double alt_MT2 = -99909;//mt2Calc->getMT2Hemi(tr.getVec<TLorentzVector>("jetsLVec_forTagger" + spec), metLVec);
 
           loose_MT2_vs_met_->Fill(met, best_had_brJet_MT2, weight);
@@ -1230,9 +1296,9 @@ public:
           baseline_mistagSFUp_->Fill(nSearchBin, method1a_mistag_Up * weight);
           baseline_mistagSFDn_->Fill(nSearchBin, method1a_mistag_Dn * weight);
 
-          baseline_genTopSFUp_->Fill(nSearchBin, (genTopSF_relErr_evt + 1) * genTopSF_evt * weight);
+          baseline_genTopSFUp_->Fill(nSearchBin, (genTopSF_relErr_evt_up + 1) * genTopSF_evt * weight);
           baseline_genTopSFCen_->Fill(nSearchBin, genTopSF_evt * weight);
-          baseline_genTopSFDn_->Fill(nSearchBin, (1 - genTopSF_relErr_evt) * genTopSF_evt * weight);
+          baseline_genTopSFDn_->Fill(nSearchBin, (1 - genTopSF_relErr_evt_dn) * genTopSF_evt * weight);
 
           baseline_recoTopSFUp_->Fill(nSearchBin, (recoTopSF_relErr_evt + 1) * recoTopSF_evt * weight);
           baseline_recoTopSFCen_->Fill(nSearchBin, recoTopSF_evt * weight);
@@ -1358,6 +1424,9 @@ public:
        baseline_eleVeto_Dn_->Write();
        baseline_isoLepTrkVeto_->Write();
        baseline_isoPionTrkVeto_->Write();
+
+       baseline_muCS_->Write();
+       baseline_eleCS_->Write();
 
        baseline_MT2_vs_met_->Write();
 
