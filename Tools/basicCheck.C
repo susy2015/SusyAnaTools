@@ -29,7 +29,7 @@
 
 #include <assert.h>
 
-#include "../SkimsAUX/plugins/MT2CalcCore.h"
+//#include "../SkimsAUX/plugins/MT2CalcCore.h"
 
 SearchBins * sb =0;
 int nTotBins;
@@ -50,7 +50,7 @@ std::string spec = spec_def;
 
 const bool evtFilterFor_ttZ_rare = true;
 
-MT2CalcCore * mt2Calc;
+//MT2CalcCore * mt2Calc;
 
 std::shared_ptr<topTagger::type3TopTagger>type3Ptr(nullptr);
 std::shared_ptr<TopTagger>ttPtr(nullptr);
@@ -590,7 +590,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 
         if( !(nTops>=1) ) continue; h1_cutFlowVec.back()->Fill("passnTopsLE1", evtWeight * scaleMC);
 
-        const double alt_MT2 = mt2Calc->getMT2Hemi(jetsLVec_forTagger, metLVec);
+        const double alt_MT2 = -999.9;//mt2Calc->getMT2Hemi(jetsLVec_forTagger, metLVec);
 
         h2_MT2_vs_alt_MT2_looseVec.back()->Fill(alt_MT2, MT2, evtWeight * scaleMC);
         h2_MT2_vs_met_looseVec.back()->Fill(met, MT2, evtWeight * scaleMC);
@@ -794,7 +794,7 @@ void basicCheck(int argc, char *argv[]){
 
    runNum_set.clear();
 
-   mt2Calc = new MT2CalcCore();
+   //mt2Calc = new MT2CalcCore();
 
    AnaFunctions::prepareForNtupleReader();
    //AnaFunctions::prepareTopTagger();

@@ -29,11 +29,11 @@ json_25ns = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #selSubmitKey = 'TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TTJets_SingleLeptFrom TTJets_DiLept'
 #selSubmitKey = 'TEST HTMHT TTJets_SingleLeptFrom TTJets_DiLept'
-selSubmitKey = 'MET TTJets_SingleLeptFrom TTJets_DiLept SMS-T1tttt_FastSim_scan'
+selSubmitKey = 'TEST STATUS MET'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TEST ALL'
 #selSubmitKey = 'TEST TTJets_SingleLeptFrom TTJets_Inc TTJets_DiLept ZJetsToNuNu_HT'
-doAutoMonitor = False
+doAutoMonitor = True
 
 ## Format: keyword : IsData, fulldatasetname, unitperjob
 jobslist = {

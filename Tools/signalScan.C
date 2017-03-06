@@ -39,7 +39,7 @@
 
 #include "../TopTagger/interface/indexSort.h"
 
-#include "../SkimsAUX/plugins/MT2CalcCore.h"
+//#include "../SkimsAUX/plugins/MT2CalcCore.h"
 
 #include "ISRCorrector.h"
 
@@ -57,7 +57,7 @@ const bool usegenmet = false;
 
 const bool prep_btag_ISR = false;
 
-MT2CalcCore * mt2Calc;
+//MT2CalcCore * mt2Calc;
 
 BaselineVessel * SRblv =0;
 std::string spec = "MY";
@@ -1195,7 +1195,7 @@ public:
        }
 
        if( passNoiseEventFilter && passFastsimEventFilter && passMuonVeto && passEleVeto && passIsoTrkVeto && passnJets && passBJets && passHT && passMET && passdPhis && passTagger ){
-          const double alt_MT2 = mt2Calc->getMT2Hemi(tr.getVec<TLorentzVector>("jetsLVec_forTagger" + spec), metLVec);
+          const double alt_MT2 = -99909;//mt2Calc->getMT2Hemi(tr.getVec<TLorentzVector>("jetsLVec_forTagger" + spec), metLVec);
 
           loose_MT2_vs_met_->Fill(met, best_had_brJet_MT2, weight);
           loose_alt_MT2_vs_met_->Fill(met, alt_MT2, weight);
@@ -1960,7 +1960,7 @@ void anaFunc(NTupleReader *tr, std::vector<TTree *> treeVec, const std::vector<s
 
 void signalScan(int argc, char *argv[]){
 
-   mt2Calc = new MT2CalcCore();
+    //mt2Calc = new MT2CalcCore();
 
    AnaFunctions::prepareForNtupleReader();
 
