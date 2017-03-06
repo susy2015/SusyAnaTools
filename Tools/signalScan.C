@@ -14,6 +14,8 @@
 #include "TString.h"
 #include "TLegend.h"
 
+#include "TGraphAsymmErrors.h"
+
 #include "tdrstyle.h"
 #include "TPrincipal.h"
 
@@ -113,80 +115,68 @@ void drawOverFlowBin(TH1 *histToAdjust){
 }
 
 TH2D * mu_mediumID_SF = 0, * mu_miniISO_SF = 0;
-TH1D * mu_trkptGT10_SF = 0, * mu_trkptLT10_SF = 0;
+TH2D * sf_mu_mediumID = 0, * sf_mu_mediumID_mini02 = 0;
+TGraphAsymmErrors * mu_trkptGT10_SF = 0, * mu_trkptLT10_SF = 0;
 
 TH2D * ele_VetoID_SF = 0, * ele_miniISO_SF = 0;
+TH2D * sf_el_vetoCB = 0, * sf_el_mini01 = 0;
 TH2D * ele_trkpt_SF = 0;
 
 double GetTriggerEffWeight (const double met) {
-   if (met<25) return 0.002;
-   else if (met<50) return 0.003;
-   else if (met<75) return 0.012;
-   else if (met<100) return 0.055;
-   else if (met<125) return 0.217;
-   else if (met<150) return 0.491;
-   else if (met<175) return 0.757;
-   else if (met<200) return 0.900;
-   else if (met<275) return 0.974;
-   else if (met<400) return 0.993;
+   if (met<25) return 0.002031716;
+   else if (met<50) return 0.00386317;
+   else if (met<75) return 0.01100592;
+   else if (met<100) return 0.04153341;
+   else if (met<125) return 0.1467812;
+   else if (met<150) return 0.3698591;
+   else if (met<175) return 0.6441574;
+   else if (met<200) return 0.8272891;
+   else if (met<275) return 0.9388552;
+   else if (met<400) return 0.9876937;
+   else if (met<600) return 0.9931271;
+   else if (met<1000) return 1.0;
    else return 1.0;
 }
 
 double GetTriggerEffStatUncHi (const double met) {
-   if (met<25) return 0.000;
-   else if (met<50) return 0.000;
-   else if (met<75) return 0.000;
-   else if (met<100) return 0.001;
-   else if (met<125) return 0.004;
-   else if (met<150) return 0.006;
-   else if (met<175) return 0.006;
-   else if (met<200) return 0.005;
-   else if (met<275) return 0.002;
-   else if (met<400) return 0.002;
+   if (met<25) return 0.0001223576;
+   else if (met<50) return 0.0001237282;
+   else if (met<75) return 0.0002381682;
+   else if (met<100) return 0.0005877047;
+   else if (met<125) return 0.001379334;
+   else if (met<150) return 0.002475498;
+   else if (met<175) return 0.003194178;
+   else if (met<200) return 0.003284595;
+   else if (met<275) return 0.001936995;
+   else if (met<400) return 0.001661775;
+   else if (met<600) return 0.00328642;
+   else if (met<1000) return 0.000;
    else return 0.000;
 }
 
 double GetTriggerEffStatUncLo (const double met) {
-   if (met<25) return 0.000;
-   else if (met<50) return 0.000;
-   else if (met<75) return 0.000;
-   else if (met<100) return 0.001;
-   else if (met<125) return 0.004;
-   else if (met<150) return 0.006;
-   else if (met<175) return 0.007;
-   else if (met<200) return 0.006;
-   else if (met<275) return 0.003;
-   else if (met<400) return 0.002;
-   else return 0.004;
+   if (met<25) return 0.0001156004;
+   else if (met<50) return 0.0001199594;
+   else if (met<75) return 0.00023323;
+   else if (met<100) return 0.000579911;
+   else if (met<125) return 0.001368742;
+   else if (met<150) return 0.002468708;
+   else if (met<175) return 0.003206974;
+   else if (met<200) return 0.003334201;
+   else if (met<275) return 0.001995109;
+   else if (met<400) return 0.00189928;
+   else if (met<600) return 0.005400859;
+   else if (met<1000) return 0.1155018;
+   else return 0.1155018;
 }
 
-// Not available for ICHEP ...
+// Not available for Moriond2017 ...
 double GetTriggerEffSystUncHi (const double met) {
-   if (met<25) return 0.000;
-   else if (met<50) return 0.000;
-   else if (met<75) return 0.000;
-   else if (met<100) return 0.000;
-   else if (met<125) return 0.000;
-   else if (met<150) return 0.000;
-   else if (met<175) return 0.000;
-   else if (met<200) return 0.000;
-   else if (met<275) return 0.000;
-   else if (met<400) return 0.000;
-   else return 0.000;
+   return 0.000;
 }
 
 double GetTriggerEffSystUncLo (const double met) {
-   if (met<25) return 0.000;
-   else if (met<50) return 0.000;
-   else if (met<75) return 0.000;
-   else if (met<100) return 0.000;
-   else if (met<125) return 0.000;
-   else if (met<150) return 0.000;
-   else if (met<175) return 0.000;
-   else if (met<200) return 0.000;
-   else if (met<275) return 0.000;
-   else if (met<400) return 0.000;
-   else return 0.000;
+   return 0.000;
 }
 
 /*
@@ -1124,24 +1114,28 @@ public:
                 const double abseta = std::abs(eta);
                 if( mu_mediumID_SF ){
                    mu_id_SF = mu_mediumID_SF->GetBinContent(mu_mediumID_SF->FindBin(pt, abseta));
+                   mu_id_SF *= sf_mu_mediumID->GetBinContent(sf_mu_mediumID->FindBin(pt, abseta));
                    if( mu_id_SF == 0 ) mu_id_SF = 1.0; // very simple way dealing with out of range issue of the TH2D
                 }
                 if( mu_miniISO_SF ){
                    mu_iso_SF = mu_miniISO_SF->GetBinContent(mu_miniISO_SF->FindBin(pt, abseta));
+                   mu_iso_SF *= sf_mu_mediumID_mini02->GetBinContent(sf_mu_mediumID_mini02->FindBin(pt, abseta));
                    if( mu_iso_SF == 0 ) mu_iso_SF = 1.0;
                 }
                 if( pt < 10 && mu_trkptLT10_SF ){
-                   mu_trk_SF = mu_trkptLT10_SF->GetBinContent(mu_trkptLT10_SF->FindBin(eta));
+                   mu_trk_SF = mu_trkptLT10_SF->Eval(eta);
                    if( mu_trk_SF == 0 ) mu_trk_SF = 1.0;
                 }
                 if( pt >= 10 && mu_trkptGT10_SF ){
-                   mu_trk_SF = mu_trkptGT10_SF->GetBinContent(mu_trkptGT10_SF->FindBin(eta));
+                   mu_trk_SF = mu_trkptGT10_SF->Eval(eta);
                    if( mu_trk_SF == 0 ) mu_trk_SF = 1.0;
                 }
              }
              baseline_muVeto_SF_->Fill(nSearchBin, weight*mu_id_SF*mu_iso_SF*mu_trk_SF);
-             baseline_muVeto_Up_->Fill(nSearchBin, weight*(1+0.03));
-             baseline_muVeto_Dn_->Fill(nSearchBin, weight*(1-0.03));
+// It is documented on https://twiki.cern.ch/twiki/bin/view/CMS/SUSLeptonSF#Scale_Factors_for_Moriond2017
+// that for data/MC, a 3% is recommended; for full/fast, a 2% is recommended. Therefore combined is sqrt(3*3 + 2*2) ~ 3.6%
+             baseline_muVeto_Up_->Fill(nSearchBin, weight*(1+0.036));
+             baseline_muVeto_Dn_->Fill(nSearchBin, weight*(1-0.036));
              if( nMuons ==1 && nElectrons == AnaConsts::nElectronsSel ){
                 const TLorentzVector muLVec = muonsLVec[pickedMuonIdx];
                 const double mtw = calcMT(muLVec, metLVec);
@@ -1165,17 +1159,19 @@ public:
                 const double abseta = std::abs(eta);
                 if( ele_VetoID_SF ){
                    ele_id_SF = ele_VetoID_SF->GetBinContent(ele_VetoID_SF->FindBin(pt, abseta));
+                   ele_id_SF *= sf_el_vetoCB->GetBinContent(sf_el_vetoCB->FindBin(pt, abseta));
                    ele_id_SF_err = ele_VetoID_SF->GetBinError(ele_VetoID_SF->FindBin(pt, abseta));
                    if( ele_id_SF == 0 ){ ele_id_SF = 1.0; ele_id_SF_err = 0.0; }
                 }
                 if( ele_miniISO_SF ){
                    ele_iso_SF = ele_miniISO_SF->GetBinContent(ele_miniISO_SF->FindBin(pt, abseta));
+                   ele_iso_SF *= sf_el_mini01->GetBinContent(sf_el_mini01->FindBin(pt, abseta));
                    ele_iso_SF_err = ele_miniISO_SF->GetBinError(ele_miniISO_SF->FindBin(pt, abseta));
                    if( ele_iso_SF == 0 ){ ele_iso_SF = 1.0; ele_iso_SF_err = 0.0; }
                 }
                 if( ele_trkpt_SF ){
                    ele_trk_SF = ele_trkpt_SF->GetBinContent(ele_trkpt_SF->FindBin(eta, pt));
-                   ele_trk_SF_err = pt<20? 0.03: 0.00;
+                   ele_trk_SF_err = pt<20 || pt>80? 0.01: 0.00;
                    if( ele_trk_SF == 0 ){ ele_trk_SF = 1.0; ele_trk_SF_err = 0.0; }
                 }
              }
@@ -1977,13 +1973,25 @@ void signalScan(int argc, char *argv[]){
 
    TFile * allINone_leptonSF_file = new TFile("allINone_leptonSF_Moriond17.root");
    if( !allINone_leptonSF_file->IsZombie() ){
+// mu
+// SF for data/full
       mu_mediumID_SF = (TH2D*) allINone_leptonSF_file->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0");
       mu_miniISO_SF = (TH2D*) allINone_leptonSF_file->Get("pt_abseta_PLOT_pair_probeMultiplicity_bin0_&_Medium2016_pass");
-      mu_trkptGT10_SF = (TH1D*) allINone_leptonSF_file->Get("mutrksfptg10");
-      mu_trkptLT10_SF = (TH1D*) allINone_leptonSF_file->Get("mutrksfptl10");
+// SF for full/fast
+      sf_mu_mediumID = (TH2D*) allINone_leptonSF_file->Get("sf_mu_mediumID");
+      sf_mu_mediumID_mini02 = (TH2D*) allINone_leptonSF_file->Get("sf_mu_mediumID_mini02");
+// SF for muon tracks
+      mu_trkptGT10_SF = (TGraphAsymmErrors*) allINone_leptonSF_file->Get("ratio_eff_eta3_dr030e030_corr");
+      mu_trkptLT10_SF = (TGraphAsymmErrors*) allINone_leptonSF_file->Get("ratio_eff_eta3_tk0_dr030e030_corr");
 
+// ele
+// SF for data/full
       ele_VetoID_SF = (TH2D*) allINone_leptonSF_file->Get("GsfElectronToVeto");
       ele_miniISO_SF = (TH2D*) allINone_leptonSF_file->Get("MVAVLooseElectronToMini");
+// SF for full/fast
+      sf_el_vetoCB = (TH2D*) allINone_leptonSF_file->Get("sf_el_vetoCB");
+      sf_el_mini01 = (TH2D*) allINone_leptonSF_file->Get("sf_el_mini01");
+// SF for ele tracks
       ele_trkpt_SF = (TH2D*) allINone_leptonSF_file->Get("EGamma_SF2D");
    }
 
