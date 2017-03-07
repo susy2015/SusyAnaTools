@@ -76,7 +76,7 @@ std::vector<int> cached_sampleColorVec;
 void makeSignalCards(const std::string inputRootName, const std::string inputRootName_hadtau_cont, const std::string inputRootName_lostle_cont){
 
 //   double dataLumi = 4004.345;
-   double dataLumi = 36813.714859265;
+   double dataLumi = 35866.210733056;
 
    TFile * sig_cont_hadtau_file = 0, * sig_cont_lostle_file = 0;
    if( !inputRootName_hadtau_cont.empty() ) sig_cont_hadtau_file = new TFile(inputRootName_hadtau_cont.c_str());
