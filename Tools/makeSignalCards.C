@@ -443,8 +443,8 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          double bTagSFCen_scale = cent !=0 ? bTagSFCen_cent/cent : 1.0;
 //         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale;
 //         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
-         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
-//         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+//         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
          sum_cent_wt += cent * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
          sum_err_wt += err*err*pow(bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale, 2.0); 
 

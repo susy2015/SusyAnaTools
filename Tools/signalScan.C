@@ -150,8 +150,8 @@ double GetTriggerEffStatUncHi (const double met) {
    else if (met<275) return 0.001936995;
    else if (met<400) return 0.001661775;
    else if (met<600) return 0.00328642;
-   else if (met<1000) return 0.000;
-   else return 0.000;
+   else if (met<1000) return 0.00687;
+   else return 0.00687;
 }
 
 double GetTriggerEffStatUncLo (const double met) {
@@ -166,8 +166,8 @@ double GetTriggerEffStatUncLo (const double met) {
    else if (met<275) return 0.001995109;
    else if (met<400) return 0.00189928;
    else if (met<600) return 0.005400859;
-   else if (met<1000) return 0.1155018;
-   else return 0.1155018;
+   else if (met<1000) return 0.02576996; // would be from HT>1000 ...
+   else return 0.02576996;
 }
 
 // Not available for Moriond2017 ...
@@ -1273,9 +1273,9 @@ public:
           const double trigEff_comb_dn = sqrt( trigEff_stat_dn*trigEff_stat_dn + trigEff_syst_dn*trigEff_syst_dn );
           const double trigEff_comb_avg = (trigEff_comb_up + trigEff_comb_dn)*0.5;
 
-          baseline_trigUncUp_->Fill(nSearchBin, trigEff * (1 + trigEff_comb_avg) * weight);
+          baseline_trigUncUp_->Fill(nSearchBin, trigEff * (1 + trigEff_comb_up) * weight);
           baseline_trigUncCen_->Fill(nSearchBin, trigEff * weight);
-          baseline_trigUncDn_->Fill(nSearchBin, trigEff * (1 - trigEff_comb_avg) * weight);
+          baseline_trigUncDn_->Fill(nSearchBin, trigEff * (1 - trigEff_comb_dn) * weight);
 
           baseline_scaleUncUp_->Fill(nSearchBin, Scaled_Variations_Up * weight);
           baseline_scaleUncDn_->Fill(nSearchBin, Scaled_Variations_Down * weight);
