@@ -76,7 +76,7 @@ std::vector<int> cached_sampleColorVec;
 void makeSignalCards(const std::string inputRootName, const std::string inputRootName_hadtau_cont, const std::string inputRootName_lostle_cont){
 
 //   double dataLumi = 4004.345;
-   double dataLumi = 36813.714859265;
+   double dataLumi = 35866.210733056;
 
    TFile * sig_cont_hadtau_file = 0, * sig_cont_lostle_file = 0;
    if( !inputRootName_hadtau_cont.empty() ) sig_cont_hadtau_file = new TFile(inputRootName_hadtau_cont.c_str());
@@ -443,8 +443,8 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          double bTagSFCen_scale = cent !=0 ? bTagSFCen_cent/cent : 1.0;
 //         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale;
 //         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
-         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
-//         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+//         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
+         rate_scaleVec[ib] = lumi_scale * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
          sum_cent_wt += cent * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale;
          sum_err_wt += err*err*pow(bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale * isrUncCen_scale * muVetoed_SF_scale * eleVetoed_SF_scale * isoTrkVetoed_scale, 2.0); 
 

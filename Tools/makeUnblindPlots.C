@@ -132,10 +132,10 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
 
 //   const double dataLumi = 816.27;
 //   const double dataLumi = 5189.90;
-   const double dataLumi = 36813.714859265; 
+   const double dataLumi = 35866.210733056; 
 //   const double dataLumi = 36352.970569733;
 //   const double dataLumi = 5189.90*1.30;
-   const double bkgLumi = 36813.714859265;
+   const double bkgLumi = 35866.210733056;
 //   const double dataLumi = 4004.345;
 //   const double bkgLumi = 4004.345; 
    const double norm_bkg_to_data = noobs? 1.0 : dataLumi/bkgLumi;
@@ -936,7 +936,15 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    h1_dist_pull->Draw("hist");
    ct->Print("dist_pull.pdf");
    ct->Print("dist_pull.png");
+   h1_dist_pull->Fit("gaus");
+   TF1 *fit = h1_dist_pull->GetFunction("gaus");
+   std::cout<<"Chisquare : "<<fit->GetChisquare()<<"  ndof : "<<fit->GetNDF()<<"  Chisquare/ndof : "<<fit->GetChisquare()/fit->GetNDF()<<std::endl;
 
+   TFile * pull_file = new TFile("pull.root", "RECREATE");
+   h1_pull->Write();
+   h1_dist_pull->Write();
+   pull_file->Write();
+   pull_file->Close();
 /*
    std::cout<<"\nPrinting out the data vs. prediction table..."<<std::endl;
    print_searchBins_headerstr(" & Obs. & Sum. Pred. & Stat. Unc. & Syst. Unc. \\\\");
