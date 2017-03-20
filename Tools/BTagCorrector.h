@@ -141,7 +141,7 @@ BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePat
 
 
     //method 1b
-    std::vector<double> GetCorrections(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor);
+    std::vector<double>* GetCorrections(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor);
     //method 1a
     double GetSimpleCorrection(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor, const std::vector<double> *Jets_bDiscriminatorCSV);
 
