@@ -23,7 +23,7 @@ using namespace std;
 // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
 /***********************************************************************************/
 
-vector<double> BTagCorrector::GetCorrections(const vector<TLorentzVector> *Jets, const vector<int> *Jets_flavor)
+vector<double>* BTagCorrector::GetCorrections(const vector<TLorentzVector> *Jets, const vector<int> *Jets_flavor)
 {
 
     //reset probabilities
@@ -115,7 +115,7 @@ vector<double> BTagCorrector::GetCorrections(const vector<TLorentzVector> *Jets,
     (*prob)[3] = 1 - (*prob)[0] -(*prob)[1] - (*prob)[2];
     if(debug) cout << (*prob)[0] << ", " << (*prob)[1] << ", " << (*prob)[2] << ", " << (*prob)[3] << endl;
        
-    return (*prob);
+    return prob;
 }
 
 /***********************************************************************************/
@@ -288,8 +288,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     } 
 
     // Method 1b) in different b-jet mullticipity bins.
-    vector<double> *evtWeightProb_Central = new vector<double>();
-    (*evtWeightProb_Central) = GetCorrections(&inputJets, &recoJetsFlavor);
+    vector<double> *evtWeightProb_Central = GetCorrections(&inputJets, &recoJetsFlavor);
     //Register derived quantities to nTuples.
     tr.registerDerivedVar("bTagSF_EventWeightSimple_Central", evtWeightSimple_Central);
     //evtWeightProb[0] = probability of 0 Btags...... evtWeightProb[3] = probability of 3 Btags
@@ -310,8 +309,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     if( std::isnan( evtWeightSimple_Up) || std::isinf(evtWeightSimple_Up) ){
       evtWeightSimple_Up= 1.0;
     }
-    vector<double> *evtWeightProb_Up = new vector<double>();
-    (*evtWeightProb_Up) = GetCorrections(&inputJets, &recoJetsFlavor);
+    vector<double> *evtWeightProb_Up = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("bTagSF_EventWeightSimple_Up", evtWeightSimple_Up);
     tr.registerDerivedVec("bTagSF_EventWeightProb_Up", evtWeightProb_Up);
 
@@ -328,8 +326,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     if( std::isnan( evtWeightSimple_Down) || std::isinf(evtWeightSimple_Down) ){
       evtWeightSimple_Down= 1.0;
     }
-    vector<double> *evtWeightProb_Down = new vector<double>();
-    (*evtWeightProb_Down) = GetCorrections(&inputJets, &recoJetsFlavor);
+    vector<double> *evtWeightProb_Down = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("bTagSF_EventWeightSimple_Down", evtWeightSimple_Down);
     tr.registerDerivedVec("bTagSF_EventWeightProb_Down", evtWeightProb_Down);
 
@@ -346,8 +343,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     if( std::isnan( evtWeightSimple_mistag_Up) || std::isinf(evtWeightSimple_mistag_Up) ){
       evtWeightSimple_mistag_Up= 1.0;
     }
-    vector<double> *evtWeightProb_mistag_Up = new vector<double>();
-    (*evtWeightProb_mistag_Up) = GetCorrections(&inputJets, &recoJetsFlavor);
+    vector<double> *evtWeightProb_mistag_Up =  GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("mistagSF_EventWeightSimple_Up", evtWeightSimple_mistag_Up);
     tr.registerDerivedVec("mistagSF_EventWeightProb_Up", evtWeightProb_mistag_Up);
 
@@ -364,8 +360,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     if( std::isnan( evtWeightSimple_mistag_Down) || std::isinf(evtWeightSimple_mistag_Down) ){
       evtWeightSimple_mistag_Down= 1.0;
     }
-    vector<double> *evtWeightProb_mistag_Down = new vector<double>();
-    (*evtWeightProb_mistag_Down) = GetCorrections(&inputJets, &recoJetsFlavor);
+    vector<double> *evtWeightProb_mistag_Down = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("mistagSF_EventWeightSimple_Down", evtWeightSimple_mistag_Down);
     tr.registerDerivedVec("mistagSF_EventWeightProb_Down", evtWeightProb_mistag_Down);
 
