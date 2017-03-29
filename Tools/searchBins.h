@@ -19,15 +19,15 @@ public:
     {
     public:
         int bJet_lo_, top_lo_;
-        double met_lo_, MT2_lo_;
+        double met_lo_, MT2_lo_, HT_lo_;
         int bJet_hi_, top_hi_;
-        double met_hi_, MT2_hi_;
+        double met_hi_, MT2_hi_, HT_hi_;
         int idx_SR_, idx_vMT2_vs_met_;
 
         searchBinDef();
-        searchBinDef(int idx_SR, int idx_vMT2_vs_met, int bJet_lo, int bJet_hi, int top_lo, int top_hi, double met_lo, double met_hi, double MT2_lo, double MT2_hi);
+        searchBinDef(int idx_SR, int idx_vMT2_vs_met, int bJet_lo, int bJet_hi, int top_lo, int top_hi, double met_lo, double met_hi, double MT2_lo, double MT2_hi, double HT_lo, double HT_hi);
 
-        bool compare(const int ibJet, const int iTop, const double MT2, const double met) const;
+        bool compare(const int ibJet, const int iTop, const double MT2, const double HT, const double met) const;
     };
 
     int nSearchBins() {return searchBins_.size();}
@@ -56,7 +56,8 @@ private:
     std::vector<searchBinDef> searchBins_;
     
     //Use this to add bins to searchBins_, it adds all met and mt2 bins for a particular bin in Nb-Nt
-    void addNbNtBin(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> mt2_lo, const std::vector<double> mt2_hi, const std::vector<double> met_lo, const std::vector<double> met_hi);
+    void addNbNtBin_MT2_MET(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> mt2_lo, const std::vector<double> mt2_hi, const std::vector<double> met_lo, const std::vector<double> met_hi);
+    void addNbNtBin_HT_MET(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> ht_lo, const std::vector<double> ht_hi, const std::vector<double> met_lo, const std::vector<double> met_hi);
 
     void SearchBins_37_2015();
     void SearchBins_45_2015();
@@ -64,6 +65,7 @@ private:
     void SearchBins_59_2016();
     void SearchBins_Aggregate_ICHEP_2016();
     void SearchBins_v1_2017();
+    void SearchBins_Aggregate_2017();
 
     std::string binEra_;
 };
