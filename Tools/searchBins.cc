@@ -11,12 +11,12 @@ SearchBins::searchBinDef::searchBinDef() : idx_SR_(-1), bJet_lo_(-1), bJet_hi_(-
     
 }
 
-SearchBins::searchBinDef::searchBinDef(int idx_SR, int idx_vMT2_vs_met, int bJet_lo, int bJet_hi, int top_lo, int top_hi, double met_lo, double met_hi, double MT2_lo, double MT2_hi) : idx_SR_(idx_SR), idx_vMT2_vs_met_(idx_vMT2_vs_met), bJet_lo_(bJet_lo), bJet_hi_(bJet_hi), top_lo_(top_lo), top_hi_(top_hi), met_lo_(met_lo), met_hi_(met_hi), MT2_lo_(MT2_lo), MT2_hi_(MT2_hi)
+SearchBins::searchBinDef::searchBinDef(int idx_SR, int idx_vMT2_vs_met, int bJet_lo, int bJet_hi, int top_lo, int top_hi, double met_lo, double met_hi, double MT2_lo, double MT2_hi, double HT_lo, double HT_hi) : idx_SR_(idx_SR), idx_vMT2_vs_met_(idx_vMT2_vs_met), bJet_lo_(bJet_lo), bJet_hi_(bJet_hi), top_lo_(top_lo), top_hi_(top_hi), met_lo_(met_lo), met_hi_(met_hi), MT2_lo_(MT2_lo), MT2_hi_(MT2_hi), HT_hi_(HT_hi), HT_lo_(HT_lo)
 {
     
 }
 
-bool SearchBins::searchBinDef::compare(const int ibJet, const int iTop, const double MT2, const double met) const
+bool SearchBins::searchBinDef::compare(const int ibJet, const int iTop, const double MT2, const double HT, const double met) const
 {
     return (bJet_lo_ < 0  || ibJet >= bJet_lo_)
         && (bJet_hi_ < 0  || ibJet  < bJet_hi_)
@@ -25,7 +25,9 @@ bool SearchBins::searchBinDef::compare(const int ibJet, const int iTop, const do
         && (MT2_lo_ < 0   || MT2 >= MT2_lo_ )
         && (MT2_hi_ < 0   || MT2  < MT2_hi_ )
         && (met_lo_ < 0   || met >= met_lo_ )
-        && (met_hi_ < 0   || met  < met_hi_ );
+        && (met_hi_ < 0   || met  < met_hi_ )
+        && (HT_lo_ < 0    || HT >= HT_lo_ )
+        && (HT_hi_ < 0    || HT  < HT_hi_ );
 }
 
 SearchBins::SearchBins(std::string binEra) :
@@ -58,6 +60,10 @@ SearchBins::SearchBins(std::string binEra) :
     {
         SearchBins_v1_2017();
     }
+    else if(binEra_.compare("SB_Aggregate_2017") == 0)
+    {
+        SearchBins_Aggregate_2017();
+    }
     else
     {
         std::cout << "!!!!!!!!!!!!!!!!!!!!BINS NOT ADDED!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
@@ -66,7 +72,7 @@ SearchBins::SearchBins(std::string binEra) :
     }
 }
 
-void SearchBins::addNbNtBin(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> mt2_lo, const std::vector<double> mt2_hi, const std::vector<double> met_lo, const std::vector<double> met_hi)
+void SearchBins::addNbNtBin_MT2_MET(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> mt2_lo, const std::vector<double> mt2_hi, const std::vector<double> met_lo, const std::vector<double> met_hi)
 {
     if((met_lo.size() != met_hi.size()) || (met_lo.size() != mt2_lo.size()) || (met_lo.size() != mt2_hi.size()))
     {
@@ -79,7 +85,25 @@ void SearchBins::addNbNtBin(int bJet_lo, int bJet_hi, int top_lo, int top_hi, co
     const int Nbins = met_lo.size();
     for(int iBin = 0; iBin < Nbins; ++iBin)
     {
-        searchBins_.emplace_back(searchBinDef(NSearchRegions_, iBin, bJet_lo, bJet_hi, top_lo, top_hi, met_lo[iBin], met_hi[iBin], mt2_lo[iBin], mt2_hi[iBin]));
+        searchBins_.emplace_back(searchBinDef(NSearchRegions_, iBin, bJet_lo, bJet_hi, top_lo, top_hi, met_lo[iBin], met_hi[iBin], mt2_lo[iBin], mt2_hi[iBin], -1, -1));
+    }
+    ++NSearchRegions_;
+}
+
+void SearchBins::addNbNtBin_HT_MET(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> ht_lo, const std::vector<double> ht_hi, const std::vector<double> met_lo, const std::vector<double> met_hi)
+{
+    if((met_lo.size() != met_hi.size()) || (met_lo.size() != ht_lo.size()) || (met_lo.size() != ht_hi.size()))
+    {
+        std::cout << "!!!!!!!!!!!!!!!!!!!!BIN NOT ADDED!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << "Mismatch in number of met and/or mt2 bin edges for bin Nb: [" << bJet_lo << "," << bJet_hi << "), Nt: [" << top_lo << "," << top_hi << ")!!!!!!" << std::endl;
+        std::cout << "!!!!!!!!!!!!!!!!!!!!BIN NOT ADDED!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+        return;
+    }
+    
+    const int Nbins = met_lo.size();
+    for(int iBin = 0; iBin < Nbins; ++iBin)
+    {
+        searchBins_.emplace_back(searchBinDef(NSearchRegions_, iBin, bJet_lo, bJet_hi, top_lo, top_hi, met_lo[iBin], met_hi[iBin], -1, -1, ht_lo[iBin], ht_hi[iBin]));
     }
     ++NSearchRegions_;
 }
@@ -93,6 +117,11 @@ void SearchBins::build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::v
     {
         double MT2_lo = sb.MT2_lo_;
         double MT2_hi = sb.MT2_hi_;
+        if(sb.bJet_lo_ >=3 || sb.top_lo_ >=3)
+        {
+            MT2_lo = sb.HT_lo_;
+            MT2_hi = sb.HT_hi_;
+        }
         double met_lo = sb.met_lo_;
         double met_hi = sb.met_hi_;
         if( MT2_hi == -1 ) MT2_hi = (sb.bJet_lo_ >=3 || sb.top_lo_ >=3) ? pseudoMax_HT_for_hist : pseudoMax_MT2_for_hist;
@@ -121,6 +150,11 @@ void SearchBins::build_MT2_met_Binning(std::vector<std::vector<std::vector<doubl
     {
         double MT2_lo = sb.MT2_lo_;
         double MT2_hi = sb.MT2_hi_;
+        if(sb.bJet_lo_ >=3 || sb.top_lo_ >=3)
+        {
+            MT2_lo = sb.HT_lo_;
+            MT2_hi = sb.HT_hi_;
+        }
         double met_lo = sb.met_lo_;
         double met_hi = sb.met_hi_;
         ++nTotBins;
@@ -144,7 +178,7 @@ int SearchBins::find_Binning_Index(int ibJet, int iTop, double MT2, double met) 
     if(binEra_.find("2017") != std::string::npos) THROW_SATEXCEPTION("This function is depricated for 2017 results");
     for(int iBin = 0; iBin < searchBins_.size(); ++iBin)
     {
-        if(searchBins_[iBin].compare(ibJet, iTop, MT2, met))
+        if(searchBins_[iBin].compare(ibJet, iTop, MT2, -1, met))
         {
             return iBin;
         }
@@ -156,12 +190,10 @@ int SearchBins::find_Binning_Index(int ibJet, int iTop, double MT2, double met, 
 {
     for(int iBin = 0; iBin < searchBins_.size(); ++iBin)
     {
-      double mt2ht=MT2;
-      if (iTop>=3 || ibJet>=3) mt2ht=ht;
-      if(searchBins_[iBin].compare(ibJet, iTop, mt2ht, met))
-      {
-   return iBin;
-      }
+        if(searchBins_[iBin].compare(ibJet, iTop, MT2, ht, met))
+        {
+            return iBin;
+        }
     }
     return -1;
 }
@@ -174,7 +206,7 @@ std::vector<int> SearchBins::find_Binning_Indices(int ibJet, int iTop, double MT
     std::vector<int> iBins;
     for(int iBin = 0; iBin < searchBins_.size(); ++iBin)
     {
-        if(searchBins_[iBin].compare(ibJet, iTop, MT2, met))
+        if(searchBins_[iBin].compare(ibJet, iTop, MT2, -1, met))
         {
             iBins.push_back(iBin);
         }
@@ -187,9 +219,7 @@ std::vector<int> SearchBins::find_Binning_Indices(int ibJet, int iTop, double MT
     std::vector<int> iBins;
     for(int iBin = 0; iBin < searchBins_.size(); ++iBin)
     {
-      double mt2ht=MT2;
-      if (iTop>=3 || ibJet>=3) mt2ht=ht;
-        if(searchBins_[iBin].compare(ibJet, iTop, mt2ht, met))
+        if(searchBins_[iBin].compare(ibJet, iTop, MT2, ht, met))
         {
             iBins.push_back(iBin);
         }
@@ -222,10 +252,17 @@ void SearchBins::print_searchBins() const
             std::cout<<std::endl<<std::endl;
             preiSR = sbDef.idx_SR_;
         }
+        double MT2_lo = sbDef.MT2_lo_;
+        double MT2_hi = sbDef.MT2_hi_;
+        if(sbDef.bJet_lo_ >=3 || sbDef.top_lo_ >=3)
+        {
+            MT2_lo = sbDef.HT_lo_;
+            MT2_hi = sbDef.HT_hi_;
+        }
         char tmpnbJetStr[20], tmpnTopStr[20], tmpMT2Str[20], tmpmetStr[20];
         if( sbDef.top_hi_ != -1 ) sprintf(tmpnTopStr, "=%d", sbDef.top_lo_); else sprintf(tmpnTopStr, ">=%d", sbDef.top_lo_);
         if( sbDef.bJet_hi_ != -1 ) sprintf(tmpnbJetStr, "=%d", sbDef.bJet_lo_); else sprintf(tmpnbJetStr, ">=%d", sbDef.bJet_lo_);
-        if( sbDef.MT2_hi_ != -1 ) sprintf(tmpMT2Str, "[%3.0f, %3.0f)", sbDef.MT2_lo_, sbDef.MT2_hi_); else sprintf(tmpMT2Str, "[%3.0f, inf)", sbDef.MT2_lo_);
+        if( MT2_hi != -1 ) sprintf(tmpMT2Str, "[%3.0f, %3.0f)", MT2_lo, MT2_hi); else sprintf(tmpMT2Str, "[%3.0f, inf)", MT2_lo);
         if( sbDef.met_hi_ != -1 ) sprintf(tmpmetStr, "[%3.0f, %3.0f)", sbDef.met_lo_, sbDef.met_hi_); else sprintf(tmpmetStr, "[%3.0f, inf)", sbDef.met_lo_);
         printf("%6d        %12s        %12s        %12s        %12s\n", ib, tmpnTopStr, tmpnbJetStr, tmpMT2Str, tmpmetStr);
         if( sbDef.met_hi_ == -1 ) std::cout<<std::endl;
@@ -244,10 +281,17 @@ std::string SearchBins::get_searchBins_defstr(const int binIdx, const std::strin
 
     SearchBins::searchBinDef sbDef;
     find_BinBoundaries(binIdx, sbDef);
+    double MT2_lo = sbDef.MT2_lo_;
+    double MT2_hi = sbDef.MT2_hi_;
+    if(sbDef.bJet_lo_ >=3 || sbDef.top_lo_ >=3)
+    {
+        MT2_lo = sbDef.HT_lo_;
+        MT2_hi = sbDef.HT_hi_;
+    }
     char tmpnbJetStr[50], tmpnTopStr[50], tmpMT2Str[50], tmpmetStr[50];
     if( sbDef.top_hi_ != -1 ) sprintf(tmpnTopStr, "%d", sbDef.top_lo_); else sprintf(tmpnTopStr, "%d+", sbDef.top_lo_);
     if( sbDef.bJet_hi_ != -1 ) sprintf(tmpnbJetStr, "%d", sbDef.bJet_lo_); else sprintf(tmpnbJetStr, "%d+", sbDef.bJet_lo_);
-    if( sbDef.MT2_hi_ != -1 ) sprintf(tmpMT2Str, "%3.0f-%3.0f", sbDef.MT2_lo_, sbDef.MT2_hi_); else sprintf(tmpMT2Str, "%3.0f+", sbDef.MT2_lo_);
+    if( MT2_hi != -1 ) sprintf(tmpMT2Str, "%3.0f-%3.0f", MT2_lo, MT2_hi); else sprintf(tmpMT2Str, "%3.0f+", MT2_lo);
     if( sbDef.met_hi_ != -1 ) sprintf(tmpmetStr, "%3.0f-%3.0f", sbDef.met_lo_, sbDef.met_hi_); else sprintf(tmpmetStr, "%3.0f+", sbDef.met_lo_);
 
     char totStr[500];
@@ -743,7 +787,7 @@ void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yie
 void SearchBins::SearchBins_Aggregate_ICHEP_2016()
 {
     //         Baseline
-    addNbNtBin(1, -1, 1, -1,
+    addNbNtBin_MT2_MET(1, -1, 1, -1,
                // MT2 lo
                {200},
                // MT2 hi
@@ -754,7 +798,7 @@ void SearchBins::SearchBins_Aggregate_ICHEP_2016()
                {-1});
 
     //         StopE (compressed)
-    addNbNtBin(1, -1, 2, -1,
+    addNbNtBin_MT2_MET(1, -1, 2, -1,
                // MT2 lo
                {200},
                // MT2 hi
@@ -765,7 +809,7 @@ void SearchBins::SearchBins_Aggregate_ICHEP_2016()
                {350});
 
     //         StopD (medium) and StopB (high)
-    addNbNtBin(2, -1, 1, -1,
+    addNbNtBin_MT2_MET(2, -1, 1, -1,
                // MT2 lo
                {350, 450},
                // MT2 hi
@@ -776,7 +820,7 @@ void SearchBins::SearchBins_Aggregate_ICHEP_2016()
                {-1, -1});
 
     //         StopC (medium) and StopA (high)  
-    addNbNtBin(2, -1, 2, -1,
+    addNbNtBin_MT2_MET(2, -1, 2, -1,
                // MT2 lo
                {350, 450},
                // MT2 hi
@@ -787,7 +831,7 @@ void SearchBins::SearchBins_Aggregate_ICHEP_2016()
                {-1, -1});
 
     //         gluinoA
-    addNbNtBin(2, -1, 3, -1,
+    addNbNtBin_MT2_MET(2, -1, 3, -1,
                // MT2 lo
                {200},
                // MT2 hi
@@ -798,7 +842,7 @@ void SearchBins::SearchBins_Aggregate_ICHEP_2016()
                {-1});
 
     //         gluinoB
-    addNbNtBin(3, -1, 1, -1,
+    addNbNtBin_MT2_MET(3, -1, 1, -1,
                // MT2 lo
                {350},
                // MT2 hi
@@ -813,7 +857,7 @@ void SearchBins::SearchBins_Aggregate_ICHEP_2016()
 void SearchBins::SearchBins_59_2016()
 {
     //         nb=1, ntop=1
-    addNbNtBin(1, 2, 1, 2,
+    addNbNtBin_MT2_MET(1, 2, 1, 2,
                // MT2 lo
                {200, 200, 200, 200, /**/ 350, 350, 350, 350, /**/ 450, 450, 450, 450},
                // MT2 hi
@@ -824,7 +868,7 @@ void SearchBins::SearchBins_59_2016()
                {350, 500, 650,  -1, /**/ 350, 500, 650,  -1, /**/ 350, 500, 650,  -1});
 
     //         nb=2, ntop=1
-    addNbNtBin(2, 3, 1, 2,
+    addNbNtBin_MT2_MET(2, 3, 1, 2,
                // MT2 lo
                {200, 200, 200, 200, /**/ 350, 350, 350, 350, /**/ 450, 450, 450},
                // MT2 hi
@@ -835,7 +879,7 @@ void SearchBins::SearchBins_59_2016()
                {350, 500, 650,  -1, /**/ 350, 500, 650,  -1, /**/ 500, 650,  -1});
 
     //         nb>=3, ntop=1
-    addNbNtBin(3, -1, 1, 2,
+    addNbNtBin_MT2_MET(3, -1, 1, 2,
                // MT2 lo
                {200, 200, 200, /**/ 350, 350},
                // MT2 hi
@@ -846,7 +890,7 @@ void SearchBins::SearchBins_59_2016()
                {350, 500,  -1, /**/ 350,  -1});
 
     //         nb=1, ntop=2
-    addNbNtBin(1, 2, 2, 3,
+    addNbNtBin_MT2_MET(1, 2, 2, 3,
                // MT2 lo
                {200, 200, 200, 200, /**/ 350, 350, 350, 350, /**/ 450, 450, 450, 450},
                // MT2 hi
@@ -857,7 +901,7 @@ void SearchBins::SearchBins_59_2016()
                {350, 500, 650,  -1, /**/ 350, 500, 650,  -1, /**/ 350, 500, 650,  -1});
 
     //         nb=2, ntop=2
-    addNbNtBin(2, 3, 2, 3,
+    addNbNtBin_MT2_MET(2, 3, 2, 3,
                // MT2 lo
                {200, 200, 200, /**/ 350, 350, 350, /**/ 450, 450, 450},
                // MT2 hi
@@ -868,7 +912,7 @@ void SearchBins::SearchBins_59_2016()
                {350, 500,  -1, /**/ 350, 500,  -1, /**/ 350, 500,  -1});
 
     //         nb>=3, ntop=2
-    addNbNtBin(3, -1, 2, 3,
+    addNbNtBin_MT2_MET(3, -1, 2, 3,
                // MT2 lo
                {200, 200, /**/ 350, 350},
                // MT2 hi
@@ -879,7 +923,7 @@ void SearchBins::SearchBins_59_2016()
                {350,  -1, /**/ 350,  -1});
 
     //         nb=1, ntop>=3
-    addNbNtBin(1, 2, 3, -1,
+    addNbNtBin_MT2_MET(1, 2, 3, -1,
                // MT2 lo
                {200, 200},
                // MT2 hi
@@ -890,7 +934,7 @@ void SearchBins::SearchBins_59_2016()
                {350,  -1});
 
     //         nb=2, ntop>=3
-    addNbNtBin(2, 3, 3, -1,
+    addNbNtBin_MT2_MET(2, 3, 3, -1,
                // MT2 lo
                {200, 200},
                // MT2 hi
@@ -901,7 +945,7 @@ void SearchBins::SearchBins_59_2016()
                {350,  -1});
 
     //         nb>=3, ntop>=3
-    addNbNtBin(3, -1, 3, -1,
+    addNbNtBin_MT2_MET(3, -1, 3, -1,
                // MT2 lo
                {200, 200},
                // MT2 hi
@@ -916,7 +960,7 @@ void SearchBins::SearchBins_59_2016()
 void SearchBins::SearchBins_69_2016()
 {
     //         nb=1, ntop=1
-    addNbNtBin(1, 2, 1, 2,
+    addNbNtBin_MT2_MET(1, 2, 1, 2,
                // MT2 lo
                {200, 200, 200, 200, /**/ 350, 350, 350, 350, /**/ 450, 450, 450, 450},
                // MT2 hi
@@ -927,7 +971,7 @@ void SearchBins::SearchBins_69_2016()
                {350, 500, 650,  -1, /**/ 350, 500, 650,  -1, /**/ 350, 500, 650,  -1});
 
     //         nb=2, ntop=1
-    addNbNtBin(2, 3, 1, 2,
+    addNbNtBin_MT2_MET(2, 3, 1, 2,
                // MT2 lo
                {200, 200, 200, 200, /**/ 350, 350, 350, 350, /**/ 450, 450, 450, 450},
                // MT2 hi
@@ -938,7 +982,7 @@ void SearchBins::SearchBins_69_2016()
                {350, 500, 650,  -1, /**/ 350, 500, 650,  -1, /**/ 350, 500, 650,  -1});
 
     //         nb>=3, ntop=1
-    addNbNtBin(3, -1, 1, 2,
+    addNbNtBin_MT2_MET(3, -1, 1, 2,
                // MT2 lo
                {200, 200, 200, /**/ 350, 350, 350},
                // MT2 hi
@@ -949,7 +993,7 @@ void SearchBins::SearchBins_69_2016()
                {350, 500,  -1, /**/ 350, 500,  -1});
 
     //         nb=1, ntop=2
-    addNbNtBin(1, 2, 2, 3,
+    addNbNtBin_MT2_MET(1, 2, 2, 3,
                // MT2 lo
                {200, 200, 200, 200, /**/ 350, 350, 350, 350, /**/ 450, 450, 450, 450},
                // MT2 hi
@@ -960,7 +1004,7 @@ void SearchBins::SearchBins_69_2016()
                {350, 500, 650,  -1, /**/ 350, 500, 650,  -1, /**/ 350, 500, 650,  -1});
 
     //         nb=2, ntop=2
-    addNbNtBin(2, 3, 2, 3,
+    addNbNtBin_MT2_MET(2, 3, 2, 3,
                // MT2 lo
                {200, 200, 200, 200, /**/ 350, 350, 350, 350, /**/ 450, 450, 450, 450},
                // MT2 hi
@@ -971,7 +1015,7 @@ void SearchBins::SearchBins_69_2016()
                {350, 500, 650,  -1, /**/ 350, 500, 650,  -1, /**/ 350, 500, 650,  -1});
 
     //         nb>=3, ntop=2
-    addNbNtBin(3, -1, 2, 3,
+    addNbNtBin_MT2_MET(3, -1, 2, 3,
                // MT2 lo
                {200, 200, 200, /**/ 350, 350, 350},
                // MT2 hi
@@ -982,7 +1026,7 @@ void SearchBins::SearchBins_69_2016()
                {350, 500,  -1, /**/ 350, 500,  -1});
 
     //         nb=1, ntop>=3
-    addNbNtBin(1, 2, 3, -1,
+    addNbNtBin_MT2_MET(1, 2, 3, -1,
                // MT2 lo
                {200, 200, 200},
                // MT2 hi
@@ -993,7 +1037,7 @@ void SearchBins::SearchBins_69_2016()
                {350, 500,  -1});
 
     //         nb=2, ntop>=3
-    addNbNtBin(2, 3, 3, -1,
+    addNbNtBin_MT2_MET(2, 3, 3, -1,
                // MT2 lo
                {200, 200, 200},
                // MT2 hi
@@ -1004,7 +1048,7 @@ void SearchBins::SearchBins_69_2016()
                {350, 500,  -1});
 
     //         nb>=3, ntop>=3
-    addNbNtBin(3, -1, 3, -1,
+    addNbNtBin_MT2_MET(3, -1, 3, -1,
                // MT2 lo
                {200, 200, 200},
                // MT2 hi
@@ -1018,7 +1062,7 @@ void SearchBins::SearchBins_69_2016()
 void SearchBins::SearchBins_45_2015()
 {
     //         nb=1, ntop=1
-    addNbNtBin(1, 2, 1, 2,
+    addNbNtBin_MT2_MET(1, 2, 1, 2,
                // MT2 lo 
                {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400, 400},
                // MT2 hi 
@@ -1029,7 +1073,7 @@ void SearchBins::SearchBins_45_2015()
                {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 350, 450,  -1});
 
     //         nb=2, ntop=1
-    addNbNtBin(2, 3, 1, 2,
+    addNbNtBin_MT2_MET(2, 3, 1, 2,
                // MT2 lo 
                {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400},
                // MT2 hi 
@@ -1039,7 +1083,7 @@ void SearchBins::SearchBins_45_2015()
                // met hi 
                {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 450,  -1});
     //         nb>=3, ntop=1
-    addNbNtBin(3, -1, 1, 2,
+    addNbNtBin_MT2_MET(3, -1, 1, 2,
                // MT2 lo 
                {200, 200, 200},
                // MT2 hi 
@@ -1049,7 +1093,7 @@ void SearchBins::SearchBins_45_2015()
                // met hi 
                {300, 400,  -1});
     //         nb=1, ntop=2
-    addNbNtBin(1, 2, 2, 3,
+    addNbNtBin_MT2_MET(1, 2, 2, 3,
                // MT2 lo 
                {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
                // MT2 hi 
@@ -1059,7 +1103,7 @@ void SearchBins::SearchBins_45_2015()
                // met hi 
                {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1});
     //         nb=2, ntop=2
-    addNbNtBin(2, 3, 2, 3,
+    addNbNtBin_MT2_MET(2, 3, 2, 3,
                // MT2 lo 
                {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
                // MT2 hi 
@@ -1069,7 +1113,7 @@ void SearchBins::SearchBins_45_2015()
                // met hi 
                {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1});
     //         nb>=3, ntop=2
-    addNbNtBin(3, -1, 2, 3,
+    addNbNtBin_MT2_MET(3, -1, 2, 3,
                // MT2 lo 
                {200, 200},
                // MT2 hi 
@@ -1079,7 +1123,7 @@ void SearchBins::SearchBins_45_2015()
                // met hi 
                {300,  -1});
     //         nb=1, ntop=3
-    addNbNtBin(1, 2, 3, -1,
+    addNbNtBin_MT2_MET(1, 2, 3, -1,
                // MT2 lo 
                {200},
                // MT2 hi 
@@ -1089,7 +1133,7 @@ void SearchBins::SearchBins_45_2015()
                // met hi 
                { -1});
     //         nb=2, ntop=3
-    addNbNtBin(2, 3, 3, -1,
+    addNbNtBin_MT2_MET(2, 3, 3, -1,
                // MT2 lo 
                {200},
                // MT2 hi 
@@ -1099,7 +1143,7 @@ void SearchBins::SearchBins_45_2015()
                // met hi 
                { -1});
     //         nb>=3, ntop=3
-    addNbNtBin(3, -1, 3, -1,
+    addNbNtBin_MT2_MET(3, -1, 3, -1,
                // MT2 lo 
                {200},
                // MT2 hi 
@@ -1113,7 +1157,7 @@ void SearchBins::SearchBins_45_2015()
 void SearchBins::SearchBins_37_2015()
 {
     //         nb=1, ntop=1
-    addNbNtBin(1, 2, 1, 2,
+    addNbNtBin_MT2_MET(1, 2, 1, 2,
                // MT2 lo 
                {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400, 400},
                // MT2 hi 
@@ -1124,7 +1168,7 @@ void SearchBins::SearchBins_37_2015()
                {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 350, 450,  -1});
 
     //         nb>=2, ntop=1
-    addNbNtBin(2, -1, 1, 2,
+    addNbNtBin_MT2_MET(2, -1, 1, 2,
                // MT2 lo 
                {200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400},
                // MT2 hi 
@@ -1134,7 +1178,7 @@ void SearchBins::SearchBins_37_2015()
                // met hi 
                {275, 350, 450,  -1, /**/ 275, 350, 450,  -1, /**/ 450,  -1});
     //         nb=1, ntop>=2
-    addNbNtBin(1, 2, 2, -1,
+    addNbNtBin_MT2_MET(1, 2, 2, -1,
                // MT2 lo 
                {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
                // MT2 hi 
@@ -1144,7 +1188,7 @@ void SearchBins::SearchBins_37_2015()
                // met hi 
                {275, 350,  -1, /**/ 275, 350,  -1, /**/ 350,  -1});
     //         nb>=2, ntop>=2
-    addNbNtBin(2, -1, 2, -1,
+    addNbNtBin_MT2_MET(2, -1, 2, -1,
                // MT2 lo 
                {200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400},
                // MT2 hi 
@@ -1158,7 +1202,7 @@ void SearchBins::SearchBins_37_2015()
 void SearchBins::SearchBins_v1_2017()
 {
     //         nb=1, ntop=1
-    addNbNtBin(1, 2, 1, 2,
+    addNbNtBin_MT2_MET(1, 2, 1, 2,
                // MT2 lo
                {200, 200, 200, 200, 200, /**/ 300, 300, 300, 300, /**/ 400, 400, 400, 400, /**/ 550, 550, 550, 550, 550, /**/ 750, 750, 750},
                // MT2 hi
@@ -1169,7 +1213,7 @@ void SearchBins::SearchBins_v1_2017()
                {400, 500, 600, 750,  -1, /**/ 400, 500, 600, 750, /**/ 400, 500, 600, 750, /**/ 400, 500, 600, 750,  -1, /**/ 600, 750,  -1});
 
     //         nb=2, ntop=1
-    addNbNtBin(2, 3, 1, 2,
+    addNbNtBin_MT2_MET(2, 3, 1, 2,
                // MT2 lo
                {200, 200, 200, 200, 200, /**/ 350, 350, 350, 350, /**/ 450, 450, 450, 450, /**/ 650, 650, 650},
                // MT2 hi
@@ -1180,10 +1224,10 @@ void SearchBins::SearchBins_v1_2017()
                {400, 500, 600, 750,  -1, /**/ 400, 500, 600, 750, /**/ 400, 500, 600, 750, /**/ 600, 750,  -1});
 
     //         nb>=3, ntop=1
-    addNbNtBin(3, -1, 1, 2,
-               // MT2 lo
+    addNbNtBin_HT_MET(3, -1, 1, 2,
+               // HT lo
                { 300,  300,  300,  300, /**/ 1000, 1000, 1000, 1000, /**/ 1500, 1500, 1500},
-               // MT2 hi
+               // HT hi
                {1000, 1000, 1000, 1000, /**/ 1500, 1500, 1500, 1500, /**/   -1,   -1,   -1},
                // met lo
                { 250,  350,  450,  550, /**/  250,  350,  450,  550, /**/  250,  350,  550},
@@ -1191,7 +1235,7 @@ void SearchBins::SearchBins_v1_2017()
                { 350,  450,  550,   -1, /**/  350,  450,  550,   -1, /**/  350,  550,   -1});
 
     //         nb=1, ntop=2
-    addNbNtBin(1, 2, 2, 3,
+    addNbNtBin_MT2_MET(1, 2, 2, 3,
                // MT2 lo
                {200, 200, 200, 200, /**/ 300, 300, 300, /**/ 450, 450, 450},
                // MT2 hi
@@ -1202,7 +1246,7 @@ void SearchBins::SearchBins_v1_2017()
                {350, 450, 600,  -1, /**/ 350, 450, 600, /**/ 450, 600,  -1});
 
     //         nb=2, ntop=2
-    addNbNtBin(2, 3, 2, 3,
+    addNbNtBin_MT2_MET(2, 3, 2, 3,
                // MT2 lo
                {200, 200, 200, 200, /**/ 300, 300, 300, /**/ 400, 400, 400, /**/ 500, 500},
                // MT2 hi
@@ -1213,10 +1257,10 @@ void SearchBins::SearchBins_v1_2017()
                {350, 450, 600,  -1, /**/ 350, 450, 600, /**/ 450, 600,  -1, /**/ 450, 600});
 
     //         nb>=3, ntop=2
-    addNbNtBin(3, -1, 2, 3,
-               // MT2 lo
+    addNbNtBin_HT_MET(3, -1, 2, 3,
+               // HT lo
                {300, 300,  300, /**/  900,  900, /**/ 1300, 1300, 1300},
-               // MT2 hi
+               // HT hi
                {900, 900, 1300, /**/ 1300, 1300, /**/   -1,   -1,   -1},
                // met lo
                {250, 350,  500, /**/  250,  350, /**/  250,  350,  500},
@@ -1224,10 +1268,10 @@ void SearchBins::SearchBins_v1_2017()
                {350, 500,   -1, /**/  350,  500, /**/  350,  500,   -1});
 
     //         nb=1, ntop>=3
-    addNbNtBin(1, 2, 3, -1,
-               // MT2 lo
+    addNbNtBin_HT_MET(1, 2, 3, -1,
+               // HT lo
                {300, 300},
-               // MT2 hi
+               // HT hi
                { -1,  -1},
                // met lo
                {250, 350},
@@ -1235,10 +1279,10 @@ void SearchBins::SearchBins_v1_2017()
                {350,  -1});
 
     //         nb=2, ntop>=3
-    addNbNtBin(2, 3, 3, -1,
-               // MT2 lo
+    addNbNtBin_HT_MET(2, 3, 3, -1,
+               // HT lo
                {300, 300},
-               // MT2 hi
+               // HT hi
                { -1,  -1},
                // met lo
                {250, 400},
@@ -1246,13 +1290,107 @@ void SearchBins::SearchBins_v1_2017()
                {400,  -1});
 
     //         nb>=3, ntop>=3
-    addNbNtBin(3, -1, 3, -1,
-               // MT2 lo
+    addNbNtBin_HT_MET(3, -1, 3, -1,
+               // HT lo
                {300, 300},
-               // MT2 hi
+               // HT hi
                { -1,  -1},
                // met lo
                {250, 350},
                // met hi
                {350,  -1});
+}
+
+void SearchBins::SearchBins_Aggregate_2017()
+{
+    //Generic bins
+    //                 nb>=1, ntop>=1
+    addNbNtBin_MT2_MET(1, -1, 1, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {250},
+               // met hi
+               {-1});
+
+    //                 nb>=2, ntop>=2
+    addNbNtBin_MT2_MET(2, -1, 2, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {250},
+               // met hi
+               {-1});
+
+    //                 nb>=3, ntop>=3
+    addNbNtBin_MT2_MET(3, -1, 3, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {250},
+               // met hi
+               {-1});
+
+    //T2tt bins 
+    //                 nb>=2, ntop>=1
+    addNbNtBin_MT2_MET(2, -1, 1, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {400},
+               // met hi
+               {-1});
+
+    //                 nb>=2, ntop>=1
+    addNbNtBin_MT2_MET(2, -1, 1, -1,
+               // MT2 lo
+               {600},
+               // MT2 hi
+               {-1},
+               // met lo
+               {400},
+               // met hi
+               {-1});
+
+    //                 nb>=1, ntop>=2
+    addNbNtBin_MT2_MET(1, -1, 2, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {400},
+               // met hi
+               {-1});
+
+    //T1ttt bins
+    //                nb>=2, ntop>=1
+    addNbNtBin_HT_MET(2, -1, 1, 1,
+               // HT lo
+               {1400},
+               // HT hi
+               {-1},
+               // met lo
+               {500},
+               // met hi
+               {-1});
+
+    //                nb>=3, ntop>=2
+    addNbNtBin_HT_MET(3, -1, 2, 1,
+               // HT lo
+               {600},
+               // HT hi
+               {-1},
+               // met lo
+               {350},
+               // met hi
+               {-1});
 }
