@@ -1337,6 +1337,17 @@ void SearchBins::SearchBins_Aggregate_2017()
                // met hi
                {-1});
 
+    //                 nb>=1, ntop>=3
+    addNbNtBin_MT2_MET(1, -1, 3, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {250},
+               // met hi
+               {-1});
+
     //T2tt bins 
     //                 nb>=2, ntop>=1
     addNbNtBin_MT2_MET(2, -1, 1, -1,
@@ -1345,7 +1356,7 @@ void SearchBins::SearchBins_Aggregate_2017()
                // MT2 hi
                {-1},
                // met lo
-               {400},
+               {600},
                // met hi
                {-1});
 
@@ -1380,6 +1391,17 @@ void SearchBins::SearchBins_Aggregate_2017()
                {-1},
                // met lo
                {500},
+               // met hi
+               {-1});
+
+    //                nb>=2, ntop>=1
+    addNbNtBin_HT_MET(2, -1, 1, 1,
+               // HT lo
+               {1000},
+               // HT hi
+               {-1},
+               // met lo
+               {600},
                // met hi
                {-1});
 
