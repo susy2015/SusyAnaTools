@@ -40,6 +40,21 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 
   if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
 
+  //Check if simplified tagger is called for
+  std::string taggerLabel = "";
+  const std::string aggBinLabel = "AggregatedBins";
+  size_t loc = spec.find(aggBinLabel);
+  if(loc != std::string::npos)
+  {
+    toptaggerCfgFile = "TopTagger_Simplified.cfg";
+    taggerLabel = "AggBins";
+    //Remove aggBinLabel from spec
+    spec.erase(loc, aggBinLabel.size());
+    //Strip any white space ledt in spec
+    spec.erase(spec.begin(), std::find_if(spec.begin(), spec.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+    spec.erase(std::find_if(spec.rbegin(), spec.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), spec.end());
+  }
+
   if( !spec.empty() ){
     TString stripT = spec;
     TObjArray * objArr = stripT.Tokenize(" ");
@@ -47,6 +62,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
     firstSpec = firstObj->GetString().Data();
     std::cout<<"\nfirstSpec : "<<firstSpec.c_str()<<"  spec : "<<spec.c_str()<<"  isfastsim : "<<isfastsim<<std::endl<<std::endl;
   }
+  firstSpec += taggerLabel;
 
   printOnce = false;
 

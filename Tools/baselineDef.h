@@ -20,7 +20,7 @@ class TF1;
 class BaselineVessel
 {
 private:
-    const std::string spec;
+    std::string spec;
     bool isfastsim;
     std::string firstSpec;
     bool printOnce;
