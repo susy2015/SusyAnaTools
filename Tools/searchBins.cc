@@ -1415,4 +1415,108 @@ void SearchBins::SearchBins_Aggregate_2017()
                {350},
                // met hi
                {-1});
+
+    // 1D distribution bins
+    // MT2
+    //         nb>=1, ntop>=1
+    addNbNtBin_MT2_MET(1, -1, 1, -1,
+               // MT2 lo
+               {200, /**/ 300, /**/ 400, /**/ 550, /**/ 750},
+               // MT2 hi
+               {300, /**/ 400, /**/ 550, /**/ 750, /**/  -1},
+               // met lo
+               {250, /**/ 250, /**/ 250, /**/ 250, /**/ 250},
+               // met hi
+               { -1, /**/  -1, /**/  -1, /**/  -1, /**/  -1});
+
+    // MET
+    //         nb>=1, ntop>=1
+    addNbNtBin_MT2_MET(1, -1, 1, -1,
+               // MT2 lo
+               {200, 200, 200, 200, 200},
+               // MT2 hi
+               { -1,  -1,  -1,  -1,  -1},
+               // met lo
+               {250, 400, 500, 600, 750},
+               // met hi
+               {400, 500, 600, 750,  -1});
+
+    // HT
+    //         nb>=1, ntop>=1
+    addNbNtBin_HT_MET(1, -1, 1, -1,
+               // HT lo
+               { 300,  900, 1000, 1500},
+               // HT hi
+               { 900, 1000, 1500,   -1},
+               // met lo
+               { 250,  250,  250,  250},
+               // met hi
+               {  -1,   -1,   -1,   -1});
+
+    //                 nb==1, ntop>=1
+    addNbNtBin_MT2_MET(1, 2, 1, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {250},
+               // met hi
+               {-1});
+
+    //                 nb==2, ntop>=1
+    addNbNtBin_MT2_MET(2, 3, 1, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {250},
+               // met hi
+               {-1});
+
+    //                 nb>=3, ntop>=1
+    addNbNtBin_MT2_MET(3, -1, 1, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {250},
+               // met hi
+               {-1});
+
+    //                 nb>=1, ntop==1
+    addNbNtBin_MT2_MET(1, -1, 1, 2,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {250},
+               // met hi
+               {-1});
+
+    //                 nb>=1, ntop==2
+    addNbNtBin_MT2_MET(1, -1, 2, 3,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {250},
+               // met hi
+               {-1});
+
+    //                 nb>=1, ntop>=3
+    addNbNtBin_MT2_MET(1, -1, 3, -1,
+               // MT2 lo
+               {200},
+               // MT2 hi
+               {-1},
+               // met lo
+               {250},
+               // met hi
+               {-1});
+
 }
