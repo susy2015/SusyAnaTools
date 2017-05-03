@@ -71,7 +71,7 @@ const double ymin_Ratio= 0.0;
 // For 45 bins
 const double ymax_Yields = noobs? 1000000.: 4000000.;
 const double ymin_Yields = noobs? 0.005: 0.003;
-const double ymax_Ratio=  6;
+const double ymax_Ratio=  6.3;
 const double ymin_Ratio= 0.0;
 
 const double adjHalfBin = 0.5;
@@ -164,8 +164,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    while(infile >> prt_chn >> prt_data >> prt_data_stat >> prt_pred >> prt_pred_stat_up >> prt_pred_stat_dn >> prt_pred_syst_up >> prt_pred_syst_dn >> prt_ttbarW_rate >> prt_ttbarW_stat_up >> prt_ttbarW_stat_dn >> prt_ttbarW_syst_up >> prt_ttbarW_syst_dn >> prt_zinv_rate >> prt_zinv_stat_up >> prt_zinv_stat_dn >> prt_zinv_syst_up >> prt_zinv_syst_dn >> prt_qcd_rate >> prt_qcd_stat_up >> prt_qcd_stat_dn >> prt_qcd_syst_up >> prt_qcd_syst_dn >> prt_ttz_rate >> prt_ttz_stat_up >> prt_ttz_stat_dn >> prt_ttz_syst_up >> prt_ttz_syst_dn >> prt_rare_rate >> prt_rare_stat_up >> prt_rare_stat_dn >> prt_rare_syst_up >> prt_rare_syst_dn){
       char tmpstr[500];
 // Complete table in AN
-      sprintf(tmpstr, " & %6.0f & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ \\\\", prt_data, 
-                        prt_pred*norm_bkg_to_data, prt_pred_stat_up*norm_bkg_to_data, prt_pred_stat_dn*norm_bkg_to_data, prt_pred_syst_up*norm_bkg_to_data, prt_pred_syst_dn*norm_bkg_to_data, prt_ttbarW_rate*norm_bkg_to_data, prt_ttbarW_stat_up*norm_bkg_to_data, prt_ttbarW_stat_dn*norm_bkg_to_data, prt_ttbarW_syst_up*norm_bkg_to_data, prt_ttbarW_syst_dn*norm_bkg_to_data, prt_zinv_rate*norm_bkg_to_data, prt_zinv_stat_up*norm_bkg_to_data, prt_zinv_stat_dn*norm_bkg_to_data, prt_zinv_syst_up*norm_bkg_to_data, prt_zinv_syst_dn*norm_bkg_to_data, prt_qcd_rate*norm_bkg_to_data, prt_qcd_stat_up*norm_bkg_to_data, prt_qcd_stat_dn*norm_bkg_to_data, prt_qcd_syst_up*norm_bkg_to_data, prt_qcd_syst_dn*norm_bkg_to_data, prt_ttz_rate*norm_bkg_to_data, prt_ttz_stat_up*norm_bkg_to_data, prt_ttz_stat_dn*norm_bkg_to_data, prt_ttz_syst_up*norm_bkg_to_data, prt_ttz_syst_dn*norm_bkg_to_data, prt_rare_rate*norm_bkg_to_data, prt_rare_stat_up*norm_bkg_to_data, prt_rare_stat_dn*norm_bkg_to_data, prt_rare_syst_up*norm_bkg_to_data, prt_rare_syst_dn*norm_bkg_to_data);
+      sprintf(tmpstr, " & %6.0f & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ & %6.2f $^{+%4.2f}_{-%4.2f}$ $^{+%4.2f}_{-%4.2f}$ \\\\", prt_data, prt_pred*norm_bkg_to_data, prt_pred_stat_up*norm_bkg_to_data, prt_pred_stat_dn*norm_bkg_to_data, prt_pred_syst_up*norm_bkg_to_data, prt_pred_syst_dn*norm_bkg_to_data, prt_ttbarW_rate*norm_bkg_to_data, prt_ttbarW_stat_up*norm_bkg_to_data, prt_ttbarW_stat_dn*norm_bkg_to_data, prt_ttbarW_syst_up*norm_bkg_to_data, prt_ttbarW_syst_dn*norm_bkg_to_data, prt_zinv_rate*norm_bkg_to_data, prt_zinv_stat_up*norm_bkg_to_data, prt_zinv_stat_dn*norm_bkg_to_data, prt_zinv_syst_up*norm_bkg_to_data, prt_zinv_syst_dn*norm_bkg_to_data, prt_qcd_rate*norm_bkg_to_data, prt_qcd_stat_up*norm_bkg_to_data, prt_qcd_stat_dn*norm_bkg_to_data, prt_qcd_syst_up*norm_bkg_to_data, prt_qcd_syst_dn*norm_bkg_to_data, prt_ttz_rate*norm_bkg_to_data, prt_ttz_stat_up*norm_bkg_to_data, prt_ttz_stat_dn*norm_bkg_to_data, prt_ttz_syst_up*norm_bkg_to_data, prt_ttz_syst_dn*norm_bkg_to_data, prt_rare_rate*norm_bkg_to_data, prt_rare_stat_up*norm_bkg_to_data, prt_rare_stat_dn*norm_bkg_to_data, prt_rare_syst_up*norm_bkg_to_data, prt_rare_syst_dn*norm_bkg_to_data);
 // for QCD only
 //      sprintf(tmpstr, " & %6.3f $^{+%5.3f}_{-%5.3f}$ $^{+%5.3f}_{-%5.3f}$  \\\\", prt_qcd_rate, prt_qcd_stat_up, prt_qcd_stat_dn, prt_qcd_syst_up, prt_qcd_syst_dn);
 // for ttZ and rare
@@ -459,7 +458,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    hs2_sum_SM->Add(h1_ttbarW_syst);
 
    if( !addSigPts ){
-      catLeg1->AddEntry(h1_ttbarW, "t#bar{t}/W+jets");
+      catLeg1->AddEntry(h1_ttbarW, "t#bar{t}/W/t");
       catLeg2->AddEntry(h1_zinv, "Z(#nu#bar{#nu})+jets");
       catLeg2->AddEntry(h1_qcd, "QCD");
       catLeg2->AddEntry(h1_ttz, "t#bar{t}Z(#nu#bar{#nu})");
@@ -516,14 +515,14 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    if( addStatUnc ){
       TGraphAsymmErrors * gr_Sum_AsymErr = new TGraphAsymmErrors(xVec.size(), &xVec[0], &yVec[0], &xSysErrDnVec[0], &xSysErrUpVec[0], &ySumErrDnVec[0], &ySumErrUpVec[0]);
       gr_Sum_AsymErr->SetFillColor(kGray+2); gr_Sum_AsymErr->SetFillStyle(3244); gr_Sum_AsymErr->SetLineWidth(1); gr_Sum_AsymErr->SetLineColor(0); gr_Sum_AsymErr->SetMarkerSize(0); gr_Sum_AsymErr->SetMarkerColor(0);
-      gr_Sum_AsymErr->Draw("2");
+      gr_Sum_AsymErr->Draw("2 e0");
 
       catLeg_unc->AddEntry(gr_Sum_AsymErr, "Bkg. Stat. Unc.", "F");
    }
 
    TGraphAsymmErrors * gr_AsymErr = new TGraphAsymmErrors(xVec.size(), &xVec[0], &yVec[0], &xSysErrDnVec[0], &xSysErrUpVec[0], &ySysErrDnVec[0], &ySysErrUpVec[0]);
    gr_AsymErr->SetFillColor(kGray+4); gr_AsymErr->SetFillStyle(3244); gr_AsymErr->SetLineWidth(1); gr_AsymErr->SetLineColor(0); //gr_AsymErr->SetMarkerSize(0); gr_AsymErr->SetMarkerColor(0);
-   gr_AsymErr->Draw("2");
+   gr_AsymErr->Draw("2 e0");
 
    catLeg_unc->AddEntry(gr_AsymErr, "Bkg. Syst. Unc.", "F");
 
@@ -829,7 +828,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    fline->Draw("same");
 
    if( addStatUnc ){
-      TGraphAsymmErrors * gr_Ratio_Sum_AsymErr = new TGraphAsymmErrors(xVec.size(), &xVec[0], &yRatioVec[0], &xSysErrDnVec[0], &xSysErrUpVec[0], &yRatioSumErrUpVec[0], &yRatioSumErrDnVec[0]);
+      TGraphAsymmErrors * gr_Ratio_Sum_AsymErr = new TGraphAsymmErrors(xVec.size(), &xVec[0], &yRatioVec[0], &xSysErrDnVec[0], &xSysErrUpVec[0], &yRatioSumErrDnVec[0], &yRatioSumErrUpVec[0]);
       gr_Ratio_Sum_AsymErr->SetFillColor(kGray+1); gr_Ratio_Sum_AsymErr->SetFillStyle(3244); gr_Ratio_Sum_AsymErr->SetLineWidth(1); gr_Ratio_Sum_AsymErr->SetLineColor(0); gr_Ratio_Sum_AsymErr->SetMarkerSize(0); gr_Ratio_Sum_AsymErr->SetMarkerColor(0);
       gr_Ratio_Sum_AsymErr->Draw("2");
    }
@@ -912,6 +911,7 @@ void makeUnblindPlots(const std::string cutLev="baseline", const std::string dat
    ct->Print("UnblindPlots.pdf");
    ct->Print("UnblindPlots.png");
    ct->Print("UnblindPlots.eps");
+   ct->Print("UnblindPlots.C");
 
    ct->Clear();
    ct->cd();

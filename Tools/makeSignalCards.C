@@ -73,6 +73,9 @@ std::vector<std::vector<TH1D*> > cached_h1Vec(todraw_h1_keyStrVec.size());
 std::vector<std::string> cached_sampleStrVec;
 std::vector<int> cached_sampleColorVec;
 
+std::vector<double> fin_TF_to_mu = {1.373, 1.199, 1.221, 1.023, 1.285, 1.280, 1.476, 1.253, 1.203, 1.050, 1.196, 1.189, 1.267, 0.539, 0.964, 1.130, 1.296, 1.337, 1.394, 0.641, 1.072, 1.314, 1.269, 1.328, 1.302, 0.961, 1.161, 1.523, 1.182, 1.122, 0.988, 0.988, 0.730, 1.484, 0.902, 1.005, 0.881, 1.392, 1.444, 1.636, 0.905, 1.203, 1.052, 1.400, 2.769, 1.408, 1.218, 1.010, 0.925, 0.840, 0.728, 1.177, 1.236, 1.310, 0.878, 1.002, 1.715, 1.144, 0.883, 0.834, 1.248, 1.151, 1.178, 1.300, 1.346, 1.048, 1.865, 1.684, 0.827, 1.108, 0.936, 0.884, 0.317, 1.216, 0.976, 1.075, 0.839, 1.129, 1.152, 0.589, 0.853, 1.056, 0.985, 0.364};
+std::vector<double> fin_TF_to_ele = {1.678, 1.633, 1.526, 1.061, 1.415, 1.527, 1.629, 1.493, 1.560, 1.209, 1.496, 1.506, 1.262, 0.823, 0.965, 1.241, 1.236, 0.868, 1.178, 1.593, 1.099, 1.662, 1.675, 1.603, 2.237, 1.750, 1.424, 1.732, 1.337, 1.074, 0.955, 1.226, 0.827, 1.333, 0.650, 1.648, 0.784, 1.769, 1.981, 1.960, 2.328, 1.623, 1.479, 1.453, 1.897, 1.655, 1.246, 1.216, 1.064, 1.004, 0.529, 1.451, 1.552, 1.193, 1.075, 0.880, 1.527, 0.715, 1.051, 1.014, 0.975, 1.152, 1.451, 1.504, 1.563, 1.213, 1.816, 2.431, 1.234, 2.073, 1.243, 1.742, 0.297, 1.559, 0.972, 1.040, 1.410, 1.400, 1.767, 1.224, 0.817, 2.028, 1.191, 1.687};
+
 void makeSignalCards(const std::string inputRootName, const std::string inputRootName_hadtau_cont, const std::string inputRootName_lostle_cont){
 
 //   double dataLumi = 4004.345;
@@ -82,6 +85,10 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
    if( !inputRootName_hadtau_cont.empty() ) sig_cont_hadtau_file = new TFile(inputRootName_hadtau_cont.c_str());
    if( !inputRootName_lostle_cont.empty() ) sig_cont_lostle_file = new TFile(inputRootName_lostle_cont.c_str());
 
+   TH2D * puaccunc =0;
+
+   if( sig_cont_hadtau_file ) puaccunc = (TH2D*) sig_cont_hadtau_file->Get("puacctable");
+
    std::string sampleKeyStr = "";
    if( inputRootName.find("T2tt") != std::string::npos ) sampleKeyStr = "T2tt";
    if( inputRootName.find("T2tb") != std::string::npos ) sampleKeyStr = "T2tb";
@@ -90,15 +97,20 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
    if( inputRootName.find("T1ttbb") != std::string::npos ) sampleKeyStr = "T1ttbb";
    if( inputRootName.find("T5ttcc") != std::string::npos ) sampleKeyStr = "T5ttcc";
    if( inputRootName.find("T5tttt_degen") != std::string::npos ) sampleKeyStr = "T5tttt_degen";
-   if( inputRootName.find("T5ttttDM175") != std::string::npos ) sampleKeyStr = "T5ttttDM175";
+   if( inputRootName.find("T5tttt_dM175") != std::string::npos ) sampleKeyStr = "T5tttt_dM175";
    if( inputRootName.find("T6ttWW") != std::string::npos ) sampleKeyStr = "T6ttWW";
 
    std::cout<<"\nsampleKeyStr : "<<sampleKeyStr.c_str()<<std::endl<<std::endl;
 
-   if( sampleKeyStr == "T1tttt" || sampleKeyStr == "T5ttcc" || sampleKeyStr == "T5tttt_degen" || sampleKeyStr == "T5ttttDM175" || sampleKeyStr == "T1ttbb"){
+   if( sampleKeyStr == "T1tttt" || sampleKeyStr == "T5ttcc" || sampleKeyStr == "T5tttt_degen" || sampleKeyStr == "T5tttt_dM175" || sampleKeyStr == "T1ttbb"){
       nXbins = 52; nYbins = 49;
       loX = 612.5; hiX = 1912.5;
       loY = -12.5; hiY = 1212.5;
+   }
+
+   if( !inputRootName_hadtau_cont.empty() || !inputRootName_lostle_cont.empty() ){
+      std::cout<<"\nNow signal contamination method changes! Make sure if the additional contamination input root files are still needed?"<<std::endl;
+//      return;
    }
 
    TFile * sig_file = new TFile(inputRootName.c_str());
@@ -225,6 +237,9 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       TString mistaggenTopSFUp_str = "baseline_mistaggenTopSFUp_" + v_mStop + "_" + v_mLSP;
       TString mistaggenTopSFDn_str = "baseline_mistaggenTopSFDn_" + v_mStop + "_" + v_mLSP;
 
+      TString muCS_str = "baseline_muCS_" + v_mStop + "_" + v_mLSP;
+      TString eleCS_str = "baseline_eleCS_" + v_mStop + "_" + v_mLSP;
+
       TH1D * h1_scaleUncUp = (TH1D*) sig_file->Get(scaleUncUp_str);
       TH1D * h1_scaleUncDn = (TH1D*) sig_file->Get(scaleUncDn_str);
 
@@ -278,9 +293,8 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       TH1D * h1_mistaggenTopSFUp = (TH1D*) sig_file->Get(mistaggenTopSFUp_str);
       TH1D * h1_mistaggenTopSFDn = (TH1D*) sig_file->Get(mistaggenTopSFDn_str);
 
-      TH1D * h1_hadtauCont =0, * h1_lostleCont =0;
-      if( sig_cont_hadtau_file ) h1_hadtauCont = (TH1D*) sig_cont_hadtau_file->Get(hadtauCont_str);
-      if( sig_cont_lostle_file ) h1_lostleCont = (TH1D*) sig_cont_lostle_file->Get(lostleCont_str);
+      TH1D * h1_muCS = (TH1D*) sig_file->Get(muCS_str);
+      TH1D * h1_eleCS = (TH1D*) sig_file->Get(eleCS_str);
 
       double xSec = 0, xSecErr = 0;
       if( sampleKeyStr == "T2tt" || sampleKeyStr == "T2tb" || sampleKeyStr == "T2bb" || sampleKeyStr == "T6ttWW" ){
@@ -292,7 +306,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
             xSecErr = 0.14 * xSec; // averaged for simplicity
          }
       }
-      if( sampleKeyStr == "T1tttt" || sampleKeyStr == "T5ttcc" || sampleKeyStr == "T5tttt_degen" || sampleKeyStr == "T5ttttDM175" || sampleKeyStr == "T1ttbb"){
+      if( sampleKeyStr == "T1tttt" || sampleKeyStr == "T5ttcc" || sampleKeyStr == "T5tttt_degen" || sampleKeyStr == "T5tttt_dM175" || sampleKeyStr == "T1ttbb"){
          if( xSecMap_glgl.find(mStop) != xSecMap_glgl.end() ){
             xSec = xSecMap_glgl.find(mStop)->second;
             xSecErr = xSecErrMap_glgl.find(mStop)->second * xSec;   
@@ -330,7 +344,9 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       std::vector<double> recoTopSFUpVec(nBins), recoTopSFDnVec(nBins);
       std::vector<double> mistaggenTopSFUpVec(nBins), mistaggenTopSFDnVec(nBins);
 
-      std::vector<double> hadtauContVec(nBins), lostleContVec(nBins), totContVec(nBins);
+      std::vector<double> puUncVec(nBins);
+
+      std::vector<double> totContVec(nBins);
 
       double sum_scaleUncUp = 0, sum_scaleUncDn = 0;
       double sum_pdfUncUp = 0, sum_pdfUncCen = 0, sum_pdfUncDn = 0;
@@ -351,6 +367,15 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       double syst_ACCwt = 0;
       double contam_ACCwt = 0;
       for(int ib=0; ib<nBins; ib++){
+
+         if( puaccunc ){
+            int xbin = puaccunc->GetXaxis()->FindBin((double)mStop);
+            int ybin = puaccunc->GetYaxis()->FindBin((double)mLSP);
+            double puUnc = puaccunc->GetBinContent(xbin, ybin);
+            if( puUnc < 0.01 ) puUnc = 0.01;
+            puUncVec[ib] = puUnc;
+         }
+
          double cent = h1_nSearchBin->GetBinContent(ib+1);
          double err = h1_nSearchBin->GetBinError(ib+1);
          double rel_err = 0; if( cent!=0 ) rel_err = err/cent;
@@ -424,7 +449,7 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          double sumVetoed_var = sqrt( muVetoed_var*muVetoed_var + eleVetoed_var*eleVetoed_var + isoLepTrkVetoed_var*isoLepTrkVetoed_var + isoPionTrkVetoed_var*isoPionTrkVetoed_var );
          lepVetoUncUpVec[ib] = cent !=0 ? sumVetoed_var/cent : 0;
          lepVetoUncDnVec[ib] = cent !=0 ? sumVetoed_var/cent : 0;
-         if( sampleKeyStr == "T1tttt" || sampleKeyStr == "T5ttcc" || sampleKeyStr == "T5tttt_degen" || sampleKeyStr == "T5ttttDM175" || sampleKeyStr == "T1ttbb"){
+         if( sampleKeyStr == "T1tttt" || sampleKeyStr == "T5ttcc" || sampleKeyStr == "T5tttt_degen" || sampleKeyStr == "T5tttt_dM175" || sampleKeyStr == "T1ttbb"){
             if( lepVetoUncUpVec[ib] > 0.068 || lepVetoUncDnVec[ib] > 0.068 ){
                lepVetoUncUpVec[ib] = 0.068; lepVetoUncDnVec[ib] = 0.068;
             }
@@ -500,30 +525,24 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          double jetJECDn_relUnc = cent !=0 ? 1 - jetJECDn_cent/cent : 0;
          jetJECUpVec[ib] = jetJECUp_relUnc; jetJECDnVec[ib] = jetJECDn_relUnc;
 
-         double hadtauCont_cent = 0.0, lostleCont_cent =0.0, totCont_cent =0.0;
-         if( h1_hadtauCont ){
-            hadtauCont_cent = h1_hadtauCont->GetBinContent(ib+1);
+         double totCont_cent =0.0, muCont_cent =0.0, eleCont_cent = 0.0;
+         if( h1_muCS ){
+            muCont_cent = h1_muCS->GetBinContent(ib+1) * fin_TF_to_mu[ib];
          }
-         if( h1_lostleCont ){
-            lostleCont_cent = h1_lostleCont->GetBinContent(ib+1);
+         if( h1_eleCS ){
+            eleCont_cent = h1_eleCS->GetBinContent(ib+1) * fin_TF_to_ele[ib];
          }
+//         totCont_cent = 0.5*(muCont_cent + eleCont_cent);
+         totCont_cent = muCont_cent < eleCont_cent? muCont_cent : eleCont_cent;
+         if( totCont_cent == 0 ) totCont_cent = 0.5*(muCont_cent + eleCont_cent);
 
-         if( h1_hadtauCont && !h1_lostleCont ){ lostleCont_cent = hadtauCont_cent; if( ib==0 ) std::cout<<"Missing lostle signal contamination for v_mStop : "<<v_mStop<<"  v_mLSP : "<<v_mLSP<<std::endl; }
-         if( !h1_hadtauCont && h1_lostleCont ){ hadtauCont_cent = lostleCont_cent; if( ib==0 ) std::cout<<"Missing hadtau signal contamination for v_mStop : "<<v_mStop<<"  v_mLSP : "<<v_mLSP<<std::endl; }
-
-         totCont_cent = hadtauCont_cent + lostleCont_cent;
-         double hadtauCont_rel = cent!=0 ? hadtauCont_cent/cent : 0;
-         double lostleCont_rel = cent!=0 ? lostleCont_cent/cent : 0;
          double totCont_rel = cent!=0 ? totCont_cent/cent : 0;
-         if( totCont_rel >= 1.0 || cent == 0 ){
-            std::cout<<"v_mStop : "<<v_mStop<<"  v_mLSP : "<<v_mLSP<<"  ib : "<<ib<<"  rate : "<<cent<<"  hadtauCont_cent : "<<hadtauCont_cent<<"  lostleCont_cent : "<<lostleCont_cent<<"  totCont_cent : "<<totCont_cent<<std::endl;
-            if( hadtauCont_rel >= 1.0 ) hadtauCont_rel = 1.0;
-            if( lostleCont_rel >= 1.0 ) lostleCont_rel = 1.0;
+         if( totCont_rel >= 1.0 || (cent == 0 && totCont_cent !=0) ){
+            std::cout<<"v_mStop : "<<v_mStop<<"  v_mLSP : "<<v_mLSP<<"  ib : "<<ib<<"  rate : "<<cent<<"  totCont_cent : "<<totCont_cent<<std::endl;
             totCont_rel = 1.0;
             totCont_cent = cent;
-//            totCont_cent = round(cent); // this is for when cent is not integer
          }
-         hadtauContVec[ib] = hadtauCont_cent; lostleContVec[ib] = lostleCont_cent; totContVec[ib] = totCont_cent;
+         totContVec[ib] = totCont_cent;
 
          double perBin_acc_wt = cent * bTagSFCen_scale * trigUncCen_scale * genTopSFCen_scale * recoTopSFCen_scale / totEntries;
 
@@ -558,8 +577,6 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
          contam_ACCwt += totCont_rel * perBin_acc_wt;
 
 // Summarizing all the uncertainty ranges
-         if( minhadtauCont > hadtauCont_rel ) minhadtauCont = hadtauCont_rel; if( maxhadtauCont < hadtauCont_rel ) maxhadtauCont = hadtauCont_rel;
-         if( minlostleCont > lostleCont_rel ) minlostleCont = lostleCont_rel; if( maxlostleCont < lostleCont_rel ) maxlostleCont = lostleCont_rel;
          if( mintotCont > totCont_rel ) mintotCont = totCont_rel; if( maxtotCont < totCont_rel ) maxtotCont = totCont_rel;
 
          if( minstatRelUnc > rel_err ) minstatRelUnc = rel_err; if( maxstatRelUnc < rel_err ) maxstatRelUnc = rel_err;
@@ -890,6 +907,20 @@ void makeSignalCards(const std::string inputRootName, const std::string inputRoo
       ofs<<"syst_recoTopSF_dn = ";
       for(int ib=0; ib<nBins; ib++){
          sprintf(tmpStr, "% 11.3f", recoTopSFDnVec[ib]);
+         ofs<<tmpStr;
+      }
+      ofs<<std::endl;
+
+      ofs<<"syst_pu_up = ";
+      for(int ib=0; ib<nBins; ib++){
+         sprintf(tmpStr, "% 11.3f", puUncVec[ib]);
+         ofs<<tmpStr;
+      }
+      ofs<<std::endl;
+
+      ofs<<"syst_pu_dn = ";
+      for(int ib=0; ib<nBins; ib++){
+         sprintf(tmpStr, "% 11.3f", puUncVec[ib]);
          ofs<<tmpStr;
       }
       ofs<<std::endl;

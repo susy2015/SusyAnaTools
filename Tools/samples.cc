@@ -279,13 +279,14 @@ namespace AnaSamples
         addSample("SMS-T1tttt_fastsim_2016", fDir_ + sigMCloc + "SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
         // T1ttbb
-        addSample("SMS-T1ttbb_fastsim_2016", fDir_ + sigMCloc + "SMS-T1ttbb_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T1ttbb_fastsim_2016", fDir_ + DATAloc + "SMS-T1ttbb_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
         // T5ttcc
-        addSample("SMS-T5ttcc_fastsim_2016", fDir_ + sigMCloc + "SMS-T5ttcc_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T5ttcc_fastsim_2016", fDir_ + DATAloc + "SMS-T5ttcc_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T5ttcc_fastsim_mGluino1750to2300_2016", fDir_ + DATAloc + "SMS-T5ttcc_mGluino1750to2300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
         // T5ttttDM175
-        addSample("SMS-T5tttt_dM175_fastsim_2016", fDir_ + sigMCloc + "SMS-T5tttt_dM175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
+        addSample("SMS-T5tttt_dM175_fastsim_2016", fDir_ + DATAloc + "SMS-T5tttt_dM175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
 
         // T5tttt_degen
 
@@ -414,7 +415,9 @@ namespace AnaSamples
 
         addSampleSet(samples, "Signal_fastsim_T1tttt_scan", {"SMS-T1tttt_fastsim_2016"});
 
-        addSampleSet(samples, "Signal_fastsim_T5ttcc_scan", {"SMS-T5ttcc_fastsim_2016"});
+        addSampleSet(samples, "Signal_fastsim_T5ttcc_scan", {"SMS-T5ttcc_fastsim_2016", "SMS-T5ttcc_fastsim_mGluino1750to2300_2016"});
+        addSampleSet(samples, "Signal_fastsim_T1ttbb_scan", {"SMS-T1ttbb_fastsim_2016"});
+        addSampleSet(samples, "Signal_fastsim_T5tttt_dM175_scan", {"SMS-T5tttt_dM175_fastsim_2016"});
 
 /*
         addSampleSet(samples, "TTbar_fastsim_wt_genJets_wt_genMET", {"TTbar_fastsim_wt_genJets_wt_genMET"});
