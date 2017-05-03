@@ -1,4 +1,6 @@
 rm -fr Signal_fastsim_T1tttt_scan/*.txt; rm -fr Signal_fastsim_T1tttt_scan/logs; rm -fr Signal_fastsim_T1tttt_scan/*.root; echo '\nSignal_fastsim_T1tttt_scan\n'; ls -l -t -r Signal_fastsim_T1tttt_scan
 rm -fr Signal_fastsim_T5ttcc_scan/*.txt; rm -fr Signal_fastsim_T5ttcc_scan/logs; rm -fr Signal_fastsim_T5ttcc_scan/*.root; echo '\nSignal_fastsim_T5ttcc_scan\n'; ls -l -t -r Signal_fastsim_T5ttcc_scan
+rm -fr Signal_fastsim_T5tttt_dM175_scan/*.txt; rm -fr Signal_fastsim_T5tttt_dM175_scan/logs; rm -fr Signal_fastsim_T5tttt_dM175_scan/*.root; echo '\nSignal_fastsim_T5tttt_dM175_scan\n'; ls -l -t -r Signal_fastsim_T5tttt_dM175_scan
+rm -fr Signal_fastsim_T1ttbb_scan/*.txt; rm -fr Signal_fastsim_T1ttbb_scan/logs; rm -fr Signal_fastsim_T1ttbb_scan/*.root; echo '\nSignal_fastsim_T1ttbb_scan\n'; ls -l -t -r Signal_fastsim_T1ttbb_scan
 rm -fr Signal_fastsim_T2tt_scan/*.txt; rm -fr Signal_fastsim_T2tt_scan/logs; rm -fr Signal_fastsim_T2tt_scan/*.root; echo '\nSignal_fastsim_T2tt_scan\n'; ls -l -t -r Signal_fastsim_T2tt_scan
 rm -fr Signal_fastsim_T2tt_wt_genJets_wt_genMET_scan/*.txt; rm -fr Signal_fastsim_T2tt_wt_genJets_wt_genMET_scan/logs; rm -fr Signal_fastsim_T2tt_wt_genJets_wt_genMET_scan/*.root; echo '\nSignal_fastsim_T2tt_wt_genJets_wt_genMET_scan\n'; ls -l -t -r Signal_fastsim_T2tt_wt_genJets_wt_genMET_scan

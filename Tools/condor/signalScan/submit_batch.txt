@@ -7,5 +7,11 @@ cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/signalScan/
 cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T5ttcc_scan; ./condorSubmit.py -d Signal_fastsim_T5ttcc_scan -n 1;
 cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/signalScan/
 
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T5tttt_dM175_scan; ./condorSubmit.py -d Signal_fastsim_T5tttt_dM175_scan -n 1;
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/signalScan/
+
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T1ttbb_scan; ./condorSubmit.py -d Signal_fastsim_T1ttbb_scan -n 1;
+cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/signalScan/
+
 #cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/signalScan/Signal_fastsim_T2tt_wt_genJets_wt_genMET_scan; ./condorSubmit.py -d Signal_fastsim_T2tt_wt_genJets_wt_genMET_scan -n 1;
 #cd $CMSSW_BASE/src/SusyAnaTools/Tools/condor/signalScan/
