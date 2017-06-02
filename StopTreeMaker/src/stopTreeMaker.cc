@@ -137,7 +137,7 @@ VectorTLorentzVectorTags_.push_back(consumes<std::vector<TLorentzVector> >(tag))
 
   tree_->Branch("run",&runNum_,"run/i");
   tree_->Branch("lumi",&lumiBlockNum_,"lumi/i");
-  tree_->Branch("event",&evtNum_,"event/i");
+  tree_->Branch("event",&evtNum_,"event/l");
 
   if( debug_ ) std::cout<<std::endl;
   varsDouble_ = std::vector<double>(varsDoubleTags_.size(), 9999.);

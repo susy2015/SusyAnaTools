@@ -48,7 +48,7 @@ private:
   // generell event information
   UInt_t runNum_;      
   UInt_t lumiBlockNum_;
-  UInt_t evtNum_;
+  ULong64_t evtNum_;
   
   // any float precision varialbes
   std::vector<edm::InputTag> varsDoubleTags_;
