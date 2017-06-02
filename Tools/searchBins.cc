@@ -1416,6 +1416,39 @@ void SearchBins::SearchBins_Aggregate_2017()
                // met hi
                {-1});
 
+    //                nb>=3, ntop>=1
+    addNbNtBin_HT_MET(3, -1, 1, -1,
+               // HT lo
+               {1500},
+               // HT hi
+               {-1},
+               // met lo
+               {550},
+               // met hi
+               {-1});
+
+    //                nb>=3, ntop>=2
+    addNbNtBin_HT_MET(3, -1, 2, -1,
+               // HT lo
+               {1300},
+               // HT hi
+               {-1},
+               // met lo
+               {500},
+               // met hi
+               {-1});
+
+    //                nb>=3, ntop>=2
+    addNbNtBin_HT_MET(3, -1, 2, -1,
+               // HT lo
+               {300},
+               // HT hi
+               {-1},
+               // met lo
+               {500},
+               // met hi
+               {-1});
+
     // 1D distribution bins
     // MT2
     //         nb>=1, ntop>=1
