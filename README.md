@@ -20,7 +20,7 @@ git cms-init
 git cms-merge-topic cms-met:METRecipe_8020 -u
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
 git clone git@github.com:susy2015/JetToolbox.git JMEAnalysis/JetToolbox -b fix_NoLep_jetToolbox_80X_V3
-git clone -b ana_reMINIAOD_April26_2017_V2 git@github.com:susy2015/SusyAnaTools.git
+git clone -b ana_reMINIAOD_Jun2_2017_V2 git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 
