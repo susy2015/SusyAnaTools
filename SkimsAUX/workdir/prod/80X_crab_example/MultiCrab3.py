@@ -18,8 +18,8 @@ from crab3Config import config as config
 from multiprocessing import Process
 
 workArea = 'crabProdv13p0'
-outDir = '/store/group/lpcsusyhad/Stop_production/Summer16_80X_Mar_2017_Ntp_v13X'
-Pubname = 'Summer16_80X_Mar_2017_Ntp_v13p0'
+outDir = '/store/group/lpcsusyhad/Stop_production/Top_ntuple_V1'
+Pubname = 'Top_ntuple_V1'
 json_25ns = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
@@ -29,7 +29,7 @@ json_25ns = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #selSubmitKey = 'TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TTJets_SingleLeptFrom TTJets_DiLept'
 #selSubmitKey = 'TEST HTMHT TTJets_SingleLeptFrom TTJets_DiLept'
-selSubmitKey = 'TEST STATUS MET'
+selSubmitKey = 'ZJetsToNuNu TTJets_SingleLeptFrom SMS-T2tt_mStop SMS-T1tttt_mGluino'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TEST ALL'
 #selSubmitKey = 'TEST TTJets_SingleLeptFrom TTJets_Inc TTJets_DiLept ZJetsToNuNu_HT'
