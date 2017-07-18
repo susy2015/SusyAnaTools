@@ -42,6 +42,7 @@ prodJets = cms.EDFilter(
     svTagInfos = cms.string('pfInclusiveSecondaryVertexFinder'),
   vtxSrc = cms.InputTag('goodVertices'),
 #  metSrc = cms.InputTag('slimmedMETs'),
+  ak4ptCut = cms.double(20.0),
   bTagKeyString = cms.string('pfCombinedInclusiveSecondaryVertexV2BJetTags'),
   W_emuVec = cms.InputTag("prodGenInfo:WemuVec"),
   W_tauVec = cms.InputTag("prodGenInfo:WtauVec"),

@@ -95,6 +95,7 @@ private:
     edm::InputTag trksForIsoVetoLVec_Src_, looseisoTrksLVec_Src_;
     edm::Handle<std::vector<TLorentzVector> > trksForIsoVetoLVec_, looseisoTrksLVec_;
     double deltaRcon_;
+    double ak4ptCut_;
 
     //PUPPI sources
     edm::InputTag puppiJetsSrc_, puppiSubJetsSrc_;
@@ -259,6 +260,7 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   ipTagInfos_              = iConfig.getParameter<std::string>("ipTagInfos");
   svTagInfos_              = iConfig.getParameter<std::string>("svTagInfos");
 
+  ak4ptCut_ = iConfig.getParameter<double>("ak4ptCut");
 
   JetTok_ = consumes<std::vector<pat::Jet> >(jetSrc_);
   VtxTok_=consumes< std::vector<reco::Vertex> >(vtxSrc_);
@@ -501,9 +503,9 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   int cntJetLowPt = 0;
   for(unsigned int ij=0; ij < extJets.size(); ij++)
   {
-
- 
     const pat::Jet& jet = extJets[ij];
+
+    if(jet.pt() < ak4ptCut_) continue;
 
     //const reco::TrackIPTagInfo *ipTagInfo = jet.tagInfoCandIP(ipTagInfos_.c_str());
     const auto *ipTagInfo = jet.tagInfoCandIP(ipTagInfos_.c_str());

@@ -179,6 +179,7 @@ process.prodJets.jetBPNegBJetTags= cms.string('jetBPNegBJetTags')
 process.prodJets.jetBPPosBJetTags= cms.string('jetBPPosBJetTags')
 process.prodJets.debug = cms.bool(False)
 process.prodJets.jetSrc = cms.InputTag('selectedUpdatedPatJetsDeepFlavour')
+process.prodJets. ak4ptCut = cms.double(20.0)
 #process.prodJets.jetOtherSrc = cms.InputTag('selectedUpdatedPatJetsDeepFlavour')
 
 ###############################################################################################################################
@@ -270,7 +271,7 @@ process.stopTreeMaker.vectorIntNamesInTree.extend(["prodGenInfo:WemuVec|W_emuVec
 process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodGenInfo", "WemupfActivityVec"), cms.InputTag("prodGenInfo", "WtauemupfActivityVec"), cms.InputTag("prodGenInfo", "WtauprongspfActivityVec")])
 process.stopTreeMaker.vectorDoubleNamesInTree.extend(["prodGenInfo:WemupfActivityVec|W_emu_pfActivityVec", "prodGenInfo:WtauemupfActivityVec|W_tau_emu_pfActivityVec", "prodGenInfo:WtauprongspfActivityVec|W_tau_prongs_pfActivityVec"])
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenInfo", "genDecayLVec"))
-process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenInfo", "selGenParticle"))
+#process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenInfo", "selGenParticle"))
 
 ###############################################################################################################################
 
