@@ -285,11 +285,11 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   produces<std::vector<double> >("recoJetsJecScaleRawToFull");
   produces<std::vector<double> >("qgLikelihood");
   produces<std::vector<double> >("qgPtD");
+  produces<std::vector<double> >("qgAxis1");
   produces<std::vector<double> >("qgAxis2");
   produces<std::vector<int> >("qgMult");
 /*
   produces<std::vector<double> >("qgPtDrLog");
-  produces<std::vector<double> >("qgAxis1");
   produces<std::vector<int> >("qgcMult");
   produces<std::vector<int> >("qgnMult");
 */
@@ -350,6 +350,8 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   produces<std::vector<double> >("recoJetsneutralEnergyFraction");
   produces<std::vector<double> >("recoJetschargedEmEnergyFraction");
   produces<std::vector<double> >("recoJetsneutralEmEnergyFraction");
+  produces<std::vector<double> >("recoJetsHFHadronEnergyFraction");
+  produces<std::vector<double> >("recoJetsHFEMEnergyFraction");
   produces<std::vector<double> >("PhotonEnergyFraction");
   produces<std::vector<double> >("ElectronEnergyFraction");
 
@@ -416,6 +418,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::auto_ptr<std::vector<double> > qgLikelihood(new std::vector<double>());
   std::auto_ptr<std::vector<double> > qgPtD(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > qgAxis1(new std::vector<double>());
   std::auto_ptr<std::vector<double> > qgAxis2(new std::vector<double>());
   std::auto_ptr<std::vector<int> > qgMult(new std::vector<int>());
 /*
@@ -473,14 +476,16 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<double> >CvsLNeg(new std::vector<double>());
   std::auto_ptr<std::vector<double> >CvsLPos(new std::vector<double>());
 
-  std::auto_ptr<std::vector<int>>nTracks(new std::vector<int>());
-  std::auto_ptr<std::vector<int>>nSVs(new std::vector<int>());
+  std::auto_ptr<std::vector<int> > nTracks(new std::vector<int>());
+  std::auto_ptr<std::vector<int> > nSVs(new std::vector<int>());
 
   std::auto_ptr<std::vector<double> > recoJetschargedHadronEnergyFraction(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetsneutralEnergyFraction(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetschargedEmEnergyFraction(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetsneutralEmEnergyFraction(new std::vector<double>());
   std::auto_ptr<std::vector<double> > recoJetsmuonEnergyFraction(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > recoJetsHFHadronEnergyFraction(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > recoJetsHFEMEnergyFraction(new std::vector<double>());
 
   std::auto_ptr<std::vector<double> > PhotonEnergyFraction(new std::vector<double>());
   std::auto_ptr<std::vector<double> > ElectronEnergyFraction(new std::vector<double>());
@@ -553,6 +558,11 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double thisqgPtD = jet.userFloat(toGetName.c_str());
     qgPtD->push_back(thisqgPtD);
    
+    toGetName = qgTaggerKey_+":axis1"; 
+    if( ij >= jets->size() && qgTaggerKey_ == "QGTagger" ) toGetName = qgTaggerKey_+"Other:axis1";
+    double thisqgAxis1 = jet.userFloat(toGetName.c_str());
+    qgAxis1->push_back(thisqgAxis1);
+
     toGetName = qgTaggerKey_+":axis2"; 
     if( ij >= jets->size() && qgTaggerKey_ == "QGTagger" ) toGetName = qgTaggerKey_+"Other:axis2";
     double thisqgAxis2 = jet.userFloat(toGetName.c_str());
@@ -718,9 +728,6 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //reco::TaggingVariableList ipVars = ipTagInfo->taggingVariables();
     //reco::TaggingVariableList svVars = svTagInfo->taggingVariables();
 
-// std::auto_ptr<std::vector<int>>nTracks(new std::vector<int>(ipTagInfo->selectedTracks().size(),-1));
-// std::auto_ptr<std::vector<int>>nSVs(new std::vector<int>(ipTagInfo->selectedTracks().size(),-1));
-
     int nTracks_tri = ipTagInfo->selectedTracks().size();
     int nSVs_tri = svTagInfo->nVertices();
 
@@ -751,6 +758,9 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     double electronEnergyFraction = jet.electronEnergyFraction();
     ElectronEnergyFraction->push_back( electronEnergyFraction );
+
+    recoJetsHFHadronEnergyFraction->push_back(jet.HFHadronEnergyFraction());
+    recoJetsHFEMEnergyFraction->push_back(jet.HFEMEnergyFraction());
 
     double chargedHadronMultiplicity = jet.chargedHadronMultiplicity();
     ChargedHadronMultiplicity->push_back( chargedHadronMultiplicity );
@@ -791,6 +801,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   iEvent.put(qgLikelihood, "qgLikelihood");
   iEvent.put(qgPtD, "qgPtD");
+  iEvent.put(qgAxis1, "qgAxis1");
   iEvent.put(qgAxis2, "qgAxis2");
   iEvent.put(qgMult, "qgMult");
 /*
@@ -859,6 +870,9 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(recoJetsneutralEnergyFraction, "recoJetsneutralEnergyFraction");
   iEvent.put(recoJetschargedEmEnergyFraction, "recoJetschargedEmEnergyFraction");
   iEvent.put(recoJetsneutralEmEnergyFraction, "recoJetsneutralEmEnergyFraction");
+  iEvent.put(recoJetsHFHadronEnergyFraction, "recoJetsHFHadronEnergyFraction");
+  iEvent.put(recoJetsHFEMEnergyFraction, "recoJetsHFEMEnergyFraction");
+
 
   iEvent.put(recoJetsmuonEnergyFraction, "recoJetsmuonEnergyFraction");
   iEvent.put(PhotonEnergyFraction, "PhotonEnergyFraction");
