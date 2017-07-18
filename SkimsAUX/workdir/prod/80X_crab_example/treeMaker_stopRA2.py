@@ -89,9 +89,6 @@ if not options.cmsswVersion == "80X":
 ## -- Define the process --
 ## ------------------------
 
-if hasattr(sys, "argv"):
-    options.parseArguments()
-
 process = cms.Process("SUSY")
 
 if options.era == "Run2_25ns":
@@ -117,8 +114,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
 ## -- Maximal Number of Events --
-#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 if options.debug and options.verbose ==1:
    process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck',
@@ -149,8 +145,9 @@ elif options.fileslist:
 else:
    process.source.fileNames = [
 #        '/store/mc/RunIISpring16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00B2B39D-5D4D-E611-8BD4-002590D9D8B6.root',
+      '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
 #        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/00D97021-CFBE-E611-AD3F-0025901D08B8.root',
-        '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
+#        '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
 #       '/store/mc/RunIISpring16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/041F3A63-431E-E611-9E1E-008CFA1112CC.root',
 #       '/store/mc/RunIISpring16MiniAODv2/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/004A27F0-5132-E611-A936-02163E016171.root',
 #       '/store/mc/RunIISpring16MiniAODv2/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00775AA9-5132-E611-A4FE-001E675049F5.root',
@@ -226,7 +223,6 @@ QGPoolDBESSource = cms.ESSource("PoolDBESSource",
       toGet = cms.VPSet(),
       connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'),
 )
-
 for type in ['AK4PFchs','AK4PFchs_antib']:
   QGPoolDBESSource.toGet.extend(cms.VPSet(cms.PSet(
     record = cms.string('QGLikelihoodRcd'),
@@ -236,8 +232,7 @@ for type in ['AK4PFchs','AK4PFchs_antib']:
 
 process.load('RecoJets.JetProducers.QGTagger_cfi')
 process.QGTagger.jetsLabel = cms.string('QGL_AK4PFchs')  # Other options: see https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
-process.QGTagger.srcJets   = cms.InputTag('slimmedJets')#'selectedUpdatedPatJetsDeepFlavour')#'slimmedJets') # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
-
+process.QGTagger.srcJets   = cms.InputTag('slimmedJets') # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
 
 # Update always for slimmedJets -> new collection name is QGAK4PFCHS
 # This QGAK4PFCHS should be the same as slimmedJets except adding QGTagger for no JEC case,
@@ -247,13 +242,11 @@ from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets 
 JetTagOut = cms.InputTag('QGAK4PFCHS')
 
 patJetsAuxiliary = patJetsUpdated.clone(
-   jetSource = cms.InputTag('slimmedJets'),#'selectedUpdatedPatJetsDeepFlavour'),#'slimmedJets'),
+   jetSource = cms.InputTag('slimmedJets'),
    addJetCorrFactors = cms.bool(False),
 )
-#process.load("DeepNTuples.DeepNtuplizer.QGLikelihood_cfi")
-#process.es_prefer_jec = cms.ESPrefer("PoolDBESSource", "QGPoolDBESSource")
-patJetsAuxiliary.userData.userFloats.src += ['QGTagger:qgLikelihood','QGTagger:ptD', 'QGTagger:axis2', 'QGTagger:ptDrLog', 'QGTagger:axis1']
-patJetsAuxiliary.userData.userInts.src += ['QGTagger:mult']#, 'QGTaggerOther:nmult', 'QGTaggerOther:cmult']
+patJetsAuxiliary.userData.userFloats.src += ['QGTagger:qgLikelihood','QGTagger:ptD', 'QGTagger:axis2']
+patJetsAuxiliary.userData.userInts.src += ['QGTagger:mult']
 setattr(process,JetTagOut.value(),patJetsAuxiliary)
 
 process.QGTaggerOther = process.QGTagger.clone()
@@ -274,75 +267,14 @@ if options.cmsswVersion == "80X":
       elSource = cms.InputTag('slimmedElectrons'),
       muSource = cms.InputTag('slimmedMuons'),
       jetCorrections = jetCorrectionLevels,
-      btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags'
-                            ,'pfJetBProbabilityBJetTags'
-                            ,'pfJetProbabilityBJetTags'
-                            ,'pfPositiveOnlyJetBProbabilityBJetTags'
-                            ,'pfPositiveOnlyJetProbabilityBJetTags'
-                            ,'pfNegativeOnlyJetBProbabilityBJetTags'
-                            ,'pfNegativeOnlyJetProbabilityBJetTags'
-                            ],         
+      btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
       genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
       genParticles = cms.InputTag('prunedGenParticles'),
       algo = 'AK', rParam = 0.4
    )
-   process.patJetsAK4PFCHS.userData.userFloats.src += ['QGTaggerOther:qgLikelihood','QGTaggerOther:ptD', 'QGTaggerOther:axis2', 'QGTaggerOther:ptDrLog', 'QGTaggerOther:axis1']#, #'deepFlavourJetTags:deepFlavourJetTags:probudsg']
-   process.patJetsAK4PFCHS.userData.userInts.src += ['QGTaggerOther:mult']#, 'QGTaggerOther:nmult', 'QGTaggerOther:cmult']
-
-   jetCorrectionsAK4 = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None')
-   from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-   updateJetCollection(
-      process,
-      postfix = "",
-      labelName = 'DeepFlavour',
-      jetSource = cms.InputTag('slimmedJets'),#'myak4PFJetsCHS'),
-      pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
-      pfCandidates = cms.InputTag('packedPFCandidates'),
-      svSource = cms.InputTag('slimmedSecondaryVertices'),
-      elSource = cms.InputTag('slimmedElectrons'),
-      muSource = cms.InputTag('slimmedMuons'),
-      btagInfos = [ 'pfImpactParameterTagInfos',
-        'pfInclusiveSecondaryVertexFinderTagInfos',
-        'deepNNTagInfos'
-        ],
-      jetCorrections = jetCorrectionsAK4,#jetCorrectionLevels,
-      btagDiscriminators = [ 
-                             'softPFMuonBJetTags',
-                             'softPFElectronBJetTags',
-                             'pfJetBProbabilityBJetTags',
-                             'pfJetProbabilityBJetTags',
-                             'pfCombinedInclusiveSecondaryVertexV2BJetTags',
-                             'deepFlavourJetTags:probudsg'
-                            ,'deepFlavourJetTags:probb'
-                            ,'deepFlavourJetTags:probc'
-                            ,'deepFlavourJetTags:probbb'
-                            ,'deepFlavourJetTags:probcc'
-                            ],
-                            #,'deepFlavourJetTags:probudsg',],
-                            #,'pfDeepCSVJetTags:probb'
-                            #,'pfDeepCSVJetTags:probc'
-                            #,'pfDeepCSVJetTags:probbb'
-                            #,'pfDeepCSVJetTags:probcc'
-                            #genParticles = cms.InputTag('prunedGenParticles'),
-                            #algo = 'AK', rParam = 0.4
-                            #explicitJTA = False,    
-    #                        genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
-     # genParticles = cms.InputTag('prunedGenParticles'),
-      #algo = 'AK', rParam = 0.4
-
-   )
-
-   #process.selectedUpdatedPatJetsDeepFlavour.userData.userFloats.src += ['QGTaggerOther:qgLikelihood','QGTaggerOther:ptD', 'QGTaggerOther:axis2', 'QGTaggerOther:ptDrLog', 'QGTaggerOther:axis1']#, #'deepFlavourJetTags:deepFlavourJetTags:probudsg']
-   #process.selectedUpdatedPatJetsDeepFlavour.userData.userInts.src += ['QGTaggerOther:mult']
-
-   #process.load("DeepNTuples.DeepNtuplizer.QGLikelihood_cfi")
-   #process.es_prefer_jec = cms.ESPrefer("PoolDBESSource", "QGPoolDBESSource")
-   #process.load('RecoJets.JetProducers.QGTagger_cfi')
-   #process.QGTagger.srcJets   = cms.InputTag("selectedUpdatedPatJetsDeepFlavour")
-   #process.QGTagger.jetsLabel = cms.string('QGL_AK4PFchs')
-
-
-
+   process.patJetsAK4PFCHS.userData.userFloats.src += ['QGTaggerOther:qgLikelihood','QGTaggerOther:ptD', 'QGTaggerOther:axis2']
+   process.patJetsAK4PFCHS.userData.userInts.src += ['QGTaggerOther:mult']
+   
    addJetCollection(
       process,
       postfix = "",
@@ -354,21 +286,13 @@ if options.cmsswVersion == "80X":
       elSource = cms.InputTag('slimmedElectrons'),
       muSource = cms.InputTag('slimmedMuons'),
       jetCorrections = jetCorrectionLevels,
-      btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags'
-                            ,'pfJetBProbabilityBJetTags'
-                            ,'pfJetProbabilityBJetTags'
-                            ,'pfPositiveOnlyJetBProbabilityBJetTags'
-                            ,'pfPositiveOnlyJetProbabilityBJetTags'
-                            ,'pfNegativeOnlyJetBProbabilityBJetTags'
-                            ,'pfNegativeOnlyJetProbabilityBJetTags'],
+      btagDiscriminators = [ 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
       genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
       genParticles = cms.InputTag('prunedGenParticles'),
       algo = 'AK', rParam = 0.4
    )
    process.patJetsAK4PFCHSNoLep.userData.userFloats.src += ['QGTaggerNoLep:qgLikelihood','QGTaggerNoLep:ptD', 'QGTaggerNoLep:axis2']
    process.patJetsAK4PFCHSNoLep.userData.userInts.src += ['QGTaggerNoLep:mult']
-
-
 
 if "JEC" in options.specialFix:
   print ("\nApplying fix to JEC issues in %s ...\n" %(options.cmsswVersion))
@@ -392,9 +316,9 @@ if "JEC" in options.specialFix:
       ## note that the tag name is specific for the particular sqlite file 
     ),
     # from page 19 on slides https://indico.cern.ch/event/405326/contribution/2/attachments/811719/1112498/Pythia8.pdf
-  #  # connect = cms.string('sqlite:PY8_RunIISpring15DR74_bx25_MC.db')
+    # connect = cms.string('sqlite:PY8_RunIISpring15DR74_bx25_MC.db')
     connect = cms.string('sqlite:'+options.jecDBname+'.db')
-  #  # connect = cms.string(inputDB)
+    # connect = cms.string(inputDB)
     # uncomment above tag lines and this comment to use MC JEC
   )
   ## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
@@ -405,14 +329,12 @@ if "JEC" in options.specialFix:
     from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
     updateJetCollection(
       process,
-      jetSource = cms.InputTag('selectedUpdatedPatJetsDeepFlavour'),#'slimmedJets'),
+      jetSource = cms.InputTag('slimmedJets'),
       postfix = 'UpdatedJEC',
       jetCorrections = ('AK4PFchs', jetCorrLevelLists, 'None')
     )
-#    process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['QGTagger:qgLikelihood','QGTagger:ptD', 'QGTagger:axis2','QGTagger:ptDrLog', 'QGTagger:axis1']
-#    process.updatedPatJetsUpdatedJEC.userData.userInts.src += ['QGTagger:mult']#, 'QGTaggerOther:nmult', 'QGTaggerOther:cmult']
-    process.QGTagger.srcJets   = cms.InputTag("updatedPatJetsUpdatedJEC")
-    process.QGTagger.jetsLabel = cms.string('QGL_AK4PFchs')
+    process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['QGTagger:qgLikelihood','QGTagger:ptD', 'QGTagger:axis2']
+    process.updatedPatJetsUpdatedJEC.userData.userInts.src += ['QGTagger:mult']
     # update the MET to account for the new JECs
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
     runMetCorAndUncFromMiniAOD(
@@ -422,7 +344,7 @@ if "JEC" in options.specialFix:
       #jetColl="updatedPatJetsUpdatedJEC",
       #postfix="Update"
     )
-    process.fix80XJEC = cms.Sequence( process.updatedPatJetsUpdatedJEC + process.patJetCorrFactorsUpdatedJEC) ## NS: What is this patJetCorrFactorsUpdatedJEC ??
+    process.fix80XJEC = cms.Sequence( process.patJetCorrFactorsUpdatedJEC + process.updatedPatJetsUpdatedJEC ) ## NS: What is this patJetCorrFactorsUpdatedJEC ??
     
 
 process.load("SusyAnaTools.SkimsAUX.simpleJetSelector_cfi")
@@ -494,21 +416,6 @@ jetToolbox( process, 'ak8', 'ak8JetSubs', 'out',
 
 
 ## -- Other Analysis related configuration --
-
-#process.qgMiniTupleAK4chs = cms.EDAnalyzer("prodQGVar",
-#    rhoInputTag			= cms.InputTag('fixedGridRhoFastjetAll'),
-#    csvInputTag			= cms.InputTag('pfCombinedInclusiveSecondaryVertexV2BJetTags'),
-#    vertexInputTag		= cms.InputTag('offlineSlimmedPrimaryVertices'),
-#    jetsInputTag		= cms.InputTag('slimmedJets'),
-#    #jetsInputTag		= cms.InputTag('updatedPatJetsUpdatedJEC'),
-#    genJetsInputTag		= cms.InputTag('slimmedGenJets'),
-#    genParticlesInputTag	= cms.InputTag('prunedGenParticles'),
-#    pfCandidatesInputTag	= cms.InputTag('packedPFCandidates'),
-#    minJetPt			= cms.untracked.double(20.),
-#    deltaRcut			= cms.untracked.double(0.3),
-#    jec				= cms.string(''),						# Ignored when using pat mode
-#)
-
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 if options.hltSelection:
    process.hltFilter = hlt.hltHighLevel.clone(
@@ -726,12 +633,6 @@ process.load("SusyAnaTools.SkimsAUX.prodIsoTrks_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodEventInfo_cfi")
 process.load("SusyAnaTools.SkimsAUX.ISRJetProducer_cfi")
 
-#process.add_(cms.Service("Tracer",dumpPathsAndConsumes = cms.untracked.bool(True)))#all producers classes that can be used consume
-#process.dump = cms.EDAnalyzer("EventContentAnalyzer")#varaible output varible type needs to be added in pathh
-
-
-#convertToUsheduled(process)Path
-
 # See https://twiki.cern.ch/twiki/bin/view/CMSPublic/ReMiniAOD03Feb2017Notes#MET_Recipes
 # This is special treatment for reMINIAOD DATA...
 if "BADMUON" in options.specialFix and options.mcInfo == False:
@@ -796,13 +697,10 @@ process.prodJets.jetBPPosBJetTags= cms.string('jetBPPosBJetTags')
 #process.prodJets.deepCSVNegBJetTags= cms.string('negativeDeepFlavourJetTags')
 #process.prodJets.deepCSVPosBJetTags= cms.string('positiveDeepFlavourJetTags')
 
-##
-process.prodJets.simpleSVHighPurBJetTags= cms.string('pfSimpleSecondaryVertexHighEffBJetTags')
-
 process.prodJets.debug = cms.bool(options.debug)
-process.prodJets.jetSrc = cms.InputTag('selectedUpdatedPatJetsDeepFlavour')#'QGAK4PFCHS')
+process.prodJets.jetSrc = cms.InputTag('QGAK4PFCHS')
 process.prodJets.jetOtherSrc = cms.InputTag('patJetsAK4PFCHS')
-##
+
 process.prodJetsNoLep = process.prodJets.clone()
 process.prodJetsNoLep.jetSrc = cms.InputTag('patJetsAK4PFCHSPt10NoLep')
 process.prodJetsNoLep.jetOtherSrc = cms.InputTag('patJetsAK4PFCHSPt10NoLep')
@@ -811,7 +709,6 @@ process.prodJetsNoLep.puppiJetsSrc = cms.InputTag('selectedPatJetsAK8PFPuppiNoLe
 process.prodJetsNoLep.puppiSubJetsSrc = cms.InputTag('selectedPatJetsAK8PFPuppiNoLepSoftDropPacked')
 process.prodJetsNoLep.NjettinessAK8Puppi_label = cms.string('NjettinessAK8PuppiNoLep')
 process.prodJetsNoLep.ak8PFJetsPuppi_label = cms.string('ak8PFJetsPuppiNoLep')
-
 #process.prodJetsNoLep.ak8JetsSrc = cms.string('slimmedJetsAK8NoLep')
 #process.prodJetsNoLep.ak8SubJetsSrc = cms.string('slimmedJetsAK8PFCHSSoftDropPackedNoLep') #NS To be updated
 
@@ -896,94 +793,64 @@ process.stopTreeMaker.vectorInt.extend([cms.InputTag("prodElectronsNoIso", "eles
 
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodJets", "nJets"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "jetsLVec"))
-process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenJets", "genjetsLVec"))
+#process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenJets", "genjetsLVec"))
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "recoJetsFlavor"))
-##
+
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsJecUnc"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsJecScaleRawToFull"))
-##
+
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "qgLikelihood"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "qgPtD"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "qgAxis2"))
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "qgMult"))
-#process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "qgPtDrLog"))
-#process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "qgAxis1"))
-#process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "qgnMult"))
-#process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "qgcMult"))
-##	
+
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedHadronEnergyFraction"))
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsneutralEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetschargedEmEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsneutralEmEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsmuonEnergyFraction"))
-##
+
+#process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodGenJets", "genjetsLVec"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsneutralEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "PhotonEnergyFraction"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "ElectronEnergyFraction"))
-##
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "ChargedHadronMultiplicity"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "NeutralHadronMultiplicity"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "PhotonMultiplicity"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "ElectronMultiplicity"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "MuonMultiplicity"))
-##
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsBtag"))
-process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJets:recoJetsBtag|recoJetsBtag_0")
-process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsCharge"))
-process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJets:recoJetsCharge|recoJetsCharge_0")
-##
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVb"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVc"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVl"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVbb"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVcc"))
-##
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVbN"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVcN"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVlN"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVbbN"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVccN"))
-##
-##
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVbP"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVcP"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVlP"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVbbP"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "DeepCSVccP"))
-
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","CombinedSvtx"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","CombinedSvtxN"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","CombinedSvtxP"));
-
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","Svtx"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","SvtxN"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","SvtxHP"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","SvtxNHP"));
-
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","SoftM"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","SoftMN"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","SoftMP"));
-
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","SoftE"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","SoftEN"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","SoftEP"));
-
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","DoubleSV"));
-
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","cMVA"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","cMVAv2"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","cMVAv2Neg"));
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","cMVAv2Pos"));
-
-#process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","CvsB"));
-#process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","CvsBNeg"));
-#process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","CvsBPos"));
-#process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","CvsL"));
-#process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","CvsLNeg"));
-#process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","CvsLPos"));
-
-#process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","nTracks"));
-#process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets","nSVs"));
-
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "JetProba"))
 process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJets:JetProba|JetProba_0")
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "JetProbaN"))
@@ -996,17 +863,22 @@ process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "JetBprobN"))
 process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJets:JetProbN|JetProbN_0")
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "JetBprobP"))
 process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJets:JetProbP|JetProbP_0")
-##
+
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsBtag"))
+process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJets:recoJetsBtag|recoJetsBtag_0")
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "recoJetsCharge"))
+process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJets:recoJetsCharge|recoJetsCharge_0")
+
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "muMatchedJetIdx"))
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "eleMatchedJetIdx"))
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "looseisoTrksMatchedJetIdx"))
 process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJets", "trksForIsoVetoMatchedJetIdx"))
-##
+
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "puppiJetsLVec"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "puppiSubJetsLVec"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "ak8JetsLVec"))
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJets", "ak8SubJetsLVec"))
-##
+
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau1"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau2"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "tau3"))
@@ -1017,48 +889,48 @@ process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau2"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau3"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppisoftDropMass"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppiSubJetsBdisc"))
-##
-#if options.addJetsForZinv == True: 
-#   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "jetsLVec"))
-#   process.stopTreeMaker.vectorTLorentzVectorNamesInTree.append("prodJetsNoLep:jetsLVec|jetsLVecLepCleaned")
 
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecUnc"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecUnc|recoJetsJecUncLepCleaned")
+if options.addJetsForZinv == True: 
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "jetsLVec"))
+   process.stopTreeMaker.vectorTLorentzVectorNamesInTree.append("prodJetsNoLep:jetsLVec|jetsLVecLepCleaned")
 
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgLikelihood"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgPtD"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgAxis2"))
-#   process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJetsNoLep", "qgMult"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecUnc"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecUnc|recoJetsJecUncLepCleaned")
 
-##   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetschargedHadronEnergyFraction"))
-##   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetschargedHadronEnergyFraction|recoJetschargedHadronEnergyFractionLepCleaned")
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsneutralEmEnergyFraction"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsneutralEmEnergyFraction|recoJetsneutralEmEnergyFractionLepCleaned")
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetschargedEmEnergyFraction"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetschargedEmEnergyFraction|recoJetschargedEmEnergyFractionLepCleaned")
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsmuonEnergyFraction"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsmuonEnergyFraction|recoJetsmuonEnergyFractionLepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgLikelihood"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgPtD"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgAxis2"))
+   process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJetsNoLep", "qgMult"))
 
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsBtag"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsBtag|recoJetsBtag_0_LepCleaned")
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsCharge"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsCharge|recoJetsCharge_0_LepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetschargedHadronEnergyFraction"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetschargedHadronEnergyFraction|recoJetschargedHadronEnergyFractionLepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsneutralEmEnergyFraction"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsneutralEmEnergyFraction|recoJetsneutralEmEnergyFractionLepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetschargedEmEnergyFraction"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetschargedEmEnergyFraction|recoJetschargedEmEnergyFractionLepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsmuonEnergyFraction"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsmuonEnergyFraction|recoJetsmuonEnergyFractionLepCleaned")
 
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecScaleRawToFull"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecScaleRawToFull|recoJetsJecScaleRawToFull_LepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsBtag"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsBtag|recoJetsBtag_0_LepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsCharge"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsCharge|recoJetsCharge_0_LepCleaned")
 
-#   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiJetsLVec"))
-#   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsLVec"))
-#   #process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "ak8JetsLVec"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecScaleRawToFull"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecScaleRawToFull|recoJetsJecScaleRawToFull_LepCleaned")
 
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau1"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau2"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau3"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppisoftDropMass"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau1"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau2"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau3"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsBdisc"))
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiJetsLVec"))
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsLVec"))
+   #process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "ak8JetsLVec"))
+
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau1"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau2"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau3"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppisoftDropMass"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau1"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau2"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau3"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsBdisc"))
 
 if options.mcInfo == True:
    process.prodGenInfo.debug = cms.bool(options.debug)
@@ -1098,7 +970,7 @@ if options.mcInfo == True:
       process.SusyScanProducer.shouldScan = cms.bool(options.fastsim)
       process.stopTreeMaker.varsDouble.extend([cms.InputTag("SusyScanProducer", "SusyMotherMass"), cms.InputTag("SusyScanProducer", "SusyLSPMass")])
 
-      #process.prodJets.jetOtherSrc = cms.InputTag('slimmedJets')
+      process.prodJets.jetOtherSrc = cms.InputTag('slimmedJets')
 
 process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodIsoTrks:trksForIsoVetoLVec"))
 
@@ -1195,15 +1067,13 @@ if options.selSMSpts == True:
    process.stopTreeMaker.varsDouble.extend([cms.InputTag("smsModelFilter:smsMotherMass"), cms.InputTag("smsModelFilter:smsDaughterMass")])
 
 process.ak4Stop_Path = cms.Path(
-                                process.comb_seq * 
-                                process.printDecayPythia8 * process.prodGenInfo * 
-                                process.prodMuonsNoIso * process.prodElectronsNoIso * process.prodIsoTrks *  
-                                process.prodJets * process.prodMET * process.prodEventInfo * process.trig_filter_seq *  
-                                process.type3topTagger *
-                                process.stopTreeMaker
+                                   process.comb_seq * 
+                                   process.printDecayPythia8 * process.prodGenInfo * 
+                                   process.prodMuonsNoIso * process.prodElectronsNoIso * process.prodIsoTrks *  
+                                   process.prodJets * process.prodMET * process.prodEventInfo * process.trig_filter_seq * 
+                                   process.type3topTagger *
+                                   process.stopTreeMaker
 )
-
-#process.dp=cms.Path(process.dump)#dumps out varaible names or labels
 
 if options.doTopTagger == False:
    process.ak4Stop_Path.remove(process.type3topTagger)
@@ -1221,7 +1091,7 @@ if "JEC" in options.specialFix:
       process.comb_seq.replace(process.weightProducer, process.fix80XJEC*process.weightProducer)
    
       process.updatedPatJetsUpdatedJECPt10 = process.selectedPatJetsRA2.clone()
-      process.updatedPatJetsUpdatedJECPt10.jetSrc = cms.InputTag("selectedUpdatedPatJetsDeepFlavour")#'updatedPatJetsDeepFlavour')#"updatedPatJetsUpdatedJEC")
+      process.updatedPatJetsUpdatedJECPt10.jetSrc = cms.InputTag("updatedPatJetsUpdatedJEC")
       process.updatedPatJetsUpdatedJECPt10.pfJetCut = cms.string('pt >= 10')
    
       process.prodJets.jetSrc = cms.InputTag('updatedPatJetsUpdatedJECPt10')
