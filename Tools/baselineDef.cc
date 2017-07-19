@@ -3,6 +3,8 @@
 #include "TFile.h"
 #include "TF1.h"
 
+#include "lester_mt2_bisect.h"
+
 //**************************************************************************//
 //                              BaselineVessel                              //
 //**************************************************************************//
@@ -824,32 +826,17 @@ double BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLo
   // been produced at the end of the decay chain in each
   // "half" of the event:    
   const double invis_mass    = metLVec.M(); // GeV
-  // Now put the inputs together into the input structures that the library wants.
 
-  /*
-      Note: in the next two lines (constructing "vis_A" and "vis_B"),
-      the ORDER of the arguments to the constructor of
-      Mt2::LorentzTransverseVector is very important.
-      You need to be careful as, when the TwoVector comes
-      first, the second arguments is taken to be a mass:
+  double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
 
-      LorentzTransverseVector(const TwoVector& momentum, double mass);
-
-      but when the TwoVector comes second, the first arguemt is an ET=Sqrt(m^2+pt^2):
-
-      LorentzTransverseVector(double Et, const TwoVector& momentum);
-
-      You have been warned!
-  */
-
-  Mt2::LorentzTransverseVector  vis_A(Mt2::TwoVector(pxOfSystemA, pyOfSystemA), massOfSystemA);
-  Mt2::LorentzTransverseVector  vis_B(Mt2::TwoVector(pxOfSystemB, pyOfSystemB), massOfSystemB);
-  Mt2::TwoVector                pT_Miss(pxMiss, pyMiss);
-
-  // Now that we have some visiable momenta and some missing transverse
-  // momentum we can calculate MT2.
-
-  const double mt2 = mt2Calculator.mt2_332(vis_A, vis_B, pT_Miss, invis_mass);
+  asymm_mt2_lester_bisect::disableCopyrightMessage();
+  
+  double mt2 =  asymm_mt2_lester_bisect::get_mT2(
+      massOfSystemA, pxOfSystemA, pyOfSystemA,
+      massOfSystemB, pxOfSystemB, pyOfSystemB,
+      pxMiss, pyMiss,
+      invis_mass, invis_mass,
+      desiredPrecisionOnMt2);
 
   return mt2;
 

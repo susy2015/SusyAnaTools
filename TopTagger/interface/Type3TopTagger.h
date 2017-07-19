@@ -3,8 +3,8 @@
 
 #include <memory>
 
-#include "recipeAUX/OxbridgeMT2/interface/Basic_Mt2_332_Calculator.h"
-#include "recipeAUX/OxbridgeMT2/interface/ChengHanBisect_Mt2_332_Calculator.h"
+//#include "recipeAUX/OxbridgeMT2/interface/Basic_Mt2_332_Calculator.h"
+//#include "recipeAUX/OxbridgeMT2/interface/ChengHanBisect_Mt2_332_Calculator.h"
 
 #include "combination.h"
 #include "indexSort.h"
@@ -714,61 +714,61 @@ namespace topTagger{
             // For this example we will use the "Basic_Mt2_332_Calculator" which is
             // the algorithm we recommend people use by default.
             // Mt2::Basic_Mt2_332_Calculator mt2Calculator;
-            Mt2::ChengHanBisect_Mt2_332_Calculator mt2Calculator;
+            //Mt2::ChengHanBisect_Mt2_332_Calculator mt2Calculator;
+            //
+            //// Could tell the MT2 calculating object to be verbose, and print out
+            //// debug messages while it is thinking ... but we won't:
+            //
+            //// mt2Calculator.setDebug(true);
+            //
+            //// The input parameters associated with the particle
+            //// (or collection of particles) associated with the
+            //// first "side" of the event: 
+            //const double massOfSystemA =  fatJet1LVec.M(); // GeV
+            //const double pxOfSystemA   =  fatJet1LVec.Px(); // GeV
+            //const double pyOfSystemA   =  fatJet1LVec.Py(); // GeV
+            //
+            //// The input parameters associated with the particle
+            //// (or collection of particles) associated with the
+            //// second "side" of the event:
+            //const double massOfSystemB =  fatJet2LVec.M(); // GeV
+            //const double pxOfSystemB   =  fatJet2LVec.Px(); // GeV
+            //const double pyOfSystemB   =  fatJet2LVec.Py(); // GeV
+            //
+            //// The missing transverse momentum:
+            //const double pxMiss        = metLVec.Px(); // GeV
+            //const double pyMiss        = metLVec.Py(); // GeV
+            //
+            //// The mass of the "inivisible" particle presumed to have
+            //// been produced at the end of the decay chain in each
+            //// "half" of the event:    
+            //const double invis_mass    = metLVec.M(); // GeV
+            //// Now put the inputs together into the input structures that the library wants.
+            //
+            ///*
+            //    Note: in the next two lines (constructing "vis_A" and "vis_B"),
+            //    the ORDER of the arguments to the constructor of
+            //    Mt2::LorentzTransverseVector is very important.
+            //    You need to be careful as, when the TwoVector comes
+            //    first, the second arguments is taken to be a mass:
+            //
+            //    LorentzTransverseVector(const TwoVector& momentum, double mass);
+            //
+            //    but when the TwoVector comes second, the first arguemt is an ET=Sqrt(m^2+pt^2):
+            //
+            //    LorentzTransverseVector(double Et, const TwoVector& momentum);
+            //
+            //    You have been warned!
+            //*/
+            //
+            //Mt2::LorentzTransverseVector  vis_A(Mt2::TwoVector(pxOfSystemA, pyOfSystemA), massOfSystemA);
+            //Mt2::LorentzTransverseVector  vis_B(Mt2::TwoVector(pxOfSystemB, pyOfSystemB), massOfSystemB);
+            //Mt2::TwoVector                pT_Miss(pxMiss, pyMiss);
+            //
+            //// Now that we have some visiable momenta and some missing transverse
+            //// momentum we can calculate MT2.
           
-            // Could tell the MT2 calculating object to be verbose, and print out
-            // debug messages while it is thinking ... but we won't:
-            
-            // mt2Calculator.setDebug(true);
-            
-            // The input parameters associated with the particle
-            // (or collection of particles) associated with the
-            // first "side" of the event: 
-            const double massOfSystemA =  fatJet1LVec.M(); // GeV
-            const double pxOfSystemA   =  fatJet1LVec.Px(); // GeV
-            const double pyOfSystemA   =  fatJet1LVec.Py(); // GeV
-            
-            // The input parameters associated with the particle
-            // (or collection of particles) associated with the
-            // second "side" of the event:
-            const double massOfSystemB =  fatJet2LVec.M(); // GeV
-            const double pxOfSystemB   =  fatJet2LVec.Px(); // GeV
-            const double pyOfSystemB   =  fatJet2LVec.Py(); // GeV
-            
-            // The missing transverse momentum:
-            const double pxMiss        = metLVec.Px(); // GeV
-            const double pyMiss        = metLVec.Py(); // GeV
-            
-            // The mass of the "inivisible" particle presumed to have
-            // been produced at the end of the decay chain in each
-            // "half" of the event:    
-            const double invis_mass    = metLVec.M(); // GeV
-            // Now put the inputs together into the input structures that the library wants.
-          
-            /*
-                Note: in the next two lines (constructing "vis_A" and "vis_B"),
-                the ORDER of the arguments to the constructor of
-                Mt2::LorentzTransverseVector is very important.
-                You need to be careful as, when the TwoVector comes
-                first, the second arguments is taken to be a mass:
-          
-                LorentzTransverseVector(const TwoVector& momentum, double mass);
-          
-                but when the TwoVector comes second, the first arguemt is an ET=Sqrt(m^2+pt^2):
-          
-                LorentzTransverseVector(double Et, const TwoVector& momentum);
-          
-                You have been warned!
-            */
-          
-            Mt2::LorentzTransverseVector  vis_A(Mt2::TwoVector(pxOfSystemA, pyOfSystemA), massOfSystemA);
-            Mt2::LorentzTransverseVector  vis_B(Mt2::TwoVector(pxOfSystemB, pyOfSystemB), massOfSystemB);
-            Mt2::TwoVector                pT_Miss(pxMiss, pyMiss);
-          
-            // Now that we have some visiable momenta and some missing transverse
-            // momentum we can calculate MT2.
-          
-            const double mt2 = mt2Calculator.mt2_332(vis_A, vis_B, pT_Miss, invis_mass);
+             const double mt2 = -999.9;//mt2Calculator.mt2_332(vis_A, vis_B, pT_Miss, invis_mass);
           
             return mt2;
          }
@@ -807,7 +807,7 @@ namespace topTagger{
                            maxCSVSvec.push_back(recoJetsBtagCSVS[ij]);
                        }
                    }
-                   std::sort(maxCSVSvec.begin(), maxCSVSvec.end(), std::greater<decltype(maxCSVSvec.front())>());
+                   //std::sort(maxCSVSvec.begin(), maxCSVSvec.end(), std::greater< decltype(maxCSVSvec.front()) >());
                    if( maxCSVSvec.size() > 1 && (int)maxCSVSvec.size() > CSVToFake_ ) CSVS_ = 0.5*(maxCSVSvec[CSVToFake_ - 1] + maxCSVSvec[CSVToFake_]);
                    else if(maxCSVSvec.size() > 0)                             CSVS_ = maxCSVSvec.back() - 1e-5;
                    if( maxCSVSvec.size() == 0 ){ CSVS_ = -999; std::cout<<"No b to fake for 0 b case! Check NaN of CSV values of jets!  CSVS_ is set to be "<<CSVS_<<std::endl; }
