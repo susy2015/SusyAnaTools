@@ -26,6 +26,7 @@
   <use   name="DataFormats/HepMCCandidate"/>
   <use   name="DataFormats/BTauReco"/>
   <use   name="RecoBTag/BTagTools"/>
+  <use   name="RecoBTau/JetTagComputer"/>
   <use   name="TrackingTools/IPTools"/>
   <use   name="DeepNTuples/DeepNtuplizer"/>
   <use   name="lhapdf"/>

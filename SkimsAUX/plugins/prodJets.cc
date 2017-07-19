@@ -1,6 +1,7 @@
 #include <memory>
 #include <algorithm>
-
+#include <vector>
+#include <map>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -20,6 +21,7 @@
 #include "DataFormats/METReco/interface/MET.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,6 +50,16 @@
 #include "DeepNTuples/DeepNtuplizer/interface/ntuple_JetInfo.h"
 #include "DeepNTuples/DeepNtuplizer/interface/ntuple_pfCands.h"
 #include "DeepNTuples/DeepNtuplizer/interface/ntuple_bTagVars.h"
+
+#include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputer.h"
+#include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputerWrapper.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
+#include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
+#include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
+#include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
+#include "RecoBTag/ImpactParameter/plugins/IPProducer.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 
 class prodJets : public edm::EDFilter 
 {
@@ -163,6 +175,9 @@ private:
   std::string   CvsLNegCJetTags_;
   std::string   CvsLPosCJetTags_;
 
+  std::string SVComputer_, SLComputer_;
+  const GenericMVAJetTagComputer *computer_, *slcomputer_;
+
   edm::InputTag vtxSrc_;
   edm::InputTag metSrc_;
   bool isPatJet;
@@ -176,6 +191,11 @@ private:
   std::string tagInfoName_;
   std::string ipTagInfos_;
   std::string svTagInfos_;
+
+  std::string ipTagInfosCTag_;
+  std::string svTagInfosCTag_;
+  std::string softPFMuonTagInfosCTag_;
+  std::string softPFElectronTagInfosCTag_;
 
   float jetNTracks_;              // tracks associated to jet
   float trackJetPt_;
@@ -260,11 +280,21 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   ipTagInfos_              = iConfig.getParameter<std::string>("ipTagInfos");
   svTagInfos_              = iConfig.getParameter<std::string>("svTagInfos");
 
+  ipTagInfosCTag_              = iConfig.getParameter<std::string>("ipTagInfosCTag");
+  svTagInfosCTag_              = iConfig.getParameter<std::string>("svTagInfosCTag");
+  softPFMuonTagInfosCTag_      = iConfig.getParameter<std::string>("softPFMuonTagInfosCTag");
+  softPFElectronTagInfosCTag_  = iConfig.getParameter<std::string>("softPFElectronTagInfosCTag");
+
   ak4ptCut_ = iConfig.getParameter<double>("ak4ptCut");
 
   JetTok_ = consumes<std::vector<pat::Jet> >(jetSrc_);
   VtxTok_=consumes< std::vector<reco::Vertex> >(vtxSrc_);
 
+  SVComputer_               = iConfig.getParameter<std::string>("svComputer");
+  SLComputer_               = iConfig.getParameter<std::string>("slComputer");
+
+  computer_ = nullptr;
+  slcomputer_ = nullptr;
 
   //produces<std::vector<pat::Jet> >("");
   produces<std::vector<TLorentzVector> >("jetsLVec");
@@ -367,6 +397,43 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
 
   produces<std::vector<double> >("TagVarCSVtrackSumJetEtRatio");
 
+  produces<std::vector<double> >("CSVTrackJetPt");
+  produces<std::vector<double> >("CSVVertexCategory");
+  produces<std::vector<int> >   ("CSVJetNSecondaryVertices");
+  produces<std::vector<double> >("CSVTrackSumJetEtRatio");
+  produces<std::vector<double> >("CSVTrackSumJetDeltaR");
+  produces<std::vector<double> >("CSVTrackSip2dValAboveCharm");
+  produces<std::vector<double> >("CSVTrackSip2dSigAboveCharm");
+  produces<std::vector<double> >("CSVTrackSip3dValAboveCharm");
+  produces<std::vector<double> >("CSVTrackSip3dSigAboveCharm");
+  produces<std::vector<double> >("CSVVertexMass");
+  produces<std::vector<int> >   ("CSVVertexNTracks");
+  produces<std::vector<double> >("CSVVertexEnergyRatio");
+  produces<std::vector<double> >("CSVVertexJetDeltaR");
+  produces<std::vector<double> >("CSVFlightDistance2dVal");
+  produces<std::vector<double> >("CSVFlightDistance2dSig");
+  produces<std::vector<double> >("CSVFlightDistance3dVal");
+  produces<std::vector<double> >("CSVFlightDistance3dSig");
+
+  produces<std::vector<double> >("CTagVertexCategory");
+  produces<std::vector<int> >   ("CTagJetNSecondaryVertices");
+  produces<std::vector<double> >("CTagTrackSumJetEtRatio");
+  produces<std::vector<double> >("CTagTrackSumJetDeltaR");
+  produces<std::vector<double> >("CTagTrackSip2dSigAboveCharm");
+  produces<std::vector<double> >("CTagTrackSip3dSigAboveCharm");
+  produces<std::vector<double> >("CTagVertexMass");
+  produces<std::vector<int> >   ("CTagVertexNTracks");
+  produces<std::vector<double> >("CTagVertexEnergyRatio");
+  produces<std::vector<double> >("CTagVertexJetDeltaR");
+  produces<std::vector<double> >("CTagFlightDistance2dSig");
+  produces<std::vector<double> >("CTagFlightDistance3dSig");
+  produces<std::vector<double> >("CTagMassVertexEnergyFraction");
+  produces<std::vector<double> >("CTagVertexBoostOverSqrtJetPt");
+  produces<std::vector<double> >("CTagVertexLeptonCategory");
+
+  produces<std::vector<std::vector<TLorentzVector> > >("chargedPFCandLV");
+  produces<std::vector<std::vector<TLorentzVector> > >("neutralPFCandLV");
+  
 }
 
 
@@ -377,9 +444,6 @@ prodJets::~prodJets()
 
 bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
-
- 
-
   if( !iEvent.isRealData() ) isData_ = false;
 
   iEvent.getByToken(JetTok_, jets);
@@ -394,6 +458,17 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //read in the objects
   edm::Handle< std::vector<reco::Vertex> > vertices;
   iEvent.getByToken(VtxTok_, vertices);
+
+  edm::ESHandle<JetTagComputer> computerHandle;
+  iSetup.get<JetTagComputerRecord>().get( SVComputer_.c_str(), computerHandle );
+
+  computer_ = dynamic_cast<const GenericMVAJetTagComputer*>( computerHandle.product() );
+
+  edm::ESHandle<JetTagComputer> slcomputerHandle;
+  iSetup.get<JetTagComputerRecord>().get( SLComputer_.c_str(), slcomputerHandle );
+
+  slcomputer_ = dynamic_cast<const GenericMVAJetTagComputer*>( slcomputerHandle.product() );
+
 
   std::vector<pat::Jet> extJets = (*jets);
 
@@ -499,6 +574,42 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::auto_ptr<std::vector<double> > TagVarCSVtrackSumJetEtRatio(new std::vector<double>());
 
+  std::auto_ptr<std::vector<double> > CSV_trackJetPt(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_vertexCategory(new std::vector<double>());
+  std::auto_ptr<std::vector<int> >    CSV_jetNSecondaryVertices(new std::vector<int>());
+  std::auto_ptr<std::vector<double> > CSV_trackSumJetEtRatio(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_trackSumJetDeltaR(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_trackSip2dValAboveCharm(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_trackSip2dSigAboveCharm(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_trackSip3dValAboveCharm(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_trackSip3dSigAboveCharm(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_vertexMass(new std::vector<double>());
+  std::auto_ptr<std::vector<int> >    CSV_vertexNTracks(new std::vector<int>());
+  std::auto_ptr<std::vector<double> > CSV_vertexEnergyRatio(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_vertexJetDeltaR(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_flightDistance2dVal(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_flightDistance2dSig(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_flightDistance3dVal(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CSV_flightDistance3dSig(new std::vector<double>());
+
+  std::auto_ptr<std::vector<double> > CTag_vertexCategory(new std::vector<double>());
+  std::auto_ptr<std::vector<int> >    CTag_jetNSecondaryVertices(new std::vector<int>());
+  std::auto_ptr<std::vector<double> > CTag_trackSumJetEtRatio(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CTag_trackSumJetDeltaR(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CTag_trackSip2dSigAboveCharm(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CTag_trackSip3dSigAboveCharm(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CTag_vertexMass(new std::vector<double>());
+  std::auto_ptr<std::vector<int> >    CTag_vertexNTracks(new std::vector<int>());
+  std::auto_ptr<std::vector<double> > CTag_vertexEnergyRatio(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CTag_vertexJetDeltaR(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CTag_flightDistance2dSig(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CTag_flightDistance3dSig(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CTag_massVertexEnergyFraction(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CTag_vertexBoostOverSqrtJetPt(new std::vector<double>());
+  std::auto_ptr<std::vector<double> > CTag_vertexLeptonCategory(new std::vector<double>());
+
+  std::auto_ptr<std::vector<std::vector<TLorentzVector> > > chargedPFCandLV(new std::vector<std::vector<TLorentzVector> >());
+  std::auto_ptr<std::vector<std::vector<TLorentzVector> > > neutralPFCandLV(new std::vector<std::vector<TLorentzVector> >());
 
   int cntJetLowPt = 0;
   for(unsigned int ij=0; ij < extJets.size(); ij++)
@@ -510,6 +621,11 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //const reco::TrackIPTagInfo *ipTagInfo = jet.tagInfoCandIP(ipTagInfos_.c_str());
     const auto *ipTagInfo = jet.tagInfoCandIP(ipTagInfos_.c_str());
     const auto *svTagInfo = jet.tagInfoCandSecondaryVertex(svTagInfos_.c_str());
+
+    const auto *ipTagInfoCTag = jet.tagInfoCandIP(ipTagInfosCTag_.c_str());
+    const auto *svTagInfoCTag = jet.tagInfoCandSecondaryVertex(svTagInfosCTag_.c_str());
+    const reco::CandSoftLeptonTagInfo *softPFMuTagInfoCTag = jet.tagInfoCandSoftLepton(softPFMuonTagInfosCTag_.c_str());
+    const reco::CandSoftLeptonTagInfo *softPFElTagInfoCTag = jet.tagInfoCandSoftLepton(softPFElectronTagInfosCTag_.c_str()); 
 
     TLorentzVector perJetLVec;
     perJetLVec.SetPtEtaPhiE( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
@@ -779,10 +895,137 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double muonMultiplicity1 = jet.muonMultiplicity();
     MuonMultiplicity->push_back( muonMultiplicity1 );
 
+    std::vector<const reco::BaseTagInfo*>  baseTagInfos;
+    JetTagComputer::TagInfoHelper helper(baseTagInfos);
+    baseTagInfos.push_back( ipTagInfo );
+    baseTagInfos.push_back( svTagInfo );
+    // TaggingVariables
+    reco::TaggingVariableList vars = computer_->taggingVariables(helper);
+
+    // btag inputs per jet
+    double trackJetPt_loc              = ( vars.checkTag(reco::btau::trackJetPt)              ? vars.get(reco::btau::trackJetPt) : -9999 );
+    double vertexCategory_loc          = ( vars.checkTag(reco::btau::vertexCategory)          ? vars.get(reco::btau::vertexCategory) : -9999 );
+    int    jetNSecondaryVertices_loc   = ( vars.checkTag(reco::btau::jetNSecondaryVertices)   ? vars.get(reco::btau::jetNSecondaryVertices) : 0 );
+    double trackSumJetEtRatio_loc      = ( vars.checkTag(reco::btau::trackSumJetEtRatio)      ? vars.get(reco::btau::trackSumJetEtRatio) : -9999 );
+    double trackSumJetDeltaR_loc       = ( vars.checkTag(reco::btau::trackSumJetDeltaR)       ? vars.get(reco::btau::trackSumJetDeltaR) : -9999 );
+    double trackSip2dValAboveCharm_loc = ( vars.checkTag(reco::btau::trackSip2dValAboveCharm) ? vars.get(reco::btau::trackSip2dValAboveCharm) : -9999 );
+    double trackSip2dSigAboveCharm_loc = ( vars.checkTag(reco::btau::trackSip2dSigAboveCharm) ? vars.get(reco::btau::trackSip2dSigAboveCharm) : -9999 );
+    double trackSip3dValAboveCharm_loc = ( vars.checkTag(reco::btau::trackSip3dValAboveCharm) ? vars.get(reco::btau::trackSip3dValAboveCharm) : -9999 );
+    double trackSip3dSigAboveCharm_loc = ( vars.checkTag(reco::btau::trackSip3dSigAboveCharm) ? vars.get(reco::btau::trackSip3dSigAboveCharm) : -9999 );
+    double vertexMass_loc              = ( vars.checkTag(reco::btau::vertexMass)              ? vars.get(reco::btau::vertexMass) : -9999 );
+    int    vertexNTracks_loc           = ( vars.checkTag(reco::btau::vertexNTracks)           ? vars.get(reco::btau::vertexNTracks) : 0 );
+    double vertexEnergyRatio_loc       = ( vars.checkTag(reco::btau::vertexEnergyRatio)       ? vars.get(reco::btau::vertexEnergyRatio) : -9999 );
+    double vertexJetDeltaR_loc         = ( vars.checkTag(reco::btau::vertexJetDeltaR)         ? vars.get(reco::btau::vertexJetDeltaR) : -9999 );
+    double flightDistance2dVal_loc     = ( vars.checkTag(reco::btau::flightDistance2dVal)     ? vars.get(reco::btau::flightDistance2dVal) : -9999 );
+    double flightDistance2dSig_loc     = ( vars.checkTag(reco::btau::flightDistance2dSig)     ? vars.get(reco::btau::flightDistance2dSig) : -9999 );
+    double flightDistance3dVal_loc     = ( vars.checkTag(reco::btau::flightDistance3dVal)     ? vars.get(reco::btau::flightDistance3dVal) : -9999 );
+    double flightDistance3dSig_loc     = ( vars.checkTag(reco::btau::flightDistance3dSig)     ? vars.get(reco::btau::flightDistance3dSig) : -9999 );
+
+    CSV_trackJetPt->push_back(trackJetPt_loc);
+    CSV_vertexCategory->push_back(vertexCategory_loc);
+    CSV_jetNSecondaryVertices->push_back(jetNSecondaryVertices_loc);
+    CSV_trackSumJetEtRatio->push_back(trackSumJetEtRatio_loc);
+    CSV_trackSumJetDeltaR->push_back(trackSumJetDeltaR_loc);
+    CSV_trackSip2dValAboveCharm->push_back(trackSip2dValAboveCharm_loc);
+    CSV_trackSip2dSigAboveCharm->push_back(trackSip2dSigAboveCharm_loc);
+    CSV_trackSip3dValAboveCharm->push_back(trackSip3dValAboveCharm_loc);
+    CSV_trackSip3dSigAboveCharm->push_back(trackSip3dSigAboveCharm_loc);
+    CSV_vertexMass->push_back(vertexMass_loc);
+    CSV_vertexNTracks->push_back(vertexNTracks_loc);
+    CSV_vertexEnergyRatio->push_back(vertexEnergyRatio_loc);
+    CSV_vertexJetDeltaR->push_back(vertexJetDeltaR_loc);
+    CSV_flightDistance2dVal->push_back(flightDistance2dVal_loc);
+    CSV_flightDistance2dSig->push_back(flightDistance2dSig_loc);
+    CSV_flightDistance3dVal->push_back(flightDistance3dVal_loc);
+    CSV_flightDistance3dSig->push_back(flightDistance3dSig_loc);
+
+    //charm tagger info 
+    std::vector<const reco::BaseTagInfo*>  slbaseTagInfos;
+    slbaseTagInfos.push_back( ipTagInfoCTag );
+    slbaseTagInfos.push_back( svTagInfoCTag );
+    slbaseTagInfos.push_back( softPFMuTagInfoCTag );
+    slbaseTagInfos.push_back( softPFElTagInfoCTag ); 
+    JetTagComputer::TagInfoHelper slhelper(slbaseTagInfos);
+    // TaggingVariables
+    reco::TaggingVariableList slvars = slcomputer_->taggingVariables(slhelper);
+
+    // per jet
+    CTag_vertexCategory->           push_back( slvars.checkTag(reco::btau::vertexCategory)           ? slvars.get(reco::btau::vertexCategory)            : -9999 );
+    CTag_jetNSecondaryVertices->    push_back( slvars.checkTag(reco::btau::jetNSecondaryVertices)    ? slvars.get(reco::btau::jetNSecondaryVertices)     : 0 );
+    CTag_trackSumJetEtRatio->       push_back( slvars.checkTag(reco::btau::trackSumJetEtRatio)       ? slvars.get(reco::btau::trackSumJetEtRatio)        : -9999 );
+    CTag_trackSumJetDeltaR->        push_back( slvars.checkTag(reco::btau::trackSumJetDeltaR)        ? slvars.get(reco::btau::trackSumJetDeltaR)         : -9999 );
+    CTag_trackSip2dSigAboveCharm->  push_back( slvars.checkTag(reco::btau::trackSip2dSigAboveCharm)  ? slvars.get(reco::btau::trackSip2dSigAboveCharm)   : -9999 );
+    CTag_trackSip3dSigAboveCharm->  push_back( slvars.checkTag(reco::btau::trackSip3dSigAboveCharm)  ? slvars.get(reco::btau::trackSip3dSigAboveCharm)   : -9999 );
+    CTag_vertexMass->               push_back( slvars.checkTag(reco::btau::vertexMass)               ? slvars.get(reco::btau::vertexMass)                : -9999 );
+    CTag_vertexNTracks->            push_back( slvars.checkTag(reco::btau::vertexNTracks)            ? slvars.get(reco::btau::vertexNTracks)             : 0 );
+    CTag_vertexEnergyRatio->        push_back( slvars.checkTag(reco::btau::vertexEnergyRatio)        ? slvars.get(reco::btau::vertexEnergyRatio)         : -9999 );
+    CTag_vertexJetDeltaR->          push_back( slvars.checkTag(reco::btau::vertexJetDeltaR)          ? slvars.get(reco::btau::vertexJetDeltaR)           : -9999 );
+    CTag_flightDistance2dSig->      push_back( slvars.checkTag(reco::btau::flightDistance2dSig)      ? slvars.get(reco::btau::flightDistance2dSig)       : -9999 );
+    CTag_flightDistance3dSig->      push_back( slvars.checkTag(reco::btau::flightDistance3dSig)      ? slvars.get(reco::btau::flightDistance3dSig)       : -9999 );
+    CTag_massVertexEnergyFraction-> push_back( slvars.checkTag(reco::btau::massVertexEnergyFraction) ? slvars.get(reco::btau::massVertexEnergyFraction)  : -0.1);
+    CTag_vertexBoostOverSqrtJetPt-> push_back( slvars.checkTag(reco::btau::vertexBoostOverSqrtJetPt) ? slvars.get(reco::btau::vertexBoostOverSqrtJetPt)  : -0.1);
+    CTag_vertexLeptonCategory->     push_back( slvars.checkTag(reco::btau::vertexLeptonCategory)     ? slvars.get(reco::btau::vertexLeptonCategory)      : -1);      
+
+    std::vector<TLorentzVector> pfCandChargedLV;
+    std::vector<TLorentzVector> pfCandNeutralLV;
+    int chargedCand = 2;
+    int neutralCand = 2;
+    //create collection first, to be able to do some sorting
+    for (unsigned int i = 0; i < jet.numberOfDaughters() && (chargedCand || neutralCand); i++)
+    {
+        const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(jet.daughter(i));
+        if(packedCand)
+        {
+            /// Split to charged and neutral candidates
+            if(packedCand->charge()!=0)
+            {
+                if(chargedCand == 0) continue;
+                --chargedCand;
+                TLorentzVector tmpVec;
+                tmpVec.SetPtEtaPhiE(packedCand->pt(), packedCand->eta(), packedCand->phi(), packedCand->energy());
+                pfCandChargedLV.push_back(tmpVec);
+                packedCand->dxy();
+                packedCand->dxyError();
+                packedCand->dz();
+                packedCand->pvAssociationQuality();
+
+                packedCand->fromPV();
+
+                packedCand->vertexChi2();
+                packedCand->vertexNdof();
+                //divided
+                packedCand->vertexNormalizedChi2();
+                packedCand->vertex().rho();
+                packedCand->vertex().phi();
+                packedCand->vertexRef()->p4().M();
+                packedCand->puppiWeight();
+                 
+                packedCand->charge();
+                packedCand->lostInnerHits();
+                 
+            }
+            else // neutral candidates
+            {
+                if(neutralCand == 0) continue;
+                --neutralCand;
+                TLorentzVector tmpVec;
+                tmpVec.SetPtEtaPhiE(packedCand->pt(), packedCand->eta(), packedCand->phi(), packedCand->energy());
+                pfCandNeutralLV.push_back(tmpVec);
+                packedCand->puppiWeight();
+                packedCand->pdgId();
+                packedCand->hcalFraction();
+            }
+        }
+    }
+    //DO NOT try to use the origional vectors after the move!
+    chargedPFCandLV->emplace_back(std::move(pfCandChargedLV));
+    neutralPFCandLV->emplace_back(std::move(pfCandNeutralLV));
   }
 
-  //const unsigned int numConstituents = jet.numberOfDaughters();
+  //const->push_back(}
 
+  //const_loc);
+  
   // store in the event
   // iEvent.put(prod);
   iEvent.put(jetsLVec, "jetsLVec");
@@ -886,6 +1129,42 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(ElectronMultiplicity, "ElectronMultiplicity");
   iEvent.put(MuonMultiplicity, "MuonMultiplicity");
 
+  iEvent.put(CSV_trackJetPt,                "CSVTrackJetPt");
+  iEvent.put(CSV_vertexCategory,            "CSVVertexCategory");
+  iEvent.put(CSV_jetNSecondaryVertices,     "CSVJetNSecondaryVertices");
+  iEvent.put(CSV_trackSumJetEtRatio,        "CSVTrackSumJetEtRatio");
+  iEvent.put(CSV_trackSumJetDeltaR,         "CSVTrackSumJetDeltaR");
+  iEvent.put(CSV_trackSip2dValAboveCharm,   "CSVTrackSip2dValAboveCharm");
+  iEvent.put(CSV_trackSip2dSigAboveCharm,   "CSVTrackSip2dSigAboveCharm");
+  iEvent.put(CSV_trackSip3dValAboveCharm,   "CSVTrackSip3dValAboveCharm");
+  iEvent.put(CSV_trackSip3dSigAboveCharm,   "CSVTrackSip3dSigAboveCharm");
+  iEvent.put(CSV_vertexMass,                "CSVVertexMass");
+  iEvent.put(CSV_vertexNTracks,             "CSVVertexNTracks");
+  iEvent.put(CSV_vertexEnergyRatio,         "CSVVertexEnergyRatio");
+  iEvent.put(CSV_vertexJetDeltaR,           "CSVVertexJetDeltaR");
+  iEvent.put(CSV_flightDistance2dVal,       "CSVFlightDistance2dVal");
+  iEvent.put(CSV_flightDistance2dSig,       "CSVFlightDistance2dSig");
+  iEvent.put(CSV_flightDistance3dVal,       "CSVFlightDistance3dVal");
+  iEvent.put(CSV_flightDistance3dSig,       "CSVFlightDistance3dSig");
+
+  iEvent.put(CTag_vertexCategory,           "CTagVertexCategory");
+  iEvent.put(CTag_jetNSecondaryVertices,    "CTagJetNSecondaryVertices");
+  iEvent.put(CTag_trackSumJetEtRatio,       "CTagTrackSumJetEtRatio");
+  iEvent.put(CTag_trackSumJetDeltaR,        "CTagTrackSumJetDeltaR");
+  iEvent.put(CTag_trackSip2dSigAboveCharm,  "CTagTrackSip2dSigAboveCharm");
+  iEvent.put(CTag_trackSip3dSigAboveCharm,  "CTagTrackSip3dSigAboveCharm");
+  iEvent.put(CTag_vertexMass,               "CTagVertexMass");
+  iEvent.put(CTag_vertexNTracks,            "CTagVertexNTracks");
+  iEvent.put(CTag_vertexEnergyRatio,        "CTagVertexEnergyRatio");
+  iEvent.put(CTag_vertexJetDeltaR,          "CTagVertexJetDeltaR");
+  iEvent.put(CTag_flightDistance2dSig,      "CTagFlightDistance2dSig");
+  iEvent.put(CTag_flightDistance3dSig,      "CTagFlightDistance3dSig");
+  iEvent.put(CTag_massVertexEnergyFraction, "CTagMassVertexEnergyFraction");
+  iEvent.put(CTag_vertexBoostOverSqrtJetPt, "CTagVertexBoostOverSqrtJetPt");
+  iEvent.put(CTag_vertexLeptonCategory,     "CTagVertexLeptonCategory");
+
+  iEvent.put(chargedPFCandLV, "chargedPFCandLV");
+  iEvent.put(neutralPFCandLV, "neutralPFCandLV");
 
   return true;
 }

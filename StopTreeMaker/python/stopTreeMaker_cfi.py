@@ -41,4 +41,7 @@ vectorStringNamesInTree   = cms.vstring(),
 
 vectorTLorentzVector        = cms.VInputTag(),
 vectorTLorentzVectorNamesInTree = cms.vstring(),
+
+vectorVectorTLorentzVector        = cms.VInputTag(),
+vectorVectorTLorentzVectorNamesInTree = cms.vstring(),
 )

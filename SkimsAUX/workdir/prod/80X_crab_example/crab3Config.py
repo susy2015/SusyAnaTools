@@ -6,8 +6,9 @@ config.General.requestName = 'Spring15DR74_Asympt25ns_TTJets'
 
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = 'treeMaker_stopRA2.py'
+config.JobType.psetName = 'run_topNtuplizer.py'
 config.JobType.allowUndistributedCMSSW = False
+config.JobType.inputFiles = ["QGL_cmssw8020_v2.db",]
 #config.JobType.pyCfgParams = ['GlobalTag=GR_P_V56', 'mcInfo=0']
 
 config.section_("Data")
