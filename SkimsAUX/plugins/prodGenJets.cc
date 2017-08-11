@@ -63,8 +63,8 @@ bool prodGenJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(GenJetTok_, genjets);
 
   // check which ones to keep
-	std::auto_ptr<std::vector<TLorentzVector> > genjetsLVec(new std::vector<TLorentzVector>());
-  //std::auto_ptr<std::vector<int> > genJetsFlavor(new std::vector<int>());
+	std::unique_ptr<std::vector<TLorentzVector> > genjetsLVec(new std::vector<TLorentzVector>());
+  //std::unique_ptr<std::vector<int> > genJetsFlavor(new std::vector<int>());
 
   for(unsigned int io=0; io < genjets->size(); io++)
 	{
@@ -77,7 +77,7 @@ bool prodGenJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   //store in the event
-	iEvent.put(genjetsLVec, "genjetsLVec");
+	iEvent.put(std::move(genjetsLVec), "genjetsLVec");
   //iEvent.put(genJetsFlavor, "genJetsFlavor");
 
   return true;

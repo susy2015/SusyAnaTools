@@ -48,8 +48,8 @@ bool prodGoodVertices::filter(edm::Event & iEvent, const edm::EventSetup & iSetu
      vtxCnt++;
   }
 
-  std::auto_ptr<int> prod(new int(vtxCnt));
-  iEvent.put(prod);
+  std::unique_ptr<int> prod(new int(vtxCnt));
+  iEvent.put(std::move(prod));
 
   return true;
 }

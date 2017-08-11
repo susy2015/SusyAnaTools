@@ -126,27 +126,27 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(RhoTok_,rho_);
   double rho = *rho_;
 
-  std::auto_ptr<std::vector<TLorentzVector> > genDecayLVec(new std::vector<TLorentzVector>());
-  std::auto_ptr<std::vector<int> > genDecayIdxVec(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > genDecayPdgIdVec(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > genDecayMomIdxVec(new std::vector<int>());
-  std::auto_ptr<std::vector<std::string> > genDecayStrVec(new std::vector<std::string>());
-  std::auto_ptr<std::vector<int> > genDecayMomRefVec(new std::vector<int>());
+  std::unique_ptr<std::vector<TLorentzVector> > genDecayLVec(new std::vector<TLorentzVector>());
+  std::unique_ptr<std::vector<int> > genDecayIdxVec(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > genDecayPdgIdVec(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > genDecayMomIdxVec(new std::vector<int>());
+  std::unique_ptr<std::vector<std::string> > genDecayStrVec(new std::vector<std::string>());
+  std::unique_ptr<std::vector<int> > genDecayMomRefVec(new std::vector<int>());
 
-  std::auto_ptr<std::vector<int> > W_emuVec(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > W_tauVec(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > W_tau_emuVec(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > W_tau_prongsVec(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > W_tau_nuVec(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > W_emuVec(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > W_tauVec(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > W_tau_emuVec(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > W_tau_prongsVec(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > W_tau_nuVec(new std::vector<int>());
 
-  std::auto_ptr<std::vector<double> > W_emu_pfActivityVec(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > W_tau_emu_pfActivityVec(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > W_tauprongs_pfActivityVec(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > W_emu_pfActivityVec(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > W_tau_emu_pfActivityVec(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > W_tauprongs_pfActivityVec(new std::vector<double>());
 
 
   //StopStopPT fr ISR Systematics  
-  std::auto_ptr< std::vector< TLorentzVector > > selGenParticle( new std::vector< TLorentzVector > () );
-  std::auto_ptr< std::vector< int > > selPDGid( new std::vector< int > () );
+  std::unique_ptr< std::vector< TLorentzVector > > selGenParticle( new std::vector< TLorentzVector > () );
+  std::unique_ptr< std::vector< int > > selPDGid( new std::vector< int > () );
 
   std::set<int> pdgIdOfInterest;
   pdgIdOfInterest.insert(21);
@@ -319,27 +319,27 @@ bool prodGenInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   // store in the event
-  iEvent.put(genDecayLVec, "genDecayLVec");
-  iEvent.put(genDecayStrVec, "genDecayStrVec");
+  iEvent.put(std::move(genDecayLVec), "genDecayLVec");
+  iEvent.put(std::move(genDecayStrVec), "genDecayStrVec");
 
-  iEvent.put(genDecayIdxVec, "genDecayIdxVec");
-  iEvent.put(genDecayPdgIdVec, "genDecayPdgIdVec");
-  iEvent.put(genDecayMomIdxVec, "genDecayMomIdxVec");
-  iEvent.put(genDecayMomRefVec, "genDecayMomRefVec");
+  iEvent.put(std::move(genDecayIdxVec), "genDecayIdxVec");
+  iEvent.put(std::move(genDecayPdgIdVec), "genDecayPdgIdVec");
+  iEvent.put(std::move(genDecayMomIdxVec), "genDecayMomIdxVec");
+  iEvent.put(std::move(genDecayMomRefVec), "genDecayMomRefVec");
 
-  iEvent.put(W_tauVec, "WtauVec");
-  iEvent.put(W_emuVec, "WemuVec");
-  iEvent.put(W_tau_emuVec, "WtauemuVec");
-  iEvent.put(W_tau_prongsVec, "WtauprongsVec");
-  iEvent.put(W_tau_nuVec, "WtaunuVec");
+  iEvent.put(std::move(W_tauVec), "WtauVec");
+  iEvent.put(std::move(W_emuVec), "WemuVec");
+  iEvent.put(std::move(W_tau_emuVec), "WtauemuVec");
+  iEvent.put(std::move(W_tau_prongsVec), "WtauprongsVec");
+  iEvent.put(std::move(W_tau_nuVec), "WtaunuVec");
 
-  iEvent.put(W_emu_pfActivityVec, "WemupfActivityVec");
-  iEvent.put(W_tau_emu_pfActivityVec, "WtauemupfActivityVec");
-  iEvent.put(W_tauprongs_pfActivityVec, "WtauprongspfActivityVec");
+  iEvent.put(std::move(W_emu_pfActivityVec), "WemupfActivityVec");
+  iEvent.put(std::move(W_tau_emu_pfActivityVec), "WtauemupfActivityVec");
+  iEvent.put(std::move(W_tauprongs_pfActivityVec), "WtauprongspfActivityVec");
 
   //StopStop PT for ISR Systematics
-  iEvent.put(selGenParticle, "selGenParticle"); 
-  iEvent.put(selPDGid , "selPDGid" );
+  iEvent.put(std::move(selGenParticle), "selGenParticle"); 
+  iEvent.put(std::move(selPDGid) , "selPDGid" );
 
   return true;
 }

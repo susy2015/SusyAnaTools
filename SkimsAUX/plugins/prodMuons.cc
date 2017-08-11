@@ -144,23 +144,23 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double rho = *rho_;
 
   //check which ones to keep
-  std::auto_ptr<std::vector<pat::Muon> > prod(new std::vector<pat::Muon>());
-  std::auto_ptr<std::vector<pat::Muon> > mu2Clean(new std::vector<pat::Muon>());
-  std::auto_ptr<std::vector<TLorentzVector> > muonsLVec(new std::vector<TLorentzVector>());
-  std::auto_ptr<std::vector<double> > muonsCharge(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > muonsMtw(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > muonsRelIso(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > muonsMiniIso(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > muonspfActivity(new std::vector<double>());
+  std::unique_ptr<std::vector<pat::Muon> > prod(new std::vector<pat::Muon>());
+  std::unique_ptr<std::vector<pat::Muon> > mu2Clean(new std::vector<pat::Muon>());
+  std::unique_ptr<std::vector<TLorentzVector> > muonsLVec(new std::vector<TLorentzVector>());
+  std::unique_ptr<std::vector<double> > muonsCharge(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > muonsMtw(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > muonsRelIso(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > muonsMiniIso(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > muonspfActivity(new std::vector<double>());
 
-  std::auto_ptr<std::vector<int> > muonsIDtype(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > muonsFlagLoose(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > muonsFlagMedium(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > muonsFlagTight(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > muonsIDtype(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > muonsFlagLoose(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > muonsFlagMedium(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > muonsFlagTight(new std::vector<int>());
 
-  std::auto_ptr<std::vector<int>> specialFixtype(new std::vector<int>());
-  std::auto_ptr<std::vector<TLorentzVector>> specialFixMuonsLVec(new std::vector<TLorentzVector>());
-  std::auto_ptr<std::vector<double>> specialFixMuonsCharge(new std::vector<double>());
+  std::unique_ptr<std::vector<int>> specialFixtype(new std::vector<int>());
+  std::unique_ptr<std::vector<TLorentzVector>> specialFixMuonsLVec(new std::vector<TLorentzVector>());
+  std::unique_ptr<std::vector<double>> specialFixMuonsCharge(new std::vector<double>());
 
   if( specialFix_ ){
      edm::Handle<edm::PtrVector<reco::Muon>> badGlobalMuonPtr_handle, cloneGlobalMuonPtr_handle;
@@ -259,28 +259,28 @@ bool prodMuons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // determine result before losing ownership of the pointer
   bool result = (doMuonVeto_ ? (prod->size() == 0) : true);
 
-  std::auto_ptr<int> nMuons (new int);
+  std::unique_ptr<int> nMuons (new int);
 
   *nMuons = prod->size();
 
   // store in the event
-  iEvent.put(prod);
-  iEvent.put(mu2Clean, "mu2Clean");
-  iEvent.put(muonsIDtype, "muonsIDtype");
-  iEvent.put(muonsFlagLoose, "muonsFlagLoose");
-  iEvent.put(muonsFlagMedium, "muonsFlagMedium");
-  iEvent.put(muonsFlagTight, "muonsFlagTight");
-  iEvent.put(muonsLVec, "muonsLVec");
-  iEvent.put(muonsCharge, "muonsCharge");
-  iEvent.put(muonsMtw, "muonsMtw");
-  iEvent.put(muonsRelIso, "muonsRelIso");
-  iEvent.put(muonsMiniIso, "muonsMiniIso");
-  iEvent.put(muonspfActivity, "muonspfActivity");
-  iEvent.put(nMuons, "nMuons");
+  iEvent.put(std::move(prod));
+  iEvent.put(std::move(mu2Clean), "mu2Clean");
+  iEvent.put(std::move(muonsIDtype), "muonsIDtype");
+  iEvent.put(std::move(muonsFlagLoose), "muonsFlagLoose");
+  iEvent.put(std::move(muonsFlagMedium), "muonsFlagMedium");
+  iEvent.put(std::move(muonsFlagTight), "muonsFlagTight");
+  iEvent.put(std::move(muonsLVec), "muonsLVec");
+  iEvent.put(std::move(muonsCharge), "muonsCharge");
+  iEvent.put(std::move(muonsMtw), "muonsMtw");
+  iEvent.put(std::move(muonsRelIso), "muonsRelIso");
+  iEvent.put(std::move(muonsMiniIso), "muonsMiniIso");
+  iEvent.put(std::move(muonspfActivity), "muonspfActivity");
+  iEvent.put(std::move(nMuons), "nMuons");
   if( specialFix_ ){
-     iEvent.put(specialFixtype, "specialFixtype");
-     iEvent.put(specialFixMuonsLVec, "specialFixMuonsLVec");
-     iEvent.put(specialFixMuonsCharge, "specialFixMuonsCharge");
+     iEvent.put(std::move(specialFixtype), "specialFixtype");
+     iEvent.put(std::move(specialFixMuonsLVec), "specialFixMuonsLVec");
+     iEvent.put(std::move(specialFixMuonsCharge), "specialFixMuonsCharge");
   }
 
   return result;

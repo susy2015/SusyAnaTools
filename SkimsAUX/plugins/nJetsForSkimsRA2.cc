@@ -56,8 +56,8 @@ bool nJetsForSkimsRA2::filter(edm::Event & iEvent, const edm::EventSetup & iSetu
     }
   }
 
-  std::auto_ptr<int> nJetsPtr(new int(nJets));
-  iEvent.put(nJetsPtr, "nJets");
+  std::unique_ptr<int> nJetsPtr(new int(nJets));
+  iEvent.put(std::move(nJetsPtr), "nJets");
 
   return true;
 

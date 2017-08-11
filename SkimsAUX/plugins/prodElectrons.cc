@@ -150,19 +150,19 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double rho = *rho_;
 
   // check which ones to keep
-  std::auto_ptr<std::vector<pat::Electron> > prod(new std::vector<pat::Electron>());
-  std::auto_ptr<std::vector<pat::Electron> > ele2Clean(new std::vector<pat::Electron>());
+  std::unique_ptr<std::vector<pat::Electron> > prod(new std::vector<pat::Electron>());
+  std::unique_ptr<std::vector<pat::Electron> > ele2Clean(new std::vector<pat::Electron>());
 
-  std::auto_ptr<std::vector<TLorentzVector> > elesLVec(new std::vector<TLorentzVector>());
-  std::auto_ptr<std::vector<double> > elesCharge(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > elesMtw(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > elesRelIso(new std::vector<double>());
-  std::auto_ptr<std::vector<bool> > elesisEB(new std::vector<bool>());
-  std::auto_ptr<std::vector<double> > elesMiniIso(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > elespfActivity(new std::vector<double>());
+  std::unique_ptr<std::vector<TLorentzVector> > elesLVec(new std::vector<TLorentzVector>());
+  std::unique_ptr<std::vector<double> > elesCharge(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > elesMtw(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > elesRelIso(new std::vector<double>());
+  std::unique_ptr<std::vector<bool> > elesisEB(new std::vector<bool>());
+  std::unique_ptr<std::vector<double> > elesMiniIso(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > elespfActivity(new std::vector<double>());
 
-  std::auto_ptr<std::vector<int> > elesFlagVeto(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > elesFlagMedium(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > elesFlagVeto(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > elesFlagMedium(new std::vector<int>());
 
   // loop on electrons
   for( edm::View<pat::Electron>::const_iterator ele = electrons->begin(); ele != electrons->end(); ele++ )
@@ -227,23 +227,23 @@ bool prodElectrons::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // determine result before losing ownership of the pointer
   bool result = (doEleVeto_ ? (prod->size() == 0) : true);
 
-  std::auto_ptr<int> nElectrons (new int);
+  std::unique_ptr<int> nElectrons (new int);
 
   *nElectrons = prod->size();
 
   // store in the event
-  iEvent.put(prod);
-  iEvent.put(ele2Clean, "ele2Clean");
-  iEvent.put(elesFlagVeto, "elesFlagVeto");
-  iEvent.put(elesFlagMedium, "elesFlagMedium");
-  iEvent.put(elesLVec, "elesLVec");
-  iEvent.put(elesCharge, "elesCharge");
-  iEvent.put(elesMtw, "elesMtw");
-  iEvent.put(elesRelIso, "elesRelIso");
-  iEvent.put(elesisEB, "elesisEB");
-  iEvent.put(elesMiniIso, "elesMiniIso");
-  iEvent.put(elespfActivity, "elespfActivity");
-  iEvent.put(nElectrons, "nElectrons");
+  iEvent.put(std::move(prod));
+  iEvent.put(std::move(ele2Clean), "ele2Clean");
+  iEvent.put(std::move(elesFlagVeto), "elesFlagVeto");
+  iEvent.put(std::move(elesFlagMedium), "elesFlagMedium");
+  iEvent.put(std::move(elesLVec), "elesLVec");
+  iEvent.put(std::move(elesCharge), "elesCharge");
+  iEvent.put(std::move(elesMtw), "elesMtw");
+  iEvent.put(std::move(elesRelIso), "elesRelIso");
+  iEvent.put(std::move(elesisEB), "elesisEB");
+  iEvent.put(std::move(elesMiniIso), "elesMiniIso");
+  iEvent.put(std::move(elespfActivity), "elespfActivity");
+  iEvent.put(std::move(nElectrons), "nElectrons");
 
   return result;
 }

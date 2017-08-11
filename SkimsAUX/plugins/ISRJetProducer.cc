@@ -81,10 +81,10 @@ bool ISRJetProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(GenParticleTok_, genParticles);
   iEvent.getByToken(cleanJetTok_, cleanJet);
 
-  std::auto_ptr<int> NJetsISR (new int);
+  std::unique_ptr<int> NJetsISR (new int);
   *NJetsISR = nisrMatch(genParticles, cleanJet);
 
-  iEvent.put(NJetsISR, "NJetsISR");
+  iEvent.put(std::move(NJetsISR), "NJetsISR");
 
   return true;
 }

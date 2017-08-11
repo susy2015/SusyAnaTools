@@ -90,20 +90,20 @@ void provInfo::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<pat::Electron> > eles;
   iEvent.getByLabel(eleSrc_, eles);
 
-  std::auto_ptr<std::vector<edm::ProductID> > muonProvProductIDptr(new std::vector<edm::ProductID>() );
-  std::auto_ptr<std::vector<key_type> > muonProvKeyptr(new std::vector<key_type>() ); 
+  std::unique_ptr<std::vector<edm::ProductID> > muonProvProductIDptr(new std::vector<edm::ProductID>() );
+  std::unique_ptr<std::vector<key_type> > muonProvKeyptr(new std::vector<key_type>() ); 
 
-  std::auto_ptr<std::vector<edm::ProductID> > eleProvProductIDptr(new std::vector<edm::ProductID>() );
-  std::auto_ptr<std::vector<key_type> > eleProvKeyptr(new std::vector<key_type>() ); 
+  std::unique_ptr<std::vector<edm::ProductID> > eleProvProductIDptr(new std::vector<edm::ProductID>() );
+  std::unique_ptr<std::vector<key_type> > eleProvKeyptr(new std::vector<key_type>() ); 
 
-  std::auto_ptr<edm::ValueMap<edm::ProductID> > muonPFbaseProductIDptr(new edm::ValueMap<edm::ProductID>() );
-  std::auto_ptr<edm::ValueMap<key_type> > muonPFbaseKeyptr(new edm::ValueMap<key_type>() );
+  std::unique_ptr<edm::ValueMap<edm::ProductID> > muonPFbaseProductIDptr(new edm::ValueMap<edm::ProductID>() );
+  std::unique_ptr<edm::ValueMap<key_type> > muonPFbaseKeyptr(new edm::ValueMap<key_type>() );
 
   edm::ValueMap<edm::ProductID>::Filler muonProductIDfiller(*muonPFbaseProductIDptr);
   edm::ValueMap<key_type>::Filler muonKeyfiller(*muonPFbaseKeyptr);
 
-  std::auto_ptr<edm::ValueMap<edm::ProductID> > elePFbaseProductIDptr(new edm::ValueMap<edm::ProductID>() );
-  std::auto_ptr<edm::ValueMap<key_type> > elePFbaseKeyptr(new edm::ValueMap<key_type>() );
+  std::unique_ptr<edm::ValueMap<edm::ProductID> > elePFbaseProductIDptr(new edm::ValueMap<edm::ProductID>() );
+  std::unique_ptr<edm::ValueMap<key_type> > elePFbaseKeyptr(new edm::ValueMap<key_type>() );
 
   edm::ValueMap<edm::ProductID>::Filler eleProductIDfiller(*elePFbaseProductIDptr);
   edm::ValueMap<key_type>::Filler eleKeyfiller(*elePFbaseKeyptr);
@@ -113,7 +113,7 @@ void provInfo::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   key_type dummyKey = 999999999;
   edm::ProductID dummyProductID;
 
-  std::auto_ptr<edm::OwnVector<pat::UserData> > muonPFbaseProductIDOVptr(new edm::OwnVector<pat::UserData>());
+  std::unique_ptr<edm::OwnVector<pat::UserData> > muonPFbaseProductIDOVptr(new edm::OwnVector<pat::UserData>());
   for (edm::View<pat::Muon>::const_iterator m = muons->begin(); m != muons->end(); ++m) {
 
      const reco::CandidatePtr& muonRef =m->pfCandidateRef()->sourceCandidatePtr(0);
@@ -130,7 +130,7 @@ void provInfo::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
      }
   }
 
-  std::auto_ptr<edm::OwnVector<pat::UserData> > elePFbaseProductIDOVptr(new edm::OwnVector<pat::UserData>());
+  std::unique_ptr<edm::OwnVector<pat::UserData> > elePFbaseProductIDOVptr(new edm::OwnVector<pat::UserData>());
   for (edm::View<pat::Electron>::const_iterator e = eles->begin(); e != eles->end(); ++e) {
 
      const reco::CandidatePtr& eleRef = e->pfCandidateRef()->sourceCandidatePtr(0);
@@ -152,40 +152,40 @@ void provInfo::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   eleProductIDfiller.insert(eles, eleProvProductIDptr->begin(), eleProvProductIDptr->end()); eleProductIDfiller.fill();
   eleKeyfiller.insert(eles, eleProvKeyptr->begin(), eleProvKeyptr->end()); eleKeyfiller.fill();
 
-  edm::OrphanHandle<edm::OwnVector<pat::UserData> > muonPFbaseProductIDOVhandle = iEvent.put(muonPFbaseProductIDOVptr, "muonPFbaseProductIDOV");
+  edm::OrphanHandle<edm::OwnVector<pat::UserData> > muonPFbaseProductIDOVhandle = iEvent.put(std::move(muonPFbaseProductIDOVptr), "muonPFbaseProductIDOV");
   std::vector<edm::Ptr<pat::UserData> > muonPFbaseProductIDtmpPtr;
   for (unsigned int im = 0; im < muons->size(); ++im) {
   // It is crucial to use the OrphanHandle here and not a RefProd from GetRefBeforePut
      muonPFbaseProductIDtmpPtr.push_back(edm::Ptr<pat::UserData>(muonPFbaseProductIDOVhandle, im));
   }
 
-  std::auto_ptr<edm::ValueMap<edm::Ptr<pat::UserData> > > muonPFbaseProductIDVMptr (new edm::ValueMap<edm::Ptr<pat::UserData> >());
+  std::unique_ptr<edm::ValueMap<edm::Ptr<pat::UserData> > > muonPFbaseProductIDVMptr (new edm::ValueMap<edm::Ptr<pat::UserData> >());
 
   edm::ValueMap<edm::Ptr<pat::UserData> >::Filler muonPFbaseProductIDVMfiller(*muonPFbaseProductIDVMptr);
   muonPFbaseProductIDVMfiller.insert(muons, muonPFbaseProductIDtmpPtr.begin(), muonPFbaseProductIDtmpPtr.end());
   muonPFbaseProductIDVMfiller.fill();
 
-  edm::OrphanHandle<edm::OwnVector<pat::UserData> > elePFbaseProductIDOVhandle = iEvent.put(elePFbaseProductIDOVptr, "elePFbaseProductIDOV");
+  edm::OrphanHandle<edm::OwnVector<pat::UserData> > elePFbaseProductIDOVhandle = iEvent.put(std::move(elePFbaseProductIDOVptr), "elePFbaseProductIDOV");
   std::vector<edm::Ptr<pat::UserData> > elePFbaseProductIDtmpPtr;
   for (unsigned int im = 0; im < eles->size(); ++im) {
   // It is crucial to use the OrphanHandle here and not a RefProd from GetRefBeforePut
      elePFbaseProductIDtmpPtr.push_back(edm::Ptr<pat::UserData>(elePFbaseProductIDOVhandle, im));
   }
 
-  std::auto_ptr<edm::ValueMap<edm::Ptr<pat::UserData> > > elePFbaseProductIDVMptr (new edm::ValueMap<edm::Ptr<pat::UserData> >());
+  std::unique_ptr<edm::ValueMap<edm::Ptr<pat::UserData> > > elePFbaseProductIDVMptr (new edm::ValueMap<edm::Ptr<pat::UserData> >());
 
   edm::ValueMap<edm::Ptr<pat::UserData> >::Filler elePFbaseProductIDVMfiller(*elePFbaseProductIDVMptr);
   elePFbaseProductIDVMfiller.insert(eles, elePFbaseProductIDtmpPtr.begin(), elePFbaseProductIDtmpPtr.end());
   elePFbaseProductIDVMfiller.fill();
 
   // store in the event
-  iEvent.put(muonPFbaseProductIDptr, "muonPFbaseProductID");
-  iEvent.put(muonPFbaseKeyptr, "muonPFbaseKey");
-  iEvent.put(elePFbaseProductIDptr, "elePFbaseProductID");
-  iEvent.put(elePFbaseKeyptr, "elePFbaseKey");
+  iEvent.put(std::move(muonPFbaseProductIDptr), "muonPFbaseProductID");
+  iEvent.put(std::move(muonPFbaseKeyptr), "muonPFbaseKey");
+  iEvent.put(std::move(elePFbaseProductIDptr), "elePFbaseProductID");
+  iEvent.put(std::move(elePFbaseKeyptr), "elePFbaseKey");
 
-  iEvent.put(muonPFbaseProductIDVMptr, "muonPFbaseProductIDVM");
-  iEvent.put(elePFbaseProductIDVMptr, "elePFbaseProductIDVM");
+  iEvent.put(std::move(muonPFbaseProductIDVMptr), "muonPFbaseProductIDVM");
+  iEvent.put(std::move(elePFbaseProductIDVMptr), "elePFbaseProductIDVM");
 }
 
 int provInfo::searchToPFbase(const edm::Event &iEvent, const reco::CandidatePtr& inPtr, reco::CandidatePtr & outPtr){

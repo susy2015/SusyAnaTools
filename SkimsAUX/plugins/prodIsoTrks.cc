@@ -163,24 +163,24 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if( !iEvent.isRealData() ) isData_ = false;
 
-  std::auto_ptr<std::vector<TLorentzVector> > trksForIsoVetoLVec(new std::vector<TLorentzVector>());
-  std::auto_ptr<std::vector<double> > trksForIsoVeto_charge(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > trksForIsoVeto_dz(new std::vector<double>());
-  std::auto_ptr<std::vector<int> > trksForIsoVeto_pdgId(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > trksForIsoVeto_idx(new std::vector<int>());
-  std::auto_ptr<std::vector<double> > trksForIsoVeto_iso(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > trksForIsoVeto_pfActivity(new std::vector<double>());
+  std::unique_ptr<std::vector<TLorentzVector> > trksForIsoVetoLVec(new std::vector<TLorentzVector>());
+  std::unique_ptr<std::vector<double> > trksForIsoVeto_charge(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > trksForIsoVeto_dz(new std::vector<double>());
+  std::unique_ptr<std::vector<int> > trksForIsoVeto_pdgId(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > trksForIsoVeto_idx(new std::vector<int>());
+  std::unique_ptr<std::vector<double> > trksForIsoVeto_iso(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > trksForIsoVeto_pfActivity(new std::vector<double>());
 
-  std::auto_ptr<std::vector<TLorentzVector> > loose_isoTrksLVec(new std::vector<TLorentzVector>());
-  std::auto_ptr<std::vector<double> > loose_isoTrks_charge(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > loose_isoTrks_dz(new std::vector<double>());
-  std::auto_ptr<std::vector<int> > loose_isoTrks_pdgId(new std::vector<int>());
-  std::auto_ptr<std::vector<int> > loose_isoTrks_idx(new std::vector<int>());
-  std::auto_ptr<std::vector<double> > loose_isoTrks_iso(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > loose_isoTrks_mtw(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > loose_isoTrks_pfActivity(new std::vector<double>());
+  std::unique_ptr<std::vector<TLorentzVector> > loose_isoTrksLVec(new std::vector<TLorentzVector>());
+  std::unique_ptr<std::vector<double> > loose_isoTrks_charge(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > loose_isoTrks_dz(new std::vector<double>());
+  std::unique_ptr<std::vector<int> > loose_isoTrks_pdgId(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > loose_isoTrks_idx(new std::vector<int>());
+  std::unique_ptr<std::vector<double> > loose_isoTrks_iso(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > loose_isoTrks_mtw(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > loose_isoTrks_pfActivity(new std::vector<double>());
 
-  std::auto_ptr<std::vector<int> > forVetoIsoTrks_idx(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > forVetoIsoTrks_idx(new std::vector<int>());
 
   if( !isData_ ){
      iEvent.getByToken(W_EmVec_Tok_, W_emuVec_);
@@ -326,33 +326,33 @@ bool prodIsoTrks::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // store in the event
 
-  std::auto_ptr<int>  loose_nIsoTrksPtr(new int);
+  std::unique_ptr<int>  loose_nIsoTrksPtr(new int);
   *loose_nIsoTrksPtr = loose_nIsoTrks;
 
-  std::auto_ptr<int> nIsoTrksForVetoPtr(new int);
+  std::unique_ptr<int> nIsoTrksForVetoPtr(new int);
   *nIsoTrksForVetoPtr = nIsoTrksForVeto;
    
-  iEvent.put(trksForIsoVetoLVec, "trksForIsoVetoLVec");
-  iEvent.put(trksForIsoVeto_charge, "trksForIsoVetocharge");
-  iEvent.put(trksForIsoVeto_dz, "trksForIsoVetodz");
-  iEvent.put(trksForIsoVeto_pdgId, "trksForIsoVetopdgId");
-  iEvent.put(trksForIsoVeto_idx, "trksForIsoVetoidx");
-  iEvent.put(trksForIsoVeto_iso, "trksForIsoVetoiso");
-  iEvent.put(trksForIsoVeto_pfActivity, "trksForIsoVetopfActivity");
+  iEvent.put(std::move(trksForIsoVetoLVec), "trksForIsoVetoLVec");
+  iEvent.put(std::move(trksForIsoVeto_charge), "trksForIsoVetocharge");
+  iEvent.put(std::move(trksForIsoVeto_dz), "trksForIsoVetodz");
+  iEvent.put(std::move(trksForIsoVeto_pdgId), "trksForIsoVetopdgId");
+  iEvent.put(std::move(trksForIsoVeto_idx), "trksForIsoVetoidx");
+  iEvent.put(std::move(trksForIsoVeto_iso), "trksForIsoVetoiso");
+  iEvent.put(std::move(trksForIsoVeto_pfActivity), "trksForIsoVetopfActivity");
 
-  iEvent.put(loose_isoTrksLVec, "looseisoTrksLVec");
-  iEvent.put(loose_isoTrks_charge, "looseisoTrkscharge");
-  iEvent.put(loose_isoTrks_dz, "looseisoTrksdz");
-  iEvent.put(loose_isoTrks_pdgId, "looseisoTrkspdgId");
-  iEvent.put(loose_isoTrks_idx, "looseisoTrksidx");
-  iEvent.put(loose_isoTrks_iso, "looseisoTrksiso");
-  iEvent.put(loose_isoTrks_mtw, "looseisoTrksmtw");
-  iEvent.put(loose_isoTrks_pfActivity, "looseisoTrkspfActivity");
+  iEvent.put(std::move(loose_isoTrksLVec), "looseisoTrksLVec");
+  iEvent.put(std::move(loose_isoTrks_charge), "looseisoTrkscharge");
+  iEvent.put(std::move(loose_isoTrks_dz), "looseisoTrksdz");
+  iEvent.put(std::move(loose_isoTrks_pdgId), "looseisoTrkspdgId");
+  iEvent.put(std::move(loose_isoTrks_idx), "looseisoTrksidx");
+  iEvent.put(std::move(loose_isoTrks_iso), "looseisoTrksiso");
+  iEvent.put(std::move(loose_isoTrks_mtw), "looseisoTrksmtw");
+  iEvent.put(std::move(loose_isoTrks_pfActivity), "looseisoTrkspfActivity");
 
-  iEvent.put(forVetoIsoTrks_idx, "forVetoIsoTrksidx");
+  iEvent.put(std::move(forVetoIsoTrks_idx), "forVetoIsoTrksidx");
 
-  iEvent.put(loose_nIsoTrksPtr, "loosenIsoTrks");
-  iEvent.put(nIsoTrksForVetoPtr, "nIsoTrksForVeto");
+  iEvent.put(std::move(loose_nIsoTrksPtr), "loosenIsoTrks");
+  iEvent.put(std::move(nIsoTrksForVetoPtr), "nIsoTrksForVeto");
 
   return true;
 }

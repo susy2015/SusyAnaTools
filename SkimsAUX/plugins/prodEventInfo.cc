@@ -83,19 +83,19 @@ bool prodEventInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(VtxTok_, vertices);
 //  reco::Vertex::Point vtxpos = (vertices->size() > 0 ? (*vertices)[0].position() : reco::Vertex::Point());
 
-  std::auto_ptr<int> vtxSize(new int);
+  std::unique_ptr<int> vtxSize(new int);
   *vtxSize = vertices->size();
 
-  std::auto_ptr<double> tru_npv(new double);
+  std::unique_ptr<double> tru_npv(new double);
   *tru_npv = -1;
 
-  std::auto_ptr<double> avg_npv(new double);
+  std::unique_ptr<double> avg_npv(new double);
   *avg_npv = 0;
 
-  std::auto_ptr<int> nm1(new int), n0(new int), np1(new int), npv(new int);
+  std::unique_ptr<int> nm1(new int), n0(new int), np1(new int), npv(new int);
   *nm1 = -1; *n0 = -1; *np1 = -1; *npv = -1;
 
-  std::auto_ptr<double> storedWeight(new double);
+  std::unique_ptr<double> storedWeight(new double);
   *storedWeight = -1.0;
 
   if( !isData_ ){
@@ -133,14 +133,14 @@ bool prodEventInfo::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
      }
   }
 
-  iEvent.put(vtxSize, "vtxSize");
-  iEvent.put(tru_npv, "trunpv");
-  iEvent.put(avg_npv, "avgnpv");
-  iEvent.put(npv, "npv");
-  iEvent.put(nm1, "nm1");
-  iEvent.put(n0, "n0");
-  iEvent.put(np1, "np1");
-  iEvent.put(storedWeight, "storedWeight");
+  iEvent.put(std::move(vtxSize), "vtxSize");
+  iEvent.put(std::move(tru_npv), "trunpv");
+  iEvent.put(std::move(avg_npv), "avgnpv");
+  iEvent.put(std::move(npv), "npv");
+  iEvent.put(std::move(nm1), "nm1");
+  iEvent.put(std::move(n0), "n0");
+  iEvent.put(std::move(np1), "np1");
+  iEvent.put(std::move(storedWeight), "storedWeight");
 
   return true;
 }

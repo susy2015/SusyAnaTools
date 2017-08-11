@@ -32,8 +32,8 @@ bool prodNtupleVersionString::filter(edm::Event & iEvent, const edm::EventSetup 
 
   // read in the objects
 
-  std::auto_ptr<std::vector<std::string> > prod(new std::vector<std::string>(inputStr_));
-  iEvent.put(prod);
+  std::unique_ptr<std::vector<std::string> > prod(new std::vector<std::string>(inputStr_));
+  iEvent.put(std::move(prod));
 
   return true;
 }

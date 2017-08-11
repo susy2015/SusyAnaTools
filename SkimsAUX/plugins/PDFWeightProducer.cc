@@ -123,12 +123,12 @@ void PDFWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    double x1 = GenInfo->pdf()->x.first;
    double x2 = GenInfo->pdf()->x.second;
 
-   std::auto_ptr<int> id1Ptr_(new int);                                                                                         
-   std::auto_ptr<int> id2Ptr_(new int);      
+   std::unique_ptr<int> id1Ptr_(new int);                                                                                         
+   std::unique_ptr<int> id2Ptr_(new int);      
    *id1Ptr_ = id1;                                                                                                                   
    *id2Ptr_ = id2;    
-   iEvent.put(id1Ptr_, "id1");
-   iEvent.put(id2Ptr_, "id2");    
+   iEvent.put(std::move(id1Ptr_), "id1");
+   iEvent.put(std::move(id2Ptr_), "id2");    
 
    // weirdo LHA conventions, gluons are 0
    if (id1 == 21) id1 = 0;
@@ -221,34 +221,34 @@ void PDFWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    }
       
   //For x1 and x2
-  std::auto_ptr<double> x1Ptr_(new double);
-  std::auto_ptr<double> x2Ptr_(new double);
-  std::auto_ptr<double> qPtr_(new double);
+  std::unique_ptr<double> x1Ptr_(new double);
+  std::unique_ptr<double> x2Ptr_(new double);
+  std::unique_ptr<double> qPtr_(new double);
 
   *x1Ptr_ = x1;
   *x2Ptr_ = x2;
   *qPtr_ = q;
 
-  iEvent.put(x1Ptr_, "x1");
-  iEvent.put(x2Ptr_, "x2");
-  iEvent.put(qPtr_, "q");
+  iEvent.put(std::move(x1Ptr_), "x1");
+  iEvent.put(std::move(x2Ptr_), "x2");
+  iEvent.put(std::move(qPtr_), "q");
 
   // From LHAPDF Grid
-  std::auto_ptr<std::vector<double> > pdfweights_(new std::vector<double>(pdfweights));
-  iEvent.put(pdfweights_,"PDFweights");
+  std::unique_ptr<std::vector<double> > pdfweights_(new std::vector<double>(pdfweights));
+  iEvent.put(std::move(pdfweights_),"PDFweights");
       
-  std::auto_ptr<std::vector<int> > pdfids_(new std::vector<int>(pdfids));
-  iEvent.put(pdfids_,"PDFids");
+  std::unique_ptr<std::vector<int> > pdfids_(new std::vector<int>(pdfids));
+  iEvent.put(std::move(pdfids_),"PDFids");
       
   // From MiniAOD
-  std::auto_ptr<std::vector<double> > scaleweightsMiniAOD_(new std::vector<double>(scaleweightsMiniAOD));
-  iEvent.put(scaleweightsMiniAOD_,"ScaleWeightsMiniAOD");
+  std::unique_ptr<std::vector<double> > scaleweightsMiniAOD_(new std::vector<double>(scaleweightsMiniAOD));
+  iEvent.put(std::move(scaleweightsMiniAOD_),"ScaleWeightsMiniAOD");
       
-  std::auto_ptr<std::vector<double> > pdfweightsMiniAOD_(new std::vector<double>(pdfweightsMiniAOD));
-  iEvent.put(pdfweightsMiniAOD_,"PDFweightsMiniAOD");
+  std::unique_ptr<std::vector<double> > pdfweightsMiniAOD_(new std::vector<double>(pdfweightsMiniAOD));
+  iEvent.put(std::move(pdfweightsMiniAOD_),"PDFweightsMiniAOD");
       
-  std::auto_ptr<std::vector<int> > pdfidsMiniAOD_(new std::vector<int>(pdfidsMIniAOD));
-  iEvent.put(pdfidsMiniAOD_,"PDFidsMiniAOD");
+  std::unique_ptr<std::vector<int> > pdfidsMiniAOD_(new std::vector<int>(pdfidsMIniAOD));
+  iEvent.put(std::move(pdfidsMiniAOD_),"PDFidsMiniAOD");
 }
 
 // ------------ method called once each job just before starting event loop  ------------

@@ -239,7 +239,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
   iSetup.get<JetCorrectionsRecord>().get(jetType_, JetCorParColl);
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-  std::auto_ptr<JetCorrectionUncertainty> jecUnc( new JetCorrectionUncertainty(JetCorPar) );
+  std::unique_ptr<JetCorrectionUncertainty> jecUnc( new JetCorrectionUncertainty(JetCorPar) );
 
   if( !isData_ )
   {
@@ -276,47 +276,47 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(Ak8SubJets_Tok_, ak8SubJets);
 
   //check which ones to keep
-  //std::auto_ptr<std::vector<pat::Jet> > prod(new std::vector<pat::Jet>());
-  std::auto_ptr<std::vector<TLorentzVector> > jetsLVec(new std::vector<TLorentzVector>());
-  std::auto_ptr<std::vector<int> > recoJetsFlavor(new std::vector<int>());
-  std::auto_ptr<std::vector<double> > recoJetsBtag(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > recoJetsCharge(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > recoJetsJecUnc(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > recoJetsJecScaleRawToFull(new std::vector<double>());
+  //std::unique_ptr<std::vector<pat::Jet> > prod(new std::vector<pat::Jet>());
+  std::unique_ptr<std::vector<TLorentzVector> > jetsLVec(new std::vector<TLorentzVector>());
+  std::unique_ptr<std::vector<int> > recoJetsFlavor(new std::vector<int>());
+  std::unique_ptr<std::vector<double> > recoJetsBtag(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > recoJetsCharge(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > recoJetsJecUnc(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > recoJetsJecScaleRawToFull(new std::vector<double>());
 
-  std::auto_ptr<std::vector<double> > qgLikelihood(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > qgPtD(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > qgAxis2(new std::vector<double>());
-  std::auto_ptr<std::vector<int> > qgMult(new std::vector<int>());
+  std::unique_ptr<std::vector<double> > qgLikelihood(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > qgPtD(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > qgAxis2(new std::vector<double>());
+  std::unique_ptr<std::vector<int> > qgMult(new std::vector<int>());
 
-  std::auto_ptr<std::vector<double> > recoJetschargedHadronEnergyFraction(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > recoJetschargedEmEnergyFraction(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > recoJetsneutralEmEnergyFraction(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > recoJetsmuonEnergyFraction(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > recoJetschargedHadronEnergyFraction(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > recoJetschargedEmEnergyFraction(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > recoJetsneutralEmEnergyFraction(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > recoJetsmuonEnergyFraction(new std::vector<double>());
 
-  std::auto_ptr<std::vector<int> > muMatchedJetIdx(new std::vector<int>(muLVec_->size(), -1));
-  std::auto_ptr<std::vector<int> > eleMatchedJetIdx(new std::vector<int>(eleLVec_->size(), -1));
+  std::unique_ptr<std::vector<int> > muMatchedJetIdx(new std::vector<int>(muLVec_->size(), -1));
+  std::unique_ptr<std::vector<int> > eleMatchedJetIdx(new std::vector<int>(eleLVec_->size(), -1));
 
-  std::auto_ptr<std::vector<int> > trksForIsoVetoMatchedJetIdx(new std::vector<int>(trksForIsoVetoLVec_->size(), -1));
-  std::auto_ptr<std::vector<int> > looseisoTrksMatchedJetIdx(new std::vector<int>(looseisoTrksLVec_->size(), -1));
+  std::unique_ptr<std::vector<int> > trksForIsoVetoMatchedJetIdx(new std::vector<int>(trksForIsoVetoLVec_->size(), -1));
+  std::unique_ptr<std::vector<int> > looseisoTrksMatchedJetIdx(new std::vector<int>(looseisoTrksLVec_->size(), -1));
 
   //PUPPI
-  std::auto_ptr<std::vector<TLorentzVector> > puppiJetsLVec(new std::vector<TLorentzVector>());
-  std::auto_ptr<std::vector<TLorentzVector> > puppiSubJetsLVec(new std::vector<TLorentzVector>());
-  std::auto_ptr<std::vector<double> > puppiSubJetsBdisc(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > puppisoftDropMass(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > puppitau1(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > puppitau2(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > puppitau3(new std::vector<double>());
+  std::unique_ptr<std::vector<TLorentzVector> > puppiJetsLVec(new std::vector<TLorentzVector>());
+  std::unique_ptr<std::vector<TLorentzVector> > puppiSubJetsLVec(new std::vector<TLorentzVector>());
+  std::unique_ptr<std::vector<double> > puppiSubJetsBdisc(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > puppisoftDropMass(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > puppitau1(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > puppitau2(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > puppitau3(new std::vector<double>());
 
   //ak8
-  std::auto_ptr<std::vector<TLorentzVector> > ak8JetsLVec(new std::vector<TLorentzVector>());  
-  std::auto_ptr<std::vector<TLorentzVector> > ak8SubJetsLVec(new std::vector<TLorentzVector>());  
-  std::auto_ptr<std::vector<double> > ak8SubJetsBdisc(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > softDropMass(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > tau1(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > tau2(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > tau3(new std::vector<double>());
+  std::unique_ptr<std::vector<TLorentzVector> > ak8JetsLVec(new std::vector<TLorentzVector>());  
+  std::unique_ptr<std::vector<TLorentzVector> > ak8SubJetsLVec(new std::vector<TLorentzVector>());  
+  std::unique_ptr<std::vector<double> > ak8SubJetsBdisc(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > softDropMass(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > tau1(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > tau2(new std::vector<double>());
+  std::unique_ptr<std::vector<double> > tau3(new std::vector<double>());
 
   if( !isData_ ){
      int cntJetPassPtCut = 0;
@@ -640,53 +640,53 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if( cntJetLowPt ) std::cout<<"WARNING ... NON ZERO ("<<cntJetLowPt<<") number of jets with pt < "<<jetPtCut_miniAOD_<<std::endl;
 
-  std::auto_ptr<int> nJets (new int);
+  std::unique_ptr<int> nJets (new int);
 
   *nJets = jetsLVec->size();
 
   // store in the event
   // iEvent.put(prod);
-  iEvent.put(jetsLVec, "jetsLVec");
-  iEvent.put(recoJetsFlavor, "recoJetsFlavor");
-  iEvent.put(recoJetsBtag, "recoJetsBtag");
-  iEvent.put(recoJetsCharge, "recoJetsCharge");
-  iEvent.put(recoJetsJecUnc, "recoJetsJecUnc");
-  iEvent.put(recoJetsJecScaleRawToFull, "recoJetsJecScaleRawToFull");
-  iEvent.put(nJets, "nJets");
+  iEvent.put(std::move(jetsLVec), "jetsLVec");
+  iEvent.put(std::move(recoJetsFlavor), "recoJetsFlavor");
+  iEvent.put(std::move(recoJetsBtag), "recoJetsBtag");
+  iEvent.put(std::move(recoJetsCharge), "recoJetsCharge");
+  iEvent.put(std::move(recoJetsJecUnc), "recoJetsJecUnc");
+  iEvent.put(std::move(recoJetsJecScaleRawToFull), "recoJetsJecScaleRawToFull");
+  iEvent.put(std::move(nJets), "nJets");
 
-  iEvent.put(qgLikelihood, "qgLikelihood");
-  iEvent.put(qgPtD, "qgPtD");
-  iEvent.put(qgAxis2, "qgAxis2");
-  iEvent.put(qgMult, "qgMult");
+  iEvent.put(std::move(qgLikelihood), "qgLikelihood");
+  iEvent.put(std::move(qgPtD), "qgPtD");
+  iEvent.put(std::move(qgAxis2), "qgAxis2");
+  iEvent.put(std::move(qgMult), "qgMult");
 
-  iEvent.put(recoJetschargedHadronEnergyFraction, "recoJetschargedHadronEnergyFraction");
-  iEvent.put(recoJetschargedEmEnergyFraction, "recoJetschargedEmEnergyFraction");
-  iEvent.put(recoJetsneutralEmEnergyFraction, "recoJetsneutralEmEnergyFraction");
+  iEvent.put(std::move(recoJetschargedHadronEnergyFraction), "recoJetschargedHadronEnergyFraction");
+  iEvent.put(std::move(recoJetschargedEmEnergyFraction), "recoJetschargedEmEnergyFraction");
+  iEvent.put(std::move(recoJetsneutralEmEnergyFraction), "recoJetsneutralEmEnergyFraction");
 
-  iEvent.put(recoJetsmuonEnergyFraction, "recoJetsmuonEnergyFraction");
+  iEvent.put(std::move(recoJetsmuonEnergyFraction), "recoJetsmuonEnergyFraction");
 
-  iEvent.put(muMatchedJetIdx, "muMatchedJetIdx");
-  iEvent.put(eleMatchedJetIdx, "eleMatchedJetIdx");
+  iEvent.put(std::move(muMatchedJetIdx), "muMatchedJetIdx");
+  iEvent.put(std::move(eleMatchedJetIdx), "eleMatchedJetIdx");
 
-  iEvent.put(trksForIsoVetoMatchedJetIdx, "trksForIsoVetoMatchedJetIdx");
-  iEvent.put(looseisoTrksMatchedJetIdx, "looseisoTrksMatchedJetIdx");
+  iEvent.put(std::move(trksForIsoVetoMatchedJetIdx), "trksForIsoVetoMatchedJetIdx");
+  iEvent.put(std::move(looseisoTrksMatchedJetIdx), "looseisoTrksMatchedJetIdx");
   //PUPPI
-  iEvent.put(puppiJetsLVec, "puppiJetsLVec");
-  iEvent.put(puppiSubJetsLVec, "puppiSubJetsLVec");
-  iEvent.put(puppiSubJetsBdisc, "puppiSubJetsBdisc");
-  iEvent.put(puppisoftDropMass,"puppisoftDropMass");
-  iEvent.put(puppitau1,"puppitau1");
-  iEvent.put(puppitau2,"puppitau2");
-  iEvent.put(puppitau3,"puppitau3");
+  iEvent.put(std::move(puppiJetsLVec), "puppiJetsLVec");
+  iEvent.put(std::move(puppiSubJetsLVec), "puppiSubJetsLVec");
+  iEvent.put(std::move(puppiSubJetsBdisc), "puppiSubJetsBdisc");
+  iEvent.put(std::move(puppisoftDropMass),"puppisoftDropMass");
+  iEvent.put(std::move(puppitau1),"puppitau1");
+  iEvent.put(std::move(puppitau2),"puppitau2");
+  iEvent.put(std::move(puppitau3),"puppitau3");
 
   //ak8
-  iEvent.put(ak8JetsLVec, "ak8JetsLVec");
-  iEvent.put(ak8SubJetsLVec, "ak8SubJetsLVec");
-  iEvent.put(ak8SubJetsBdisc, "ak8SubJetsBdisc");
-  iEvent.put(softDropMass,"softDropMass");
-  iEvent.put(tau1, "tau1");
-  iEvent.put(tau2, "tau2");
-  iEvent.put(tau3, "tau3");
+  iEvent.put(std::move(ak8JetsLVec), "ak8JetsLVec");
+  iEvent.put(std::move(ak8SubJetsLVec), "ak8SubJetsLVec");
+  iEvent.put(std::move(ak8SubJetsBdisc), "ak8SubJetsBdisc");
+  iEvent.put(std::move(softDropMass),"softDropMass");
+  iEvent.put(std::move(tau1), "tau1");
+  iEvent.put(std::move(tau2), "tau2");
+  iEvent.put(std::move(tau3), "tau3");
 
   return true;
 }

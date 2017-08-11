@@ -126,11 +126,11 @@ void SusyScanProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    }
 // In 80X, the motherMass and lspMass are set in the beginLuminosityBloack
 
-   std::auto_ptr<double > motherMass_(new double(motherMass));
-   iEvent.put(motherMass_, "SusyMotherMass");
+   std::unique_ptr<double > motherMass_(new double(motherMass));
+   iEvent.put(std::move(motherMass_), "SusyMotherMass");
 	
-   std::auto_ptr<double > lspMass_(new double(lspMass));
-   iEvent.put(lspMass_, "SusyLSPMass");
+   std::unique_ptr<double > lspMass_(new double(lspMass));
+   iEvent.put(std::move(lspMass_), "SusyLSPMass");
 
 }
 

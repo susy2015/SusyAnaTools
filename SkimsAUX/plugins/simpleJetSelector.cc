@@ -45,7 +45,7 @@ bool simpleJetSelector::filter(edm::Event & iEvent, const edm::EventSetup & iSet
   edm::Handle<edm::View<pat::Jet> > jets;
   iEvent.getByToken(JetTok_, jets);
 
-  std::auto_ptr<std::vector<pat::Jet> > prod(new std::vector<pat::Jet>());
+  std::unique_ptr<std::vector<pat::Jet> > prod(new std::vector<pat::Jet>());
 
   for(unsigned int ij=0; ij<jets->size(); ij++){
      const pat::Jet & jet = (*jets)[ij];
@@ -53,7 +53,7 @@ bool simpleJetSelector::filter(edm::Event & iEvent, const edm::EventSetup & iSet
      prod->push_back(jet);
   }
 
-  iEvent.put(prod);
+  iEvent.put(std::move(prod));
 
   return true;
 }

@@ -84,19 +84,19 @@ bool prodMET::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<pat::MET> > met;
   iEvent.getByToken(MetTok_, met);
 
-  std::auto_ptr<double> metPtr(new double);
-  std::auto_ptr<double> metphiPtr(new double);
+  std::unique_ptr<double> metPtr(new double);
+  std::unique_ptr<double> metphiPtr(new double);
 
-  std::auto_ptr<double> genmetPtr(new double);
-  std::auto_ptr<double> genmetphiPtr(new double);
+  std::unique_ptr<double> genmetPtr(new double);
+  std::unique_ptr<double> genmetphiPtr(new double);
 
-  std::auto_ptr<double> calometPtr(new double);
-  std::auto_ptr<double> calometphiPtr(new double);
+  std::unique_ptr<double> calometPtr(new double);
+  std::unique_ptr<double> calometphiPtr(new double);
 
-  std::auto_ptr<std::vector<double> > metMagUp_ (new std::vector<double>(uncUpList.size(), 0.));
-  std::auto_ptr<std::vector<double> > metPhiUp_ (new std::vector<double>(uncUpList.size(), 0.));
-  std::auto_ptr<std::vector<double> > metMagDown_ (new std::vector<double>(uncDownList.size(), 0.));
-  std::auto_ptr<std::vector<double> > metPhiDown_ (new std::vector<double>(uncDownList.size(), 0.));
+  std::unique_ptr<std::vector<double> > metMagUp_ (new std::vector<double>(uncUpList.size(), 0.));
+  std::unique_ptr<std::vector<double> > metPhiUp_ (new std::vector<double>(uncUpList.size(), 0.));
+  std::unique_ptr<std::vector<double> > metMagDown_ (new std::vector<double>(uncDownList.size(), 0.));
+  std::unique_ptr<std::vector<double> > metPhiDown_ (new std::vector<double>(uncDownList.size(), 0.));
 
   *metPtr = (*met)[0].pt();
   *metphiPtr = (*met)[0].phi();
@@ -123,17 +123,17 @@ bool prodMET::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
      *calometphiPtr = met->at(0).caloMETPhi();
   }
 
-  iEvent.put(metMagUp_, "metMagUp");
-  iEvent.put(metPhiUp_, "metPhiUp");
-  iEvent.put(metMagDown_, "metMagDown");
-  iEvent.put(metPhiDown_, "metPhiDown");
-  iEvent.put(metPtr, "met");
-  iEvent.put(metphiPtr, "metphi");
-  iEvent.put(genmetPtr, "genmet");
-  iEvent.put(genmetphiPtr, "genmetphi");
+  iEvent.put(std::move(metMagUp_), "metMagUp");
+  iEvent.put(std::move(metPhiUp_), "metPhiUp");
+  iEvent.put(std::move(metMagDown_), "metMagDown");
+  iEvent.put(std::move(metPhiDown_), "metPhiDown");
+  iEvent.put(std::move(metPtr), "met");
+  iEvent.put(std::move(metphiPtr), "metphi");
+  iEvent.put(std::move(genmetPtr), "genmet");
+  iEvent.put(std::move(genmetphiPtr), "genmetphi");
   if( addcalomet_ ){
-     iEvent.put(calometPtr, "calomet");
-     iEvent.put(calometphiPtr, "calometphi");
+    iEvent.put(std::move(calometPtr), "calomet");
+    iEvent.put(std::move(calometphiPtr), "calometphi");
   }
 
   return true;

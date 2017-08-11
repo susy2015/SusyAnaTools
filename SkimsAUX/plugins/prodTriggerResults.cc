@@ -96,9 +96,9 @@ prodTriggerResults::~prodTriggerResults()
 void
 prodTriggerResults::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::auto_ptr<std::vector<int> > passTrigVec(new std::vector<int>());
-  std::auto_ptr<std::vector<std::string> > trigNamesVec(new std::vector<std::string>());
-  std::auto_ptr<std::vector<int> > trigPrescaleVec(new std::vector<int>());
+  std::unique_ptr<std::vector<int> > passTrigVec(new std::vector<int>());
+  std::unique_ptr<std::vector<std::string> > trigNamesVec(new std::vector<std::string>());
+  std::unique_ptr<std::vector<int> > trigPrescaleVec(new std::vector<int>());
 
   int passesTrigger;
   edm::Handle<edm::TriggerResults> trigResults; //our trigger result object
@@ -139,9 +139,9 @@ prodTriggerResults::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //   passesTrigger=trigResults->accept(iHLT);
   //   passTrigVec->push_back(passesTrigger);
   // }
-  iEvent.put(passTrigVec,"PassTrigger");
-  iEvent.put(trigPrescaleVec,"TriggerPrescales");
-  iEvent.put(trigNamesVec,"TriggerNames");	
+  iEvent.put(std::move(passTrigVec),"PassTrigger");
+  iEvent.put(std::move(trigPrescaleVec),"TriggerPrescales");
+  iEvent.put(std::move(trigNamesVec),"TriggerNames");	
 }
 
 
