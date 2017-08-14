@@ -16,10 +16,10 @@ options = VarParsing.VarParsing ('standard')
 
 options.register('era', "Run2_25ns", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Run2_25ns or Run2_50ns")
 options.register('ntpVersion', "Ntp_80X_12Jul2016_v8.0", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "ntpVersion: to be same as the tag of the release. But can be used to produce 72X ntuple as well!")
-options.register('GlobalTag', "80X_mcRun2_asymptotic_2016_miniAODv2", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "74X PromptReco: 74X_dataRun2_Prompt_v0")
-options.register('cmsswVersion', '80X', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific MC fix")
+options.register('GlobalTag', "92X_dataRun2_Prompt_v5", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "74X PromptReco: 74X_dataRun2_Prompt_v0")
+options.register('cmsswVersion', '92X', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific MC fix")
 options.register('specialFix', 'JEC', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "special fixes ==>   JEC : use external JEC; IVF : fix IVF; BADMUON : bad muon filters")
-options.register('jecDBname', "Spring16_25nsV6_MC", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Summer15_25nsV6_DATA for data")
+options.register('jecDBname', "Summer16_23Sep2016AllV3_DATA", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Summer15_25nsV6_DATA for data")
 options.register('hltName', 'HLT', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT menu to use for trigger matching")
 
 options.register('mcInfo', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "process MonteCarlo data, default is data")
@@ -76,13 +76,13 @@ print options
 procCMSSWver = os.environ['CMSSW_RELEASE_BASE'].split("/")[-1]
 print "procCMSSWver : ", procCMSSWver, "\n"
 
-if not "CMSSW_8_0" in procCMSSWver:
-   print "You should be using CMSSW 80X!! Please change your release area"
-   sys.exit("ERROR: Not using 80X release")
+#if not "CMSSW_8_0" in procCMSSWver:
+#   print "You should be using CMSSW 80X!! Please change your release area"
+#   sys.exit("ERROR: Not using 80X release")
 
-if not options.cmsswVersion == "80X":
-   print "You should be using CMSSW 80X as option!! Please change to be consistent with the release area"
-   sys.exit("ERROR: Not using 80X option")
+#if not options.cmsswVersion == "80X":
+#   print "You should be using CMSSW 80X as option!! Please change to be consistent with the release area"
+#   sys.exit("ERROR: Not using 80X option")
 
 
 ## ------------------------
@@ -145,7 +145,8 @@ elif options.fileslist:
 else:
    process.source.fileNames = [
 #        '/store/mc/RunIISpring16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00B2B39D-5D4D-E611-8BD4-002590D9D8B6.root',
-        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/00D97021-CFBE-E611-AD3F-0025901D08B8.root',
+'/store/data/Run2017B/MET/MINIAOD/23Jun2017-v1/90000/009FE63B-E759-E711-A9F8-0CC47A4DEDD2.root'
+#!!!!#        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/00D97021-CFBE-E611-AD3F-0025901D08B8.root',
 #        '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
 #       '/store/mc/RunIISpring16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/041F3A63-431E-E611-9E1E-008CFA1112CC.root',
 #       '/store/mc/RunIISpring16MiniAODv2/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/004A27F0-5132-E611-A936-02163E016171.root',
@@ -206,12 +207,12 @@ process.pfNoElectronCHSNoEle = cms.EDProducer("CandPtrProjector",
 process.ak4PFJetsCHSNoLep = ak4PFJets.clone(src = 'pfNoElectronCHSNoEle', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
 
 ## define the JECs
-if options.cmsswVersion == "80X":
-   jetCorrectionLevels = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
-   jetCorrLevelLists = ['L1FastJet', 'L2Relative', 'L3Absolute']
-   if options.mcInfo == False:
-      jetCorrectionLevels = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None')
-      jetCorrLevelLists = ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']
+#if options.cmsswVersion == "80X":
+jetCorrectionLevels = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
+jetCorrLevelLists = ['L1FastJet', 'L2Relative', 'L3Absolute']
+if options.mcInfo == False:
+    jetCorrectionLevels = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None')
+    jetCorrLevelLists = ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']
 
 ## -- Add the Q/G discriminator --
 qgDatabaseVersion = 'v2b' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
@@ -254,8 +255,8 @@ process.QGTaggerOther.srcJets = cms.InputTag("myak4PFJetsCHS")
 process.QGTaggerNoLep = process.QGTagger.clone()
 process.QGTaggerNoLep.srcJets = cms.InputTag("ak4PFJetsCHSNoLep")
 
-if options.cmsswVersion == "80X":
-   addJetCollection(
+#if options.cmsswVersion == "80X":
+addJetCollection(
       process,
       postfix = "",
       labelName = 'AK4PFCHS',
@@ -271,10 +272,10 @@ if options.cmsswVersion == "80X":
       genParticles = cms.InputTag('prunedGenParticles'),
       algo = 'AK', rParam = 0.4
    )
-   process.patJetsAK4PFCHS.userData.userFloats.src += ['QGTaggerOther:qgLikelihood','QGTaggerOther:ptD', 'QGTaggerOther:axis2']
-   process.patJetsAK4PFCHS.userData.userInts.src += ['QGTaggerOther:mult']
+process.patJetsAK4PFCHS.userData.userFloats.src += ['QGTaggerOther:qgLikelihood','QGTaggerOther:ptD', 'QGTaggerOther:axis2']
+process.patJetsAK4PFCHS.userData.userInts.src += ['QGTaggerOther:mult']
    
-   addJetCollection(
+addJetCollection(
       process,
       postfix = "",
       labelName = 'AK4PFCHSNoLep',
@@ -290,8 +291,8 @@ if options.cmsswVersion == "80X":
       genParticles = cms.InputTag('prunedGenParticles'),
       algo = 'AK', rParam = 0.4
    )
-   process.patJetsAK4PFCHSNoLep.userData.userFloats.src += ['QGTaggerNoLep:qgLikelihood','QGTaggerNoLep:ptD', 'QGTaggerNoLep:axis2']
-   process.patJetsAK4PFCHSNoLep.userData.userInts.src += ['QGTaggerNoLep:mult']
+process.patJetsAK4PFCHSNoLep.userData.userFloats.src += ['QGTaggerNoLep:qgLikelihood','QGTaggerNoLep:ptD', 'QGTaggerNoLep:axis2']
+process.patJetsAK4PFCHSNoLep.userData.userInts.src += ['QGTaggerNoLep:mult']
 
 if "JEC" in options.specialFix:
   print ("\nApplying fix to JEC issues in %s ...\n" %(options.cmsswVersion))
@@ -324,26 +325,26 @@ if "JEC" in options.specialFix:
   process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
    
 
-  if options.cmsswVersion == "80X":
-    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-    updateJetCollection(
+#  if options.cmsswVersion == "80X":
+  from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+  updateJetCollection(
       process,
       jetSource = cms.InputTag('slimmedJets'),
       postfix = 'UpdatedJEC',
       jetCorrections = ('AK4PFchs', jetCorrLevelLists, 'None')
-    )
-    process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['QGTagger:qgLikelihood','QGTagger:ptD', 'QGTagger:axis2']
-    process.updatedPatJetsUpdatedJEC.userData.userInts.src += ['QGTagger:mult']
+  )
+  process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['QGTagger:qgLikelihood','QGTagger:ptD', 'QGTagger:axis2']
+  process.updatedPatJetsUpdatedJEC.userData.userInts.src += ['QGTagger:mult']
     # update the MET to account for the new JECs
-    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-    runMetCorAndUncFromMiniAOD(
+  from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+  runMetCorAndUncFromMiniAOD(
       process,
       isData=not options.mcInfo, # controls gen met
       #jetCollUnskimmed="updatedPatJetsUpdatedJEC",
       #jetColl="updatedPatJetsUpdatedJEC",
       #postfix="Update"
-    )
-    process.fix80XJEC = cms.Sequence( process.patJetCorrFactorsUpdatedJEC + process.updatedPatJetsUpdatedJEC ) ## NS: What is this patJetCorrFactorsUpdatedJEC ??
+  )
+  process.fix80XJEC = cms.Sequence( process.patJetCorrFactorsUpdatedJEC + process.updatedPatJetsUpdatedJEC ) ## NS: What is this patJetCorrFactorsUpdatedJEC ??
     
 
 process.load("SusyAnaTools.SkimsAUX.simpleJetSelector_cfi")
