@@ -94,8 +94,8 @@ bool SMSModelFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   double mLSP = -1.0; 
   double xCHI = -1.0;
 
-  std::auto_ptr<std::vector<std::string> > fileNamePtr (new std::vector<std::string> );
-  std::auto_ptr<std::vector<std::string> > smsModelPtr (new std::vector<std::string> );
+  std::unique_ptr<std::vector<std::string> > fileNamePtr (new std::vector<std::string> );
+  std::unique_ptr<std::vector<std::string> > smsModelPtr (new std::vector<std::string> );
 
   // susy scan specific
   for( LHEEventProduct::comments_const_iterator cit=c_begin; cit!=c_end; ++cit) {
@@ -147,8 +147,8 @@ bool SMSModelFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
     }
   }
-  std::auto_ptr<double> smsMotherMassPtr (new double(mGL));
-  std::auto_ptr<double> smsDaughterMassPtr (new double(mLSP));
+  std::unique_ptr<double> smsMotherMassPtr (new double(mGL));
+  std::unique_ptr<double> smsDaughterMassPtr (new double(mLSP));
 
   bool foundModel = false;
   if( (susyScanMotherMass_!= -1 && mGL==susyScanMotherMass_) && (susyScanLSPMass_!=-1 && mLSP==susyScanLSPMass_) ) {
@@ -164,10 +164,10 @@ bool SMSModelFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   fileNamePtr->push_back(inputFileNameStr);
 
-  iEvent.put(fileNamePtr, "fileNameStr");
-  iEvent.put(smsModelPtr, "smsModelStr");
-  iEvent.put(smsMotherMassPtr, "smsMotherMass");
-  iEvent.put(smsDaughterMassPtr, "smsDaughterMass");
+  iEvent.put(std::move(fileNamePtr), "fileNameStr");
+  iEvent.put(std::move(smsModelPtr), "smsModelStr");
+  iEvent.put(std::move(smsMotherMassPtr), "smsMotherMass");
+  iEvent.put(std::move(smsDaughterMassPtr), "smsDaughterMass");
   
   return foundModel;
 }

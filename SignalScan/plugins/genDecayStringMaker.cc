@@ -87,12 +87,12 @@ bool genDecayStringMaker::hasValidDaughters( const reco::Candidate & c ) const {
 
 bool genDecayStringMaker::filter(edm::Event & event, const edm::EventSetup & es) {
 
-  std::auto_ptr<std::vector<std::string> > decayStrPtr (new std::vector<std::string> );
-  std::auto_ptr<std::vector<std::string> > keyStrPtr (new std::vector<std::string> );
-  std::auto_ptr<std::vector<int> > decayTypePtr (new std::vector<int> );
+  std::unique_ptr<std::vector<std::string> > decayStrPtr (new std::vector<std::string> );
+  std::unique_ptr<std::vector<std::string> > keyStrPtr (new std::vector<std::string> );
+  std::unique_ptr<std::vector<int> > decayTypePtr (new std::vector<int> );
 
-  std::auto_ptr<std::vector<int> > decayChainPartIdxPtr(new std::vector<int> );
-  std::auto_ptr<std::vector<std::string> > decayChainPartStrPtr(new std::vector<std::string> );
+  std::unique_ptr<std::vector<int> > decayChainPartIdxPtr(new std::vector<int> );
+  std::unique_ptr<std::vector<std::string> > decayChainPartStrPtr(new std::vector<std::string> );
 
   es.getData( pdt_ );
   event.getByLabel( src_, particles );
@@ -189,12 +189,12 @@ bool genDecayStringMaker::filter(edm::Event & event, const edm::EventSetup & es)
   }
  
   decayStrPtr->push_back(buffer.str());
-  event.put(decayStrPtr, "decayStr");
-  event.put(decayTypePtr, "decayType");
-  event.put(keyStrPtr, "keyStr");
+  event.put(std::move(decayStrPtr), "decayStr");
+  event.put(std::move(decayTypePtr), "decayType");
+  event.put(std::move(keyStrPtr), "keyStr");
   
-  event.put(decayChainPartIdxPtr, "decayChainPartIdxVec");
-  event.put(decayChainPartStrPtr, "decayChainPartStrVec");
+  event.put(std::move(decayChainPartIdxPtr), "decayChainPartIdxVec");
+  event.put(std::move(decayChainPartStrPtr), "decayChainPartStrVec");
 
   return true;
 }
