@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 prodIsoTrks = cms.EDFilter(
   "prodIsoTrks",
-  vtxSrc = cms.InputTag('goodVertices'),
+  vtxSrc = cms.InputTag('offlineSlimmedPrimaryVertices'),#prodGoodVertices'),#goodVertices'),
   metSrc = cms.InputTag('slimmedMETs'),
   forVetoIsoTrkSrc = cms.InputTag("trackIsolation"),
   pfCandSrc = cms.InputTag("packedPFCandidates"),

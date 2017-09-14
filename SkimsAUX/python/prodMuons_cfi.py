@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 prodMuons = cms.EDFilter(
   "prodMuons",
   MuonSource    = cms.InputTag('slimmedMuons'),
-  VertexSource  = cms.InputTag('goodVertices'),
+  VertexSource  = cms.InputTag('offlineSlimmedPrimaryVertices'),#'goodVertices'),
   metSource     = cms.InputTag('slimmedMETs'),
   PFCandSource  = cms.InputTag('packedPFCandidates'),
   RhoSource     = cms.InputTag('fixedGridRhoFastjetCentralNeutral'),

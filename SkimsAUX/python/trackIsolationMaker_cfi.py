@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 trackIsolationFilter = cms.EDFilter("TrackIsolationFilter",
                                      pfCandidatesTag     = cms.InputTag("packedPFCandidates"),
-                                     vertexInputTag      = cms.InputTag("goodVertices"),
+                                     vertexInputTag      = cms.InputTag("offlineSlimmedPrimaryVertices"),#prodGoodVertices"),#goodVertices"),
                                      dR_ConeSize         = cms.double(0.3),
                                      dz_CutValue         = cms.double(0.1),
                                      minPt_PFCandidate   = cms.double(5.0),
