@@ -17,10 +17,11 @@ from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
 from multiprocessing import Process
 
-workArea = 'crabProdv13p0'
-outDir = '/store/group/lpcsusyhad/Stop_production/Summer16_80X_Mar_2017_Ntp_v13X'
+workArea = 'crabProdvTest'
+outDir = '/store/group/lpcsusyhad/Stop_production/2017Test'
 Pubname = 'Summer16_80X_Mar_2017_Ntp_v13p0'
 json_25ns = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
+json_2017 ='Cert_294927-302343_13TeV_PromptReco_Collisions17_JSON.txt'
 # Use the common keyword to select the samples you'd like to submit
 # ALL: all of them; NONE: none of them; TEST: test printing out the crab3 config or disable actual submission; STATUS: check job status
 # TTJets, WJetsToLNu, ZJetsToNuNu, DYJetsToLL, QCD, TTW, TTZ, ST_tW, SMS, HTMHT, SingleMuon, SingleElectron, DoubleMuon, DoubleEG
@@ -29,11 +30,11 @@ json_25ns = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #selSubmitKey = 'TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TTJets_SingleLeptFrom TTJets_DiLept'
 #selSubmitKey = 'TEST HTMHT TTJets_SingleLeptFrom TTJets_DiLept'
-selSubmitKey = 'TEST STATUS MET'
+selSubmitKey = 'MET-Run2017C-PromptReco-v3'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TEST ALL'
 #selSubmitKey = 'TEST TTJets_SingleLeptFrom TTJets_Inc TTJets_DiLept ZJetsToNuNu_HT'
-doAutoMonitor = True
+doAutoMonitor = False#True
 
 ## Format: keyword : IsData, fulldatasetname, unitperjob
 jobslist = {
@@ -237,7 +238,7 @@ jobslist = {
     'HTMHT-Run2016B-03Feb2017_ver2-v2'            : [True, '/HTMHT/Run2016B-03Feb2017_ver2-v2/MINIAOD', 10],
     'HTMHT-Run2016B-03Feb2017_ver1-v1'            : [True, '/HTMHT/Run2016B-03Feb2017_ver1-v1/MINIAOD', 10],
 
-    #For the explaination of the extremely confusing name of MINIAOD, look at https://twiki.cern.ch/twiki/bin/view/CMSPublic/ReMiniAOD03Feb2017Notes
+    #For the explaination of the extremely confusing name of MINIAOD, look at https://twiki.cern.ch/twiki/bin/view/CMSPublic/ReMiniAOD03Feb2017Notes 10 is how many lumi sections that are processed when running
     'MET-Run2016H-03Feb2017_ver3-v1'            : [True, '/MET/Run2016H-03Feb2017_ver3-v1/MINIAOD', 10],
     'MET-Run2016H-03Feb2017_ver2-v1'            : [True, '/MET/Run2016H-03Feb2017_ver2-v1/MINIAOD', 10],
     'MET-Run2016G-03Feb2017-v1'                 : [True, '/MET/Run2016G-03Feb2017-v1/MINIAOD', 10],
@@ -247,6 +248,13 @@ jobslist = {
     'MET-Run2016C-03Feb2017-v1'                 : [True, '/MET/Run2016C-03Feb2017-v1/MINIAOD', 10],
     'MET-Run2016B-03Feb2017_ver2-v2'            : [True, '/MET/Run2016B-03Feb2017_ver2-v2/MINIAOD', 10],
     'MET-Run2016B-03Feb2017_ver1-v1'            : [True, '/MET/Run2016B-03Feb2017_ver1-v1/MINIAOD', 10],
+
+    'MET-Run2017B-23Jun2017-v1'                 : [True, '/MET/Run2017B-23Jun2017-v1/MINIAOD', 10],
+    'MET-Run2017C-PromptReco-v1'                : [True, '/MET/Run2017C-PromptReco-v1/MINIAOD', 10],
+    'MET-Run2017C-PromptReco-v2'                : [True, '/MET/Run2017C-PromptReco-v2/MINIAOD', 10],
+    'MET-Run2017C-PromptReco-v3'                : [True, '/MET/Run2017C-PromptReco-v3/MINIAOD', 10],
+    'MET-Run2017D-PromptReco-v1'                : [True, '/MET/Run2017D-PromptReco-v1/MINIAOD', 10],
+
 
     'SingleMuon-Run2016H-03Feb2017_ver3-v1'            : [True, '/SingleMuon/Run2016H-03Feb2017_ver3-v1/MINIAOD', 10],
     'SingleMuon-Run2016H-03Feb2017_ver2-v1'            : [True, '/SingleMuon/Run2016H-03Feb2017_ver2-v1/MINIAOD', 10],
@@ -376,6 +384,21 @@ def SubmitJob(key, value):
             tempconfig.JobType.inputFiles = [json_25ns, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_25ns
+        elif key.find('MET-Run2017B-23Jun2017-v1') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=92X_dataRun2_Prompt_v7', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_2017, 'Summer16_23Sep2016AllV3_DATA.db']
+            tempconfig.Data.splitting = 'LumiBased'
+            tempconfig.Data.lumiMask = json_2017
+        elif key.find('MET-Run2017C-PromptReco-v1') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=92X_dataRun2_Prompt_v7', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_2017, 'Summer16_23Sep2016AllV3_DATA.db']
+            tempconfig.Data.splitting = 'LumiBased'
+            tempconfig.Data.lumiMask = json_2017
+        elif key.find('MET-Run2017C-PromptReco-v3') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=92X_dataRun2_Prompt_v7', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_2017, 'Summer16_23Sep2016AllV3_DATA.db']
+            tempconfig.Data.splitting = 'LumiBased'
+            tempconfig.Data.lumiMask = json_2017
         else:
             pass
     else:
@@ -387,6 +410,7 @@ def SubmitJob(key, value):
           tempconfig.JobType.pyCfgParams = ['mcInfo=1', 'GlobalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v6', 'specialFix=JEC BADMUON', 'jecDBname=Summer16_23Sep2016V3_MC']
           tempconfig.JobType.inputFiles = ['Summer16_23Sep2016V3_MC.db']
           tempconfig.Data.splitting = 'FileBased'
+
 
     tempconfig.Data.inputDataset = value[1].strip()
     tempconfig.Data.unitsPerJob = value[2]

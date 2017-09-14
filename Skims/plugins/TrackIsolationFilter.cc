@@ -95,11 +95,11 @@ TrackIsolationFilter::~TrackIsolationFilter() {
 
 bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  auto_ptr<vector<double> >  pfcands_trkiso(new vector<double>);
-  auto_ptr<vector<double> >  pfcands_dzpv  (new vector<double>);
-  auto_ptr<vector<double> >  pfcands_pt    (new vector<double>);
-  auto_ptr<vector<double> >  pfcands_chg   (new vector<double>);
-  auto_ptr<int> Isotrack_size (new int);
+  unique_ptr<vector<double> >  pfcands_trkiso(new vector<double>);
+  unique_ptr<vector<double> >  pfcands_dzpv  (new vector<double>);
+  unique_ptr<vector<double> >  pfcands_pt    (new vector<double>);
+  unique_ptr<vector<double> >  pfcands_chg   (new vector<double>);
+  unique_ptr<int> Isotrack_size (new int);
 
   //---------------------------------
   // get PFCandidate collection
@@ -123,7 +123,7 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   // for neutral PFCandidates, store trkiso = 999 and dzpv = 999
   //-------------------------------------------------------------------------------------------------
 
-  std::auto_ptr<std::vector<pat::PackedCandidate> > prod(new std::vector<pat::PackedCandidate>());
+  std::unique_ptr<std::vector<pat::PackedCandidate> > prod(new std::vector<pat::PackedCandidate>());
 
   if( vertices->size() > 0) {
 
@@ -208,13 +208,13 @@ bool TrackIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   bool result = (doTrkIsoVeto_ ? (prod->size() == 0) : true);
 
   // put trkiso and dz values back into event
-  iEvent.put(pfcands_trkiso,"pfcandstrkiso");
-  iEvent.put(pfcands_dzpv  ,"pfcandsdzpv"  );
-  iEvent.put(pfcands_pt    ,"pfcandspt"    );
-  iEvent.put(pfcands_chg   ,"pfcandschg"   );
+  iEvent.put(std::move(pfcands_trkiso),"pfcandstrkiso");
+  iEvent.put(std::move(pfcands_dzpv)  ,"pfcandsdzpv"  );
+  iEvent.put(std::move(pfcands_pt)    ,"pfcandspt"    );
+  iEvent.put(std::move(pfcands_chg)   ,"pfcandschg"   );
 
-  iEvent.put(prod);
-  iEvent.put(Isotrack_size, "Isotracksize");
+  iEvent.put(std::move(prod));
+  iEvent.put(std::move(Isotrack_size), "Isotracksize");
 
   return result;
 }

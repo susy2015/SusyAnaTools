@@ -96,11 +96,6 @@ class prodJets : public edm::EDFilter
   edm::Handle<std::vector<pat::Jet> > puppiJets;
   edm::Handle<std::vector<pat::Jet> > puppiSubJets; 
  
-  //AK8 Jets
-  edm::InputTag ak8JetsSrc_, ak8SubJetsSrc_;
-  edm::Handle<std::vector<pat::Jet> > ak8Jets;
-  edm::Handle<std::vector<pat::Jet> > ak8SubJets;
-
   std::string jetType_;
   std::string qgTaggerKey_;
   std::string NjettinessAK8Puppi_label_;
@@ -150,10 +145,7 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   //Puppi source
   puppiJetsSrc_ = iConfig.getParameter<edm::InputTag>("puppiJetsSrc");
   puppiSubJetsSrc_ = iConfig.getParameter<edm::InputTag>("puppiSubJetsSrc");
-  //ak8 jets
-  ak8JetsSrc_ = iConfig.getParameter<edm::InputTag>("ak8JetsSrc");
-  ak8SubJetsSrc_ = iConfig.getParameter<edm::InputTag>("ak8SubJetsSrc");
-  
+
   NjettinessAK8Puppi_label_ = iConfig.getParameter<std::string>("NjettinessAK8Puppi_label");
   ak8PFJetsPuppi_label_ = iConfig.getParameter<std::string>("ak8PFJetsPuppi_label");
 
@@ -174,8 +166,6 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   VtxTok_=consumes< std::vector<reco::Vertex> >(vtxSrc_);
   PuppiJetsSrc_Tok_ = consumes<std::vector<pat::Jet>>(puppiJetsSrc_);
   PuppiSubJetsSrc_Tok_ = consumes<std::vector<pat::Jet>>(puppiSubJetsSrc_);
-  Ak8Jets_Tok_ = consumes<std::vector<pat::Jet>>(ak8JetsSrc_);
-  Ak8SubJets_Tok_ = consumes<std::vector<pat::Jet>>(ak8SubJetsSrc_);
 
   //produces<std::vector<pat::Jet> >("");
   produces<std::vector<TLorentzVector> >("jetsLVec");
@@ -211,15 +201,6 @@ prodJets::prodJets(const edm::ParameterSet & iConfig)
   produces<std::vector<double> >("puppitau2");
   produces<std::vector<double> >("puppitau3");
   produces<std::vector<double> >("puppiSubJetsBdisc");
-
-  //ak8
-  produces<std::vector<TLorentzVector> >("ak8JetsLVec");
-  produces<std::vector<TLorentzVector> >("ak8SubJetsLVec");
-  produces<std::vector<double> >("softDropMass");
-  produces<std::vector<double> >("tau1");
-  produces<std::vector<double> >("tau2");
-  produces<std::vector<double> >("tau3");
-  produces<std::vector<double> >("ak8SubJetsBdisc");
 
 }
 
@@ -271,9 +252,6 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //PUPPI
   iEvent.getByToken(PuppiJetsSrc_Tok_, puppiJets);
   iEvent.getByToken(PuppiSubJetsSrc_Tok_, puppiSubJets);
-  //ak8
-  iEvent.getByToken(Ak8Jets_Tok_, ak8Jets);
-  iEvent.getByToken(Ak8SubJets_Tok_, ak8SubJets);
 
   //check which ones to keep
   //std::unique_ptr<std::vector<pat::Jet> > prod(new std::vector<pat::Jet>());
@@ -309,14 +287,6 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::unique_ptr<std::vector<double> > puppitau2(new std::vector<double>());
   std::unique_ptr<std::vector<double> > puppitau3(new std::vector<double>());
 
-  //ak8
-  std::unique_ptr<std::vector<TLorentzVector> > ak8JetsLVec(new std::vector<TLorentzVector>());  
-  std::unique_ptr<std::vector<TLorentzVector> > ak8SubJetsLVec(new std::vector<TLorentzVector>());  
-  std::unique_ptr<std::vector<double> > ak8SubJetsBdisc(new std::vector<double>());
-  std::unique_ptr<std::vector<double> > softDropMass(new std::vector<double>());
-  std::unique_ptr<std::vector<double> > tau1(new std::vector<double>());
-  std::unique_ptr<std::vector<double> > tau2(new std::vector<double>());
-  std::unique_ptr<std::vector<double> > tau3(new std::vector<double>());
 
   if( !isData_ ){
      int cntJetPassPtCut = 0;
@@ -463,35 +433,6 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   //Puppi End ************
   //
-  for(unsigned int ak = 0; ak < ak8Jets->size(); ak++){
-
-     TLorentzVector perak8JetLVec;
-     perak8JetLVec.SetPtEtaPhiE( ak8Jets->at(ak).pt(), ak8Jets->at(ak).eta(), ak8Jets->at(ak).phi(), ak8Jets->at(ak).energy() );
-     ak8JetsLVec->push_back(perak8JetLVec);
- 
-     double softDropMass_uf = ak8Jets->at(ak).userFloat("ak8PFJetsCHSSoftDropMass");
-     softDropMass->push_back(softDropMass_uf);
-     double tau1_uf = ak8Jets->at(ak).userFloat("NjettinessAK8:tau1");
-     tau1->push_back(tau1_uf);
-     double tau2_uf         = ak8Jets->at(ak).userFloat("NjettinessAK8:tau2");
-     tau2->push_back(tau2_uf);
-     double tau3_uf         = ak8Jets->at(ak).userFloat("NjettinessAK8:tau3");
-     tau3->push_back(tau3_uf);  
-  }
-
-  for(unsigned int ik = 0; ik < ak8SubJets->size(); ik++){
-    // This subjet collection seems to have double the number of jets compared to the ak8Jets collection. 
-    // So probably this is just a list of the subjets, which we can deltaR match to the ak8Jets.
-
-    TLorentzVector perSubJetLVec;
-    perSubJetLVec.SetPtEtaPhiE( ak8SubJets->at(ik).pt(), 
-				ak8SubJets->at(ik).eta(), 
-				ak8SubJets->at(ik).phi(), 
-				ak8SubJets->at(ik).energy() );
-    ak8SubJetsLVec->push_back(perSubJetLVec);
-    ak8SubJetsBdisc->push_back(ak8SubJets->at(ik).bDiscriminator(bTagKeyString_.c_str()));
-  }
-
 
   int cntJetLowPt = 0;
   for(unsigned int ij=0; ij < extJets.size(); ij++)
@@ -679,14 +620,6 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(std::move(puppitau2),"puppitau2");
   iEvent.put(std::move(puppitau3),"puppitau3");
 
-  //ak8
-  iEvent.put(std::move(ak8JetsLVec), "ak8JetsLVec");
-  iEvent.put(std::move(ak8SubJetsLVec), "ak8SubJetsLVec");
-  iEvent.put(std::move(ak8SubJetsBdisc), "ak8SubJetsBdisc");
-  iEvent.put(std::move(softDropMass),"softDropMass");
-  iEvent.put(std::move(tau1), "tau1");
-  iEvent.put(std::move(tau2), "tau2");
-  iEvent.put(std::move(tau3), "tau3");
 
   return true;
 }
