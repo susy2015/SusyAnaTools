@@ -59,7 +59,7 @@ bool BJetsSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(JetTok_, jets);
   
   // collection of b-tagged jets
-  std::auto_ptr<std::vector<pat::Jet> > prod(new std::vector<pat::Jet>());
+  std::unique_ptr<std::vector<pat::Jet> > prod(new std::vector<pat::Jet>());
  
   int jetIdx =-1; 
   edm::View<pat::Jet>::const_iterator jetItr;
@@ -85,7 +85,7 @@ bool BJetsSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   // store in the event
-  iEvent.put(prod);
+  iEvent.put(std::move(prod));
   
   //filter should return false if no b-jets found
   bool result = (selecOnBJets_ ? !(prod->size() == 0) : true);
