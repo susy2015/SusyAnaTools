@@ -49,7 +49,7 @@ void MHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   iEvent.getByToken(TheJetLabelTok_, jets);
 
   // calculate MHT
-  std::auto_ptr<std::vector<reco::MET> > mhtp(new std::vector<reco::MET>());
+  std::unique_ptr<std::vector<reco::MET> > mhtp(new std::vector<reco::MET>());
   reco::MET::LorentzVector mht(0,0,0,0);
   for (edm::View<reco::Jet>::const_iterator it = jets->begin(); it != jets->end(); ++it) {
     if (it->pt() > minJetPt_ && fabs(it->eta()) < maxJetEta_) {
@@ -58,15 +58,15 @@ void MHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   }
   mhtp->push_back(reco::MET(mht, reco::MET::Point()));
 
-  std::auto_ptr<double> mhtVal(new double);
+  std::unique_ptr<double> mhtVal(new double);
   *mhtVal = mht.pt();
 
-  std::auto_ptr<double> mhtphiVal(new double);
+  std::unique_ptr<double> mhtphiVal(new double);
   *mhtphiVal = mht.phi();
 
-  iEvent.put(mhtp);
-  iEvent.put(mhtVal, "mht");
-  iEvent.put(mhtphiVal, "mhtphi");
+  iEvent.put(std::move(mhtp));
+  iEvent.put(std::move(mhtVal), "mht");
+  iEvent.put(std::move(mhtphiVal), "mhtphi");
 
 }
 

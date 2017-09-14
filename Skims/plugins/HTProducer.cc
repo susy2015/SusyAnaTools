@@ -54,8 +54,8 @@ void HTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     }
   }
 
-  std::auto_ptr<double> htp(new double(ht));
-  iEvent.put(htp);
+  std::unique_ptr<double> htp(new double(ht));
+  iEvent.put(std::move(htp));
 
 }
 
