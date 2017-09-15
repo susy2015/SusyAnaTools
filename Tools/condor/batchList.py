@@ -1,14 +1,6 @@
 import os
 import optparse
-
-parser = optparse.OptionParser("usage: %prog [options]\n")
-
-parser.add_option ('-d', dest='directory', type='string', default = "/store/user/lpcsusyhad/Spring15_74X_Jan_2016_Ntp_v5X", help="file path to begin")
-parser.add_option ('-f', dest='file',      type='string', default = "", help="File name to transfer")
-parser.add_option ('-l', dest='list', action="store_true", default = False, help="Create file lists")
-parser.add_option ('-c', dest='copy', action="store_true", default = False, help="Copy a file to eos")
-
-options, args = parser.parse_args()
+from glob import glob
 
 eosurl = "root://cmseos.fnal.gov"
 
@@ -36,19 +28,38 @@ def recSearch(path, fout = None):
                 else:
                     fout.write("".join(["%s/"%eosurl, filename, "\n"]))
 
-startPath = options.directory
 
-if options.list:
-    for l in eosls(startPath, "-l"):
-        if l.startswith("d"):
-            endpath = l.split()[-1]
-            print "".join([endpath, ".txt"])
-            f = open("".join([endpath, ".txt"]), "w")
-            recSearch("/".join([startPath, endpath]), f)
-            f.close()
+if __name__ == "__main__":
 
-elif options.copy:
-    if options.file is "":
-        print "File not specified"
-    else:
-        eoscp(options.file, startPath)
+    parser = optparse.OptionParser("usage: %prog [options]\n")
+    
+    parser.add_option ('-d', dest='directory', type='string', default = "", help="file path to begin")
+    parser.add_option ('-f', dest='file',      type='string', default = "", help="File name to transfer")
+    parser.add_option ('-l', dest='list', action="store_true", default = False, help="Create file lists")
+    parser.add_option ('-c', dest='copy', action="store_true", default = False, help="Copy a file to eos")
+    
+    options, args = parser.parse_args()
+    
+    startPath = options.directory
+    
+    if options.list:
+        for l in eosls(startPath, "-l"):
+            if l.startswith("d"):
+                endpath = l.split()[-1]
+                print "".join([endpath, ".txt"])
+                fileName = "".join([endpath, ".txt"])
+                f = open(fileName, "w")
+                recSearch("/".join([startPath, endpath]), f)
+                f.close()
+        
+                if options.copy:
+                    eoscp(fileName, startPath)
+
+    if options.copy:
+        files = glob(options.file)
+        if not(len(files)):
+            print "No files to transfer with glob options.file"
+        else:
+            for f in files:
+                eoscp(f, startPath)
+            
