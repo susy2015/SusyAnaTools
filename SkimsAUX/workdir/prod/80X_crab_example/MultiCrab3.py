@@ -30,7 +30,7 @@ json_2017 ='Cert_294927-302343_13TeV_PromptReco_Collisions17_JSON.txt'
 #selSubmitKey = 'TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TTJets_SingleLeptFrom TTJets_DiLept'
 #selSubmitKey = 'TEST HTMHT TTJets_SingleLeptFrom TTJets_DiLept'
-selSubmitKey = 'MET-Run2017C-PromptReco-v3'
+selSubmitKey = 'MET-Run2017C-PromptReco-v2'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TEST ALL'
 #selSubmitKey = 'TEST TTJets_SingleLeptFrom TTJets_Inc TTJets_DiLept ZJetsToNuNu_HT'
@@ -394,7 +394,17 @@ def SubmitJob(key, value):
             tempconfig.JobType.inputFiles = [json_2017, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'
             tempconfig.Data.lumiMask = json_2017
+        elif key.find('MET-Run2017C-PromptReco-v2') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=92X_dataRun2_Prompt_v7', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_2017, 'Summer16_23Sep2016AllV3_DATA.db']
+            tempconfig.Data.splitting = 'LumiBased'
+            tempconfig.Data.lumiMask = json_2017
         elif key.find('MET-Run2017C-PromptReco-v3') != -1:
+            tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=92X_dataRun2_Prompt_v7', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
+            tempconfig.JobType.inputFiles = [json_2017, 'Summer16_23Sep2016AllV3_DATA.db']
+            tempconfig.Data.splitting = 'LumiBased'
+            tempconfig.Data.lumiMask = json_2017
+        elif key.find('MET-Run2017D-PromptReco-v1') != -1:
             tempconfig.JobType.pyCfgParams = ['mcInfo=0', 'GlobalTag=92X_dataRun2_Prompt_v7', 'jecDBname=Summer16_23Sep2016AllV3_DATA']
             tempconfig.JobType.inputFiles = [json_2017, 'Summer16_23Sep2016AllV3_DATA.db']
             tempconfig.Data.splitting = 'LumiBased'

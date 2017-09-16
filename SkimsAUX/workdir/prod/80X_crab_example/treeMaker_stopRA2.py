@@ -114,7 +114,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
 ## -- Maximal Number of Events --
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))#options.maxEvents) )
 
 if options.debug and options.verbose ==1:
    process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck',
@@ -145,7 +145,8 @@ elif options.fileslist:
 else:
    process.source.fileNames = [
 #        '/store/mc/RunIISpring16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00B2B39D-5D4D-E611-8BD4-002590D9D8B6.root',
-	'/store/data/Run2017C/MET/MINIAOD/PromptReco-v2/000/300/310/00000/FCAD0182-5B79-E711-8218-02163E011A36.root',
+	#'/store/data/Run2017C/MET/MINIAOD/PromptReco-v2/000/300/310/00000/FCAD0182-5B79-E711-8218-02163E011A36.root',#2017
+        '/store/data/Run2017C/MET/MINIAOD/PromptReco-v3/000/301/142/00000/C8F89B96-9A83-E711-AA35-02163E01366D.root',
 #        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/00D97021-CFBE-E611-AD3F-0025901D08B8.root',
 #        '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
 #       '/store/mc/RunIISpring16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/041F3A63-431E-E611-9E1E-008CFA1112CC.root',

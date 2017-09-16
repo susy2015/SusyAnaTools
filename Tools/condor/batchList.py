@@ -3,7 +3,7 @@ import optparse
 
 parser = optparse.OptionParser("usage: %prog [options]\n")
 
-parser.add_option ('-d', dest='directory', type='string', default = "/store/user/lpcsusyhad/Spring15_74X_Jan_2016_Ntp_v5X", help="file path to begin")
+parser.add_option ('-d', dest='directory', type='string', default = "/store/user/lpcsusyhad/Stop_production/2017Test/MET/Summer16_80X_Mar_2017_Ntp_v13p0_MET-Run2017", help="file path to begin")
 parser.add_option ('-f', dest='file',      type='string', default = "", help="File name to transfer")
 parser.add_option ('-l', dest='list', action="store_true", default = False, help="Create file lists")
 parser.add_option ('-c', dest='copy', action="store_true", default = False, help="Copy a file to eos")

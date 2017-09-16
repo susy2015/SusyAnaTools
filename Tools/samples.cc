@@ -51,6 +51,7 @@ namespace AnaSamples
         std::string sigMCloc    = "Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/";
         std::string addSigMCloc = "Spring15_74X_v5X_top_corridor/";
         std::string deepTrimmed_loc       = "Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/DeepTrimmed/";
+        std::string DataTest17		="Stop_production/2017Test/"; 
 
         if(fDir.compare("condor") == 0)
         {
@@ -60,6 +61,7 @@ namespace AnaSamples
             sigMCloc = "";
             addSigMCloc = "";
             deepTrimmed_loc = "";
+            DataTest17 = "";
         }
 
         //TTbar samples
@@ -256,6 +258,12 @@ namespace AnaSamples
 
         addSample("Data_MET_deepTrimmed", fDir_ + deepTrimmed_loc + "MET_deepTrimmed.txt", "stopTreeMaker/AUX", 35866.210733056, 1.0,  kBlack);
 
+        addSample("Data_MET_Run2017", fDir_ + DataTest17 + "MET.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
+        //addSample("Data_MET-Run2017B", fDir_ + DataTest17 +"Summer16_80X_Mar_2017_Ntp_v13p0_MET-Run2017B-23Jun2017-v1.txt", 15.6, 1, kBlack);
+        //addSample("Data_MET-Run2017C_v1", fDir_ + DataTest17 +"Summer16_80X_Mar_2017_Ntp_v13p0_MET-Run2017C-23Jun2017-v1.txt", 15.6, 1, kBlack);
+        //addSample("Data_MET-Run2017C_v2", fDir_ + DataTest17 +"Summer16_80X_Mar_2017_Ntp_v13p0_MET-Run2017C-23Jun2017-v2.txt", 15.6, 1, kBlack);
+        //addSample("Data_MET-Run2017C_v3", fDir_ + DataTest17 +"Summer16_80X_Mar_2017_Ntp_v13p0_MET-Run2017C-23Jun2017-v3.txt", 15.6, 1, kBlack);
+        //addSample("Data_MET-Run2017D", fDir_ + DataTest17 +"Summer16_80X_Mar_2017_Ntp_v13p0_MET-Run2017D-23Jun2017-v1.txt", 15.6, 1, kBlack);
         // ----------
         // - signal -
         // ----------
@@ -405,6 +413,13 @@ namespace AnaSamples
         addSampleSet(samples, "Data_MET", {"Data_MET_2016"});
         addSampleSet(samples, "Data_MET_Run2016G", {"Data_MET_Run2016G"});
         addSampleSet(samples, "Data_MET_deepTrimmed", {"Data_MET_deepTrimmed"});
+
+        addSampleSet(samples, "Data_MET_Run20167", {"Data_MET_Run2017"});
+        //addSampleSet(samples, "Data_MET-Run2017B", {"Data_MET-Run2017B"});
+        //addSampleSet(samples, "Data_MET-Run2017C_v1", {"Data_MET-Run2017C_v1"});
+        //addSampleSet(samples, "Data_MET-Run2017C_v2", {"Data_MET-Run2017C_v2"});
+        //addSampleSet(samples, "Data_MET-Run2017C_v3", {"Data_MET-Run2017C_v3"});
+        //addSampleSet(samples, "Data_MET-Run2017D", {"Data_MET-Run2017D"});
 
         addSampleSet(samples, "Signal_T1tttt_mGluino1200_mLSP800", {"Signal_T1tttt_mGluino1200_mLSP800"});
         addSampleSet(samples, "Signal_T1tttt_mGluino1500_mLSP100", {"Signal_T1tttt_mGluino1500_mLSP100"});
