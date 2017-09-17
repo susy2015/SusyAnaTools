@@ -54,13 +54,14 @@ To Checkout TopTagger Code:
 cd $CMSSW_BASE/src
 git clone git@github.com:susy2015/opencv.git
 cd opencv
-git checkout 3.1.0_StopBugFix
+git checkout 3.1.1_BugFix
 cmake .
 make -j 8
 
 ## Checkout Tagtagger
 cd $CMSSW_BASE/src
 git clone -b HadStopAnaDevel_v8_Moriond2017_Mar27_2017 git@github.com:susy2015/TopTagger.git
+cd TopTagger
 scram b -j 8
 cd TopTagger/TopTagger/test/
 make -j 8 
