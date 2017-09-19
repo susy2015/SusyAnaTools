@@ -145,8 +145,8 @@ elif options.fileslist:
 else:
    process.source.fileNames = [
 #        '/store/mc/RunIISpring16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00B2B39D-5D4D-E611-8BD4-002590D9D8B6.root',
-	#'/store/data/Run2017C/MET/MINIAOD/PromptReco-v2/000/300/310/00000/FCAD0182-5B79-E711-8218-02163E011A36.root',#2017
-        '/store/data/Run2017C/MET/MINIAOD/PromptReco-v3/000/301/142/00000/C8F89B96-9A83-E711-AA35-02163E01366D.root',
+	'/store/data/Run2017C/MET/MINIAOD/PromptReco-v2/000/300/310/00000/FCAD0182-5B79-E711-8218-02163E011A36.root',#2017
+        #'/store/data/Run2017C/MET/MINIAOD/PromptReco-v3/000/301/142/00000/C8F89B96-9A83-E711-AA35-02163E01366D.root',
 #        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/00D97021-CFBE-E611-AD3F-0025901D08B8.root',
 #        '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
 #       '/store/mc/RunIISpring16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/041F3A63-431E-E611-9E1E-008CFA1112CC.root',
@@ -634,15 +634,16 @@ process.smsModelFilter.Debug              = cms.bool(options.debug)
 
 
 # See https://twiki.cern.ch/twiki/bin/view/CMSPublic/ReMiniAOD03Feb2017Notes#MET_Recipes
+# Also https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2
 # This is special treatment for reMINIAOD DATA...
-#if "BADMUON" in options.specialFix and options.mcInfo == False:
+if "BADMUON" in options.specialFix and options.mcInfo == False:
 #   # Note that calo MET is stored only in the slimmedMETs collection, therefore addcalomet is True only in the slimmedMETsDefault (with slimmedMETs as source)
-#   process.prodMETslimmedMETsDefault     = process.prodMET.clone(metSrc = cms.InputTag("slimmedMETs"),            addcalomet = cms.bool(True) ) # This collection is the muon cleaned MET only.
-#   process.prodMETslimmedMETsUncorrected = process.prodMET.clone(metSrc = cms.InputTag("slimmedMETsUncorrected"), addcalomet = cms.bool(False)) # This is the uncleaned MET collection.
-#   process.prodMETslimmedMETsEGClean     = process.prodMET.clone(metSrc = cms.InputTag("slimmedMETsEGClean"),     addcalomet = cms.bool(False)) # This collection is the e/gamma cleaned MET only.
+   process.prodMETslimmedMETsDefault     = process.prodMET.clone(metSrc = cms.InputTag("slimmedMETs"),            addcalomet = cms.bool(True) ) # This collection is the muon cleaned MET only.
+   process.prodMETslimmedMETsUncorrected = process.prodMET.clone(metSrc = cms.InputTag("slimmedMETsUncorrected"), addcalomet = cms.bool(False)) # This is the uncleaned MET collection.
+   process.prodMETslimmedMETsEGClean     = process.prodMET.clone(metSrc = cms.InputTag("slimmedMETsEGClean"),     addcalomet = cms.bool(False)) # This collection is the e/gamma cleaned MET only.
    # The most correct MET collection is slimmedMETsMuEGClean, this is the collection corrected by both e/gamma and muon effects
-#   process.prodMET.metSrc = cms.InputTag("slimmedMETsMuEGClean") # This collection is the muon and e/gamma cleaned MET.
-#   process.prodMET.addcalomet = cms.bool(False)
+   process.prodMET.metSrc = cms.InputTag("slimmedMETsMuEGClean") # This collection is the muon and e/gamma cleaned MET.
+   process.prodMET.addcalomet = cms.bool(False)
 
 #Addition of Filter Decision Bits and Trigger Results
 process.load("SusyAnaTools.SkimsAUX.prodTriggerResults_cfi")
@@ -739,8 +740,8 @@ process.stopTreeMaker.vectorString.append(cms.InputTag("triggerProducer", "Trigg
 #process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "looseJetID"))
 #process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "tightJetID"))
 #process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "tightlepvetoJetID"))
-#process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "looseJetID"))
-#process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:looseJetID|looseJetID_NoLep")
+process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "looseJetID"))
+process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:looseJetID|looseJetID_NoLep")
 #process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "tightJetID"))
 #process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:tightJetID|tightJetID_NoLep")
 #process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "tightlepvetoJetID"))
@@ -967,26 +968,28 @@ process.stopTreeMaker.varsDoubleNamesInTree.append("ak4stophtPFchs|ht")
 process.stopTreeMaker.varsInt.append(cms.InputTag("ak4nJetsForSkimsStop:nJets"))
 process.stopTreeMaker.varsIntNamesInTree.append("ak4nJetsForSkimsStop:nJets|nJets_CUT")
 
-#if "BADMUON" in options.specialFix and options.mcInfo == False:
+#process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:met"), cms.InputTag("prodMET:metphi")])
+
+if "BADMUON" in options.specialFix and options.mcInfo == False:
 #   # Note that this default met from prodMET is both e/gamma and muon corrected which is the recommended one
 #   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:met"), cms.InputTag("prodMET:metphi")])
    # Note that calo MET is stored only in the slimmedMETs collection, therefore addcalomet is True only in the slimmedMETsDefault (with slimmedMETs as source)
-#   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsDefault:calomet"), cms.InputTag("prodMETslimmedMETsDefault:calometphi")])
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsDefault:calomet"), cms.InputTag("prodMETslimmedMETsDefault:calometphi")])
 #   process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodMET:metMagUp"), cms.InputTag("prodMET:metMagDown"), cms.InputTag("prodMET:metPhiUp"), cms.InputTag("prodMET:metPhiDown")])
 
    # Store other different met
-#   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsDefault:met"), cms.InputTag("prodMETslimmedMETsDefault:metphi")])
-#   process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodMETslimmedMETsDefault:met|metMuCleanOnly", "prodMETslimmedMETsDefault:metphi|metphiMuCleanOnly"])
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsDefault:met"), cms.InputTag("prodMETslimmedMETsDefault:metphi")])
+   process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodMETslimmedMETsDefault:met|metMuCleanOnly", "prodMETslimmedMETsDefault:metphi|metphiMuCleanOnly"])
 
-#   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsUncorrected:met"), cms.InputTag("prodMETslimmedMETsUncorrected:metphi")])
-#   process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodMETslimmedMETsUncorrected:met|metNoClean", "prodMETslimmedMETsUncorrected:metphi|metphiNoClean"])
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsUncorrected:met"), cms.InputTag("prodMETslimmedMETsUncorrected:metphi")])
+   process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodMETslimmedMETsUncorrected:met|metNoClean", "prodMETslimmedMETsUncorrected:metphi|metphiNoClean"])
 
-#   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsEGClean:met"), cms.InputTag("prodMETslimmedMETsEGClean:metphi")])
-#   process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodMETslimmedMETsEGClean:met|metEGCleanOnly", "prodMETslimmedMETsEGClean:metphi|metphiEGCleanOnly"])
-#else:
-#   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:met"), cms.InputTag("prodMET:metphi")])
-#   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:calomet"), cms.InputTag("prodMET:calometphi")])
-#   process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodMET:metMagUp"), cms.InputTag("prodMET:metMagDown"), cms.InputTag("prodMET:metPhiUp"), cms.InputTag("prodMET:metPhiDown")])
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMETslimmedMETsEGClean:met"), cms.InputTag("prodMETslimmedMETsEGClean:metphi")])
+   process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodMETslimmedMETsEGClean:met|metEGCleanOnly", "prodMETslimmedMETsEGClean:metphi|metphiEGCleanOnly"])
+else:
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:met"), cms.InputTag("prodMET:metphi")])
+   process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodMET:calomet"), cms.InputTag("prodMET:calometphi")])
+   process.stopTreeMaker.vectorDouble.extend([cms.InputTag("prodMET:metMagUp"), cms.InputTag("prodMET:metMagDown"), cms.InputTag("prodMET:metPhiUp"), cms.InputTag("prodMET:metPhiDown")])
 
 process.stopTreeMaker.varsDouble.extend([cms.InputTag("ak4jetMHTDPhiForSkimsStop:dPhi0"), cms.InputTag("ak4jetMHTDPhiForSkimsStop:dPhi1"), cms.InputTag("ak4jetMHTDPhiForSkimsStop:dPhi2")])
 process.stopTreeMaker.varsDoubleNamesInTree.extend(["ak4jetMHTDPhiForSkimsStop:dPhi0|dPhi0_CUT", "ak4jetMHTDPhiForSkimsStop:dPhi1|dPhi1_CUT", "ak4jetMHTDPhiForSkimsStop:dPhi2|dPhi2_CUT"])
@@ -995,17 +998,13 @@ process.stopTreeMaker.varsInt.extend([cms.InputTag("prodEventInfo:vtxSize"), cms
 process.stopTreeMaker.varsDouble.extend([cms.InputTag("prodEventInfo:trunpv"), cms.InputTag("prodEventInfo:avgnpv"), cms.InputTag("prodEventInfo:storedWeight")])
 process.stopTreeMaker.varsDoubleNamesInTree.extend(["prodEventInfo:trunpv|tru_npv", "prodEventInfo:avgnpv|avg_npv", "prodEventInfo:storedWeight|stored_weight"])
 
-#if options.doTopTagger == True:
-#   process.stopTreeMaker.varsInt.extend([cms.InputTag("type3topTagger:bestTopJetIdx"), cms.InputTag("type3topTagger:pickedRemainingCombfatJetIdx")])
-#   process.stopTreeMaker.varsDouble.extend([cms.InputTag("type3topTagger:bestTopJetMass"), cms.InputTag("type3topTagger:MT2"), cms.InputTag("type3topTagger:mTbestTopJet"), cms.InputTag("type3topTagger:mTbJet"), cms.InputTag("type3topTagger:linearCombmTbJetPlusmTbestTopJet"), cms.InputTag("type3topTagger:mTbestWJet"), cms.InputTag("type3topTagger:mTbestbJet"), cms.InputTag("type3topTagger:mTremainingTopJet")])
-#   process.stopTreeMaker.varsBool.append(cms.InputTag("type3topTagger:remainPassCSVS"))
 
 process.stopTreeMaker.varsDouble.append(cms.InputTag("weightProducer:weight"))
 process.stopTreeMaker.varsDoubleNamesInTree.append("weightProducer:weight|evtWeight")
 
 if options.fastsim == False:
-   #process.trig_filter_task = cms.Task( process.HBHENoiseFilterResultProducer, process.triggerProducer, process.CSCTightHaloFilter, process.globalTightHalo2016Filter, process.goodVerticesFilter, process.eeBadScFilter, process.EcalDeadCellTriggerPrimitiveFilter, process.BadChargedCandidateFilter, process.BadPFMuonFilter ) 
-   process.trig_filter_seq = cms.Sequence(process.HBHENoiseFilterResultProducer * process.triggerProducer * process.CSCTightHaloFilter * process.globalTightHalo2016Filter * process.goodVerticesFilter * process.eeBadScFilter * process.EcalDeadCellTriggerPrimitiveFilter * process.BadChargedCandidateFilter * process.BadPFMuonFilter)#process.trig_filter_task)
+   process.trig_filter_task = cms.Task( process.HBHENoiseFilterResultProducer, process.triggerProducer, process.CSCTightHaloFilter, process.globalTightHalo2016Filter, process.goodVerticesFilter, process.eeBadScFilter, process.EcalDeadCellTriggerPrimitiveFilter, process.BadChargedCandidateFilter, process.BadPFMuonFilter ) 
+   process.trig_filter_seq = cms.Sequence(process.trig_filter_task)
 else:
    process.trig_filter_task = cms.Task( process.triggerProducer, process.CSCTightHaloFilter, process.globalTightHalo2016Filter, process.goodVerticesFilter, process.eeBadScFilter, process.EcalDeadCellTriggerPrimitiveFilter, process.BadChargedCandidateFilter, process.BadPFMuonFilter ) 
    process.trig_filter_seq = cms.Sequence(process.trig_filter_task)

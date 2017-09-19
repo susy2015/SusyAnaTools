@@ -17,7 +17,7 @@ from WMCore.Configuration import saveConfigurationFile
 from crab3Config import config as config
 from multiprocessing import Process
 
-workArea = 'crabProdvTest'
+workArea = 'crabProdvTest2_all_Var2_all_Var'
 outDir = '/store/group/lpcsusyhad/Stop_production/2017Test'
 Pubname = 'Summer16_80X_Mar_2017_Ntp_v13p0'
 json_25ns = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
@@ -30,7 +30,7 @@ json_2017 ='Cert_294927-302343_13TeV_PromptReco_Collisions17_JSON.txt'
 #selSubmitKey = 'TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TTJets_SingleLeptFrom TTJets_DiLept'
 #selSubmitKey = 'TEST HTMHT TTJets_SingleLeptFrom TTJets_DiLept'
-selSubmitKey = 'MET-Run2017C-PromptReco-v2'
+selSubmitKey = 'MET-Run2017B-23Jun2017-v1'
 #selSubmitKey = 'TEST STATUS TTJets_SingleLeptFrom HTMHT'
 #selSubmitKey = 'TEST ALL'
 #selSubmitKey = 'TEST TTJets_SingleLeptFrom TTJets_Inc TTJets_DiLept ZJetsToNuNu_HT'
