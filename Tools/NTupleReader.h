@@ -8,13 +8,11 @@
 #include "TTree.h"
 #include "TLorentzVector.h"
 
-#include <vector>
 #include <cstdio>
-#include <iostream>
+#include <vector>
 #include <map>
 #include <string>
 #include <limits>
-#include <vector>
 #include <set>
 #include <typeinfo>
 #include <functional>
@@ -55,50 +53,38 @@ public:
     NTupleReader(TTree * tree);
     ~NTupleReader() {} ;
 
-    bool GetCurrentInfo();
+    std::string getFileName() const;
+
     int getEvtNum() const
     {
         return nevt_;
     }
 
-    bool isFirstEvent() const
+    inline bool isFirstEvent() const
     {
-        return isFirstEvent_;
+        return evtProcessed_ <= 1;
     }
 
-    int getNEntries() const
-    {
-        try
-        {
-            if(tree_) return tree_->GetEntries();
-            else 
-            {
-                THROW_SATEXCEPTION("NO tree defined yet!!!");
-            }
-        }
-        catch(const SATException& e)
-        {
-            e.print();
-            if(reThrow_) throw;
-        }
-    }
+    int getNEntries() const;
 
-    bool checkBranch(const std::string name) const
+    inline bool checkBranch(const std::string& name) const
     {
         return (typeMap_.find(name) != typeMap_.end());
     }
+    inline bool hasVar(const std::string& name) const {return checkBranch(name); }
 
+    bool goToEvent(int evt);
     bool getNextEvent();
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
-    bool hasVar(std::string name) const;
-    std::vector<std::string> GetTupleMembers() const;
-    std::vector<std::string> GetTupleSpecs(std::string VarName = "cntNJetsPt30Eta24") const;
+
+    std::vector<std::string> getTupleMembers() const;
+    std::vector<std::string> getTupleSpecs(const std::string& varName) const;
 
     template<typename T> void registerFunction(T f)
     {
-        if(isFirstEvent_) functionVec_.emplace_back(f);
-        else printf("NTupleReader::registerFunction(...): new functions cannot be registered after tuple reading begins!\n");
+        if(isFirstEvent()) functionVec_.emplace_back(f);
+        else THROW_SATEXCEPTION("New functions cannot be registered after tuple reading begins!\n");
     }
 
     //Specialization for basic functions
@@ -113,7 +99,7 @@ public:
     {
         try
         {
-            if(isFirstEvent_)
+            if(isFirstEvent())
             {
                 if(branchMap_.find(name) != branchMap_.end())
                 {
@@ -136,7 +122,7 @@ public:
     {
         try
         {
-            if(isFirstEvent_)
+            if(isFirstEvent())
             {
                 if(branchVecMap_.find(name) != branchVecMap_.end())
                 {
@@ -174,7 +160,7 @@ public:
         }
         catch(const SATException& e)
         {
-            if(isFirstEvent_) e.print();
+            if(isFirstEvent()) e.print();
             if(reThrow_) throw;
             return *static_cast<T*>(nullptr);
         }
@@ -190,7 +176,7 @@ public:
         }
         catch(const SATException& e)
         {
-            if(isFirstEvent_) e.print();
+            if(isFirstEvent()) e.print();
             if(reThrow_) throw;
             return *static_cast<std::vector<T>*>(nullptr);
         }
@@ -206,7 +192,7 @@ public:
         }
         catch(const SATException& e)
         {
-            if(isFirstEvent_) e.print();
+            if(isFirstEvent()) e.print();
             if(reThrow_) throw;
             return *static_cast<std::map<T, V>*>(nullptr);
         }
@@ -216,8 +202,8 @@ public:
 private:
     // private variables for internal use
     TTree *tree_;
-    int nevt_;
-    bool isUpdateDisabled_, isFirstEvent_, reThrow_;
+    int nevt_, evtProcessed_;
+    bool isUpdateDisabled_, reThrow_;
     
     // stl collections to hold branch list and associated info
     mutable std::map<std::string, void *> branchMap_;
@@ -251,7 +237,7 @@ private:
 
     template<typename T> void updateTupleVar(const std::string name, const T& var)
     {
-        if(isFirstEvent_)
+        if(isFirstEvent())
         {
             if(branchMap_.find(name) == branchMap_.end())
             {
@@ -266,7 +252,7 @@ private:
         {
             *static_cast<T*>(tuple_iter->second) = var;
         }
-        else printf("NTupleReader::updateTuple(...):  Variable not found: \"%s\"!!!\n", name.c_str());
+        else THROW_SATEXCEPTION("Variable not found: \"" + name + "\"!!!\n");
     }
 
     template<typename T, typename V> T& getTupleObj(const std::string var, const V& v_tuple) const
