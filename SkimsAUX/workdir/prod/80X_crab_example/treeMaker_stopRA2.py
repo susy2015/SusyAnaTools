@@ -671,7 +671,7 @@ process.badGlobalMuonTaggerMAOD.taggingMode = cms.bool(True)
 process.cloneGlobalMuonTaggerMAOD.taggingMode = cms.bool(True)
 
 process.triggerProducer.trigTagSrc = cms.InputTag("TriggerResults","",options.hltName)
-#process.METFilters = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_METFilters") )
+process.METFilters = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_METFilters") , trigTagSrc = cms.InputTag("TriggerResults",processName=cms.InputTag.skipCurrentProcess()) )
 process.CSCTightHaloFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_CSCTightHaloFilter") , trigTagSrc = cms.InputTag("TriggerResults",processName=cms.InputTag.skipCurrentProcess()))
 process.globalTightHalo2016Filter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_globalTightHalo2016Filter") , trigTagSrc = cms.InputTag("TriggerResults",processName=cms.InputTag.skipCurrentProcess()))
 process.goodVerticesFilter = process.filterDecisionProducer.clone( filterName  =   cms.string("Flag_goodVertices") , trigTagSrc = cms.InputTag("TriggerResults",processName=cms.InputTag.skipCurrentProcess()))
@@ -681,9 +681,9 @@ process.EcalDeadCellTriggerPrimitiveFilter = process.filterDecisionProducer.clon
 
 process.filterDecisionProducerPAT = process.filterDecisionProducer.clone()
 process.filterDecisionProducerPAT.trigTagSrc = cms.InputTag("TriggerResults","","PAT")
-#process.noBadMuonsFilter = process.filterDecisionProducerPAT.clone( filterName  =   cms.string("Flag_noBadMuons") )
-#process.badMuonsFilter = process.filterDecisionProducerPAT.clone( filterName = cms.string("Flag_badMuons") )
-#process.duplicateMuonsFilter = process.filterDecisionProducerPAT.clone( filterName = cms.string("Flag_duplicateMuons") )
+process.noBadMuonsFilter = process.filterDecisionProducerPAT.clone( filterName  =   cms.string("Flag_noBadMuons"),trigTagSrc = cms.InputTag("TriggerResults",processName=cms.InputTag.skipCurrentProcess()) )
+process.badMuonsFilter = process.filterDecisionProducerPAT.clone( filterName = cms.string("Flag_badMuons"),trigTagSrc = cms.InputTag("TriggerResults",processName=cms.InputTag.skipCurrentProcess()) )
+process.duplicateMuonsFilter = process.filterDecisionProducerPAT.clone( filterName = cms.string("Flag_duplicateMuons"),trigTagSrc = cms.InputTag("TriggerResults",processName=cms.InputTag.skipCurrentProcess()) )
 
 process.prodJets.bTagKeyString = cms.string('pfCombinedInclusiveSecondaryVertexV2BJetTags')
 process.prodJets.jetPBJetTags = cms.string('jetPBJetTags')
@@ -737,17 +737,17 @@ process.stopTreeMaker.vectorString.append(cms.InputTag("triggerProducer", "Trigg
 # prodGoodVertices has the same as vtxSize in prodEventInfo...
 #process.stopTreeMaker.varsInt.append(cms.InputTag("prodGoodVertices"))
 #process.stopTreeMaker.varsInt.append(cms.InputTag("prodFilterOutScraping"))
-#process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "looseJetID"))
-#process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "tightJetID"))
-#process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "tightlepvetoJetID"))
+process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "looseJetID"))
+process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "tightJetID"))
+process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilter", "tightlepvetoJetID"))
 process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "looseJetID"))
 process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:looseJetID|looseJetID_NoLep")
-#process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "tightJetID"))
-#process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:tightJetID|tightJetID_NoLep")
-#process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "tightlepvetoJetID"))
-#process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:tightlepvetoJetID|tightlepvetoJetID_NoLep")
-#process.stopTreeMaker.varsInt.append(cms.InputTag("METFilters"))
-#process.stopTreeMaker.varsInt.append(cms.InputTag("CSCTightHaloFilter")) # 74X txt files are ready for the 2015 working point, use this and not the flag in miniAOD 
+process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "tightJetID"))
+process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:tightJetID|tightJetID_NoLep")
+process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "tightlepvetoJetID"))
+process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:tightlepvetoJetID|tightlepvetoJetID_NoLep")
+process.stopTreeMaker.varsInt.append(cms.InputTag("METFilters"))
+process.stopTreeMaker.varsInt.append(cms.InputTag("CSCTightHaloFilter")) # 74X txt files are ready for the 2015 working point, use this and not the flag in miniAOD 
 process.stopTreeMaker.varsInt.append(cms.InputTag("globalTightHalo2016Filter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("goodVerticesFilter"))
 process.stopTreeMaker.varsInt.append(cms.InputTag("eeBadScFilter"))
@@ -755,9 +755,9 @@ process.stopTreeMaker.varsInt.append(cms.InputTag("EcalDeadCellTriggerPrimitiveF
 process.stopTreeMaker.varsBool.append(cms.InputTag("BadChargedCandidateFilter"))
 process.stopTreeMaker.varsBool.append(cms.InputTag("BadPFMuonFilter"))
 
-#process.stopTreeMaker.varsInt.append(cms.InputTag("noBadMuonsFilter"))
-#process.stopTreeMaker.varsInt.append(cms.InputTag("badMuonsFilter"))
-#process.stopTreeMaker.varsInt.append(cms.InputTag("duplicateMuonsFilter"))
+process.stopTreeMaker.varsInt.append(cms.InputTag("noBadMuonsFilter"))
+process.stopTreeMaker.varsInt.append(cms.InputTag("badMuonsFilter"))
+process.stopTreeMaker.varsInt.append(cms.InputTag("duplicateMuonsFilter"))
 
 if options.fastsim == False:
    process.stopTreeMaker.varsBool.append(cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"))
@@ -862,47 +862,44 @@ process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppitau3"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppisoftDropMass"))
 process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJets", "puppiSubJetsBdisc"))
 
-#if options.addJetsForZinv == True: 
-#   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "jetsLVec"))
-#   process.stopTreeMaker.vectorTLorentzVectorNamesInTree.append("prodJetsNoLep:jetsLVec|jetsLVecLepCleaned")
+if options.addJetsForZinv == True: 
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "jetsLVec"))
+   process.stopTreeMaker.vectorTLorentzVectorNamesInTree.append("prodJetsNoLep:jetsLVec|jetsLVecLepCleaned")
 
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecUnc"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecUnc|recoJetsJecUncLepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecUnc"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecUnc|recoJetsJecUncLepCleaned")
 
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgLikelihood"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgPtD"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgAxis2"))
-#   process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJetsNoLep", "qgMult"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgLikelihood"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgPtD"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "qgAxis2"))
+   process.stopTreeMaker.vectorInt.append(cms.InputTag("prodJetsNoLep", "qgMult"))
 
-##   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetschargedHadronEnergyFraction"))
-##   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetschargedHadronEnergyFraction|recoJetschargedHadronEnergyFractionLepCleaned")
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsneutralEmEnergyFraction"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsneutralEmEnergyFraction|recoJetsneutralEmEnergyFractionLepCleaned")
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetschargedEmEnergyFraction"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetschargedEmEnergyFraction|recoJetschargedEmEnergyFractionLepCleaned")
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsmuonEnergyFraction"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsmuonEnergyFraction|recoJetsmuonEnergyFractionLepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetschargedHadronEnergyFraction"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetschargedHadronEnergyFraction|recoJetschargedHadronEnergyFractionLepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsneutralEmEnergyFraction"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsneutralEmEnergyFraction|recoJetsneutralEmEnergyFractionLepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetschargedEmEnergyFraction"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetschargedEmEnergyFraction|recoJetschargedEmEnergyFractionLepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsmuonEnergyFraction"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsmuonEnergyFraction|recoJetsmuonEnergyFractionLepCleaned")
 
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsBtag"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsBtag|recoJetsBtag_0_LepCleaned")
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsCharge"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsCharge|recoJetsCharge_0_LepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsBtag"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsBtag|recoJetsBtag_0_LepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsCharge"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsCharge|recoJetsCharge_0_LepCleaned")
 
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecScaleRawToFull"))
-#   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecScaleRawToFull|recoJetsJecScaleRawToFull_LepCleaned")
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "recoJetsJecScaleRawToFull"))
+   process.stopTreeMaker.vectorDoubleNamesInTree.append("prodJetsNoLep:recoJetsJecScaleRawToFull|recoJetsJecScaleRawToFull_LepCleaned")
 
-#   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiJetsLVec"))
-#   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsLVec"))
-#   #process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "ak8JetsLVec"))
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiJetsLVec"))
+   process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsLVec"))
+   #process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodJetsNoLep", "ak8JetsLVec"))
 
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau1"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau2"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "tau3"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppisoftDropMass"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau1"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau2"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau3"))
-#   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsBdisc"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppisoftDropMass"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau1"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau2"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppitau3"))
+   process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodJetsNoLep", "puppiSubJetsBdisc"))
 
 if options.mcInfo == True:
    process.prodGenInfo.debug = cms.bool(options.debug)
@@ -1053,13 +1050,16 @@ process.comb_seq = cms.Sequence(
   #process.QGAK4PFCHS, process.stopPFJets
 )
 
+process.dump=cms.EDAnalyzer('EventContentAnalyzer')
 
 process.ak4Stop_Path = cms.Path(
-   process.comb_seq * 
+                                   process.comb_seq * 
                                    process.printDecayPythia8 * process.prodGenInfo * process.prodGoodVertices * 
-                                   process.prodMuonsNoIso * process.prodElectronsNoIso * process.prodIsoTrks *  
+                                   process.prodMuonsNoIso * process.prodElectronsNoIso * process.prodIsoTrks * process.prodJetIDEventFilter *
+                                   process.prodJetIDEventFilterNoLep * process.METFilters *
+                                   process.noBadMuonsFilter * process.badMuonsFilter * process.duplicateMuonsFilter * process.prodJetsNoLep * 
                                    process.prodJets * process.prodMET * process.prodEventInfo * process.trig_filter_seq * 
-process.stopTreeMaker
+                                   process.stopTreeMaker
 )
 
 #if options.doTopTagger == False:
