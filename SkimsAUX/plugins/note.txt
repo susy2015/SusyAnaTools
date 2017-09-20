@@ -1,3 +1,0 @@
-For gsfElectrons, the ctfTrack, gsfTrack and superCluster does NOT
-improve the overlap cleaning with jets... The gsfTrack probably does
-as good as using eta, phi from the electron directly.

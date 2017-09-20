@@ -1,2 +1,0 @@
-mkdir -p prod/SMS-T2tt_mStop-400to1200; cd prod/SMS-T2tt_mStop-400to1200; ln -s ../../SMS-T2tt_mStop-400to1200.txt .; ln -s ../../condorSubmit.py .; ./condorSubmit.py -f SMS-T2tt_mStop-400to1200.txt -o /store/user/lpcsusyhad/Spring16_80X_Jun_2016_Ntp_v7X/condor_SMS-T2tt_mStop-400to1200 -n 1
-cd /uscms_data/d3/lhx/tasks/recipes/prepare2016/PROD/checkout_ntp_prod_8012/src/SusyAnaTools/SkimsAUX/workdir/prod/80X_crab_example/condor_prod_fastsim
