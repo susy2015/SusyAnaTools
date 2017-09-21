@@ -26,8 +26,20 @@ def recSearch(path, fout = None):
                 if fout == None:
                     print "".join(["%s/"%eosurl, filename])
                 else:
-                    fout.write("".join(["%s/"%eosurl, filename, "\n"]))
+                    #fout.write("".join(["%s/"%eosurl, filename, "\n"]))
+                    fp = "".join(["%s/"%eosurl, filename, "\n"])
+                    fpsplit = fp.split("/")
+                    first = "/".join(fpsplit[:-3])
+                    second = fpsplit[-3]
+                    third = "/".join(fpsplit[-2:])
+                    key = (first, third, )
+                    if key in fout:
+                        if(second > fout[key]):
+                            fout[key] = second
+                    else:
+                        fout[key] = second
 
+#root://cmseos.fnal.gov//store/user/lpcsusyhad/Stop_production/Top_ntuple_V2/SingleMuon/Top_ntuple_V1_SingleMuon-Run2016B-03Feb2017_ver2-v2/170826_231133/0000/stopFlatNtuples_1.root
 
 if __name__ == "__main__":
 
@@ -49,7 +61,10 @@ if __name__ == "__main__":
                 print "".join([endpath, ".txt"])
                 fileName = "".join([endpath, ".txt"])
                 f = open(fileName, "w")
-                recSearch("/".join([startPath, endpath]), f)
+                outDict = {}
+                recSearch("/".join([startPath, endpath]), outDict)
+                for key in outDict:
+                    f.write("/".join([key[0], outDict[key], key[1]]))
                 f.close()
         
                 if options.copy:
