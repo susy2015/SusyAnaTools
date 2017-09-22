@@ -47,11 +47,85 @@ void baselineUpdate(NTupleReader& tr);
 class NTupleReader
 {
     friend void baselineUpdate(NTupleReader& tr);
+
+private:
+
+    //Machinery to allow object cleanup
+
+    //Generic deleter base class to obfiscate template type
+    class deleter_base
+    {
+    public:
+        virtual void destroy(void *) = 0;
+        virtual ~deleter_base() {}
+    };
+
+    //Templated class to create/store simple object deleter 
+    template<typename T> 
+    class deleter : public deleter_base
+    {
+    public:
+        virtual void destroy(void *ptr)
+        {
+            delete static_cast<T*>(ptr);
+        }
+    };
+
+    //Templated class to create/store vector object deleter 
+    template<typename T> 
+    class vec_deleter : public deleter_base
+    {
+    public:
+        virtual void destroy(void *ptr)
+        {
+            //Delete vector
+            T *vecptr = *static_cast<T**>(ptr);
+            if(vecptr != nullptr) delete vecptr;
+
+            //depete pointer to vector
+            delete static_cast<T*>(ptr);
+        }
+    };
+
+    //Handle class to hold pointer and deleter
+    class Handle
+    {
+    public:
+        void* ptr;
+        deleter_base* deleter;
+
+        void destroy()
+        {
+            deleter->destroy(ptr);
+            delete deleter;
+        }
+    };
+
+    //Helper to make simple Handle
+    template<typename T>
+    static inline Handle createHandle(T* ptr)
+    {
+        Handle h;
+        h.ptr = ptr;
+        h.deleter = new deleter<T>;
+        return h;
+    }
+
+    //Helper to make vector Handle
+    template<typename T>
+    static inline Handle createVecHandle(T* ptr)
+    {
+        Handle h;
+        h.ptr = ptr;
+        h.deleter = new vec_deleter<T>;
+        return h;
+    }
+
 public:
 
     NTupleReader(TTree * tree, std::set<std::string>& activeBranches_);
     NTupleReader(TTree * tree);
-    ~NTupleReader() {} ;
+    ~NTupleReader();
 
     std::string getFileName() const;
 
@@ -105,11 +179,11 @@ public:
                 {
                     THROW_SATEXCEPTION("You are trying to redefine a base tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
                 }
-                branchMap_[name] = new T();
+                branchMap_[name] = createHandle(new T());
 
                 typeMap_[name] = demangle<T>();
             }
-            setDerived(var, branchMap_[name]);
+            setDerived(var, branchMap_[name].ptr);
         }
         catch(const SATException& e)
         {
@@ -128,12 +202,12 @@ public:
                 {
                     THROW_SATEXCEPTION("You are trying to redefine a base tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
                 }
-                branchVecMap_[name] = new T*();
+                branchVecMap_[name] = createVecHandle(new T*());
             
                 typeMap_[name] = demangle<T>();
             }
-            void * vecloc = branchVecMap_[name];
-            T *vecptr = *static_cast<T**>(branchVecMap_[name]);
+            void * vecloc = branchVecMap_[name].ptr;
+            T *vecptr = *static_cast<T**>(branchVecMap_[name].ptr);
             if(vecptr != nullptr)
             {
                 delete vecptr;
@@ -206,8 +280,8 @@ private:
     bool isUpdateDisabled_, reThrow_;
     
     // stl collections to hold branch list and associated info
-    mutable std::map<std::string, void *> branchMap_;
-    mutable std::map<std::string, void *> branchVecMap_;
+    mutable std::map<std::string, Handle> branchMap_;
+    mutable std::map<std::string, Handle> branchVecMap_;
     std::vector<std::function<void(NTupleReader&)> > functionVec_;
     mutable std::map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
@@ -223,14 +297,14 @@ private:
 
     template<typename T> void registerBranch(const std::string name) const
     {
-        branchMap_[name] = new T();
+        branchMap_[name] = createHandle(new T());
 
         typeMap_[name] = demangle<T>();
     }
     
     template<typename T> void registerVecBranch(const std::string name) const
     {
-        branchVecMap_[name] = new std::vector<T>*();
+        branchVecMap_[name] = createVecHandle(new std::vector<T>*());
 
         typeMap_[name] = demangle<std::vector<T>>();
     }
@@ -241,7 +315,7 @@ private:
         {
             if(branchMap_.find(name) == branchMap_.end())
             {
-                branchMap_[name] = new T();
+                branchMap_[name] = createVecHandle(new T());
                 
                 typeMap_[name] = demangle<T>();
             }
@@ -250,7 +324,7 @@ private:
         auto tuple_iter = branchMap_.find(name);
         if(tuple_iter != branchMap_.end())
         {
-            *static_cast<T*>(tuple_iter->second) = var;
+            *static_cast<T*>(tuple_iter->second.ptr) = var;
         }
         else THROW_SATEXCEPTION("Variable not found: \"" + name + "\"!!!\n");
     }
@@ -260,7 +334,7 @@ private:
         auto tuple_iter = v_tuple.find(var);
         if(tuple_iter != v_tuple.end())
         {
-            return *static_cast<T*>(tuple_iter->second);
+            return *static_cast<T*>(tuple_iter->second.ptr);
         }
         else if(typeMap_.find(var) != typeMap_.end()) //If it is not found, check in typeMap_ 
         {
@@ -276,13 +350,13 @@ private:
                 tuple_iter = v_tuple.find(var);
 
                 tree_->SetBranchStatus(var.c_str(), 1);
-                tree_->SetBranchAddress(var.c_str(), tuple_iter->second);
+                tree_->SetBranchAddress(var.c_str(), tuple_iter->second.ptr);
 
                 //force read just this branch
                 branch->GetEvent(nevt_ - 1);
 
                 //return value
-                return *static_cast<T*>(tuple_iter->second);
+                return *static_cast<T*>(tuple_iter->second.ptr);
             }
         }
 
@@ -301,7 +375,7 @@ private:
         int status = 0;
         char* demangled = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
         std::string s = demangled;
-        delete [] demangled;
+        free(demangled);
         return s;
     }
 };

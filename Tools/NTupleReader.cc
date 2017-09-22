@@ -20,6 +20,13 @@ NTupleReader::NTupleReader(TTree * tree)
     init();
 }
 
+NTupleReader::~NTupleReader()
+{
+    //Clean up any remaining dynamic memory
+    for(auto& branch : branchMap_)    if(branch.second.ptr) branch.second.destroy();
+    for(auto& branch : branchVecMap_) if(branch.second.ptr) branch.second.destroy();
+}
+
 void NTupleReader::init()
 {
     nevt_ = evtProcessed_ = 0;
@@ -62,13 +69,13 @@ void NTupleReader::activateBranches()
     for(auto& iMap : branchMap_)
     {
         tree_->SetBranchStatus(iMap.first.c_str(), 1);
-        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second);
+        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second.ptr);
     }
 
     for(auto& iMap : branchVecMap_)
     {
         tree_->SetBranchStatus(iMap.first.c_str(), 1);
-        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second);
+        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second.ptr);
     }
 }
 
@@ -198,7 +205,7 @@ const void* NTupleReader::getPtr(const std::string var) const
         auto tuple_iter = branchMap_.find(var);
         if(tuple_iter != branchMap_.end())
         {
-            return tuple_iter->second;
+            return tuple_iter->second.ptr;
         }
 
         THROW_SATEXCEPTION("NTupleReader::getPtr(...): Variable not found: " + var);
@@ -219,7 +226,7 @@ const void* NTupleReader::getVecPtr(const std::string var) const
         auto tuple_iter = branchVecMap_.find(var);
         if(tuple_iter != branchVecMap_.end())
         {
-            return tuple_iter->second;
+            return tuple_iter->second.ptr;
         }
 
         THROW_SATEXCEPTION("NTupleReader::getVecPtr(...): Variable not found: " + var);
