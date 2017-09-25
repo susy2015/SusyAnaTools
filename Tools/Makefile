@@ -31,7 +31,7 @@ LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 FILES = $(wildcard $(SDIR)/*.cc)
 OBJS := $(FILES:$(SDIR)/%.cc=$(ODIR)/%.o)
 
-PROGRAMS = tupleTest nEvts basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots bTagEfficiencyCalc ISRJetsProducer
+PROGRAMS = tupleTest nEvts # basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots bTagEfficiencyCalc ISRJetsProducer
 
 all: mkobj SusyAnaTools sampPyWrap $(PROGRAMS)
 

@@ -32,7 +32,6 @@ private:
     TF1   *puppisd_corrRECO_for;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
-    std::shared_ptr<topTagger::type3TopTagger> type3Ptr;
     std::shared_ptr<TopTagger> ttPtr;
 
     //  container
@@ -51,7 +50,6 @@ public:
     int  bToFake;
     bool debug;
     bool incZEROtop;
-    bool UseNewTagger;
     bool UseLepCleanJet;
 
     std::string jetVecLabel;
@@ -88,7 +86,7 @@ public:
     void operator()(NTupleReader& tr);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
-    bool SetupTopTagger(bool UseNewTagger_ = true, std::string CfgFile_ = "TopTagger.cfg");
+    bool SetupTopTagger(std::string CfgFile_ = "TopTagger.cfg");
     bool PassTopTagger();
     bool GetMHT() const;
     bool GetLeptons() const;
@@ -97,7 +95,6 @@ public:
         std::map<unsigned int, std::pair<unsigned int, unsigned int> > *TypeZLepIdx, 
         const int zMassMin, const int zMassMax) const;
     void prepareTopTagger();
-    std::shared_ptr<topTagger::type3TopTagger> GetType3Ptr() const {return type3Ptr;};
     std::shared_ptr<TopTagger> GetTopTaggerPtr() const {return ttPtr;};
     int GetnTops() const;
     bool GetTopCombs() const;

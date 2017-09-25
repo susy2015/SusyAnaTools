@@ -11,7 +11,6 @@
 #include "TopTagger/TopTagger/include/TopTagger.h"
 #include "TopTagger/TopTagger/include/TopTaggerResults.h"
 #include "TopTagger/TopTagger/include/TopTaggerUtilities.h"
-#include "SusyAnaTools/TopTagger/interface/Type3TopTagger.h"
 
 #include <iostream>
 #include <cstdio>
@@ -162,7 +161,6 @@ namespace AnaFunctions{
   int countIsoLepTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<double> &isoTrksIso, const std::vector<double> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);
   int countIsoPionTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<double> &isoTrksIso, const std::vector<double> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);
 
-  void prepareTopTagger(topTagger::type3TopTagger * type3Ptr);
 }
 
 #endif
