@@ -72,7 +72,7 @@ if __name__ == "__main__":
                 if options.copy:
                     eoscp(fileName, startPath, options.force, eosurl = options.eosurl)
 
-    if options.copy and len(options.file):
+    if options.copy and len(options.file) and not options.list:
         files = glob(options.file)
         if not(len(files)):
             print "No files to transfer with glob options.file"
