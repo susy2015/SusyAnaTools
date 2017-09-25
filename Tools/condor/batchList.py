@@ -9,36 +9,37 @@ def eoscp(filename, path, force = False, eosurl = "root://cmseos.fnal.gov"):
     else:
         command = "xrdcp %s %s/%s"%(filename, eosurl, "/".join([path, filename]))
     print command
-    stdout = os.popen(command)
-    for l in stdout:
-        print l.strip("\n")
+    with os.popen(command) as stdout:
+        for l in stdout:
+            print l.strip("\n")
 
 def eosls(path, option = "", eosurl = "root://cmseos.fnal.gov"):
     return os.popen("xrdfs %s ls %s %s"%(eosurl, option, path))
 
 def recSearch(path, fout = None, eosurl = "root://cmseos.fnal.gov"):
-    for l in eosls(path, "-l", eosurl = options.eosurl):
-        if l.startswith("d"):
-            endpath = l.split()[-1].split("/")[-1]
-            recSearch("/".join([path, endpath]), fout)
-        else:
-            filename = "/".join([path, l.split()[-1].split("/")[-1]])
-            if filename.endswith(".root") and not "failed" in filename:
-                if fout == None:
-                    print "".join(["%s/"%eosurl, filename])
-                else:
-                    #fout.write("".join(["%s/"%eosurl, filename, "\n"]))
-                    fp = "".join(["%s/"%eosurl, filename, "\n"])
-                    fpsplit = fp.split("/")
-                    first = "/".join(fpsplit[:-3])
-                    second = fpsplit[-3]
-                    third = "/".join(fpsplit[-2:])
-                    key = (first, third, )
-                    if key in fout:
-                        if(second > fout[key]):
-                            fout[key] = second
+    with eosls(path, "-l", eosurl = options.eosurl) as stdout:
+        for l in stdout:
+            if l.startswith("d"):
+                endpath = l.split()[-1].split("/")[-1]
+                recSearch("/".join([path, endpath]), fout)
+            else:
+                filename = "/".join([path, l.split()[-1].split("/")[-1]])
+                if filename.endswith(".root") and not "failed" in filename:
+                    if fout == None:
+                        print "".join(["%s/"%eosurl, filename])
                     else:
-                        fout[key] = second
+                        #fout.write("".join(["%s/"%eosurl, filename, "\n"]))
+                        fp = "".join(["%s/"%eosurl, filename, "\n"])
+                        fpsplit = fp.split("/")
+                        first = "/".join(fpsplit[:-3])
+                        second = fpsplit[-3]
+                        third = "/".join(fpsplit[-2:])
+                        key = (first, third, )
+                        if key in fout:
+                            if(second > fout[key]):
+                                fout[key] = second
+                        else:
+                            fout[key] = second
 
 
 if __name__ == "__main__":
@@ -57,20 +58,21 @@ if __name__ == "__main__":
     startPath = options.directory
     
     if options.list:
-        for l in eosls(startPath, "-l", eosurl = options.eosurl):
-            if l.startswith("d"):
-                endpath = l.split()[-1].split("/")[-1]
-                print "".join([endpath, ".txt"])
-                fileName = "".join([endpath, ".txt"])
-                f = open(fileName, "w")
-                outDict = {}
-                recSearch("/".join([startPath, endpath]), outDict, eosurl = options.eosurl)
-                for key in outDict:
-                    f.write("/".join([key[0], outDict[key], key[1]]))
-                f.close()
-        
-                if options.copy:
-                    eoscp(fileName, startPath, options.force, eosurl = options.eosurl)
+        with eosls(startPath, "-l", eosurl = options.eosurl) as stdout:
+            for l in stdout:
+                if l.startswith("d"):
+                    endpath = l.split()[-1].split("/")[-1]
+                    print "".join([endpath, ".txt"])
+                    fileName = "".join([endpath, ".txt"])
+                    f = open(fileName, "w")
+                    outDict = {}
+                    recSearch("/".join([startPath, endpath]), outDict, eosurl = options.eosurl)
+                    for key in outDict:
+                        f.write("/".join([key[0], outDict[key], key[1]]))
+                    f.close()
+            
+                    if options.copy:
+                        eoscp(fileName, startPath, options.force, eosurl = options.eosurl)
 
     if options.copy and len(options.file) and not options.list:
         files = glob(options.file)
