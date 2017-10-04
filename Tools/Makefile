@@ -5,8 +5,8 @@ SDIR       = $(CMSSW_BASE)/src/SusyAnaTools/Tools/
 CXX        = g++
 
 CXXFLAGS += -I. -std=c++0x -I$(CMSSW_BASE)/src/ -I$(LHAPDF_DATA_PATH)/../../include -I$(CMSSW_RELEASE_BASE)/src 
-CXXFLAGS += -I$(shell scram tool info fastjet | grep '^INCLUDE' | sed 's/INCLUDE=//')
-CXXFLAGS += -I$(shell scram tool info boost | grep '^INCLUDE' | sed 's/INCLUDE=//')
+#CXXFLAGS += -I$(shell scram tool info fastjet | grep '^INCLUDE' | sed 's/INCLUDE=//')
+#CXXFLAGS += -I$(shell scram tool info boost | grep '^INCLUDE' | sed 's/INCLUDE=//')
 ## Optimization flag
 CXXFLAGS += -g -fPIC
 ## Enable the maximun warning
@@ -30,7 +30,7 @@ LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 FILES = $(wildcard $(SDIR)/*.cc)
 OBJS := $(FILES:$(SDIR)/%.cc=$(ODIR)/%.o)
 
-PROGRAMS = tupleTest nEvts # basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots bTagEfficiencyCalc ISRJetsProducer
+PROGRAMS = tupleTest nEvts deepTrim # basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots bTagEfficiencyCalc ISRJetsProducer
 
 all: mkobj SusyAnaTools sampPyWrap $(PROGRAMS)
 
@@ -66,6 +66,9 @@ tupleTest: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $
 	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
 
 nEvts: $(ODIR)/nEvts.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o
+	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
+
+deepTrim: $(ODIR)/DeepTrim.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/customize.o $(ODIR)/baselineDef.o $(ODIR)/SATException.o
 	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
 
 basicCheck: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o $(ODIR)/customize.o
