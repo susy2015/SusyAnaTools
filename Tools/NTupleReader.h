@@ -11,8 +11,8 @@
 #include <cstdio>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <string>
-#include <limits>
 #include <set>
 #include <typeinfo>
 #include <functional>
@@ -123,7 +123,7 @@ private:
 
 public:
 
-    NTupleReader(TTree * tree, std::set<std::string>& activeBranches_);
+    NTupleReader(TTree * tree, const std::set<std::string>& activeBranches_);
     NTupleReader(TTree * tree);
     ~NTupleReader();
 
@@ -280,10 +280,10 @@ private:
     bool isUpdateDisabled_, reThrow_;
     
     // stl collections to hold branch list and associated info
-    mutable std::map<std::string, Handle> branchMap_;
-    mutable std::map<std::string, Handle> branchVecMap_;
+    mutable std::unordered_map<std::string, Handle> branchMap_;
+    mutable std::unordered_map<std::string, Handle> branchVecMap_;
     std::vector<std::function<void(NTupleReader&)> > functionVec_;
-    mutable std::map<std::string, std::string> typeMap_;
+    mutable std::unordered_map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
 
     void init();
@@ -340,21 +340,21 @@ private:
         {
             //If found in typeMap_, it can be added on the fly
             TBranch *branch = tree_->FindBranch(var.c_str());
-
+        
             //If branch not found continue on to throw exception
             if(branch != nullptr)
             {
                 registerBranch(branch);
-
+        
                 //get iterator
                 tuple_iter = v_tuple.find(var);
-
+        
                 tree_->SetBranchStatus(var.c_str(), 1);
                 tree_->SetBranchAddress(var.c_str(), tuple_iter->second.ptr);
-
+        
                 //force read just this branch
                 branch->GetEvent(nevt_ - 1);
-
+        
                 //return value
                 return *static_cast<T*>(tuple_iter->second.ptr);
             }
