@@ -264,12 +264,6 @@ namespace AnaFunctions
     outDPhiVec = calcDPhi(inijetsLVec, metphi, 3, AnaConsts::dphiArr);
   }
 
-  void prepareTopTagger(topTagger::type3TopTagger *type3Ptr){
-    if( type3Ptr  == NULL ) type3Ptr = new topTagger::type3TopTagger();
-    type3Ptr->setnJetsSel(AnaConsts::nJetsSel);
-    type3Ptr->setCSVS(AnaConsts::cutCSVS);
-  }
-
   void prepareForNtupleReader(){
     using namespace AnaConsts;
     activatedBranchNames.insert(activatedBranchNames_DataOnly.begin(), activatedBranchNames_DataOnly.end());

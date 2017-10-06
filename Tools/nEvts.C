@@ -55,18 +55,26 @@ int main(int argc, char *argv[])
       for(auto& str : keyStrVec ){ if( file.first.find(str) !=std::string::npos ) found = true; }
       if( !found ) continue;
     }
+    if(file.first.find("Data") != std::string::npos)
+    {
+        std::cout << "Skipping " << file.first << std::endl;
+        continue;
+    }
 
     TChain *t = new TChain(file.second.treePath.c_str());
     file.second.addFilesToChain(t);
-     
-    std::cout << "Processing file(s): " << file.second.filePath << "\t" << t->GetEntries() << std::endl;
+    
+    int nEntries = t->GetEntries();
+    if(nEntries != file.second.nEvts)
+        std::cout << "DIFFERENT:\t";
+    std::cout << "Processing file(s): " << file.second.filePath << "\t" << nEntries << "\twas: " << file.second.nEvts  << std::endl;
 
     if(getNegWeights)
     {
       std::set<std::string> activeBranches;
       activeBranches.insert("stored_weight");
       NTupleReader tr = NTupleReader(t, activeBranches);
-
+    
       int negw = 0;
       int posw = 0;
       while(tr.getNextEvent())

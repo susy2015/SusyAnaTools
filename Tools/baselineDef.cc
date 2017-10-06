@@ -3,14 +3,15 @@
 #include "TFile.h"
 #include "TF1.h"
 
+#include "lester_mt2_bisect.h"
+
 //**************************************************************************//
 //                              BaselineVessel                              //
 //**************************************************************************//
 
 BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specialization, const std::string filterString) : 
   tr(&tr_), spec(specialization), 
-  UseNewTagger(true),
-  type3Ptr(NULL),
+  //type3Ptr(NULL),
   ttPtr(NULL),
   WMassCorFile(NULL)
 {
@@ -68,7 +69,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 
   PredefineSpec();
 
-  SetupTopTagger(UseNewTagger, toptaggerCfgFile);
+  SetupTopTagger(toptaggerCfgFile);
 }
 
 // ===  FUNCTION  ============================================================
@@ -107,21 +108,13 @@ bool BaselineVessel::OpenWMassCorrFile()
 //         Name:  BaselineVessel::SetupTopTagger
 //  Description:  
 // ===========================================================================
-bool BaselineVessel::SetupTopTagger(bool UseNewTagger_, std::string CfgFile_)
+bool BaselineVessel::SetupTopTagger(std::string CfgFile_)
 {
-  UseNewTagger = UseNewTagger_;
   toptaggerCfgFile = CfgFile_;
 
-  if (!UseNewTagger)
-  {
-    type3Ptr.reset(new topTagger::type3TopTagger);
-  }
-  if (UseNewTagger)
-  {
-    ttPtr.reset(new TopTagger);
-    ttPtr->setCfgFile(toptaggerCfgFile);
-    OpenWMassCorrFile();
-  }
+  ttPtr.reset(new TopTagger);
+  ttPtr->setCfgFile(toptaggerCfgFile);
+  OpenWMassCorrFile();
   
   return true;
 }       // -----  end of function BaselineVessel::SetupTopTagger  -----
@@ -150,18 +143,8 @@ void BaselineVessel::prepareTopTagger()
   tr->registerDerivedVec("recoJetsBtag_forTagger" + firstSpec, recoJetsBtag_forTagger);
   tr->registerDerivedVec("qgLikelihood_forTagger" + firstSpec, qgLikelihood_forTagger);
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Type3 TopTagger ~~~~~
-  if (!UseNewTagger)
-  {
-    type3Ptr->setnJetsSel(AnaConsts::nJetsSel);
-    type3Ptr->setCSVS(AnaConsts::cutCSVS);
-    type3Ptr->setCSVToFake(bToFake);
-    type3Ptr->processEvent(*jetsLVec_forTagger, *recoJetsBtag_forTagger, metLVec);
-  }
   
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ New TopTagger ~~~~~
-  if (UseNewTagger)
-  {
     // top tagger
     //construct vector of constituents 
     ttUtility::ConstAK4Inputs myConstAK4Inputs = ttUtility::ConstAK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger, *qgLikelihood_forTagger);
@@ -179,7 +162,6 @@ void BaselineVessel::prepareTopTagger()
     std::vector<Constituent> constituents = ttUtility::packageConstituents(myConstAK4Inputs, myConstAK8Inputs);
     //run tagger
     ttPtr->runTagger(constituents);
-  }
 }
 
 // ===  FUNCTION  ============================================================
@@ -311,20 +293,7 @@ bool BaselineVessel::PassTopTagger()
   mTopJets = new std::map<int, std::vector<TLorentzVector> >();
 
   nTopCandSortedCnt = GetnTops();
-  if (!UseNewTagger)
-  {
-    passTagger = type3Ptr->passNewTaggerReq() && (incZEROtop || nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel); 
-  }
-
-  if (UseNewTagger)
-  {
-    passTagger = (incZEROtop || nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel); 
-  }
-
-  if (!UseNewTagger) //This is useless and will be removed @hongxuan
-  {
-    tr->registerDerivedVar("passNewTaggerReq" + firstSpec, type3Ptr->passNewTaggerReq());
-  }
+  passTagger = (incZEROtop || nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel); 
 
   tr->registerDerivedVar("nTopCandSortedCnt" + firstSpec, nTopCandSortedCnt);
   tr->registerDerivedVec("vTops"+firstSpec, vTops);
@@ -476,40 +445,20 @@ int BaselineVessel::GetnTops() const
 {
   int nTops = 0;
 
-  if (!UseNewTagger)
+  //get output of tagger
+  const TopTaggerResults& ttr = ttPtr->getResults();
+  //Use result for top var
+  std::vector<TopObject*> Ntop = ttr.getTops();  
+  nTops = Ntop.size();
+  for(int it=0; it<nTops; it++)
   {
-    nTops = type3Ptr->nTopCandSortedCnt;
-    for(int it=0; it<nTops; it++)
-    {
-      TLorentzVector topLVec = type3Ptr->buildLVec(tr->getVec<TLorentzVector>("jetsLVec_forTagger" + firstSpec), 
-          type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]]);
-      vTops->push_back(topLVec);
-      std::vector<TLorentzVector> temp;
-      std::vector<int> indexCombVec = type3Ptr->finalCombfatJets[type3Ptr->ori_pickedTopCandSortedVec[it]];
-      for (size_t k = 0; k < indexCombVec.size(); ++k)
-      {
-        temp.push_back( (tr->getVec<TLorentzVector>("jetsLVec_forTagger"+spec)).at(indexCombVec.at(k)));
-      }
-      mTopJets->insert(std::make_pair(it, temp));
-    }
-  }
-  if (UseNewTagger)
-  {
-    //get output of tagger
-    const TopTaggerResults& ttr = ttPtr->getResults();
-    //Use result for top var
-    std::vector<TopObject*> Ntop = ttr.getTops();  
-    nTops = Ntop.size();
-    for(int it=0; it<nTops; it++)
-    {
       vTops->push_back(Ntop.at(it)->P());
       std::vector<TLorentzVector> temp;
       for(auto j : Ntop.at(it)->getConstituents())
       {
-        temp.push_back(j->P());
+          temp.push_back(j->P());
       }
       mTopJets->insert(std::make_pair(it, temp));
-    }
   }
 
   return nTops;
@@ -524,73 +473,53 @@ bool BaselineVessel::GetTopCombs() const
   std::vector<TLorentzVector> *vCombs = new std::vector<TLorentzVector>();
   std::map<int, std::vector<TLorentzVector> > *vCombJets = new std::map<int, std::vector<TLorentzVector> >();
 
-  if (!UseNewTagger)
+  //get output of tagger
+  //Only MVA combs so far
+  const TopTaggerResults& ttr = ttPtr->getResults();
+  int i = 0;
+  for(auto tr : ttr.getTopCandidates() )
   {
-    for(unsigned int i=0; i < type3Ptr->finalCombfatJets.size(); ++i)
-    {
-      TLorentzVector topLVec = type3Ptr->buildLVec(*jetsLVec_forTagger, type3Ptr->finalCombfatJets.at(i));
-      vCombs->push_back(topLVec);
-
-      std::vector<TLorentzVector> temp;
-      std::vector<int> indexCombVec = type3Ptr->finalCombfatJets.at(i);
-      for (size_t k = 0; k < indexCombVec.size(); ++k)
-      {
-        temp.push_back( jetsLVec_forTagger->at(indexCombVec.at(k)));
-      }
-      vCombJets->insert(std::make_pair(i, temp));
-    }
-  }
-
-  if (UseNewTagger)
-  {
-    //get output of tagger
-    //Only MVA combs so far
-    const TopTaggerResults& ttr = ttPtr->getResults();
-    int i = 0;
-    for(auto tr : ttr.getTopCandidates() )
-    {
       if (tr.getNConstituents() != 3) continue;
       vCombs->push_back(tr.P());
       std::vector<TLorentzVector> temp;
       for(auto cons : tr.getConstituents())
       {
-        temp.push_back(cons->P());
+          temp.push_back(cons->P());
       }
       vCombJets->insert(std::make_pair(i, temp));
       i++;
-    }
+  }
 
-    // AK8 + Ak4 for W + jet
-    ttUtility::ConstAK8Inputs myConstAK8Inputs = ttUtility::ConstAK8Inputs(
-        tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec"), 
-        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau1" : "puppitau1"),
-        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau2" : "puppitau2"),
-        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau3" : "puppitau3"),
-        tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass"),
-        tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiSubJetsLVec" : "puppiSubJetsLVec"));
-    std::vector<Constituent> AK8constituents;
-    myConstAK8Inputs.packageConstituents(AK8constituents);
+  // AK8 + Ak4 for W + jet
+  ttUtility::ConstAK8Inputs myConstAK8Inputs = ttUtility::ConstAK8Inputs(
+      tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec"), 
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau1" : "puppitau1"),
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau2" : "puppitau2"),
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau3" : "puppitau3"),
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass"),
+      tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiSubJetsLVec" : "puppiSubJetsLVec"));
+  std::vector<Constituent> AK8constituents;
+  myConstAK8Inputs.packageConstituents(AK8constituents);
 
-    for(auto ak8_ : AK8constituents)
-    {
+  for(auto ak8_ : AK8constituents)
+  {
       auto ak8 = ak8_.P();
       if (ak8.Pt() < 200 ) continue;
       if (ak8.M() < 65 ) continue;
       for(auto ak4 : GetAK4NoSubjet(ak8_, *jetsLVec_forTagger))
       { 
-        if (ak4.Pt() < 30 ) continue; // Tight working point
-        TLorentzVector sumTop = ak4 + ak8;
-        if (sumTop.M() < 100 || sumTop.M() > 250) continue;
-        if (sumTop.DeltaR(ak8) > 1.0 || sumTop.DeltaR(ak4) > 1.0 ) continue; // Tight working point
-        vCombs->push_back(sumTop);
-        std::vector<TLorentzVector> temp;
-        temp.push_back(ak8);
-        temp.push_back(ak4);
-        vCombJets->insert(std::make_pair(i, temp));
-        i++;
+          if (ak4.Pt() < 30 ) continue; // Tight working point
+          TLorentzVector sumTop = ak4 + ak8;
+          if (sumTop.M() < 100 || sumTop.M() > 250) continue;
+          if (sumTop.DeltaR(ak8) > 1.0 || sumTop.DeltaR(ak4) > 1.0 ) continue; // Tight working point
+          vCombs->push_back(sumTop);
+          std::vector<TLorentzVector> temp;
+          temp.push_back(ak8);
+          temp.push_back(ak4);
+          vCombJets->insert(std::make_pair(i, temp));
+          i++;
       }
-    }
-
+ 
     // Ak8 only for top
     const std::vector<TLorentzVector>  & AK8 = tr->getVec<TLorentzVector>("puppiJetsLVec");
     for(auto ak8 : AK8)
@@ -745,8 +674,6 @@ bool BaselineVessel::passFastsimEventFilterFunc()
 // ===========================================================================
 double BaselineVessel::CalcMT2() const
 {
-  if (!UseNewTagger)
-    return type3Ptr->best_had_brJet_MT2;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Initial the input ~~~~~
   TLorentzVector fatJet1LVec(0, 0, 0,0);
@@ -790,17 +717,6 @@ double BaselineVessel::CalcMT2() const
 
 double BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLorentzVector & fatJet2LVec) const
 {
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Calc MT2 from old top tagger ~~~~~
-  // For this example we will use the "Basic_Mt2_332_Calculator" which is
-  // the algorithm we recommend people use by default.
-  // Mt2::Basic_Mt2_332_Calculator mt2Calculator;
-  Mt2::ChengHanBisect_Mt2_332_Calculator mt2Calculator;
-
-  // Could tell the MT2 calculating object to be verbose, and print out
-  // debug messages while it is thinking ... but we won't:
-  
-  // mt2Calculator.setDebug(true);
   
   // The input parameters associated with the particle
   // (or collection of particles) associated with the
@@ -824,32 +740,17 @@ double BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLo
   // been produced at the end of the decay chain in each
   // "half" of the event:    
   const double invis_mass    = metLVec.M(); // GeV
-  // Now put the inputs together into the input structures that the library wants.
 
-  /*
-      Note: in the next two lines (constructing "vis_A" and "vis_B"),
-      the ORDER of the arguments to the constructor of
-      Mt2::LorentzTransverseVector is very important.
-      You need to be careful as, when the TwoVector comes
-      first, the second arguments is taken to be a mass:
+  double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
 
-      LorentzTransverseVector(const TwoVector& momentum, double mass);
+  asymm_mt2_lester_bisect::disableCopyrightMessage();
 
-      but when the TwoVector comes second, the first arguemt is an ET=Sqrt(m^2+pt^2):
-
-      LorentzTransverseVector(double Et, const TwoVector& momentum);
-
-      You have been warned!
-  */
-
-  Mt2::LorentzTransverseVector  vis_A(Mt2::TwoVector(pxOfSystemA, pyOfSystemA), massOfSystemA);
-  Mt2::LorentzTransverseVector  vis_B(Mt2::TwoVector(pxOfSystemB, pyOfSystemB), massOfSystemB);
-  Mt2::TwoVector                pT_Miss(pxMiss, pyMiss);
-
-  // Now that we have some visiable momenta and some missing transverse
-  // momentum we can calculate MT2.
-
-  const double mt2 = mt2Calculator.mt2_332(vis_A, vis_B, pT_Miss, invis_mass);
+  double mt2 =  asymm_mt2_lester_bisect::get_mT2(
+      massOfSystemA, pxOfSystemA, pyOfSystemA,
+      massOfSystemB, pxOfSystemB, pyOfSystemB,
+      pxMiss, pyMiss,
+      invis_mass, invis_mass,
+      desiredPrecisionOnMt2);
 
   return mt2;
 
