@@ -4,7 +4,7 @@ SDIR       = $(CMSSW_BASE)/src/SusyAnaTools/Tools/
 
 CXX        = g++
 
-CXXFLAGS += -I. -std=c++0x -I$(CMSSW_BASE)/src/ -I$(LHAPDF_DATA_PATH)/../../include -I$(CMSSW_RELEASE_BASE)/src 
+CXXFLAGS += -I. -std=c++0x -I$(CMSSW_BASE)/src/ -isystem$(LHAPDF_DATA_PATH)/../../include -I$(CMSSW_RELEASE_BASE)/src 
 #CXXFLAGS += -I$(shell scram tool info fastjet | grep '^INCLUDE' | sed 's/INCLUDE=//')
 #CXXFLAGS += -I$(shell scram tool info boost | grep '^INCLUDE' | sed 's/INCLUDE=//')
 ## Optimization flag
@@ -100,6 +100,9 @@ ISRJetsProducer:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/ISRJetsProduc
 
 #DataMC: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/samples.o $(ODIR)/customize.o $(ODIR)/customize.o $(ODIR)/searchBins.o $(ODIR)/DataMC.o
 #	$(LD) $^ $(LIBS) -o $@
+
+AliasTest: $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/StopleAlias.o  $(ODIR)/AliasTest.o  
+	$(LD) $^ $(LIBS) -o $@
 
 clean:
 	rm -f $(ODIR)/*.a $(ODIR)/*.so $(ODIR)/*.o $(ODIR)/*.d $(PROGRAMS) core 
