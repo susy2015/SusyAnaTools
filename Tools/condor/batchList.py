@@ -61,8 +61,8 @@ if __name__ == "__main__":
     parser.add_option ('-r',      dest='reject',     type='string',    default = ".*failed.*",                 help="File paths must NOT match this regular expression")
     parser.add_option ('-t',      dest='startDirs',  type='string',    default = ".*",                         help="Start directory paths must match this regular expression")
     parser.add_option ('-l',      dest='list',   action="store_true",  default = False,                        help="Create file lists")
-    parser.add_option ('-c',      dest='copy',   action="store_true",  default = False,                        help="Copy a file to eos")
-    parser.add_option ('-s',      dest='crab',   action="store_false", default = True,                         help="Will not assumes standard crab file structure (Will not filter on latest copy of each file)")
+    parser.add_option ('-c',      dest='copy',   action="store_true",  default = False,                        help="Copy a file to eos (when used with -l this option automatically transfers filelists to eos, otherwise use -f to specify file to transfer)")
+    parser.add_option ('-s',      dest='crab',   action="store_false", default = True,                         help="Will not assume standard crab file structure (Will not filter on latest copy of each file)")
     parser.add_option ('--force', dest='force',  action="store_true",  default = False,                        help="Force overwrite when doing xrdcp (use with caution!)")
     
     options, args = parser.parse_args()
@@ -80,14 +80,17 @@ if __name__ == "__main__":
                         continue
                     print "".join([endpath, ".txt"])
                     fileName = "".join([endpath, ".txt"])
-                    f = open(fileName, "w")
                     outDict = {}
                     recSearch("/".join([startPath, endpath]), outDict, eosurl = options.eosurl, match=options.match, reject=options.reject, crab=options.crab)
+                    outList = []
                     for key in outDict:
                         if isinstance(key, tuple):
-                            f.write("/".join([key[0], outDict[key], key[1]]))
+                            outList.append("/".join([key[0], outDict[key], key[1]]).strip("\n"))
                         else:
-                            f.write("%s\n"%key)
+                            outList.append("%s"%key)
+                    f = open(fileName, "w")
+                    outList = sorted(outList)
+                    f.write("\n".join(outList))
                     f.close()
             
                     if options.copy:
