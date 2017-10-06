@@ -5,7 +5,9 @@
 #include "TObjArray.h"
 #include "TLeaf.h"
 
-NTupleReader::NTupleReader(TTree * tree, std::set<std::string>& activeBranches) : activeBranches_(activeBranches)
+#include <iostream>
+
+NTupleReader::NTupleReader(TTree * tree, const std::set<std::string>& activeBranches) : activeBranches_(activeBranches)
 {
     tree_ = tree;
     if(!tree_) THROW_SATEXCEPTION("NTupleReader(...): TTree " + std::string(tree_->GetName()) + " is invalid!!!!");
@@ -18,27 +20,44 @@ NTupleReader::NTupleReader(TTree * tree)
     init();
 }
 
+NTupleReader::~NTupleReader()
+{
+    //Clean up any remaining dynamic memory
+    for(auto& branch : branchMap_)    if(branch.second.ptr) branch.second.destroy();
+    for(auto& branch : branchVecMap_) if(branch.second.ptr) branch.second.destroy();
+}
+
 void NTupleReader::init()
 {
-    nevt_ = 0;
+    nevt_ = evtProcessed_ = 0;
     isUpdateDisabled_ = false;
-    isFirstEvent_ = true;
     reThrow_ = true;
 
     activateBranches();    
 }
 
 
-// ===  FUNCTION  ============================================================
-//         Name:  NTupleReader::GetCurrentInfo
-//  Description:  Useful function for debuging
-// ===========================================================================
-bool NTupleReader::GetCurrentInfo()
+std::string NTupleReader::getFileName() const
 {
-  std::cout << "In Run " << getVar<int>("run") << " event " << getVar<int>("event")  << " from file: "
-    << tree_->GetCurrentFile()->GetName()<< std::endl;
-  return true;
-}       // -----  end of function NTupleReader::GetCurrentInfo  -----
+    return std::string( tree_->GetCurrentFile()->GetName() );
+}
+
+int NTupleReader::getNEntries() const
+{
+    try
+    {
+        if(tree_) return tree_->GetEntries();
+        else 
+        {
+            THROW_SATEXCEPTION("NO tree defined yet!!!");
+        }
+    }
+    catch(const SATException& e)
+    {
+        e.print();
+        if(reThrow_) throw;
+    }
+}
 
 void NTupleReader::activateBranches()
 {
@@ -50,13 +69,13 @@ void NTupleReader::activateBranches()
     for(auto& iMap : branchMap_)
     {
         tree_->SetBranchStatus(iMap.first.c_str(), 1);
-        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second);
+        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second.ptr);
     }
 
     for(auto& iMap : branchVecMap_)
     {
         tree_->SetBranchStatus(iMap.first.c_str(), 1);
-        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second);
+        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second.ptr);
     }
 }
 
@@ -124,14 +143,19 @@ void NTupleReader::registerBranch(TBranch * const branch) const
     }
 }
 
-bool NTupleReader::getNextEvent()
+bool NTupleReader::goToEvent(int evt)
 {
-    int status = tree_->GetEntry(nevt_);
+    int status = tree_->GetEntry(evt);
     if (status == 0) return false;
-    nevt_++;
-    if(nevt_ >= 2) isFirstEvent_ = false;
+    nevt_ = evt + 1;
+    ++evtProcessed_;
     calculateDerivedVariables();
     return status > 0;
+}
+
+bool NTupleReader::getNextEvent()
+{
+    return goToEvent(nevt_);
 }
 
 void NTupleReader::disableUpdate()
@@ -150,7 +174,7 @@ void NTupleReader::calculateDerivedVariables()
 
 void NTupleReader::registerFunction(void (*f)(NTupleReader&))
 {
-    if(isFirstEvent_) functionVec_.emplace_back(f);
+    if(isFirstEvent()) functionVec_.emplace_back(f);
     else printf("NTupleReader::registerFunction(...): new functions cannot be registered after tuple reading begins!\n");
 }
 
@@ -181,7 +205,7 @@ const void* NTupleReader::getPtr(const std::string var) const
         auto tuple_iter = branchMap_.find(var);
         if(tuple_iter != branchMap_.end())
         {
-            return tuple_iter->second;
+            return tuple_iter->second.ptr;
         }
 
         THROW_SATEXCEPTION("NTupleReader::getPtr(...): Variable not found: " + var);
@@ -202,7 +226,7 @@ const void* NTupleReader::getVecPtr(const std::string var) const
         auto tuple_iter = branchVecMap_.find(var);
         if(tuple_iter != branchVecMap_.end())
         {
-            return tuple_iter->second;
+            return tuple_iter->second.ptr;
         }
 
         THROW_SATEXCEPTION("NTupleReader::getVecPtr(...): Variable not found: " + var);
@@ -222,38 +246,29 @@ void NTupleReader::printTupleMembers(FILE *f) const
     }
 }
 
-std::vector<std::string> NTupleReader::GetTupleMembers() const
+std::vector<std::string> NTupleReader::getTupleMembers() const
 {
-  std::vector<std::string> members;
-  for(auto& iVar : typeMap_)
-  {
-    members.push_back(iVar.first);
-  }
-  return members;
-}
-
-
-std::vector<std::string> NTupleReader::GetTupleSpecs(std::string VarName) const
-{
-  std::vector<std::string> members = GetTupleMembers();
-  std::vector<std::string> specs;
-  for(auto &member : members)
-  {
-    std::string::size_type t= member.find(VarName);
-    if (t != std::string::npos)
+    std::vector<std::string> members;
+    for(auto& iVar : typeMap_)
     {
-      specs.push_back(member.erase(t, VarName.length()));
+        members.push_back(iVar.first);
     }
-  }
-  
-  return specs;
+    return members;
 }
 
-// ===  FUNCTION  ============================================================
-//         Name:  NTupleReader::HasVar
-//  Description:  
-// ===========================================================================
-bool NTupleReader::hasVar(std::string name) const
+
+std::vector<std::string> NTupleReader::getTupleSpecs(const std::string& varName) const
 {
-  return (typeMap_.find(name) != typeMap_.end());
-}       // -----  end of function NTupleReader::HasVar  -----
+    std::vector<std::string> members = getTupleMembers();
+    std::vector<std::string> specs;
+    for(auto &member : members)
+    {
+        std::string::size_type t= member.find(varName);
+        if (t != std::string::npos)
+        {
+            specs.push_back(member.erase(t, varName.length()));
+        }
+    }
+  
+    return specs;
+}

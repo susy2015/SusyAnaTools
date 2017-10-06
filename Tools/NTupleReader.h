@@ -8,13 +8,11 @@
 #include "TTree.h"
 #include "TLorentzVector.h"
 
-#include <vector>
 #include <cstdio>
-#include <iostream>
-#include <map>
-#include <string>
-#include <limits>
 #include <vector>
+#include <map>
+#include <unordered_map>
+#include <string>
 #include <set>
 #include <typeinfo>
 #include <functional>
@@ -49,56 +47,118 @@ void baselineUpdate(NTupleReader& tr);
 class NTupleReader
 {
     friend void baselineUpdate(NTupleReader& tr);
+
+private:
+
+    //Machinery to allow object cleanup
+
+    //Generic deleter base class to obfiscate template type
+    class deleter_base
+    {
+    public:
+        virtual void destroy(void *) = 0;
+        virtual ~deleter_base() {}
+    };
+
+    //Templated class to create/store simple object deleter 
+    template<typename T> 
+    class deleter : public deleter_base
+    {
+    public:
+        virtual void destroy(void *ptr)
+        {
+            delete static_cast<T*>(ptr);
+        }
+    };
+
+    //Templated class to create/store vector object deleter 
+    template<typename T> 
+    class vec_deleter : public deleter_base
+    {
+    public:
+        virtual void destroy(void *ptr)
+        {
+            //Delete vector
+            T *vecptr = *static_cast<T**>(ptr);
+            if(vecptr != nullptr) delete vecptr;
+
+            //depete pointer to vector
+            delete static_cast<T*>(ptr);
+        }
+    };
+
+    //Handle class to hold pointer and deleter
+    class Handle
+    {
+    public:
+        void* ptr;
+        deleter_base* deleter;
+
+        void destroy()
+        {
+            deleter->destroy(ptr);
+            delete deleter;
+        }
+    };
+
+    //Helper to make simple Handle
+    template<typename T>
+    static inline Handle createHandle(T* ptr)
+    {
+        Handle h;
+        h.ptr = ptr;
+        h.deleter = new deleter<T>;
+        return h;
+    }
+
+    //Helper to make vector Handle
+    template<typename T>
+    static inline Handle createVecHandle(T* ptr)
+    {
+        Handle h;
+        h.ptr = ptr;
+        h.deleter = new vec_deleter<T>;
+        return h;
+    }
+
 public:
 
-    NTupleReader(TTree * tree, std::set<std::string>& activeBranches_);
+    NTupleReader(TTree * tree, const std::set<std::string>& activeBranches_);
     NTupleReader(TTree * tree);
-    ~NTupleReader() {} ;
+    ~NTupleReader();
 
-    bool GetCurrentInfo();
+    std::string getFileName() const;
+
     int getEvtNum() const
     {
         return nevt_;
     }
 
-    bool isFirstEvent() const
+    inline bool isFirstEvent() const
     {
-        return isFirstEvent_;
+        return evtProcessed_ <= 1;
     }
 
-    int getNEntries() const
-    {
-        try
-        {
-            if(tree_) return tree_->GetEntries();
-            else 
-            {
-                THROW_SATEXCEPTION("NO tree defined yet!!!");
-            }
-        }
-        catch(const SATException& e)
-        {
-            e.print();
-            if(reThrow_) throw;
-        }
-    }
+    int getNEntries() const;
 
-    bool checkBranch(const std::string name) const
+    inline bool checkBranch(const std::string& name) const
     {
         return (typeMap_.find(name) != typeMap_.end());
     }
+    inline bool hasVar(const std::string& name) const {return checkBranch(name); }
 
+    bool goToEvent(int evt);
     bool getNextEvent();
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
-    bool hasVar(std::string name) const;
-    std::vector<std::string> GetTupleMembers() const;
-    std::vector<std::string> GetTupleSpecs(std::string VarName = "cntNJetsPt30Eta24") const;
+
+    std::vector<std::string> getTupleMembers() const;
+    std::vector<std::string> getTupleSpecs(const std::string& varName) const;
 
     template<typename T> void registerFunction(T f)
     {
-        if(isFirstEvent_) functionVec_.emplace_back(f);
-        else printf("NTupleReader::registerFunction(...): new functions cannot be registered after tuple reading begins!\n");
+        if(isFirstEvent()) functionVec_.emplace_back(f);
+        else THROW_SATEXCEPTION("New functions cannot be registered after tuple reading begins!\n");
     }
 
     //Specialization for basic functions
@@ -113,17 +173,17 @@ public:
     {
         try
         {
-            if(isFirstEvent_)
+            if(isFirstEvent())
             {
                 if(branchMap_.find(name) != branchMap_.end())
                 {
                     THROW_SATEXCEPTION("You are trying to redefine a base tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
                 }
-                branchMap_[name] = new T();
+                branchMap_[name] = createHandle(new T());
 
                 typeMap_[name] = demangle<T>();
             }
-            setDerived(var, branchMap_[name]);
+            setDerived(var, branchMap_[name].ptr);
         }
         catch(const SATException& e)
         {
@@ -136,18 +196,18 @@ public:
     {
         try
         {
-            if(isFirstEvent_)
+            if(isFirstEvent())
             {
                 if(branchVecMap_.find(name) != branchVecMap_.end())
                 {
                     THROW_SATEXCEPTION("You are trying to redefine a base tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
                 }
-                branchVecMap_[name] = new T*();
+                branchVecMap_[name] = createVecHandle(new T*());
             
                 typeMap_[name] = demangle<T>();
             }
-            void * vecloc = branchVecMap_[name];
-            T *vecptr = *static_cast<T**>(branchVecMap_[name]);
+            void * vecloc = branchVecMap_[name].ptr;
+            T *vecptr = *static_cast<T**>(branchVecMap_[name].ptr);
             if(vecptr != nullptr)
             {
                 delete vecptr;
@@ -174,7 +234,7 @@ public:
         }
         catch(const SATException& e)
         {
-            if(isFirstEvent_) e.print();
+            if(isFirstEvent()) e.print();
             if(reThrow_) throw;
             return *static_cast<T*>(nullptr);
         }
@@ -190,7 +250,7 @@ public:
         }
         catch(const SATException& e)
         {
-            if(isFirstEvent_) e.print();
+            if(isFirstEvent()) e.print();
             if(reThrow_) throw;
             return *static_cast<std::vector<T>*>(nullptr);
         }
@@ -206,7 +266,7 @@ public:
         }
         catch(const SATException& e)
         {
-            if(isFirstEvent_) e.print();
+            if(isFirstEvent()) e.print();
             if(reThrow_) throw;
             return *static_cast<std::map<T, V>*>(nullptr);
         }
@@ -216,14 +276,14 @@ public:
 private:
     // private variables for internal use
     TTree *tree_;
-    int nevt_;
-    bool isUpdateDisabled_, isFirstEvent_, reThrow_;
+    int nevt_, evtProcessed_;
+    bool isUpdateDisabled_, reThrow_;
     
     // stl collections to hold branch list and associated info
-    mutable std::map<std::string, void *> branchMap_;
-    mutable std::map<std::string, void *> branchVecMap_;
+    mutable std::unordered_map<std::string, Handle> branchMap_;
+    mutable std::unordered_map<std::string, Handle> branchVecMap_;
     std::vector<std::function<void(NTupleReader&)> > functionVec_;
-    mutable std::map<std::string, std::string> typeMap_;
+    mutable std::unordered_map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
 
     void init();
@@ -237,25 +297,25 @@ private:
 
     template<typename T> void registerBranch(const std::string name) const
     {
-        branchMap_[name] = new T();
+        branchMap_[name] = createHandle(new T());
 
         typeMap_[name] = demangle<T>();
     }
     
     template<typename T> void registerVecBranch(const std::string name) const
     {
-        branchVecMap_[name] = new std::vector<T>*();
+        branchVecMap_[name] = createVecHandle(new std::vector<T>*());
 
         typeMap_[name] = demangle<std::vector<T>>();
     }
 
     template<typename T> void updateTupleVar(const std::string name, const T& var)
     {
-        if(isFirstEvent_)
+        if(isFirstEvent())
         {
             if(branchMap_.find(name) == branchMap_.end())
             {
-                branchMap_[name] = new T();
+                branchMap_[name] = createVecHandle(new T());
                 
                 typeMap_[name] = demangle<T>();
             }
@@ -264,9 +324,9 @@ private:
         auto tuple_iter = branchMap_.find(name);
         if(tuple_iter != branchMap_.end())
         {
-            *static_cast<T*>(tuple_iter->second) = var;
+            *static_cast<T*>(tuple_iter->second.ptr) = var;
         }
-        else printf("NTupleReader::updateTuple(...):  Variable not found: \"%s\"!!!\n", name.c_str());
+        else THROW_SATEXCEPTION("Variable not found: \"" + name + "\"!!!\n");
     }
 
     template<typename T, typename V> T& getTupleObj(const std::string var, const V& v_tuple) const
@@ -274,29 +334,29 @@ private:
         auto tuple_iter = v_tuple.find(var);
         if(tuple_iter != v_tuple.end())
         {
-            return *static_cast<T*>(tuple_iter->second);
+            return *static_cast<T*>(tuple_iter->second.ptr);
         }
         else if(typeMap_.find(var) != typeMap_.end()) //If it is not found, check in typeMap_ 
         {
             //If found in typeMap_, it can be added on the fly
             TBranch *branch = tree_->FindBranch(var.c_str());
-
+        
             //If branch not found continue on to throw exception
             if(branch != nullptr)
             {
                 registerBranch(branch);
-
+        
                 //get iterator
                 tuple_iter = v_tuple.find(var);
-
+        
                 tree_->SetBranchStatus(var.c_str(), 1);
-                tree_->SetBranchAddress(var.c_str(), tuple_iter->second);
-
+                tree_->SetBranchAddress(var.c_str(), tuple_iter->second.ptr);
+        
                 //force read just this branch
                 branch->GetEvent(nevt_ - 1);
-
+        
                 //return value
-                return *static_cast<T*>(tuple_iter->second);
+                return *static_cast<T*>(tuple_iter->second.ptr);
             }
         }
 
@@ -315,7 +375,7 @@ private:
         int status = 0;
         char* demangled = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
         std::string s = demangled;
-        delete [] demangled;
+        free(demangled);
         return s;
     }
 };
