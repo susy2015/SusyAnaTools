@@ -14,16 +14,21 @@ int main(int argc, char *argv[])
   int opt;
   int option_index = 0;
   static struct option long_options[] = {
-    {"negw", no_argument, 0, 'w'}
+      {"negw",     no_argument, 0, 'w'},
+      {"skipData", no_argument, 0, 's'}
   };
 
-  bool getNegWeights = false;
-  while((opt=getopt_long(argc, argv, "w", long_options, &option_index)) != -1)
+  bool getNegWeights = false, skipData = false;
+  while((opt=getopt_long(argc, argv, "ws", long_options, &option_index)) != -1)
   {
     switch(opt)
     {
       case 'w':
       getNegWeights = true;
+      break;
+
+      case 's':
+      skipData = true;
       break;
     }
   }
@@ -55,7 +60,7 @@ int main(int argc, char *argv[])
       for(auto& str : keyStrVec ){ if( file.first.find(str) !=std::string::npos ) found = true; }
       if( !found ) continue;
     }
-    if(file.first.find("Data") != std::string::npos)
+    if(skipData && file.first.find("Data") != std::string::npos)
     {
         std::cout << "Skipping " << file.first << std::endl;
         continue;

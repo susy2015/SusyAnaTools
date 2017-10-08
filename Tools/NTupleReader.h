@@ -94,10 +94,17 @@ private:
         void* ptr;
         deleter_base* deleter;
 
+        Handle() : ptr(nullptr), deleter(nullptr) {}
+
+        Handle(void* ptr, deleter_base* deleter = nullptr) :  ptr(ptr), deleter(deleter) {}
+
         void destroy()
         {
-            deleter->destroy(ptr);
-            delete deleter;
+            if(deleter)
+            {
+                deleter->destroy(ptr);
+                delete deleter;
+            }
         }
     };
 
@@ -105,20 +112,14 @@ private:
     template<typename T>
     static inline Handle createHandle(T* ptr)
     {
-        Handle h;
-        h.ptr = ptr;
-        h.deleter = new deleter<T>;
-        return h;
+        return Handle(ptr, new deleter<T>);
     }
 
     //Helper to make vector Handle
     template<typename T>
     static inline Handle createVecHandle(T* ptr)
     {
-        Handle h;
-        h.ptr = ptr;
-        h.deleter = new vec_deleter<T>;
-        return h;
+        return Handle(ptr, new vec_deleter<T>);
     }
 
 public:
@@ -169,7 +170,7 @@ public:
     void setReThrow(const bool);
     bool getReThrow() const;
 
-    template<typename T> void registerDerivedVar(const std::string name, T var)
+    template<typename T> void registerDerivedVar(const std::string& name, T var)
     {
         try
         {
@@ -192,7 +193,7 @@ public:
         }
     }
 
-    template<typename T> void registerDerivedVec(const std::string name, T* var)
+    template<typename T> void registerDerivedVec(const std::string& name, T* var)
     {
         try
         {
@@ -221,10 +222,12 @@ public:
         }
     }
 
-    const void* getPtr(const std::string var) const;
-    const void* getVecPtr(const std::string var) const;
+    void addAlias(const std::string& name, const std::string& alias);
 
-    template<typename T> const T& getVar(const std::string var) const
+    const void* getPtr(const std::string& var) const;
+    const void* getVecPtr(const std::string& var) const;
+
+    template<typename T> const T& getVar(const std::string& var) const
     {
         //This function can be used to return single variables
 
@@ -240,7 +243,7 @@ public:
         }
     }
 
-    template<typename T> const std::vector<T>& getVec(const std::string var) const
+    template<typename T> const std::vector<T>& getVec(const std::string& var) const
     {
         //This function can be used to return vectors
 
@@ -256,7 +259,7 @@ public:
         }
     }
 
-    template<typename T, typename V> const std::map<T, V>& getMap(const std::string var) const
+    template<typename T, typename V> const std::map<T, V>& getMap(const std::string& var) const
     {
         //This function can be used to return maps
 
@@ -288,28 +291,33 @@ private:
 
     void init();
 
-    void activateBranches();
     void populateBranchList();
     
     void registerBranch(TBranch * const branch) const;
 
     void calculateDerivedVariables();
 
-    template<typename T> void registerBranch(const std::string name) const
+    template<typename T> void registerBranch(const std::string& name) const
     {
         branchMap_[name] = createHandle(new T());
 
         typeMap_[name] = demangle<T>();
+
+        tree_->SetBranchStatus(name.c_str(), 1);
+        tree_->SetBranchAddress(name.c_str(), branchMap_[name].ptr);
     }
     
-    template<typename T> void registerVecBranch(const std::string name) const
+    template<typename T> void registerVecBranch(const std::string& name) const
     {
         branchVecMap_[name] = createVecHandle(new std::vector<T>*());
 
         typeMap_[name] = demangle<std::vector<T>>();
+
+        tree_->SetBranchStatus(name.c_str(), 1);
+        tree_->SetBranchAddress(name.c_str(), branchVecMap_[name].ptr);
     }
 
-    template<typename T> void updateTupleVar(const std::string name, const T& var)
+    template<typename T> void updateTupleVar(const std::string& name, const T& var)
     {
         if(isFirstEvent())
         {
@@ -329,7 +337,7 @@ private:
         else THROW_SATEXCEPTION("Variable not found: \"" + name + "\"!!!\n");
     }
 
-    template<typename T, typename V> T& getTupleObj(const std::string var, const V& v_tuple) const
+    template<typename T, typename V> T& getTupleObj(const std::string& var, const V& v_tuple) const
     {
         auto tuple_iter = v_tuple.find(var);
         if(tuple_iter != v_tuple.end())
@@ -348,9 +356,6 @@ private:
         
                 //get iterator
                 tuple_iter = v_tuple.find(var);
-        
-                tree_->SetBranchStatus(var.c_str(), 1);
-                tree_->SetBranchAddress(var.c_str(), tuple_iter->second.ptr);
         
                 //force read just this branch
                 branch->GetEvent(nevt_ - 1);

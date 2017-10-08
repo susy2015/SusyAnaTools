@@ -23,21 +23,32 @@ int main()
         ch->Add(chname);
     }
 
-    NTupleReader tr(ch);
-    BaselineVessel blv(tr);
-    tr.registerFunction(blv);
-
-    while(tr.getNextEvent())
+    try
     {
-        if(tr.getEvtNum() == 1)
+        NTupleReader tr(ch);
+        tr.addAlias("met", "aliasedMET");
+        tr.addAlias("jetsLVec", "aliasedJetsLVec");
+        //BaselineVessel blv(tr);
+        //tr.registerFunction(blv);
+
+        while(tr.getNextEvent())
         {
-            tr.printTupleMembers();
-            FILE * fout = fopen("NTupleTypes.txt", "w");
-            tr.printTupleMembers(fout);
-            fclose(fout);
-        }
+            if(tr.getEvtNum() == 1)
+            {
+                tr.printTupleMembers();
+                FILE * fout = fopen("NTupleTypes.txt", "w");
+                tr.printTupleMembers(fout);
+                fclose(fout);
+            }
       
-      std::cout << "MET " << tr.getVar<double>("met")  << " nTop" << tr.getVar<int>("nTopCandSortedCnt") << std::endl;
+            //std::cout << "MET " << tr.getVar<double>("met")  << " nTop" << tr.getVar<int>("nTopCandSortedCnt") << std::endl;
+            std::cout << "MET " << tr.getVar<double>("met")  << " aliasedMET " << tr.getVar<double>("aliasedMET");
+            std::cout << "Nj " << tr.getVec<TLorentzVector>("jetsLVec").size() << " aliasedNj " << tr.getVec<TLorentzVector>("aliasedJetsLVec").size() << std::endl;
+        }
+    }
+    catch(const SATException& e)
+    {
+        e.print();
     }
 
     return 0;

@@ -33,7 +33,10 @@ void NTupleReader::init()
     isUpdateDisabled_ = false;
     reThrow_ = true;
 
-    activateBranches();    
+    tree_->SetBranchStatus("*", 0);
+
+    // Add desired branches to branchMap_/branchVecMap
+    populateBranchList();
 }
 
 
@@ -56,26 +59,6 @@ int NTupleReader::getNEntries() const
     {
         e.print();
         if(reThrow_) throw;
-    }
-}
-
-void NTupleReader::activateBranches()
-{
-    tree_->SetBranchStatus("*", 0);
-
-    // Add desired branches to branchMap_
-    populateBranchList();
-
-    for(auto& iMap : branchMap_)
-    {
-        tree_->SetBranchStatus(iMap.first.c_str(), 1);
-        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second.ptr);
-    }
-
-    for(auto& iMap : branchVecMap_)
-    {
-        tree_->SetBranchStatus(iMap.first.c_str(), 1);
-        tree_->SetBranchAddress(iMap.first.c_str(), iMap.second.ptr);
     }
 }
 
@@ -113,7 +96,6 @@ void NTupleReader::registerBranch(TBranch * const branch) const
             TLeaf *leaf = (TLeaf*)lol->UncheckedAt(0);
             type = leaf->GetTypeName();
         }
-        //else continue;
     }
 
     if(type.find("vector") != std::string::npos)
@@ -197,7 +179,55 @@ bool NTupleReader::getReThrow() const
     return reThrow_;
 }
 
-const void* NTupleReader::getPtr(const std::string var) const
+void NTupleReader::addAlias(const std::string& name, const std::string& alias)
+{
+    //Check that alias i not already used
+    if(typeMap_.find(alias) == typeMap_.end())
+    {
+        //set type for alias
+        typeMap_[alias] = typeMap_[name];
+
+        auto branch_iter = branchMap_.find(name);
+        auto branchVec_iter = branchVecMap_.find(name);
+        
+        //Check if this variable is already registered and register it if not 
+        if(branch_iter == branchMap_.end() && branchVec_iter == branchVecMap_.end())
+        {
+            //If found in typeMap_, it can be added on the fly
+            TBranch *branch = tree_->FindBranch(name.c_str());
+        
+            //If branch not found continue on to throw exception
+            if(branch != nullptr)
+            {
+                registerBranch(branch);
+        
+                //force read just this branch if necessary
+                if(evtProcessed_ >= 1) branch->GetEvent(nevt_ - 1);
+            }
+        }
+
+        branch_iter = branchMap_.find(name);
+        branchVec_iter = branchVecMap_.find(name);
+
+        //Set the "fake" handle for the alias 
+        //Check branchMap for "name"
+        if(branch_iter != branchMap_.end())
+        {
+            branchMap_[alias] = Handle(branch_iter->second.ptr);
+        }
+        //If the variable name is not in branchMap, check branchVecMap
+        else if(branchVec_iter != branchVecMap_.end())
+        {
+            branchVecMap_[alias] = Handle(branchVec_iter->second.ptr);
+        }
+    }
+    else
+    {
+        THROW_SATEXCEPTION("Variable name \"" + alias + "\" already exists!!!");
+    }
+}
+
+const void* NTupleReader::getPtr(const std::string& var) const
 {
     //This function can be used to return the variable pointer
     try
@@ -217,7 +247,7 @@ const void* NTupleReader::getPtr(const std::string var) const
     }
 }
 
-const void* NTupleReader::getVecPtr(const std::string var) const
+const void* NTupleReader::getVecPtr(const std::string& var) const
 {
     //This function can be used to return the variable pointer
 
