@@ -94,10 +94,17 @@ private:
         void* ptr;
         deleter_base* deleter;
 
+        Handle() : ptr(nullptr), deleter(nullptr) {}
+
+        Handle(void* ptr, deleter_base* deleter = nullptr) :  ptr(ptr), deleter(deleter) {}
+
         void destroy()
         {
-            deleter->destroy(ptr);
-            delete deleter;
+            if(deleter)
+            {
+                deleter->destroy(ptr);
+                delete deleter;
+            }
         }
     };
 
@@ -105,20 +112,14 @@ private:
     template<typename T>
     static inline Handle createHandle(T* ptr)
     {
-        Handle h;
-        h.ptr = ptr;
-        h.deleter = new deleter<T>;
-        return h;
+        return Handle(ptr, new deleter<T>);
     }
 
     //Helper to make vector Handle
     template<typename T>
     static inline Handle createVecHandle(T* ptr)
     {
-        Handle h;
-        h.ptr = ptr;
-        h.deleter = new vec_deleter<T>;
-        return h;
+        return Handle(ptr, new vec_deleter<T>);
     }
 
 public:
@@ -221,6 +222,8 @@ public:
         }
     }
 
+    void addAlias(const std::string name, const std::string alias);
+
     const void* getPtr(const std::string var) const;
     const void* getVecPtr(const std::string var) const;
 
@@ -288,7 +291,6 @@ private:
 
     void init();
 
-    void activateBranches();
     void populateBranchList();
     
     void registerBranch(TBranch * const branch) const;
@@ -300,6 +302,9 @@ private:
         branchMap_[name] = createHandle(new T());
 
         typeMap_[name] = demangle<T>();
+
+        tree_->SetBranchStatus(name.c_str(), 1);
+        tree_->SetBranchAddress(name.c_str(), branchMap_[name].ptr);
     }
     
     template<typename T> void registerVecBranch(const std::string name) const
@@ -307,6 +312,9 @@ private:
         branchVecMap_[name] = createVecHandle(new std::vector<T>*());
 
         typeMap_[name] = demangle<std::vector<T>>();
+
+        tree_->SetBranchStatus(name.c_str(), 1);
+        tree_->SetBranchAddress(name.c_str(), branchVecMap_[name].ptr);
     }
 
     template<typename T> void updateTupleVar(const std::string name, const T& var)
@@ -348,9 +356,6 @@ private:
         
                 //get iterator
                 tuple_iter = v_tuple.find(var);
-        
-                tree_->SetBranchStatus(var.c_str(), 1);
-                tree_->SetBranchAddress(var.c_str(), tuple_iter->second.ptr);
         
                 //force read just this branch
                 branch->GetEvent(nevt_ - 1);
