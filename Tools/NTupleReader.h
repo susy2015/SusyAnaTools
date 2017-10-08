@@ -170,7 +170,7 @@ public:
     void setReThrow(const bool);
     bool getReThrow() const;
 
-    template<typename T> void registerDerivedVar(const std::string name, T var)
+    template<typename T> void registerDerivedVar(const std::string& name, T var)
     {
         try
         {
@@ -193,7 +193,7 @@ public:
         }
     }
 
-    template<typename T> void registerDerivedVec(const std::string name, T* var)
+    template<typename T> void registerDerivedVec(const std::string& name, T* var)
     {
         try
         {
@@ -222,12 +222,12 @@ public:
         }
     }
 
-    void addAlias(const std::string name, const std::string alias);
+    void addAlias(const std::string& name, const std::string& alias);
 
-    const void* getPtr(const std::string var) const;
-    const void* getVecPtr(const std::string var) const;
+    const void* getPtr(const std::string& var) const;
+    const void* getVecPtr(const std::string& var) const;
 
-    template<typename T> const T& getVar(const std::string var) const
+    template<typename T> const T& getVar(const std::string& var) const
     {
         //This function can be used to return single variables
 
@@ -243,7 +243,7 @@ public:
         }
     }
 
-    template<typename T> const std::vector<T>& getVec(const std::string var) const
+    template<typename T> const std::vector<T>& getVec(const std::string& var) const
     {
         //This function can be used to return vectors
 
@@ -259,7 +259,7 @@ public:
         }
     }
 
-    template<typename T, typename V> const std::map<T, V>& getMap(const std::string var) const
+    template<typename T, typename V> const std::map<T, V>& getMap(const std::string& var) const
     {
         //This function can be used to return maps
 
@@ -297,7 +297,7 @@ private:
 
     void calculateDerivedVariables();
 
-    template<typename T> void registerBranch(const std::string name) const
+    template<typename T> void registerBranch(const std::string& name) const
     {
         branchMap_[name] = createHandle(new T());
 
@@ -307,7 +307,7 @@ private:
         tree_->SetBranchAddress(name.c_str(), branchMap_[name].ptr);
     }
     
-    template<typename T> void registerVecBranch(const std::string name) const
+    template<typename T> void registerVecBranch(const std::string& name) const
     {
         branchVecMap_[name] = createVecHandle(new std::vector<T>*());
 
@@ -317,7 +317,7 @@ private:
         tree_->SetBranchAddress(name.c_str(), branchVecMap_[name].ptr);
     }
 
-    template<typename T> void updateTupleVar(const std::string name, const T& var)
+    template<typename T> void updateTupleVar(const std::string& name, const T& var)
     {
         if(isFirstEvent())
         {
@@ -337,7 +337,7 @@ private:
         else THROW_SATEXCEPTION("Variable not found: \"" + name + "\"!!!\n");
     }
 
-    template<typename T, typename V> T& getTupleObj(const std::string var, const V& v_tuple) const
+    template<typename T, typename V> T& getTupleObj(const std::string& var, const V& v_tuple) const
     {
         auto tuple_iter = v_tuple.find(var);
         if(tuple_iter != v_tuple.end())

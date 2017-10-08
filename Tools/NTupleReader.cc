@@ -179,7 +179,7 @@ bool NTupleReader::getReThrow() const
     return reThrow_;
 }
 
-void NTupleReader::addAlias(const std::string name, const std::string alias)
+void NTupleReader::addAlias(const std::string& name, const std::string& alias)
 {
     //Check that alias i not already used
     if(typeMap_.find(alias) == typeMap_.end())
@@ -227,7 +227,7 @@ void NTupleReader::addAlias(const std::string name, const std::string alias)
     }
 }
 
-const void* NTupleReader::getPtr(const std::string var) const
+const void* NTupleReader::getPtr(const std::string& var) const
 {
     //This function can be used to return the variable pointer
     try
@@ -247,7 +247,7 @@ const void* NTupleReader::getPtr(const std::string var) const
     }
 }
 
-const void* NTupleReader::getVecPtr(const std::string var) const
+const void* NTupleReader::getVecPtr(const std::string& var) const
 {
     //This function can be used to return the variable pointer
 
