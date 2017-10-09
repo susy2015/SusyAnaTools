@@ -26,6 +26,12 @@ StopleAlias::StopleAlias ()
   tr=NULL;
 }  // -----  end of method StopleAlias::StopleAlias  (constructor)  -----
 
+void StopleAlias::operator()(NTupleReader& tr_)
+{
+  tr = &tr_;
+  MapMET();
+  MapJets();
+}
 
 // ===  FUNCTION  ============================================================
 //         Name:  StopleAlias::MapMET
@@ -38,12 +44,6 @@ bool StopleAlias::MapMET() const
   return true;
 }       // -----  end of function StopleAlias::MapMET  -----
 
-void StopleAlias::operator()(NTupleReader& tr_)
-{
-  tr = &tr_;
-  MapMET();
-  MapJets();
-}
 
 // ===  FUNCTION  ============================================================
 //         Name:  StopleAlias::MapJets
@@ -66,20 +66,16 @@ bool StopleAlias::MapVectorTLV(std::string prefix, std::string outname ,
     const std::string s_phi , const std::string s_mass ) const
 {
   std::stringstream ss("");
-  ss<<prefix<<"_eta";
+  ss<<prefix<<"_" <<s_eta;
   const std::vector<float>& eta=tr->getVec<float>(ss.str());
-
   ss.str("");
-  ss<<prefix<<"_phi";
-  std::cout << ss.str() << std::endl;
+  ss<<prefix<<"_"<<s_phi;
   const  std::vector<float>& phi=tr->getVec<float>(ss.str());
   ss.str("");
-  ss<<prefix<<"_pt";
-  std::cout << ss.str() << std::endl;
+  ss<<prefix<<"_"<<s_pt;
   const std::vector<float>& pt=tr->getVec<float>(ss.str());
   ss.str("");
-  ss<<prefix<<"_mass";
-  std::cout << ss.str() << std::endl;
+  ss<<prefix<<"_"<<s_mass;
   const std::vector<float>& mass=tr->getVec<float>(ss.str());
 
   std::vector<TLorentzVector> *objs = new std::vector<TLorentzVector>();
