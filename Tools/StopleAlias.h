@@ -16,6 +16,8 @@
 
 #include "NTupleReader.h"
 #include "TLorentzVector.h"
+#include <sstream>
+#include <iostream>
 
 // ===========================================================================
 //        Class:  StopleAlias
@@ -47,6 +49,12 @@ class StopleAlias
     NTupleReader *tr;
     bool MapMET() const;
     bool MapJets() const;
+
+    template <class Tfrom, class Tto>
+    bool MapSingleObj(const std::string Sfrom, const std::string Sto) const;
+    bool MapVectorTLV(const std::string prefix, const std::string outname,
+        const std::string s_pt = "pt", const std::string s_eta = "eta",
+        const std::string s_phi = "phi", const std::string s_mass = "mass") const;
 
     // ====================  DATA MEMBERS  ===============================
 
