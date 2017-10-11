@@ -97,9 +97,9 @@ bool StopleAlias::MapJets()
 
 
   // Ak8 Jets
-  AliasMap["puppitau1"] = "ak8_fatjet_puppi_tau1";
-  AliasMap["puppitau2"] = "ak8_fatjet_puppi_tau2";
-  AliasMap["puppitau3"] = "ak8_fatjet_puppi_tau3";
+  addAlias("ak8_fatjet_puppi_tau1", "puppitau1");
+  addAlias("ak8_fatjet_puppi_tau2", "puppitau2");
+  addAlias("ak8_fatjet_puppi_tau3", "puppitau3");
   return true;
 }       // -----  end of function StopleAlias::MapJets  -----
 
@@ -261,3 +261,14 @@ bool StopleAlias::ProdLepMtw(const std::string &lep, const std::string &outname,
   return true;
 }       // -----  end of function StopleAlias::ProdLepMtw  -----
 
+
+// ===  FUNCTION  ============================================================
+//         Name:  StopleAlias::addAlias
+//  Description:  /* cursor */
+// ===========================================================================
+bool StopleAlias::addAlias(const std::string &Sfrom, const std::string &Sto) 
+{
+  if (!tr->isFirstEvent()) return false;
+  AliasMap[Sto] =Sfrom;
+  return true;
+}       // -----  end of function StopleAlias::addAlias  -----

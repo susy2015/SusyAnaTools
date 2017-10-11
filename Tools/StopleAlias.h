@@ -59,7 +59,7 @@ class StopleAlias
     bool MapMET();
     bool MapJets();
 
-
+    bool addAlias(const std::string &Sfrom, const std::string &Sto);
     template <class Tfrom, class Tto>
     bool MapSingleObj(const std::string Sfrom, const std::string Sto) const;
     template <class Tfrom, class Tto>
