@@ -47,11 +47,26 @@ class StopleAlias
   private:
     // ====================  METHODS       ===============================
     NTupleReader *tr;
-    bool MapMET() const;
-    bool MapJets() const;
+    std::map<std::string, std::string> AliasMap;
+
+
+    bool MapGlobalVar();
+    bool MapGen();
+    bool MapFilter();
+    bool MapMuon();
+    bool MapElectron();
+    bool MapIsoTrack();
+    bool MapMET();
+    bool MapJets();
+
 
     template <class Tfrom, class Tto>
     bool MapSingleObj(const std::string Sfrom, const std::string Sto) const;
+    template <class Tfrom, class Tto>
+    bool MapVectorObj(const std::string Sfrom, const std::string Sto) const;
+
+    bool ProdLepMtw(const std::string &lep, const std::string &outname,
+        const std::string s_pt = "pt" , const std::string s_phi  = "phi") const;
     bool MapVectorTLV(const std::string prefix, const std::string outname,
         const std::string s_pt = "pt", const std::string s_eta = "eta",
         const std::string s_phi = "phi", const std::string s_mass = "mass") const;
