@@ -13,6 +13,17 @@
 class TFile;
 class TF1;
 
+enum AK8Flag : unsigned
+{
+  NoTag,
+  TopTag,
+  WinTopTag,
+  WAloneTag,
+  NoTagLooseb,
+  NoTagMediumb,
+  NoTagNob,
+};
+
 class BaselineVessel
 {
 private:
@@ -37,6 +48,7 @@ private:
     std::vector<double> *qgLikelihood_forTagger;
     std::vector<TLorentzVector> *vTops;
     std::map<int, std::vector<TLorentzVector> > *mTopJets;
+    std::vector<unsigned> * vAK8Flag;
 
     std::vector<TLorentzVector> GetAK4NoSubjet(Constituent &ak8, 
         std::vector<TLorentzVector> &ak4jets) const;
@@ -96,6 +108,11 @@ public:
     bool GetTopCombs() const;
     double CalcMT2() const;
     double coreMT2calc(const TLorentzVector & fatJet1LVec, const TLorentzVector & fatJet2LVec) const;
+    bool FlagAK8Jets();
+    AK8Flag FlagAK8FromCSV(Constituent &ak8) const;
+    AK8Flag FlagAK8FromTagger(Constituent &ak8 );
+    bool GetISRJet() const;
+    bool GetWAlone() const;
 };
 
 inline void passBaselineFunc(NTupleReader &tr, std::string filterstring)

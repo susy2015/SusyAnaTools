@@ -465,6 +465,176 @@ int BaselineVessel::GetnTops() const
 }       // -----  end of function VarPerEvent::GetnTops  -----
 
 // ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::FlagAK8Jets
+//  Description:  Provide a flag for each AK8 jets
+//  Frist digit: Notag, top tag, W in top, W alone
+//  Second digit: Nobjet, Has Loose b-jet, Has medium bjet
+// ===========================================================================
+bool BaselineVessel::FlagAK8Jets()
+{
+  // AK8 + Ak4 for W + jet
+  ttUtility::ConstAK8Inputs myConstAK8Inputs = ttUtility::ConstAK8Inputs(
+      tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec"), 
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau1" : "puppitau1"),
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau2" : "puppitau2"),
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau3" : "puppitau3"),
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass"),
+      tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiSubJetsLVec" : "puppiSubJetsLVec"));
+  if (WMassCorFile != NULL)
+  {
+    myConstAK8Inputs.setWMassCorrHistos (puppisd_corrGEN     , puppisd_corrRECO_cen, puppisd_corrRECO_for);
+  }
+  std::vector<Constituent> AK8constituents;
+  myConstAK8Inputs.packageConstituents(AK8constituents);
+
+  vAK8Flag = new std::vector<unsigned>();
+
+  for(auto ak8_ : AK8constituents)
+  {
+    unsigned flag = FlagAK8FromTagger(ak8_);
+    if (flag == NoTag)
+    {
+      flag = FlagAK8FromCSV(ak8_);
+    }
+    vAK8Flag->push_back(flag);
+  }
+
+  tr->registerDerivedVec("vAK8Flag"+spec, vAK8Flag);
+
+  GetWAlone();
+  GetISRJet();
+  return true;
+}       // -----  end of function BaselineVessel::FlagAK8Jets  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::FlagAK8FromCSV
+//  Description:  /* cursor */
+// ===========================================================================
+AK8Flag BaselineVessel::FlagAK8FromCSV(Constituent &ak8) const
+{
+  unsigned loosebcnt =0 ;
+  unsigned mediumbcnt = 0;
+  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
+  const std::vector<double> &CSV = tr->getVec<double>(CSVVecLabel);
+
+  for(auto sub : ak8.getSubjets())
+  {
+    for(unsigned int ij=0; ij<jets.size(); ij++)
+    {
+      if (sub.DeltaR(jets.at(ij)) < 0.4)
+      {
+        if (jets.at(ij).Pt() < 20 || fabs(jets.at(ij).Eta()) > 2.4) continue;
+        if (CSV.at(ij) > AnaConsts::cutCSVS ) mediumbcnt ++;
+        if (CSV.at(ij) > AnaConsts::cutCSVL ) loosebcnt ++;
+      }
+    }
+    
+  }
+
+  if (mediumbcnt > 0 ) return NoTagMediumb;
+  if (loosebcnt > 0 ) return NoTagLooseb;
+  return NoTagNob;
+}       // -----  end of function BaselineVessel::FlagAK8FromCSV  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::FlagAK8FromTagger
+//  Description:  
+// ===========================================================================
+AK8Flag BaselineVessel::FlagAK8FromTagger(Constituent &ak8 )
+{
+
+  for(auto t : *mTopJets)
+  {
+    // Find the mono top jet from tagger
+    if (t.second.size() == 1)
+    {
+      if (t.second.at(0).Pt() == ak8.P().Pt()
+          && t.second.at(0).Eta() == ak8.P().Eta()
+          && t.second.at(0).Phi() == ak8.P().Phi())
+      {
+        return TopTag;
+      }
+    }
+    // Find the W jet from tagger
+    if (t.second.size() == 2)
+    {
+      for(auto w : t.second)
+      {
+        if (w.Pt() == ak8.P().Pt()
+            && w.Eta() == ak8.P().Eta()
+            && w.Phi() == ak8.P().Phi())
+        {
+          return WinTopTag;
+        }
+      }
+    }
+  }
+
+  // Looking for stand alone W tagger
+  double corrSDMass = ak8.getSoftDropMass() * ak8.getWMassCorr();
+  double tau21 = ak8.getTau2()/ak8.getTau1();
+  if ( corrSDMass > 65 && corrSDMass < 100 &&
+      tau21 < 0.6 && ak8.p().Pt() > 200)
+  {
+    return WAloneTag;
+  }
+
+  return NoTag;
+}       // -----  end of function BaselineVessel::FlagAK8FromTagger  -----
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetWAlone
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetWAlone() const
+{
+  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec");
+  std::vector<TLorentzVector> *WAlone= new std::vector<TLorentzVector>();
+  for(unsigned int i=0; i < vAK8Flag->size(); ++i)
+  {
+    if (vAK8Flag->at(i) == WAloneTag)
+    {
+      WAlone->push_back(AK8.at(i));
+    }
+  }
+  tr->registerDerivedVec("vWAlone"+spec, WAlone);
+  return true;
+}       // -----  end of function BaselineVessel::GetWAlone  -----
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetISRJet
+//  Description:  Following the ISR defition from SUS-16-049
+//  The hardest of large-R jets with pT > 200GeV
+//  Failed loose b-tagging, nor top/W tagging
+// ===========================================================================
+bool BaselineVessel::GetISRJet() const
+{
+  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec");
+  std::vector<TLorentzVector> *ISRJet = new std::vector<TLorentzVector>();
+  std::map<float, TLorentzVector> ISRJetAll;
+
+  for(unsigned int i=0; i < vAK8Flag->size(); ++i)
+  {
+    if (vAK8Flag->at(i) == NoTagNob)
+    {
+      float pt = AK8.at(i).Pt();
+      if (pt > 200)
+        ISRJetAll[pt] = AK8.at(i);
+    }
+  }
+  if (!ISRJetAll.empty())
+  {
+    ISRJet->push_back(ISRJetAll.rbegin()->second);
+  }
+
+  tr->registerDerivedVec("vISRJet"+spec, ISRJet);
+
+  return true;
+}       // -----  end of function BaselineVessel::GetISRJet  -----
+
+// ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::GetTopCombs
 //  Description:  
 // ===========================================================================
@@ -764,6 +934,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   //GetLeptons();
   //GetRecoZ(81, 101);
   //GetTopCombs();
+  //FlagAK8Jets();
 }
 
 // ===  FUNCTION  ============================================================
