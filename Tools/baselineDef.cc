@@ -570,6 +570,20 @@ AK8Flag BaselineVessel::FlagAK8FromTagger(Constituent &ak8 )
         }
       }
     }
+    // Find the W jet from 3jet tagger
+    if (t.second.size() == 3)
+    {
+      for(auto tri : t.second)
+      {
+        for(auto sub : ak8.getSubjets())
+        {
+          if (tri.DeltaR(sub)<0.4)
+          {
+            return WinTopTag;
+          }
+        }
+      }
+    }
   }
 
   // Looking for stand alone W tagger
@@ -930,11 +944,11 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
   PassBaseline();
-  //GetMHT();
-  //GetLeptons();
+  GetMHT();
+  GetLeptons();
   //GetRecoZ(81, 101);
   //GetTopCombs();
-  //FlagAK8Jets();
+  FlagAK8Jets();
 }
 
 // ===  FUNCTION  ============================================================
