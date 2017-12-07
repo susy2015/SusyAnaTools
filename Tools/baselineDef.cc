@@ -947,12 +947,65 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
   PassBaseline();
-  GetMHT();
+  FlagAK8Jets();
+  GetSoftbJets();
+  //GetMHT();
   GetLeptons();
   //GetRecoZ(81, 101);
   //GetTopCombs();
-  FlagAK8Jets();
 }
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetSoftbJets
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetSoftbJets() 
+{
+  if (!tr->checkBranch("svLVec"))
+  {
+    return false;
+  }
+
+  std::vector<TLorentzVector> *SoftbLVec = new std::vector<TLorentzVector>();
+
+
+  const std::vector<TLorentzVector> &svLVec   = tr->getVec<TLorentzVector>("svLVec");
+  const std::vector<TLorentzVector> &jetsLVec   = tr->getVec<TLorentzVector>("jetsLVec");
+  const std::vector<double> &svPT   = tr->getVec<double>("svPT");
+  const std::vector<double> &svDXY   = tr->getVec<double>("svDXY");
+  const std::vector<double> &svD3D   = tr->getVec<double>("svD3D");
+  const std::vector<double> &svD3Derr   = tr->getVec<double>("svD3Derr");
+  const std::vector<double> &svNTracks   = tr->getVec<double>("svNTracks");
+  const std::vector<double> &svCosThetaSVPS   = tr->getVec<double>("svCosThetaSVPS");
+
+  for(unsigned int i =0; i<svLVec.size(); i++)
+  {
+    if(svPT.at(i) >= 20.0 ) continue;
+
+    if(svDXY.at(i) >= 3.0) continue;
+    if(svD3D.at(i)/svD3Derr.at(i) <= 4.0) continue;
+    if(svCosThetaSVPS.at(i) <= 0.98) continue;
+    if(svNTracks.at(i)<3) continue;
+
+    bool failDR = false;
+    for(unsigned int j=0; j<jetsLVec.size(); j++)
+    {
+      if (jetsLVec.at(j).Pt() < 20 || fabs(jetsLVec.at(j).Eta()) > 2.4) continue;
+
+      if( ROOT::Math::VectorUtil::DeltaR( svLVec.at(i), jetsLVec.at(j) ) <= 0.4 ) {
+        failDR = true;
+        break;
+      }
+    }
+    if(failDR) continue;
+
+    SoftbLVec->push_back(svLVec.at(i));
+  }
+
+  tr->registerDerivedVec("softbLVec"+firstSpec, SoftbLVec);
+  return true;
+}       // -----  end of function BaselineVessel::GetSoftbJets  -----
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::GetMHT

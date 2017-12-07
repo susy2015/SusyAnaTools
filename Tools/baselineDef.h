@@ -113,6 +113,7 @@ public:
     AK8Flag FlagAK8FromTagger(Constituent &ak8 );
     bool GetISRJet() const;
     bool GetWAlone() const;
+    bool GetSoftbJets();
 };
 
 inline void passBaselineFunc(NTupleReader &tr, std::string filterstring)
