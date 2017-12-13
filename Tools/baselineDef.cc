@@ -408,6 +408,7 @@ void BaselineVessel::PassBaseline()
 
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
+  tr->registerDerivedVar("cntNJetsPt20Eta24" + firstSpec, cntNJetsPt20Eta24);
 
   tr->registerDerivedVec("dPhiVec" + firstSpec, dPhiVec);
 
