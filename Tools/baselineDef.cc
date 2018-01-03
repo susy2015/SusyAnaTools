@@ -25,7 +25,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   METPhiLabel           = "metphi";
   jetVecLabelAK8        = "ak8JetsLVec";
   qgLikehoodLabel       = "qgLikelihood";
-  muonsFlagIDLabel      = "muonsFlagMedium";
+  muonsFlagIDLabel      = "muonsFlagMedium";  //TODO: moving to loose ID for 2017
   elesFlagIDLabel       = "elesFlagVeto";
   toptaggerCfgFile      = "TopTagger.cfg";
   doIsoTrksVeto         = true;
@@ -327,6 +327,7 @@ void BaselineVessel::PassBaseline()
   int cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<double>(CSVVecLabel), AnaConsts::cutCSVS, AnaConsts::bTagArr);
   int cntNJetsPt50Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt50Eta24Arr);
   int cntNJetsPt30Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt30Eta24Arr);
+  int cntNJetsPt20Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt20Eta24Arr);
   int cntNJetsPt30      = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt30Arr);
 
   // Calculate deltaPhi
@@ -346,8 +347,9 @@ void BaselineVessel::PassBaseline()
 
   // Pass number of jets?
   bool passnJets = true;
-  if( cntNJetsPt50Eta24 < AnaConsts::nJetsSelPt50Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; passBaselineNoLepVeto = false; }
-  if( cntNJetsPt30Eta24 < AnaConsts::nJetsSelPt30Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; passBaselineNoLepVeto = false; }
+  //if( cntNJetsPt50Eta24 < AnaConsts::nJetsSelPt50Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; passBaselineNoLepVeto = false; }
+  //if( cntNJetsPt30Eta24 < AnaConsts::nJetsSelPt30Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; passBaselineNoLepVeto = false; }
+  if( cntNJetsPt20Eta24 < AnaConsts::nJetsSelPt20Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; passBaselineNoLepVeto = false; }
   if( debug ) std::cout<<"cntNJetsPt50Eta24 : "<<cntNJetsPt50Eta24<<"  cntNJetsPt30Eta24 : "<<cntNJetsPt30Eta24<<"  cntNJetsPt30 : "<<cntNJetsPt30<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass deltaPhi?
@@ -355,9 +357,10 @@ void BaselineVessel::PassBaseline()
   if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
   if( debug ) std::cout<<"dPhi0 : "<<dPhiVec->at(0)<<"  dPhi1 : "<<dPhiVec->at(1)<<"  dPhi2 : "<<dPhiVec->at(2)<<"  passBaseline : "<<passBaseline<<std::endl;
 
-  // Pass number of b-tagged jets?
+  // Pass number of b-tagged jets? 
+  // No b-tag in baseline
   bool passBJets = true;
-  if( !( (AnaConsts::low_nJetsSelBtagged == -1 || cntCSVS >= AnaConsts::low_nJetsSelBtagged) && (AnaConsts::high_nJetsSelBtagged == -1 || cntCSVS < AnaConsts::high_nJetsSelBtagged ) ) ){ passBaseline = false; passBJets = false; passBaselineNoLepVeto = false; }
+  //if( !( (AnaConsts::low_nJetsSelBtagged == -1 || cntCSVS >= AnaConsts::low_nJetsSelBtagged) && (AnaConsts::high_nJetsSelBtagged == -1 || cntCSVS < AnaConsts::high_nJetsSelBtagged ) ) ){ passBaseline = false; passBJets = false; passBaselineNoLepVeto = false; }
   if( debug ) std::cout<<"cntCSVS : "<<cntCSVS<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass the baseline MET requirement?
@@ -366,7 +369,7 @@ void BaselineVessel::PassBaseline()
   if( debug ) std::cout<<"met : "<<tr->getVar<double>("met")<<"  defaultMETcut : "<<AnaConsts::defaultMETcut<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass the HT cut for trigger?
-  double HT = AnaFunctions::calcHT(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt30Eta24Arr);
+  double HT = AnaFunctions::calcHT(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt20Eta24Arr);
   bool passHT = true;
   if( HT < AnaConsts::defaultHTcut ){ passHT = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
   if( debug ) std::cout<<"HT : "<<HT<<"  defaultHTcut : "<<AnaConsts::defaultHTcut<<"  passHT : "<<passHT<<"  passBaseline : "<<passBaseline<<std::endl;
@@ -376,12 +379,12 @@ void BaselineVessel::PassBaseline()
 
   prepareTopTagger();
   bool passTagger = PassTopTagger();
-  if( !passTagger ){ passBaseline = false; passBaselineNoLepVeto = false; }
+  //if( !passTagger ){ passBaseline = false; passBaselineNoLepVeto = false; }
 
   // Pass the baseline MT2 requirement?
   bool passMT2 = true;
   double MT2 = CalcMT2();
-  if( MT2 < AnaConsts::defaultMT2cut ){ passBaseline = false; passBaselineNoTag = false; passMT2 = false; passBaselineNoLepVeto = false; }
+  //if( MT2 < AnaConsts::defaultMT2cut ){ passBaseline = false; passBaselineNoTag = false; passMT2 = false; passBaselineNoLepVeto = false; }
   if( debug ) std::cout<<"MT2 : "<<MT2 <<"  defaultMT2cut : "<<AnaConsts::defaultMT2cut<<"  passBaseline : "<<passBaseline<<std::endl;
 
   bool passNoiseEventFilter = true;
@@ -405,6 +408,7 @@ void BaselineVessel::PassBaseline()
 
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
+  tr->registerDerivedVar("cntNJetsPt20Eta24" + firstSpec, cntNJetsPt20Eta24);
 
   tr->registerDerivedVec("dPhiVec" + firstSpec, dPhiVec);
 
@@ -463,6 +467,190 @@ int BaselineVessel::GetnTops() const
 
   return nTops;
 }       // -----  end of function VarPerEvent::GetnTops  -----
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::FlagAK8Jets
+//  Description:  Provide a flag for each AK8 jets
+//  Frist digit: Notag, top tag, W in top, W alone
+//  Second digit: Nobjet, Has Loose b-jet, Has medium bjet
+// ===========================================================================
+bool BaselineVessel::FlagAK8Jets()
+{
+  // AK8 + Ak4 for W + jet
+  ttUtility::ConstAK8Inputs myConstAK8Inputs = ttUtility::ConstAK8Inputs(
+      tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec"), 
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau1" : "puppitau1"),
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau2" : "puppitau2"),
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppitau3" : "puppitau3"),
+      tr->getVec<double>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass"),
+      tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiSubJetsLVec" : "puppiSubJetsLVec"));
+  if (WMassCorFile != NULL)
+  {
+    myConstAK8Inputs.setWMassCorrHistos (puppisd_corrGEN     , puppisd_corrRECO_cen, puppisd_corrRECO_for);
+  }
+  std::vector<Constituent> AK8constituents;
+  myConstAK8Inputs.packageConstituents(AK8constituents);
+
+  vAK8Flag = new std::vector<unsigned>();
+
+  for(auto ak8_ : AK8constituents)
+  {
+    unsigned flag = FlagAK8FromTagger(ak8_);
+    if (flag == NoTag)
+    {
+      flag = FlagAK8FromCSV(ak8_);
+    }
+    vAK8Flag->push_back(flag);
+  }
+
+  tr->registerDerivedVec("vAK8Flag"+spec, vAK8Flag);
+
+  GetWAlone();
+  GetISRJet();
+  return true;
+}       // -----  end of function BaselineVessel::FlagAK8Jets  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::FlagAK8FromCSV
+//  Description:  /* cursor */
+// ===========================================================================
+AK8Flag BaselineVessel::FlagAK8FromCSV(Constituent &ak8) const
+{
+  unsigned loosebcnt =0 ;
+  unsigned mediumbcnt = 0;
+  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
+  const std::vector<double> &CSV = tr->getVec<double>(CSVVecLabel);
+
+  for(auto sub : ak8.getSubjets())
+  {
+    for(unsigned int ij=0; ij<jets.size(); ij++)
+    {
+      if (sub.DeltaR(jets.at(ij)) < 0.4)
+      {
+        if (jets.at(ij).Pt() < 20 || fabs(jets.at(ij).Eta()) > 2.4) continue;
+        if (CSV.at(ij) > AnaConsts::cutCSVS ) mediumbcnt ++;
+        if (CSV.at(ij) > AnaConsts::cutCSVL ) loosebcnt ++;
+      }
+    }
+    
+  }
+
+  if (mediumbcnt > 0 ) return NoTagMediumb;
+  if (loosebcnt > 0 ) return NoTagLooseb;
+  return NoTagNob;
+}       // -----  end of function BaselineVessel::FlagAK8FromCSV  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::FlagAK8FromTagger
+//  Description:  
+// ===========================================================================
+AK8Flag BaselineVessel::FlagAK8FromTagger(Constituent &ak8 )
+{
+
+  for(auto t : *mTopJets)
+  {
+    // Find the mono top jet from tagger
+    if (t.second.size() == 1)
+    {
+      if (t.second.at(0).Pt() == ak8.P().Pt()
+          && t.second.at(0).Eta() == ak8.P().Eta()
+          && t.second.at(0).Phi() == ak8.P().Phi())
+      {
+        return TopTag;
+      }
+    }
+    // Find the W jet from tagger
+    if (t.second.size() == 2)
+    {
+      for(auto w : t.second)
+      {
+        if (w.Pt() == ak8.P().Pt()
+            && w.Eta() == ak8.P().Eta()
+            && w.Phi() == ak8.P().Phi())
+        {
+          return WinTopTag;
+        }
+      }
+    }
+    // Find the W jet from 3jet tagger
+    if (t.second.size() == 3)
+    {
+      for(auto tri : t.second)
+      {
+        for(auto sub : ak8.getSubjets())
+        {
+          if (tri.DeltaR(sub)<0.4)
+          {
+            return WinTopTag;
+          }
+        }
+      }
+    }
+  }
+
+  // Looking for stand alone W tagger
+  double corrSDMass = ak8.getSoftDropMass() * ak8.getWMassCorr();
+  double tau21 = ak8.getTau2()/ak8.getTau1();
+  if ( corrSDMass > 65 && corrSDMass < 100 &&
+      tau21 < 0.6 && ak8.p().Pt() > 200)
+  {
+    return WAloneTag;
+  }
+
+  return NoTag;
+}       // -----  end of function BaselineVessel::FlagAK8FromTagger  -----
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetWAlone
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetWAlone() const
+{
+  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec");
+  std::vector<TLorentzVector> *WAlone= new std::vector<TLorentzVector>();
+  for(unsigned int i=0; i < vAK8Flag->size(); ++i)
+  {
+    if (vAK8Flag->at(i) == WAloneTag)
+    {
+      WAlone->push_back(AK8.at(i));
+    }
+  }
+  tr->registerDerivedVec("vWAlone"+spec, WAlone);
+  return true;
+}       // -----  end of function BaselineVessel::GetWAlone  -----
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetISRJet
+//  Description:  Following the ISR defition from SUS-16-049
+//  The hardest of large-R jets with pT > 200GeV
+//  Failed loose b-tagging, nor top/W tagging
+// ===========================================================================
+bool BaselineVessel::GetISRJet() const
+{
+  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec");
+  std::vector<TLorentzVector> *ISRJet = new std::vector<TLorentzVector>();
+  std::map<float, TLorentzVector> ISRJetAll;
+
+  for(unsigned int i=0; i < vAK8Flag->size(); ++i)
+  {
+    if (vAK8Flag->at(i) == NoTagNob)
+    {
+      float pt = AK8.at(i).Pt();
+      if (pt > 200)
+        ISRJetAll[pt] = AK8.at(i);
+    }
+  }
+  if (!ISRJetAll.empty())
+  {
+    ISRJet->push_back(ISRJetAll.rbegin()->second);
+  }
+
+  tr->registerDerivedVec("vISRJet"+spec, ISRJet);
+
+  return true;
+}       // -----  end of function BaselineVessel::GetISRJet  -----
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::GetTopCombs
@@ -760,11 +948,65 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
   PassBaseline();
+  FlagAK8Jets();
+  GetSoftbJets();
   //GetMHT();
-  //GetLeptons();
+  GetLeptons();
   //GetRecoZ(81, 101);
   //GetTopCombs();
 }
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetSoftbJets
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::GetSoftbJets() 
+{
+  if (!tr->checkBranch("svLVec"))
+  {
+    return false;
+  }
+
+  std::vector<TLorentzVector> *SoftbLVec = new std::vector<TLorentzVector>();
+
+
+  const std::vector<TLorentzVector> &svLVec   = tr->getVec<TLorentzVector>("svLVec");
+  const std::vector<TLorentzVector> &jetsLVec   = tr->getVec<TLorentzVector>("jetsLVec");
+  const std::vector<double> &svPT   = tr->getVec<double>("svPT");
+  const std::vector<double> &svDXY   = tr->getVec<double>("svDXY");
+  const std::vector<double> &svD3D   = tr->getVec<double>("svD3D");
+  const std::vector<double> &svD3Derr   = tr->getVec<double>("svD3Derr");
+  const std::vector<double> &svNTracks   = tr->getVec<double>("svNTracks");
+  const std::vector<double> &svCosThetaSVPS   = tr->getVec<double>("svCosThetaSVPS");
+
+  for(unsigned int i =0; i<svLVec.size(); i++)
+  {
+    if(svPT.at(i) >= 20.0 ) continue;
+
+    if(svDXY.at(i) >= 3.0) continue;
+    if(svD3D.at(i)/svD3Derr.at(i) <= 4.0) continue;
+    if(svCosThetaSVPS.at(i) <= 0.98) continue;
+    if(svNTracks.at(i)<3) continue;
+
+    bool failDR = false;
+    for(unsigned int j=0; j<jetsLVec.size(); j++)
+    {
+      if (jetsLVec.at(j).Pt() < 20 || fabs(jetsLVec.at(j).Eta()) > 2.4) continue;
+
+      if( ROOT::Math::VectorUtil::DeltaR( svLVec.at(i), jetsLVec.at(j) ) <= 0.4 ) {
+        failDR = true;
+        break;
+      }
+    }
+    if(failDR) continue;
+
+    SoftbLVec->push_back(svLVec.at(i));
+  }
+
+  tr->registerDerivedVec("softbLVec"+firstSpec, SoftbLVec);
+  return true;
+}       // -----  end of function BaselineVessel::GetSoftbJets  -----
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::GetMHT

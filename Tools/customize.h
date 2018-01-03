@@ -52,7 +52,7 @@ namespace AnaConsts{
     
    const int nMuonsSel = 0, nElectronsSel = 0, nTausSel = 0, nIsoTrksSel = 0;
 
-   const int nJetsSel = 4, nJetsSelPt30Eta24 = 4, nJetsSelPt50Eta24 = 2, nJetsSelPt70Eta24 = 2;
+   const int nJetsSel = 4, nJetsSelPt30Eta24 = 4, nJetsSelPt50Eta24 = 2, nJetsSelPt70Eta24 = 2, nJetsSelPt20Eta24 = 2;
 // [low_nJetsSelBtagged, high_nJetsSelBtagged)
    const int low_nJetsSelBtagged = 1, high_nJetsSelBtagged = -1;
 // [low_nTopCandSortedSel, high_nTopCandSortedSel)
@@ -61,8 +61,9 @@ namespace AnaConsts{
 //                               minAbsEta, maxAbsEta, minPt, maxPt
    const AccRec      pt30Arr = {   -1,        -1,      30,    -1  };
    const AccRec pt30Eta24Arr = {   -1,       2.4,      30,    -1  };
+   const AccRec pt20Eta24Arr = {   -1,       2.4,      20,    -1  };
    const AccRec pt50Eta24Arr = {   -1,       2.4,      50,    -1  };
-   const AccRec      dphiArr = {   -1,       4.7,      30,    -1  };
+   const AccRec      dphiArr = {   -1,       4.7,      20,    -1  };
    const AccRec     dphiNArr = {   -1,       2.4,      30,    -1  };
    const AccRec      bTagArr = {   -1,       2.4,      30,    -1  };
    const AccRec pt20Eta25Arr = {   -1,       2.5,      20,    -1  };
@@ -77,7 +78,7 @@ namespace AnaConsts{
 
 //                                    minAbsEta, maxAbsEta, minPt, maxPt,   maxIso,  maxMtw
    const IsoAccRec     muonsArr =    {   -1,       2.4,      10,     -1,       0.2,     -1  };
-   const IsoAccRec muonsMiniIsoArr = {   -1,       2.4,      10,     -1,       0.2,     -1  };
+   const IsoAccRec muonsMiniIsoArr = {   -1,       2.4,      5,     -1,       0.2,     -1  };
    const IsoAccRec muonsTrigArr =    {   -1,       2.4,       5,     -1,       0.4,     -1  };
 //   const IsoAccRec   isoTrksArr =    {   -1,        -1,      10,     -1,       0.1,    100  };
    const IsoAccRec   isoLepTrksArr = {   -1,       2.5,       5,     -1,       0.2,    100  };
@@ -86,7 +87,7 @@ namespace AnaConsts{
 
 //                                       minAbsEta, maxAbsEta, minPt, maxPt, maxIsoEB, maxIsoEE,  maxMtw
    const ElecIsoAccRec     elesArr =    {   -1,       2.5,      10,     -1,  0.164369, 0.212604,    -1  };
-   const ElecIsoAccRec elesMiniIsoArr = {   -1,       2.5,      10,     -1,     0.10,     0.10,     -1  };
+   const ElecIsoAccRec elesMiniIsoArr = {   -1,       2.5,      5,     -1,     0.10,     0.10,     -1  };
    const ElecIsoAccRec  oldelesArr =    {   -1,       2.5,       5,     -1,     0.15,     0.15,     -1  };
 
 //                                  minAbsEta, maxAbsEta, minPt, maxPt,   mindR,   maxdR
