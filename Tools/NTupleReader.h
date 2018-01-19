@@ -122,6 +122,30 @@ private:
         return Handle(ptr, new vec_deleter<T>);
     }
 
+    //function wrapper 
+    //base class
+    class FuncWrapper
+    {
+    public:
+        virtual bool operator()(NTupleReader& tr) = 0;
+    };
+
+    //class for arbitrary return value
+    template<typename T>
+    class FuncWrapperImpl : public FuncWrapper
+    {
+    private:
+        T func_;
+    public:
+        bool operator()(NTupleReader& tr)
+        {
+            func_(tr);
+            return true;
+        }
+
+        FuncWrapperImpl(T f) : func_(f) {}
+    };
+
 public:
 
     NTupleReader(TTree * tree, const std::set<std::string>& activeBranches_);
@@ -158,12 +182,13 @@ public:
 
     template<typename T> void registerFunction(T f)
     {
-        if(isFirstEvent()) functionVec_.emplace_back(f);
+        if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(f));
         else THROW_SATEXCEPTION("New functions cannot be registered after tuple reading begins!\n");
     }
 
     //Specialization for basic functions
     void registerFunction(void (*f)(NTupleReader&));
+    void registerFunction(bool (*f)(NTupleReader&));
 
     void getType(const std::string& name, std::string& type) const;
 
@@ -285,7 +310,7 @@ private:
     // stl collections to hold branch list and associated info
     mutable std::unordered_map<std::string, Handle> branchMap_;
     mutable std::unordered_map<std::string, Handle> branchVecMap_;
-    std::vector<std::function<void(NTupleReader&)> > functionVec_;
+    std::vector<FuncWrapper*> functionVec_;
     mutable std::unordered_map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
 
@@ -295,7 +320,7 @@ private:
     
     void registerBranch(TBranch * const branch) const;
 
-    void calculateDerivedVariables();
+    bool calculateDerivedVariables();
 
     template<typename T> void registerBranch(const std::string& name) const
     {
