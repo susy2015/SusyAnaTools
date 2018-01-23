@@ -199,17 +199,19 @@ public:
     {
         try
         {
-            if(isFirstEvent())
+            auto handleItr = branchMap_.find(name);
+            if(handleItr == branchMap_.end())
             {
-                if(branchMap_.find(name) != branchMap_.end())
+                auto typeItr = typeMap_.find(name);
+                if(typeItr != typeMap_.end())
                 {
-                    THROW_SATEXCEPTION("You are trying to redefine a base tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
+                    THROW_SATEXCEPTION("You are trying to redefine a tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
                 }
-                branchMap_[name] = createHandle(new T());
+                handleItr = branchMap_.insert(std::make_pair(name, createHandle(new T()))).first;
 
                 typeMap_[name] = demangle<T>();
             }
-            setDerived(var, branchMap_[name].ptr);
+            setDerived(var, handleItr->second.ptr);
         }
         catch(const SATException& e)
         {
@@ -222,23 +224,24 @@ public:
     {
         try
         {
-            if(isFirstEvent())
+            auto handleItr = branchVecMap_.find(name);
+            if(handleItr == branchVecMap_.end())
             {
-                if(branchVecMap_.find(name) != branchVecMap_.end())
+                auto typeItr = typeMap_.find(name);
+                if(typeItr != typeMap_.end())
                 {
-                    THROW_SATEXCEPTION("You are trying to redefine a base tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
+                    THROW_SATEXCEPTION("You are trying to redefine a tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
                 }
-                branchVecMap_[name] = createVecHandle(new T*());
+                handleItr = branchVecMap_.insert(std::make_pair(name, createVecHandle(new T*()))).first;
             
                 typeMap_[name] = demangle<T>();
             }
-            void * vecloc = branchVecMap_[name].ptr;
-            T *vecptr = *static_cast<T**>(branchVecMap_[name].ptr);
+            T *vecptr = *static_cast<T**>(handleItr->second.ptr);
             if(vecptr != nullptr)
             {
                 delete vecptr;
             }
-            setDerived(var, vecloc);
+            setDerived(var, handleItr->second.ptr);
         }
         catch(const SATException& e)
         {
