@@ -71,8 +71,8 @@ int main(int argc, char* argv[]){
 	tr.setReThrow(false);
 	//PDFweight pdfs;
 
-	BaselineVessel blv(tr);
-	//BaselineVessel blv(tr, "", "fastsim");
+	//BaselineVessel blv(tr);
+	BaselineVessel blv(tr, "", "fastsim");
 
 	tr.registerFunction(blv);
 	//tr.registerFunction(pdfs);
@@ -267,10 +267,11 @@ int main(int argc, char* argv[]){
 		double genmet = tr.getVar<double>("genmet"); 
 		//double mt2 = tr.getVar<double>("mt2");
 		double mt2 = tr.getVar<double>("best_had_brJet_MT2");
+		bool passMT2 = (mt2 > 200);
 		double metphi = tr.getVar<double>("metphi");
 		int ntop = tr.getVar<int>("nTopCandSortedCnt");
 		int nbjets = tr.getVar<int>("cntCSVS");
-		int nbottompt20=0 , nbottompt30=0 , njetspt20=0 , njetspt30=0;
+		int nbottompt20=0 , nbottompt30=0 , njetspt20=0 , njetspt30=0 , njetspt50=0;
 		int ntop_merge=0 , ntop_w=0 , ntop_res=0;
 		double HT = tr.getVar<double>("HT");
 		double genHT = tr.getVar<double>("genHT");
@@ -319,6 +320,7 @@ int main(int argc, char* argv[]){
 			{
 				njetspt20++;
 				if (tlv_Pt >= 30) njetspt30++;
+				if (tlv_Pt >= 50) njetspt50++;
 				if (njetspt20 < 5 && fabs(dPhi) > 0.5) n_dPhi_p5 ++;
 			}
 
@@ -365,6 +367,8 @@ int main(int argc, char* argv[]){
 		} // End Sub-Loop Over Jets
 
 		if(nbottompt30 != nbjets) std::cout << "nbottom (pt > 30) = " << nbottompt30 << " nbjets = " << nbjets << std::endl;
+
+		bool passnJets = (njetspt50 >= 2 && njetspt30 >= 4);
 
 		/*for (int i=0; i<b_jetsLVec.size(); i++)
 		  {
@@ -442,8 +446,9 @@ int main(int argc, char* argv[]){
 		bool pass_loose_baseline_no_HT=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passdPhis") && tr.getVar<bool>("passMET") && njetspt20 >=2 && nbottompt20 >=1); 
 		bool pass_loose_baseline=(pass_loose_baseline_no_HT && tr.getVar<bool>("passHT"));
 
-		bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passnJets") && tr.getVar<bool>("passdPhis") && tr.getVar<bool>("passBJets") && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
-		bool pass_baseline=(pass_baseline_no_MT2 && tr.getVar<bool>("passMT2"));
+		//bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passnJets") && tr.getVar<bool>("passdPhis") && tr.getVar<bool>("passBJets") && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
+		bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && passnJets && tr.getVar<bool>("passdPhis") && nbjets > 0 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
+		bool pass_baseline=(pass_baseline_no_MT2 && passMT2);
 
 		bool pass_high_dM_baseline=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 5 && n_dPhi_p5 == 4 && nbottompt20 >=1); 
 
@@ -457,7 +462,7 @@ int main(int argc, char* argv[]){
 
 			mtb_high_dm_h->Fill(mtb,evtWeight);	
 			search_bin_team_A_h->Fill(SB_team_A_index_175,evtWeight);
-			if(tr.getVar<bool>("passMT2")) 
+			if(passMT2) 
 			{
 				search_bin_team_A_MTb175_MT2_h->Fill(SB_team_A_index_175,evtWeight);
 				search_bin_team_A_MTb140_MT2_h->Fill(SB_team_A_index_140,evtWeight);
@@ -468,7 +473,7 @@ int main(int argc, char* argv[]){
 
 		if(pass_baseline)
 		{
-			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << std::endl;
+			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << "nbjets = " << nbjets << "ntop = " << ntop << "mt2 = " << mt2 << "met = " << met << "HT = " << HT << std::endl;
 			search_bin_h->Fill(SB_index,evtWeight);
 			if (mtb > 175) search_bin_mtb_h->Fill(SB_index,evtWeight);
 		}
