@@ -51,6 +51,7 @@ namespace AnaSamples
         std::string sigMCloc    = "Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/";
         std::string addSigMCloc = "Spring15_74X_v5X_top_corridor/";
         std::string deepTrimmed_loc       = "Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/DeepTrimmed/";
+	std::string Gamma_loc = "anazario/Gamma/";
 
         if(fDir.compare("condor") == 0)
         {
@@ -60,7 +61,13 @@ namespace AnaSamples
             sigMCloc = "";
             addSigMCloc = "";
             deepTrimmed_loc = "";
+	    Gamma_loc = "";
         }
+
+	//GJets samples Andrés 4/14/2017
+	addSample("GJets_HT-200To400", fDir_ + Gamma_loc + "GJets_DR-0p4_HT-200To400.txt", "stopTreeMaker/AUX", 1168, lumi, 49309418, 1.0, kGreen);
+	addSample("GJets_HT-400To600", fDir_ + Gamma_loc + "GJets_DR-0p4_HT-400To600.txt", "stopTreeMaker/AUX", 132.5, lumi, 11680386, 1.0, kGreen);
+	addSample("GJets_HT-600ToInf", fDir_ + Gamma_loc + "GJets_DR-0p4_HT-600ToInf.txt", "stopTreeMaker/AUX", 44.05, lumi, 11639826, 1.0, kGreen);
 
         //TTbar samples
         // TTbarInc has LO xsec on McM : 502.20 pb. The NNLO is 831.76 pb. The k-factor for ttbar is: kt = 831.76/502.20 ~ 1.656233
@@ -416,6 +423,8 @@ namespace AnaSamples
 
         addSampleSet(samples, "Signal_fastsim_T5ttcc_scan", {"SMS-T5ttcc_fastsim_2016"});
 
+	//GJets Andres
+	addSampleSet(samples, "GJets", {"GJets_HT-200To400", "GJets_HT-400To600", "GJets_HT-600ToInf"});
 /*
         addSampleSet(samples, "TTbar_fastsim_wt_genJets_wt_genMET", {"TTbar_fastsim_wt_genJets_wt_genMET"});
         addSampleSet(samples, "TTbar_fullsim_wt_genJets_wt_genMET", {"TTbar_fullsim_wt_genJets_wt_genMET"});

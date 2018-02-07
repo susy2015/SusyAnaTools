@@ -19,7 +19,7 @@ options.register('ntpVersion', "Ntp_80X_12Jul2016_v8.0", VarParsing.VarParsing.m
 options.register('GlobalTag', "80X_mcRun2_asymptotic_2016_miniAODv2", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "74X PromptReco: 74X_dataRun2_Prompt_v0")
 options.register('cmsswVersion', '80X', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific MC fix")
 options.register('specialFix', 'JEC', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "special fixes ==>   JEC : use external JEC; IVF : fix IVF; BADMUON : bad muon filters")
-options.register('jecDBname', "Spring16_25nsV6_MC", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Summer15_25nsV6_DATA for data")
+options.register('jecDBname', "Spring16_25nsV10_MC", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Summer15_25nsV6_DATA for data")
 options.register('hltName', 'HLT', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT menu to use for trigger matching")
 
 options.register('mcInfo', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "process MonteCarlo data, default is data")
@@ -144,8 +144,15 @@ elif options.fileslist:
    process.source.fileNames = inputfiles
 else:
    process.source.fileNames = [
+
+      #Andres 3/24/2017
+      #'/store/data/Run2016C/HTMHT/MINIAOD/PromptReco-v2/000/275/420/00000/4AD126B0-F539-E611-AD77-02163E013390.root' 
+     #'/store/mc/RunIISummer16MiniAODv2/GJets_DR-0p4_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_qcut19_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/120000/0404FFDA-CCC7-E611-8430-F04DA27540CA.root',
+      #'/store/mc/RunIISummer16MiniAODv2/GJets_DR-0p4_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_qcut19_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/100000/005FD45A-98DC-E611-A76A-0CC47A0109A6.root',
+      #'/store/mc/RunIISummer16MiniAODv2/GJets_DR-0p4_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_qcut19_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/120000/02C8A851-F4C7-E611-A7D7-A0000420FE80.root',
+'/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
 #        '/store/mc/RunIISpring16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/00B2B39D-5D4D-E611-8BD4-002590D9D8B6.root',
-        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/00D97021-CFBE-E611-AD3F-0025901D08B8.root',
+#        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/00D97021-CFBE-E611-AD3F-0025901D08B8.root', 
 #        '/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/7CE5EA6A-F132-E611-9E20-008CFA1660A8.root',
 #       '/store/mc/RunIISpring16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/041F3A63-431E-E611-9E1E-008CFA1112CC.root',
 #       '/store/mc/RunIISpring16MiniAODv2/SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/004A27F0-5132-E611-A936-02163E016171.root',
@@ -156,7 +163,8 @@ else:
 #       '/store/data/Run2016C/HTMHT/MINIAOD/PromptReco-v2/000/275/420/00000/4AD126B0-F539-E611-AD77-02163E013390.root',
 #       '/store/data/Run2016C/HTMHT/MINIAOD/PromptReco-v2/000/275/476/00000/5C70C94E-0D3A-E611-AE2E-02163E01346C.root',
 #       '/store/data/Run2016C/HTMHT/MINIAOD/PromptReco-v2/000/275/588/00000/BE1D644B-393A-E611-905F-02163E0124F5.root',
-   ]
+#     '/store/data/Run2016C/MET/MINIAOD/03Feb2017-v1/110000/067ECB00-72EB-E611-9E92-0025905B85D2.root'
+    ]
 
 ## ---------------------
 ## -- Calibration tag --
@@ -470,7 +478,7 @@ process.postStdCleaningCounter  = cms.EDProducer("EventCountProducer")
 # Standard Event cleaning 
 process.load("SusyAnaTools.SkimsAUX.prodFilterOutScraping_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodGoodVertices_cfi")
-
+process.load("SusyAnaTools.SkimsAUX.prodSecondaryVertex_cfi")
 # an example sequence to create skimmed susypat-tuples
 process.cleanpatseq = cms.Sequence(
 #                      process.ra2StdCleaning          *
@@ -631,6 +639,7 @@ process.load("SusyAnaTools.SkimsAUX.prodGenInfo_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodIsoTrks_cfi")
 process.load("SusyAnaTools.SkimsAUX.prodEventInfo_cfi")
 process.load("SusyAnaTools.SkimsAUX.ISRJetProducer_cfi")
+process.load("SusyAnaTools.SkimsAUX.PhotonIDisoProducer_cfi")#Gamma Andres 3/24/2017    
 
 # See https://twiki.cern.ch/twiki/bin/view/CMSPublic/ReMiniAOD03Feb2017Notes#MET_Recipes
 # This is special treatment for reMINIAOD DATA...
@@ -733,6 +742,21 @@ process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", 
 process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:tightJetID|tightJetID_NoLep")
 process.stopTreeMaker.varsBool.append(cms.InputTag("prodJetIDEventFilterNoLep", "tightlepvetoJetID"))
 process.stopTreeMaker.varsBoolNamesInTree.append("prodJetIDEventFilterNoLep:tightlepvetoJetID|tightlepvetoJetID_NoLep")
+
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svPT"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svETA"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svPhi"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svMass"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svNTracks"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svChi2"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svNDF"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svDXY"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svDXYerr"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svD3D"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svD3Derr"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodSecondaryVertex", "svCosThetaSVPS"))
+process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodSecondaryVertex", "svSoftLVec"))
+process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodSecondaryVertex", "svLVec"))
 #process.stopTreeMaker.varsInt.append(cms.InputTag("METFilters"))
 #process.stopTreeMaker.varsInt.append(cms.InputTag("CSCTightHaloFilter")) # 74X txt files are ready for the 2015 working point, use this and not the flag in miniAOD 
 process.stopTreeMaker.varsInt.append(cms.InputTag("globalTightHalo2016Filter"))
@@ -770,6 +794,49 @@ if "BADMUON" in options.specialFix:
    process.stopTreeMaker.vectorInt.append(cms.InputTag("prodMuonsNoIso", "specialFixtype"))
    process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("prodMuonsNoIso", "specialFixMuonsLVec"))
    process.stopTreeMaker.vectorDouble.append(cms.InputTag("prodMuonsNoIso", "specialFixMuonsCharge"))
+
+#ANDRES Gamma Var  
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+
+switchOnVIDPhotonIdProducer(process, DataFormat.MiniAOD)
+
+# Define which IDs we want to produce
+my_photon_id_modules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff']
+
+# Add them to the VID producer
+#if process.PhotonIDisoProducer.isFilled:
+for idmod in my_photon_id_modules:
+   setupAllVIDIdsInModule(process, idmod, setupVIDPhotonSelection)
+
+# Set ID tags
+process.goodPhotons.loosePhotonID = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose")
+process.goodPhotons.mediumPhotonID = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium")
+process.goodPhotons.tightPhotonID = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight")
+            
+process.stopTreeMaker.vectorBool.append(cms.InputTag("goodPhotons", "loosePhotonID"))
+process.stopTreeMaker.vectorBool.append(cms.InputTag("goodPhotons", "mediumPhotonID"))
+process.stopTreeMaker.vectorBool.append(cms.InputTag("goodPhotons", "tightPhotonID"))
+                                                  
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "pfGammaIso"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "isEB"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "genMatched"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "hadTowOverEM"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "sigmaIetaIeta"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "pfChargedIso"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "pfNeutralIso"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "pfChargedIsoRhoCorr"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "pfNeutralIsoRhoCorr"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "pfGammaIsoRhoCorr"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "hasPixelSeed"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "passElectronVeto"))
+#process.stopTreeMaker.vectorBool.append(cms.InputTag("goodPhotons", "hadronization"))
+process.stopTreeMaker.vectorBool.append(cms.InputTag("goodPhotons", "nonPrompt"))
+#process.stopTreeMaker.vectorBool.append(cms.InputTag("goodPhotons", "fullID"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "photonPt"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "photonEta"))
+process.stopTreeMaker.vectorDouble.append(cms.InputTag("goodPhotons", "photonPhi"))
+process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("goodPhotons", "gammaLVec"))
+process.stopTreeMaker.vectorTLorentzVector.append(cms.InputTag("goodPhotons", "gammaLVecGen"))
 
 process.stopTreeMaker.varsInt.append(cms.InputTag("prodElectrons", "nElectrons"))
 process.stopTreeMaker.varsIntNamesInTree.append("prodElectrons:nElectrons|nElectrons_CUT")
@@ -1004,7 +1071,7 @@ process.ak4Stop_Path = cms.Path(
                                    process.printDecayPythia8 * process.prodGenInfo * 
                                    process.prodMuonsNoIso * process.prodElectronsNoIso * process.prodIsoTrks *  
                                    process.prodJets * process.prodMET * process.prodEventInfo * process.trig_filter_seq * 
-                                   process.type3topTagger *
+                                   process.type3topTagger * process.prodSecondaryVertex * 
                                    process.stopTreeMaker
 )
 

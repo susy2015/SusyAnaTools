@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 prodIsoTrks = cms.EDFilter(
@@ -10,7 +9,10 @@ prodIsoTrks = cms.EDFilter(
   isotrk_dR = cms.double(0.5),
   isotrk_dz = cms.double(0.15),
   loose_isoTrkSrc = cms.InputTag("loosetrackIsolation"),
+  #loose_isoTrkSrc 	= cms.InputTag("packedPFCandidates"),
+  #loose_isotrk_isoVecSrc = cms.InputTag("packedPFCandidates:pfcandstrkiso"),##this one was commented out check??
   loose_isotrk_isoVecSrc = cms.InputTag("loosetrackIsolation:pfcandstrkiso"),
+  #loose_isotrk_dzpvVecSrc = cms.InputTag("packedPFCandidates:pfcandsdzpv"),
   loose_isotrk_dzpvVecSrc = cms.InputTag("loosetrackIsolation:pfcandsdzpv"),
   W_emuVec = cms.InputTag("prodGenInfo:WemuVec"),
   W_tau_emuVec = cms.InputTag("prodGenInfo:WtauemuVec"),

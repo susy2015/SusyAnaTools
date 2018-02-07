@@ -2,6 +2,14 @@
 #include <memory>
 #include <algorithm>
 
+#include "MagneticField/UniformEngine/src/UniformMagneticField.h"
+#include "MagneticField/ParametrizedEngine/src/OAEParametrizedMagneticField.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -237,6 +245,10 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //get the JEC uncertainties
   edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+
+  edm::Handle<reco::VertexCollection> pvs_;
+  edm::Handle<reco::VertexCompositePtrCandidateCollection> svs_;
+
   iSetup.get<JetCorrectionsRecord>().get(jetType_, JetCorParColl);
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   std::auto_ptr<JetCorrectionUncertainty> jecUnc( new JetCorrectionUncertainty(JetCorPar) );
@@ -643,6 +655,7 @@ bool prodJets::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<int> nJets (new int);
 
   *nJets = jetsLVec->size();
+
 
   // store in the event
   // iEvent.put(prod);

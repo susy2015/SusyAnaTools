@@ -24,10 +24,16 @@
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/VertexReco"/>
   <use   name="DataFormats/HepMCCandidate"/>
+  <use   name="DataFormats/BTauReco"/>
+  <use   name="RecoBTag/BTagTools"/>
+  <use   name="RecoBTau/JetTagComputer"/>
+  <use   name="TrackingTools/IPTools"/>
   <use   name="lhapdf"/>
   <use   name="fastjet"/>
   <use   name="PhysicsTools/Heppy"/>
+  <use name="MagneticField/ParametrizedEngine"/>
   <flags   EDM_PLUGIN="1"/>
+  <Flags CXXFLAGS="-g -DDEBUG"/> 
 </library>
 <export>
 </export>

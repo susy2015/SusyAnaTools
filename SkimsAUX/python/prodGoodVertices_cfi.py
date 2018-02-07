@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 prodGoodVertices = cms.EDFilter(
   "prodGoodVertices",
   vtxSrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
+  secvtxSrc = cms.InputTag("offlineSlimmedSecondaryVertices"),
   vtxCut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
 )
 
