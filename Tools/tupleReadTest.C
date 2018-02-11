@@ -37,8 +37,11 @@ int main(int argc, char* argv[]){
 	}
 	const char *inputfilelist = argv[1];
 	const char *outputfile   = argv[2];
-	//int max_events = 5000;
+	//int max_events = 10000;
 	int max_events = -1;
+
+	bool t2bw_study = false;
+
 	//if(argc > 3){
 	//   const char *events_input = argv[3]; // Need to Fix
 	//   events = strtod(*events_input, NULL);
@@ -150,6 +153,7 @@ int main(int argc, char* argv[]){
 	auto genmet_uc_h=new TH1F("genmet_uc_h","Gen Level MET (No Cuts)",80,0.0,400.0);
 	auto search_bin_h=new TH1F("search_bin_h","search bin with baseline cut",84,0.0,84.0);
 	auto search_bin_team_A_h=new TH1F("search_bin_team_A_h","search bin team A high dM = 175",52,52.0,104.0);
+	auto search_bin_team_A_lowdm_01_h=new TH1F("search_bin_team_A_lowdm_01_h","search bin team A low dM bin 0 & 1",2,0,2);
 	auto search_bin_team_A_MTb175_MT2_h=new TH1F("search_bin_team_A_MTb175_MT2_h","search bin team A high dM = 175, MT2 >200",52,52.0,104.0);
 	auto search_bin_team_A_MTb140_MT2_h=new TH1F("search_bin_team_A_MTb140_MT2_h","search bin team A high dM = 140, MT2 >200",52,52.0,104.0);
 
@@ -170,6 +174,8 @@ int main(int argc, char* argv[]){
 	auto nbottompt20_140_MT2_h=new TH1F("nbottompt20_140_MT2_h","number of bottom when MTb > 140 with MT2 cut",8,0.0,8.0);
 	auto nbottompt20_175_h=new TH1F("nbottompt20_175_h","number of bottom when MTb > 175",8,0.0,8.0);
 	auto nbottompt20_175_MT2_h=new TH1F("nbottompt20_175_MT2_h","number of bottom when MTb > 175 with MT2 cut",8,0.0,8.0);
+	auto nbottompt20_lowdm_h=new TH1F("nbottompt20_lowdm_h","number of bottom low dm",8,0.0,8.0);
+	auto nSV_lowdm_h=new TH1F("nSV_lowdm_h","number of SV low dm",8,0.0,8.0);
 
 	auto nbottompt30_no_mtb_h=new TH1F("nbottompt30_no_mtb_h","number of bottom without MTb cut",8,0.0,8.0);
 	auto nbottompt30_140_h=new TH1F("nbottompt30_140_h","number of bottom when MTb > 140",8,0.0,8.0);
@@ -205,6 +211,7 @@ int main(int argc, char* argv[]){
 	auto njetspt20_140_MT2_h=new TH1F("njetspt20_140_MT2_h","number of jets (pt > 20) when MTb > 140 with MT2 cut",30,0.0,30.0);
 	auto njetspt20_175_h=new TH1F("njetspt20_175_h","number of jets (pt > 20) when MTb > 175",30,0.0,30.0);
 	auto njetspt20_175_MT2_h=new TH1F("njetspt20_175_MT2_h","number of jets (pt > 20) when MTb > 175 with MT2 cut",30,0.0,30.0);
+	auto njetspt20_lowdm_h=new TH1F("njetspt20_lowdm_h","number of jets (pt > 20) low dm",30,0.0,30.0);
 
 	auto njetspt30_no_mtb_h=new TH1F("njetspt30_no_mtb_h","number of jets (pt > 30) without MTb cut",30,0.0,30.0);
 	auto njetspt30_140_h=new TH1F("njetspt30_140_h","number of jets (pt > 30) when MTb > 140",30,0.0,30.0);
@@ -217,6 +224,9 @@ int main(int argc, char* argv[]){
 	auto met_140_MT2_h=new TH1F("met_140_MT2_h","met when MTb > 140 with MT2 cut",80,0.0,1600.0);
 	auto met_175_h=new TH1F("met_175_h","met when MTb > 175",80,0.0,1600.0);
 	auto met_175_MT2_h=new TH1F("met_175_MT2_h","met when MTb > 175 with MT2 cut",80,0.0,1600.0);
+	auto met_lowdm_h=new TH1F("met_lowdm_h","met low dm",80,0.0,1600.0);
+	auto ISRpt_lowdm_h=new TH1F("ISRpt_lowdm_h","ISR pt low dm",80,0.0,1600.0);
+	auto bottompt_scalar_sum_lowdm_h=new TH1F("bottompt_scalar_sum_lowdm_h","bottom pt sclar sum low dm",80,0.0,1600.0);
 
 	auto HT_no_mtb_h=new TH1F("HT_no_mtb_h","HT without MTb cut",160,0.0,3200.0);
 	auto HT_140_h=new TH1F("HT_140_h","HT when MTb > 140",160,0.0,3200.0);
@@ -254,8 +264,12 @@ int main(int argc, char* argv[]){
 
 		//  std::cout << "MET " << tr.getVar<double>("met")  << " nTop" << tr.getVar<int>("nTopCandSortedCnt") << " Phi " << tr.getVar<double>("metphi") << std::endl;
 		std::vector<TLorentzVector> jetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
+		std::vector<TLorentzVector> jetsLVec_pt20;
 		std::vector<TLorentzVector> wLVec = tr.getVec<TLorentzVector>("vWAlone");
+		std::vector<TLorentzVector> softbLVec = tr.getVec<TLorentzVector>("softbLVec");
+		std::vector<TLorentzVector> ISRLVec = tr.getVec<TLorentzVector>("vISRJet");
 		int nw = wLVec.size();
+		int nSV = softbLVec.size();
 		//std::cout << "number of w = " << wLVec.size() << std::endl;
 
 		std::vector<TLorentzVector> b_jetsLVec;
@@ -274,6 +288,7 @@ int main(int argc, char* argv[]){
 		int nbottompt20=0 , nbottompt30=0 , njetspt20=0 , njetspt30=0 , njetspt50=0;
 		int ntop_merge=0 , ntop_w=0 , ntop_res=0;
 		double HT = tr.getVar<double>("HT");
+		double S_met = met / sqrt(HT);
 		double genHT = tr.getVar<double>("genHT");
 		double jpt = 0 , bottom_pt = 0; 
 		double bad_b_csv = 0;
@@ -319,6 +334,7 @@ int main(int argc, char* argv[]){
 			if(fabs(tlv_Eta) <= 2.4 && tlv_Pt >= 20)
 			{
 				njetspt20++;
+				jetsLVec_pt20.push_back(tlv);
 				if (tlv_Pt >= 30) njetspt30++;
 				if (tlv_Pt >= 50) njetspt50++;
 				if (njetspt20 < 5 && fabs(dPhi) > 0.5) n_dPhi_p5 ++;
@@ -368,7 +384,9 @@ int main(int argc, char* argv[]){
 
 		if(nbottompt30 != nbjets) std::cout << "nbottom (pt > 30) = " << nbottompt30 << " nbjets = " << nbjets << std::endl;
 
-		bool passnJets = (njetspt50 >= 2 && njetspt30 >= 4);
+		double bottompt_scalar_sum = 0;
+		if(b_jetsLVec.size() == 1) bottompt_scalar_sum = b_jetsLVec.at(0).Pt();	
+		if(b_jetsLVec.size() > 1) bottompt_scalar_sum = b_jetsLVec.at(0).Pt() + b_jetsLVec.at(1).Pt();	
 
 		/*for (int i=0; i<b_jetsLVec.size(); i++)
 		  {
@@ -443,15 +461,26 @@ int main(int argc, char* argv[]){
 		int SB_team_A_index_175 = SB_team_A(175, mtb, njetspt20, ntop_merge, ntop_w, ntop_res, nbottompt20, met);
 		int SB_team_A_index_140 = SB_team_A(140, mtb, njetspt20, ntop_merge, ntop_w, ntop_res, nbottompt20, met);
 
-		bool pass_loose_baseline_no_HT=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passdPhis") && tr.getVar<bool>("passMET") && njetspt20 >=2 && nbottompt20 >=1); 
+		bool passnJets = (njetspt50 >= 2 && njetspt30 >= 4);		//SUS-16-050, 4 jets30 and 2 jets50
+		bool passdphi_highdm = (jetsLVec_pt20.size() >= 4 && fabs(jetsLVec_pt20.at(0).Phi() - metphi) > 0.5 && fabs(jetsLVec_pt20.at(1).Phi() - metphi) > 0.5 && fabs(jetsLVec_pt20.at(2).Phi() - metphi) > 0.5 && fabs(jetsLVec_pt20.at(3).Phi() - metphi) > 0.5);		//SUS-16-049, high dm, dphi(met, jet1234) > 0.5
+		bool passdphi_lowdm = ( (jetsLVec_pt20.size() == 2 && fabs(jetsLVec_pt20.at(0).Phi() - metphi) > 0.5 && fabs(jetsLVec_pt20.at(1).Phi() - metphi) > 0.15) || (jetsLVec_pt20.size() >2 && fabs(jetsLVec_pt20.at(0).Phi() - metphi) > 0.5 && fabs(jetsLVec_pt20.at(1).Phi() - metphi) > 0.15 && fabs(jetsLVec_pt20.at(2).Phi() - metphi) > 0.15) );		//SUS-16-049, low dm,  dphi(met, j1) > 0.5, dphi(met, j23) > 0.15
+
+		bool pass_loose_baseline_no_HT=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passdPhis") && tr.getVar<bool>("passMET") && njetspt20 >=2 && nbottompt20 >=1);		//baseline line for merge group 
 		bool pass_loose_baseline=(pass_loose_baseline_no_HT && tr.getVar<bool>("passHT"));
 
 		//bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passnJets") && tr.getVar<bool>("passdPhis") && tr.getVar<bool>("passBJets") && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
 		bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && passnJets && tr.getVar<bool>("passdPhis") && nbjets > 0 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
-		bool pass_baseline=(pass_baseline_no_MT2 && passMT2);
+		bool pass_baseline=(pass_baseline_no_MT2 && passMT2);		//baseline for SUS-16-050
 
-		bool pass_high_dM_baseline=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 5 && n_dPhi_p5 == 4 && nbottompt20 >=1); 
+		if ((n_dPhi_p5 == 4 && !passdphi_highdm) || (passdphi_highdm && n_dPhi_p5 != 4))
+		std::cout << "number of jets pt > 20, dphi (MET phi) > 0.5 = " << n_dPhi_p5 << std::endl;
 
+		bool pass_high_dM_baseline=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 5 && n_dPhi_p5 == 4 && nbottompt20 >=1);		//baseline for SUS-16-049 high dm 
+
+		bool pass_ISR = (ISRLVec.size() == 1 && ISRLVec.at(0).Pt() > 200 && fabs(ISRLVec.at(0).Eta()) < 2.4 && fabs(ISRLVec.at(0).Phi() - metphi) > 2); 		//SUS-16-049, low dm, ISR cut
+		bool pass_mtb_lowdm = (nbottompt20 == 0 || (nbottompt20 >0 && mtb <175)); 		//SUS-16-049, low dm, mtb cut
+		bool pass_low_dM_baseline=(tr.getVar<bool>("passLeptVeto") && ntop == 0 && nw == 0 && pass_ISR && S_met > 10 && passdphi_lowdm && pass_mtb_lowdm && tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 2); 		//baseline for SUS-16-049 low dm
+ 
 		if(pass_high_dM_baseline)
 		{
 			if(mtb < 140) mt2_140_low_h->Fill(mt2,evtWeight);
@@ -467,6 +496,21 @@ int main(int argc, char* argv[]){
 				search_bin_team_A_MTb175_MT2_h->Fill(SB_team_A_index_175,evtWeight);
 				search_bin_team_A_MTb140_MT2_h->Fill(SB_team_A_index_140,evtWeight);
 			}
+		}
+
+		if(pass_low_dM_baseline)
+		{
+			met_lowdm_h->Fill(met,evtWeight);
+			njetspt20_lowdm_h->Fill(njetspt20,evtWeight);
+			nbottompt20_lowdm_h->Fill(nbottompt20,evtWeight);
+			nSV_lowdm_h->Fill(nSV,evtWeight);
+			ISRpt_lowdm_h->Fill(ISRLVec.at(0).Pt(),evtWeight);
+			bottompt_scalar_sum_lowdm_h->Fill(bottompt_scalar_sum,evtWeight);
+			
+			if(nbottompt20 == 0 && nSV == 0 && ISRLVec.at(0).Pt() > 500 && njetspt20 <= 5 && met > 450 && met < 550)
+			search_bin_team_A_lowdm_01_h->Fill(0.0,evtWeight);
+			if(nbottompt20 == 0 && nSV == 0 && ISRLVec.at(0).Pt() > 500 && njetspt20 <= 5 && met > 550 && met < 650)
+			search_bin_team_A_lowdm_01_h->Fill(1.0,evtWeight);
 		}
 
 		if(pass_baseline_no_MT2) mt2_baseline_no_mt2_h->Fill(mt2,evtWeight);
@@ -724,9 +768,9 @@ int main(int argc, char* argv[]){
 					gen_w_b_delta_r_175_h->Fill(minus_temp.at(0).DeltaR(minus_temp.at(1)),evtWeight);
 					}
 
-					if (n_gen_w != 2) std::cout << "number of gen w is " << n_gen_w << std::endl;
+					if (t2bw_study && n_gen_w != 2) std::cout << "number of gen w is " << n_gen_w << std::endl;
 
-					if (plus_temp.size() != 2) 
+					if (t2bw_study && plus_temp.size() != 2) 
 					{
 						std::cout << "number of gen w+ and b is " << plus_temp.size() << std::endl;
 						for(int i=0; i < PdgId.size(); i++)
@@ -738,7 +782,7 @@ int main(int argc, char* argv[]){
 						std::cout << "\n" << std::endl;
 					}
 
-					if (minus_temp.size() != 2) 
+					if (t2bw_study && minus_temp.size() != 2) 
 					{
 						std::cout << "number of gen w- and b_bar is " << minus_temp.size() << std::endl;
 						for(int i=0; i < PdgId.size(); i++)
@@ -793,6 +837,7 @@ int main(int argc, char* argv[]){
 	search_bin_h->Write();
 	search_bin_mtb_h->Write();
 	search_bin_team_A_h->Write();
+	search_bin_team_A_lowdm_01_h->Write();
 	search_bin_team_A_MTb175_MT2_h->Write();
 	search_bin_team_A_MTb140_MT2_h->Write();
 	mt2_140_low_h->Write();
@@ -865,6 +910,12 @@ int main(int argc, char* argv[]){
 	njetspt30_175_MT2_h->Write();
 	met_175_MT2_h->Write();
 	HT_175_MT2_h->Write();
+	met_lowdm_h->Write();
+	njetspt20_lowdm_h->Write();;
+	nbottompt20_lowdm_h->Write();;
+	nSV_lowdm_h->Write();;
+	ISRpt_lowdm_h->Write();;
+	bottompt_scalar_sum_lowdm_h->Write();;
 
 	out_file.mkdir("Baseline_Only");
 	out_file.cd("Baseline_Only");

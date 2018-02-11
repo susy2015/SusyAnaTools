@@ -4,7 +4,7 @@ int Plot_1D_test()
 {
 	const double lumi = 36; 
 	bool plot_log = false;
-	bool plot_BG = false;
+	bool plot_BG = true;
 	//plot_log = true;
 
 	bool plot_MT2 = false;
@@ -14,7 +14,9 @@ int Plot_1D_test()
 	bool plot_MT2_b = false;
 	bool plot_SB = false;
 	bool plot_SB_team_A = false;
+	bool plot_SB_team_A_lowdm_01 = false;
 	bool plot_nbottompt20 = false;
+	bool plot_nbottompt20_lowdm = false;
 	bool plot_nbottompt30 = false;
 	bool plot_ntop = false;
 	bool plot_ntop_merge = false;
@@ -26,19 +28,23 @@ int Plot_1D_test()
 	bool plot_gen_w_b_mass = false;
 	bool plot_gen_w_b_delta_r = false;
 	bool plot_n_res_b_gen_match = false;
-	bool plot_n_res_w_gen_match = true;
+	bool plot_n_res_w_gen_match = false;
 	bool plot_n_res_gen_match = false;
 	bool plot_njetspt20 = false;
+	bool plot_njetspt20_lowdm = false;
 	bool plot_njetspt30 = false;
+	bool plot_nSV_lowdm = false;
 	bool plot_HT = false;
 	bool plot_MET = false;
+	bool plot_MET_lowdm = true;
+	bool plot_ISR_pt_lowdm = false;
+	bool plot_bottom_pt_lowdm = false;
 	bool plot_MT2_different_MTb = false;
 
-	double xmin =0, xmax = 800, ymin = 0, ymax = 35000;
+	double xmin =0, xmax = 800, ymin = 0, ymax = 35000, sig_ymax = 1;
 	if (plot_log) ymin = 0.1;
 
 	TString title = "MT2";
-	TString x_title = "GeV";
 	TString var = "mt2_h";
 	TString folder = "Baseline_Only/";
 
@@ -60,8 +66,6 @@ int Plot_1D_test()
 	{	
 		title = "";
 		var = "mt2_baseline_no_mt2_h";
-		//title = "MT2 when MTb > 140";
-		//var = "mt2_140_high_h";
 		folder = "";
 		rebin = 5;
 		//xmin = 100;
@@ -73,11 +77,7 @@ int Plot_1D_test()
 	if (plot_MTb)
 	{
 		title = "MTb (2 leading pt if nb >2)";
-		//title = "MTb (0 - 300 GeV)";
-		//var = "mtb_h";
 		var = "mtb_no_HT_h";
-		//title = "MTb high dm";
-		//var = "mtb_high_dm_h";
 		folder = "";
 		rebin = 5;
 		//xmax = 300;
@@ -87,11 +87,7 @@ int Plot_1D_test()
 	if (plot_MTb_CSV)
 	{
 		title = "MTb (2 leading CSV if nb > 2)";
-		//title = "MTb (0 - 300 GeV)";
-		//var = "mtb_h";
 		var = "mtb_CSV_no_HT_h";
-		//title = "MTb high dm";
-		//var = "mtb_high_dm_h";
 		folder = "";
 		rebin = 5;
 		//xmax = 300;
@@ -119,8 +115,6 @@ int Plot_1D_test()
 
 	if (plot_SB_team_A)
 	{
-		//title = "high dm search bin with MT2 cut";
-		//var = "search_bin_team_A_MTb175_MT2_h";
 		title = "high dm search bin";
 		var = "search_bin_team_A_h";
 		folder = "";
@@ -128,362 +122,299 @@ int Plot_1D_test()
 		xmin = 53;
 		xmax = 104;
 		ymax = 1500;
-		x_title = "";
+	}
+
+	if (plot_SB_team_A_lowdm_01)
+	{
+		title = "search bin team A low dM bin 0 & 1";
+		var = "search_bin_team_A_lowdm_01_h";
+		folder = "";
+		rebin = 1;
+		xmin = 0;
+		xmax = 2;
+		ymax = 5000;
 	}
 
 	if (plot_nbottompt20)
 	{
-		//title = "number of bottom (pt > 20) without MTb cut";
-		//var = "nbottompt20_no_mtb_h";
 		title = "number of bottom (pt > 20) when MTb > 175";
 		var = "nbottompt20_175_h";
-		//title = "number of bottom (pt > 20) when MTb > 175 with MT2 cut";
-		//var = "nbottompt20_175_MT2_h";
-		//title = "number of bottom (pt > 20) when MTb > 140 with MT2 cut";
-		//var = "nbottompt20_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 8;
 		ymax = 40000;
-		x_title = "";
+	}
+
+	if (plot_nbottompt20_lowdm)
+	{
+		title = "number of bottom (pt > 20) in low dm";
+		var = "nbottompt20_lowdm_h";
+		folder = "";
+		rebin = 1;
+		xmax = 8;
+		ymax = 200000;
+		sig_ymax = 0.6;
 	}
 
 	if (plot_nbottompt30)
 	{
-		//title = "number of bottom (pt > 30) without MTb cut";
-		//var = "nbottompt30_no_mtb_h";
 		title = "number of bottom (pt > 30) when MTb > 175";
 		var = "nbottompt30_175_h";
-		//title = "number of bottom (pt > 30) when MTb > 175 with MT2 cut";
-		//var = "nbottompt30_175_MT2_h";
-		//title = "number of bottom (pt > 30) when MTb > 140 with MT2 cut";
-		//var = "nbottompt30_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 8;
 		//ymax = 10000000;
 		ymax = 40000;
-		x_title = "";
 	}
 
 	if (plot_ntop)
 	{
-		//title = "number of top without MTb cut";
-		//var = "ntop_no_mtb_h";
 		title = "number of top when MTb > 175";
 		var = "ntop_175_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 8;
 		//ymax = 1000000;
 		ymax = 30000;
-		x_title = "";
 	}
 
 	if (plot_ntop_merge)
 	{
-		//title = "number of top without MTb cut";
-		//var = "ntop_no_mtb_h";
 		title = "number of fully merged top when MTb > 175";
 		var = "ntop_merge_175_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 4;
 		//ymax = 1000000;
 		ymax = 1;
-		x_title = "";
 	}
 
 	if (plot_ntop_w)
 	{
-		//title = "number of top without MTb cut";
-		//var = "ntop_no_mtb_h";
 		title = "number of partialy merged top when MTb > 175";
 		var = "ntop_w_175_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 4;
 		//ymax = 1000000;
 		ymax = 1;
-		x_title = "";
 	}
 
 	if (plot_ntop_res)
 	{
-		//title = "number of top without MTb cut";
-		//var = "ntop_no_mtb_h";
 		title = "number of resolved top when MTb > 175";
 		var = "ntop_res_175_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 4;
 		//ymax = 1000000;
 		ymax = 1;
-		x_title = "";
 	}
 
 	if (plot_nw)
 	{
-		//title = "number of W without MTb cut";
-		//var = "nw_no_mtb_h";
 		title = "number of W when MTb > 175";
 		var = "nw_175_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 8;
 		ymax = 50000;
-		x_title = "";
 	}
 
 	if (plot_gen_w_pt)
 	{
-		//title = "number of W without MTb cut";
-		//var = "nw_no_mtb_h";
 		title = "gen w pt when MTb > 175";
 		var = "gen_w_pt_175_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 8;
 		xmax = 400;
 		ymax = 0.4;
-		x_title = "";
 	}
 
 	if (plot_gen_b_pt)
 	{
-		//title = "number of W without MTb cut";
-		//var = "nw_no_mtb_h";
 		title = "gen b pt when MTb > 175";
 		var = "gen_b_pt_175_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 8;
 		xmax = 400;
 		ymax = 0.4;
-		x_title = "";
 	}
 
 	if (plot_gen_w_b_mass)
 	{
-		//title = "number of W without MTb cut";
-		//var = "nw_no_mtb_h";
 		title = "gen w and b mass when MTb > 175";
 		var = "gen_w_b_mass_175_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 400;
 		ymax = 0.7;
-		x_title = "";
 	}
 
 	if (plot_gen_w_b_delta_r)
 	{
-		//title = "number of W without MTb cut";
-		//var = "nw_no_mtb_h";
 		title = "gen w and b delta R when MTb > 175";
 		var = "gen_w_b_delta_r_175_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 8;
 		xmax = 400;
 		ymax = 0.6;
-		x_title = "";
 	}
 
 	if (plot_n_res_gen_match)
 	{
-		//title = "number of W without MTb cut";
-		//var = "nw_no_mtb_h";
 		title = "number of gen matched resolved jets when ntop = 1 and MTb > 175";
 		var = "n_res_gen_match_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 400;
 		ymax = 0.7;
-		x_title = "";
 	}
 
 	if (plot_n_res_b_gen_match)
 	{
-		//title = "number of W without MTb cut";
-		//var = "nw_no_mtb_h";
 		title = "number of gen matched b in resolved jets when ntop = 1 and MTb > 175";
 		var = "n_res_b_gen_match_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 400;
 		ymax = 0.9;
-		x_title = "";
 	}
 
 	if (plot_n_res_w_gen_match)
 	{
-		//title = "number of W without MTb cut";
-		//var = "nw_no_mtb_h";
 		title = "number of gen matched w in resolved jets when ntop = 1 and MTb > 175";
 		var = "n_res_w_gen_match_h";
-		//title = "number of top when MTb > 175 with MT2 cut";
-		//var = "ntop_175_MT2_h";
-		//title = "number of top when MTb > 140 with MT2 cut";
-		//var = "ntop_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 400;
 		ymax = 0.9;
-		x_title = "";
 	}
 
 	if (plot_njetspt20)
 	{
-		//title = "number of jets (pt > 20) without MTb cut";
-		//var = "njetspt20_no_mtb_h";
 		title = "number of jets (pt > 20) when MTb > 175";
 		var = "njetspt20_175_h";
-		//title = "number of jets (pt > 20) when MTb > 175 with MT2 cut";
-		//var = "njetspt20_175_MT2_h";
-		//title = "number of jetspt (pt > 20) when MTb > 140 with MT2 cut";
-		//var = "njetspt20_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 20;
 		ymax = 15000;
-		x_title = "";
+	}
+
+	if (plot_njetspt20_lowdm)
+	{
+		title = "number of jets (pt > 20) in low dm";
+		var = "njetspt20_lowdm_h";
+		folder = "";
+		rebin = 1;
+		xmax = 20;
+		ymax = 100000;
+		sig_ymax = 0.5;
 	}
 
 	if (plot_njetspt30)
 	{
-		//title = "number of jets (pt > 30) without MTb cut";
-		//var = "njetspt30_no_mtb_h";
-		//title = "number of jets (pt > 30) when MTb > 175";
-		//var = "njetspt30_175_h";
-		//title = "number of jets (pt > 30) when MTb > 175 with MT2 cut";
-		//var = "njetspt30_175_MT2_h";
 		title = "number of jetspt (pt > 30) when MTb > 140 with MT2 cut";
 		var = "njetspt30_140_MT2_h";
 		folder = "";
 		rebin = 1;
 		xmax = 20;
 		ymax = 1500;
-		x_title = "";
+	}
+
+	if (plot_nSV_lowdm)
+	{
+		title = "number of SV (soft b) in low dm";
+		var = "nSV_lowdm_h";
+		folder = "";
+		rebin = 1;
+		xmax = 5;
+		ymax = 200000;
+		sig_ymax = 0.02;
 	}
 
 	if (plot_HT)
 	{
-		//title = "HT without MTb cut";
-		//var = "HT_no_mtb_h";
 		title = "HT when MTb > 175";
 		var = "HT_175_h";
-		//title = "HT when MTb > 175 with MT2 cut";
-		//var = "HT_175_MT2_h";
-		//title = "HT when MTb > 140 with MT2 cut";
-		//var = "HT_140_MT2_h";
 		folder = "";
 		rebin = 5;
 		xmax = 3200;
 		ymax = 10000;
-		x_title = "";
 	}
 
 	if (plot_MET)
 	{
-		//title = "MET without MTb cut";
-		//var = "met_no_mtb_h";
-		//title = "MET when MTb > 175";
-		//var = "met_175_h";
-		//title = "MET when MTb > 175 with MT2 cut";
-		//var = "met_175_MT2_h";
 		title = "MET when MTb > 140 with MT2 cut";
 		var = "met_140_MT2_h";
 		folder = "";
 		rebin = 2;
 		xmax = 1000;
 		ymax = 1500;
-		x_title = "";
+	}
+
+	if (plot_MET_lowdm)
+	{
+		title = "MET [GeV] in low dm";
+		var = "met_lowdm_h";
+		folder = "";
+		//rebin = 2;
+		//xmax = 1000;
+		//ymax = 80000;
+		rebin = 1;
+		xmin = 200;
+		xmax = 500;
+		ymax = 40000;
+		sig_ymax = 0.03;
+	}
+
+	if (plot_ISR_pt_lowdm)
+	{
+		title = "ISR pt [GeV] low dm";
+		var = "ISRpt_lowdm_h";
+		folder = "";
+		rebin = 2;
+		xmax = 1000;
+		ymax = 50000;
+		sig_ymax = 0.04;
+	}
+
+	if (plot_bottom_pt_lowdm)
+	{
+		title = "bottom pt [GeV] sclar sum low dm";
+		var = "bottompt_scalar_sum_lowdm_h";
+		folder = "";
+		rebin = 2;
+		xmax = 1000;
+		ymax = 40000;
+		sig_ymax = 0.15;
 	}
 
 	if (plot_MT2_different_MTb)
 	{
-		//title = "MT2 (0 - 800) without MTb cut";
-		//var = "mt2_no_mtb_h";
-		//title = "MT2 (50 - 800) without MTb cut";
-		//var = "mt2_no_mtb_h";
 		title = "MT2 (50 - 800) when MTb > 175";
 		var = "mt2_175_h";
-		//title = "MT2 (50 - 800) when MTb > 140";
-		//var = "mt2_140_h";
 		folder = "";
 		rebin = 5;
 		xmin = 50;
 		ymax = 10000;
-		x_title = "";
 	}
 
-	TCanvas* mycanvas = new TCanvas("mycanvas", "mycanvas", 1280, 720);
-	//TCanvas* mycanvas = new TCanvas("mycanvas", "mycanvas", 800, 600);
+	TCanvas* mycanvas = new TCanvas("mycanvas", "mycanvas", 700, 700);
+	//TCanvas* mycanvas = new TCanvas();
 	gStyle->SetOptStat(kFALSE);
+
+	TPad *padup = new TPad("padup", "padup", 0, 0.3, 1, 1.0);
+	padup -> SetBottomMargin(0);
+	padup -> Draw();
+	padup -> cd();
 
 	THStack *hs = new THStack();
 
-	TLegend* leg = new TLegend(0.55,0.6,0.9,0.89);
+	TLegend* leg = new TLegend(0.4,0.5,0.9,0.89);
 	leg->SetBorderSize(0);
-	//leg->SetTextFont(42);
-	//leg->SetFillColor(0);
-	//TLegend* leg2 = new TLegend(0.8,0.9,0.9,0.95);
-	TLegend* leg2 = new TLegend(0.2,0.8,0.55,0.89);
-	leg2->SetBorderSize(0);
-	//leg->SetTextFont(42);
-	//leg->SetFillColor(0);
-	//leg2->AddEntry((TObject*)0,"36 fb ^ -1","");
-	//leg2->AddEntry((TObject*)0,"signal is multiplied by 50","");
-	leg2->AddEntry((TObject*)0,"each signal scaled to total background","");
-	//leg2->AddEntry((TObject*)0,"","");
-	leg->SetTextSize(0.03);
-	leg2->SetTextSize(0.03);
-	TLegend* leg3 = new TLegend(0.7,0.9,0.89,0.95);
-	leg3->SetBorderSize(0);
-	leg3->AddEntry((TObject*)0,"36 fb^{-1} (13TeV)","");
-	
+	leg->SetTextSize(0.04);
+
 	if (plot_BG)
 	{
 		TH1D * pro = NULL;
@@ -500,14 +431,23 @@ int Plot_1D_test()
 			double all_events = h2->GetBinContent(1);
 			double left_events = h2->GetBinContent(2);
 
-			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-			//ttbar->Add(h1);
+			h1->Sumw2();
 			h1->Rebin(rebin);
+
+			std::cout << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
 			pro = (TH1D*)h1->Clone("QCD");
-			//h1->SetLineColor(kOrange);
-			//h1->SetLineWidth(3);
-			//h1->Draw("same");
-			//leg->AddEntry(h1,sp,"l");
 		}
 
 		if (false)
@@ -516,7 +456,7 @@ int Plot_1D_test()
 			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
 		}
 
-		if (false)
+		if (true)
 		{
 			TString sp = "QCD_HT500to700";
 			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
@@ -547,7 +487,7 @@ int Plot_1D_test()
 		}
 
 		pro->SetLineColor(kBlack);
-		pro->SetLineWidth(3);
+		//pro->SetLineWidth(3);
 		//pro->Draw("bsame");
 		pro->SetFillColor(kRed);
 		leg->AddEntry(pro,"QCD","f");
@@ -571,14 +511,23 @@ int Plot_1D_test()
 			double all_events = h2->GetBinContent(1);
 			double left_events = h2->GetBinContent(2);
 
-			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-			//ttbar->Add(h1);
+			h1->Sumw2();
 			h1->Rebin(rebin);
+
+			std::cout << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
 			pro = (TH1D*)h1->Clone("zjets");
-			//h1->SetLineColor(kOrange);
-			//h1->SetLineWidth(3);
-			//h1->Draw("same");
-			//leg->AddEntry(h1,sp,"l");
 		}
 
 		if (true)
@@ -618,7 +567,7 @@ int Plot_1D_test()
 		}
 
 		pro->SetLineColor(kBlack);
-		pro->SetLineWidth(3);
+		//pro->SetLineWidth(3);
 		//pro->Draw("bsame");
 		pro->SetFillColor(kGreen);
 		leg->AddEntry(pro,"z+jets","f");
@@ -642,14 +591,23 @@ int Plot_1D_test()
 			double all_events = h2->GetBinContent(1);
 			double left_events = h2->GetBinContent(2);
 
-			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-			//ttbar->Add(h1);
+			h1->Sumw2();
 			h1->Rebin(rebin);
+
+			std::cout << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
 			pro = (TH1D*)h1->Clone("wjets");
-			//h1->SetLineColor(kOrange);
-			//h1->SetLineWidth(3);
-			//h1->Draw("same");
-			//leg->AddEntry(h1,sp,"l");
 		}
 
 		if (true)
@@ -695,7 +653,7 @@ int Plot_1D_test()
 		}
 
 		pro->SetLineColor(kBlack);
-		pro->SetLineWidth(3);
+		//pro->SetLineWidth(3);
 		//pro->Draw("bsame");
 		pro->SetFillColor(kYellow);
 		leg->AddEntry(pro,"w+jets","f");
@@ -719,14 +677,23 @@ int Plot_1D_test()
 			double all_events = h2->GetBinContent(1);
 			double left_events = h2->GetBinContent(2);
 
-			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-			//ttbar->Add(h1);
+			h1->Sumw2();
 			h1->Rebin(rebin);
+
+			std::cout << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
 			pro = (TH1D*)h1->Clone("ttbar");
-			//h1->SetLineColor(kYellow);
-			//h1->SetLineWidth(3);
-			//h1->Draw("same");
-			//leg->AddEntry(h1,sp,"l");
 		}
 
 		if (true)
@@ -765,7 +732,7 @@ int Plot_1D_test()
 			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
 		}
 
-		if (false)
+		if (true)
 		{
 			TString sp = "tW_top_incl";
 			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
@@ -784,7 +751,7 @@ int Plot_1D_test()
 		}
 
 		pro->SetLineColor(kBlack);
-		pro->SetLineWidth(3);
+		//pro->SetLineWidth(3);
 		//pro->Draw("bsame");
 		pro->SetFillColor(kViolet);
 		leg->AddEntry(pro,"ttbar + single t + ttz","f");
@@ -792,34 +759,41 @@ int Plot_1D_test()
 		hs->Add(pro);
 	}
 
-	/*hs->SetMinimum(ymin);
+	hs->SetMinimum(ymin);
 	hs->SetMaximum(ymax);
-	hs->Draw("axis");
-	
-	hs->SetTitle(title);
+	hs->Draw("hist");
+
+	hs->SetTitle("");
 	hs->GetYaxis()->SetTitle("events");
 	hs->GetXaxis()->SetRangeUser(xmin,xmax);
+	hs->GetYaxis()->SetRangeUser(ymin,ymax);
 	if(plot_SB_team_A) hs->GetXaxis()->SetNdivisions(26);
 	//hs->GetXaxis()->SetTitle("MT2 [GeV]");
-	hs->GetXaxis()->SetTitle(x_title);
-	hs->GetYaxis()->SetTitleOffset(1.5);
-	
-	double hs_events = ((TH1D*)(hs -> GetStack() -> Last())) -> Integral();
-	std::cout << "total BG = " << hs_events << std::endl;
+	hs->GetXaxis()->SetTitle(title);
+	hs->GetYaxis()->SetTitleSize(0.045);
+	hs->GetYaxis()->SetTitleOffset(1.2);
+
+	double hs_tot = ((TH1D*)(hs -> GetStack() -> Last())) -> Integral();
+	double hs_bin1 = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(1);
+	double hs_bin2 = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(2);
+	std::cout << "\ntotal BG = " << hs_tot << " bin 1 = " << hs_bin1 << " bin 2 = " << hs_bin2 << "\n" << std::endl;
 	//int n_bins = 80/rebin;
 	//TH1D *significance = new TH1D ("significance", "significance", n_bins, xmin, xmax);
 
-	leg->Draw("same");
-	leg2->Draw("same");
-	leg3->Draw("same");*/
+	TLatex latex;
+	latex.SetTextSize(0.04);
+	//latex.SetTextAlign(13);  //align at top
+	//latex.DrawLatex(0.5,ymax+0.4,"#bf{CMS} Preliminary, 2017 data");
+	latex.DrawLatex(xmin,ymax*1.07,"CMS #bf{Simulation}");
+	latex.DrawLatex(xmax*0.1,ymax*0.97,"#bf{signal scaled to SM}");
+	latex.DrawLatex(xmax*0.8,ymax*1.07,"#bf{36fb^{-1} (13TeV)}");
 
 	if (true)
 	{
-		//TString sp = "Signal_T1tttt_mGluino1200_mLSP800";
-		//TString sp = "Signal_T5ttcc_mGluino1200_mLSP800";
-		TString sp = "Signal_T2tt_mStop500_mLSP325";
+		//TString sp = "T1tttt_mGluino1200_mLSP800";
+		TString sp = "T2tt_mStop500_mLSP325";
 
-		TFile *f1 = new TFile("results/" + sp + ".root");
+		TFile *f1 = new TFile("results/Signal_" + sp + ".root");
 		TH1D *h1 = (TH1D*)f1->Get(folder + var);
 		//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 		TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -835,8 +809,8 @@ int Plot_1D_test()
 		//std::cout << "GetEntries = " << h3->GetEntries() << std::endl;
 		std::cout << sp << " Xsec = " << CrossSection.at(sp) << std::endl;
 
-		h1->Scale(1.0 / h1->Integral() );
-		//h1->Scale(hs_events / h1->Integral() );
+		//h1->Scale(1.0 / h1->Integral() );
+		h1->Scale(hs_tot / h1->Integral() );
 		//h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 		//h1->Scale(lumi * 50 * CrossSection.at(sp) * 1000 / all_events );
 
@@ -844,39 +818,132 @@ int Plot_1D_test()
 
 		h1->Rebin(rebin);
 		h1->SetLineColor(kRed);
-		h1->SetLineWidth(3);
-		//h1->Draw("hist same");
-		h1->SetMaximum(ymax);
-		h1->Draw("hist");
+		h1->SetLineWidth(2);
+		h1->Draw("hist same");
+		//h1->SetMaximum(ymax);
+		//h1->Draw("hist");
 		leg->AddEntry(h1,sp,"l");
 	}
 
 	if (true)
 	{
-		//TString sp = "Signal_T1tttt_mGluino1500_mLSP100";
-		//TString sp = "Signal_T5ttcc_mGluino1500_mLSP100";
-		TString sp = "Signal_T2tt_mStop850_mLSP100";
-		//Plot_1D_AUX_sg (hs_events, sp, var, folder, leg, kGreen, rebin);
-		Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kGreen, rebin);
+		//TString sp = "T1tttt_mGluino1500_mLSP100";
+		TString sp = "T2tt_mStop850_mLSP100";
+		Plot_1D_AUX_sg (hs_tot, sp, var, folder, leg, kGreen, rebin);
+		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kGreen, rebin);
 	}
 
 	if (true)
 	{
-		//TString sp = "Signal_T2tt_mStop500_mLSP325";
-		TString sp = "Signal_T2bw_mStop500_mLSP325";
-		//Plot_1D_AUX_sg (hs_events, sp, var, folder, leg, kYellow, rebin);
-		Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kYellow, rebin);
+		//TString sp = "T5ttcc_mGluino1000_mLSP800";
+		TString sp = "T2bw_mStop500_mLSP325";
+		Plot_1D_AUX_sg (hs_tot, sp, var, folder, leg, kYellow, rebin);
+		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kYellow, rebin);
 	}
 
 	if (true)
 	{
-		//TString sp = "Signal_T2tt_mStop850_mLSP100";
-		TString sp = "Signal_T2bw_mStop850_mLSP100";
-		//Plot_1D_AUX_sg (hs_events, sp, var, folder, leg, kBlue, rebin);
-		Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kBlue, rebin);
+		//TString sp = "T5ttcc_mGluino1500_mLSP100";
+		TString sp = "T2bw_mStop850_mLSP100";
+		Plot_1D_AUX_sg (hs_tot, sp, var, folder, leg, kBlue, rebin);
+		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kBlue, rebin);
 	}
 
 	leg->Draw("same");
+
+	mycanvas -> cd();
+
+	TPad *paddown = new TPad("paddown", "paddown", 0, 0, 1, 0.3);
+	paddown -> SetTopMargin(0);
+	paddown -> SetBottomMargin(0.3);
+	paddown -> SetGrid();
+	paddown -> Draw();
+	paddown -> cd();
+
+	if (true)
+	{
+		//TString sp = "T1tttt_mGluino1200_mLSP800";
+		TString sp = "T2tt_mStop500_mLSP325";
+
+		TFile *f1 = new TFile("results/Signal_" + sp + ".root");
+		TH1D *h1 = (TH1D*)f1->Get(folder + var);
+		//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
+		TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+
+		double all_events = h2->GetBinContent(1);
+		double left_events = h2->GetBinContent(2);
+		//int n_bins = ((TH1D*)(hs -> GetStack() -> Last())) -> GetSize() - 2;
+		//TH1D *significance = new TH1D ("significance", title, n_bins, xmin_h, xmax_h);
+
+		h1->Sumw2();
+		h1->Rebin(rebin);
+
+		//h1->Scale(lumi / h1->Integral() );
+		h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+		TH1D *significance = (TH1D*)h1->Clone("significance");;
+		int n_bins = significance-> GetSize() - 2;
+			
+		std::cout << "\n" << sp << std::endl;
+
+		for (int i = 1; i <= n_bins; i++)
+		{
+			double signal = h1->GetBinContent(i);
+			double back_ground = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(i);
+			if (back_ground < 0) back_ground = 0;
+			double signal_uc = sqrt (pow(h1->GetBinError(i),2) + pow(0.16*signal,2));  //signal sys unc = 16%
+			double back_ground_uc = sqrt (pow(((TH1D*)(hs -> GetStack() -> Last())) -> GetBinError(i),2) + pow(0.2*back_ground,2));  //bg sys unc = 20%
+			if (back_ground == 0) back_ground_uc = 1.8;  //unc for empty bin is [0,1.8]
+			double sigma = signal + back_ground + signal_uc*signal_uc + back_ground_uc*back_ground_uc;
+			double ratio = 0;
+			if (sigma > 0) ratio = signal / sqrt(sigma);
+			significance->SetBinContent(i,ratio);
+
+			std::cout << "bin " << i << " signal = " << signal << " signal uc = " << signal_uc << " BG = " << back_ground << " BG unc = " << back_ground_uc << " significance = " << significance->GetBinContent(i) << std::endl;
+		}
+
+		significance->SetTitle("");
+		significance->GetYaxis()->SetTitle("significance");
+		significance->GetXaxis()->SetRangeUser(xmin,xmax);
+		if(plot_SB_team_A) significance->GetXaxis()->SetNdivisions(26);
+		//significance->GetXaxis()->SetTitle("MT2 [GeV]");
+		significance->GetXaxis()->SetTitle(title);
+		significance->GetXaxis()->SetTitleSize(0.1);
+		significance->GetXaxis()->SetLabelSize(0.08);
+		significance->GetYaxis()->SetTitleOffset(0.5);
+		significance->GetYaxis()->SetTitleSize(0.1);
+		significance->GetYaxis()->SetLabelSize(0.08);
+
+		significance->SetMaximum(sig_ymax);
+		significance->SetLineColor(kRed);
+		significance->SetLineWidth(2);
+		significance->Draw("hist");
+		//leg->AddEntry(h1,sp,"l");
+	}
+
+	if (true)
+	{
+		//TString sp = "T1tttt_mGluino1500_mLSP100";
+		TString sp = "T2tt_mStop850_mLSP100";
+		Plot_1D_AUX_sig (lumi, sp, var, folder, leg, kGreen, hs, rebin);
+		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kGreen, rebin);
+	}
+
+	if (true)
+	{
+		//TString sp = "T5ttcc_mGluino1000_mLSP800";
+		TString sp = "T2bw_mStop500_mLSP325";
+		Plot_1D_AUX_sig (lumi, sp, var, folder, leg, kYellow, hs, rebin);
+		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kYellow, rebin);
+	}
+
+	if (true)
+	{
+		//TString sp = "T5ttcc_mGluino1500_mLSP100";
+		TString sp = "T2bw_mStop850_mLSP100";
+		Plot_1D_AUX_sig (lumi, sp, var, folder, leg, kBlue, hs, rebin);
+		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kBlue, rebin);
+	}
 
 	if(plot_log)
 	{

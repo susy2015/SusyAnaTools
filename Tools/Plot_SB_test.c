@@ -4,7 +4,7 @@ int plot_SB_test()
 {
 const double lumi = 36;
 
-TCanvas* mycanvas = new TCanvas("mycanvas", "mycanvas", 1280, 720);;
+TCanvas* mycanvas = new TCanvas("mycanvas", "mycanvas", 1280, 720);
 gStyle->SetOptStat(kFALSE);
 
 TPad *padup = new TPad("padup", "padup", 0, 0.25, 1, 1.0);

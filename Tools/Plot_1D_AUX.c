@@ -1,6 +1,6 @@
 int Plot_1D_AUX_sg (double lumi, TString sp, TString var, TString folder, TLegend* leg, Color_t color, int rebin)
 {
-	TFile *f1 = new TFile("results/" + sp + ".root");
+	TFile *f1 = new TFile("results/Signal_" + sp + ".root");
 	TH1D *h1 = (TH1D*)f1->Get(folder + var);
 	//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 	TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -22,13 +22,13 @@ int Plot_1D_AUX_sg (double lumi, TString sp, TString var, TString folder, TLegen
 
 	h1->Rebin(rebin);
 	h1->SetLineColor(color);
-	h1->SetLineWidth(3);
+	h1->SetLineWidth(2);
 	h1->Draw("hist same");
 	leg->AddEntry(h1,sp,"l");
 	return 0;
 }
 
-int Plot_1D_AUX_bg (double lumi, TString sp, TString var, TString folder, TLegend* leg, Color_t color, TH1D * bg, int rebin)
+int Plot_1D_AUX_bg (double lumi, TString sp, TString var, TString folder, TLegend* leg, Color_t color, TH1D *bg, int rebin)
 {
 	TFile *f1 = new TFile("results/" + sp + ".root");
 	TH1D *h1 = (TH1D*)f1->Get(folder + var);
@@ -47,7 +47,7 @@ int Plot_1D_AUX_bg (double lumi, TString sp, TString var, TString folder, TLegen
 	std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
 	std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
 
-        h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+	h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 
 	std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 	std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -58,6 +58,53 @@ int Plot_1D_AUX_bg (double lumi, TString sp, TString var, TString folder, TLegen
 	//h1->SetLineColor(color);
 	//h1->SetLineWidth(3);
 	//h1->Draw("same");
+	//leg->AddEntry(h1,sp,"l");
+	return 0;
+}
+
+int Plot_1D_AUX_sig (double lumi, TString sp, TString var, TString folder, TLegend *leg, Color_t color, THStack *hs,int rebin)
+{
+	TFile *f1 = new TFile("results/Signal_" + sp + ".root");
+	TH1D *h1 = (TH1D*)f1->Get(folder + var);
+	//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
+	TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+
+	double all_events = h2->GetBinContent(1);
+	double left_events = h2->GetBinContent(2);
+	//int n_bins = ((TH1D*)(hs -> GetStack() -> Last())) -> GetSize() - 2;
+	//TH1D *significance = new TH1D ("significance", title, n_bins, xmin_h, xmax_h);
+
+	h1->Sumw2();
+	h1->Rebin(rebin);
+
+	//h1->Scale(lumi / h1->Integral() );
+	h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+	TH1D *significance = (TH1D*)h1->Clone("significance");;
+	int n_bins = significance-> GetSize() - 2;
+
+	std::cout << "\n" << sp << std::endl;
+
+	for (int i = 1; i <= n_bins; i++)
+	{
+		double signal = h1->GetBinContent(i);
+		double back_ground = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(i);
+		if (back_ground < 0) back_ground = 0;
+		double signal_uc = sqrt (pow(h1->GetBinError(i),2) + pow(0.16*signal,2));  //signal sys unc = 16%
+		double back_ground_uc = sqrt (pow(((TH1D*)(hs -> GetStack() -> Last())) -> GetBinError(i),2) + pow(0.2*back_ground,2));  //bg sys unc = 20%
+		if (back_ground == 0) back_ground_uc = 1.8;  //unc for empty bin is [0,1.8]
+		double sigma = signal + back_ground + signal_uc*signal_uc + back_ground_uc*back_ground_uc;
+		double ratio = 0;
+		if (sigma > 0) ratio = signal / sqrt(sigma);
+		significance->SetBinContent(i,ratio);
+
+		std::cout << "bin " << i << " signal = " << signal << " signal uc = " << signal_uc << " BG = " << back_ground << " BG unc = " << back_ground_uc << " significance = " << significance->GetBinContent(i) << std::endl;
+	}
+
+
+	significance->SetLineColor(color);
+	significance->SetLineWidth(2);
+	significance->Draw("hist same");
 	//leg->AddEntry(h1,sp,"l");
 	return 0;
 }
