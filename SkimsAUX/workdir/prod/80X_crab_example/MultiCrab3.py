@@ -37,7 +37,7 @@ json_25ns = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #selSubmitKey = 'GJets_HT-200To400 GJets_HT-400To600 GJets_HT-600ToInf'
 #selSubmitKey = 'MET-Run2016'
 #selSubmitKey = 'TTJets_HT SingleMuon-Run2016 DY ZJetsToNuNu WJetsToLNu TTJets_SingleLeptFrom TTJets_Inc TTJets_DiLept SMS-T1tttt_mGluino SMS-T2tt_mStop QCD_HT ST_ tQz WW WZ ZZ ttH VH TTZ TTW TTH TTG TTTT GJets_HT-200To400 GJets_HT-400To600 GJets_HT-600ToInf'
-selSubmitKey = 'SMS-T5ttcc_FastSim_scan SMS-T2bW_FastSim_scan'
+selSubmitKey = 'SMS-T2cc_FastSim_scan'
 doAutoMonitor = False
 
 ## Format: keyword : IsData, fulldatasetname, unitperjob
@@ -238,8 +238,11 @@ jobslist = {
     'SMS-T1ttbb_FastSim_scan'                : [False, '/SMS-T1ttbb_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
     'SMS-T5ttcc_FastSim_scan'                : [False, '/SMS-T5ttcc_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v3/MINIAODSIM', 1],
     'SMS-T2bW_FastSim_scan'                : [False, '/SMS-T2bW_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
-
-    # Data
+'SMS-T2fbd_FastSim_scan'                : [False, '/SMS-T2tt_dM-10to80_genHT-160_genMET-80_mWMin-0p1_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
+'SMS-T2cc_FastSim_scan'                : [False, '/SMS-T2cc_genHT-160_genMET-80_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
+ 'SMS-T2tb_FastSim_scan'                : [False, '/SMS-T2bt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1],
+ 'SMS-T2bwC_FastSim_scan'              : [False, '/SMS-T2bW_X05_dM-10to80_genHT-160_genMET-80_mWMin-0p1_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM', 1], 
+   # Data
     'HTMHT-Run2016H-03Feb2017_ver3-v1'            : [True, '/HTMHT/Run2016H-03Feb2017_ver3-v1/MINIAOD', 10],
     'HTMHT-Run2016H-03Feb2017_ver2-v1'            : [True, '/HTMHT/Run2016H-03Feb2017_ver2-v1/MINIAOD', 10],
     'HTMHT-Run2016G-03Feb2017-v1'                 : [True, '/HTMHT/Run2016G-03Feb2017-v1/MINIAOD', 10],

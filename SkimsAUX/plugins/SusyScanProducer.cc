@@ -108,7 +108,7 @@ void SusyScanProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	       //two options:
 	       //model name_mMother_mLSP (1+2 fields)
 	       //model name_xChi_mMother_mLSP (1+3 fields)
-				
+	/*			
 	       if(dfields.size()==2){
 	          motherMass = dfields[0];
 		  lspMass = dfields[1];
@@ -117,7 +117,15 @@ void SusyScanProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		  motherMass = dfields[1];
 		  lspMass = dfields[2];
 	       }
-				
+               else if(dfields.size()==4){
+                  motherMass = dfields[2];
+                  lspMass = dfields[3];
+               }
+	*/
+              if(dfields.size()>=2){
+	       motherMass = dfields[dfields.size()-2];
+      	       lspMass = dfields[dfields.size()-1];
+             }			
 	       //finished with this event
 	       break;
 	    }
