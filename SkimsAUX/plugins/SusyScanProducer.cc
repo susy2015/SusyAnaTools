@@ -72,67 +72,6 @@ void SusyScanProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
  
    using namespace edm;
 
-   if( versionStr_ == "74X"){
-	//mass variables
-      motherMass = 0.0;
-      lspMass = 0.0;
-
-      std::vector<edm::Handle<LHEEventProduct> > handles;
-      getterOfProducts_.fillHandles(iEvent, handles);
-
-      if(!handles.empty() && shouldScan_){
-         edm::Handle<LHEEventProduct> product = handles[0];
-	 for(LHEEventProduct::comments_const_iterator cit = product->comments_begin(); cit != product->comments_end(); ++cit){
-	    size_t found = (*cit).find("model");
-	    if(found != std::string::npos){
-	    //strip newline
-	       std::string comment = *cit;
-	       if(comment.back()=='\n') comment.pop_back();
-				
-	       if(debug_) std::cout << comment << std::endl;
-				
-	       std::vector<std::string> fields;
-	       //underscore-delimited data
-	       process(comment,'_',fields);
-				
-	       //convert fields 1:n to doubles
-	       std::vector<double> dfields;
-	       dfields.reserve(fields.size()-1);
-	       for(unsigned f = 1; f < fields.size(); ++f){
-	          std::stringstream sfield(fields[f]);
-		  double tmp = 0;
-		  sfield >> tmp;
-		  dfields.push_back(tmp);
-	       }
-
-	       //two options:
-	       //model name_mMother_mLSP (1+2 fields)
-	       //model name_xChi_mMother_mLSP (1+3 fields)
-	/*			
-	       if(dfields.size()==2){
-	          motherMass = dfields[0];
-		  lspMass = dfields[1];
-	       }
-	       else if(dfields.size()==3){
-		  motherMass = dfields[1];
-		  lspMass = dfields[2];
-	       }
-               else if(dfields.size()==4){
-                  motherMass = dfields[2];
-                  lspMass = dfields[3];
-               }
-	*/
-              if(dfields.size()>=2){
-	       motherMass = dfields[dfields.size()-2];
-      	       lspMass = dfields[dfields.size()-1];
-             }			
-	       //finished with this event
-	       break;
-	    }
-         }
-      }
-   }
-// In 80X, the motherMass and lspMass are set in the beginLuminosityBloack
 
    std::auto_ptr<double > motherMass_(new double(motherMass));
    iEvent.put(motherMass_, "SusyMotherMass");
@@ -191,16 +130,10 @@ SusyScanProducer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::E
    //two options:
    //model name_mMother_mLSP (1+2 fields)
    //model name_xChi_mMother_mLSP (1+3 fields)
-
-   if(dfields.size()==2){
-      motherMass = dfields[0];
-      lspMass = dfields[1];
-   }
-   else if(dfields.size()==3){
-      motherMass = dfields[1];
-      lspMass = dfields[2];
-   }
-
+          if(dfields.size()>=2){
+               motherMass = dfields[dfields.size()-2];
+               lspMass = dfields[dfields.size()-1];
+            }
    if(debug_) std::cout <<"\nSusyScanProducer -->  model : "<<model.c_str()<<"  motherMass : "<<motherMass<<"  lspMass : "<<lspMass<<std::endl<<std::endl; // prints, e.g. T1tttt_1500_100
 
 }
