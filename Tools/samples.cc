@@ -51,7 +51,7 @@ namespace AnaSamples
         std::string sigMCloc    = "Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/";
         std::string addSigMCloc = "Spring15_74X_v5X_top_corridor/";
         std::string deepTrimmed_loc       = "Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/DeepTrimmed/";
-        std::string TopTagging  = "Stop_production/Top_ntuple_V6/";
+        std::string TopTagging  = "Stop_production/Top_ntuple_V8/";
 
         if(fDir.compare("condor") == 0)
         {
@@ -63,8 +63,18 @@ namespace AnaSamples
             deepTrimmed_loc = "";
             TopTagging = "";
         }
-
         //TTbar samples
+
+	//Data set not in samples.cc: SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt         nEvents = 29702738
+	//Data set not in samples.cc: SMS-T5ttcc_mGluino1750to2300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt     nEvents = 4145416
+	//Data set not in samples.cc: SMS-T1ttbb_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt                       nEvents = 32545342
+	//Data set not in samples.cc: SMS-T2tt_mStop-150to250_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt          nEvents = 32283695
+	//Data set not in samples.cc: SMS-T2tt_mStop-250to350_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt          nEvents = 33787301
+	//Data set not in samples.cc: SMS-T5tttt_dM175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt                 nEvents = 19918052
+	//Data set not in samples.cc: SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt                       nEvents = 31135695
+	//Data set not in samples.cc: SMS-T2tt_mStop-350to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt          nEvents = 30412245
+	//Data set not in samples.cc: SMS-T5ttcc_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt                       nEvents = 27369064
+
         // TTbarInc has LO xsec on McM : 502.20 pb. The NNLO is 831.76 pb. The k-factor for ttbar is: kt = 831.76/502.20 ~ 1.656233
         // 1.61 * kt 
         addSample("TTbar_HT-600to800", fDir_ + MCloc + "TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 2.666535,    lumi, 14210872, 1.0, kGreen);
@@ -88,7 +98,7 @@ namespace AnaSamples
         addSample("TTbarInc",           fDir_ + TopTagging + "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 831.76,         lumi, 10139950, 1.0, kGreen);
         addSample("TTbarDiLep",         fDir_ + TopTagging + "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 831.76*TTbar_DiLept_BR,         lumi, 30444678, 1.0, kGreen);
 
-        addSample("TTbarSingleLepT",    fDir_ + TopTagging + "TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",    "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR, lumi, 61707823, 1.0, kGreen);
+        addSample("TTbarSingleLepT",    fDir_ + TopTagging + "TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",    "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR, lumi, 61878989, 1.0, kGreen);
         addSample("TTbarSingleLepTbar", fDir_ + TopTagging + "TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 831.76*0.5*TTbar_SingleLept_BR, lumi, 60210394, 1.0, kGreen);
 
         // deep trimmed ...
@@ -136,46 +146,46 @@ namespace AnaSamples
         addSample("DYJetsToLL_HT_70to100",    fDir_ + TopTagging + "DYJetsToLL_M-50_HT-70to100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",    "stopTreeMaker/AUX", 175.3,    lumi, 9616188, 1.23,  kYellow-7);
         addSample("DYJetsToLL_HT_100to200",   fDir_ + TopTagging + "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 147.4,    lumi, 10607207, 1.23,  kYellow-7);
         addSample("DYJetsToLL_HT_200to400",   fDir_ + TopTagging + "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 40.99,    lumi, 9653731,  1.23,  kYellow-7);
-        addSample("DYJetsToLL_HT_400to600",   fDir_ + TopTagging + "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 5.678,    lumi, 9923622, 1.23,  kYellow-7);
+        addSample("DYJetsToLL_HT_400to600",   fDir_ + TopTagging + "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 5.678,    lumi, 10008776, 1.23,  kYellow-7);
         addSample("DYJetsToLL_HT_600to800",   fDir_ + TopTagging + "DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",   "stopTreeMaker/AUX", 1.367,    lumi, 8292957,  1.23,  kYellow-7);
         addSample("DYJetsToLL_HT_800to1200",  fDir_ + TopTagging + "DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",  "stopTreeMaker/AUX", 0.6304,   lumi, 2668730,  1.23,  kYellow-7);
         addSample("DYJetsToLL_HT_1200to2500", fDir_ + TopTagging + "DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.1514,   lumi, 596079,  1.23,  kYellow-7);
         addSample("DYJetsToLL_HT_2500toInf",  fDir_ + TopTagging + "DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",  "stopTreeMaker/AUX", 0.003565, lumi, 399492,  1.23,  kYellow-7);
         //addSample("DYJetsToLL_HT_600toInf", fDir_ + MCloc + "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 2.198, lumi, 5015369,  1.23,  kYellow-7);
         // NNLO
-        addSample("DYJetsToLL_Inc", fDir_ + TopTagging + "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 6025.2, lumi, 49005078, 1.0,  kYellow-7);
+        addSample("DYJetsToLL_Inc", fDir_ + TopTagging + "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 6025.2, lumi, 49144274, 1.0,  kYellow-7);
 
         //QCD
         // Ref. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#QCD. But numbers are from McM.
-        addSample("QCD_HT100to200"  , fDir_ + TopTagging + "QCD_HT100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 27540000, lumi, 79440624, 1.0,  kBlue);
-        addSample("QCD_HT200to300"  , fDir_ + TopTagging + "QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 1735000 , lumi, 57340822, 1.0,  kBlue);
-        addSample("QCD_HT300to500"  , fDir_ + TopTagging + "QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 366800  , lumi, 54427851, 1.0,  kBlue);
-        addSample("QCD_HT500to700"  , fDir_ + TopTagging + "QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 29370   , lumi, 61914415, 1.0,  kBlue);
-        addSample("QCD_HT700to1000" , fDir_ + TopTagging + "QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"stopTreeMaker/AUX", 6524    , lumi, 45412780, 1.0,  kBlue);
-        addSample("QCD_HT1000to1500", fDir_ + TopTagging + "QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","stopTreeMaker/AUX", 1064    , lumi, 14855696, 1.0,  kBlue);
+        addSample("QCD_HT100to200"  , fDir_ + TopTagging + "QCD_HT100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 27540000, lumi, 80684349, 1.0,  kBlue);
+        addSample("QCD_HT200to300"  , fDir_ + TopTagging + "QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 1735000 , lumi, 57580393, 1.0,  kBlue);
+        addSample("QCD_HT300to500"  , fDir_ + TopTagging + "QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 366800  , lumi, 54537903, 1.0,  kBlue);
+        addSample("QCD_HT500to700"  , fDir_ + TopTagging + "QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 29370   , lumi, 62271343, 1.0,  kBlue);
+        addSample("QCD_HT700to1000" , fDir_ + TopTagging + "QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"stopTreeMaker/AUX", 6524    , lumi, 45232316, 1.0,  kBlue);
+        addSample("QCD_HT1000to1500", fDir_ + TopTagging + "QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","stopTreeMaker/AUX", 1064    , lumi, 15127293, 1.0,  kBlue);
         addSample("QCD_HT1500to2000", fDir_ + TopTagging + "QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","stopTreeMaker/AUX", 121.5   , lumi, 11826702, 1.0,  kBlue);
-        addSample("QCD_HT2000toInf" , fDir_ + TopTagging + "QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"stopTreeMaker/AUX", 25.42   , lumi,  6039005, 1.0,  kBlue);
+        addSample("QCD_HT2000toInf" , fDir_ + TopTagging + "QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"stopTreeMaker/AUX", 25.42   , lumi, 6039005, 1.0,  kBlue);
 
         // cross sections from McM
         addSample("QCD_HT200to300_BGenFilter"  , fDir_ + TopTagging + "QCD_HT200to300_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 156500 , lumi, 8258754, 1.0,  kBlue);
         addSample("QCD_HT300to500_BGenFilter"  , fDir_ + TopTagging + "QCD_HT300to500_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 38970  , lumi, 6046724, 1.0,  kBlue);
         addSample("QCD_HT500to700_BGenFilter"  , fDir_ + TopTagging + "QCD_HT500to700_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 4150   , lumi, 7076024, 1.0,  kBlue);
         addSample("QCD_HT700to1000_BGenFilter" , fDir_ + TopTagging + "QCD_HT700to1000_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"stopTreeMaker/AUX", 1000   , lumi, 2869662, 1.0,  kBlue);
-        addSample("QCD_HT1000to1500_BGenFilter", fDir_ + TopTagging + "QCD_HT1000to1500_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","stopTreeMaker/AUX", 184.4  , lumi,  834688, 1.0,  kBlue);
-        addSample("QCD_HT1500to2000_BGenFilter", fDir_ + TopTagging + "QCD_HT1500to2000_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","stopTreeMaker/AUX", 21.31  , lumi,  240962, 1.0,  kBlue);
-        addSample("QCD_HT2000toInf_BGenFilter" , fDir_ + TopTagging + "QCD_HT2000toInf_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"stopTreeMaker/AUX", 4.16   , lumi,  136826, 1.0,  kBlue);
+        addSample("QCD_HT1000to1500_BGenFilter", fDir_ + TopTagging + "QCD_HT1000to1500_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","stopTreeMaker/AUX", 184.4  , lumi, 834688, 1.0,  kBlue);
+        addSample("QCD_HT1500to2000_BGenFilter", fDir_ + TopTagging + "QCD_HT1500to2000_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","stopTreeMaker/AUX", 21.31  , lumi, 240962, 1.0,  kBlue);
+        addSample("QCD_HT2000toInf_BGenFilter" , fDir_ + TopTagging + "QCD_HT2000toInf_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"stopTreeMaker/AUX", 4.16   , lumi, 136826, 1.0,  kBlue);
 
 
         //Other Samples
         // Aprox. NNLO
-        addSample("tW_top_incl", fDir_ + TopTagging + "ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 35.6, lumi,  6952830,  1.0,  kYellow);
+        addSample("tW_top_incl", fDir_ + TopTagging + "ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 35.6, lumi, 6952830,  1.0,  kYellow);
         addSample("tW_antitop_incl", fDir_ + TopTagging + "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 35.6, lumi, 6933094,  1.0,  kYellow);
-        addSample("tW_top_NoHad", fDir_ + TopTagging + "ST_tW_top_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 35.6*(1-W_Had_BR*W_Had_BR), lumi,  11345619,  1.0,  kYellow);
+        addSample("tW_top_NoHad", fDir_ + TopTagging + "ST_tW_top_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 35.6*(1-W_Had_BR*W_Had_BR), lumi, 11345619,  1.0,  kYellow);
         addSample("tW_antitop_NoHad", fDir_ + TopTagging + "ST_tW_antitop_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 35.6*(1-W_Had_BR*W_Had_BR), lumi, 11408144,  1.0,  kYellow);
         // deep trimmed ...
-        addSample("tW_top_incl_deepTrimmed", fDir_ + deepTrimmed_loc + "ST_tW_top_5f_inclusiveDecays_deepTrimmed.txt", "stopTreeMaker/AUX", 35.6, lumi,  6774350,  1.0,  kYellow);
+        addSample("tW_top_incl_deepTrimmed", fDir_ + deepTrimmed_loc + "ST_tW_top_5f_inclusiveDecays_deepTrimmed.txt", "stopTreeMaker/AUX", 35.6, lumi, 6774350,  1.0,  kYellow);
         addSample("tW_antitop_incl_deepTrimmed", fDir_ + deepTrimmed_loc + "ST_tW_antitop_5f_inclusiveDecays_deepTrimmed.txt", "stopTreeMaker/AUX", 35.6, lumi, 6933094,  1.0,  kYellow);
-        addSample("tW_top_NoHad_deepTrimmed", fDir_ + deepTrimmed_loc + "ST_tW_top_5f_NoFullyHadronicDecays_deepTrimmed.txt", "stopTreeMaker/AUX", 35.6*(1-W_Had_BR*W_Had_BR), lumi,  11345619,  1.0,  kYellow);
+        addSample("tW_top_NoHad_deepTrimmed", fDir_ + deepTrimmed_loc + "ST_tW_top_5f_NoFullyHadronicDecays_deepTrimmed.txt", "stopTreeMaker/AUX", 35.6*(1-W_Had_BR*W_Had_BR), lumi, 11345619,  1.0,  kYellow);
         addSample("tW_antitop_NoHad_deepTrimmed", fDir_ + deepTrimmed_loc + "ST_tW_antitop_5f_NoFullyHadronicDecays_deepTrimmed.txt", "stopTreeMaker/AUX", 35.6*(1-W_Had_BR*W_Had_BR), lumi, 11408144,  1.0,  kYellow);
 
         addSample("ST_s", fDir_ + MCloc + "ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1.txt", "stopTreeMaker/AUX", 10.32, lumi, 811495 - 188505,  1.0,  kYellow);
@@ -216,7 +226,7 @@ namespace AnaSamples
         addSample("WWToLNuQQ", fDir_ + TopTagging + "WWToLNuQQ_13TeV-powheg.txt", "stopTreeMaker/AUX", 49.997,  lumi, 8997800,  1.0,  kViolet+4); 
         
         // Ref. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns (NLO from MCFM)
-        addSample("WZ", fDir_ + TopTagging + "WZ_TuneCUETP8M1_13TeV-pythia8.txt", "stopTreeMaker/AUX", 47.13,  lumi, 3992056,  1.0,  kViolet+4);
+        addSample("WZ", fDir_ + TopTagging + "WZ_TuneCUETP8M1_13TeV-pythia8.txt", "stopTreeMaker/AUX", 47.13,  lumi, 3995828,  1.0,  kViolet+4);
         addSample("WZTo1L1Nu2Q", fDir_ + TopTagging + "WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8.txt", "stopTreeMaker/AUX", 10.71,  lumi, 19139899 - 5082024,  1.0,  kViolet+4);
         addSample("WZTo1L3Nu", fDir_ + TopTagging + "WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8.txt", "stopTreeMaker/AUX", 3.033,  lumi, 1322909 - 380863,  1.0,  kViolet+4);
         addSample("WZTo3LNu", fDir_ + TopTagging + "WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.txt", "stopTreeMaker/AUX", 4.712,  lumi, 9624450 - 2263014,  1.0,  kViolet+4);
@@ -276,7 +286,7 @@ namespace AnaSamples
         addSample("SMS-T2tt_fastsim_mStop-350to400",  fDir_ + sigMCloc + "SMS-T2tt_mStop-350to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         addSample("SMS-T2tt_fastsim_mStop-400to1200", fDir_ + sigMCloc + "SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
         addSample("SMS-T2tt_mStop-225_mLSP-50",       fDir_ + TopTagging + "SMS-T2tt_mStop-225_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 36.3818, lumi, 949417, 1.0,  kRed);
-        addSample("SMS-T2tt_mStop-250_mLSP-150",       fDir_ + TopTagging + "SMS-T2tt_mStop-250_mLSP-150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 21.5949, lumi, 862858, 1.0,  kRed);
+        addSample("SMS-T2tt_mStop-250_mLSP-150",       fDir_ + TopTagging + "SMS-T2tt_mStop-250_mLSP-150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 21.5949, lumi, 905836, 1.0,  kRed);
         addSample("SMS-T2tt_mStop-250_mLSP-50",       fDir_ + TopTagging + "SMS-T2tt_mStop-250_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 21.5949, lumi, 899982, 1.0,  kRed);
         addSample("SMS-T2tt_mStop-300_mLSP-150",       fDir_ + TopTagging + "SMS-T2tt_mStop-300_mLSP-150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 8.51615, lumi, 400314, 1.0,  kRed);
         addSample("SMS-T2tt_mStop-325_mLSP-150",       fDir_ + TopTagging + "SMS-T2tt_mStop-325_mLSP-150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 5.60471, lumi, 291078, 1.0,  kRed);
@@ -285,6 +295,9 @@ namespace AnaSamples
         addSample("SMS-T2tt_mStop-650_mLSP-350",       fDir_ + TopTagging + "SMS-T2tt_mStop-650_mLSP-350_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.107045, lumi, 100070, 1.0,  kRed);
         addSample("SMS-T2tt_mStop-850_mLSP-100",       fDir_ + TopTagging + "SMS-T2tt_mStop-850_mLSP-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 0.0189612, lumi, 235029, 1.0,  kRed);
         // T2tb
+
+	//////NewFiles
+	//SMS-T1ttbb_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt   nEvents = 32545342
 
         // T1tttt
         addSample("SMS-T1tttt_fastsim_2016", fDir_ + sigMCloc + "SMS-T1tttt_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1.0, 1.0, 1.0, 1.0, kRed);
