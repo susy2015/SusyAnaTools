@@ -133,12 +133,12 @@ namespace AnaSamples
         
         //Z -> nunu
         // From https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z, kz = 1.23
-        addSample("ZJetsToNuNu_HT_100to200",   fDir_ + TopTagging + "ZJetsToNuNu_HT-100To200_13TeV-madgraph.txt",   "stopTreeMaker/AUX", 280.35,     lumi, 20913689, 1.23,  kTeal+4);
-        addSample("ZJetsToNuNu_HT_200to400",   fDir_ + TopTagging + "ZJetsToNuNu_HT-200To400_13TeV-madgraph.txt",   "stopTreeMaker/AUX", 77.67,      lumi, 17347523, 1.23,  kTeal+4);
-        addSample("ZJetsToNuNu_HT_400to600",   fDir_ + TopTagging + "ZJetsToNuNu_HT-400To600_13TeV-madgraph.txt",   "stopTreeMaker/AUX", 10.73,      lumi, 8355600,  1.23,  kTeal+4);
-        addSample("ZJetsToNuNu_HT_600to800",   fDir_ + TopTagging + "ZJetsToNuNu_HT-600To800_13TeV-madgraph.txt",   "stopTreeMaker/AUX", 0.853*3,    lumi, 5433358,  1.23,  kTeal+4);
-        addSample("ZJetsToNuNu_HT_800to1200",  fDir_ + TopTagging + "ZJetsToNuNu_HT-800To1200_13TeV-madgraph.txt",  "stopTreeMaker/AUX", 0.394*3,    lumi, 2117673,  1.23,  kTeal+4);
-        addSample("ZJetsToNuNu_HT_1200to2500", fDir_ + TopTagging + "ZJetsToNuNu_HT-1200To2500_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.0974*3,   lumi, 461981,   1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_100to200",   fDir_ + TopTagging + "ZJetsToNuNu_HT-100To200_13TeV-madgraph.txt",   "stopTreeMaker/AUX", 280.35,     lumi, 24029802, 1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_200to400",   fDir_ + TopTagging + "ZJetsToNuNu_HT-200To400_13TeV-madgraph.txt",   "stopTreeMaker/AUX", 77.67,      lumi, 23936451, 1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_400to600",   fDir_ + TopTagging + "ZJetsToNuNu_HT-400To600_13TeV-madgraph.txt",   "stopTreeMaker/AUX", 10.73,      lumi, 9862869,  1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_600to800",   fDir_ + TopTagging + "ZJetsToNuNu_HT-600To800_13TeV-madgraph.txt",   "stopTreeMaker/AUX", 0.853*3,    lumi, 5763506,  1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_800to1200",  fDir_ + TopTagging + "ZJetsToNuNu_HT-800To1200_13TeV-madgraph.txt",  "stopTreeMaker/AUX", 0.394*3,    lumi, 2170137,  1.23,  kTeal+4);
+        addSample("ZJetsToNuNu_HT_1200to2500", fDir_ + TopTagging + "ZJetsToNuNu_HT-1200To2500_13TeV-madgraph.txt", "stopTreeMaker/AUX", 0.0974*3,   lumi, 513471,   1.23,  kTeal+4);
         addSample("ZJetsToNuNu_HT_2500toInf",  fDir_ + TopTagging + "ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph.txt",  "stopTreeMaker/AUX", 0.00230*3,  lumi, 405030,   1.23,  kTeal+4);
 
         //DY->ll
@@ -155,16 +155,22 @@ namespace AnaSamples
         // NNLO
         addSample("DYJetsToLL_Inc", fDir_ + TopTagging + "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 6025.2, lumi, 49144274, 1.0,  kYellow-7);
 
+        //gamma + jets samples
+        addSample("GJets_HT-100To200", fDir_ + TopTagging + "GJets_DR-0p4_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 5391,  lumi,        1, 1.0, kGreen);
+        addSample("GJets_HT-200To400", fDir_ + TopTagging + "GJets_DR-0p4_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1168,  lumi, 49572400, 1.0, kGreen);
+        addSample("GJets_HT-400To600", fDir_ + TopTagging + "GJets_DR-0p4_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 132.5, lumi, 11680386, 1.0, kGreen);
+        addSample("GJets_HT-600ToInf", fDir_ + TopTagging + "GJets_DR-0p4_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 44.05, lumi, 11639826, 1.0, kGreen);
+
         //QCD
         // Ref. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#QCD. But numbers are from McM.
-        addSample("QCD_HT100to200"  , fDir_ + TopTagging + "QCD_HT100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 27540000, lumi, 80684349, 1.0,  kBlue);
-        addSample("QCD_HT200to300"  , fDir_ + TopTagging + "QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 1735000 , lumi, 57580393, 1.0,  kBlue);
-        addSample("QCD_HT300to500"  , fDir_ + TopTagging + "QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 366800  , lumi, 54537903, 1.0,  kBlue);
-        addSample("QCD_HT500to700"  , fDir_ + TopTagging + "QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 29370   , lumi, 62271343, 1.0,  kBlue);
-        addSample("QCD_HT700to1000" , fDir_ + TopTagging + "QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"stopTreeMaker/AUX", 6524    , lumi, 45232316, 1.0,  kBlue);
-        addSample("QCD_HT1000to1500", fDir_ + TopTagging + "QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","stopTreeMaker/AUX", 1064    , lumi, 15127293, 1.0,  kBlue);
-        addSample("QCD_HT1500to2000", fDir_ + TopTagging + "QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","stopTreeMaker/AUX", 121.5   , lumi, 11826702, 1.0,  kBlue);
-        addSample("QCD_HT2000toInf" , fDir_ + TopTagging + "QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"stopTreeMaker/AUX", 25.42   , lumi, 6039005, 1.0,  kBlue);
+        addSample("QCD_HT100to200"  , fDir_ + TopTagging + "QCD_HT100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 27990000, lumi, 80684349, 1.0,  kBlue);
+        addSample("QCD_HT200to300"  , fDir_ + TopTagging + "QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 1712000 , lumi, 57580393, 1.0,  kBlue);
+        addSample("QCD_HT300to500"  , fDir_ + TopTagging + "QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 347700  , lumi, 54537903, 1.0,  kBlue);
+        addSample("QCD_HT500to700"  , fDir_ + TopTagging + "QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 32100   , lumi, 62271343, 1.0,  kBlue);
+        addSample("QCD_HT700to1000" , fDir_ + TopTagging + "QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"stopTreeMaker/AUX", 6831    , lumi, 45232316, 1.0,  kBlue);
+        addSample("QCD_HT1000to1500", fDir_ + TopTagging + "QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","stopTreeMaker/AUX", 1207    , lumi, 15127293, 1.0,  kBlue);
+        addSample("QCD_HT1500to2000", fDir_ + TopTagging + "QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","stopTreeMaker/AUX", 119.9   , lumi, 11826702, 1.0,  kBlue);
+        addSample("QCD_HT2000toInf" , fDir_ + TopTagging + "QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"stopTreeMaker/AUX", 25.24   , lumi,  6039005, 1.0,  kBlue);
 
         // cross sections from McM
         addSample("QCD_HT200to300_BGenFilter"  , fDir_ + TopTagging + "QCD_HT200to300_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"stopTreeMaker/AUX", 156500 , lumi, 8258754, 1.0,  kBlue);
@@ -268,6 +274,14 @@ namespace AnaSamples
         addSample("Data_MET_Run2016G", fDir_ + DATAloc + "MET_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
 
         addSample("Data_MET_deepTrimmed", fDir_ + deepTrimmed_loc + "MET_deepTrimmed.txt", "stopTreeMaker/AUX", 35866.210733056, 1.0,  kBlack);
+
+
+        //JetHT
+        addSample("Data_JetHT_2016", fDir_ + TopTagging + "JetHT.txt", "stopTreeMaker/AUX", 35861.695285122, 1.0,  kBlack);
+
+        //SinglePhoton
+        addSample("Data_SinglePhoton_2016", fDir_ + TopTagging + "SinglePhoton.txt", "stopTreeMaker/AUX", 35861.695285122, 1.0,  kBlack);
+
 
         // ----------
         // - signal -
@@ -376,6 +390,9 @@ namespace AnaSamples
 
         addSampleSet(samples, "IncDY", {"DYJetsToLL_Inc"});
 
+        //gamma + jets samples
+        addSampleSet(samples, "GJets", {"GJets_HT-200To400", "GJets_HT-400To600", "GJets_HT-600ToInf"});
+
         addSampleSet(samples, "QCD", {"QCD_HT2000toInf", "QCD_HT1500to2000", "QCD_HT1000to1500", "QCD_HT700to1000", "QCD_HT500to700", "QCD_HT300to500", "QCD_HT200to300", "QCD_HT100to200"});
         addSampleSet(samples, "QCD_BGenFilter", {"QCD_HT2000toInf_BGenFilter", "QCD_HT1500to2000_BGenFilter", "QCD_HT1000to1500_BGenFilter", "QCD_HT700to1000_BGenFilter", "QCD_HT500to700_BGenFilter", "QCD_HT300to500_BGenFilter", "QCD_HT200to300_BGenFilter"});
 
@@ -426,10 +443,16 @@ namespace AnaSamples
 //      addSampleSet(samples, "Data_HTMHT", {"Data_HTMHT_2015C", "Data_HTMHT_2015D_05Oct2015", "Data_HTMHT_2015D_PromptReco"});
         addSampleSet(samples, "Data_HTMHT_Run2016G", {"Data_HTMHT_Run2016G"});
 
+
         addSampleSet(samples, "Data_MET", {"Data_MET_2016"});
         addSampleSet(samples, "Data_MET_Run2016G", {"Data_MET_Run2016G"});
         addSampleSet(samples, "Data_MET_deepTrimmed", {"Data_MET_deepTrimmed"});
 
+        addSampleSet(samples, "Data_JetHT", {"Data_JetHT_2016"});
+
+        addSampleSet(samples, "Data_SinglePhoton", {"Data_SinglePhoton_2016"});
+
+        
         addSampleSet(samples, "Signal_T1tttt_mGluino1200_mLSP800", {"Signal_T1tttt_mGluino1200_mLSP800"});
         addSampleSet(samples, "Signal_T1tttt_mGluino1500_mLSP100", {"Signal_T1tttt_mGluino1500_mLSP100"});
         addSampleSet(samples, "Signal_T2tt_mStop500_mLSP325", {"Signal_T2tt_mStop500_mLSP325"});

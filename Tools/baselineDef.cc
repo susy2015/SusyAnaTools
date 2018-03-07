@@ -155,44 +155,44 @@ void BaselineVessel::prepareTopTagger()
   // top tagger
   //construct vector of constituents 
   ttUtility::ConstAK4Inputs myConstAK4Inputs = ttUtility::ConstAK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger, *qgLikelihood_forTagger);
-  //myConstAK4Inputs.addSupplamentalVector("recoJetsJecScaleRawToFull",            tr->getVec<double>("recoJetsJecScaleRawToFull"));
-  //myConstAK4Inputs.addSupplamentalVector("qgLikelihood",                         tr->getVec<double>("qgLikelihood"));
-  //myConstAK4Inputs.addSupplamentalVector("qgPtD",                                tr->getVec<double>("qgPtD"));
-  //myConstAK4Inputs.addSupplamentalVector("qgAxis1",                              tr->getVec<double>("qgAxis1"));
-  //myConstAK4Inputs.addSupplamentalVector("qgAxis2",                              tr->getVec<double>("qgAxis2"));
-  //myConstAK4Inputs.addSupplamentalVector("recoJetschargedHadronEnergyFraction",  tr->getVec<double>("recoJetschargedHadronEnergyFraction"));
-  //myConstAK4Inputs.addSupplamentalVector("recoJetschargedEmEnergyFraction",      tr->getVec<double>("recoJetschargedEmEnergyFraction"));
-  //myConstAK4Inputs.addSupplamentalVector("recoJetsneutralEmEnergyFraction",      tr->getVec<double>("recoJetsneutralEmEnergyFraction"));
-  //myConstAK4Inputs.addSupplamentalVector("recoJetsmuonEnergyFraction",           tr->getVec<double>("recoJetsmuonEnergyFraction"));
-  //myConstAK4Inputs.addSupplamentalVector("recoJetsHFHadronEnergyFraction",       tr->getVec<double>("recoJetsHFHadronEnergyFraction"));
-  //myConstAK4Inputs.addSupplamentalVector("recoJetsHFEMEnergyFraction",           tr->getVec<double>("recoJetsHFEMEnergyFraction"));
-  //myConstAK4Inputs.addSupplamentalVector("recoJetsneutralEnergyFraction",        tr->getVec<double>("recoJetsneutralEnergyFraction"));
-  //myConstAK4Inputs.addSupplamentalVector("PhotonEnergyFraction",                 tr->getVec<double>("PhotonEnergyFraction"));
-  //myConstAK4Inputs.addSupplamentalVector("ElectronEnergyFraction",               tr->getVec<double>("ElectronEnergyFraction"));
-  //myConstAK4Inputs.addSupplamentalVector("ChargedHadronMultiplicity",            tr->getVec<double>("ChargedHadronMultiplicity"));
-  //myConstAK4Inputs.addSupplamentalVector("NeutralHadronMultiplicity",            tr->getVec<double>("NeutralHadronMultiplicity"));
-  //myConstAK4Inputs.addSupplamentalVector("PhotonMultiplicity",                   tr->getVec<double>("PhotonMultiplicity"));
-  //myConstAK4Inputs.addSupplamentalVector("ElectronMultiplicity",                 tr->getVec<double>("ElectronMultiplicity"));
-  //myConstAK4Inputs.addSupplamentalVector("MuonMultiplicity",                     tr->getVec<double>("MuonMultiplicity"));
-  //myConstAK4Inputs.addSupplamentalVector("DeepCSVb",                             tr->getVec<double>("DeepCSVb"));
-  //myConstAK4Inputs.addSupplamentalVector("DeepCSVc",                             tr->getVec<double>("DeepCSVc"));
-  //myConstAK4Inputs.addSupplamentalVector("DeepCSVl",                             tr->getVec<double>("DeepCSVl"));
-  //myConstAK4Inputs.addSupplamentalVector("DeepCSVbb",                            tr->getVec<double>("DeepCSVbb"));
-  //myConstAK4Inputs.addSupplamentalVector("DeepCSVcc",                            tr->getVec<double>("DeepCSVcc"));
-  //myConstAK4Inputs.addSupplamentalVector("DeepFlavorb",                          tr->getVec<double>("DeepFlavorb"));
-  //myConstAK4Inputs.addSupplamentalVector("DeepFlavorbb",                         tr->getVec<double>("DeepFlavorbb"));
-  //myConstAK4Inputs.addSupplamentalVector("DeepFlavorlepb",                       tr->getVec<double>("DeepFlavorlepb"));
-  //myConstAK4Inputs.addSupplamentalVector("DeepFlavorc",                          tr->getVec<double>("DeepFlavorc"));
-  //myConstAK4Inputs.addSupplamentalVector("DeepFlavoruds",                        tr->getVec<double>("DeepFlavoruds"));
-  //myConstAK4Inputs.addSupplamentalVector("DeepFlavorg",                          tr->getVec<double>("DeepFlavorg"));
-  //myConstAK4Inputs.addSupplamentalVector("CvsL",                                 tr->getVec<double>("CvsL"));
-  //myConstAK4Inputs.addSupplamentalVector("CvsB",                                 tr->getVec<double>("CvsB"));
-  //myConstAK4Inputs.addSupplamentalVector("CombinedSvtx",                         tr->getVec<double>("CombinedSvtx"));
-  //myConstAK4Inputs.addSupplamentalVector("JetProba",                             tr->getVec<double>("JetProba_0"));
-  //myConstAK4Inputs.addSupplamentalVector("JetBprob",                             tr->getVec<double>("JetBprob"));
-  //myConstAK4Inputs.addSupplamentalVector("recoJetsBtag",                         tr->getVec<double>("recoJetsBtag_0"));
-  //myConstAK4Inputs.addSupplamentalVector("recoJetsCharge",                       tr->getVec<double>("recoJetsCharge_0"));
-  //myConstAK4Inputs.addSupplamentalVector("qgMult",                               *convertToDoubleandRegister(*tr, "qgMult"));
+  myConstAK4Inputs.addSupplamentalVector("recoJetsJecScaleRawToFull",            tr->getVec<double>("recoJetsJecScaleRawToFull"));
+  myConstAK4Inputs.addSupplamentalVector("qgLikelihood",                         tr->getVec<double>("qgLikelihood"));
+  myConstAK4Inputs.addSupplamentalVector("qgPtD",                                tr->getVec<double>("qgPtD"));
+  myConstAK4Inputs.addSupplamentalVector("qgAxis1",                              tr->getVec<double>("qgAxis1"));
+  myConstAK4Inputs.addSupplamentalVector("qgAxis2",                              tr->getVec<double>("qgAxis2"));
+  myConstAK4Inputs.addSupplamentalVector("recoJetschargedHadronEnergyFraction",  tr->getVec<double>("recoJetschargedHadronEnergyFraction"));
+  myConstAK4Inputs.addSupplamentalVector("recoJetschargedEmEnergyFraction",      tr->getVec<double>("recoJetschargedEmEnergyFraction"));
+  myConstAK4Inputs.addSupplamentalVector("recoJetsneutralEmEnergyFraction",      tr->getVec<double>("recoJetsneutralEmEnergyFraction"));
+  myConstAK4Inputs.addSupplamentalVector("recoJetsmuonEnergyFraction",           tr->getVec<double>("recoJetsmuonEnergyFraction"));
+  myConstAK4Inputs.addSupplamentalVector("recoJetsHFHadronEnergyFraction",       tr->getVec<double>("recoJetsHFHadronEnergyFraction"));
+  myConstAK4Inputs.addSupplamentalVector("recoJetsHFEMEnergyFraction",           tr->getVec<double>("recoJetsHFEMEnergyFraction"));
+  myConstAK4Inputs.addSupplamentalVector("recoJetsneutralEnergyFraction",        tr->getVec<double>("recoJetsneutralEnergyFraction"));
+  myConstAK4Inputs.addSupplamentalVector("PhotonEnergyFraction",                 tr->getVec<double>("PhotonEnergyFraction"));
+  myConstAK4Inputs.addSupplamentalVector("ElectronEnergyFraction",               tr->getVec<double>("ElectronEnergyFraction"));
+  myConstAK4Inputs.addSupplamentalVector("ChargedHadronMultiplicity",            tr->getVec<double>("ChargedHadronMultiplicity"));
+  myConstAK4Inputs.addSupplamentalVector("NeutralHadronMultiplicity",            tr->getVec<double>("NeutralHadronMultiplicity"));
+  myConstAK4Inputs.addSupplamentalVector("PhotonMultiplicity",                   tr->getVec<double>("PhotonMultiplicity"));
+  myConstAK4Inputs.addSupplamentalVector("ElectronMultiplicity",                 tr->getVec<double>("ElectronMultiplicity"));
+  myConstAK4Inputs.addSupplamentalVector("MuonMultiplicity",                     tr->getVec<double>("MuonMultiplicity"));
+  myConstAK4Inputs.addSupplamentalVector("DeepCSVb",                             tr->getVec<double>("DeepCSVb"));
+  myConstAK4Inputs.addSupplamentalVector("DeepCSVc",                             tr->getVec<double>("DeepCSVc"));
+  myConstAK4Inputs.addSupplamentalVector("DeepCSVl",                             tr->getVec<double>("DeepCSVl"));
+  myConstAK4Inputs.addSupplamentalVector("DeepCSVbb",                            tr->getVec<double>("DeepCSVbb"));
+  myConstAK4Inputs.addSupplamentalVector("DeepCSVcc",                            tr->getVec<double>("DeepCSVcc"));
+  myConstAK4Inputs.addSupplamentalVector("DeepFlavorb",                          tr->getVec<double>("DeepFlavorb"));
+  myConstAK4Inputs.addSupplamentalVector("DeepFlavorbb",                         tr->getVec<double>("DeepFlavorbb"));
+  myConstAK4Inputs.addSupplamentalVector("DeepFlavorlepb",                       tr->getVec<double>("DeepFlavorlepb"));
+  myConstAK4Inputs.addSupplamentalVector("DeepFlavorc",                          tr->getVec<double>("DeepFlavorc"));
+  myConstAK4Inputs.addSupplamentalVector("DeepFlavoruds",                        tr->getVec<double>("DeepFlavoruds"));
+  myConstAK4Inputs.addSupplamentalVector("DeepFlavorg",                          tr->getVec<double>("DeepFlavorg"));
+  myConstAK4Inputs.addSupplamentalVector("CvsL",                                 tr->getVec<double>("CvsL"));
+  myConstAK4Inputs.addSupplamentalVector("CvsB",                                 tr->getVec<double>("CvsB"));
+  myConstAK4Inputs.addSupplamentalVector("CombinedSvtx",                         tr->getVec<double>("CombinedSvtx"));
+  myConstAK4Inputs.addSupplamentalVector("JetProba",                             tr->getVec<double>("JetProba_0"));
+  myConstAK4Inputs.addSupplamentalVector("JetBprob",                             tr->getVec<double>("JetBprob"));
+  myConstAK4Inputs.addSupplamentalVector("recoJetsBtag",                         tr->getVec<double>("recoJetsBtag_0"));
+  myConstAK4Inputs.addSupplamentalVector("recoJetsCharge",                       tr->getVec<double>("recoJetsCharge_0"));
+  myConstAK4Inputs.addSupplamentalVector("qgMult",                               *convertToDoubleandRegister(*tr, "qgMult"));
 
   //ttUtility::ConstAK8Inputs myConstAK8Inputs = ttUtility::ConstAK8Inputs(
   //    tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec"), 
@@ -345,6 +345,7 @@ bool BaselineVessel::PassTopTagger()
   tr->registerDerivedVar("nTopCandSortedCnt" + firstSpec, nTopCandSortedCnt);
   tr->registerDerivedVec("vTops"+firstSpec, vTops);
   tr->registerDerivedVec("mTopJets"+firstSpec, mTopJets);
+  tr->registerDerivedVar("ttResults"+firstSpec, &ttPtr->getResults());
 
   return passTagger;
 }       // -----  end of function BaselineVessel::PassTopTagger  -----
