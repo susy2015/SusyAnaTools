@@ -17,7 +17,8 @@ extern "C" {
         int i = 0;
         for(auto& sample : sampleVec)
         {
-            array[i++] = sample.filePath.c_str();
+            std::string* s = new std::string (sample.filePath + "/" + sample.fileName);
+            array[i++] = s->c_str();
         }
         return array;
     }

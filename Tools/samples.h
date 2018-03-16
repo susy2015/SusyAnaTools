@@ -17,13 +17,13 @@ namespace AnaSamples
   {
    public:
     std::string tag;
-    std::string filePath, treePath;
+    std::string filePath, fileName, treePath;
     double xsec, lumi, kfactor, nEvts;
     int color;
     bool isData_;
         
     FileSummary() {}
-    FileSummary(std::string tag, std::string filePath, std::string treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), treePath(treePath), xsec(xsec), lumi(lumi), kfactor(kfactor), nEvts(nEvts), color(color), isData_(false)
+  FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(xsec), lumi(lumi), kfactor(kfactor), nEvts(nEvts), color(color), isData_(false)
     {
       weight_ = xsec * lumi * kfactor / nEvts;
     }
@@ -31,7 +31,7 @@ namespace AnaSamples
     //Constructor which doesn't make a xsec*lumi weighted sample, e.g. for use with data.
     //Initialize xsec, lumi, nEvts to 1 so that the comparison operators still work
     //Need a record of the actual data lumi!
-    FileSummary(std::string tag, std::string filePath, std::string treePath, double lumi, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), treePath(treePath), xsec(1), lumi(lumi), kfactor(kfactor), nEvts(1), color(color), isData_(true)
+  FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double lumi, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(1), lumi(lumi), kfactor(kfactor), nEvts(1), color(color), isData_(true)
     {
       weight_ = kfactor;
     }
@@ -103,14 +103,14 @@ namespace AnaSamples
    
    public:
     SampleSet(std::string fDir = fileDir, double lumi = luminosity);
-    void addSample(std::string tag, std::string filePath, std::string treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) 
+    void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) 
     {
-      sampleSet_[tag] = FileSummary(tag, filePath, treePath, xsec, lumi, nEvts, kfactor, color);
+        sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, xsec, lumi, nEvts, kfactor, color);
     }
 
-    void addSample(std::string tag, std::string filePath, std::string treePath, double lumi, double kfactor, int color = kBlack) 
+    void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName,  const std::string& treePath, double lumi, double kfactor, int color = kBlack) 
     {
-      sampleSet_[tag] = FileSummary(tag, filePath, treePath, lumi, kfactor, color);
+        sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, lumi, kfactor, color);
     }
 
    private:
