@@ -19,7 +19,7 @@ cmsenv
 git cms-init
 git clone -b TestMiniAOD git@github.com:susy2015/recipeAUX.git
 git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_91X_v1 (https://github.com/cms-jet/JetToolbox/tree/jetToolbox_91X)
-git clone -b CMSSW926 git@github.com:susy2015/SusyAnaTools.git
+git clone -b master git@github.com:susy2015/SusyAnaTools.git
 scram b -j9
 ```
 
@@ -54,7 +54,7 @@ To Checkout TopTagger Code:
 cd $CMSSW_BASE/src
 git clone git@github.com:susy2015/opencv.git
 cd opencv
-git checkout 3.1.0_StopBugFix
+git checkout 3.1.1_BugFix
 cmake .
 make -j 8
 
