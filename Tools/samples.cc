@@ -149,7 +149,7 @@ namespace AnaSamples
         addSample("DYJetsToLL_Inc", fDir_ + TopTagging, "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",             "stopTreeMaker/AUX", 6025.2, lumi, 49144274, 1.0,  kYellow-7);
 
         //gamma + jets samples
-        addSample("GJets_HT-100To200", fDir_ + TopTagging, "GJets_DR-0p4_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 5391,  lumi,  8288515, 1.0, kGreen);
+        addSample("GJets_HT-100To200", fDir_ + TopTagging, "GJets_DR-0p4_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 5391,  lumi,  8322347, 1.0, kGreen);
         addSample("GJets_HT-200To400", fDir_ + TopTagging, "GJets_DR-0p4_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 1168,  lumi, 49572400, 1.0, kGreen);
         addSample("GJets_HT-400To600", fDir_ + TopTagging, "GJets_DR-0p4_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 132.5, lumi, 11680386, 1.0, kGreen);
         addSample("GJets_HT-600ToInf", fDir_ + TopTagging, "GJets_DR-0p4_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt", "stopTreeMaker/AUX", 44.05, lumi, 11639826, 1.0, kGreen);
