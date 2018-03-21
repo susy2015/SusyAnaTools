@@ -52,6 +52,7 @@ namespace AnaSamples
         std::string addSigMCloc = "Spring15_74X_v5X_top_corridor/";
         std::string deepTrimmed_loc       = "Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/DeepTrimmed/";
         std::string TopTagging  = "Stop_production/Top_ntuple_V8/";
+        std::string TopTagging_skim  = "/eos/uscms/store/user/pastika/TopTagging_V8/";
 
         if(fDir.compare("condor") == 0)
         {
@@ -62,6 +63,7 @@ namespace AnaSamples
             addSigMCloc = "";
             deepTrimmed_loc = "";
             TopTagging = "";
+            TopTagging_skim = "";
         }
         //TTbar samples
 
@@ -247,7 +249,8 @@ namespace AnaSamples
         // - data -
         // --------
         //Single Muon
-        addSample("Data_SingleMuon_2016", fDir_ + TopTagging, "SingleMuon.txt","stopTreeMaker/AUX", 35861.695285122, 1.0,  kBlack);
+        //addSample("Data_SingleMuon_2016", fDir_ + TopTagging, "SingleMuon.txt","stopTreeMaker/AUX", 35861.695285122, 1.0,  kBlack);
+        addSample("Data_SingleMuon_2016", TopTagging_skim, "SingleMuon.txt","slimmedTuple", 35861.695285122, 1.0,  kBlack);
         addSample("Data_SingleMuon_Run2016G", fDir_ + DATAloc, "SingleMuon_Run2016G.txt","stopTreeMaker/AUX", 7721.367916, 1.0,  kBlack);
 
         //Single Electron
@@ -261,17 +264,20 @@ namespace AnaSamples
 
         //MET
         //                                                                             Run2016B-v3     Run2016C-v1       Run2016D-v1      Run2016E-v1      Run2016F-v1      Run2016G-v1      Run2016H-v2      Run2016H-v3  -> total : 35866.210733056
-        addSample("Data_MET_2016", fDir_ + TopTagging, "MET.txt","stopTreeMaker/AUX",  (5787968233.150 + 2573399420.069 + 4248383597.366 + 4008663475.924 + 3101618402.006 + 7540487746.602 + 8390540442.688 + 215149415.251)/1000000., 1.0,  kBlack);
+        //addSample("Data_MET_2016", fDir_ + TopTagging, "MET.txt", "stopTreeMaker/AUX",  (5787968233.150 + 2573399420.069 + 4248383597.366 + 4008663475.924 + 3101618402.006 + 7540487746.602 + 8390540442.688 + 215149415.251)/1000000., 1.0,  kBlack);
+        addSample("Data_MET_2016", TopTagging_skim, "MET.txt", "slimmedTuple",  (5787968233.150 + 2573399420.069 + 4248383597.366 + 4008663475.924 + 3101618402.006 + 7540487746.602 + 8390540442.688 + 215149415.251)/1000000., 1.0,  kBlack);
         addSample("Data_MET_Run2016G", fDir_ + DATAloc, "MET_Run2016G.txt","stopTreeMaker/AUX", 7554.453635136, 1.0,  kBlack);
 
         addSample("Data_MET_deepTrimmed", fDir_ + deepTrimmed_loc,  "MET_deepTrimmed.txt", "stopTreeMaker/AUX", 35866.210733056, 1.0,  kBlack);
 
 
         //JetHT
-        addSample("Data_JetHT_2016", fDir_ + TopTagging, "JetHT.txt", "stopTreeMaker/AUX", 35861.695285122, 1.0,  kBlack);
+        //addSample("Data_JetHT_2016", fDir_ + TopTagging, "JetHT.txt", "stopTreeMaker/AUX", 35861.695285122, 1.0,  kBlack);
+        addSample("Data_JetHT_2016", TopTagging_skim, "JetHT.txt", "slimmedTuple", 35861.695285122, 1.0,  kBlack);
 
         //SinglePhoton
-        addSample("Data_SinglePhoton_2016", fDir_ + TopTagging, "SinglePhoton.txt", "stopTreeMaker/AUX", 35861.695285122, 1.0,  kBlack);
+        //addSample("Data_SinglePhoton_2016", fDir_ + TopTagging, "SinglePhoton.txt", "stopTreeMaker/AUX", 35861.695285122, 1.0,  kBlack);
+        addSample("Data_SinglePhoton_2016", TopTagging_skim, "SinglePhoton.txt", "slimmedTuple", 35861.695285122, 1.0,  kBlack);
 
 
         // ----------
