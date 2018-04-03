@@ -4,10 +4,10 @@
 #include <iostream>
 extern "C" {
     double SC_fixed_lumi(){ return AnaSamples::luminosity; }
-    AnaSamples::SampleCollection* SC_new()
+    AnaSamples::SampleCollection* SC_new(char *ssfile, char* scfile)
     {
-        AnaSamples::SampleSet *ss = new AnaSamples::SampleSet();
-        return new AnaSamples::SampleCollection(*ss); 
+        AnaSamples::SampleSet *ss = new AnaSamples::SampleSet(ssfile);
+        return new AnaSamples::SampleCollection(scfile, *ss); 
     }
     int SC_samples_size(AnaSamples::SampleCollection* sc, char *scn){ return (*sc)[std::string(scn)].size(); }
     char const ** SC_samples(AnaSamples::SampleCollection* sc, char *scn)
