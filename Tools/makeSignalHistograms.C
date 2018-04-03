@@ -126,8 +126,8 @@ int main()
     try
     {
 
-        AnaSamples::SampleSet        ss(AnaSamples::fileDir, 2153.74);
-        AnaSamples::SampleCollection sc(ss);
+        AnaSamples::SampleSet        ss("sampleSets.txt", 2153.74);
+        AnaSamples::SampleCollection sc("sampleCollections.txt", ss);
 
         std::set<std::string> activatedBranch;
         for(auto& branch : AnaConsts::activatedBranchNames_DataOnly) activatedBranch.insert(branch);
