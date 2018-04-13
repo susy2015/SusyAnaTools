@@ -149,7 +149,7 @@ namespace AnaSamples
     friend class SampleCollection;
    
    public:
-    SampleSet(std::string fDir = fileDir, double lumi = luminosity);
+    SampleSet(std::string fDir = fileDir, bool isCondor = false, double lumi = luminosity);
     void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) 
     {
         sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, xsec, lumi, nEvts, kfactor, color);
@@ -161,7 +161,8 @@ namespace AnaSamples
     }
 
    private:
-    std::string fDir_;        
+    std::string fDir_;
+    bool isCondor_;
     double lumi_;
 
     std::map<std::string, FileSummary>& getMap();

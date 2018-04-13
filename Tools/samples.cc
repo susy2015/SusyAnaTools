@@ -9,11 +9,21 @@ namespace AnaSamples
     {
         if(filelist_.size()) filelist_.clear();
         
-        FILE *f = fopen((filePath+fileName).c_str(), "r");
-        char buff[512];
+        std::string filePathAndName;
+        if(filePath.size() > 0)
+        {
+            filePathAndName = filePath + "/" + fileName;
+        }
+        else
+        {
+            filePathAndName = fileName;
+        }
+
+        FILE *f = fopen(filePathAndName.c_str(), "r");
+        char buff[1024];
         if(f)
         {
-            while(!feof(f) && fgets(buff, 512, f))
+            while(!feof(f) && fgets(buff, 1023, f))
             {
                 for(char* k = strchr(buff, '\n'); k != 0; k = strchr(buff, '\n')) *k = '\0';
                 filelist_.push_back(buff);
@@ -40,21 +50,23 @@ namespace AnaSamples
         int nMatches = sscanf(buf, "%s %s %s %s %f %f %f %f", cDSname, cFPath, cfName, cTPath, &f1, &f2, &f3, &f4);
         if(nMatches == 8) //this is MC 
         {
-            //                                         xsec        NEvts+ NEvts-  kfactor
-            addSample(cDSname, cFPath, cfName, cTPath, f1,   lumi_, f2 -  f3,     f4,     kGreen);
+            //                                                        xsec        NEvts+ NEvts-  kfactor
+            if(!isCondor_) addSample(cDSname, cFPath, cfName, cTPath, f1,   lumi_, f2 -  f3,     f4,     kGreen);
+            else           addSample(cDSname, "",     cfName, cTPath, f1,   lumi_, f2 -  f3,     f4,     kGreen);
             return true;
         }
         else if(nMatches == 6) //this is Data
         {
-            //                                         lumi  kfactor
-            addSample(cDSname, cFPath, cfName, cTPath, f1,   f2,     kBlack);
+            //                                                        lumi  kfactor
+            if(!isCondor_) addSample(cDSname, cFPath, cfName, cTPath, f1,   f2,     kBlack);
+            else           addSample(cDSname, "",     cfName, cTPath, f1,   f2,     kBlack);
             return true;
         }
 
         return false;            
     }
     
-    SampleSet::SampleSet(std::string file, double lumi) : lumi_(lumi)
+    SampleSet::SampleSet(std::string file, bool isCondor, double lumi) : isCondor_(isCondor), lumi_(lumi)
     {
         readCfg(file);
     }
