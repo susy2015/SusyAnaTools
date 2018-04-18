@@ -100,9 +100,11 @@ TChain *fChain = 0;
  
 
       const string condor =  (argc == 6) ? argv[5]: "";
-  
-      AnaSamples::SampleSet ss = condor.empty()? AnaSamples::SampleSet():AnaSamples::SampleSet(argv[5]);
-      AnaSamples::SampleCollection sc(ss);
+
+      condor.empty()? AnaSamples::SampleSet():AnaSamples::SampleSet(argv[5]);  
+
+      AnaSamples::SampleSet        ss("sampleSets.txt");
+      AnaSamples::SampleCollection sc("sampleCollections.txt", ss);
                                    
       double ScaleMC = 1.;                                                                              
       if(ss[subSampleName] != ss.null())                                                                             

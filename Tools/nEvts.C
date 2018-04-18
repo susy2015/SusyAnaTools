@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
   if(getNegWeights)
   std::cout << "Will compute negative weight fraction" << std::endl;
     
-  AnaSamples::SampleSet        ss;
-  AnaSamples::SampleCollection sc(ss);
+  AnaSamples::SampleSet        ss("sampleSets.txt");
+  AnaSamples::SampleCollection sc("sampleCollections.txt", ss);
 
   std::string selKeyStr;
   if(argc >= optind+1)

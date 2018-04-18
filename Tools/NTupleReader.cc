@@ -7,6 +7,21 @@
 
 #include <iostream>
 
+//specialization for bool return value
+template<>
+class NTupleReader::FuncWrapperImpl<std::function<bool(NTupleReader&)>> : public FuncWrapper
+{
+private:
+    std::function<bool(NTupleReader&)> func_;
+public:
+    bool operator()(NTupleReader& tr)
+    {
+        return func_(tr);
+    }
+
+    FuncWrapperImpl(std::function<bool(NTupleReader&)> f) : func_(f) {}
+};
+
 NTupleReader::NTupleReader(TTree * tree, const std::set<std::string>& activeBranches) : activeBranches_(activeBranches)
 {
     tree_ = tree;
@@ -25,6 +40,7 @@ NTupleReader::~NTupleReader()
     //Clean up any remaining dynamic memory
     for(auto& branch : branchMap_)    if(branch.second.ptr) branch.second.destroy();
     for(auto& branch : branchVecMap_) if(branch.second.ptr) branch.second.destroy();
+    for(auto& funcWrapPtr : functionVec_) if(funcWrapPtr) delete funcWrapPtr;
 }
 
 void NTupleReader::init()
@@ -102,13 +118,13 @@ void NTupleReader::registerBranch(TBranch * const branch) const
     {
         if     (type.find("double")         != std::string::npos) registerVecBranch<double>(name);
         else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<unsigned int>(name);
-        else if(type.find("unsigned long")   != std::string::npos) registerVecBranch<unsigned long>(name);
-        else if(type.find("unsigned char")   != std::string::npos) registerVecBranch<unsigned char>(name);
-        else if(type.find("unsigned short")   != std::string::npos) registerVecBranch<unsigned short>(name);
-        else if(type.find("short")   != std::string::npos) registerVecBranch<short>(name);
-        else if(type.find("char")   != std::string::npos) registerVecBranch<char>(name);
+        else if(type.find("unsigned long")  != std::string::npos) registerVecBranch<unsigned long>(name);
+        else if(type.find("unsigned char")  != std::string::npos) registerVecBranch<unsigned char>(name);
+        else if(type.find("unsigned short") != std::string::npos) registerVecBranch<unsigned short>(name);
+        else if(type.find("short")          != std::string::npos) registerVecBranch<short>(name);
+        else if(type.find("char")           != std::string::npos) registerVecBranch<char>(name);
         else if(type.find("int")            != std::string::npos) registerVecBranch<int>(name);
-        else if(type.find("bool")            != std::string::npos) registerVecBranch<bool>(name);
+        else if(type.find("bool")           != std::string::npos) registerVecBranch<bool>(name);
         else if(type.find("string")         != std::string::npos) registerVecBranch<std::string>(name);
         else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<TLorentzVector>(name);
         else if(type.find("float")          != std::string::npos) registerVecBranch<float>(name);
@@ -134,11 +150,17 @@ void NTupleReader::registerBranch(TBranch * const branch) const
 
 bool NTupleReader::goToEvent(int evt)
 {
-    int status = tree_->GetEntry(evt);
-    if (status == 0) return false;
-    nevt_ = evt + 1;
-    ++evtProcessed_;
-    calculateDerivedVariables();
+    int status = 0;
+    bool passFilters = false;
+    do
+    {
+        status = tree_->GetEntry(evt);
+        if (status == 0) return false;
+        nevt_ = evt + 1;
+        ++evtProcessed_;
+        passFilters = calculateDerivedVariables();
+    }
+    while(status > 0 && !passFilters && ++evt);
     return status > 0;
 }
 
@@ -153,18 +175,29 @@ void NTupleReader::disableUpdate()
     printf("NTupleReader::disableUpdate(): You have disabled tuple updates.  You may therefore be using old variablre definitions.  Be sure you are ok with this!!!\n");
 }
 
-void NTupleReader::calculateDerivedVariables()
+bool NTupleReader::calculateDerivedVariables()
 {
     for(auto& func : functionVec_)
     {
-        func(*this);
+        if(!(*func)(*this))
+        {
+            return false;
+        }
     }
+
+    return true;
 }
 
 void NTupleReader::registerFunction(void (*f)(NTupleReader&))
 {
-    if(isFirstEvent()) functionVec_.emplace_back(f);
-    else printf("NTupleReader::registerFunction(...): new functions cannot be registered after tuple reading begins!\n");
+    if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<std::function<void(NTupleReader&)>>(std::function<void(NTupleReader&)>(f)));
+    else THROW_SATEXCEPTION("new functions cannot be registered after tuple reading begins!");
+}
+
+void NTupleReader::registerFunction(bool (*f)(NTupleReader&))
+{
+    if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<std::function<bool(NTupleReader&)>>(std::function<bool(NTupleReader&)>(f)));
+    else THROW_SATEXCEPTION("new functions cannot be registered after tuple reading begins!");
 }
 
 void NTupleReader::getType(const std::string& name, std::string& type) const

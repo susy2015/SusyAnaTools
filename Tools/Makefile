@@ -20,7 +20,7 @@ CXXDEPFLAGS = -MMD -MP
 LD         = g++
 LDFLAGS    =
 
-OPENCV_DIRECTORY = $(CMSSW_BASE)/src/opencv
+OPENCV_DIRECTORY = /uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/
 LIBS       = $(shell root-config --glibs)
 LIBS      += -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lTopTaggerTopTagger -lTopTaggerCfgParser
 LIBS      += -L$(OPENCV_DIRECTORY)/lib/ -lopencv_ml -lopencv_core

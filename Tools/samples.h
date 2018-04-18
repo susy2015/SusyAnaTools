@@ -6,8 +6,8 @@
 #include <vector>
 #include <set>
 
-//#include "TChain.h"
-#include <iostream>
+#include <cstring>
+#include <algorithm>
 
 namespace AnaSamples
 {
@@ -17,13 +17,13 @@ namespace AnaSamples
   {
    public:
     std::string tag;
-    std::string filePath, treePath;
+    std::string filePath, fileName, treePath;
     double xsec, lumi, kfactor, nEvts;
     int color;
     bool isData_;
         
     FileSummary() {}
-    FileSummary(std::string tag, std::string filePath, std::string treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), treePath(treePath), xsec(xsec), lumi(lumi), kfactor(kfactor), nEvts(nEvts), color(color), isData_(false)
+    FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(xsec), lumi(lumi), kfactor(kfactor), nEvts(nEvts), color(color), isData_(false)
     {
       weight_ = xsec * lumi * kfactor / nEvts;
     }
@@ -31,7 +31,7 @@ namespace AnaSamples
     //Constructor which doesn't make a xsec*lumi weighted sample, e.g. for use with data.
     //Initialize xsec, lumi, nEvts to 1 so that the comparison operators still work
     //Need a record of the actual data lumi!
-    FileSummary(std::string tag, std::string filePath, std::string treePath, double lumi, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), treePath(treePath), xsec(1), lumi(lumi), kfactor(kfactor), nEvts(1), color(color), isData_(true)
+    FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double lumi, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(1), lumi(lumi), kfactor(kfactor), nEvts(1), color(color), isData_(true)
     {
       weight_ = kfactor;
     }
@@ -48,7 +48,7 @@ namespace AnaSamples
       }
     }
     mutable std::vector<std::string> filelist_;
-    void addCollection(std::string);
+    void addCollection(const std::string&);
     const std::set<std::string>& getCollections() const
     {
       return collections_;
@@ -88,6 +88,53 @@ namespace AnaSamples
    protected:
     std::map<std::string, T> sampleSet_;
     const T nullT_;
+    static constexpr unsigned int BUF_LEN_ = 4096;
+
+    virtual bool parseCfgLine(const char* buf) = 0;
+
+    void readCfg(const std::string& file)
+    {
+        FILE *fin = fopen(file.c_str(), "r");
+
+        if(fin != nullptr)
+        {
+            char buf[BUF_LEN_];
+            int lineNum = 0;
+            while(!feof(fin) && fgets(buf, BUF_LEN_-1, fin))
+            {
+                ++lineNum;
+
+                //skip comments
+                if(strlen(buf) <= 0 || buf[0] == '#') continue;
+
+                //skip empty lines (is there a way not to copy?)
+                std::string sbuf(buf);
+                if(std::all_of(sbuf.cbegin(), sbuf.cend(), [](char c) { return std::isspace(c); })) continue;
+
+                //strip out commas
+                char *bufPtr = strchr(buf, ',');
+                while(bufPtr)
+                {
+                    *bufPtr = ' ';
+                    bufPtr = strchr(bufPtr + 1, ',');
+                }
+
+                //strip out newlines
+                bufPtr = strchr(buf, '\n');
+                if(bufPtr) *bufPtr = '\0';
+
+                //parse line
+                if(!parseCfgLine(buf))
+                {
+                    //if false is returned, the line was not parsed properly
+                    printf("Malformed line: %s:%i\n", file.c_str(), lineNum);
+                }
+            }
+
+            fclose(fin);
+        }
+    }
+
 
    public:
     decltype(sampleSet_.cbegin()) begin() const { return sampleSet_.cbegin(); }
@@ -102,28 +149,31 @@ namespace AnaSamples
     friend class SampleCollection;
    
    public:
-    SampleSet(std::string fDir = fileDir, double lumi = luminosity);
-    void addSample(std::string tag, std::string filePath, std::string treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) 
+    SampleSet(std::string fDir = fileDir, bool isCondor = false, double lumi = luminosity);
+    void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) 
     {
-      sampleSet_[tag] = FileSummary(tag, filePath, treePath, xsec, lumi, nEvts, kfactor, color);
+        sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, xsec, lumi, nEvts, kfactor, color);
     }
 
-    void addSample(std::string tag, std::string filePath, std::string treePath, double lumi, double kfactor, int color = kBlack) 
+    void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName,  const std::string& treePath, double lumi, double kfactor, int color = kBlack) 
     {
-      sampleSet_[tag] = FileSummary(tag, filePath, treePath, lumi, kfactor, color);
+        sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, lumi, kfactor, color);
     }
 
    private:
-    std::string fDir_;        
+    std::string fDir_;
+    bool isCondor_;
     double lumi_;
 
     std::map<std::string, FileSummary>& getMap();
+    
+    bool parseCfgLine(const char* buf);
   };
 
   class SampleCollection : public SampleBase<std::vector<FileSummary>>
   {
    public:
-    SampleCollection(SampleSet& samples);
+    SampleCollection(const std::string& file, SampleSet& samples);
     std::vector<std::string>& getSampleLabels(std::string name);
     inline double getSampleLumi(std::string name)
     {
@@ -132,7 +182,9 @@ namespace AnaSamples
    private:
     std::map<std::string, double> totalLumiMap_;
     std::map<std::string, std::vector<std::string>> nameVec_;
-    void addSampleSet(SampleSet& samples, std::string name, std::vector<std::string> vss);
+    SampleSet& ss_;
+    void addSampleSet(SampleSet& samples, const std::string& name, const std::vector<std::string>& vss);
+    bool parseCfgLine(const char* buf);
   };
 }
 
