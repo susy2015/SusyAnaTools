@@ -99,7 +99,7 @@ TChain *fChain = 0;
     n_eff_udsg->GetYaxis()->SetTitle("#eta");
  
 
-      AnaSamples::SampleSet        ss("sampleSets.txt", AnaSamples::lumi, (argc == 6);
+      AnaSamples::SampleSet        ss("sampleSets.txt", AnaSamples::luminosity, (argc == 6));
       AnaSamples::SampleCollection sc("sampleCollections.txt", ss);
                                    
       double ScaleMC = 1.;                                                                              
