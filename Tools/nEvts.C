@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
   if(getNegWeights)
   std::cout << "Will compute negative weight fraction" << std::endl;
     
-  AnaSamples::SampleSet        ss("sampleSets.txt");
-  AnaSamples::SampleCollection sc("sampleCollections.txt", ss);
+  AnaSamples::SampleSet        ss("sampleSets.cfg");
+  AnaSamples::SampleCollection sc("sampleCollections.cfg", ss);
 
   std::string selKeyStr;
   if(argc >= optind+1)
@@ -72,23 +72,34 @@ int main(int argc, char *argv[])
     int nEntries = t->GetEntries();
     if(nEntries != file.second.nEvts)
         std::cout << "DIFFERENT:\t";
-    std::cout << "Processing file(s): " << file.second.filePath << "\t" << nEntries << "\twas: " << file.second.nEvts  << std::endl;
+    std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << nEntries << "\twas: " << file.second.nEvts  << std::endl;
 
     if(getNegWeights)
     {
-      std::set<std::string> activeBranches;
-      activeBranches.insert("stored_weight");
-      NTupleReader tr = NTupleReader(t, activeBranches);
+      NTupleReader tr = NTupleReader(t);
     
       int negw = 0;
       int posw = 0;
       while(tr.getNextEvent())
       {
-        double stored_weight = tr.getVar<double>("stored_weight");
+        double stored_weight = 0;
+        if( tr.checkBranch("stored_weight") )
+        {
+          stored_weight = tr.getVar<double>("stored_weight");
+        }
+        else if( tr.checkBranch("Weight") )
+        {
+          stored_weight = tr.getVar<double>("Weight");
+        }
+        else
+        {
+          std::cout<<"No weight information in NTupleReader object"<<std::endl;
+          break;
+        }
         if(stored_weight > 0) ++posw;
         else ++negw;
       }
-      std::cout << "Processing file(s): " << file.second.filePath << "\t" << "Neg weigths = " << negw << ", Pos weights = " << posw << std::endl;
+      std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << "Neg weigths = " << negw << ", Pos weights = " << posw << std::endl;
     }
   }   
 }
