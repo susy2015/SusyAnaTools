@@ -7,20 +7,19 @@ const double lumi = 36;
 //TCanvas* mycanvas = new TCanvas("mycanvas", "mycanvas", 1280, 720);
 TCanvas* mycanvas = new TCanvas();
 
-//TString sp = "Signal_T2tt_mStop850_mLSP100";
-//TString sp = "Signal_T1tttt_mGluino2000_mLSP100";
-//TString sp = "Signal_T1tttt_mGluino1500_mLSP1200";
-//TString sp = "Signal_T1tttt_mGluino1500_mLSP100";
-TString sp = "Signal_T2bw_mStop800_mLSP100";
+//TString sp = "T2bwC_mStop500_mLSP490";
+//TString sp = "T2bwC_mStop600_mLSP520";
+//TString sp = "T2fbd_mStop600_mLSP520";
+TString sp = "T2fbd_mStop500_mLSP490";
 
 //TString folder = "Baseline_Only/";
 TString folder = "";
 //TString var = "mtb_mt2_h";
-TString var = "ntop_nw_h";
+TString var = "ISRpt_MET_lowdm_h";
 gStyle->SetOptStat(kFALSE);
 gStyle->SetPaintTextFormat("4.2f");
 //TFile *f1 = new TFile("results/" + sp + ".root");
-TFile *f1 = new TFile(sp + ".root");
+TFile *f1 = new TFile("results/Signal_" + sp + ".root");
 TH2D *h1 = (TH2D*)f1->Get(folder + var);
 TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
 
@@ -28,13 +27,12 @@ double all_events = h2->GetBinContent(1);
 double left_events = h2->GetBinContent(2);
 
 h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-//h1->Rebin2D(5,5);
+h1->Rebin2D(4,4);
 h1->SetTitle(sp);
-h1->GetXaxis()->SetRangeUser(0,4);
-h1->GetYaxis()->SetRangeUser(0,4);
-h1->GetYaxis()->SetTitle("nw");
-h1->GetXaxis()->SetTitle("ntop");
-//h1->DrawClone("Colztexte");
+h1->GetXaxis()->SetRangeUser(240,800);
+h1->GetYaxis()->SetRangeUser(240,800);
+h1->GetYaxis()->SetTitle("ISR pt");
+h1->GetXaxis()->SetTitle("MET");
 h1->SetMarkerSize(2);
 h1->Draw("COLZTEXT");
 
@@ -45,7 +43,7 @@ leg->SetBorderSize(0);
 leg->AddEntry((TObject*)0,"36 fb^{-1} (13TeV)","");
 leg->Draw("SAME");
 
-mycanvas->Print(sp + ".png");
+mycanvas->Print(sp + "_" + var + ".png");
 
 return 0;
 }

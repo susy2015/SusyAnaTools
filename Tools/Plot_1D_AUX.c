@@ -62,7 +62,7 @@ int Plot_1D_AUX_bg (double lumi, TString sp, TString var, TString folder, TLegen
 	return 0;
 }
 
-int Plot_1D_AUX_sig (double lumi, TString sp, TString var, TString folder, TLegend *leg, Color_t color, THStack *hs,int rebin)
+int Plot_1D_AUX_sig (double lumi, TString sp, TString var, TString folder, TLegend *leg, Color_t color, THStack *hs, int rebin, bool use_low_stat_sig)
 {
 	TFile *f1 = new TFile("results/Signal_" + sp + ".root");
 	TH1D *h1 = (TH1D*)f1->Get(folder + var);
@@ -95,8 +95,10 @@ int Plot_1D_AUX_sig (double lumi, TString sp, TString var, TString folder, TLege
 		if (back_ground == 0) back_ground_uc = 1.8;  //unc for empty bin is [0,1.8]
 		double sigma = signal + back_ground + signal_uc*signal_uc + back_ground_uc*back_ground_uc;
 		double ratio = 0;
-		if (sigma > 0) ratio = signal / sqrt(sigma);
-		significance->SetBinContent(i,ratio);
+                if (sigma > 0) ratio = signal / sqrt(sigma);
+                double minus = 2 * sqrt (sigma) - 2 * sqrt (back_ground + back_ground_uc*back_ground_uc);
+                if (use_low_stat_sig) significance->SetBinContent(i,minus);
+		else significance->SetBinContent(i,ratio);
 
 		std::cout << "bin " << i << " signal = " << signal << " signal uc = " << signal_uc << " BG = " << back_ground << " BG unc = " << back_ground_uc << " significance = " << significance->GetBinContent(i) << std::endl;
 	}
