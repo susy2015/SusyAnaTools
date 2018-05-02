@@ -325,6 +325,8 @@ private:
 
     bool calculateDerivedVariables();
 
+    bool goToEventInternal(int evt, const bool filter);
+
     template<typename T> void registerBranch(const std::string& name) const
     {
         branchMap_[name] = createHandle(new T());

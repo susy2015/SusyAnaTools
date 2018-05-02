@@ -150,6 +150,11 @@ void NTupleReader::registerBranch(TBranch * const branch) const
 
 bool NTupleReader::goToEvent(int evt)
 {
+    return goToEventInternal(evt, false);
+}
+
+bool NTupleReader::goToEventInternal(int evt, const bool filter)
+{
     int status = 0;
     bool passFilters = false;
     do
@@ -160,13 +165,13 @@ bool NTupleReader::goToEvent(int evt)
         ++evtProcessed_;
         passFilters = calculateDerivedVariables();
     }
-    while(status > 0 && !passFilters && ++evt);
+    while(filter && (status > 0 && !passFilters && ++evt));
     return status > 0;
 }
 
 bool NTupleReader::getNextEvent()
 {
-    return goToEvent(nevt_);
+    return goToEventInternal(nevt_, true);
 }
 
 void NTupleReader::disableUpdate()
