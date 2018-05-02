@@ -52,10 +52,8 @@ TChain *fChain = 0;
       TFile *f = new TFile(FileName+".root", "RECREATE");
       TH1D *hISR = new TH1D("NJetsISR", "NJetsISR", nisrJetBins, isrJetBins );
 
-      const string condor =  (argc == 6) ? argv[5]: "";
-  
-      AnaSamples::SampleSet ss = condor.empty()? AnaSamples::SampleSet():AnaSamples::SampleSet(argv[5]);
-      AnaSamples::SampleCollection sc(ss);
+      AnaSamples::SampleSet        ss("sampleSets.txt", (argc == 6), AnaSamples::luminosity);
+      AnaSamples::SampleCollection sc("sampleCollections.txt", ss);
                                    
       double ScaleMC = 1.;                                                                              
       if(ss[subSampleName] != ss.null())                                                                             
