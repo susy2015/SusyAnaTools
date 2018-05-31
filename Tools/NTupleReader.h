@@ -122,6 +122,30 @@ private:
         return Handle(ptr, new vec_deleter<T>);
     }
 
+    //function wrapper 
+    //base class
+    class FuncWrapper
+    {
+    public:
+        virtual bool operator()(NTupleReader& tr) = 0;
+    };
+
+    //class for arbitrary return value
+    template<typename T>
+    class FuncWrapperImpl : public FuncWrapper
+    {
+    private:
+        T func_;
+    public:
+        bool operator()(NTupleReader& tr)
+        {
+            func_(tr);
+            return true;
+        }
+
+        FuncWrapperImpl(T f) : func_(f) {}
+    };
+
 public:
 
     NTupleReader(TTree * tree, const std::set<std::string>& activeBranches_);
@@ -158,12 +182,13 @@ public:
 
     template<typename T> void registerFunction(T f)
     {
-        if(isFirstEvent()) functionVec_.emplace_back(f);
+        if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(f));
         else THROW_SATEXCEPTION("New functions cannot be registered after tuple reading begins!\n");
     }
 
     //Specialization for basic functions
     void registerFunction(void (*f)(NTupleReader&));
+    void registerFunction(bool (*f)(NTupleReader&));
 
     void getType(const std::string& name, std::string& type) const;
 
@@ -174,17 +199,19 @@ public:
     {
         try
         {
-            if(isFirstEvent())
+            auto handleItr = branchMap_.find(name);
+            if(handleItr == branchMap_.end())
             {
-                if(branchMap_.find(name) != branchMap_.end())
+                auto typeItr = typeMap_.find(name);
+                if(typeItr != typeMap_.end())
                 {
-                    THROW_SATEXCEPTION("You are trying to redefine a base tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
+                    THROW_SATEXCEPTION("You are trying to redefine a tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
                 }
-                branchMap_[name] = createHandle(new T());
+                handleItr = branchMap_.insert(std::make_pair(name, createHandle(new T()))).first;
 
                 typeMap_[name] = demangle<T>();
             }
-            setDerived(var, branchMap_[name].ptr);
+            setDerived(var, handleItr->second.ptr);
         }
         catch(const SATException& e)
         {
@@ -197,23 +224,24 @@ public:
     {
         try
         {
-            if(isFirstEvent())
+            auto handleItr = branchVecMap_.find(name);
+            if(handleItr == branchVecMap_.end())
             {
-                if(branchVecMap_.find(name) != branchVecMap_.end())
+                auto typeItr = typeMap_.find(name);
+                if(typeItr != typeMap_.end())
                 {
-                    THROW_SATEXCEPTION("You are trying to redefine a base tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
+                    THROW_SATEXCEPTION("You are trying to redefine a tuple var: \"" + name + "\".  This is not allowed!  Please choose a unique name.");
                 }
-                branchVecMap_[name] = createVecHandle(new T*());
+                handleItr = branchVecMap_.insert(std::make_pair(name, createVecHandle(new T*()))).first;
             
                 typeMap_[name] = demangle<T>();
             }
-            void * vecloc = branchVecMap_[name].ptr;
-            T *vecptr = *static_cast<T**>(branchVecMap_[name].ptr);
+            T *vecptr = *static_cast<T**>(handleItr->second.ptr);
             if(vecptr != nullptr)
             {
                 delete vecptr;
             }
-            setDerived(var, vecloc);
+            setDerived(var, handleItr->second.ptr);
         }
         catch(const SATException& e)
         {
@@ -285,7 +313,7 @@ private:
     // stl collections to hold branch list and associated info
     mutable std::unordered_map<std::string, Handle> branchMap_;
     mutable std::unordered_map<std::string, Handle> branchVecMap_;
-    std::vector<std::function<void(NTupleReader&)> > functionVec_;
+    std::vector<FuncWrapper*> functionVec_;
     mutable std::unordered_map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
 
@@ -295,7 +323,9 @@ private:
     
     void registerBranch(TBranch * const branch) const;
 
-    void calculateDerivedVariables();
+    bool calculateDerivedVariables();
+
+    bool goToEventInternal(int evt, const bool filter);
 
     template<typename T> void registerBranch(const std::string& name) const
     {

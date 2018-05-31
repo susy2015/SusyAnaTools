@@ -99,10 +99,8 @@ TChain *fChain = 0;
     n_eff_udsg->GetYaxis()->SetTitle("#eta");
  
 
-      const string condor =  (argc == 6) ? argv[5]: "";
-  
-      AnaSamples::SampleSet ss = condor.empty()? AnaSamples::SampleSet():AnaSamples::SampleSet(argv[5]);
-      AnaSamples::SampleCollection sc(ss);
+      AnaSamples::SampleSet        ss("sampleSets.txt", (argc == 6), AnaSamples::luminosity);
+      AnaSamples::SampleCollection sc("sampleCollections.txt", ss);
                                    
       double ScaleMC = 1.;                                                                              
       if(ss[subSampleName] != ss.null())                                                                             

@@ -4,9 +4,9 @@ from ctypes import c_double
 from ctypes import POINTER 
 
 class SampleCollection:
-    def __init__(self):
+    def __init__(self, ssfile, scfile):
         self.lib = cdll.LoadLibrary('../obj/samplesModule.so')
-        self.obj = self.lib.SC_new()
+        self.obj = self.lib.SC_new(ssfile, scfile)
         self.lib.SC_samples.restype = POINTER(c_char_p)
         self.lib.SC_samples_names.restype = POINTER(c_char_p)
         self.lib.SC_samplecollection_names.restype = POINTER(c_char_p)

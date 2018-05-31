@@ -1,3 +1,21 @@
+## Variables set by configure 
+OPENCV_DIRECTORY  = @OPENCVDIR@
+XGBOOST_DIRECTORY = @XGBOOSTDIR@
+TENSORFLOW_DIR    = @TENSORFLOWDIR@
+TAGGERDIR         = @TAGGERDIR@
+
+CXX           = @CXX@
+LD            = @CXX@
+CXXFLAGS      = @CXXFLAGS@
+LDFLAGS       = @LDFLAGS@
+PREFIX        = @prefix@
+LDCONFIG      = @LDCONFIG@
+LIBSUFFIX     = @LIBSUFFIX@
+PYTHONCFG     = @PYTHONCFG@
+SCRAMNUMPYCFG = @SCRAMNUMPYCFG@
+TMVALIB       = @TMVALIB@
+
+#manual configuration
 IDIR       = .
 ODIR       = obj
 SDIR       = $(CMSSW_BASE)/src/SusyAnaTools/Tools/
@@ -20,7 +38,66 @@ CXXDEPFLAGS = -MMD -MP
 LD         = g++
 LDFLAGS    =
 
-OPENCV_DIRECTORY = $(CMSSW_BASE)/src/opencv
+#Necessary includes and libraries, the order matters here!
+
+# top tagger includes
+INCLUDESDIRS  += -I. -I$(TAGGERDIR)/..
+# top tagger libraries
+LIBSTOPTAGGER += -L$(TTTDIR) -lTopTagger
+
+## Include ROOT
+INCLUDESDIRS += $(shell root-config --cflags)
+# ROOT libraries
+LIBS         += $(shell root-config --glibs)
+
+# TMVA library
+ifdef TMVALIB
+	CXXFLAGS += -DSHOTTOPTAGGER_DO_TMVA
+	LIBS     += $(TMVALIB)
+endif
+
+#python includes and libraries
+ifdef PYTHONCFG
+	INCLUDESDIRS  += $(shell $(PYTHONCFG) --includes)
+
+	CXXFLAGS += -DDOTENSORFLOWPYBIND
+	LIBS     += -L$(shell $(PYTHONCFG) --prefix)/lib $(shell $(PYTHONCFG) --libs)
+endif
+
+#scram specific numpy c-api
+ifdef SCRAMNUMPYCFG
+	INCLUDESDIRS += -I$(SCRAMNUMPYCFG)/c-api/core/include
+endif
+
+# openCV includes and libraries
+ifdef OPENCV_DIRECTORY
+	INCLUDESDIRS  += -I$(OPENCV_DIRECTORY)/include/ -I$(OPENCV_DIRECTORY)/modules/core/include 
+	INCLUDESDIRS  += -I$(OPENCV_DIRECTORY)/modules/video/include -I$(OPENCV_DIRECTORY)/modules/objdetect/include 
+	INCLUDESDIRS  += -I$(OPENCV_DIRECTORY)/modules/ml/include/ -I$(OPENCV_DIRECTORY)/modules/photo/include/ 
+	INCLUDESDIRS  += -I$(OPENCV_DIRECTORY)/modules/imgproc/include/
+	INCLUDESDIRS  += -I$(OPENCV_DIRECTORY)
+
+	CXXFLAGS += -DSHOTTOPTAGGER_DO_OPENCV
+	LIBS     += -L$(OPENCV_DIRECTORY)/lib -lopencv_ml -lopencv_core
+endif
+
+# xgboost includes and libraries
+ifdef XGBOOST_DIRECTORY
+	INCLUDESDIRS  += -I$(XGBOOST_DIRECTORY) -I$(XGBOOST_DIRECTORY)/rabit/include
+
+	CXXFLAGS += -DDOXGBOOST
+	LIBS     += -L$(XGBOOST_DIRECTORY)/lib -lxgboost
+endif
+
+# tensorflow includes and libraries
+ifdef TENSORFLOW_DIR
+	INCLUDESDIRS  += -I$(TENSORFLOW_DIR)/include
+
+	CXXFLAGS += -DDOTENSORFLOW
+	LIBS     += -L$(TENSORFLOW_DIR)/lib -ltensorflow
+endif
+
+OPENCV_DIRECTORY = /uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/
 LIBS       = $(shell root-config --glibs)
 LIBS      += -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lTopTaggerTopTagger -lTopTaggerCfgParser
 LIBS      += -L$(OPENCV_DIRECTORY)/lib/ -lopencv_ml -lopencv_core
@@ -30,7 +107,7 @@ LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 FILES = $(wildcard $(SDIR)/*.cc)
 OBJS := $(FILES:$(SDIR)/%.cc=$(ODIR)/%.o)
 
-PROGRAMS = tupleTest nEvts deepTrim # basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots bTagEfficiencyCalc ISRJetsProducer
+PROGRAMS = tupleTest nEvts deepTrim AliasTest bTagEfficiencyCalc ISRJetsProducer # basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots
 
 all: mkobj SusyAnaTools sampPyWrap $(PROGRAMS)
 
@@ -39,12 +116,12 @@ mkobj:
 
 SusyAnaTools : $(OBJS)
 	ar rcs $(ODIR)/lib$@.a $^
-	gcc -shared -o $(ODIR)/lib$@.so $^
+	gcc -shared -o $(ODIR)/lib$@.$(LIBSUFFIX) $^
 
 #code to compile shared library to link samples to python
-sampPyWrap: $(ODIR)/samplesModule.so
+sampPyWrap: $(ODIR)/samplesModule.$(LIBSUFFIX)
 
-$(ODIR)/samplesModule.so: $(ODIR)/samplesPyWrap.o $(ODIR)/samplesModulePyWrap.o
+$(ODIR)/samplesModule.$(LIBSUFFIX): $(ODIR)/samplesPyWrap.o $(ODIR)/samplesModulePyWrap.o
 	$(CXX) -shared -o $@ $^
 
 $(ODIR)/samplesPyWrap.o: $(SDIR)/samples.cc $(SDIR)/samples.h 
