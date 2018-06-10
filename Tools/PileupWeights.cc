@@ -37,12 +37,12 @@ void Pileup_Sys::getPileup_Sys(NTupleReader& tr)
 
 
     //These are all the pileup varaibles the only one that is needed is the first
-    const double &tru_npv  = tr.getVar<double>("tru_npv");
-    //const int    BX       = tr.getVar<int>("BX");
-    //const int    nm1      = tr.getVar<int>("nm1");
-    //const int    n0       = tr.getVar<int>("n0");
-    //const int    np1      = tr.getVar<int>("np1");
-    //const int    npv      = tr.getVar<int>("npv");
+    const auto& tru_npv  = tr.getVar<double>(tru_npv_);
+    //const auto& BX       = tr.getVar<int>(BX_);
+    //const auto& nm1      = tr.getVar<int>(nm1_);
+    //const auto& n0       = tr.getVar<int>(n0_);
+    //const auto& np1      = tr.getVar<int>(np1_);
+    //const auto& npv      = tr.getVar<int>(npv_);
 
     //This is going through and calculating the wieght 
     if (tru_npv < pu_central->GetBinLowEdge(pu_central->GetNbinsX()+1)) {
@@ -81,6 +81,7 @@ void Pileup_Sys::getPileup_Sys(NTupleReader& tr)
 void Pileup_Sys::operator()(NTupleReader& tr)
 {
     //
+    setTreeNames(tr);
     getPileup_Sys(tr);
 }
 
