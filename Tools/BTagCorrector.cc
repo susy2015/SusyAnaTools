@@ -260,15 +260,9 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     //Check if this is data
     if( isData ) return;
 
-    const std::vector<TLorentzVector>& inputJets = tr.getVec<TLorentzVector>(JetsVec);
-    const std::vector<double>& recoJetsBtag = tr.getVec<double>(BJetsVec);
-    const std::vector<int>& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
-
-    //if(!tr.checkBranch("genDecayPdgIdVec")) return;
-    //
-    //const std::vector<TLorentzVector>& inputJets = tr.getVec<TLorentzVector>("jetsLVec");
-    //const std::vector<double>& recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
-    //const std::vector<int>& recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
+    const auto& inputJets = tr.getVec<TLorentzVector>(JetsVec);
+    const auto& recoJetsBtag = tr.getVec<double>(BJetsVec);
+    const auto& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
 
     /*************************************************/
     // Here we define which(up, down or central
