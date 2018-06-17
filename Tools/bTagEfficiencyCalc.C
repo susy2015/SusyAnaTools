@@ -119,18 +119,23 @@ int main(int argc, char* argv[])
 	    std::cout << "   Processing event " << tr->getEvtNum() <<std::endl;
         }
 
+        std::string JetsVec, BJetsVec, JetsFlavor;
         if(tr->checkBranch("met"))
         {
-            const auto& inputJets = tr->getVec<TLorentzVector>("jetsLVec");
-            const auto& recoJetsBtag = tr->getVec<double>("recoJetsBtag_0");
-            const auto& recoJetsFlavor = tr->getVec<int>("recoJetsFlavor");
+            JetsVec = "jetsLVec";
+            BJetsVec = "recoJetsBtag_0";
+            JetsFlavor = "recoJetsFlavor";
         }
         else if(tr->checkBranch("MET"))
         {
-            const auto& inputJets = tr->getVec<TLorentzVector>("Jets");
-            const auto& recoJetsBtag = tr->getVec<double>("Jets_bDiscriminatorCSV");
-            const auto& recoJetsFlavor = tr->getVec<int>("Jets_partonFlavor");
+            JetsVec = "Jets";
+            BJetsVec = "Jets_bDiscriminatorCSV";
+            JetsFlavor = "Jets_partonFlavor";
         }
+
+        const auto& inputJets = tr->getVec<TLorentzVector>(JetsVec);
+        const auto& recoJetsBtag = tr->getVec<double>(BJetsVec);
+        const auto& recoJetsFlavor = tr->getVec<int>(JetsFlavor);            
 
         double stored_weight = subSampleNameT.Contains("Data") ? 1 : tr->getVar<double>("stored_weight");
 
