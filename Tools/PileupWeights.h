@@ -20,29 +20,7 @@ private:
     TH1F * pu_central;
     TH1F * pu_up;
     TH1F * pu_down;
-    std::string tru_npv_, BX_, nm1_, n0_, np1_, npv_;
 
-    void setTreeNames(const NTupleReader& tr)
-    {
-        if(tr.checkBranch("met"))
-        {
-            tru_npv_ = "tru_npv";
-            BX_ = "BX";
-            nm1_ = "nm1";
-            n0_ = "n0";
-            np1_ = "np1";
-            npv_ = "npv";            
-        }
-        else if(tr.checkBranch("MET"))
-        {
-            tru_npv_ = "";
-            BX_ = "";
-            nm1_ = "";
-            n0_ = "";
-            np1_ = "";
-            npv_ = "";
-        }
-    }
 };
 
 #endif // Pileup_Sys_H

@@ -34,12 +34,12 @@ PDFUncertainty::~PDFUncertainty()
 void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 {
   //This is how we get variables from nTuple 
-        const auto&ScaleWeightsMiniAOD = tr.getVec<double>(scaleWeight_);
-        const auto&  x1  = tr.getVar<double>(x1_);
-        const auto&  x2  = tr.getVar<double>(x2_);
-        const auto&   Q  = tr.getVar<double>(q_);
-        const auto& id1  = tr.getVar<int>(id1_);
-	const auto& id2  = tr.getVar<int>(id2_);
+        const std::vector<double> &ScaleWeightsMiniAOD = tr.getVec<double>("ScaleWeightsMiniAOD");
+        const double& x1  =   tr.getVar<double>("x1");
+        const double& x2  =   tr.getVar<double>("x2");
+        const double&  Q  =   tr.getVar<double>("q");//q is stored variable in tuple
+        const  int& id1    =   tr.getVar<int>("id1");
+	const  int& id2    =   tr.getVar<int>("id2");
 
         if(!&ScaleWeightsMiniAOD || !&x1 || !&x2 || !& Q || !&id1 || !&id2)
         {
@@ -348,8 +348,7 @@ void PDFUncertainty::getPDFUncertainty(NTupleReader& tr)
 
 void PDFUncertainty::operator()(NTupleReader& tr)
 {
-    //
-    setTreeNames(tr);
+  //
     getPDFUncertainty(tr);
 }
 
