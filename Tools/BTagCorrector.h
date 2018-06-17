@@ -18,7 +18,7 @@ class BTagCorrector
 {
 public:
     //constructor
-BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL) {
+BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL) {
         //Stops unwanted segfaults.
         TH1::AddDirectory(false);
         
@@ -29,14 +29,7 @@ BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePat
 
         inFile = new TFile(file.c_str());
         SetEffs(inFile, suffix);
-        if(CSVFilePath.size())
-        {
-            SetCalib((CSVFilePath + "/CSVv2_Moriond17_B_H.csv").c_str());	  
-        }
-        else
-        {
-            SetCalib("CSVv2_Moriond17_B_H.csv");          
-        }
+        SetCalib(CSVFile.c_str());	  
         
         if(isFastSim)
         {
