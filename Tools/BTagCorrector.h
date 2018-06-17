@@ -124,6 +124,9 @@ BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePat
     }
     void SetTreeNames(const NTupleReader& tr)
     {
+        //Switch based on which nTuples are used
+
+        //For stop group's nTuples
         if(tr.checkBranch("met"))
         {
             isData = (tr.checkBranch("genDecayPdgIdVec")) ? false : true;
@@ -131,6 +134,7 @@ BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePat
             BJetsVec = "recoJetsBtag_0";
             JetsFlavor = "recoJetsFlavor";
         }
+        //For stealth group's nTuples
         else if(tr.checkBranch("MET"))
         {
             isData = (tr.checkBranch("GenParticles_PdgId")) ? false : true;
