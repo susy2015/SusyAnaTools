@@ -705,19 +705,19 @@ public:
        if( !prep_btag_ISR ){
           if( sampleKeyStr_.find("T2tt") != std::string::npos ){
              isrCorr = new ISRCorrector("signalScan_fastsim_T2tt_bTagEff_ISR.root", "", massPointStrT);
-             btagCorr = new BTagCorrector("signalScan_fastsim_T2tt_bTagEff_ISR.root", "", true, massPointStrT.Data());
+             btagCorr = new BTagCorrector("signalScan_fastsim_T2tt_bTagEff_ISR.root", "CSVv2_Moriond17_B_H.csv", true, massPointStrT.Data());
           } else if( sampleKeyStr_.find("T1tttt") != std::string::npos ){
              isrCorr = new ISRCorrector("signalScan_fastsim_T1tttt_bTagEff_ISR.root", "", massPointStrT);
-             btagCorr = new BTagCorrector("signalScan_fastsim_T1tttt_bTagEff_ISR.root", "", true, massPointStrT.Data());
+             btagCorr = new BTagCorrector("signalScan_fastsim_T1tttt_bTagEff_ISR.root", "CSVv2_Moriond17_B_H.csv", true, massPointStrT.Data());
           } else if( sampleKeyStr_.find("T5ttcc") != std::string::npos ){
              isrCorr = new ISRCorrector("signalScan_fastsim_T5ttcc_bTagEff_ISR.root", "", massPointStrT);
-             btagCorr = new BTagCorrector("signalScan_fastsim_T5ttcc_bTagEff_ISR.root", "", true, massPointStrT.Data());
+             btagCorr = new BTagCorrector("signalScan_fastsim_T5ttcc_bTagEff_ISR.root", "CSVv2_Moriond17_B_H.csv", true, massPointStrT.Data());
           } else if( sampleKeyStr_.find("T1ttbb") != std::string::npos ){
              isrCorr = new ISRCorrector("signalScan_fastsim_T1ttbb_bTagEff_ISR.root", "", massPointStrT);
-             btagCorr = new BTagCorrector("signalScan_fastsim_T1ttbb_bTagEff_ISR.root", "", true, massPointStrT.Data());
+             btagCorr = new BTagCorrector("signalScan_fastsim_T1ttbb_bTagEff_ISR.root", "CSVv2_Moriond17_B_H.csv", true, massPointStrT.Data());
           } else if( sampleKeyStr_.find("T5tttt_dM175") != std::string::npos ){
              isrCorr = new ISRCorrector("signalScan_fastsim_T5tttt_dM175_bTagEff_ISR.root", "", massPointStrT);
-             btagCorr = new BTagCorrector("signalScan_fastsim_T5tttt_dM175_bTagEff_ISR.root", "", true, massPointStrT.Data());
+             btagCorr = new BTagCorrector("signalScan_fastsim_T5tttt_dM175_bTagEff_ISR.root", "CSVv2_Moriond17_B_H.csv", true, massPointStrT.Data());
           } else{
              std::cout<<"Signal points do NOT support right now. Please provide the NJetsISR distribution root file first!"<<std::endl;
           }

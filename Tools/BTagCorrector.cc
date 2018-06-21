@@ -11,27 +11,24 @@
 //STL headers
 #include <string>
 #include <vector>
-#include<cmath>
+#include <cmath>
 
 #include "customize.h"
-
-using namespace std;
-
 
 /***********************************************************************************/
 // Method 1b) in twiki
 // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
 /***********************************************************************************/
 
-vector<double>* BTagCorrector::GetCorrections(const vector<TLorentzVector> *Jets, const vector<int> *Jets_flavor)
+std::vector<double>* BTagCorrector::GetCorrections(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor)
 {
 
     //reset probabilities
-    vector<double> *prob = new vector<double>(4,0.0);
+    std::vector<double> *prob = new std::vector<double>(4,0.0);
     (*prob)[0] = 1.0;
   
     //first loop over jets
-    vector<vector<double> > sfEffLists = vector<vector<double> >(Jets->size(),vector<double>());
+    std::vector<std::vector<double> > sfEffLists = std::vector<std::vector<double> >(Jets->size(),std::vector<double>());
     for(unsigned ja = 0; ja < Jets->size(); ++ja){
         //HT jet cuts
         if(Jets->at(ja).Pt()< 30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
@@ -43,8 +40,8 @@ vector<double>* BTagCorrector::GetCorrections(const vector<TLorentzVector> *Jets
   
         //jet index, pt, eta, flavor, eff, sf, cf
 	
-        if(debug) cout << "Jet " << ja << ": " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << ", " << abs(Jets_flavor->at(ja)) 
-                       << " sfEffLists[ja][0], " << sfEffLists[ja][0] << "  sfEffLists[ja][1], " << sfEffLists[ja][1] << "  sfEffLists[ja][2], " << sfEffLists[ja][2] << endl;
+        if(debug) std::cout << "Jet " << ja << ": " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << ", " << abs(Jets_flavor->at(ja)) 
+                       << " sfEffLists[ja][0], " << sfEffLists[ja][0] << "  sfEffLists[ja][1], " << sfEffLists[ja][1] << "  sfEffLists[ja][2], " << sfEffLists[ja][2] << std::endl;
   
         //calculate prob(0 b-tags)
         (*prob)[0] *= (1-eps_a);
@@ -70,8 +67,8 @@ vector<double>* BTagCorrector::GetCorrections(const vector<TLorentzVector> *Jets
 	   
             //jet index, pt, eta, flavor, eff, sf, cf
 	    
-            if(debug) cout << "\tJet " << jb << ": " << Jets->at(jb).Pt() << ", " << fabs(Jets->at(jb).Eta()) << ", " << abs(Jets_flavor->at(jb)) 
-                           << ", " << sfEffLists[jb][0] << ", " << sfEffLists[jb][1] << ", " << sfEffLists[jb][2] << endl;
+            if(debug) std::cout << "\tJet " << jb << ": " << Jets->at(jb).Pt() << ", " << fabs(Jets->at(jb).Eta()) << ", " << abs(Jets_flavor->at(jb)) 
+                           << ", " << sfEffLists[jb][0] << ", " << sfEffLists[jb][1] << ", " << sfEffLists[jb][2] << std::endl;
 	   
             //calculate prob(1 b-tag)
             subprob1 *= (1-eps_b);
@@ -94,8 +91,8 @@ vector<double>* BTagCorrector::GetCorrections(const vector<TLorentzVector> *Jets
 	     
                 //jet index, pt, eta, flavor, eff, sf, cf
 		
-                if(debug) cout << "\t\tJet " << jc << ": " << Jets->at(jc).Pt() << ", " << fabs(Jets->at(jc).Eta()) << ", " << abs(Jets_flavor->at(jc)) 
-                               << ", " << sfEffLists[jc][0] << ", " << sfEffLists[jc][1] << ", " << sfEffLists[jc][2] << endl;
+                if(debug) std::cout << "\t\tJet " << jc << ": " << Jets->at(jc).Pt() << ", " << fabs(Jets->at(jc).Eta()) << ", " << abs(Jets_flavor->at(jc)) 
+                               << ", " << sfEffLists[jc][0] << ", " << sfEffLists[jc][1] << ", " << sfEffLists[jc][2] << std::endl;
 	     
                 //calculate prob(2 b-tags)
                 subsubprob2 *= (1-eps_c);
@@ -113,7 +110,7 @@ vector<double>* BTagCorrector::GetCorrections(const vector<TLorentzVector> *Jets
     //conserve probability
        
     (*prob)[3] = 1 - (*prob)[0] -(*prob)[1] - (*prob)[2];
-    if(debug) cout << (*prob)[0] << ", " << (*prob)[1] << ", " << (*prob)[2] << ", " << (*prob)[3] << endl;
+    if(debug) std::cout << (*prob)[0] << ", " << (*prob)[1] << ", " << (*prob)[2] << ", " << (*prob)[3] << std::endl;
        
     return prob;
 }
@@ -125,7 +122,7 @@ vector<double>* BTagCorrector::GetCorrections(const vector<TLorentzVector> *Jets
 
 
 
-double BTagCorrector::GetSimpleCorrection(const vector<TLorentzVector> *Jets, const vector<int> *Jets_flavor, const vector<double> *Jets_bDiscriminatorCSV){
+double BTagCorrector::GetSimpleCorrection(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor, const std::vector<double> *Jets_bDiscriminatorCSV){
 
     double mcTag = 1.;
     double mcNoTag = 1.;
@@ -133,7 +130,7 @@ double BTagCorrector::GetSimpleCorrection(const vector<TLorentzVector> *Jets, co
     double dataNoTag = 1.;
   
     //loop over jets
-    vector<vector<double> > sfEffLists = vector<vector<double> >(Jets->size(),vector<double>());
+    std::vector<std::vector<double> > sfEffLists = std::vector<std::vector<double> >(Jets->size(),std::vector<double>());
     for(unsigned ja = 0; ja < Jets->size(); ++ja){
         //HT jet cuts
         if(Jets->at(ja).Pt()<30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
@@ -149,8 +146,8 @@ double BTagCorrector::GetSimpleCorrection(const vector<TLorentzVector> *Jets, co
         }
 
         //jet index, pt, eta, flavor, csv, eff, sf, cf
-	// if(debug) cout << "Jet " << ja << ": " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << ", " << abs(Jets_flavor->at(ja))  << ", " << Jets_bDiscriminatorCSV->at(ja)
-	//                       << ", " << sfEffLists[ja][0] << ", " << sfEffLists[ja][1] << ", " << sfEffLists[ja][2] << endl;
+	// if(debug) std::cout << "Jet " << ja << ": " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << ", " << abs(Jets_flavor->at(ja))  << ", " << Jets_bDiscriminatorCSV->at(ja)
+	//                       << ", " << sfEffLists[ja][0] << ", " << sfEffLists[ja][1] << ", " << sfEffLists[ja][2] << std::endl;
     
         if(Jets_bDiscriminatorCSV->at(ja) > AnaConsts::cutCSVS){
             mcTag *= eff_a*cf_a;
@@ -169,7 +166,7 @@ double BTagCorrector::GetSimpleCorrection(const vector<TLorentzVector> *Jets, co
 
 /***********************************************************************************/
 //helper function
-void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& sfEffList){
+void BTagCorrector::InitSFEff(double pt, double eta, int flav, std::vector<double>& sfEffList){
     //avoid rerunning this
     sfEffList.clear();
     if(sfEffList.size()>0) return;
@@ -179,7 +176,7 @@ void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& s
     //use abs(flav) always
     flav = abs(flav);
     
-    sfEffList = vector<double>(3,1.0); //eff, sf (central, up, or down), cf (central, up, or down)
+    sfEffList = std::vector<double>(3,1.0); //eff, sf (central, up, or down), cf (central, up, or down)
 
     const double max_btagSF_pt = 670.0, max_fastsim_btagCF_pt = 800.0;
     const double max_ctagSF_pt = 670.0, max_fastsim_ctagCF_pt = 800.0;
@@ -256,17 +253,16 @@ void BTagCorrector::InitSFEff(double pt, double eta, int flav, vector<double>& s
 }
 
 
-
 /***********************************************************************************/
 
 void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
 {
-    //Check if this is data by looking for "genDecayPdgIdVec" collection (yes, this is dumb)
-    if(!tr.checkBranch("genDecayPdgIdVec")) return;
+    //Check if this is data
+    if( isData ) return;
 
-    const vector<TLorentzVector>& inputJets = tr.getVec<TLorentzVector>("jetsLVec");
-    const vector<double>& recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
-    const vector<int>& recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
+    const auto& inputJets = tr.getVec<TLorentzVector>(JetsVec);
+    const auto& recoJetsBtag = tr.getVec<double>(BJetsVec);
+    const auto& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
 
     /*************************************************/
     // Here we define which(up, down or central
@@ -288,7 +284,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     } 
 
     // Method 1b) in different b-jet mullticipity bins.
-    vector<double> *evtWeightProb_Central = GetCorrections(&inputJets, &recoJetsFlavor);
+    std::vector<double> *evtWeightProb_Central = GetCorrections(&inputJets, &recoJetsFlavor);
     //Register derived quantities to nTuples.
     tr.registerDerivedVar("bTagSF_EventWeightSimple_Central", evtWeightSimple_Central);
     //evtWeightProb[0] = probability of 0 Btags...... evtWeightProb[3] = probability of 3 Btags
@@ -309,7 +305,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     if( std::isnan( evtWeightSimple_Up) || std::isinf(evtWeightSimple_Up) ){
       evtWeightSimple_Up= 1.0;
     }
-    vector<double> *evtWeightProb_Up = GetCorrections(&inputJets, &recoJetsFlavor);
+    std::vector<double> *evtWeightProb_Up = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("bTagSF_EventWeightSimple_Up", evtWeightSimple_Up);
     tr.registerDerivedVec("bTagSF_EventWeightProb_Up", evtWeightProb_Up);
 
@@ -326,7 +322,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     if( std::isnan( evtWeightSimple_Down) || std::isinf(evtWeightSimple_Down) ){
       evtWeightSimple_Down= 1.0;
     }
-    vector<double> *evtWeightProb_Down = GetCorrections(&inputJets, &recoJetsFlavor);
+    std::vector<double> *evtWeightProb_Down = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("bTagSF_EventWeightSimple_Down", evtWeightSimple_Down);
     tr.registerDerivedVec("bTagSF_EventWeightProb_Down", evtWeightProb_Down);
 
@@ -343,7 +339,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     if( std::isnan( evtWeightSimple_mistag_Up) || std::isinf(evtWeightSimple_mistag_Up) ){
       evtWeightSimple_mistag_Up= 1.0;
     }
-    vector<double> *evtWeightProb_mistag_Up =  GetCorrections(&inputJets, &recoJetsFlavor);
+    std::vector<double> *evtWeightProb_mistag_Up =  GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("mistagSF_EventWeightSimple_Up", evtWeightSimple_mistag_Up);
     tr.registerDerivedVec("mistagSF_EventWeightProb_Up", evtWeightProb_mistag_Up);
 
@@ -360,7 +356,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     if( std::isnan( evtWeightSimple_mistag_Down) || std::isinf(evtWeightSimple_mistag_Down) ){
       evtWeightSimple_mistag_Down= 1.0;
     }
-    vector<double> *evtWeightProb_mistag_Down = GetCorrections(&inputJets, &recoJetsFlavor);
+    std::vector<double> *evtWeightProb_mistag_Down = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("mistagSF_EventWeightSimple_Down", evtWeightSimple_mistag_Down);
     tr.registerDerivedVec("mistagSF_EventWeightProb_Down", evtWeightProb_mistag_Down);
 
@@ -376,7 +372,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
 /***********************************************************************************/
 void BTagCorrector::operator()(NTupleReader& tr)
 {
-    //
+    SetTreeNames(tr);
     registerVarToNTuples(tr);
 }
 /***********************************************************************************/
