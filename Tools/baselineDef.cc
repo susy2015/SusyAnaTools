@@ -405,9 +405,9 @@ void BaselineVessel::PassBaseline()
   if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc()<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Register all the calculated variables
-  tr->registerDerivedVar("nMuons_CUT" + firstSpec, nMuons);
-  tr->registerDerivedVar("nElectrons_CUT" + firstSpec, nElectrons);
-  tr->registerDerivedVar("nIsoTrks_CUT" + firstSpec, nIsoTrks);
+  //tr->registerDerivedVar("nMuons_CUT" + firstSpec, nMuons);           // error: do not redefine  
+  //tr->registerDerivedVar("nElectrons_CUT" + firstSpec, nElectrons);   // error: do not redefine
+  //tr->registerDerivedVar("nIsoTrks_CUT" + firstSpec, nIsoTrks);       // error: do not redefine
 
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
