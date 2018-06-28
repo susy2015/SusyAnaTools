@@ -20,15 +20,15 @@
 // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
 /***********************************************************************************/
 
-std::vector<double>* BTagCorrector::GetCorrections(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor)
+std::vector<float>* BTagCorrector::GetCorrections(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor)
 {
 
     //reset probabilities
-    std::vector<double> *prob = new std::vector<double>(4,0.0);
+    std::vector<float> *prob = new std::vector<float>(4,0.0);
     (*prob)[0] = 1.0;
   
     //first loop over jets
-    std::vector<std::vector<double> > sfEffLists = std::vector<std::vector<double> >(Jets->size(),std::vector<double>());
+    std::vector<std::vector<float> > sfEffLists = std::vector<std::vector<float> >(Jets->size(),std::vector<float>());
     for(unsigned ja = 0; ja < Jets->size(); ++ja){
         //HT jet cuts
         if(Jets->at(ja).Pt()< 30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
@@ -36,7 +36,7 @@ std::vector<double>* BTagCorrector::GetCorrections(const std::vector<TLorentzVec
   
         //get sf and eff values (checks if already calculated)
         InitSFEff(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), sfEffLists[ja]);
-        double eps_a = sfEffLists[ja][0]*sfEffLists[ja][1]*sfEffLists[ja][2];
+        float eps_a = sfEffLists[ja][0]*sfEffLists[ja][1]*sfEffLists[ja][2];
   
         //jet index, pt, eta, flavor, eff, sf, cf
 	
@@ -47,8 +47,8 @@ std::vector<double>* BTagCorrector::GetCorrections(const std::vector<TLorentzVec
         (*prob)[0] *= (1-eps_a);
 	 
         //sub-probabilities for following calculations
-        double subprob1 = 1.0;
-        double subprob2 = 0.0;
+        float subprob1 = 1.0;
+        float subprob2 = 0.0;
 	 
         //second loop over jets
         for(unsigned jb = 0; jb < Jets->size(); ++jb){
@@ -63,7 +63,7 @@ std::vector<double>* BTagCorrector::GetCorrections(const std::vector<TLorentzVec
             //get sf and eff values (checks if already calculated)
             InitSFEff(Jets->at(jb).Pt(), Jets->at(jb).Eta(), Jets_flavor->at(jb), sfEffLists[jb]);
 	   
-            double eps_b = sfEffLists[jb][0]*sfEffLists[jb][1]*sfEffLists[jb][2];
+            float eps_b = sfEffLists[jb][0]*sfEffLists[jb][1]*sfEffLists[jb][2];
 	   
             //jet index, pt, eta, flavor, eff, sf, cf
 	    
@@ -74,7 +74,7 @@ std::vector<double>* BTagCorrector::GetCorrections(const std::vector<TLorentzVec
             subprob1 *= (1-eps_b);
 	   
             //sub-sub-probability for following calculations
-            double subsubprob2 = 1.0;
+            float subsubprob2 = 1.0;
 	   
             //third loop over jets (only for jb>ja)
             if(jb<ja) continue;
@@ -87,7 +87,7 @@ std::vector<double>* BTagCorrector::GetCorrections(const std::vector<TLorentzVec
 	     
                 //get sf and eff values (checks if already calculated)
                 InitSFEff(Jets->at(jc).Pt(), Jets->at(jc).Eta(), Jets_flavor->at(jc), sfEffLists[jc]);
-                double eps_c = sfEffLists[jc][0]*sfEffLists[jc][1]*sfEffLists[jc][2];
+                float eps_c = sfEffLists[jc][0]*sfEffLists[jc][1]*sfEffLists[jc][2];
 	     
                 //jet index, pt, eta, flavor, eff, sf, cf
 		
@@ -122,24 +122,24 @@ std::vector<double>* BTagCorrector::GetCorrections(const std::vector<TLorentzVec
 
 
 
-double BTagCorrector::GetSimpleCorrection(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor, const std::vector<double> *Jets_bDiscriminatorCSV){
+float BTagCorrector::GetSimpleCorrection(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor, const std::vector<float> *Jets_bDiscriminatorCSV){
 
-    double mcTag = 1.;
-    double mcNoTag = 1.;
-    double dataTag = 1.;
-    double dataNoTag = 1.;
+    float mcTag = 1.;
+    float mcNoTag = 1.;
+    float dataTag = 1.;
+    float dataNoTag = 1.;
   
     //loop over jets
-    std::vector<std::vector<double> > sfEffLists = std::vector<std::vector<double> >(Jets->size(),std::vector<double>());
+    std::vector<std::vector<float> > sfEffLists = std::vector<std::vector<float> >(Jets->size(),std::vector<float>());
     for(unsigned ja = 0; ja < Jets->size(); ++ja){
         //HT jet cuts
         if(Jets->at(ja).Pt()<30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
     
         //get sf and eff values (checks if already calculated)
         InitSFEff(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), sfEffLists[ja]);
-        double eff_a = sfEffLists[ja][0]; //eff
-        double cf_a = sfEffLists[ja][2]; //CF
-        double sf_a = sfEffLists[ja][1];
+        float eff_a = sfEffLists[ja][0]; //eff
+        float cf_a = sfEffLists[ja][2]; //CF
+        float sf_a = sfEffLists[ja][1];
     
         if( sfEffLists[ja][0] ==0 || sfEffLists[ja][1] ==0 || sfEffLists[ja][2] ==0 ){
            if(debug) std::cout<<"sfEffLists[ja][0] : "<<sfEffLists[ja][0]<<"  sfEffLists[ja][1] : "<<sfEffLists[ja][1]<<"  sfEffLists[ja][2] : "<<sfEffLists[ja][2]<<std::endl;
@@ -158,7 +158,7 @@ double BTagCorrector::GetSimpleCorrection(const std::vector<TLorentzVector> *Jet
         }
     }
 
-    double result = (mcNoTag * mcTag ==0) ? 1.0 : (dataNoTag * dataTag)/(mcNoTag * mcTag);
+    float result = (mcNoTag * mcTag ==0) ? 1.0 : (dataNoTag * dataTag)/(mcNoTag * mcTag);
 
     return result;
 }
@@ -166,7 +166,7 @@ double BTagCorrector::GetSimpleCorrection(const std::vector<TLorentzVector> *Jet
 
 /***********************************************************************************/
 //helper function
-void BTagCorrector::InitSFEff(double pt, double eta, int flav, std::vector<double>& sfEffList){
+void BTagCorrector::InitSFEff(float pt, float eta, int flav, std::vector<float>& sfEffList){
     //avoid rerunning this
     sfEffList.clear();
     if(sfEffList.size()>0) return;
@@ -176,16 +176,16 @@ void BTagCorrector::InitSFEff(double pt, double eta, int flav, std::vector<doubl
     //use abs(flav) always
     flav = abs(flav);
     
-    sfEffList = std::vector<double>(3,1.0); //eff, sf (central, up, or down), cf (central, up, or down)
+    sfEffList = std::vector<float>(3,1.0); //eff, sf (central, up, or down), cf (central, up, or down)
 
-    const double max_btagSF_pt = 670.0, max_fastsim_btagCF_pt = 800.0;
-    const double max_ctagSF_pt = 670.0, max_fastsim_ctagCF_pt = 800.0;
-    const double max_udsgSF_pt = 1000.0, max_fastsim_udsgCF_pt = 800.0;
+    const float max_btagSF_pt = 670.0, max_fastsim_btagCF_pt = 800.0;
+    const float max_ctagSF_pt = 670.0, max_fastsim_ctagCF_pt = 800.0;
+    const float max_udsgSF_pt = 1000.0, max_fastsim_udsgCF_pt = 800.0;
 
     /********************************************************************/  
     if(flav==5)
     { //b-tag
-      // Double Uncertainty are now taken care automaticall with method eval_auto_bounds
+      // float Uncertainty are now taken care automaticall with method eval_auto_bounds
       //in new interface.
         int pt_bin = h_eff_b->GetXaxis()->FindBin(pt); 
         if( pt_bin > h_eff_b->GetXaxis()->GetNbins() ) pt_bin = h_eff_b->GetXaxis()->GetNbins(); 
@@ -261,7 +261,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     if( isData ) return;
 
     const auto& inputJets = tr.getVec<TLorentzVector>(JetsVec);
-    const auto& recoJetsBtag = tr.getVec<double>(BJetsVec);
+    const auto& recoJetsBtag = tr.getVec<float>(BJetsVec);
     const auto& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
 
     /*************************************************/
@@ -278,13 +278,13 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
     //Method 1a) ignoring b-tag status 
-    double evtWeightSimple_Central  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    float evtWeightSimple_Central  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
     if( std::isnan( evtWeightSimple_Central) || std::isinf(evtWeightSimple_Central) ){
       evtWeightSimple_Central = 1.0;
     } 
 
     // Method 1b) in different b-jet mullticipity bins.
-    std::vector<double> *evtWeightProb_Central = GetCorrections(&inputJets, &recoJetsFlavor);
+    std::vector<float> *evtWeightProb_Central = GetCorrections(&inputJets, &recoJetsFlavor);
     //Register derived quantities to nTuples.
     tr.registerDerivedVar("bTagSF_EventWeightSimple_Central", evtWeightSimple_Central);
     //evtWeightProb[0] = probability of 0 Btags...... evtWeightProb[3] = probability of 3 Btags
@@ -301,11 +301,11 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-    double evtWeightSimple_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    float evtWeightSimple_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
     if( std::isnan( evtWeightSimple_Up) || std::isinf(evtWeightSimple_Up) ){
       evtWeightSimple_Up= 1.0;
     }
-    std::vector<double> *evtWeightProb_Up = GetCorrections(&inputJets, &recoJetsFlavor);
+    std::vector<float> *evtWeightProb_Up = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("bTagSF_EventWeightSimple_Up", evtWeightSimple_Up);
     tr.registerDerivedVec("bTagSF_EventWeightProb_Up", evtWeightProb_Up);
 
@@ -318,11 +318,11 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-    double evtWeightSimple_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    float evtWeightSimple_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
     if( std::isnan( evtWeightSimple_Down) || std::isinf(evtWeightSimple_Down) ){
       evtWeightSimple_Down= 1.0;
     }
-    std::vector<double> *evtWeightProb_Down = GetCorrections(&inputJets, &recoJetsFlavor);
+    std::vector<float> *evtWeightProb_Down = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("bTagSF_EventWeightSimple_Down", evtWeightSimple_Down);
     tr.registerDerivedVec("bTagSF_EventWeightProb_Down", evtWeightProb_Down);
 
@@ -335,11 +335,11 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-    double evtWeightSimple_mistag_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    float evtWeightSimple_mistag_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
     if( std::isnan( evtWeightSimple_mistag_Up) || std::isinf(evtWeightSimple_mistag_Up) ){
       evtWeightSimple_mistag_Up= 1.0;
     }
-    std::vector<double> *evtWeightProb_mistag_Up =  GetCorrections(&inputJets, &recoJetsFlavor);
+    std::vector<float> *evtWeightProb_mistag_Up =  GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("mistagSF_EventWeightSimple_Up", evtWeightSimple_mistag_Up);
     tr.registerDerivedVec("mistagSF_EventWeightProb_Up", evtWeightProb_mistag_Up);
 
@@ -352,11 +352,11 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
     SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
     SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-    double evtWeightSimple_mistag_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
+    float evtWeightSimple_mistag_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
     if( std::isnan( evtWeightSimple_mistag_Down) || std::isinf(evtWeightSimple_mistag_Down) ){
       evtWeightSimple_mistag_Down= 1.0;
     }
-    std::vector<double> *evtWeightProb_mistag_Down = GetCorrections(&inputJets, &recoJetsFlavor);
+    std::vector<float> *evtWeightProb_mistag_Down = GetCorrections(&inputJets, &recoJetsFlavor);
     tr.registerDerivedVar("mistagSF_EventWeightSimple_Down", evtWeightSimple_mistag_Down);
     tr.registerDerivedVec("mistagSF_EventWeightProb_Down", evtWeightProb_mistag_Down);
 

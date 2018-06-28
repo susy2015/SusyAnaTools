@@ -28,16 +28,16 @@ Pileup_Sys::~Pileup_Sys()
 
 void Pileup_Sys::getPileup_Sys(NTupleReader& tr)
 {
-    double _PUweightFactor = 1.;
-    double _PUSysUp = 1.;
-    double _PUSysDown = 1.;
+    float _PUweightFactor = 1.;
+    float _PUSysUp = 1.;
+    float _PUSysDown = 1.;
 
-    double trueint; 
-    double w = 1.;
+    float trueint; 
+    float w = 1.;
 
 
     //These are all the pileup varaibles the only one that is needed is the first
-    const double &tru_npv  = tr.getVar<double>("tru_npv");
+    const float &tru_npv  = tr.getVar<float>("tru_npv");
     //const int    BX       = tr.getVar<int>("BX");
     //const int    nm1      = tr.getVar<int>("nm1");
     //const int    n0       = tr.getVar<int>("n0");

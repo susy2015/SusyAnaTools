@@ -31,22 +31,22 @@ namespace AnaConsts{
     
     struct AccRec
     {
-        double minAbsEta, maxAbsEta, minPt, maxPt;
+        float minAbsEta, maxAbsEta, minPt, maxPt;
     };
 
     struct IsoAccRec
     {
-        double minAbsEta, maxAbsEta, minPt, maxPt, maxIso, maxMtw;
+        float minAbsEta, maxAbsEta, minPt, maxPt, maxIso, maxMtw;
     };
 
     struct ElecIsoAccRec
     {
-        double minAbsEta, maxAbsEta, minPt, maxPt, maxIsoEB, maxIsoEE, maxMtw;
+        float minAbsEta, maxAbsEta, minPt, maxPt, maxIsoEB, maxIsoEE, maxMtw;
     };
 
     struct ActRec
     {
-        double minAbsEta, maxAbsEta, minPt, maxPt, mindR, maxdR;
+        float minAbsEta, maxAbsEta, minPt, maxPt, mindR, maxdR;
     };
 
     
@@ -57,7 +57,7 @@ namespace AnaConsts{
    const int low_nJetsSelBtagged = 1, high_nJetsSelBtagged = -1;
 // [low_nTopCandSortedSel, high_nTopCandSortedSel)
    const int low_nTopCandSortedSel = 1, high_nTopCandSortedSel = -1;
-   const double minJetPt = 30;
+   const float minJetPt = 30;
 //                               minAbsEta, maxAbsEta, minPt, maxPt
    const AccRec      pt30Arr = {   -1,        -1,      30,    -1  };
    const AccRec pt30Eta24Arr = {   -1,       2.4,      30,    -1  };
@@ -68,13 +68,13 @@ namespace AnaConsts{
    const AccRec      bTagArr = {   -1,       2.4,      30,    -1  };
    const AccRec pt20Eta25Arr = {   -1,       2.5,      20,    -1  };
 
-//   const double cutCSVS = 0.814, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
+//   const float cutCSVS = 0.814, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
 // Note the new working points are for Spring15 samples & data: cutCSVS is the medium working point
 // According to https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80X, the CSVv2M cut is 0.800
-   const double cutCSVS = 0.8484, cutCSVL = 0.5426, cutCSVT = 0.9535, cutCSVSold = 0.800; // old is for ICHEP working point
-   const double defaultMETcut = 250;
-   const double defaultMT2cut = 200;
-   const double defaultHTcut = 300;
+   const float cutCSVS = 0.8484, cutCSVL = 0.5426, cutCSVT = 0.9535, cutCSVSold = 0.800; // old is for ICHEP working point
+   const float defaultMETcut = 250;
+   const float defaultMT2cut = 200;
+   const float defaultHTcut = 300;
 
 //                                    minAbsEta, maxAbsEta, minPt, maxPt,   maxIso,  maxMtw
    const IsoAccRec     muonsArr =    {   -1,       2.4,      10,     -1,       0.2,     -1  };
@@ -94,10 +94,10 @@ namespace AnaConsts{
    const ActRec     muonsAct =    {   -1,       -1,        10,    -1,       -1,     1.0  };
    const ActRec      elesAct =    {   -1,       -1,        10,    -1,       -1,     1.0  };
 
-   const double  dPhi0_CUT = 0.5, dPhi1_CUT = 0.5, dPhi2_CUT = 0.3;
-   const double  minDPhiN_CUT = 6;
+   const float  dPhi0_CUT = 0.5, dPhi1_CUT = 0.5, dPhi2_CUT = 0.3;
+   const float  minDPhiN_CUT = 6;
 
-   const double MT2cut_ = 300, mTcombcut_ = 500;
+   const float MT2cut_ = 300, mTcombcut_ = 500;
 
    static std::set<std::string> activatedBranchNames_DataOnly = { "run", "lumi", "event", "evtWeight", 
                                                   "jetsLVec", "recoJetsBtag_0", "muMatchedJetIdx", "eleMatchedJetIdx", "looseisoTrksMatchedJetIdx", "trksForIsoVetoMatchedJetIdx",
@@ -136,31 +136,31 @@ namespace AnaConsts{
 namespace AnaFunctions{
   bool jetPassCuts(const TLorentzVector& jet, const AnaConsts::AccRec& jetCutsArr);
   int countJets(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr);
-  int countCSVS(const std::vector<TLorentzVector> &inputJets, const std::vector<double> &inputCSVS, const double cutCSVS, const AnaConsts::AccRec& jetCutsArr);
-  std::vector<double> calcDPhi(const std::vector<TLorentzVector> &inputJets, const double metphi, const int nDPhi, const AnaConsts::AccRec& jetCutsArr);
-  double calcDeltaT(unsigned int pickedJetIdx, const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr);
-  std::vector<double> calcDPhiN(const std::vector<TLorentzVector> &inputJets, const TLorentzVector &metLVec, const int nDPhi, const AnaConsts::AccRec& jetCutsArr);
-  bool passMuon(const TLorentzVector& muon, const double& muonIso, const double& muonMtw, int flagID, const AnaConsts::IsoAccRec& muonsArr);
+  int countCSVS(const std::vector<TLorentzVector> &inputJets, const std::vector<float> &inputCSVS, const float cutCSVS, const AnaConsts::AccRec& jetCutsArr);
+  std::vector<float> calcDPhi(const std::vector<TLorentzVector> &inputJets, const double metphi, const int nDPhi, const AnaConsts::AccRec& jetCutsArr);
+  float calcDeltaT(unsigned int pickedJetIdx, const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr);
+  std::vector<float> calcDPhiN(const std::vector<TLorentzVector> &inputJets, const TLorentzVector &metLVec, const int nDPhi, const AnaConsts::AccRec& jetCutsArr);
+  bool passMuon(const TLorentzVector& muon, const float& muonIso, const float& muonMtw, int flagID, const AnaConsts::IsoAccRec& muonsArr);
   bool passMuonAccOnly(const TLorentzVector& muon, const AnaConsts::IsoAccRec& muonsArr);
-  int countMuons(const std::vector<TLorentzVector> &muonsLVec, const std::vector<double> &muonsRelIso, const std::vector<double> &muonsMtw, const std::vector<int> &muonsFlagID, const AnaConsts::IsoAccRec& muonsArr);
-  bool passElectron(const TLorentzVector& elec, const double electronIso, const double electronMtw, bool isEB, int flagID, const AnaConsts::ElecIsoAccRec& elesArr);
-  int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr);
-  int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<double> &electronsRelIso, const std::vector<double> &electronsMtw, const std::vector<unsigned int>& isEBVec, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr);
-  double getElectronActivity(const TLorentzVector& elec, const std::vector<TLorentzVector>& jetLVec, const std::vector<double>& recoJetschargedHadronEnergyFraction, const AnaConsts::ActRec& elesAct);
-  double getMuonActivity(const TLorentzVector& muon, const std::vector<TLorentzVector>& jetLVec, const std::vector<double>& recoJetschargedHadronEnergyFraction, const std::vector<double>& recoJetschargedEmEnergyFraction, const AnaConsts::ActRec& muonsAct);
-  bool passIsoTrk(const TLorentzVector& isoTrk, const double isoTrkIso, const double isoTrkMtw, const AnaConsts::IsoAccRec& isoTrksArr);
-  int countIsoTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<double> &isoTrksIso, const std::vector<double> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);
-  void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<double> &recoJetsBtag_forTagger, const std::vector<double>& qgLikelihood = *static_cast<std::vector<double>*>(nullptr), std::vector<double>& qgLikelihood_forTagger = *static_cast<std::vector<double>*>(nullptr));
-  void preparecntNJets(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<double> &inirecoJetsBtag, const double cutCSVS, std::vector<int> &cntNJetsVec, std::vector<int> &cntNbJetsVec);
-  void preparecalcDPhi(const std::vector<TLorentzVector> &inijetsLVec, const double metphi, std::vector<double> &outDPhiVec);
+  int countMuons(const std::vector<TLorentzVector> &muonsLVec, const std::vector<float> &muonsRelIso, const std::vector<float> &muonsMtw, const std::vector<int> &muonsFlagID, const AnaConsts::IsoAccRec& muonsArr);
+  bool passElectron(const TLorentzVector& elec, const float electronIso, const float electronMtw, bool isEB, int flagID, const AnaConsts::ElecIsoAccRec& elesArr);
+  int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<float> &electronsRelIso, const std::vector<float> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr);
+  int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<float> &electronsRelIso, const std::vector<float> &electronsMtw, const std::vector<unsigned int>& isEBVec, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr);
+  float getElectronActivity(const TLorentzVector& elec, const std::vector<TLorentzVector>& jetLVec, const std::vector<float>& recoJetschargedHadronEnergyFraction, const AnaConsts::ActRec& elesAct);
+  float getMuonActivity(const TLorentzVector& muon, const std::vector<TLorentzVector>& jetLVec, const std::vector<float>& recoJetschargedHadronEnergyFraction, const std::vector<float>& recoJetschargedEmEnergyFraction, const AnaConsts::ActRec& muonsAct);
+  bool passIsoTrk(const TLorentzVector& isoTrk, const float isoTrkIso, const float isoTrkMtw, const AnaConsts::IsoAccRec& isoTrksArr);
+  int countIsoTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<float> &isoTrksIso, const std::vector<float> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);
+  void prepareJetsForTagger(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<float> &inirecoJetsBtag, std::vector<TLorentzVector> &jetsLVec_forTagger, std::vector<float> &recoJetsBtag_forTagger, const std::vector<float>& qgLikelihood = *static_cast<std::vector<float>*>(nullptr), std::vector<float>& qgLikelihood_forTagger = *static_cast<std::vector<float>*>(nullptr));
+  void preparecntNJets(const std::vector<TLorentzVector> &inijetsLVec, const std::vector<float> &inirecoJetsBtag, const float cutCSVS, std::vector<int> &cntNJetsVec, std::vector<int> &cntNbJetsVec);
+  void preparecalcDPhi(const std::vector<TLorentzVector> &inijetsLVec, const float metphi, std::vector<float> &outDPhiVec);
   void prepareForNtupleReader();
-  double calcHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr);
+  float calcHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr);
   bool passBaseline();
-  int jetLepdRMatch(const TLorentzVector& lep, const std::vector<TLorentzVector>& jetsLVec, const double jldRMax);
+  int jetLepdRMatch(const TLorentzVector& lep, const std::vector<TLorentzVector>& jetsLVec, const float jldRMax);
   bool passElectronAccOnly(const TLorentzVector& elec, const AnaConsts::ElecIsoAccRec& elesArr);
   TLorentzVector calcMHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr);
-  int countIsoLepTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<double> &isoTrksIso, const std::vector<double> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);
-  int countIsoPionTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<double> &isoTrksIso, const std::vector<double> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);
+  int countIsoLepTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<float> &isoTrksIso, const std::vector<float> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);
+  int countIsoPionTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<float> &isoTrksIso, const std::vector<float> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);
 
 }
 

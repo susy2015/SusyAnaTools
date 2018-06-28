@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
     {
         if(nEvts > 0 && tr.getEvtNum() > nEvts) break;
 
-        double met = tr.getVar<double>("met");
+        float met = tr.getVar<float>("met");
 
         //bool passLeptVeto = tr.getVar<bool>("passLeptVeto"+spec);
         bool passnJets = tr.getVar<bool>("passnJets"+spec);

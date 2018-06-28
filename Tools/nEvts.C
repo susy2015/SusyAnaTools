@@ -82,14 +82,14 @@ int main(int argc, char *argv[])
       int posw = 0;
       while(tr.getNextEvent())
       {
-        double stored_weight = 0;
+        float stored_weight = 0;
         if( tr.checkBranch("stored_weight") )
         {
-          stored_weight = tr.getVar<double>("stored_weight");
+          stored_weight = tr.getVar<float>("stored_weight");
         }
         else if( tr.checkBranch("Weight") )
         {
-          stored_weight = tr.getVar<double>("Weight");
+          stored_weight = tr.getVar<float>("Weight");
         }
         else
         {

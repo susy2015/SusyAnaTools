@@ -17,13 +17,13 @@
 #include <string>
 #include <vector>
 
-const double ptBins[]  = {20,30,40,50,60,70,80,100,120,160,210,260,320,400,500,600,800,99999};
+const float ptBins[]  = {20,30,40,50,60,70,80,100,120,160,210,260,320,400,500,600,800,99999};
 const int nPtBins = sizeof(ptBins)/sizeof(ptBins[0]) - 1;
 
-const double etaBins[] = {0.0,0.8,1.6,2.4};
+const float etaBins[] = {0.0,0.8,1.6,2.4};
 const int nEtaBins = sizeof(etaBins)/sizeof(etaBins[0]) - 1;
 
-const double csv_btag = AnaConsts::cutCSVS;
+const float csv_btag = AnaConsts::cutCSVS;
 
 const std::string spec = "bTagEff";
 
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 
     AnaSamples::SampleSet        ss("sampleSets.txt", (argc == 6), AnaSamples::luminosity);
                                    
-    double ScaleMC = 1.;                                                                              
+    float ScaleMC = 1.;                                                                              
     if(ss[subSampleName] != ss.null())                                                                             
     {                                                                                                               
         fChain = new TChain(ss[subSampleName].treePath.c_str());                                                           
@@ -134,19 +134,19 @@ int main(int argc, char* argv[])
         }
 
         const auto& inputJets = tr->getVec<TLorentzVector>(JetsVec);
-        const auto& recoJetsBtag = tr->getVec<double>(BJetsVec);
+        const auto& recoJetsBtag = tr->getVec<float>(BJetsVec);
         const auto& recoJetsFlavor = tr->getVec<int>(JetsFlavor);            
 
-        double stored_weight = subSampleNameT.Contains("Data") ? 1 : tr->getVar<double>("stored_weight");
+        float stored_weight = subSampleNameT.Contains("Data") ? 1 : tr->getVar<float>("stored_weight");
 
-        double evtWeight = (stored_weight > 0) ? 1.0 : ((stored_weight < 0) ? -1.0 : 0.0);
+        float evtWeight = (stored_weight > 0) ? 1.0 : ((stored_weight < 0) ? -1.0 : 0.0);
 
         for(unsigned int ij=0; ij<inputJets.size(); ij++)
         {
-            double pt = inputJets[ij].Pt();
-            double eta = fabs(inputJets[ij].Eta());
+            float pt = inputJets[ij].Pt();
+            float eta = fabs(inputJets[ij].Eta());
             if( ! AnaFunctions::jetPassCuts(inputJets[ij], AnaConsts::bTagArr) ) continue;
-            double csv = recoJetsBtag.at(ij);
+            float csv = recoJetsBtag.at(ij);
             int flav =  abs(recoJetsFlavor.at(ij));
 	      
             if(flav==5) //b Jets

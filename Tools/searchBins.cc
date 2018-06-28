@@ -11,12 +11,12 @@ SearchBins::searchBinDef::searchBinDef() : idx_SR_(-1), bJet_lo_(-1), bJet_hi_(-
     
 }
 
-SearchBins::searchBinDef::searchBinDef(int idx_SR, int idx_vMT2_vs_met, int bJet_lo, int bJet_hi, int top_lo, int top_hi, double met_lo, double met_hi, double MT2_lo, double MT2_hi, double HT_lo, double HT_hi) : idx_SR_(idx_SR), idx_vMT2_vs_met_(idx_vMT2_vs_met), bJet_lo_(bJet_lo), bJet_hi_(bJet_hi), top_lo_(top_lo), top_hi_(top_hi), met_lo_(met_lo), met_hi_(met_hi), MT2_lo_(MT2_lo), MT2_hi_(MT2_hi), HT_hi_(HT_hi), HT_lo_(HT_lo)
+SearchBins::searchBinDef::searchBinDef(int idx_SR, int idx_vMT2_vs_met, int bJet_lo, int bJet_hi, int top_lo, int top_hi, float met_lo, float met_hi, float MT2_lo, float MT2_hi, float HT_lo, float HT_hi) : idx_SR_(idx_SR), idx_vMT2_vs_met_(idx_vMT2_vs_met), bJet_lo_(bJet_lo), bJet_hi_(bJet_hi), top_lo_(top_lo), top_hi_(top_hi), met_lo_(met_lo), met_hi_(met_hi), MT2_lo_(MT2_lo), MT2_hi_(MT2_hi), HT_hi_(HT_hi), HT_lo_(HT_lo)
 {
     
 }
 
-bool SearchBins::searchBinDef::compare(const int ibJet, const int iTop, const double MT2, const double HT, const double met) const
+bool SearchBins::searchBinDef::compare(const int ibJet, const int iTop, const float MT2, const float HT, const float met) const
 {
     return (bJet_lo_ < 0  || ibJet >= bJet_lo_)
         && (bJet_hi_ < 0  || ibJet  < bJet_hi_)
@@ -72,7 +72,7 @@ SearchBins::SearchBins(std::string binEra) :
     }
 }
 
-void SearchBins::addNbNtBin_MT2_MET(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> mt2_lo, const std::vector<double> mt2_hi, const std::vector<double> met_lo, const std::vector<double> met_hi)
+void SearchBins::addNbNtBin_MT2_MET(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<float> mt2_lo, const std::vector<float> mt2_hi, const std::vector<float> met_lo, const std::vector<float> met_hi)
 {
     if((met_lo.size() != met_hi.size()) || (met_lo.size() != mt2_lo.size()) || (met_lo.size() != mt2_hi.size()))
     {
@@ -90,7 +90,7 @@ void SearchBins::addNbNtBin_MT2_MET(int bJet_lo, int bJet_hi, int top_lo, int to
     ++NSearchRegions_;
 }
 
-void SearchBins::addNbNtBin_HT_MET(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<double> ht_lo, const std::vector<double> ht_hi, const std::vector<double> met_lo, const std::vector<double> met_hi)
+void SearchBins::addNbNtBin_HT_MET(int bJet_lo, int bJet_hi, int top_lo, int top_hi, const std::vector<float> ht_lo, const std::vector<float> ht_hi, const std::vector<float> met_lo, const std::vector<float> met_hi)
 {
     if((met_lo.size() != met_hi.size()) || (met_lo.size() != ht_lo.size()) || (met_lo.size() != ht_hi.size()))
     {
@@ -108,22 +108,22 @@ void SearchBins::addNbNtBin_HT_MET(int bJet_lo, int bJet_hi, int top_lo, int top
     ++NSearchRegions_;
 }
 
-void SearchBins::build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::vector<double> > > & outBinning) const
+void SearchBins::build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::vector<float> > > & outBinning) const
 {
     int nTotBins = 0;
     int currentSR = -1;
     outBinning.clear();
     for(auto& sb : searchBins_)
     {
-        double MT2_lo = sb.MT2_lo_;
-        double MT2_hi = sb.MT2_hi_;
+        float MT2_lo = sb.MT2_lo_;
+        float MT2_hi = sb.MT2_hi_;
         if(sb.bJet_lo_ >=3 || sb.top_lo_ >=3)
         {
             MT2_lo = sb.HT_lo_;
             MT2_hi = sb.HT_hi_;
         }
-        double met_lo = sb.met_lo_;
-        double met_hi = sb.met_hi_;
+        float met_lo = sb.met_lo_;
+        float met_hi = sb.met_hi_;
         if( MT2_hi == -1 ) MT2_hi = (sb.bJet_lo_ >=3 || sb.top_lo_ >=3) ? pseudoMax_HT_for_hist : pseudoMax_MT2_for_hist;
         if( met_hi == -1 ) met_hi = pseudoMax_met_for_hist;
         ++nTotBins;
@@ -131,7 +131,7 @@ void SearchBins::build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::v
         if(sb.idx_SR_ != currentSR)
         {
             currentSR = sb.idx_SR_;
-            outBinning.emplace_back(std::vector<std::vector<double> >({{met_lo, MT2_lo, met_hi, MT2_hi}}));
+            outBinning.emplace_back(std::vector<std::vector<float> >({{met_lo, MT2_lo, met_hi, MT2_hi}}));
         }
         else
         {
@@ -141,28 +141,28 @@ void SearchBins::build_MT2_met_Binning_forTH2Poly(std::vector<std::vector<std::v
     //   std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
 }
 
-void SearchBins::build_MT2_met_Binning(std::vector<std::vector<std::vector<double> > > & outBinning) const
+void SearchBins::build_MT2_met_Binning(std::vector<std::vector<std::vector<float> > > & outBinning) const
 {
     int nTotBins = 0;
     int currentSR = -1;
     outBinning.clear();
     for(auto& sb : searchBins_)
     {
-        double MT2_lo = sb.MT2_lo_;
-        double MT2_hi = sb.MT2_hi_;
+        float MT2_lo = sb.MT2_lo_;
+        float MT2_hi = sb.MT2_hi_;
         if(sb.bJet_lo_ >=3 || sb.top_lo_ >=3)
         {
             MT2_lo = sb.HT_lo_;
             MT2_hi = sb.HT_hi_;
         }
-        double met_lo = sb.met_lo_;
-        double met_hi = sb.met_hi_;
+        float met_lo = sb.met_lo_;
+        float met_hi = sb.met_hi_;
         ++nTotBins;
 
         if(sb.idx_SR_ != currentSR)
         {
             currentSR = sb.idx_SR_;
-            outBinning.emplace_back(std::vector<std::vector<double> >({{met_lo, MT2_lo, met_hi, MT2_hi}}));
+            outBinning.emplace_back(std::vector<std::vector<float> >({{met_lo, MT2_lo, met_hi, MT2_hi}}));
         }
         else
         {
@@ -172,7 +172,7 @@ void SearchBins::build_MT2_met_Binning(std::vector<std::vector<std::vector<doubl
     std::cout<<"\n\nTotal search bins : "<<nTotBins<<std::endl<<std::endl;
 }
 
-int SearchBins::find_Binning_Index(int ibJet, int iTop, double MT2, double met) const
+int SearchBins::find_Binning_Index(int ibJet, int iTop, float MT2, float met) const
 {
 //    assert( binEra_.find("2017") == std::string::npos );
     if(binEra_.find("2017") != std::string::npos) THROW_SATEXCEPTION("This function is depricated for 2017 results");
@@ -186,7 +186,7 @@ int SearchBins::find_Binning_Index(int ibJet, int iTop, double MT2, double met) 
     return -1;
 }
 
-int SearchBins::find_Binning_Index(int ibJet, int iTop, double MT2, double met, double ht) const
+int SearchBins::find_Binning_Index(int ibJet, int iTop, float MT2, float met, float ht) const
 {
     for(int iBin = 0; iBin < searchBins_.size(); ++iBin)
     {
@@ -198,7 +198,7 @@ int SearchBins::find_Binning_Index(int ibJet, int iTop, double MT2, double met, 
     return -1;
 }
 
-std::vector<int> SearchBins::find_Binning_Indices(int ibJet, int iTop, double MT2, double met) const
+std::vector<int> SearchBins::find_Binning_Indices(int ibJet, int iTop, float MT2, float met) const
 {
     //assert( binEra_.find("2017") == std::string::npos );
     if(binEra_.find("2017") != std::string::npos) THROW_SATEXCEPTION("This function is depricated for 2017 results");
@@ -214,7 +214,7 @@ std::vector<int> SearchBins::find_Binning_Indices(int ibJet, int iTop, double MT
     return iBins;
 }
 
-std::vector<int> SearchBins::find_Binning_Indices(int ibJet, int iTop, double MT2, double met, double ht) const
+std::vector<int> SearchBins::find_Binning_Indices(int ibJet, int iTop, float MT2, float met, float ht) const
 {
     std::vector<int> iBins;
     for(int iBin = 0; iBin < searchBins_.size(); ++iBin)
@@ -252,8 +252,8 @@ void SearchBins::print_searchBins() const
             std::cout<<std::endl<<std::endl;
             preiSR = sbDef.idx_SR_;
         }
-        double MT2_lo = sbDef.MT2_lo_;
-        double MT2_hi = sbDef.MT2_hi_;
+        float MT2_lo = sbDef.MT2_lo_;
+        float MT2_hi = sbDef.MT2_hi_;
         if(sbDef.bJet_lo_ >=3 || sbDef.top_lo_ >=3)
         {
             MT2_lo = sbDef.HT_lo_;
@@ -281,8 +281,8 @@ std::string SearchBins::get_searchBins_defstr(const int binIdx, const std::strin
 
     SearchBins::searchBinDef sbDef;
     find_BinBoundaries(binIdx, sbDef);
-    double MT2_lo = sbDef.MT2_lo_;
-    double MT2_hi = sbDef.MT2_hi_;
+    float MT2_lo = sbDef.MT2_lo_;
+    float MT2_hi = sbDef.MT2_hi_;
     if(sbDef.bJet_lo_ >=3 || sbDef.top_lo_ >=3)
     {
         MT2_lo = sbDef.HT_lo_;
@@ -311,7 +311,7 @@ void SearchBins::print_searchBins_latex() const
     std::cout<<std::endl<<std::endl;
 }
 
-void SearchBins::print_searchBins_latex(const std::vector<double>& prediction, const std::vector<double>& uncertainty, std::string label) const
+void SearchBins::print_searchBins_latex(const std::vector<float>& prediction, const std::vector<float>& uncertainty, std::string label) const
 {
     print_searchBins_headerstr(label);
     for(int ib=0; ib<searchBins_.size(); ib++)
@@ -324,7 +324,7 @@ void SearchBins::print_searchBins_latex(const std::vector<double>& prediction, c
     }
     std::cout<<std::endl<<std::endl;
 }
-void SearchBins:: print_searchBinsPred_latex(const std::vector<double>& prediction, const std::vector<double>& StatUp,  const std::vector<double>& StatDown, const std::vector<double>& SysUp, const std::vector<double>& SysDown, std::string label)const
+void SearchBins:: print_searchBinsPred_latex(const std::vector<float>& prediction, const std::vector<float>& StatUp,  const std::vector<float>& StatDown, const std::vector<float>& SysUp, const std::vector<float>& SysDown, std::string label)const
 {
   print_searchBins_headerstr(label);
   for(int ib=0; ib<searchBins_.size(); ib++)
@@ -339,11 +339,11 @@ void SearchBins:: print_searchBinsPred_latex(const std::vector<double>& predicti
 }
 
 // Function to draw the signal bin definition
-void SearchBins::drawSBregionDef(const double ymin_Yields, const double ymax_Yields, const bool logscale, const bool drawOnlyLines){
+void SearchBins::drawSBregionDef(const float ymin_Yields, const float ymax_Yields, const bool logscale, const bool drawOnlyLines){
     int NSB = 84;
 
-    const double adjHalfBin = 0.5;
-    const double deltaY = ymax_Yields - ymin_Yields;
+    const float adjHalfBin = 0.5;
+    const float deltaY = ymax_Yields - ymin_Yields;
     //-----------------------------------------------------------
     // Putting lines and labels explaining search region definitions
     //-----------------------------------------------------------

@@ -60,9 +60,9 @@ ISRCorrector(std::string fnISR = "Signal_fastsim_T1tttt_scan_ISR.root", std::str
   void SetWeights_Down(TH1D* weights, TH1D* all);  
   
   //functions
-  double GetCorrection_Up(int NJetsISR);
-  double GetCorrection_Cent(int NJetsISR);
-  double GetCorrection_Down(int NJetsISR);
+  float GetCorrection_Up(int NJetsISR);
+  float GetCorrection_Cent(int NJetsISR);
+  float GetCorrection_Down(int NJetsISR);
 
   void registerVarToNTuples(NTupleReader& tr);
 
