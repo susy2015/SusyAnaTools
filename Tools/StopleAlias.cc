@@ -80,8 +80,8 @@ bool StopleAlias::MapFilter()
 // ===========================================================================
 bool StopleAlias::MapMET()
 {
-  MapSingleObj<float, double>("met_pt", "met");
-  MapSingleObj<float, double>("met_phi", "metphi");
+  MapSingleObj<float, float>("met_pt", "met");
+  MapSingleObj<float, float>("met_phi", "metphi");
   return true;
 }       // -----  end of function StopleAlias::MapMET  -----
 
@@ -112,8 +112,8 @@ bool StopleAlias::MapMuon()
 {
   MapVectorTLV("mu", "muonsLVec");
   ProdLepMtw("mu", "muonsMtw");
-  MapVectorObj<int, double>("mu_q", "muonsCharge");
-  MapVectorObj<float, double>("mu_miniiso", "muonsMiniIso");
+  MapVectorObj<int, float>("mu_q", "muonsCharge");
+  MapVectorObj<float, float>("mu_miniiso", "muonsMiniIso");
   MapVectorObj<bool, int>("mu_isTight", "muonsFlagTight");
   MapVectorObj<bool, int>("mu_isMedium", "muonsFlagMedium");
 
@@ -131,8 +131,8 @@ bool StopleAlias::MapElectron()
   MapVectorTLV("ele", "elesLVec");
   ProdLepMtw("ele", "elesMtw");
 
-  MapVectorObj<int, double>("ele_q", "elesCharge");
-  MapVectorObj<float, double>("ele_miniiso", "elesMiniIso");
+  MapVectorObj<int, float>("ele_q", "elesCharge");
+  MapVectorObj<float, float>("ele_miniiso", "elesMiniIso");
   MapVectorObj<bool, int>("ele_vetoid", "elesFlagVeto");
   MapVectorObj<bool, int>("ele_mediumid", "elesFlagMedium");
   return true;
@@ -248,12 +248,12 @@ bool StopleAlias::ProdLepMtw(const std::string &lep, const std::string &outname,
   ss<<lep<<"_" <<s_phi;
   const std::vector<float>& lepphi=tr->getVec<float>(ss.str());
 
-  std::vector<double> *lepMtw = new std::vector<double>();
+  std::vector<float> *lepMtw = new std::vector<float>();
   for(unsigned int i=0; i < leppt.size(); ++i)
   {
     float lpt = leppt.at(i);
     float lphi = lepphi.at(i);
-    double mtw = sqrt(2 * met * lpt * (1 - cos(lphi -metphi)));
+    float mtw = sqrt(2 * met * lpt * (1 - cos(lphi -metphi)));
     lepMtw->push_back(mtw);
   }
 

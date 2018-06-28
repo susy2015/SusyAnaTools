@@ -46,7 +46,7 @@ int main()
       if(tr.getEvtNum() > 10)
         break;
 
-      std::cout << "MET " << tr.getVar<double>("met")  <<" met_pt " << tr.getVar<float>("met_pt") << std::endl;
+      std::cout << "MET " << tr.getVar<float>("met")  <<" met_pt " << tr.getVar<float>("met_pt") << std::endl;
     }
     ch->Reset();
 }

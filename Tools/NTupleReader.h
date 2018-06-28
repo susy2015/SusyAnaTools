@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <string>
 #include <set>
+#include <iostream>
 #include <typeinfo>
 #include <functional>
 #include <cxxabi.h>
@@ -34,7 +35,7 @@
    NTupleReader tr(tree);
    while(tr.getNextEvent())
    {
-       const int& run = tr.getVar<int>("run");
+       const int& run = tr.getVar<unsigned int>("run");
    }
 
    and so on.  
@@ -51,7 +52,8 @@ class NTupleReader
 private:
 
     //Machinery to allow object cleanup
-
+    bool DuplicateFDVector();
+    template <class Tfrom, class Tto> void CastVector(NTupleReader& tr, const std::string& var, const char typen);
     //Generic deleter base class to obfiscate template type
     class deleter_base
     {
@@ -315,6 +317,7 @@ private:
     mutable std::unordered_map<std::string, Handle> branchVecMap_;
     std::vector<FuncWrapper*> functionVec_;
     mutable std::unordered_map<std::string, std::string> typeMap_;
+    mutable std::unordered_map<std::string, std::string> VectypeMap_;
     std::set<std::string> activeBranches_;
 
     void init();
@@ -342,6 +345,7 @@ private:
         branchVecMap_[name] = createVecHandle(new std::vector<T>*());
 
         typeMap_[name] = demangle<std::vector<T>>();
+        VectypeMap_[name] = typeid(T).name();
 
         tree_->SetBranchStatus(name.c_str(), 1);
         tree_->SetBranchAddress(name.c_str(), branchVecMap_[name].ptr);
@@ -370,11 +374,27 @@ private:
     template<typename T, typename V> T& getTupleObj(const std::string& var, const V& v_tuple) const
     {
         auto tuple_iter = v_tuple.find(var);
-        if(tuple_iter != v_tuple.end())
+        bool intuple = tuple_iter != v_tuple.end() ;
+        auto typemap_iter = typeMap_.find(var);
+        bool inTypeMap = typemap_iter != typeMap_.end();
+        std::string requestType = demangle<T>();
+        bool isSameType = false;
+        if (inTypeMap)
         {
-            return *static_cast<T*>(tuple_iter->second.ptr);
+          isSameType  =  requestType.find(typeMap_[var]) != std::string::npos;
+          // BAD IDea, but allow C++ to cost to other types
+          if (requestType.find("vector") == std::string::npos)
+            isSameType = true;
         }
-        else if(typeMap_.find(var) != typeMap_.end()) //If it is not found, check in typeMap_ 
+
+        //std::cout << var << " intuple" << intuple <<" typemap " << inTypeMap <<" same type " << isSameType <<" request type" << requestType 
+          //<< " store type " << typemap_iter->second << std::endl;
+
+        if( intuple && inTypeMap && isSameType)
+        {
+          return *reinterpret_cast<T*>(tuple_iter->second.ptr);
+        }
+        else if( !intuple && inTypeMap && isSameType ) //If it is not found in tuple, but in branch
         {
             //If found in typeMap_, it can be added on the fly
             TBranch *branch = tree_->FindBranch(var.c_str());
@@ -393,10 +413,22 @@ private:
                 //return value
                 return *static_cast<T*>(tuple_iter->second.ptr);
             }
+        } else if (intuple && inTypeMap && !isSameType) 
+        {
+            char typen;
+            if( requestType == "std::vector<float, std::allocator<float> >*")
+              typen='f';
+            if( requestType == "std::vector<double, std::allocator<double> >*")
+              typen='d';
+            std::string newname = var+"___" + typen;
+            //std::cout << newname << std::endl;
+            auto tuple_iter = branchVecMap_.find(newname);
+            if (tuple_iter != branchVecMap_.end())
+              return *static_cast<T*>(tuple_iter->second.ptr);
         }
 
         //It really does not exist, throw exception 
-        THROW_SATEXCEPTION("Variable not found: \"" + var + "\"!!!");
+        THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type " + requestType +"!!!");
     }
 
     template<typename T> inline static void setDerived(const T& retval, void* const loc)

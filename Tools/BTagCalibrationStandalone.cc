@@ -392,12 +392,12 @@ private:
             BTagEntry::JetFlavor jf,
             std::string measurementType);
 
-  double eval(BTagEntry::JetFlavor jf,
+  float eval(BTagEntry::JetFlavor jf,
               float eta,
               float pt,
               float discr) const;
 
-  double eval_auto_bounds(const std::string & sys,
+  float eval_auto_bounds(const std::string & sys,
                           BTagEntry::JetFlavor jf,
                           float eta,
                           float pt,
@@ -492,7 +492,7 @@ throw std::exception();
   }
 }
 
-double BTagCalibrationReader::BTagCalibrationReaderImpl::eval(
+float BTagCalibrationReader::BTagCalibrationReaderImpl::eval(
                                              BTagEntry::JetFlavor jf,
                                              float eta,
                                              float pt,
@@ -525,7 +525,7 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval(
   return 0.;  // default value
 }
 
-double BTagCalibrationReader::BTagCalibrationReaderImpl::eval_auto_bounds(
+float BTagCalibrationReader::BTagCalibrationReaderImpl::eval_auto_bounds(
                                              const std::string & sys,
                                              BTagEntry::JetFlavor jf,
                                              float eta,
@@ -545,7 +545,7 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval_auto_bounds(
   }
 
   // get central SF (and maybe return)
-  double sf = eval(jf, eta, pt_for_eval, discr);
+  float sf = eval(jf, eta, pt_for_eval, discr);
   if (sys == sysType_) {
     return sf;
   }
@@ -557,12 +557,12 @@ std::cerr << "ERROR in BTagCalibration: "
         << sys;
 throw std::exception();
   }
-  double sf_err = otherSysTypeReaders_.at(sys)->eval(jf, eta, pt_for_eval, discr);
+  float sf_err = otherSysTypeReaders_.at(sys)->eval(jf, eta, pt_for_eval, discr);
   if (!is_out_of_bounds) {
     return sf_err;
   }
 
-  // double uncertainty on out-of-bounds and return
+  // float uncertainty on out-of-bounds and return
   sf_err = sf + 2*(sf_err - sf);
   return sf_err;
 }
@@ -620,7 +620,7 @@ void BTagCalibrationReader::load(const BTagCalibration & c,
   pimpl->load(c, jf, measurementType);
 }
 
-double BTagCalibrationReader::eval(BTagEntry::JetFlavor jf,
+float BTagCalibrationReader::eval(BTagEntry::JetFlavor jf,
                                    float eta,
                                    float pt,
                                    float discr) const
@@ -628,7 +628,7 @@ double BTagCalibrationReader::eval(BTagEntry::JetFlavor jf,
   return pimpl->eval(jf, eta, pt, discr);
 }
 
-double BTagCalibrationReader::eval_auto_bounds(const std::string & sys,
+float BTagCalibrationReader::eval_auto_bounds(const std::string & sys,
                                                BTagEntry::JetFlavor jf,
                                                float eta,
                                                float pt,

@@ -166,12 +166,12 @@ public:
             BTagEntry::JetFlavor jf,
             const std::string & measurementType="comb");
 
-  double eval(BTagEntry::JetFlavor jf,
+  float eval(BTagEntry::JetFlavor jf,
               float eta,
               float pt,
               float discr=0.) const;
 
-  double eval_auto_bounds(const std::string & sys,
+  float eval_auto_bounds(const std::string & sys,
                           BTagEntry::JetFlavor jf,
                           float eta,
                           float pt,

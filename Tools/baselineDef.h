@@ -44,8 +44,8 @@ private:
     //  container
     TLorentzVector metLVec; 
     std::vector<TLorentzVector> *jetsLVec_forTagger;
-    std::vector<double> *recoJetsBtag_forTagger;
-    std::vector<double> *qgLikelihood_forTagger;
+    std::vector<float> *recoJetsBtag_forTagger;
+    std::vector<float> *qgLikelihood_forTagger;
     std::vector<TLorentzVector> *vTops;
     std::map<int, std::vector<TLorentzVector> > *mTopJets;
     std::vector<unsigned> * vAK8Flag;
@@ -106,8 +106,8 @@ public:
     std::shared_ptr<TopTagger> GetTopTaggerPtr() const {return ttPtr;};
     int GetnTops() const;
     bool GetTopCombs() const;
-    double CalcMT2() const;
-    double coreMT2calc(const TLorentzVector & fatJet1LVec, const TLorentzVector & fatJet2LVec) const;
+    float CalcMT2() const;
+    float coreMT2calc(const TLorentzVector & fatJet1LVec, const TLorentzVector & fatJet2LVec) const;
     bool FlagAK8Jets();
     AK8Flag FlagAK8FromCSV(Constituent &ak8) const;
     AK8Flag FlagAK8FromTagger(Constituent &ak8 );
@@ -140,14 +140,14 @@ namespace stopFunctions
         void setForceDr(bool forceDr);
         void setDisable(bool disable);
         void setRemove(bool remove);
-        void setElecPtThresh(double minPt);
-        void setMuonPtThresh(double minPt);
+        void setElecPtThresh(float minPt);
+        void setMuonPtThresh(float minPt);
         void setDisableElec(bool disable);
         void setDisableMuon(bool disable);
         //This option is used to clean up to 1 jet in the minDr cone around the muon if the jet is lower pt than the muon
         //It is designed only for use with the z->inv background to remove muon related radiation from the event
         void setJecScaleRawToFull(std::string jecScaleRawToFullLabel);
-        void setPhotoCleanThresh(double photoCleanThresh);
+        void setPhotoCleanThresh(float photoCleanThresh);
 
         //NOTE!!! Must add Hadron and EM fraction vectors here
 
@@ -175,14 +175,14 @@ namespace stopFunctions
         std::string recoJetsJecScaleRawToFullLabel_;
         AnaConsts::IsoAccRec muIsoReq_;
         AnaConsts::ElecIsoAccRec elecIsoReq_;
-        double elecPtThresh_;
-        double muonPtThresh_;
-        double photoCleanThresh_;
+        float elecPtThresh_;
+        float muonPtThresh_;
+        float photoCleanThresh_;
         bool remove_;
         bool disableMuon_, disableElec_;
         bool forceDr_;
 
-        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<double>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<double>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const double& jldRMax, const double photoCleanThresh = -999.9);
+        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<float>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<float>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const float& jldRMax, const float photoCleanThresh = -999.9);
         void internalCleanJets(NTupleReader& tr);
     };
 
