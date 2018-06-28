@@ -114,33 +114,23 @@ int main(int argc, char* argv[])
 
 	if(maxEvent>=0 && tr->getEvtNum() > maxEvent ) break;
 	// Add print out of the progress of looping
-	if( (tr->getEvtNum() - 1) % 10000 == 0 ) 
-        {
-	    std::cout << "   Processing event " << tr->getEvtNum() <<std::endl;
-        }
-
-        std::string JetsVec, BJetsVec, JetsFlavor;
-        if(tr->checkBranch("met"))
-        {
-            JetsVec = "jetsLVec";
-            BJetsVec = "recoJetsBtag_0";
-            JetsFlavor = "recoJetsFlavor";
-        }
-        else if(tr->checkBranch("MET"))
-        {
-            JetsVec = "Jets";
-            BJetsVec = "Jets_bDiscriminatorCSV";
-            JetsFlavor = "Jets_partonFlavor";
-        }
-
-        const auto& inputJets = tr->getVec<TLorentzVector>(JetsVec);
-        const auto& recoJetsBtag = tr->getVec<float>(BJetsVec);
-        const auto& recoJetsFlavor = tr->getVec<int>(JetsFlavor);            
+	if( tr->getEvtNum()-1 == 0 || tr->getEvtNum() == entries || (tr->getEvtNum()-1)%(entries/10) == 0 ) 
+	  {
+	    std::cout<<"\n   Processing the "<<tr->getEvtNum()-1<<"th event ..."<<std::endl;
+	  }
+	  
+	  
+        const  vector<TLorentzVector> inputJets = tr->getVec<TLorentzVector>("jetsLVec");
+        const vector<float> recoJetsBtag = tr->getVec<float>("recoJetsBtag_0");
+        const vector<int> recoJetsFlavor = tr->getVec<int>("recoJetsFlavor");
+         
+        float iniWeight = tr->getVar<float>("evtWeight");
 
         float stored_weight = subSampleNameT.Contains("Data") ? 1 : tr->getVar<float>("stored_weight");
+        int sign_of_stored_weight = (stored_weight > 0) ? 1 : ((stored_weight < 0) ? -1 : 0);
 
-        float evtWeight = (stored_weight > 0) ? 1.0 : ((stored_weight < 0) ? -1.0 : 0.0);
-
+        float evtWeight = iniWeight >=0 ? iniWeight * sign_of_stored_weight : iniWeight;
+     
         for(unsigned int ij=0; ij<inputJets.size(); ij++)
         {
             float pt = inputJets[ij].Pt();

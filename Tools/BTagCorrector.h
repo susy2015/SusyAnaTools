@@ -161,9 +161,7 @@ public:
 
     
     //test Method
-    std::vector<double> GetCorrectionsTest(std::vector<TLorentzVector>* Jets, std::vector<int>* Jets_flavor);
-    
-    
+    std::vector<float> GetCorrectionsTest(std::vector<TLorentzVector>* Jets, std::vector<int>* Jets_flavor);
     //method 1b
     std::vector<float>* GetCorrections(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor);
     //method 1a

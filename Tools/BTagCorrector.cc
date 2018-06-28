@@ -257,12 +257,12 @@ void BTagCorrector::InitSFEff(float pt, float eta, int flav, std::vector<float>&
 
 void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
 {
-    //Check if this is data
-    if( isData ) return;
+    //Check if this is data by looking for "genDecayPdgIdVec" collection (yes, this is dumb)
+    if(!tr.checkBranch("genDecayPdgIdVec")) return;
 
-    const auto& inputJets = tr.getVec<TLorentzVector>(JetsVec);
-    const auto& recoJetsBtag = tr.getVec<float>(BJetsVec);
-    const auto& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
+    const std::vector<TLorentzVector>& inputJets = tr.getVec<TLorentzVector>("jetsLVec");
+    const std::vector<float>& recoJetsBtag = tr.getVec<float>("recoJetsBtag_0");
+    const std::vector<int>& recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
 
     /*************************************************/
     // Here we define which(up, down or central
