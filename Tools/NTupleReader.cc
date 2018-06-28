@@ -51,9 +51,8 @@ void NTupleReader::init()
 
     tree_->SetBranchStatus("*", 0);
 
-    // Add desired branches to branchMap_/branchVecMap
+    // Add desired branches to branchMap_/branchVecMap_
     populateBranchList();
-    DuplicateFDVector();
 }
 
 
@@ -332,7 +331,6 @@ std::vector<std::string> NTupleReader::getTupleMembers() const
     return members;
 }
 
-
 std::vector<std::string> NTupleReader::getTupleSpecs(const std::string& varName) const
 {
     std::vector<std::string> members = getTupleMembers();
@@ -349,39 +347,50 @@ std::vector<std::string> NTupleReader::getTupleSpecs(const std::string& varName)
     return specs;
 }
 
+void NTupleReader::setConvertFloatingPointVectors(const bool doubleToFloat, const bool floatToDouble)
+{
+    if(doubleToFloat) duplicateDFVector();
+    if(floatToDouble) duplicateFDVector();
+}
+
+
+
 // ===  FUNCTION  ============================================================
 //         Name:  NTupleReader::CastVector
 //  Description:  /* cursor */
 // ===========================================================================
 template <class Tfrom, class Tto>
-void NTupleReader::CastVector(NTupleReader& tr, const std::string& var, const char typen)
+void NTupleReader::castVector(NTupleReader& tr, const std::string& var, const char typen)
 {
 
-  const std::vector<Tfrom> &obj = getVec<Tfrom>(var);
-  std::vector<Tto> *objs = new std::vector<Tto>();
-  std::string newname = var+"___" + typen;
+    const std::vector<Tfrom> &obj = tr.getVec<Tfrom>(var);
+    std::vector<Tto> *objs = new std::vector<Tto>();
+    std::string newname = var+"___" + typen;
 
-  for(auto i : obj)
-  {
-    objs->push_back(Tto(i));
-  }
-  // Ugly hack for calling non-const function! BAD IDEA!!
-    registerDerivedVec(newname, objs);
+    for(auto i : obj)
+    {
+        objs->push_back(Tto(i));
+    }
+    // Ugly hack for calling non-const function! BAD IDEA!!
+    tr.registerDerivedVec(newname, objs);
 }       // -----  end of function NTupleReader::CastVector  -----
 
-// ===  FUNCTION  ============================================================
-//         Name:  NTupleReader::DuplicateFDVector
-//  Description:  
-// ===========================================================================
-bool NTupleReader::DuplicateFDVector()
+bool NTupleReader::duplicateDFVector()
 {
-  for(auto i : branchVecMap_)
-  {
-    if (VectypeMap_[i.first] == "d")
-      registerFunction(std::bind(&NTupleReader::CastVector<double, float>, this, std::placeholders::_1, i.first, 'f'));
-    //if (VectypeMap_[i.first] == "f")
-      //registerFunction(std::bind(&NTupleReader::CastVector<float, double>, this, std::placeholders::_1, i.first, 'd'));
-  }
-  return true;
-}       // -----  end of function NTupleReader::DuplicateFDVector  -----
+    for(auto i : branchVecMap_)
+    {
+            registerFunction(std::bind(&NTupleReader::castVector<double, float>, std::placeholders::_1, i.first, 'f'));
+    }
+    return true;
+}
+
+bool NTupleReader::duplicateFDVector()
+{
+    for(auto i : branchVecMap_)
+    {
+        if (VectypeMap_[i.first] == "f")
+            registerFunction(std::bind(&NTupleReader::castVector<float, double>, std::placeholders::_1, i.first, 'd'));
+    }
+    return true;
+}
 

@@ -52,8 +52,6 @@ class NTupleReader
 private:
 
     //Machinery to allow object cleanup
-    bool DuplicateFDVector();
-    template <class Tfrom, class Tto> void CastVector(NTupleReader& tr, const std::string& var, const char typen);
     //Generic deleter base class to obfiscate template type
     class deleter_base
     {
@@ -149,6 +147,11 @@ private:
         FuncWrapperImpl(T f) : func_(f) {}
     };
 
+    bool duplicateFDVector();
+    bool duplicateDFVector();
+    template <class Tfrom, class Tto> 
+    static void castVector(NTupleReader& tr, const std::string& var, const char typen);
+
 public:
 
     NTupleReader(TTree * tree, const std::set<std::string>& activeBranches_);
@@ -179,6 +182,8 @@ public:
     bool getNextEvent();
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
+
+    void setConvertFloatingPointVectors(const bool doubleToFloat = true, const bool floatToDouble = false);
 
     std::vector<std::string> getTupleMembers() const;
     std::vector<std::string> getTupleSpecs(const std::string& varName) const;
