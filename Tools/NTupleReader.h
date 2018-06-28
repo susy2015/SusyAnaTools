@@ -14,8 +14,8 @@
 #include <unordered_map>
 #include <string>
 #include <set>
-#include <iostream>
 #include <typeinfo>
+#include <typeindex>
 #include <functional>
 #include <cxxabi.h>
 
@@ -95,10 +95,11 @@ private:
     public:
         void* ptr;
         deleter_base* deleter;
+        std::type_index type;
 
-        Handle() : ptr(nullptr), deleter(nullptr) {}
+        Handle() : ptr(nullptr), deleter(nullptr), type(typeid(nullptr)) {}
 
-        Handle(void* ptr, deleter_base* deleter = nullptr) :  ptr(ptr), deleter(deleter) {}
+        Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr)) :  ptr(ptr), deleter(deleter), type(type) {}
 
         void destroy()
         {
@@ -114,14 +115,14 @@ private:
     template<typename T>
     static inline Handle createHandle(T* ptr)
     {
-        return Handle(ptr, new deleter<T>);
+        return Handle(ptr, new deleter<T>, typeid(T));
     }
 
     //Helper to make vector Handle
     template<typename T>
     static inline Handle createVecHandle(T* ptr)
     {
-        return Handle(ptr, new vec_deleter<T>);
+        return Handle(ptr, new vec_deleter<T>, typeid(std::vector<T>));
     }
 
     //function wrapper 
@@ -373,28 +374,17 @@ private:
 
     template<typename T, typename V> T& getTupleObj(const std::string& var, const V& v_tuple) const
     {
+        //Find variable in the main tuple map 
         auto tuple_iter = v_tuple.find(var);
         bool intuple = tuple_iter != v_tuple.end() ;
-        auto typemap_iter = typeMap_.find(var);
-        bool inTypeMap = typemap_iter != typeMap_.end();
-        std::string requestType = demangle<T>();
-        bool isSameType = false;
-        if (inTypeMap)
-        {
-          isSameType  =  requestType.find(typeMap_[var]) != std::string::npos;
-          // BAD IDea, but allow C++ to cost to other types
-          if (requestType.find("vector") == std::string::npos)
-            isSameType = true;
-        }
+        //Check that the requested type matches the true variable type
+        const bool isSameType = (tuple_iter->second.type == typeid(T));
 
-        //std::cout << var << " intuple" << intuple <<" typemap " << inTypeMap <<" same type " << isSameType <<" request type" << requestType 
-          //<< " store type " << typemap_iter->second << std::endl;
-
-        if( intuple && inTypeMap && isSameType)
+        if(intuple && isSameType)
         {
-          return *reinterpret_cast<T*>(tuple_iter->second.ptr);
+            return *static_cast<T*>(tuple_iter->second.ptr);
         }
-        else if( !intuple && inTypeMap && isSameType ) //If it is not found in tuple, but in branch
+        else if( !intuple && (typeMap_.find(var) != typeMap_.end())) //If it is not loaded, but is a branch in tuple
         {
             //If found in typeMap_, it can be added on the fly
             TBranch *branch = tree_->FindBranch(var.c_str());
@@ -410,25 +400,32 @@ private:
                 //force read just this branch
                 branch->GetEvent(nevt_ - 1);
         
-                //return value
-                return *static_cast<T*>(tuple_iter->second.ptr);
+                intuple = true;
             }
-        } else if (intuple && inTypeMap && !isSameType) 
+        } 
+
+        //If it is the same type as requested, we can simply return the result
+        if(isSameType)
         {
+            //return value
+            return *static_cast<T*>(tuple_iter->second.ptr);
+        }
+        else if(intuple) //else check if it is a vector<float> or vector<double>
+        {
+            //hack to get vector<double> as vector<float>, requires DuplicateFDVector() to be run
             char typen;
-            if( requestType == "std::vector<float, std::allocator<float> >*")
-              typen='f';
-            if( requestType == "std::vector<double, std::allocator<double> >*")
-              typen='d';
+            if( typeid(T) == typeid(std::vector<float>) && tuple_iter->second.type == typeid(std::vector<double>))
+                typen='f';
+            if( typeid(T) == typeid(std::vector<double>) && tuple_iter->second.type == typeid(std::vector<float>))
+                typen='d';
             std::string newname = var+"___" + typen;
-            //std::cout << newname << std::endl;
             auto tuple_iter = branchVecMap_.find(newname);
             if (tuple_iter != branchVecMap_.end())
-              return *static_cast<T*>(tuple_iter->second.ptr);
+                return *static_cast<T*>(tuple_iter->second.ptr);
         }
 
         //It really does not exist, throw exception 
-        THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type " + requestType +"!!!");
+        THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<T>() +"\"!!!");
     }
 
     template<typename T> inline static void setDerived(const T& retval, void* const loc)
