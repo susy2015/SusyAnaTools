@@ -18,6 +18,7 @@
 #include <typeindex>
 #include <functional>
 #include <cxxabi.h>
+#include <iostream>
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -120,7 +121,7 @@ private:
     template<typename T>
     static inline Handle createVecHandle(T* ptr)
     {
-        return Handle(ptr, new vec_deleter<T>, typeid(std::vector<T>));
+        return Handle(ptr, new vec_deleter<T>, typeid(T));
     }
 
     //function wrapper 

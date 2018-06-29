@@ -114,7 +114,23 @@ void NTupleReader::registerBranch(TBranch * const branch) const
         }
     }
 
-    if(type.find("vector") != std::string::npos)
+    if(type.find("vector<vector") != std::string::npos)
+    {
+        if     (type.find("double")         != std::string::npos) registerVecBranch<std::vector<double>>(name);
+        else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<std::vector<unsigned int>>(name);
+        else if(type.find("unsigned long")  != std::string::npos) registerVecBranch<std::vector<unsigned long>>(name);
+        else if(type.find("unsigned char")  != std::string::npos) registerVecBranch<std::vector<unsigned char>>(name);
+        else if(type.find("unsigned short") != std::string::npos) registerVecBranch<std::vector<unsigned short>>(name);
+        else if(type.find("short")          != std::string::npos) registerVecBranch<std::vector<short>>(name);
+        else if(type.find("char")           != std::string::npos) registerVecBranch<std::vector<char>>(name);
+        else if(type.find("int")            != std::string::npos) registerVecBranch<std::vector<int>>(name);
+        else if(type.find("bool")           != std::string::npos) registerVecBranch<std::vector<bool>>(name);
+        else if(type.find("string")         != std::string::npos) registerVecBranch<std::vector<std::string>>(name);
+        else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<std::vector<TLorentzVector>>(name);
+        else if(type.find("float")          != std::string::npos) registerVecBranch<std::vector<float>>(name);
+        else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
+    }
+    else if(type.find("vector") != std::string::npos)
     {
         if     (type.find("double")         != std::string::npos) registerVecBranch<double>(name);
         else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<unsigned int>(name);
