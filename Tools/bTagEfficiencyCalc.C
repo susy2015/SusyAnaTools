@@ -114,10 +114,10 @@ int main(int argc, char* argv[])
 
 	if(maxEvent>=0 && tr->getEvtNum() > maxEvent ) break;
 	// Add print out of the progress of looping
-	if( tr->getEvtNum()-1 == 0 || tr->getEvtNum() == entries || (tr->getEvtNum()-1)%(entries/10) == 0 ) 
-	  {
+	if( tr->getEvtNum()-1 == 0 || tr->getEvtNum()%10000 == 0 ) 
+        {
 	    std::cout<<"\n   Processing the "<<tr->getEvtNum()-1<<"th event ..."<<std::endl;
-	  }
+        }
 	  
 	  
         const  vector<TLorentzVector> inputJets = tr->getVec<TLorentzVector>("jetsLVec");
