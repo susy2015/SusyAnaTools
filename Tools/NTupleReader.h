@@ -20,6 +20,8 @@
 #include <cxxabi.h>
 #include <iostream>
 
+#include <iostream>
+
 #ifdef __CINT__
 #pragma link off all globals;
 #pragma link off all classes;
@@ -121,7 +123,7 @@ private:
     template<typename T>
     static inline Handle createVecHandle(T* ptr)
     {
-        return Handle(ptr, new vec_deleter<T>, typeid(T));
+        return Handle(ptr, new vec_deleter<T>, typeid(typename std::remove_pointer<T>::type));
     }
 
     //function wrapper 
@@ -148,8 +150,6 @@ private:
         FuncWrapperImpl(T f) : func_(f) {}
     };
 
-    bool duplicateFDVector();
-    bool duplicateDFVector();
     template <class Tfrom, class Tto> 
     static void castVector(NTupleReader& tr, const std::string& var, const char typen);
 
@@ -317,14 +317,13 @@ private:
     // private variables for internal use
     TTree *tree_;
     int nevt_, evtProcessed_;
-    bool isUpdateDisabled_, reThrow_;
+    bool isUpdateDisabled_, reThrow_, convertHackActive_;
     
     // stl collections to hold branch list and associated info
     mutable std::unordered_map<std::string, Handle> branchMap_;
     mutable std::unordered_map<std::string, Handle> branchVecMap_;
     std::vector<FuncWrapper*> functionVec_;
     mutable std::unordered_map<std::string, std::string> typeMap_;
-    mutable std::unordered_map<std::string, std::string> VectypeMap_;
     std::set<std::string> activeBranches_;
 
     void init();
@@ -352,7 +351,6 @@ private:
         branchVecMap_[name] = createVecHandle(new std::vector<T>*());
 
         typeMap_[name] = demangle<std::vector<T>>();
-        VectypeMap_[name] = typeid(T).name();
 
         tree_->SetBranchStatus(name.c_str(), 1);
         tree_->SetBranchAddress(name.c_str(), branchVecMap_[name].ptr);
@@ -383,12 +381,24 @@ private:
         //Find variable in the main tuple map 
         auto tuple_iter = v_tuple.find(var);
         bool intuple = tuple_iter != v_tuple.end() ;
-        //Check that the requested type matches the true variable type
-        const bool isSameType = (tuple_iter->second.type == typeid(T));
 
-        if(intuple && isSameType)
+        //Check that the variable exists and the requested type matches the true variable type
+        if(intuple && (tuple_iter->second.type == typeid(typename std::remove_pointer<T>::type)))
         {
             return *static_cast<T*>(tuple_iter->second.ptr);
+        }
+        else if(convertHackActive_ && intuple) //else check if it is a vector<float> or vector<double>
+        {
+            //hack to get vector<double> as vector<float>, requires DuplicateFDVector() to be run
+            char typen;
+            if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<float>) && tuple_iter->second.type == typeid(std::vector<double>))
+                typen='f';
+            if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<double>) && tuple_iter->second.type == typeid(std::vector<float>))
+                typen='d';
+            std::string newname = var+"___" + typen;
+            auto tuple_iter = branchVecMap_.find(newname);
+            if (tuple_iter != branchVecMap_.end())
+                return *static_cast<T*>(tuple_iter->second.ptr);
         }
         else if( !intuple && (typeMap_.find(var) != typeMap_.end())) //If it is not loaded, but is a branch in tuple
         {
@@ -407,31 +417,27 @@ private:
                 branch->GetEvent(nevt_ - 1);
         
                 intuple = true;
+
+                //If it is the same type as requested, we can simply return the result
+                if(tuple_iter->second.type == typeid(typename std::remove_pointer<T>::type))
+                {
+                    //return value
+                    return *static_cast<T*>(tuple_iter->second.ptr);
+                }
             }
         } 
 
-        //If it is the same type as requested, we can simply return the result
-        if(isSameType)
-        {
-            //return value
-            return *static_cast<T*>(tuple_iter->second.ptr);
-        }
-        else if(intuple) //else check if it is a vector<float> or vector<double>
-        {
-            //hack to get vector<double> as vector<float>, requires DuplicateFDVector() to be run
-            char typen;
-            if( typeid(T) == typeid(std::vector<float>) && tuple_iter->second.type == typeid(std::vector<double>))
-                typen='f';
-            if( typeid(T) == typeid(std::vector<double>) && tuple_iter->second.type == typeid(std::vector<float>))
-                typen='d';
-            std::string newname = var+"___" + typen;
-            auto tuple_iter = branchVecMap_.find(newname);
-            if (tuple_iter != branchVecMap_.end())
-                return *static_cast<T*>(tuple_iter->second.ptr);
-        }
-
         //It really does not exist, throw exception 
-        THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<T>() +"\"!!!");
+        auto typeIter = typeMap_.find(var);
+        if(typeIter != typeMap_.end())
+        {
+            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<T>() +"\", but is found with type \"" + typeIter->second + "\"!!!");
+
+        }
+        else
+        {
+            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<T>() +"\"!!!");
+        }
     }
 
     template<typename T> inline static void setDerived(const T& retval, void* const loc)
