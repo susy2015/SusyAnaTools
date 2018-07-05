@@ -48,10 +48,11 @@ void NTupleReader::init()
     nevt_ = evtProcessed_ = 0;
     isUpdateDisabled_ = false;
     reThrow_ = true;
+    convertHackActive_ = false;
 
     tree_->SetBranchStatus("*", 0);
 
-    // Add desired branches to branchMap_/branchVecMap
+    // Add desired branches to branchMap_/branchVecMap_
     populateBranchList();
 }
 
@@ -114,7 +115,23 @@ void NTupleReader::registerBranch(TBranch * const branch) const
         }
     }
 
-    if(type.find("vector") != std::string::npos)
+    if(type.find("vector<vector") != std::string::npos)
+    {
+        if     (type.find("double")         != std::string::npos) registerVecBranch<std::vector<double>>(name);
+        else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<std::vector<unsigned int>>(name);
+        else if(type.find("unsigned long")  != std::string::npos) registerVecBranch<std::vector<unsigned long>>(name);
+        else if(type.find("unsigned char")  != std::string::npos) registerVecBranch<std::vector<unsigned char>>(name);
+        else if(type.find("unsigned short") != std::string::npos) registerVecBranch<std::vector<unsigned short>>(name);
+        else if(type.find("short")          != std::string::npos) registerVecBranch<std::vector<short>>(name);
+        else if(type.find("char")           != std::string::npos) registerVecBranch<std::vector<char>>(name);
+        else if(type.find("int")            != std::string::npos) registerVecBranch<std::vector<int>>(name);
+        else if(type.find("bool")           != std::string::npos) registerVecBranch<std::vector<bool>>(name);
+        else if(type.find("string")         != std::string::npos) registerVecBranch<std::vector<std::string>>(name);
+        else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<std::vector<TLorentzVector>>(name);
+        else if(type.find("float")          != std::string::npos) registerVecBranch<std::vector<float>>(name);
+        else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
+    }
+    else if(type.find("vector") != std::string::npos)
     {
         if     (type.find("double")         != std::string::npos) registerVecBranch<double>(name);
         else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<unsigned int>(name);
@@ -331,7 +348,6 @@ std::vector<std::string> NTupleReader::getTupleMembers() const
     return members;
 }
 
-
 std::vector<std::string> NTupleReader::getTupleSpecs(const std::string& varName) const
 {
     std::vector<std::string> members = getTupleMembers();
@@ -347,3 +363,53 @@ std::vector<std::string> NTupleReader::getTupleSpecs(const std::string& varName)
   
     return specs;
 }
+
+void NTupleReader::setConvertFloatingPointVectors(const bool doubleToFloat, const bool floatToDouble)
+{
+    if(doubleToFloat) 
+    {
+        convertHackActive_ = true;
+        for(const auto& i : branchVecMap_)
+        {
+            if (i.second.type == typeid(std::vector<double>))
+            {
+                registerFunction(std::bind(&NTupleReader::castVector<double, float>, std::placeholders::_1, i.first, 'f'));
+            }
+        }
+    }
+
+    if(floatToDouble) 
+    {
+        convertHackActive_ = true;
+        for(const auto& i : branchVecMap_)
+        {
+            if (i.second.type == typeid(std::vector<float>))
+                registerFunction(std::bind(&NTupleReader::castVector<float, double>, std::placeholders::_1, i.first, 'd'));
+        }
+    }
+}
+
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  NTupleReader::CastVector
+//  Description:  /* cursor */
+// ===========================================================================
+template <class Tfrom, class Tto>
+void NTupleReader::castVector(NTupleReader& tr, const std::string& var, const char typen)
+{
+    const std::vector<Tfrom> &obj = tr.getVec<Tfrom>(var);
+
+    std::vector<Tto> *objs = new std::vector<Tto>();
+    objs->reserve(obj.size());
+
+    std::string newname = var+"___" + typen;
+
+    for(auto& i : obj)
+    {
+        objs->push_back(static_cast<Tto>(i));
+    }
+
+    tr.registerDerivedVec(newname, objs);
+}       // -----  end of function NTupleReader::CastVector  -----
+

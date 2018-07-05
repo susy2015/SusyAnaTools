@@ -15,8 +15,12 @@
 #include <string>
 #include <set>
 #include <typeinfo>
+#include <typeindex>
 #include <functional>
 #include <cxxabi.h>
+#include <iostream>
+
+#include <iostream>
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -34,7 +38,7 @@
    NTupleReader tr(tree);
    while(tr.getNextEvent())
    {
-       const int& run = tr.getVar<int>("run");
+       const int& run = tr.getVar<unsigned int>("run");
    }
 
    and so on.  
@@ -51,7 +55,6 @@ class NTupleReader
 private:
 
     //Machinery to allow object cleanup
-
     //Generic deleter base class to obfiscate template type
     class deleter_base
     {
@@ -93,10 +96,11 @@ private:
     public:
         void* ptr;
         deleter_base* deleter;
+        std::type_index type;
 
-        Handle() : ptr(nullptr), deleter(nullptr) {}
+        Handle() : ptr(nullptr), deleter(nullptr), type(typeid(nullptr)) {}
 
-        Handle(void* ptr, deleter_base* deleter = nullptr) :  ptr(ptr), deleter(deleter) {}
+        Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr)) :  ptr(ptr), deleter(deleter), type(type) {}
 
         void destroy()
         {
@@ -112,14 +116,14 @@ private:
     template<typename T>
     static inline Handle createHandle(T* ptr)
     {
-        return Handle(ptr, new deleter<T>);
+        return Handle(ptr, new deleter<T>, typeid(T));
     }
 
     //Helper to make vector Handle
     template<typename T>
     static inline Handle createVecHandle(T* ptr)
     {
-        return Handle(ptr, new vec_deleter<T>);
+        return Handle(ptr, new vec_deleter<T>, typeid(typename std::remove_pointer<T>::type));
     }
 
     //function wrapper 
@@ -145,6 +149,9 @@ private:
 
         FuncWrapperImpl(T f) : func_(f) {}
     };
+
+    template <class Tfrom, class Tto> 
+    static void castVector(NTupleReader& tr, const std::string& var, const char typen);
 
 public:
 
@@ -176,6 +183,8 @@ public:
     bool getNextEvent();
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
+
+    void setConvertFloatingPointVectors(const bool doubleToFloat = true, const bool floatToDouble = false);
 
     std::vector<std::string> getTupleMembers() const;
     std::vector<std::string> getTupleSpecs(const std::string& varName) const;
@@ -308,7 +317,7 @@ private:
     // private variables for internal use
     TTree *tree_;
     int nevt_, evtProcessed_;
-    bool isUpdateDisabled_, reThrow_;
+    bool isUpdateDisabled_, reThrow_, convertHackActive_;
     
     // stl collections to hold branch list and associated info
     mutable std::unordered_map<std::string, Handle> branchMap_;
@@ -369,12 +378,29 @@ private:
 
     template<typename T, typename V> T& getTupleObj(const std::string& var, const V& v_tuple) const
     {
+        //Find variable in the main tuple map 
         auto tuple_iter = v_tuple.find(var);
-        if(tuple_iter != v_tuple.end())
+        bool intuple = tuple_iter != v_tuple.end() ;
+
+        //Check that the variable exists and the requested type matches the true variable type
+        if(intuple && (tuple_iter->second.type == typeid(typename std::remove_pointer<T>::type)))
         {
             return *static_cast<T*>(tuple_iter->second.ptr);
         }
-        else if(typeMap_.find(var) != typeMap_.end()) //If it is not found, check in typeMap_ 
+        else if(convertHackActive_ && intuple) //else check if it is a vector<float> or vector<double>
+        {
+            //hack to get vector<double> as vector<float>, requires DuplicateFDVector() to be run
+            char typen;
+            if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<float>) && tuple_iter->second.type == typeid(std::vector<double>))
+                typen='f';
+            if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<double>) && tuple_iter->second.type == typeid(std::vector<float>))
+                typen='d';
+            std::string newname = var+"___" + typen;
+            auto tuple_iter = branchVecMap_.find(newname);
+            if (tuple_iter != branchVecMap_.end())
+                return *static_cast<T*>(tuple_iter->second.ptr);
+        }
+        else if( !intuple && (typeMap_.find(var) != typeMap_.end())) //If it is not loaded, but is a branch in tuple
         {
             //If found in typeMap_, it can be added on the fly
             TBranch *branch = tree_->FindBranch(var.c_str());
@@ -390,13 +416,28 @@ private:
                 //force read just this branch
                 branch->GetEvent(nevt_ - 1);
         
-                //return value
-                return *static_cast<T*>(tuple_iter->second.ptr);
+                intuple = true;
+
+                //If it is the same type as requested, we can simply return the result
+                if(tuple_iter->second.type == typeid(typename std::remove_pointer<T>::type))
+                {
+                    //return value
+                    return *static_cast<T*>(tuple_iter->second.ptr);
+                }
             }
-        }
+        } 
 
         //It really does not exist, throw exception 
-        THROW_SATEXCEPTION("Variable not found: \"" + var + "\"!!!");
+        auto typeIter = typeMap_.find(var);
+        if(typeIter != typeMap_.end())
+        {
+            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<T>() +"\", but is found with type \"" + typeIter->second + "\"!!!");
+
+        }
+        else
+        {
+            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<T>() +"\"!!!");
+        }
     }
 
     template<typename T> inline static void setDerived(const T& retval, void* const loc)

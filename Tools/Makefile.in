@@ -43,7 +43,7 @@ LDFLAGS    =
 # top tagger includes
 INCLUDESDIRS  += -I. -I$(TAGGERDIR)/..
 # top tagger libraries
-LIBSTOPTAGGER += -L$(TTTDIR) -lTopTagger
+LIBS += -L$(TAGGERDIR)/TopTagger/test -lTopTagger
 
 ## Include ROOT
 INCLUDESDIRS += $(shell root-config --cflags)
@@ -96,11 +96,6 @@ ifdef TENSORFLOW_DIR
 	CXXFLAGS += -DDOTENSORFLOW
 	LIBS     += -L$(TENSORFLOW_DIR)/lib -ltensorflow
 endif
-
-OPENCV_DIRECTORY = /uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/
-LIBS       = $(shell root-config --glibs)
-LIBS      += -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lTopTaggerTopTagger -lTopTaggerCfgParser
-LIBS      += -L$(OPENCV_DIRECTORY)/lib/ -lopencv_ml -lopencv_core
 
 LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 

@@ -12,11 +12,11 @@
 
 #include "searchBins.h"
 
-const double nTops_SR_lo[]   = { 1,  1,  1,  2,  2,  2,  3,  3,  3 };
-const double nTops_SR_hi[]   = { 2,  2,  2,  3,  3,  3, -1, -1, -1 };
+const float nTops_SR_lo[]   = { 1,  1,  1,  2,  2,  2,  3,  3,  3 };
+const float nTops_SR_hi[]   = { 2,  2,  2,  3,  3,  3, -1, -1, -1 };
 
-const double nbJets_SR_lo[]  = { 1,  2,  3,  1,  2,  3,  1,  2,  3 };
-const double nbJets_SR_hi[]  = { 2,  3, -1,  2,  3, -1,  2,  3, -1 };
+const float nbJets_SR_lo[]  = { 1,  2,  3,  1,  2,  3,  1,  2,  3 };
+const float nbJets_SR_hi[]  = { 2,  3, -1,  2,  3, -1,  2,  3, -1 };
 
 const std::string keyStr_nTops_SR[]  = { "EQ1", "EQ1", "EQ1", "EQ2", "EQ2", "EQ2", "LE3", "LE3", "LE3" };
 const std::string disStr_nTops_SR[]  = {  "=1",  "=1",  "=1",  "=2",  "=2",  "=2", "#geq3", "#geq3", "#geq3" };
@@ -26,9 +26,9 @@ const std::string disStr_nbJets_SR[] = {  "=1",  "=2", "#geq3",  "=1",  "=2", "#
 
 const int nSR = sizeof(nTops_SR_lo)/sizeof(nTops_SR_lo[0]);
 
-const double max_MT2_for_binEdge = SearchBins::max_MT2_for_binEdge, max_met_for_binEdge = SearchBins::max_met_for_binEdge, max_HT_for_binEdge = SearchBins::max_HT_for_binEdge;
-const double max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25, max_HT_for_binCent = max_HT_for_binEdge + 50;
-const double pseudoMax_MT2_for_hist = SearchBins::pseudoMax_MT2_for_hist, pseudoMax_met_for_hist = SearchBins::pseudoMax_met_for_hist, pseudoMax_HT_for_hist = SearchBins::pseudoMax_HT_for_hist;
+const float max_MT2_for_binEdge = SearchBins::max_MT2_for_binEdge, max_met_for_binEdge = SearchBins::max_met_for_binEdge, max_HT_for_binEdge = SearchBins::max_HT_for_binEdge;
+const float max_MT2_for_binCent = max_MT2_for_binEdge + 50, max_met_for_binCent = max_met_for_binEdge + 25, max_HT_for_binCent = max_HT_for_binEdge + 50;
+const float pseudoMax_MT2_for_hist = SearchBins::pseudoMax_MT2_for_hist, pseudoMax_met_for_hist = SearchBins::pseudoMax_met_for_hist, pseudoMax_HT_for_hist = SearchBins::pseudoMax_HT_for_hist;
 
 char names[200], dispt[200];
 
@@ -107,7 +107,7 @@ std::vector<TH1D*> h1_recoJetPtVec, h1_recoJetPt_mergeWVec, h1_recoJetPt_mergeTo
 
 std::vector<TH1D*> h1_mvaDiscVec;
 
-void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, const std::vector<std::vector<std::vector<double> > > & out_MT2_met_Binning_forTH2Poly){
+void declHistPerSample(const std::string &sampleKeyString, const int nTotBins, const std::vector<std::vector<std::vector<float> > > & out_MT2_met_Binning_forTH2Poly){
 
   const TString sampleKeyStringT = sampleKeyString;
 

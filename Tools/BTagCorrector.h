@@ -161,15 +161,13 @@ public:
 
     
     //test Method
-    std::vector<double> GetCorrectionsTest(std::vector<TLorentzVector>* Jets, std::vector<int>* Jets_flavor);
-    
-    
+    std::vector<float> GetCorrectionsTest(std::vector<TLorentzVector>* Jets, std::vector<int>* Jets_flavor);
     //method 1b
-    std::vector<double>* GetCorrections(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor);
+    std::vector<float>* GetCorrections(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor);
     //method 1a
-    double GetSimpleCorrection(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor, const std::vector<double> *Jets_bDiscriminatorCSV);
+    float GetSimpleCorrection(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor, const std::vector<float> *Jets_bDiscriminatorCSV);
 
-    void InitSFEff(double pt, double eta, int flav, std::vector<double>& sfEffList);
+    void InitSFEff(float pt, float eta, int flav, std::vector<float>& sfEffList);
 
     // To register Event weights/ Probabilities to FlatTuples
     void registerVarToNTuples(NTupleReader& tr);

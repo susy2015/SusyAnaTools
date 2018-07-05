@@ -28,7 +28,7 @@ public:
     void SetFastSim(bool f) { fastsim = f; }
 
     //Change the scale factor parameterization: SF=exp(a+b*pT)
-    void SetParameterization(double p_a, double p_b) { a = p_a;  b = p_b; }
+    void SetParameterization(float p_a, float p_b) { a = p_a;  b = p_b; }
 
     // To register Event weights/ Probabilities to FlatTuples
     void registerVarToNTuples(NTupleReader& tr);
@@ -39,11 +39,11 @@ private:
 
     //member variables
     bool debug, fastsim;
-    double a, b;
+    float a, b;
 
     //Scale Factor
-    double ScaleFactor(double pt) { return exp(a+b*pt); }
-    double EventWeight(double t_sf, double tbar_sf) { return sqrt(t_sf*tbar_sf); }  
+    float ScaleFactor(float pt) { return exp(a+b*pt); }
+    float EventWeight(float t_sf, float tbar_sf) { return sqrt(t_sf*tbar_sf); }  
 
 };
 
