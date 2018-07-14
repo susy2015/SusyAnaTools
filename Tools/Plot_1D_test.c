@@ -6,24 +6,24 @@ int Plot_1D_test()
 
 	const double lumi = 36; 
 	bool plot_log = false;
-	plot_log = true;
+	//plot_log = true;
 	bool plot_BG = true;
 	bool use_low_stat_sig = false;
 	//use_low_stat_sig = true;
 
 	//TString signal_name = "T2tt_and_T2bw";
-	//TString signal_name = "T1tttt_and_T5ttcc";
+	TString signal_name = "T1tttt_and_T5ttcc";
 	//TString signal_name = "T2fbd_and_T2bwC";
-	TString signal_name = "T2cc_and_T2tt";
+	//TString signal_name = "T2cc_and_T2tt";
 
-	bool plot_MT2 = false;
+	bool plot_MT2 = true;
 	bool plot_MT2_baseline_no_mt2 = false;
 	bool plot_MTb = false;
 	bool plot_MTb_CSV = false;
 	bool plot_MT2_b = false;
 	bool plot_SB = false;
 	bool plot_SB_team_A_highdm = false;
-	bool plot_SB_team_A_lowdm = true;
+	bool plot_SB_team_A_lowdm = false;
 	bool plot_nbottompt20 = false;
 	bool plot_nbottompt20_lowdm = false;
 	bool plot_nbottompt30 = false;
@@ -67,8 +67,8 @@ int Plot_1D_test()
 		var = "mt2_high_h";
 		folder = "Baseline_MTb>175/";
 		rebin = 5;
-		//xmin = 50;
-		//ymax = 10000;
+		xmin = 50;
+		ymax = 10000;
 	}
 
 	if (plot_MT2_baseline_no_mt2)
@@ -852,7 +852,7 @@ int Plot_1D_test()
 		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kGreen, rebin);
 	}
 
-	if (true)
+	if (false)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1000_mLSP800";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop500_mLSP325";
@@ -862,7 +862,7 @@ int Plot_1D_test()
 		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kYellow, rebin);
 	}
 
-	if (true)
+	if (false)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1500_mLSP100";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop850_mLSP100";
@@ -958,7 +958,7 @@ int Plot_1D_test()
 		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kGreen, rebin);
 	}
 
-	if (true)
+	if (false)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1000_mLSP800";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop500_mLSP325";
@@ -968,7 +968,7 @@ int Plot_1D_test()
 		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kYellow, rebin);
 	}
 
-	if (true)
+	if (false)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1500_mLSP100";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop850_mLSP100";
@@ -981,10 +981,10 @@ int Plot_1D_test()
 	if(use_low_stat_sig)
 	{
 		//mycanvas->SetLogy();
-		mycanvas->SaveAs(signal_name + "_" + var + "_use_low_stat_sig.png");
+		mycanvas->SaveAs("plots/" + signal_name + "_" + var + "_use_low_stat_sig.png");
 	}
 	else
-		mycanvas->SaveAs(signal_name + "_" + var + ".png");
+		mycanvas->SaveAs("plots/" + signal_name + "_" + var + ".png");
 
 	return 0;
 }

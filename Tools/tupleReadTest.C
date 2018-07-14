@@ -1,4 +1,4 @@
-#include "LHAPDF/LHAPDF.h"
+//#include "LHAPDF/LHAPDF.h"
 #include "NTupleReader.h"
 #include "baselineDef.h"
 #include "searchBins.h"
@@ -22,6 +22,8 @@
 #include <iomanip>
 #include <cmath>
 #include "tdrstyle.h"
+
+			//check CR vs CS next time!!
 
 int main(int argc, char* argv[]){
 
@@ -87,26 +89,11 @@ int main(int argc, char* argv[]){
 
 	auto met_h=new TH1F("met_h","Missing E_T w/ Baseline Cut",80,0.0,1600.0);
 	auto met_uc_h=new TH1F("met_uc_h","Missing E_T (No Cuts)",80,0.0,1600.0);
-	auto met_highmt2_uc_h=new TH1F("met_highmt2_uc_h","Missing E_T for mt2>175 (No BC)",80,0.0,1600.0);
-	auto met_lowmt2_uc_h=new TH1F("met_lowmt2_uc_h","Missing E_T for mt2<175 (No BC)",80,0.0,1600.0);
-	auto met_highmtb_uc_h=new TH1F("met_highmtb_uc_h","Missing E_T for mtb>175 (No BC)",80,0.0,1600.0);
-	auto met_lowmtb_uc_h=new TH1F("met_lowmtb_uc_h","Missing E_T for mtb<175 (No BC)",80,0.0,1600.0);
-	auto met_highmtb_h=new TH1F("met_highmtb_h","Missing E_T with BC & mtb>175",80,0.0,1600.0);
-	auto met_lowmtb_h=new TH1F("met_lowmtb_h","Missing E_T with BC & mtb<175",80,0.0,1600.0);
-	auto met_highmt2_h=new TH1F("met_highmt2_h","Missing E_T with BC & mt2>175",80,0.0,1600.0);
-	auto met_lowmt2_h=new TH1F("met_lowmt2_h","Missing E_T with BC & mt2<175",80,0.0,1600.0);
-	// auto met_px_h=new TH1F("met_px_h","MET Px",80,0.0,250.0);
-	// auto met_py_h=new TH1F("met_py_h","MET Py",80,0.0,250.0);
 
 	// Transverse Mass (mt2)
 
 	auto mt2_h=new TH1F("mt2_h","MT2",80,0.0,800.0);
 	auto mt2_baseline_no_mt2_h=new TH1F("mt2_baseline_no_mt2_h","MT2 baseline no MT2 cut",80,0.0,800.0);
-	auto mt2_uc_h=new TH1F("mt2_uc_h","MT2",80,0.0,800.0);
-	auto mt2_high_uc_h=new TH1F("mt2_high_uc_h","MT2 w/ MTb > 175 (No Cuts)",80,0.0,800.0);
-	auto mt2_low_uc_h=new TH1F("mt2_low_uc_h","MTb w/ MT2 < 175 (No Cuts)",80,0.0,800.0);
-	auto mt2_high_h=new TH1F("mt2_high_h","MT2 when MTb > 175",80,0.0,800.0);
-	auto mt2_low_h=new TH1F("mt2_low_h","MT2 when MTb < 175",80,0.0,800.0);
 
 	auto mt2_140_high_h=new TH1F("mt2_140_high_h","MT2, team a bsae line when MTb > 140",80,0.0,800.0);
 	auto mt2_140_low_h=new TH1F("mt2_140_low_h","MT2, team a bsae line when MTb < 140",80,0.0,800.0);
@@ -118,44 +105,34 @@ int main(int argc, char* argv[]){
 	// Transverse Mass of b-jet (mtb)
 
 	auto mtb_h=new TH1F("mtb_h","MTb",80,0.0,800.0);
-	auto mtb_high_dm_h=new TH1F("mtb_high_dm_h","MTb high dm",80,0.0,800.0);
+	auto mtb_highdm_h=new TH1F("mtb_highdm_h","MTb high dm",80,0.0,800.0);
 	auto mtb_no_HT_h=new TH1F("mtb_no_HT_h","MTb in loose baseline without HT cut",80,0.0,800.0);
 	auto mtb_CSV_no_HT_h=new TH1F("mtb_CSV_no_HT_h","MTb_CSV in loose baseline without HT cut",80,0.0,800.0);
 	auto mtb_uc_h=new TH1F("mtb_uc_h","MTb (No Cuts)",80,0.0,800.0);
-	auto mtb1_h=new TH1F("mtb1_h","Leading b-Jet MT",80,0.0,800.0);
-	auto mtb2_h=new TH1F("mtb2_h","Sub-Leading b-Jet MT",80,0.0,800.0);
-	auto mtb_high_uc_h=new TH1F("mtb_high_uc_h","MTb w/ MT2 > 175 (No Cuts)",80,0.0,800.0);
-	auto mtb_low_uc_h=new TH1F("mtb_low_uc_h","MTb w/ MT2 < 175 (No Cuts)",80,0.0,800.0);
-	auto mtb_high_h=new TH1F("mtb_high_h","MTb w/ MT2 > 175 (With Cuts)",80,0.0,800.0);
-	auto mtb_low_h=new TH1F("mtb_low_h","MTb w/ MT2 < 175 (With Cuts)",80,0.0,800.0);
-
-	// Mtb Cut Efficiency
-
-	auto eff_h=new TH1F("eff_h","b Cut Efficiency",2,0.0,2.0);
-	auto eff_mtb_high_h=new TH1F("eff_mtb_high_h","MTB b Cut Efficiency for MT2 > 175",2,0.0,2.0);
-	auto eff_mtb_low_h=new TH1F("eff_mtb_low_h","MTB b Cut Efficiency for MT2 < 175",2,0.0,2.0);
-	auto eff_mt2_high_h=new TH1F("eff_mt2_high_h","MT2 b Cut Efficiency for MTb > 175",2,0.0,2.0);
-	auto eff_mt2_low_h=new TH1F("eff_mt2_low_h","MT2 b Cut Efficiency for MTb < 175",2,0.0,2.0);
 
 	// Other
 
-	auto metphi_h=new TH1F("metphi_h","MET Phi",80,-3.5,3.5);
+	auto eff_h=new TH1F("eff_h","loose baseline Efficiency",2,0.0,2.0);
 
-	auto jpt_uc_h=new TH1F("jpt_uc_h","Leading Jet Pt (No Cuts)",80,0.0,400.0);
-	auto nbottom_uc_h=new TH1F("nbottom_uc_h","b Jet Count (No Cuts)",8,0.0,8.0);
-	auto bottom_pt_uc_h=new TH1F("bottom_pt_uc_h","Leading b Jet Pt (No Cuts)",80,0.0,400.0);
-	auto ntop_uc_h=new TH1F("ntop_uc_h","Number of Tops (No Cuts)",8,0.0,8.0);
-	auto njets_uc_h=new TH1F("njets_uc_h","Number of Jets (No Cuts)",30,0.0,30.0);
-	auto njetspt20_uc_h=new TH1F("njetspt20_uc_h","Number of Jets above PT=20 (No Cuts)",15,0.0,15.0);
-	auto njetspt30_uc_h=new TH1F("njetspt30_uc_h","Number of Jets above PT=30 (No Cuts)",15,0.0,15.0);
-	auto HT_uc_h=new TH1F("HT_uc_h","HT (No Cuts)",100,0.0,3000.0);
-	auto genHT_uc_h=new TH1F("genHT_uc_h","Gen Level HT (No Cuts)",100,0.0,3000.0);
-	auto genmet_uc_h=new TH1F("genmet_uc_h","Gen Level MET (No Cuts)",80,0.0,400.0);
 	auto search_bin_h=new TH1F("search_bin_h","search bin with baseline cut",84,0.0,84.0);
+	auto search_bin_8026_h=new TH1F("search_bin_h","search bin with 8026 baseline cut",84,0.0,84.0);
+	auto search_bin_singleMuCR_h=new TH1F("search_bin_singleMuCR_h","search bin with baseline cut, single muon control region",84,0.0,84.0);
+	auto search_bin_singleElCR_h=new TH1F("search_bin_singleElCR_h","search bin with baseline cut, single electron control region",84,0.0,84.0);
+	auto search_bin_MTb_h=new TH1F("search_bin_MTb_h","search bin with baseline cut + MTb > 175",84,0.0,84.0);
+	auto search_bin_singleMuCR_MTb_h=new TH1F("search_bin_singleMuCR_MTb_h","search bin with baseline cut + MTb > 175, single muon control region",84,0.0,84.0);
+	auto search_bin_singleElCR_MTb_h=new TH1F("search_bin_singleElCR_MTb_h","search bin with baseline cut + MTb > 175, single electron control region",84,0.0,84.0);
 	auto search_bin_team_A_highdm_h=new TH1F("search_bin_team_A_highdm_h","search bin team A high dM, MTb = 175",51,53.0,104.0);
+	auto search_bin_team_A_highdm_singleMuCR_h=new TH1F("search_bin_team_A_highdm_SingleMuCR_h","search bin team A high dM single muon control region, MTb = 175",51,53.0,104.0);
+	auto search_bin_team_A_highdm_singleElCR_h=new TH1F("search_bin_team_A_highdm_SingleElCR_h","search bin team A high dM single electron control region, MTb = 175",51,53.0,104.0);
 	auto search_bin_team_A_lowdm_h=new TH1F("search_bin_team_A_lowdm_h","search bin team A low dM",53,0,53);
+	auto search_bin_team_A_lowdm_singleMuCR_h=new TH1F("search_bin_team_A_lowdm_singleMuCR_h","search bin team A low dM single muon control region",53,0,53);
+	auto search_bin_team_A_lowdm_singleElCR_h=new TH1F("search_bin_team_A_lowdm_singleElCR_h","search bin team A low dM single elctron control region",53,0,53);
 	auto search_bin_team_A_highdm_MTb175_MT2_h=new TH1F("search_bin_team_A_highdm_MTb175_MT2_h","search bin team A high dM, MTb = 175, MT2 >200",51,53.0,104.0);
+	auto search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h=new TH1F("search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h","search bin team A high dM, MTb = 175, MT2 >200 single muon control region",51,53.0,104.0);
+	auto search_bin_team_A_highdm_MTb175_MT2_singleElCR_h=new TH1F("search_bin_team_A_highdm_MTb175_MT2_singleElCR_h","search bin team A high dM, MTb = 175, MT2 >200 single electron control region",51,53.0,104.0);
 	auto search_bin_team_A_highdm_MTb140_MT2_h=new TH1F("search_bin_team_A_highdm_MTb140_MT2_h","search bin team A high dM, MTb = 140, MT2 >200",51,53.0,104.0);
+	auto search_bin_team_A_highdm_MTb140_MT2_singleMuCR_h=new TH1F("search_bin_team_A_highdm_MTb140_MT2_singleMuCR_h","search bin team A high dM, MTb = 140, MT2 >200 single muon control region",51,53.0,104.0);
+	auto search_bin_team_A_highdm_MTb140_MT2_singleElCR_h=new TH1F("search_bin_team_A_highdm_MTb140_MT2_singleElCR_h","search bin team A high dM, MTb = 140, MT2 >200 single electron control region",51,53.0,104.0);
 
 	auto jpt_h=new TH1F("jpt_h","Leading Jet Pt (Baseline Cuts)",80,0.0,400.0);
 	auto nbottom_h=new TH1F("nbottom_h","b Jet Count (Baseline Cuts)",8,0.0,8.0);
@@ -167,7 +144,6 @@ int main(int argc, char* argv[]){
 	auto HT_h=new TH1F("HT_h","HT (Baseline Cuts)",100,0.0,3000.0);
 	auto genHT_h=new TH1F("genHT_h","Gen Level HT (Baseline Cuts)",100,0.0,3000.0);
 	auto genmet_h=new TH1F("genmet_h","Gen Level MET (Baseline Cuts)",80,0.0,400.0);
-	auto search_bin_mtb_h=new TH1F("search_bin_MTb_h","search bin with baseline cut + MTb > 175",84,0.0,84.0);
 
 	auto nbottompt20_no_mtb_h=new TH1F("nbottompt20_no_mtb_h","number of bottom without MTb cut",8,0.0,8.0);
 	auto nbottompt20_140_h=new TH1F("nbottompt20_140_h","number of bottom when MTb > 140",8,0.0,8.0);
@@ -287,6 +263,8 @@ int main(int argc, char* argv[]){
 		double mt2 = tr.getVar<double>("best_had_brJet_MT2");
 		bool passMT2 = (mt2 > 200);
 		double metphi = tr.getVar<double>("metphi");
+		int nElectrons = tr.getVar<int>("nElectrons_CUT");
+		int nMuons = tr.getVar<int>("nMuons_CUT");
 		int ntop = tr.getVar<int>("nTopCandSortedCnt");
 		int nbjets = tr.getVar<int>("cntCSVS");
 		int nbottompt20=0 , nbottompt30=0 , njetspt20=0 , njetspt30=0 , njetspt50=0;
@@ -376,12 +354,10 @@ int main(int argc, char* argv[]){
 			if(nbottompt20 == 1)
 			{
 				bottom_pt = tlv_Pt;
-				mtb1_h->Fill(MT,evtWeight);
 				mtb1=MT;
 			}
 			if(nbottompt20 == 2)
 			{
-				mtb2_h->Fill(MT,evtWeight);
 				mtb2=MT;
 			}
 		} // End Sub-Loop Over Jets
@@ -462,8 +438,8 @@ int main(int argc, char* argv[]){
 		}
 
 		int SB_team_A_highdm(double mtb_cut, double mtb, int njets, int ntop, int nw, int nres, int nb, double met);
-		int SB_team_A_highdm_index_175 = SB_team_A_highdm(175, mtb, njetspt20, ntop_merge + ntop_w, nw, ntop_res, nbottompt20, met);
-		int SB_team_A_highdm_index_140 = SB_team_A_highdm(140, mtb, njetspt20, ntop_merge + ntop_w, nw, ntop_res, nbottompt20, met);
+		int SB_team_A_highdm_index_175 = SB_team_A_highdm(175, mtb, njetspt20, ntop_merge, nw + ntop_w, ntop_res, nbottompt20, met);
+		int SB_team_A_highdm_index_140 = SB_team_A_highdm(140, mtb, njetspt20, ntop_merge, nw + ntop_w, ntop_res, nbottompt20, met);
 		int SB_team_A_lowdm(int njets, int nb, int nSV, double ISRpt, double bottompt_scalar_sum, double met);
 		int SB_team_A_lowdm_index = SB_team_A_lowdm(njetspt20, nbottompt20, nSV, ISRpt, bottompt_scalar_sum, met);
 
@@ -477,30 +453,60 @@ int main(int argc, char* argv[]){
 		//bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passnJets") && tr.getVar<bool>("passdPhis") && tr.getVar<bool>("passBJets") && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
 		bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && passnJets && tr.getVar<bool>("passdPhis") && nbjets > 0 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
 		bool pass_baseline=(pass_baseline_no_MT2 && passMT2);		//baseline for SUS-16-050
+		bool pass_baseline_singleLeptCR = (passMT2 && passnJets && tr.getVar<bool>("passdPhis") && nbjets > 0 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") );
 
 		if ((n_dPhi_p5 == 4 && !passdphi_highdm) || (passdphi_highdm && n_dPhi_p5 != 4))
 		std::cout << "number of jets pt > 20, dphi (MET phi) > 0.5 = " << n_dPhi_p5 << std::endl;
 
 		bool pass_high_dM_baseline=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 5 && n_dPhi_p5 == 4 && nbottompt20 >=1);		//baseline for SUS-16-049 high dm 
-
-		bool pass_ISR = (ISRpt > 200 && fabs(ISRLVec.at(0).Eta()) < 2.4 && fabs(ISRLVec.at(0).Phi() - metphi) > 2); 		//SUS-16-049, low dm, ISR cut
+		bool pass_high_dM_baseline_singleLeptCR=(tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 5 && n_dPhi_p5 == 4 && nbottompt20 >=1);		//baseline without lept veto for SUS-16-049 high dm 
+		bool pass_MT2_highdm = (ntop == 0 || (ntop >0 && passMT2));
 		bool pass_mtb_lowdm = (nbottompt20 == 0 || (nbottompt20 >0 && mtb <175)); 		//SUS-16-049, low dm, mtb cut
+		bool pass_ISR = (ISRpt > 200 && fabs(ISRLVec.at(0).Eta()) < 2.4 && fabs(ISRLVec.at(0).Phi() - metphi) > 2); 		//SUS-16-049, low dm, ISR cut
 		bool pass_low_dM_baseline=(tr.getVar<bool>("passLeptVeto") && ntop == 0 && nw == 0 && pass_ISR && S_met > 10 && passdphi_lowdm && pass_mtb_lowdm && tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 2); 		//baseline for SUS-16-049 low dm
+		bool pass_low_dM_baseline_singleLeptCR=(ntop == 0 && nw == 0 && pass_ISR && S_met > 10 && passdphi_lowdm && pass_mtb_lowdm && tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 2); 		//baseline without lept veto for SUS-16-049 low dm
  
 		if(pass_high_dM_baseline)
 		{
+			mtb_highdm_h->Fill(mtb,evtWeight);
+
 			if(mtb < 140) mt2_140_low_h->Fill(mt2,evtWeight);
 			if(mtb > 140) mt2_140_high_h->Fill(mt2,evtWeight);
 			if(mtb < 175) mt2_175_low_h->Fill(mt2,evtWeight);
 			if(mtb > 175) mt2_175_high_h->Fill(mt2,evtWeight);
 			if(mtb > 140 && mtb < 175) mt2_140_175_h->Fill(mt2,evtWeight);
 
-			mtb_high_dm_h->Fill(mtb,evtWeight);	
-			if (SB_team_A_highdm_index_175 != -1) search_bin_team_A_highdm_h->Fill(SB_team_A_highdm_index_175,evtWeight);
-			if(passMT2) 
+			if (SB_team_A_highdm_index_175 != -1)
 			{
-				if (SB_team_A_highdm_index_175 != -1) search_bin_team_A_highdm_MTb175_MT2_h->Fill(SB_team_A_highdm_index_175,evtWeight);
-				if (SB_team_A_highdm_index_140 != -1) search_bin_team_A_highdm_MTb140_MT2_h->Fill(SB_team_A_highdm_index_140,evtWeight);
+				search_bin_team_A_highdm_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+				if(pass_MT2_highdm) 
+				{
+					search_bin_team_A_highdm_MTb175_MT2_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+					search_bin_team_A_highdm_MTb140_MT2_h->Fill(SB_team_A_highdm_index_140,evtWeight);
+				}
+			}
+		}
+
+		if(pass_high_dM_baseline_singleLeptCR)
+		{
+			if(nElectrons == 1 && SB_team_A_highdm_index_175 != -1)
+			{
+				search_bin_team_A_highdm_singleElCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+				if(pass_MT2_highdm) 
+				{
+					search_bin_team_A_highdm_MTb175_MT2_singleElCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+					search_bin_team_A_highdm_MTb140_MT2_singleElCR_h->Fill(SB_team_A_highdm_index_140,evtWeight);
+				}
+			}
+ 
+			if(nMuons == 1 && SB_team_A_highdm_index_175 != -1)
+			{
+				search_bin_team_A_highdm_singleMuCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+				if(pass_MT2_highdm) 
+				{
+					search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+					search_bin_team_A_highdm_MTb140_MT2_singleMuCR_h->Fill(SB_team_A_highdm_index_140,evtWeight);
+				}
 			}
 		}
 
@@ -517,53 +523,49 @@ int main(int argc, char* argv[]){
 			if(SB_team_A_lowdm_index != -1) search_bin_team_A_lowdm_h->Fill(SB_team_A_lowdm_index,evtWeight);
 		}
 
+		if(pass_low_dM_baseline_singleLeptCR)
+		{
+			if(nElectrons == 1 && SB_team_A_lowdm_index != -1) search_bin_team_A_lowdm_singleElCR_h->Fill(SB_team_A_lowdm_index,evtWeight); 
+			if(nMuons == 1 && SB_team_A_lowdm_index != -1) search_bin_team_A_lowdm_singleMuCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
+		}
+
+
 		if(pass_baseline_no_MT2) mt2_baseline_no_mt2_h->Fill(mt2,evtWeight);
 
 		if(pass_baseline)
 		{
 			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << "nbjets = " << nbjets << "ntop = " << ntop << "mt2 = " << mt2 << "met = " << met << "HT = " << HT << std::endl;
 			search_bin_h->Fill(SB_index,evtWeight);
-			if (mtb > 175) search_bin_mtb_h->Fill(SB_index,evtWeight);
+			if (mtb > 175) search_bin_MTb_h->Fill(SB_index,evtWeight);
+		}
+
+		if(tr.getVar<bool>("passBaseline"))
+		{
+			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << "nbjets = " << nbjets << "ntop = " << ntop << "mt2 = " << mt2 << "met = " << met << "HT = " << HT << std::endl;
+			search_bin_8026_h->Fill(SB_index,evtWeight);
+		}
+
+		if(pass_baseline_singleLeptCR)
+		{
+			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << "nbjets = " << nbjets << "ntop = " << ntop << "mt2 = " << mt2 << "met = " << met << "HT = " << HT << std::endl;
+			if(nElectrons == 1)
+			{
+				search_bin_singleElCR_h->Fill(SB_index,evtWeight);
+				if (mtb > 175) search_bin_singleElCR_MTb_h->Fill(SB_index,evtWeight);
+			}
+			if(nMuons == 1)
+			{
+				search_bin_singleMuCR_h->Fill(SB_index,evtWeight);
+				if (mtb > 175) search_bin_singleMuCR_MTb_h->Fill(SB_index,evtWeight);
+			}
 		}
 
 		met_uc_h->Fill(met,evtWeight);
-		mt2_uc_h->Fill(mt2,evtWeight);
 		if (ntop == 0 && mt2 != 0) std::cout << "MT2 = " << mt2 << std::endl;
 		mtb_mt2_uc_h->Fill(mtb,mt2,evtWeight);
 		mtb_uc_h->Fill(mtb,evtWeight);
-		ntop_uc_h->Fill(ntop,evtWeight);
-		nbottom_uc_h->Fill(nbottompt20,evtWeight);
-		njets_uc_h->Fill(njets,evtWeight);
-		njetspt20_uc_h->Fill(njetspt20,evtWeight);
-		njetspt30_uc_h->Fill(njetspt30,evtWeight);
-		HT_uc_h->Fill(HT,evtWeight);
-		genHT_uc_h->Fill(genHT,evtWeight);
-		genmet_uc_h->Fill(genmet,evtWeight);
-		jpt_uc_h->Fill(jpt,evtWeight);
-		bottom_pt_uc_h->Fill(bottom_pt,evtWeight);
 
 		eff_h->Fill(0.0,evtWeight);
-
-		if(mtb > 175){
-			met_highmtb_uc_h->Fill(met,evtWeight); 
-			mt2_high_uc_h->Fill(mt2,evtWeight);
-			eff_mt2_high_h->Fill(0.0,evtWeight);
-		}
-		if(mtb < 175){
-			met_lowmtb_uc_h->Fill(met,evtWeight); 
-			mt2_low_uc_h->Fill(mt2,evtWeight);
-			eff_mt2_low_h->Fill(0.0,evtWeight);
-		}
-		if(mt2 > 175){
-			met_highmt2_uc_h->Fill(met,evtWeight); 
-			mtb_high_uc_h->Fill(mtb,evtWeight);
-			eff_mtb_high_h->Fill(0.0,evtWeight);
-		}
-		if(mt2 < 175){
-			met_lowmt2_uc_h->Fill(met,evtWeight); 
-			mtb_low_uc_h->Fill(mtb,evtWeight);
-			eff_mtb_low_h->Fill(0.0,evtWeight);
-		}
 
 		if(pass_loose_baseline)
 		{
@@ -584,28 +586,6 @@ int main(int argc, char* argv[]){
 			bottom_pt_h->Fill(bottom_pt,evtWeight);
 
 			eff_h->Fill(1.0,evtWeight);
-
-			if(mtb > 175){
-				met_highmtb_h->Fill(met,evtWeight); 
-				mt2_high_h->Fill(mt2,evtWeight);
-				eff_mt2_high_h->Fill(1.0,evtWeight);
-			}
-			if(mtb < 175){
-				met_lowmtb_h->Fill(met,evtWeight); 
-				mt2_low_h->Fill(mt2,evtWeight);
-				eff_mt2_low_h->Fill(1.0,evtWeight);
-			}
-			if(mt2 > 175){
-				met_highmt2_h->Fill(met,evtWeight); 
-				mtb_high_h->Fill(mtb,evtWeight);
-				eff_mtb_high_h->Fill(1.0,evtWeight);
-			}
-			if(mt2 < 175){
-				met_lowmt2_h->Fill(met,evtWeight); 
-				mtb_low_h->Fill(mtb,evtWeight);
-				eff_mtb_low_h->Fill(1.0,evtWeight);
-			}
-
 		}
 
 		if(pass_loose_baseline_no_HT)
@@ -814,10 +794,6 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		// ---------- Fill Other Event Level Histograms ----------
-
-		metphi_h->Fill(metphi,evtWeight);
-
 	} // End Loop Over Events
 
 	// ---------- Write Histograms to File ----------
@@ -825,25 +801,27 @@ int main(int argc, char* argv[]){
 	TFile out_file(outputfile,"RECREATE"); // Creates TFile with name passed to outputfile from input argument
 
 	met_uc_h->Write(); // Write (must be "->" here) to File @ebinter
-	genmet_uc_h->Write();
-	jpt_uc_h->Write();
-	nbottom_uc_h->Write();
-	ntop_uc_h->Write();
-	bottom_pt_uc_h->Write();
-	mt2_uc_h->Write();
 	mtb_uc_h->Write();
-	njets_uc_h->Write();
-	njetspt20_uc_h->Write();
-	njetspt30_uc_h->Write();
-	HT_uc_h->Write();
-	genHT_uc_h->Write();
 	mtb_mt2_uc_h->Write();
 	search_bin_h->Write();
-	search_bin_mtb_h->Write();
+	search_bin_8026_h->Write();
+	search_bin_singleMuCR_h->Write();
+	search_bin_singleElCR_h->Write();
+	search_bin_MTb_h->Write();
+	search_bin_singleMuCR_MTb_h->Write();
+	search_bin_singleElCR_MTb_h->Write();
 	search_bin_team_A_highdm_h->Write();
+	search_bin_team_A_highdm_singleMuCR_h->Write();
+	search_bin_team_A_highdm_singleElCR_h->Write();
 	search_bin_team_A_lowdm_h->Write();
+	search_bin_team_A_lowdm_singleMuCR_h->Write();
+	search_bin_team_A_lowdm_singleElCR_h->Write();
 	search_bin_team_A_highdm_MTb175_MT2_h->Write();
 	search_bin_team_A_highdm_MTb140_MT2_h->Write();
+	search_bin_team_A_highdm_MTb175_MT2_singleElCR_h->Write();
+	search_bin_team_A_highdm_MTb140_MT2_singleElCR_h->Write();
+	search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h->Write();
+	search_bin_team_A_highdm_MTb140_MT2_singleMuCR_h->Write();
 	mt2_140_low_h->Write();
 	mt2_140_high_h->Write();
 	mt2_175_low_h->Write();
@@ -853,7 +831,7 @@ int main(int argc, char* argv[]){
 
 	mtb_no_HT_h->Write();
 	mtb_CSV_no_HT_h->Write();
-	mtb_high_dm_h->Write();
+	mtb_highdm_h->Write();
 	mt2_no_mtb_h->Write();
 	nbottompt20_no_mtb_h->Write();
 	nbottompt30_no_mtb_h->Write();
@@ -942,72 +920,6 @@ int main(int argc, char* argv[]){
 	mtb_mt2_h->Write();
 
 	eff_h->Write();
-
-	out_file.cd("../");
-	out_file.mkdir("MTb>175");
-	out_file.cd("MTb>175");  
-
-	met_highmtb_uc_h->Write();
-	mt2_high_uc_h->Write();
-
-	out_file.cd("../");
-	out_file.mkdir("MTb<175");
-	out_file.cd("MTb<175"); 
-
-	met_lowmtb_uc_h->Write();
-	mt2_low_uc_h->Write();
-
-	out_file.cd("../");
-	out_file.mkdir("MT2>175");
-	out_file.cd("MT2>175"); 
-
-	met_highmt2_uc_h->Write();
-	mtb_high_uc_h->Write();
-
-	out_file.cd("../");
-	out_file.mkdir("MT2<175");
-	out_file.cd("MT2<175"); 
-
-	met_lowmt2_uc_h->Write();
-	mtb_low_uc_h->Write();
-
-	out_file.cd("../");
-	out_file.mkdir("Baseline_MTb>175");
-	out_file.cd("Baseline_MTb>175");  
-
-	met_highmtb_h->Write();
-	mt2_high_h->Write();
-	eff_mt2_high_h->Write();
-
-	out_file.cd("../");
-	out_file.mkdir("Baseline_MTb<175");
-	out_file.cd("Baseline_MTb<175"); 
-
-	met_lowmtb_h->Write();
-	mt2_low_h->Write();
-	eff_mt2_low_h->Write();
-
-	out_file.cd("../");
-	out_file.mkdir("Baseline_MT2>175");
-	out_file.cd("Baseline_MT2>175"); 
-
-	met_highmt2_h->Write();
-	mtb_high_h->Write();
-	eff_mtb_high_h->Write();
-
-	out_file.cd("../");
-	out_file.mkdir("Baseline_MT2<175");
-	out_file.cd("Baseline_MT2<175"); 
-
-	met_lowmt2_h->Write();
-	mtb_low_h->Write();
-	eff_mtb_low_h->Write();
-
-	out_file.cd("../");
-
-	metphi_h->Write();
-	mtb1_h->Write();
-	mtb2_h->Write();
 
 	std::cout << "Pre-Cut MTb-MT2 Covariance is " << mtb_mt2_uc_h->GetCovariance() << " AND Correlation Factor is " << mtb_mt2_uc_h->GetCorrelationFactor() << std::endl;
 
