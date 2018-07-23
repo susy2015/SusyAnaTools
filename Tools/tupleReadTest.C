@@ -1,18 +1,11 @@
-//#include "LHAPDF/LHAPDF.h"
 #include "NTupleReader.h"
 #include "baselineDef.h"
 #include "searchBins.h"
-#include "TCanvas.h"
-#include "TROOT.h" // ebinter
-#include "TGraphErrors.h" // ebinter
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "TLegend.h" // ebitner
-#include "TArrow.h" // ebinter
-#include "TLatex.h" // ebinter
 #include <iostream>
 #include <cstdio>
 #include <stdio.h> // printf, Null // ebinter
@@ -21,9 +14,8 @@
 #include <ctime>
 #include <iomanip>
 #include <cmath>
-#include "tdrstyle.h"
-
-			//check CR vs CS next time!!
+#include "ISRCorrector.h"
+#include "BTagCorrector.h"
 
 int main(int argc, char* argv[]){
 
@@ -39,26 +31,30 @@ int main(int argc, char* argv[]){
 	}
 	const char *inputfilelist = argv[1];
 	const char *outputfile   = argv[2];
-	//int max_events = 10000;
-	int max_events = -1;
+	std::string sample_name(inputfilelist);
 
+	int max_events = -1;
+	//max_events = 10000;
+
+	bool do_ISR_BSF = false;
 	bool t2bw_study = false;
 
 	//if(argc > 3){
 	//   const char *events_input = argv[3]; // Need to Fix
 	//   events = strtod(*events_input, NULL);
 	//}
-	const char *fastsim   = "";\
 
-				 // std::cout << "Will read first " << events << " events." << std::endl;
+	// std::cout << "Will read first " << events << " events." << std::endl;
+	const char *fastsim   = "";
 
-				 if (argc > 3)
-				 {
-					 fastsim = argv[3];
-				 }
+	if (argc > 3)
+	{
+		fastsim = argv[3];
+	}
 
 	TChain *ch = new TChain("stopTreeMaker/AUX"); //TChain for all files
 	bigfile.open (inputfilelist); //opening file list ~aarulana
+	//std::cout << "inputfilelist " << *inputfilelist << std::endl;
 
 	if (bigfile.is_open()) //adding each file to TChain
 	{
@@ -74,14 +70,44 @@ int main(int argc, char* argv[]){
 
 	NTupleReader tr(ch);
 	tr.setReThrow(false);
-	//PDFweight pdfs;
 
 	//BaselineVessel blv(tr);
 	BaselineVessel blv(tr, "", "fastsim");
 
 	tr.registerFunction(blv);
-	//tr.registerFunction(pdfs);
 	SearchBins SB("SB_v1_2017");
+
+	bool find_B_SF = true;
+	bool find_ISR_SF = true;
+
+	std::cout << "======================================= ISR and B_SF start ==============================================" << std::endl;
+	std::cout << "sample name is " << sample_name << std::endl; 
+
+	BTagCorrector btagcorr = BTagCorrector("allINone_bTagEff.root");
+	//if(filename.find("TTJets_SingleLeptFromT_") != std::string::npos)
+	if(sample_name.find("TTbarSingleLepT.list") != std::string::npos)
+	{std::cout << "find TTbarSingleLepT" << std::endl; btagcorr.resetEffs("TTbarSingleLepT");}
+	//else if(filename.find("TTJets_SingleLeptFromTbar_") != std::string::npos)
+	else if(sample_name.find("TTbarSingleLepTbar.list") != std::string::npos)
+	{std::cout << "find TTbarSingleLepTbar" << std::endl; btagcorr.resetEffs("TTbarSingleLepTbar");}
+	//else if(filename.find("TTJets_DiLept_") != std::string::npos)
+	else if(sample_name.find("TTbarDiLep.list") != std::string::npos)
+	{std::cout << "find TTbarDiLep" << std::endl; btagcorr.resetEffs("TTbarDiLep");}
+	//else if(filename.find("WJetsToLNu_HT-600To800_") != std::string::npos) std::cout << "find WJetsToLNu_HT_600to800\n" << std::endl;
+	else find_B_SF = false;
+	tr.registerFunction(btagcorr);
+
+	ISRCorrector *isrcorr = new ISRCorrector("allINone_ISRJets.root", "", "");
+	//if(filename.find("TTJets_SingleLeptFromT_") != std::string::npos) isrcorr->resetSample("TTbarSingleLepT");
+	if(sample_name.find("TTbarSingleLepT.list") != std::string::npos) isrcorr->resetSample("TTbarSingleLepT");
+	//else if(filename.find("TTJets_SingleLeptFromTbar_") != std::string::npos) isrcorr->resetSample("TTbarSingleLepTbar");
+	else if(sample_name.find("TTbarSingleLepTbar.list") != std::string::npos) isrcorr->resetSample("TTbarSingleLepTbar");
+	//else if(filename.find("TTJets_DiLept_") != std::string::npos) isrcorr->resetSample("TTbarDiLep");
+	else if(sample_name.find("TTbarDiLep.list") != std::string::npos) isrcorr->resetSample("TTbarDiLep");
+	//else if(filename.find("WJetsToLNu_HT-600To800_") != std::string::npos) isrcorr->resetSample("WJetsToLNu_HT_600to800");
+	else find_ISR_SF = false;
+	tr.registerFunction((*isrcorr));
+	std::cout << "======================================= ISR and B_SF end ==============================================\n" << std::endl;
 
 	// ---------- Make Histograms ----------
 
@@ -115,15 +141,18 @@ int main(int argc, char* argv[]){
 	auto eff_h=new TH1F("eff_h","loose baseline Efficiency",2,0.0,2.0);
 
 	auto search_bin_h=new TH1F("search_bin_h","search bin with baseline cut",84,0.0,84.0);
-	auto search_bin_8026_h=new TH1F("search_bin_h","search bin with 8026 baseline cut",84,0.0,84.0);
+	auto search_bin_8026_h=new TH1F("search_bin_8026_h","search bin with 8026 baseline cut",84,0.0,84.0);
 	auto search_bin_singleMuCR_h=new TH1F("search_bin_singleMuCR_h","search bin with baseline cut, single muon control region",84,0.0,84.0);
 	auto search_bin_singleElCR_h=new TH1F("search_bin_singleElCR_h","search bin with baseline cut, single electron control region",84,0.0,84.0);
 	auto search_bin_MTb_h=new TH1F("search_bin_MTb_h","search bin with baseline cut + MTb > 175",84,0.0,84.0);
 	auto search_bin_singleMuCR_MTb_h=new TH1F("search_bin_singleMuCR_MTb_h","search bin with baseline cut + MTb > 175, single muon control region",84,0.0,84.0);
 	auto search_bin_singleElCR_MTb_h=new TH1F("search_bin_singleElCR_MTb_h","search bin with baseline cut + MTb > 175, single electron control region",84,0.0,84.0);
 	auto search_bin_team_A_highdm_h=new TH1F("search_bin_team_A_highdm_h","search bin team A high dM, MTb = 175",51,53.0,104.0);
+	auto search_bin_team_A_highdm_merge_h=new TH1F("search_bin_team_A_highdm_merge_h","search bin team A high dM, MTb = 175, merge top",51,53.0,104.0);
 	auto search_bin_team_A_highdm_singleMuCR_h=new TH1F("search_bin_team_A_highdm_SingleMuCR_h","search bin team A high dM single muon control region, MTb = 175",51,53.0,104.0);
+	auto search_bin_team_A_highdm_singleMuCR_merge_h=new TH1F("search_bin_team_A_highdm_SingleMuCR_merge_h","search bin team A high dM single muon control region, MTb = 175, merge top",51,53.0,104.0);
 	auto search_bin_team_A_highdm_singleElCR_h=new TH1F("search_bin_team_A_highdm_SingleElCR_h","search bin team A high dM single electron control region, MTb = 175",51,53.0,104.0);
+	auto search_bin_team_A_highdm_singleElCR_merge_h=new TH1F("search_bin_team_A_highdm_SingleElCR_merge_h","search bin team A high dM single electron control region, MTb = 175, merge top",51,53.0,104.0);
 	auto search_bin_team_A_lowdm_h=new TH1F("search_bin_team_A_lowdm_h","search bin team A low dM",53,0,53);
 	auto search_bin_team_A_lowdm_singleMuCR_h=new TH1F("search_bin_team_A_lowdm_singleMuCR_h","search bin team A low dM single muon control region",53,0,53);
 	auto search_bin_team_A_lowdm_singleElCR_h=new TH1F("search_bin_team_A_lowdm_singleElCR_h","search bin team A low dM single elctron control region",53,0,53);
@@ -135,6 +164,8 @@ int main(int argc, char* argv[]){
 	auto search_bin_team_A_highdm_MTb140_MT2_singleElCR_h=new TH1F("search_bin_team_A_highdm_MTb140_MT2_singleElCR_h","search bin team A high dM, MTb = 140, MT2 >200 single electron control region",51,53.0,104.0);
 
 	auto jpt_h=new TH1F("jpt_h","Leading Jet Pt (Baseline Cuts)",80,0.0,400.0);
+	auto jpt_eta_2p5_3p0_h=new TH1F("jpt_eta_2p5_3p0_h","all jets Pt (Baseline Cuts), 2.5 < eta < 3.0",80,0.0,400.0);
+	auto jpt_eta_2p5_3p0_no_HT_h=new TH1F("jpt_eta_2p5_3p0_no_HT_h","all jets Pt (Baseline Cuts no HT), 2.5 < eta < 3.0",80,0.0,400.0);
 	auto nbottom_h=new TH1F("nbottom_h","b Jet Count (Baseline Cuts)",8,0.0,8.0);
 	auto bottom_pt_h=new TH1F("bottom_pt_h","Leading b Jet Pt (Baseline Cuts)",80,0.0,400.0);
 	auto ntop_h=new TH1F("ntop_h","Number of Tops (Baseline Cuts)",8,0.0,8.0);
@@ -253,10 +284,15 @@ int main(int argc, char* argv[]){
 		//std::cout << "number of w = " << wLVec.size() << std::endl;
 
 		std::vector<TLorentzVector> b_jetsLVec;
+		std::vector<double> jpt_eta_2p5_3p0;
 		std::vector<double> rjbt_vec = tr.getVec<double>("recoJetsBtag_0");
 		int njets = jetsLVec.size();
-		double mtb1=-10 , mtb2=-10 , mtb=-10 , mt2_b=-10 , mtb_CSV=-10;
+		double ISR_SF = 1.0;
+		if (find_ISR_SF) ISR_SF = tr.getVar<double>("isr_Unc_Cent");
+		double B_SF = 1.0;
+		if(find_B_SF) B_SF = tr.getVar<double>("bTagSF_EventWeightSimple_Central");
 		double evtWeight = tr.getVar<double>("evtWeight");
+		if(do_ISR_BSF) evtWeight = evtWeight*ISR_SF*B_SF;
 		double met = tr.getVar<double>("met"); 
 		double genmet = tr.getVar<double>("genmet"); 
 		//double mt2 = tr.getVar<double>("mt2");
@@ -267,6 +303,7 @@ int main(int argc, char* argv[]){
 		int nMuons = tr.getVar<int>("nMuons_CUT");
 		int ntop = tr.getVar<int>("nTopCandSortedCnt");
 		int nbjets = tr.getVar<int>("cntCSVS");
+		double mtb1=-10 , mtb2=-10 , mtb=-10 , mt2_b=-10 , mtb_CSV=-10;
 		int nbottompt20=0 , nbottompt30=0 , njetspt20=0 , njetspt30=0 , njetspt50=0;
 		int ntop_merge=0 , ntop_w=0 , ntop_res=0;
 		double HT = tr.getVar<double>("HT");
@@ -296,6 +333,7 @@ int main(int argc, char* argv[]){
 				std::cout << "\n" << std::endl;
 			}
 
+			std::cout << "event " << tr.getEvtNum() << " ISR_SF " << ISR_SF << " B_SF " << B_SF << " PdgId " << std::endl; 
 			for(int i=0; i < PdgId.size(); i++)
 			{std::cout << PdgId.at(i) << " "; }
 			std::cout << "\n" << std::endl;
@@ -321,6 +359,8 @@ int main(int argc, char* argv[]){
 				if (tlv_Pt >= 50) njetspt50++;
 				if (njetspt20 < 5 && fabs(dPhi) > 0.5) n_dPhi_p5 ++;
 			}
+
+			if(fabs(tlv_Eta) > 2.5 && fabs(tlv_Eta) < 3.0 && tlv_Pt >= 20) jpt_eta_2p5_3p0.push_back(tlv_Pt); 
 
 			if(rjbt < 0.8484 || tlv_Pt < 20 || fabs(tlv_Eta) > 2.4)
 			{
@@ -439,6 +479,7 @@ int main(int argc, char* argv[]){
 
 		int SB_team_A_highdm(double mtb_cut, double mtb, int njets, int ntop, int nw, int nres, int nb, double met);
 		int SB_team_A_highdm_index_175 = SB_team_A_highdm(175, mtb, njetspt20, ntop_merge, nw + ntop_w, ntop_res, nbottompt20, met);
+		int SB_team_A_highdm_index_175_merge = SB_team_A_highdm(175, mtb, njetspt20, 0, nw, ntop, nbottompt20, met);
 		int SB_team_A_highdm_index_140 = SB_team_A_highdm(140, mtb, njetspt20, ntop_merge, nw + ntop_w, ntop_res, nbottompt20, met);
 		int SB_team_A_lowdm(int njets, int nb, int nSV, double ISRpt, double bottompt_scalar_sum, double met);
 		int SB_team_A_lowdm_index = SB_team_A_lowdm(njetspt20, nbottompt20, nSV, ISRpt, bottompt_scalar_sum, met);
@@ -447,7 +488,7 @@ int main(int argc, char* argv[]){
 		bool passdphi_highdm = (jetsLVec_pt20.size() >= 4 && fabs(jetsLVec_pt20.at(0).Phi() - metphi) > 0.5 && fabs(jetsLVec_pt20.at(1).Phi() - metphi) > 0.5 && fabs(jetsLVec_pt20.at(2).Phi() - metphi) > 0.5 && fabs(jetsLVec_pt20.at(3).Phi() - metphi) > 0.5);		//SUS-16-049, high dm, dphi(met, jet1234) > 0.5
 		bool passdphi_lowdm = ( (jetsLVec_pt20.size() == 2 && fabs(jetsLVec_pt20.at(0).Phi() - metphi) > 0.5 && fabs(jetsLVec_pt20.at(1).Phi() - metphi) > 0.15) || (jetsLVec_pt20.size() >2 && fabs(jetsLVec_pt20.at(0).Phi() - metphi) > 0.5 && fabs(jetsLVec_pt20.at(1).Phi() - metphi) > 0.15 && fabs(jetsLVec_pt20.at(2).Phi() - metphi) > 0.15) );		//SUS-16-049, low dm,  dphi(met, j1) > 0.5, dphi(met, j23) > 0.15
 
-		bool pass_loose_baseline_no_HT=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passdPhis") && tr.getVar<bool>("passMET") && njetspt20 >=2 && nbottompt20 >=1);		//baseline line for merge group 
+		bool pass_loose_baseline_no_HT=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passdPhis") && tr.getVar<bool>("passMET") && njetspt20 >=2);		//baseline line for merge group 
 		bool pass_loose_baseline=(pass_loose_baseline_no_HT && tr.getVar<bool>("passHT"));
 
 		//bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passnJets") && tr.getVar<bool>("passdPhis") && tr.getVar<bool>("passBJets") && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
@@ -479,6 +520,7 @@ int main(int argc, char* argv[]){
 			if (SB_team_A_highdm_index_175 != -1)
 			{
 				search_bin_team_A_highdm_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+				search_bin_team_A_highdm_merge_h->Fill(SB_team_A_highdm_index_175_merge,evtWeight);
 				if(pass_MT2_highdm) 
 				{
 					search_bin_team_A_highdm_MTb175_MT2_h->Fill(SB_team_A_highdm_index_175,evtWeight);
@@ -492,6 +534,7 @@ int main(int argc, char* argv[]){
 			if(nElectrons == 1 && SB_team_A_highdm_index_175 != -1)
 			{
 				search_bin_team_A_highdm_singleElCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+				search_bin_team_A_highdm_singleElCR_merge_h->Fill(SB_team_A_highdm_index_175_merge,evtWeight);
 				if(pass_MT2_highdm) 
 				{
 					search_bin_team_A_highdm_MTb175_MT2_singleElCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
@@ -502,6 +545,7 @@ int main(int argc, char* argv[]){
 			if(nMuons == 1 && SB_team_A_highdm_index_175 != -1)
 			{
 				search_bin_team_A_highdm_singleMuCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+				search_bin_team_A_highdm_singleMuCR_merge_h->Fill(SB_team_A_highdm_index_175_merge,evtWeight);
 				if(pass_MT2_highdm) 
 				{
 					search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
@@ -534,20 +578,20 @@ int main(int argc, char* argv[]){
 
 		if(pass_baseline)
 		{
-			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << "nbjets = " << nbjets << "ntop = " << ntop << "mt2 = " << mt2 << "met = " << met << "HT = " << HT << std::endl;
+			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets = " << nbjets << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
 			search_bin_h->Fill(SB_index,evtWeight);
 			if (mtb > 175) search_bin_MTb_h->Fill(SB_index,evtWeight);
 		}
 
 		if(tr.getVar<bool>("passBaseline"))
 		{
-			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << "nbjets = " << nbjets << "ntop = " << ntop << "mt2 = " << mt2 << "met = " << met << "HT = " << HT << std::endl;
+			//if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets = " << nbjets << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
 			search_bin_8026_h->Fill(SB_index,evtWeight);
 		}
 
 		if(pass_baseline_singleLeptCR)
 		{
-			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << "nbjets = " << nbjets << "ntop = " << ntop << "mt2 = " << mt2 << "met = " << met << "HT = " << HT << std::endl;
+			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets = " << nbjets << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
 			if(nElectrons == 1)
 			{
 				search_bin_singleElCR_h->Fill(SB_index,evtWeight);
@@ -584,6 +628,8 @@ int main(int argc, char* argv[]){
 			genmet_h->Fill(genmet,evtWeight);
 			jpt_h->Fill(jpt,evtWeight);
 			bottom_pt_h->Fill(bottom_pt,evtWeight);
+			if(jpt_eta_2p5_3p0.size() == 0) jpt_eta_2p5_3p0_h->Fill(0.0,evtWeight);
+			else jpt_eta_2p5_3p0_h->Fill(jpt_eta_2p5_3p0.at(0),evtWeight);
 
 			eff_h->Fill(1.0,evtWeight);
 		}
@@ -601,6 +647,8 @@ int main(int argc, char* argv[]){
 			njetspt30_no_mtb_h->Fill(njetspt30,evtWeight);
 			met_no_mtb_h->Fill(met,evtWeight);
 			HT_no_mtb_h->Fill(HT,evtWeight);
+			if(jpt_eta_2p5_3p0.size() == 0) jpt_eta_2p5_3p0_no_HT_h->Fill(0.0,evtWeight);
+			else jpt_eta_2p5_3p0_no_HT_h->Fill(jpt_eta_2p5_3p0.at(0),evtWeight);
 
 			if(mtb > 140)
 			{
@@ -813,6 +861,9 @@ int main(int argc, char* argv[]){
 	search_bin_team_A_highdm_h->Write();
 	search_bin_team_A_highdm_singleMuCR_h->Write();
 	search_bin_team_A_highdm_singleElCR_h->Write();
+	search_bin_team_A_highdm_merge_h->Write();
+	search_bin_team_A_highdm_singleMuCR_merge_h->Write();
+	search_bin_team_A_highdm_singleElCR_merge_h->Write();
 	search_bin_team_A_lowdm_h->Write();
 	search_bin_team_A_lowdm_singleMuCR_h->Write();
 	search_bin_team_A_lowdm_singleElCR_h->Write();
@@ -829,6 +880,8 @@ int main(int argc, char* argv[]){
 	mt2_140_175_h->Write();
 	mt2_baseline_no_mt2_h->Write();
 
+	jpt_eta_2p5_3p0_h->Write();
+	jpt_eta_2p5_3p0_no_HT_h->Write();
 	mtb_no_HT_h->Write();
 	mtb_CSV_no_HT_h->Write();
 	mtb_highdm_h->Write();

@@ -13,25 +13,32 @@ int make_datacards()
 	bool make_data_datacard = true;
 	bool make_signal_datacard = true;
 
-	bool high_dm = false;
+	bool high_dm = true;
 	bool low_dm = false;
 	bool MT2_highdm = false;
+	bool high_dm_merge = true;
 
-	bool old_bins = true; 
+	bool old_bins = false; 
 	bool old_bins_MTb = false;
+
+	TString result_path = "results/Signal_";	//for full sim signals
+	result_path = "results/Signal_fastsim_";	//for fast sim singals
 
 	//TString signal_name = "T2tt_mStop500_mLSP325";
 	//TString signal_name = "T2tt_mStop850_mLSP100";
 	//TString signal_name = "T2tt_mStop1000_mLSP500";
-	//TString signal_name = "T2tt_mStop1000_mLSP1";
+	TString signal_name = "T2tt_mStop1000_mLSP1";
 	//TString signal_name = "T1tttt_mGluino1500_mLSP100";
-	TString signal_name = "T1tttt_mGluino2000_mLSP100";
+	//TString signal_name = "T1tttt_mGluino2000_mLSP100";
 
 	TString folder = "";
 	TString var;
 	TString SingleMuCR;
 	TString SingleElCR;
+
 	int NSB;
+	double zinv_sf = 666.8 / 870.8;		//ratio of 050 data card / direct from MC
+	double ll_sf = 2957.6 / 4015.6;		//ratio of 050 data card / MC with ISR and B_SF
 
 	if (high_dm)
 	{
@@ -44,6 +51,12 @@ int make_datacards()
 			var = "search_bin_team_A_highdm_MTb175_MT2_h";
 			SingleMuCR = "search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h";
 			SingleElCR = "search_bin_team_A_highdm_MTb175_MT2_singleElCR_h";
+		}
+		if (high_dm_merge)
+		{
+			var = "search_bin_team_A_highdm_merge_h";
+			SingleMuCR = "search_bin_team_A_highdm_SingleMuCR_merge_h";
+			SingleElCR = "search_bin_team_A_highdm_SingleElCR_merge_h";
 		}
 	}
 
@@ -70,8 +83,6 @@ int make_datacards()
 	}
 
 	THStack *hs = new THStack();
-	int print_bin_53_103(TH1D * pro);
-	int print_bin_1_52(TH1D * pro);
 
 	if (make_QCD_datacard)
 	{
@@ -639,11 +650,9 @@ int make_datacards()
 			pro->Add(h1);
 		}
 
+		pro->Scale(zinv_sf);
 		hs->Add(pro);
 		pro->SetBinErrorOption(TH1::kPoisson);
-
-		if(high_dm) print_bin_53_103(pro);
-		if(low_dm) print_bin_1_52(pro);
 
 		std::ofstream Zinvfile (("datacards/temp/zinv.txt"));
 		if (Zinvfile.is_open())
@@ -1292,6 +1301,7 @@ int make_datacards()
 			pro_singleElCR->Add(h1_singleElCR);
 		}
 
+		pro->Scale(ll_sf);
 		hs->Add(pro);
 		pro->SetBinErrorOption(TH1::kPoisson);
 		pro_singleMuCR->SetBinErrorOption(TH1::kPoisson);
@@ -1306,9 +1316,6 @@ int make_datacards()
 		TF_singleElCR->Divide(pro_singleElCR);
 		TH1D * TF_combCR = (TH1D*)pro->Clone("TF_combCR");
 		TF_combCR->Divide(pro_combCR);
-
-		if(high_dm) print_bin_53_103(pro);
-		if(low_dm) print_bin_1_52(pro);
 
 		std::ofstream LL_mu_file (("datacards/temp/comb_mu.txt"));
 		if (LL_mu_file.is_open())
@@ -1326,18 +1333,44 @@ int make_datacards()
 			//LL_mu_file << "cs_event = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro_singleMuCR->GetBinContent(i+1) << " "; } LL_mu_file << "\n";
 
 			LL_mu_file << "\n# Average weight for lost lepton, Zinv and ttZ: avg_weight x cs_event = rate. Will be ignored for had. tau and QCD.\n";
-			LL_mu_file << "# fin_TF_to_mu = "; for(int i=0;i<NSB;i++){ LL_mu_file << TF_singleMuCR->GetBinContent(i+1) << " "; } LL_mu_file << "\n";
-			LL_mu_file << "# fin_TF_to_ele = "; for(int i=0;i<NSB;i++){ LL_mu_file << TF_singleElCR->GetBinContent(i+1) << " "; } LL_mu_file << "\n";
+			LL_mu_file << "# fin_TF_to_mu = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleMuCR->GetBinContent(i+1) << " ";
+				else LL_mu_file << "0.0001" << " ";
+			}
+			LL_mu_file << "\n";
+			LL_mu_file << "# fin_TF_to_ele = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_singleElCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleElCR->GetBinContent(i+1) << " ";
+				else LL_mu_file << "0.0001" << " ";
+			}
+			LL_mu_file << "\n";
 
 			LL_mu_file << "\n# All the uncertainties in absolute numbers for both stat and syst uncertainties. Needed from QCD and hadronic tau; No need from lost lepton, Zinv and ttZ (will be ignored). For symmetric uncertainties, put the up and dn to be the same.\n";
 			LL_mu_file << "# stat_unc_abs_up = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro_singleMuCR->GetBinErrorUp(i+1) << " "; } LL_mu_file << "\n";
 			LL_mu_file << "# stat_unc_abs_dn = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro_singleMuCR->GetBinErrorLow(i+1) << " "; } LL_mu_file << "\n";
-			LL_mu_file << "stat_unc_up = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro_singleMuCR->GetBinErrorUp(i+1) / pro_singleMuCR->GetBinContent(i+1) << " "; } LL_mu_file << "\n";
-			LL_mu_file << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro_singleMuCR->GetBinErrorLow(i+1) / pro_singleMuCR->GetBinContent(i+1) << " "; } LL_mu_file << "\n";
+			LL_mu_file << "stat_unc_up = ";
+			for(int i=0;i<NSB;i++){
+				if(pro_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << pro_singleMuCR->GetBinErrorUp(i+1) / pro_singleMuCR->GetBinContent(i+1) << " ";
+				else LL_mu_file << 0.0001 << " ";
+			} LL_mu_file << "\n";
+			LL_mu_file << "stat_unc_dn = ";
+			for(int i=0;i<NSB;i++){
+				if(pro_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << pro_singleMuCR->GetBinErrorLow(i+1) / pro_singleMuCR->GetBinContent(i+1) << " ";
+				else LL_mu_file << 0.0001 << " ";
+			} LL_mu_file << "\n";
 
 			LL_mu_file << "\n# List of all the systematical uncertainties. Do not need combine them. The \"pdf\", \"blackhole\", \"darkmatter\", \"susy\" are keywords to label the different systematic sources (use meaningful names or make comments).\n";
-			LL_mu_file << "syst_unc_TF_stat_up = "         ; for(int i=0;i<NSB;i++){ LL_mu_file << TF_singleMuCR->GetBinErrorUp(i+1) / TF_singleMuCR->GetBinContent(i+1) << " "; } LL_mu_file << "\n";
-			LL_mu_file << "syst_unc_TF_stat_dn = "         ; for(int i=0;i<NSB;i++){ LL_mu_file << TF_singleMuCR->GetBinErrorLow(i+1) / TF_singleMuCR->GetBinContent(i+1) << " "; } LL_mu_file << "\n";
+			LL_mu_file << "syst_unc_TF_stat_up = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleMuCR->GetBinErrorUp(i+1) / TF_singleMuCR->GetBinContent(i+1) << " ";
+				else LL_mu_file << 0.0001 << " ";
+			} LL_mu_file << "\n";
+			LL_mu_file << "syst_unc_TF_stat_dn = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleMuCR->GetBinErrorLow(i+1) / TF_singleMuCR->GetBinContent(i+1) << " ";
+				else LL_mu_file << 0.0001 << " ";
+			} LL_mu_file << "\n";
 			LL_mu_file << "syst_unc_SF_up = "		; for(int i=0;i<NSB;i++){ LL_mu_file << 0.2 << " "; } LL_mu_file << "\n";
 			LL_mu_file << "syst_unc_SF_dn = "		; for(int i=0;i<NSB;i++){ LL_mu_file << 0.2 << " "; } LL_mu_file << "\n";
 			LL_mu_file << "syst_unc_JEC_up = " 		; for(int i=0;i<NSB;i++){ LL_mu_file << 0.2 << " "; } LL_mu_file << "\n";
@@ -1368,18 +1401,44 @@ int make_datacards()
 			//LL_ele_file << "cs_event = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro_singleMuCR->GetBinContent(i+1) << " "; } LL_ele_file << "\n";
 
 			LL_ele_file << "\n# Average weight for lost lepton, Zinv and ttZ: avg_weight x cs_event = rate. Will be ignored for had. tau and QCD.\n";
-			LL_ele_file << "# fin_TF_to_mu = "; for(int i=0;i<NSB;i++){ LL_ele_file << TF_singleMuCR->GetBinContent(i+1) << " "; } LL_ele_file << "\n";
-			LL_ele_file << "# fin_TF_to_ele = "; for(int i=0;i<NSB;i++){ LL_ele_file << TF_singleElCR->GetBinContent(i+1) << " "; } LL_ele_file << "\n";
+			LL_ele_file << "# fin_TF_to_mu = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_ele_file << TF_singleMuCR->GetBinContent(i+1) << " ";
+				else LL_ele_file << "0.0001" << " ";
+			}
+			LL_ele_file << "\n";
+			LL_ele_file << "# fin_TF_to_ele = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_singleElCR->GetBinContent(i+1) > 0) LL_ele_file << TF_singleElCR->GetBinContent(i+1) << " ";
+				else LL_ele_file << "0.0001" << " ";
+			}
+			LL_ele_file << "\n";
 
 			LL_ele_file << "\n# All the uncertainties in absolute numbers for both stat and syst uncertainties. Needed from QCD and hadronic tau; No need from lost lepton, Zinv and ttZ (will be ignored). For symmetric uncertainties, put the up and dn to be the same.\n";
 			LL_ele_file << "# stat_unc_abs_up = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro_singleElCR->GetBinErrorUp(i+1) << " "; } LL_ele_file << "\n";
 			LL_ele_file << "# stat_unc_abs_dn = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro_singleElCR->GetBinErrorLow(i+1) << " "; } LL_ele_file << "\n";
-			LL_ele_file << "stat_unc_up = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro_singleElCR->GetBinErrorUp(i+1) / pro_singleElCR->GetBinContent(i+1) << " "; } LL_ele_file << "\n";
-			LL_ele_file << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro_singleElCR->GetBinErrorLow(i+1) / pro_singleElCR->GetBinContent(i+1) << " "; } LL_ele_file << "\n";
+			LL_ele_file << "stat_unc_up = ";
+			for(int i=0;i<NSB;i++){
+				if(pro_singleElCR->GetBinContent(i+1) > 0) LL_ele_file << pro_singleElCR->GetBinErrorUp(i+1) / pro_singleElCR->GetBinContent(i+1) << " ";
+				else LL_ele_file << "0.0001" << " ";
+			} LL_ele_file << "\n";
+			LL_ele_file << "stat_unc_dn = ";
+			for(int i=0;i<NSB;i++){
+				if(pro_singleElCR->GetBinContent(i+1) > 0) LL_ele_file << pro_singleElCR->GetBinErrorLow(i+1) / pro_singleElCR->GetBinContent(i+1) << " ";
+				else LL_ele_file << "0.0001" << " ";
+			} LL_ele_file << "\n";
 
 			LL_ele_file << "\n# List of all the systematical uncertainties. Do not need combine them. The \"pdf\", \"blackhole\", \"darkmatter\", \"susy\" are keywords to label the different systematic sources (use meaningful names or make comments).\n";
-			LL_ele_file << "syst_unc_TF_stat_up = "         ; for(int i=0;i<NSB;i++){ LL_ele_file << TF_singleElCR->GetBinErrorUp(i+1) / TF_singleElCR->GetBinContent(i+1) << " "; } LL_ele_file << "\n";
-			LL_ele_file << "syst_unc_TF_stat_dn = "         ; for(int i=0;i<NSB;i++){ LL_ele_file << TF_singleElCR->GetBinErrorLow(i+1) / TF_singleElCR->GetBinContent(i+1) << " "; } LL_ele_file << "\n";
+			LL_ele_file << "syst_unc_TF_stat_up = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_singleElCR->GetBinContent(i+1)) LL_ele_file << TF_singleElCR->GetBinErrorUp(i+1) / TF_singleElCR->GetBinContent(i+1) << " ";
+				else LL_ele_file << "0.0001" << " ";
+			} LL_ele_file << "\n";
+			LL_ele_file << "syst_unc_TF_stat_dn = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_singleElCR->GetBinContent(i+1)) LL_ele_file << TF_singleElCR->GetBinErrorLow(i+1) / TF_singleElCR->GetBinContent(i+1) << " ";
+				else LL_ele_file << "0.0001" << " ";
+			} LL_ele_file << "\n";
 			LL_ele_file << "syst_unc_SF_up = "		; for(int i=0;i<NSB;i++){ LL_ele_file << 0.2 << " "; } LL_ele_file << "\n";
 			LL_ele_file << "syst_unc_SF_dn = "		; for(int i=0;i<NSB;i++){ LL_ele_file << 0.2 << " "; } LL_ele_file << "\n";
 			LL_ele_file << "syst_unc_JEC_up = " 		; for(int i=0;i<NSB;i++){ LL_ele_file << 0.2 << " "; } LL_ele_file << "\n";
@@ -1410,18 +1469,44 @@ int make_datacards()
 			//LL_comb_file << "cs_event = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro_singleMuCR->GetBinContent(i+1) << " "; } LL_comb_file << "\n";
 
 			LL_comb_file << "\n# Average weight for lost lepton, Zinv and ttZ: avg_weight x cs_event = rate. Will be ignored for had. tau and QCD.\n";
-			LL_comb_file << "# fin_TF_to_mu = "; for(int i=0;i<NSB;i++){ LL_comb_file << TF_singleMuCR->GetBinContent(i+1) << " "; } LL_comb_file << "\n";
-			LL_comb_file << "# fin_TF_to_ele = "; for(int i=0;i<NSB;i++){ LL_comb_file << TF_singleElCR->GetBinContent(i+1) << " "; } LL_comb_file << "\n";
+			LL_comb_file << "# fin_TF_to_mu = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_comb_file << TF_singleMuCR->GetBinContent(i+1) << " ";
+				else LL_comb_file << "0.0001" << " ";
+			}
+			LL_comb_file << "\n";
+			LL_comb_file << "# fin_TF_to_ele = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_singleElCR->GetBinContent(i+1) > 0) LL_comb_file << TF_singleElCR->GetBinContent(i+1) << " ";
+				else LL_comb_file << "0.0001" << " ";
+			}
+			LL_comb_file << "\n";
 
 			LL_comb_file << "\n# All the uncertainties in absolute numbers for both stat and syst uncertainties. Needed from QCD and hadronic tau; No need from lost lepton, Zinv and ttZ (will be ignored). For symmetric uncertainties, put the up and dn to be the same.\n";
 			LL_comb_file << "# stat_unc_abs_up = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro_combCR->GetBinErrorUp(i+1) / 1.414 << " "; } LL_comb_file << "\n";
 			LL_comb_file << "# stat_unc_abs_dn = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro_combCR->GetBinErrorLow(i+1) / 1.414 << " "; } LL_comb_file << "\n";
-			LL_comb_file << "stat_unc_up = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro_combCR->GetBinErrorUp(i+1) / pro_combCR->GetBinContent(i+1) << " "; } LL_comb_file << "\n";
-			LL_comb_file << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro_combCR->GetBinErrorLow(i+1) / pro_combCR->GetBinContent(i+1) << " "; } LL_comb_file << "\n";
+			LL_comb_file << "stat_unc_up = ";
+			for(int i=0;i<NSB;i++){
+				if(pro_combCR->GetBinContent(i+1) > 0) LL_comb_file << pro_combCR->GetBinErrorUp(i+1) / pro_combCR->GetBinContent(i+1) << " ";
+				else LL_comb_file << "0.0001" << " ";
+			} LL_comb_file << "\n";
+			LL_comb_file << "stat_unc_dn = ";
+			for(int i=0;i<NSB;i++){
+				if(pro_combCR->GetBinContent(i+1) > 0) LL_comb_file << pro_combCR->GetBinErrorLow(i+1) / pro_combCR->GetBinContent(i+1) << " ";
+				else LL_comb_file << "0.0001" << " ";
+			} LL_comb_file << "\n";
 
 			LL_comb_file << "\n# List of all the systematical uncertainties. Do not need combine them. The \"pdf\", \"blackhole\", \"darkmatter\", \"susy\" are keywords to label the different systematic sources (use meaningful names or make comments).\n";
-			LL_comb_file << "syst_unc_TF_stat_up = "         ; for(int i=0;i<NSB;i++){ LL_comb_file << TF_combCR->GetBinErrorUp(i+1) / TF_combCR->GetBinContent(i+1) << " "; } LL_comb_file << "\n";
-			LL_comb_file << "syst_unc_TF_stat_dn = "         ; for(int i=0;i<NSB;i++){ LL_comb_file << TF_combCR->GetBinErrorLow(i+1) / TF_combCR->GetBinContent(i+1) << " "; } LL_comb_file << "\n";
+			LL_comb_file << "syst_unc_TF_stat_up = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_combCR->GetBinContent(i+1) > 0) LL_comb_file << TF_combCR->GetBinErrorUp(i+1) / TF_combCR->GetBinContent(i+1) << " ";
+				else LL_comb_file << "0.0001" << " ";
+			} LL_comb_file << "\n";
+			LL_comb_file << "syst_unc_TF_stat_dn = ";
+			for(int i=0;i<NSB;i++){
+				if(TF_combCR->GetBinContent(i+1) > 0) LL_comb_file << TF_combCR->GetBinErrorLow(i+1) / TF_combCR->GetBinContent(i+1) << " ";
+				else LL_comb_file << "0.0001" << " ";
+			} LL_comb_file << "\n";
 			LL_comb_file << "syst_unc_SF_up = "		; for(int i=0;i<NSB;i++){ LL_comb_file << 0.2 << " "; } LL_comb_file << "\n";
 			LL_comb_file << "syst_unc_SF_dn = "		; for(int i=0;i<NSB;i++){ LL_comb_file << 0.2 << " "; } LL_comb_file << "\n";
 			LL_comb_file << "syst_unc_JEC_up = " 		; for(int i=0;i<NSB;i++){ LL_comb_file << 0.2 << " "; } LL_comb_file << "\n";
@@ -1613,7 +1698,7 @@ int make_datacards()
 	{
 		TString sp = signal_name;
 
-		TFile *f1 = new TFile("results/Signal_" + sp + ".root");
+		TFile *f1 = new TFile(result_path + sp + ".root");
 		TH1D *h1 = (TH1D*)f1->Get(folder + var);
 		//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 		TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -1687,23 +1772,5 @@ int make_datacards()
 		}
 		else std::cout << "Unable to open signalfile";
 	}
-	return 0;
-}
-
-int print_bin_53_103(TH1D * pro)
-{
-	std::cout << "\n" << std::endl;
-	for(int i=1;i<=51;i++)			//bin 1 in high dm is bin 53
-	{std::cout << "bin " << i+52 << ": " << pro->GetBinContent(i) << std::endl;}
-	std::cout << "\n" << std::endl;
-	return 0;
-}
-
-int print_bin_1_52(TH1D * pro)
-{
-	std::cout << "\n" << std::endl;
-	for(int i=0;i<=52;i++)
-	{std::cout << "bin " << i << ": " << pro->GetBinContent(i+1) << std::endl;}
-	std::cout << "\n" << std::endl;
 	return 0;
 }

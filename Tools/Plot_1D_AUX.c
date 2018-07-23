@@ -1,6 +1,6 @@
-int Plot_1D_AUX_sg (double lumi, TString sp, TString var, TString folder, TLegend* leg, Color_t color, int rebin)
+int Plot_1D_AUX_sg (double lumi, TString result_path, TString sp, TString var, TString folder, TLegend* leg, Color_t color, int rebin)
 {
-	TFile *f1 = new TFile("results/Signal_" + sp + ".root");
+	TFile *f1 = new TFile(result_path + sp + ".root");
 	TH1D *h1 = (TH1D*)f1->Get(folder + var);
 	//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 	TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -62,9 +62,9 @@ int Plot_1D_AUX_bg (double lumi, TString sp, TString var, TString folder, TLegen
 	return 0;
 }
 
-int Plot_1D_AUX_sig (double lumi, TString sp, TString var, TString folder, TLegend *leg, Color_t color, THStack *hs, int rebin, bool use_low_stat_sig)
+int Plot_1D_AUX_sig (double lumi, TString result_path, TString sp, TString var, TString folder, TLegend *leg, Color_t color, THStack *hs, int rebin, bool use_low_stat_sig)
 {
-	TFile *f1 = new TFile("results/Signal_" + sp + ".root");
+	TFile *f1 = new TFile(result_path + sp + ".root");
 	TH1D *h1 = (TH1D*)f1->Get(folder + var);
 	//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 	TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
