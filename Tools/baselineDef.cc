@@ -19,13 +19,14 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   debug                 = false;
   incZEROtop            = false;
   UseLepCleanJet        = false;
+  UseDeepTagger         = true;
   jetVecLabel           = "jetsLVec";
-  CSVVecLabel           = "recoJetsBtag_0";
+  CSVVecLabel           = "recoJetsCSVv2";
   METLabel              = "met";
   METPhiLabel           = "metphi";
-  jetVecLabelAK8        = "ak8JetsLVec";
+  jetVecLabelAK8        = "puppiJetsLVec";
   qgLikehoodLabel       = "qgLikelihood";
-  muonsFlagIDLabel      = "muonsFlagMedium";  //TODO: moving to loose ID for 2017
+  muonsFlagIDLabel      = "muonsFlagLoose"; 
   elesFlagIDLabel       = "elesFlagVeto";
   toptaggerCfgFile      = "TopTagger.cfg";
   doIsoTrksVeto         = true;
@@ -80,8 +81,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 bool BaselineVessel::UseLepCleanJets() 
 {
   UseLepCleanJet        = true;
-  jetVecLabel           = "jetsLVecLepCleaned";
-  CSVVecLabel           = "recoJetsBtag_0_LepCleaned";
+  jetVecLabel           = "prodJetsNoLep_jetsLVec";
+  CSVVecLabel           = "prodJetsNoLep_recoJetsCSVv2";
   qgLikehoodLabel       = "prodJetsNoLep_qgLikelihood";
   return true;
 }       // -----  end of function BaselineVessel::UseLepCleanJets  -----
@@ -118,6 +119,72 @@ bool BaselineVessel::SetupTopTagger(std::string CfgFile_)
   
   return true;
 }       // -----  end of function BaselineVessel::SetupTopTagger  -----
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::prepareDeepTopTagger
+//  Description:  
+// ===========================================================================
+void BaselineVessel::prepareDeepTopTagger()
+{
+  jetsLVec_forTagger      = new std::vector<TLorentzVector>();
+  recoJetsBtag_forTagger  = new std::vector<float>();
+  qgLikelihood_forTagger  = new std::vector<float>();
+  *jetsLVec_forTagger     = tr->getVec<TLorentzVector>(jetVecLabel);
+  *recoJetsBtag_forTagger = tr->getVec<float>(CSVVecLabel);
+  *qgLikelihood_forTagger = tr->getVec<float>(qgLikehoodLabel);
+
+  tr->registerDerivedVec("jetsLVec_forTagger" + firstSpec, jetsLVec_forTagger);
+  tr->registerDerivedVec("recoJetsBtag_forTagger" + firstSpec, recoJetsBtag_forTagger);
+  tr->registerDerivedVec("qgLikelihood_forTagger" + firstSpec, qgLikelihood_forTagger);
+
+  ttUtility::ConstAK4Inputs<float> AK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger);
+  AK4Inputs.addSupplamentalVector("qgPtD",                               tr->getVec<float>("qgPtD"));
+  AK4Inputs.addSupplamentalVector("qgAxis1",                             tr->getVec<float>("qgAxis1"));
+  AK4Inputs.addSupplamentalVector("qgAxis2",                             tr->getVec<float>("qgAxis2"));
+  const std::vector<int> &qgMult_i = tr->getVec<int>("qgMult");
+  const std::vector<float> qgMult_f(qgMult_i.begin(), qgMult_i.end());
+  AK4Inputs.addSupplamentalVector("qgMult",                              qgMult_f);
+  AK4Inputs.addSupplamentalVector("recoJetschargedHadronEnergyFraction", tr->getVec<float>("recoJetschargedHadronEnergyFraction"));
+  AK4Inputs.addSupplamentalVector("recoJetschargedEmEnergyFraction",     tr->getVec<float>("recoJetschargedEmEnergyFraction"));
+  AK4Inputs.addSupplamentalVector("recoJetsneutralEmEnergyFraction",     tr->getVec<float>("recoJetsneutralEmEnergyFraction"));
+  AK4Inputs.addSupplamentalVector("recoJetsmuonEnergyFraction",          tr->getVec<float>("recoJetsmuonEnergyFraction"));
+  AK4Inputs.addSupplamentalVector("recoJetsHFHadronEnergyFraction",      tr->getVec<float>("recoJetsHFHadronEnergyFraction"));
+  AK4Inputs.addSupplamentalVector("recoJetsHFEMEnergyFraction",          tr->getVec<float>("recoJetsHFEMEnergyFraction"));
+  AK4Inputs.addSupplamentalVector("recoJetsneutralEnergyFraction",       tr->getVec<float>("recoJetsneutralEnergyFraction"));
+  AK4Inputs.addSupplamentalVector("PhotonEnergyFraction",                tr->getVec<float>("PhotonEnergyFraction"));
+  AK4Inputs.addSupplamentalVector("ElectronEnergyFraction",              tr->getVec<float>("ElectronEnergyFraction"));
+  AK4Inputs.addSupplamentalVector("ChargedHadronMultiplicity",           tr->getVec<float>("ChargedHadronMultiplicity"));
+  AK4Inputs.addSupplamentalVector("NeutralHadronMultiplicity",           tr->getVec<float>("NeutralHadronMultiplicity"));
+  AK4Inputs.addSupplamentalVector("PhotonMultiplicity",                  tr->getVec<float>("PhotonMultiplicity"));
+  AK4Inputs.addSupplamentalVector("ElectronMultiplicity",                tr->getVec<float>("ElectronMultiplicity"));
+  AK4Inputs.addSupplamentalVector("MuonMultiplicity",                    tr->getVec<float>("MuonMultiplicity"));
+  AK4Inputs.addSupplamentalVector("DeepCSVb",                            tr->getVec<float>("DeepCSVb"));
+  AK4Inputs.addSupplamentalVector("DeepCSVc",                            tr->getVec<float>("DeepCSVc"));
+  AK4Inputs.addSupplamentalVector("DeepCSVl",                            tr->getVec<float>("DeepCSVl"));
+  AK4Inputs.addSupplamentalVector("DeepCSVbb",                           tr->getVec<float>("DeepCSVbb"));
+  AK4Inputs.addSupplamentalVector("DeepCSVcc",                           tr->getVec<float>("DeepCSVcc"));
+
+
+  const std::vector<TLorentzVector> &AK8JetLV = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const std::vector<float> &AK8JetSoftdropMass = tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass");
+  const std::vector<float> &AK8JetDeepAK8Top = tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_deepAK8btop" : "deepAK8btop");
+  const std::vector<std::vector<TLorentzVector>> &AK8SubjetLV = tr->getVec<std::vector<TLorentzVector> >(UseLepCleanJet ? "prodJetsNoLep_puppiAK8SubjetLVec" : "puppiAK8SubjetLVec");
+  //Create AK8 inputs object
+  ttUtility::ConstAK8Inputs<float> AK8Inputs(
+      AK8JetLV,
+      AK8JetDeepAK8Top,
+      AK8JetSoftdropMass,
+      AK8SubjetLV
+      );
+
+  //Create jets constituents list combining AK4 and AK8 jets, these are used to construct top candiates
+  //The vector of input constituents can also be constructed "by hand"
+  std::vector<Constituent> constituents = ttUtility::packageConstituents(AK4Inputs, AK8Inputs);
+
+  //run the top tagger
+  ttPtr->runTagger(constituents);
+
+}       // -----  end of function BaselineVessel::prepareDeepTopTagger  -----
 
 void BaselineVessel::prepareTopTagger()
 {
@@ -204,8 +271,8 @@ bool BaselineVessel::PredefineSpec()
   }
   else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
-    jetVecLabel = "jetsLVecLepCleaned";
-    CSVVecLabel = "recoJetsBtag_0_LepCleaned";
+    jetVecLabel = "prodJetsNoLep_jetsLVec";
+    CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
     doMuonVeto  = false;
@@ -312,19 +379,16 @@ void BaselineVessel::PassBaseline()
 
 
   // Form TLorentzVector of MET
-  if (tr->getVar<unsigned int>("run") > 312526) // Set weight to 1 for Data
-    metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
-  else
-    metLVec.SetPtEtaPhiM(tr->getVar<double>(METLabel), 0, tr->getVar<double>(METPhiLabel), 0);
+  metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
 
   // Calculate number of leptons
   const std::vector<int> & muonsFlagIDVec = muonsFlagIDLabel.empty()? std::vector<int>(tr->getVec<float>("muonsMiniIso").size(), 1):tr->getVec<int>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
   const std::vector<int> & elesFlagIDVec = elesFlagIDLabel.empty()? std::vector<int>(tr->getVec<float>("elesMiniIso").size(), 1):tr->getVec<int>(elesFlagIDLabel.c_str()); // Fake electrons since we don't have different ID for electrons now, but maybe later
   int nMuons = AnaFunctions::countMuons(tr->getVec<TLorentzVector>("muonsLVec"), tr->getVec<float>("muonsMiniIso"), tr->getVec<float>("muonsMtw"), muonsFlagIDVec, AnaConsts::muonsMiniIsoArr);
   int nElectrons = AnaFunctions::countElectrons(tr->getVec<TLorentzVector>("elesLVec"), tr->getVec<float>("elesMiniIso"), tr->getVec<float>("elesMtw"), tr->getVec<unsigned int>("elesisEB"), elesFlagIDVec, AnaConsts::elesMiniIsoArr);
-  int nIsoTrks = AnaFunctions::countIsoTrks(tr->getVec<TLorentzVector>("loose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
-  int nIsoLepTrks = AnaFunctions::countIsoLepTrks(tr->getVec<TLorentzVector>("loose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
-  int nIsoPionTrks = AnaFunctions::countIsoPionTrks(tr->getVec<TLorentzVector>("loose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
+  int nIsoTrks = AnaFunctions::countIsoTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
+  int nIsoLepTrks = AnaFunctions::countIsoLepTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
+  int nIsoPionTrks = AnaFunctions::countIsoPionTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
 
   // Calculate number of jets and b-tagged jets
   int cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), AnaConsts::cutCSVS, AnaConsts::bTagArr);
@@ -380,7 +444,14 @@ void BaselineVessel::PassBaseline()
   // Calculate top tagger related variables. 
   // Note that to save speed, only do the calculation after previous base line requirements.
 
-  prepareTopTagger();
+  if (UseDeepTagger)
+  {
+    toptaggerCfgFile      = "TopTagger_Deep.cfg";
+    prepareDeepTopTagger();
+  }
+  else{
+    prepareTopTagger();
+  }
   bool passTagger = PassTopTagger();
   //if( !passTagger ){ passBaseline = false; passBaselineNoLepVeto = false; }
 
@@ -787,7 +858,7 @@ bool BaselineVessel::passNoiseEventFilterFunc()
     unsigned int hbheIsoNoiseFilter = isfastsim? 1:tr->getVar<unsigned int>("HBHEIsoNoiseFilter");
     int ecalTPFilter = tr->getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
 
-    int jetIDFilter = isfastsim? 1:tr->getVar<int>("looseJetID_NoLep");
+    unsigned int jetIDFilter = isfastsim? 1:tr->getVar<unsigned int>("AK4NoLeplooseJetID");
     // new filters
     const unsigned int & BadPFMuonFilter = tr->getVar<unsigned int>("BadPFMuonFilter");
     bool passBadPFMuonFilter = (&BadPFMuonFilter) != nullptr? tr->getVar<unsigned int>("BadPFMuonFilter") !=0 : true;
@@ -795,7 +866,7 @@ bool BaselineVessel::passNoiseEventFilterFunc()
     const unsigned int & BadChargedCandidateFilter = tr->getVar<unsigned int>("BadChargedCandidateFilter");
     bool passBadChargedCandidateFilter = (&BadChargedCandidateFilter) != nullptr? tr->getVar<unsigned int>("BadChargedCandidateFilter") !=0 : true;
 
-    bool passMETratioFilter = tr->getVar<double>("calomet")!=0 ? tr->getVar<double>("met")/tr->getVar<double>("calomet") < 5 : true;
+    bool passMETratioFilter = tr->getVar<float>("calomet")!=0 ? tr->getVar<float>("met")/tr->getVar<float>("calomet") < 5 : true;
 
     tr->setReThrow(cached_rethrow);
     return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter && passBadPFMuonFilter && passBadChargedCandidateFilter && passMETratioFilter;
@@ -815,14 +886,7 @@ bool BaselineVessel::passQCDHighMETFilterFunc()
 {
   std::vector<TLorentzVector> jetsLVec = tr->getVec<TLorentzVector>("jetsLVec");
   std::vector<float> recoJetsmuonEnergyFraction = tr->getVec<float>("recoJetsmuonEnergyFraction");
-  double metphi =0;
-  if (tr->getVar<unsigned int>("run") > 312526) // Set weight to 1 for Data
-  {
-    float metphiv = tr->getVar<float>("metphi");
-    metphi = static_cast<double>(metphiv);
-  }
-  else
-    metphi = tr->getVar<double>("metphi");
+  float metphi = tr->getVar<float>("metphi");
 
   int nJetsLoop = recoJetsmuonEnergyFraction.size();
   std::vector<float> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metphi, nJetsLoop, AnaConsts::dphiArr);
@@ -1028,7 +1092,7 @@ bool BaselineVessel::GetMHT() const
   // Calculate MHT
   TLorentzVector MHT(0, 0, 0, 0);
   float SumHT = 0.0; //Using jet > 30 , |eta| < 5
-  for(auto &jet : tr->getVec<TLorentzVector>("jetsLVecLepCleaned"))
+  for(auto &jet : tr->getVec<TLorentzVector>("prodJetsNoLep_jetsLVec"))
   {
     if (jet.Pt() >= 30)
     {
@@ -1040,10 +1104,7 @@ bool BaselineVessel::GetMHT() const
   tr->registerDerivedVar("MHTPhi"+firstSpec, MHT.Phi());
   tr->registerDerivedVar("MHTSig"+firstSpec, MHT.Pt()/ sqrt(SumHT));
 
-  if (tr->getVar<unsigned int>("run") > 3125261) // Set weight to 1 for Data
-    tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<float>(METLabel)/ sqrt(SumHT));
-  else
-    tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<double>(METLabel)/ sqrt(SumHT));
+  tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<float>(METLabel)/ sqrt(SumHT));
   return true;
 }       // -----  end of function BaselineVessel::GetMHT  -----
 

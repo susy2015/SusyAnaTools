@@ -59,6 +59,7 @@ public:
     bool debug;
     bool incZEROtop;
     bool UseLepCleanJet;
+    bool UseDeepTagger;
 
     std::string jetVecLabel;
     std::string CSVVecLabel;
@@ -103,6 +104,7 @@ public:
         std::map<unsigned int, std::pair<unsigned int, unsigned int> > *TypeZLepIdx, 
         const int zMassMin, const int zMassMax) const;
     void prepareTopTagger();
+    void prepareDeepTopTagger();
     std::shared_ptr<TopTagger> GetTopTaggerPtr() const {return ttPtr;};
     int GetnTops() const;
     bool GetTopCombs() const;

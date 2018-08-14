@@ -94,9 +94,9 @@ set TOPTAGGERFILE=TopTagger.cfg
 if ( -f $TOPTAGGERFILE && -l $TOPTAGGERFILE ) then
     rm $TOPTAGGERFILE
 endif
-set SIMPLETOPTAGGERFILE=TopTagger_Simplified.cfg
-if ( -f $SIMPLETOPTAGGERFILE && -l $SIMPLETOPTAGGERFILE ) then
-    rm $SIMPLETOPTAGGERFILE
+set DEEPTOPTAGGERFILE=TopTagger_Deep.cfg
+if ( -f $DEEPTOPTAGGERFILE && -l $DEEPTOPTAGGERFILE ) then
+    rm $DEEPTOPTAGGERFILE
 endif
 set LEGTOPTAGGERFILE=Legacy_TopTagger.cfg
 if ( -f $LEGTOPTAGGERFILE && -l $LEGTOPTAGGERFILE ) then
@@ -104,7 +104,8 @@ if ( -f $LEGTOPTAGGERFILE && -l $LEGTOPTAGGERFILE ) then
 endif
 
 mkdir -p $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_noQGL_binaryCSV_v1.0.2 -f $SIMPLETOPTAGGERFILE -d $TAGGERCFGDIR
+${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
+${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
+${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t DeepCombined_Example_v1.0.2 -f $DEEPTOPTAGGERFILE -d $TAGGERCFGDIR
+
 
