@@ -31,12 +31,12 @@ Process = {
      #"WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"   : ['', 20],
      "WJetsToLNu_HT_800to1200"  : ['', 7],
      #"WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  : ['', 7],
-     "WJetsToLNu_HT_1200to2500" : ['', 6],
+     "WJetsToLNu_HT_1200to2500" : ['', 4],
      #"WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" : ['', 6],
      "WJetsToLNu_HT_2500toInf"  : ['', 4],
      #"WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  : ['', 4],
 #
-     "TTbarDiLep"                         : ['', 20],
+     "TTbarDiLep"                         : ['', 10],
      #"TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"                         : ['', 20],
      "TTbarSingleLepTbar"                 : ['', 80],
      #"TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"                 : ['', 80],
@@ -53,9 +53,9 @@ Process = {
      #"ZJetsToNuNu_HT-600To800_13TeV-madgraph.txt"   : ['', 7],
      "ZJetsToNuNu_HT_800to1200"  : ['', 10],
      #"ZJetsToNuNu_HT-800To1200_13TeV-madgraph.txt"  : ['', 10],
-     "ZJetsToNuNu_HT_1200to2500" : ['', 5],
+     "ZJetsToNuNu_HT_1200to2500" : ['', 10],
      #"ZJetsToNuNu_HT-1200To2500_13TeV-madgraph.txt" : ['', 5],
-     "ZJetsToNuNu_HT_2500toInf"  : ['', 6],
+     "ZJetsToNuNu_HT_2500toInf"  : ['', 10],
      #"ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph.txt"  : ['', 6],
 #
 #    "QCD_HT100to200"              : ['', 40],
@@ -74,8 +74,8 @@ Process = {
      #"ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1.txt"     : ['', 40],
      "ST_t_top"         : ['', 40],
      #"ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1.txt"         : ['', 80],
-     "tW_antitop_incl"  : ['', 40],
-     "tW_top_incl"      : ['', 40],
+     "tW_antitop_incl"  : ['', 60],
+     "tW_top_incl"      : ['', 60],
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Top Associated Production ~~~~~
 ###    "ST_tWll"      : ['', 2],
@@ -93,14 +93,14 @@ Process = {
 ##    "tZq_ll"       : ['', 30],
 ##
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Diboson ~~~~~
-##    "ZZTo2L2Nu"   : ['', 22],
-##    "ZZTo2Q2Nu"   : ['', 50],
+    "ZZTo2L2Nu"   : ['', 22],
+    "ZZTo2Q2Nu"   : ['', 50],
 ##    "ZZTo4L"      : ['', 10],
 ##    "ZZTo4Q"      : ['', 50],
-##    "WZ"          : ['', 8],
-##    "WWTo2L2Nu"   : ['', 2],
+    "WZ"          : ['', 8],
+    "WWTo2L2Nu"   : ['', 2],
 ##    "WWTo4Q"      : ['', 2],
-##    "WWToLNuQQ"   : ['', 12],
+    "WWToLNuQQ"   : ['', 12],
 ##
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TriBoson ~~~~~
 ##    "WWG" : ['', 2],
@@ -111,14 +111,14 @@ Process = {
 ##    "ZZZ" : ['', 2],
 #
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Signal ~~~~~
-    # "Signal_fastsim_T1tttt_1200_800"    : ['',1],
+     "Signal_fastsim_T1tttt_mGluino1200_mLSP800"    : ['',1],
      "Signal_fastsim_T1tttt_mGluino1500_mLSP100"    : ['',1],
      "Signal_fastsim_T1tttt_mGluino2000_mLSP100"    : ['',1],
     # "Signal_fastsim_T2tt_425_325"       : ['',1],
-    # "Signal_fastsim_T2tt_500_325"       : ['',1],
+     "Signal_fastsim_T2tt_mStop500_mLSP325"       : ['',1],
     # "Signal_fastsim_T2tt_650_350"       : ['',1],
-    # "Signal_fastsim_T2tt_850_100"       : ['',1],
-    # "Signal_fastsim_T2tt_mStop1000_mLSP1"      : ['',1],
+     "Signal_fastsim_T2tt_mStop850_mLSP100"       : ['',1],
+     "Signal_fastsim_T2tt_mStop1000_mLSP1"      : ['',1],
      "Signal_fastsim_T2fbd_mStop500_mLSP490"      : ['',1],
      "Signal_fastsim_T2fbd_mStop600_mLSP520"      : ['',1],
      "Signal_fastsim_T2cc_mStop500_mLSP420"      : ['',1],

@@ -7,15 +7,15 @@ int Plot_1D_test()
 	const double lumi = 36; 
 	bool plot_log = false;
 	//plot_log = true;
-	bool plot_BG = true;
+	bool plot_BG = false;
 	bool use_low_stat_sig = false;
 	//use_low_stat_sig = true;
 
 	TString result_path = "results/Signal_";        //for full sim signals
 	result_path = "results/Signal_fastsim_";        //for fast sim singals
 
-	//TString signal_name = "T2tt_and_T2bw";
-	TString signal_name = "T1tttt_and_T5ttcc";
+	TString signal_name = "T2tt_and_T2bw";
+	//TString signal_name = "T1tttt_and_T5ttcc";
 	//TString signal_name = "T2fbd_and_T2bwC";
 	//TString signal_name = "T2cc_and_T2tt";
 
@@ -34,7 +34,7 @@ int Plot_1D_test()
 	bool plot_ntop_merge = false;
 	bool plot_ntop_w = false;
 	bool plot_ntop_res = false;
-	bool plot_nw = false;
+	bool plot_nw = true;
 	bool plot_gen_w_pt = false;
 	bool plot_gen_b_pt = false;
 	bool plot_gen_w_b_mass = false;
@@ -46,7 +46,7 @@ int Plot_1D_test()
 	bool plot_njetspt20_lowdm = false;
 	bool plot_njetspt30 = false;
 	bool plot_nSV_lowdm = false;
-	bool plot_HT = true;
+	bool plot_HT = false;
 	bool plot_MET = false;
 	bool plot_MET_lowdm = false;
 	bool plot_ISR_pt_lowdm = false;
@@ -204,9 +204,10 @@ int Plot_1D_test()
 		var = "ntop_merge_175_h";
 		folder = "";
 		rebin = 1;
-		xmax = 4;
-		//ymax = 1000000;
+		xmax = 8;
 		ymax = 1;
+		//ymax = 35000;
+		sig_ymax = 3;
 	}
 
 	if (plot_ntop_w)
@@ -215,9 +216,10 @@ int Plot_1D_test()
 		var = "ntop_w_175_h";
 		folder = "";
 		rebin = 1;
-		xmax = 4;
-		//ymax = 1000000;
+		xmax = 8;
 		ymax = 1;
+		//ymax = 35000;
+		sig_ymax = 3;
 	}
 
 	if (plot_ntop_res)
@@ -226,19 +228,20 @@ int Plot_1D_test()
 		var = "ntop_res_175_h";
 		folder = "";
 		rebin = 1;
-		xmax = 4;
-		//ymax = 1000000;
+		xmax = 8;
 		ymax = 1;
+		//ymax = 35000;
+		sig_ymax = 3;
 	}
 
 	if (plot_nw)
 	{
-		title = "number of W when MTb > 175";
+		title = "number of W alone when MTb > 175";
 		var = "nw_175_h";
 		folder = "";
 		rebin = 1;
 		xmax = 8;
-		ymax = 50000;
+		ymax = 1;
 	}
 
 	if (plot_gen_w_pt)

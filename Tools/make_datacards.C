@@ -5,6 +5,10 @@ int make_datacards()
 	gROOT->ForceStyle();
 
 	const double lumi = 36;
+	//const double lumi = 120;
+
+	bool round_data = true;
+
 	bool make_QCD_datacard = true;
 	bool make_Zinv_datacard = true;
 	bool make_LL_datacard = true;
@@ -13,10 +17,13 @@ int make_datacards()
 	bool make_data_datacard = true;
 	bool make_signal_datacard = true;
 
-	bool high_dm = true;
+	bool team_A_high_dm = false;
+	bool team_A_highdm_MT2 = false;
+	bool team_A_high_dm_merge = false;
 	bool low_dm = false;
-	bool MT2_highdm = false;
-	bool high_dm_merge = true;
+	bool high_dm = true;
+	bool high_dm_merge_HT = true;
+	bool high_dm_MT2 = false;
 
 	bool old_bins = false; 
 	bool old_bins_MTb = false;
@@ -24,12 +31,14 @@ int make_datacards()
 	TString result_path = "results/Signal_";	//for full sim signals
 	result_path = "results/Signal_fastsim_";	//for fast sim singals
 
-	//TString signal_name = "T2tt_mStop500_mLSP325";
+	TString signal_name = "T2tt_mStop500_mLSP325";
 	//TString signal_name = "T2tt_mStop850_mLSP100";
 	//TString signal_name = "T2tt_mStop1000_mLSP500";
-	TString signal_name = "T2tt_mStop1000_mLSP1";
+	//TString signal_name = "T2tt_mStop1000_mLSP1";
 	//TString signal_name = "T1tttt_mGluino1500_mLSP100";
 	//TString signal_name = "T1tttt_mGluino2000_mLSP100";
+	//TString signal_name = "T1tttt_mGluino1200_mLSP800";
+	//TString signal_name = "T2bw_mStop850_mLSP100";
 
 	TString folder = "";
 	TString var;
@@ -37,26 +46,26 @@ int make_datacards()
 	TString SingleElCR;
 
 	int NSB;
-	double zinv_sf = 666.8 / 870.8;		//ratio of 050 data card / direct from MC
-	double ll_sf = 2957.6 / 4015.6;		//ratio of 050 data card / MC with ISR and B_SF
+	double zinv_sf = 666.8 / 851.6;		//ratio of 050 data card / MC with B_SF
+	double ll_sf = 2957.6 / 3378.4;		//ratio of 050 data card / MC with ISR and B_SF
 
-	if (high_dm)
+	if (team_A_high_dm)
 	{
 		NSB = 51;
 		var = "search_bin_team_A_highdm_h";
-		SingleMuCR = "search_bin_team_A_highdm_SingleMuCR_h";
-		SingleElCR = "search_bin_team_A_highdm_SingleElCR_h";
-		if (MT2_highdm)
+		SingleMuCR = "search_bin_team_A_highdm_singleMuCR_h";
+		SingleElCR = "search_bin_team_A_highdm_singleElCR_h";
+		if (team_A_highdm_MT2)
 		{
 			var = "search_bin_team_A_highdm_MTb175_MT2_h";
 			SingleMuCR = "search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h";
 			SingleElCR = "search_bin_team_A_highdm_MTb175_MT2_singleElCR_h";
 		}
-		if (high_dm_merge)
+		if (team_A_high_dm_merge)
 		{
 			var = "search_bin_team_A_highdm_merge_h";
-			SingleMuCR = "search_bin_team_A_highdm_SingleMuCR_merge_h";
-			SingleElCR = "search_bin_team_A_highdm_SingleElCR_merge_h";
+			SingleMuCR = "search_bin_team_A_highdm_singleMuCR_merge_h";
+			SingleElCR = "search_bin_team_A_highdm_singleElCR_merge_h";
 		}
 	}
 
@@ -66,6 +75,28 @@ int make_datacards()
 		var = "search_bin_team_A_lowdm_h";
 		SingleMuCR = "search_bin_team_A_lowdm_singleMuCR_h";
 		SingleElCR = "search_bin_team_A_lowdm_singleElCR_h";
+	}
+
+	if (high_dm)
+	{
+		NSB = 124;
+		var = "search_bin_highdm_h";
+		SingleMuCR = "search_bin_highdm_singleMuCR_h";
+		SingleElCR = "search_bin_highdm_singleElCR_h";
+		if(high_dm_merge_HT)
+		{
+			var = "search_bin_highdm_merge_HT_h";
+			SingleMuCR = "search_bin_highdm_singleMuCR_merge_HT_h";
+			SingleElCR = "search_bin_highdm_singleElCR_merge_HT_h";
+		}
+	}
+
+	if (high_dm_MT2)
+	{
+		NSB = 168;
+		var = "search_bin_highdm_MT2_h";
+		SingleMuCR = "search_bin_highdm_singleMuCR_MT2_h";
+		SingleElCR = "search_bin_highdm_singleElCR_MT2_h";
 	}
 
 	if (old_bins)
@@ -104,7 +135,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -141,7 +172,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -178,7 +209,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -215,7 +246,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -252,7 +283,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -289,7 +320,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -326,7 +357,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -355,7 +386,6 @@ int make_datacards()
 		std::ofstream QCDfile (("datacards/temp/qcd.txt"));
 		if (QCDfile.is_open())
 		{
-			QCDfile << "# The words after \"#\" are comments. No need to remove them.\n";
 			QCDfile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			QCDfile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			QCDfile << "sample = qcd     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
@@ -364,20 +394,25 @@ int make_datacards()
 			QCDfile << "\n# Predicted central numbers (need from all backgrounds)\n";
 			QCDfile << "rate = "; for(int i=0;i<NSB;i++){ QCDfile << pro->GetBinContent(i+1) << " "; } QCDfile << "\n";
 
-			QCDfile << "\n# Control sample events for lost lepton; Raw MC yields for Zinv and ttZ; No need from had. tau and QCD (will be ignored).\n";
-			QCDfile << "cs_event = "; for(int i=0;i<NSB;i++){ 
-				if(avg_weight_sq->GetBinContent(i+1) > 0) QCDfile << pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1) << " ";
-				else QCDfile << "0.0001" << " ";} QCDfile << "\n";
+			QCDfile << "cs_event = ";
+			std::vector<int> cs_event(NSB,0);
+			for(int i=0;i<NSB;i++)
+			{ 
+				if(avg_weight_sq->GetBinContent(i+1) > 0) cs_event[i] = round(pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1));
+				QCDfile << cs_event[i] << " ";
+			} QCDfile << "\n";
 
-			QCDfile << "\n# Average weight for lost lepton, Zinv and ttZ: avg_weight x cs_event = rate. Will be ignored for had. tau and QCD.\n";
-			QCDfile << "avg_weight = "; for(int i=0;i<NSB;i++){
-				if(avg_weight->GetBinContent(i+1) > 0) QCDfile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
-				else QCDfile << "0.01" << " ";} QCDfile << "\n";
+			QCDfile << "avg_weight = ";
+			for(int i=0;i<NSB;i++)
+			{
+				//if(avg_weight->GetBinContent(i+1) > 0) QCDfile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
+				if(cs_event[i] > 0) QCDfile << pro->GetBinContent(i+1) / cs_event[i] << " ";
+				else QCDfile << "0.0000" << " ";
+			} QCDfile << "\n";
 
 			//QCDfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ QCDfile << pro->GetBinErrorUp(i+1) / pro->GetBinContent(i+1) << " "; } QCDfile << "\n";
 			//QCDfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ QCDfile << pro->GetBinErrorLow(i+1) / pro->GetBinContent(i+1) << " "; } QCDfile << "\n";
 
-			QCDfile << "\n# List of all the systematical uncertainties. Do not need combine them. The \"pdf\", \"blackhole\", \"darkmatter\", \"susy\" are keywords to label the different systematic sources (use meaningful names or make comments).\n";
 			QCDfile << "syst_unc_all_up = "; for(int i=0;i<NSB;i++) { QCDfile << 1.5 << " "; } QCDfile << "\n";
 			QCDfile << "syst_unc_all_dn = "; for(int i=0;i<NSB;i++) { QCDfile << 0.998 << " "; } QCDfile << "\n";
 			QCDfile.close();
@@ -405,7 +440,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -442,7 +477,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -479,7 +514,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -516,7 +551,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -553,7 +588,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -590,7 +625,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -634,7 +669,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -657,7 +692,6 @@ int make_datacards()
 		std::ofstream Zinvfile (("datacards/temp/zinv.txt"));
 		if (Zinvfile.is_open())
 		{
-			Zinvfile << "# The words after \"#\" are comments. No need to remove them.\n";
 			Zinvfile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			Zinvfile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			Zinvfile << "sample = zinv     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
@@ -666,24 +700,29 @@ int make_datacards()
 			Zinvfile << "\n# Predicted central numbers (need from all backgrounds)\n";
 			Zinvfile << "rate = "; for(int i=0;i<NSB;i++){ Zinvfile << pro->GetBinContent(i+1) << " "; } Zinvfile << "\n";
 
-			Zinvfile << "\n# Control sample events for lost lepton; Raw MC yields for Zinv and ttZ; No need from had. tau and QCD (will be ignored).\n";
-			Zinvfile << "cs_event = "; for(int i=0;i<NSB;i++){
-				if(avg_weight_sq->GetBinContent(i+1) > 0) Zinvfile << pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1) << " ";
-				else Zinvfile << "0.0001" << " ";} Zinvfile << "\n";
+			Zinvfile << "cs_event = ";
+			std::vector<int> cs_event(NSB,0);
+			for(int i=0;i<NSB;i++)
+			{ 
+				if(avg_weight_sq->GetBinContent(i+1) > 0) cs_event[i] = round(pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1));
+				Zinvfile << cs_event[i] << " ";
+			} Zinvfile << "\n";
 
-			Zinvfile << "\n# Average weight for lost lepton, Zinv and ttZ: avg_weight x cs_event = rate. Will be ignored for had. tau and QCD.\n";
-			Zinvfile << "avg_weight = "; for(int i=0;i<NSB;i++){
-				if(avg_weight->GetBinContent(i+1) > 0) Zinvfile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
-				else Zinvfile << "0.01" << " ";} Zinvfile << "\n";
+			Zinvfile << "avg_weight = ";
+			for(int i=0;i<NSB;i++)
+			{
+				//if(avg_weight->GetBinContent(i+1) > 0) Zinvfile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
+				if(cs_event[i] > 0) Zinvfile << pro->GetBinContent(i+1) / cs_event[i] << " ";
+				else Zinvfile << "0.0000" << " ";
+			} Zinvfile << "\n";
 
 			//Zinvfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ Zinvfile << pro->GetBinErrorUp(i+1) / pro->GetBinContent(i+1) << " "; } Zinvfile << "\n";
 			//Zinvfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ Zinvfile << pro->GetBinErrorLow(i+1) / pro->GetBinContent(i+1) << " "; } Zinvfile << "\n";
 
-			Zinvfile << "\n# List of all the systematical uncertainties. Do not need combine them. The \"pdf\", \"blackhole\", \"darkmatter\", \"susy\" are keywords to label the different systematic sources (use meaningful names or make comments).\n";
 			Zinvfile << "syst_unc_shape_central_up = "; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
 			Zinvfile << "syst_unc_shape_central_dn = "; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
 			Zinvfile << "syst_unc_shape_stat_up = "   ; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_shape_stat_dn = "   ; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " ";} Zinvfile << "\n";
+			Zinvfile << "syst_unc_shape_stat_dn = "   ; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
 			Zinvfile << "syst_unc_norm_up = "         ; for(int i=0;i<NSB;i++){ Zinvfile << 0.076 << " "; } Zinvfile << "\n";
 			Zinvfile << "syst_unc_norm_dn = "         ; for(int i=0;i<NSB;i++){ Zinvfile << 0.076 << " "; } Zinvfile << "\n";
 			Zinvfile << "syst_unc_jec_up = "          ; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
@@ -724,7 +763,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -761,7 +800,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -797,7 +836,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -833,7 +872,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -869,7 +908,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -905,7 +944,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -941,7 +980,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -977,7 +1016,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1014,7 +1053,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1066,7 +1105,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1102,7 +1141,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1138,7 +1177,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1174,7 +1213,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1210,7 +1249,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1246,7 +1285,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1282,7 +1321,7 @@ int make_datacards()
 			h1_singleMuCR->Sumw2();
 			h1_singleElCR->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1320,7 +1359,6 @@ int make_datacards()
 		std::ofstream LL_mu_file (("datacards/temp/comb_mu.txt"));
 		if (LL_mu_file.is_open())
 		{
-			LL_mu_file << "# The words after \"#\" are comments. No need to remove them.\n";
 			LL_mu_file << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			LL_mu_file << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			LL_mu_file << "sample = comb     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
@@ -1329,47 +1367,43 @@ int make_datacards()
 			LL_mu_file << "\n# Predicted central numbers (need from all backgrounds)\n";
 			LL_mu_file << "rate = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro->GetBinContent(i+1) << " "; } LL_mu_file << "\n";
 
-			//LL_mu_file << "\n# Control sample events for lost lepton; Raw MC yields for Zinv and ttZ; No need from had. tau and QCD (will be ignored).\n";
 			//LL_mu_file << "cs_event = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro_singleMuCR->GetBinContent(i+1) << " "; } LL_mu_file << "\n";
 
-			LL_mu_file << "\n# Average weight for lost lepton, Zinv and ttZ: avg_weight x cs_event = rate. Will be ignored for had. tau and QCD.\n";
 			LL_mu_file << "# fin_TF_to_mu = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleMuCR->GetBinContent(i+1) << " ";
-				else LL_mu_file << "0.0001" << " ";
+				else LL_mu_file << "1.0000" << " ";
 			}
 			LL_mu_file << "\n";
 			LL_mu_file << "# fin_TF_to_ele = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_singleElCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleElCR->GetBinContent(i+1) << " ";
-				else LL_mu_file << "0.0001" << " ";
+				else LL_mu_file << "1.0000" << " ";
 			}
 			LL_mu_file << "\n";
 
-			LL_mu_file << "\n# All the uncertainties in absolute numbers for both stat and syst uncertainties. Needed from QCD and hadronic tau; No need from lost lepton, Zinv and ttZ (will be ignored). For symmetric uncertainties, put the up and dn to be the same.\n";
 			LL_mu_file << "# stat_unc_abs_up = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro_singleMuCR->GetBinErrorUp(i+1) << " "; } LL_mu_file << "\n";
 			LL_mu_file << "# stat_unc_abs_dn = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro_singleMuCR->GetBinErrorLow(i+1) << " "; } LL_mu_file << "\n";
 			LL_mu_file << "stat_unc_up = ";
 			for(int i=0;i<NSB;i++){
 				if(pro_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << pro_singleMuCR->GetBinErrorUp(i+1) / pro_singleMuCR->GetBinContent(i+1) << " ";
-				else LL_mu_file << 0.0001 << " ";
+				else LL_mu_file << 0.0000 << " ";
 			} LL_mu_file << "\n";
 			LL_mu_file << "stat_unc_dn = ";
 			for(int i=0;i<NSB;i++){
 				if(pro_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << pro_singleMuCR->GetBinErrorLow(i+1) / pro_singleMuCR->GetBinContent(i+1) << " ";
-				else LL_mu_file << 0.0001 << " ";
+				else LL_mu_file << 0.0000 << " ";
 			} LL_mu_file << "\n";
 
-			LL_mu_file << "\n# List of all the systematical uncertainties. Do not need combine them. The \"pdf\", \"blackhole\", \"darkmatter\", \"susy\" are keywords to label the different systematic sources (use meaningful names or make comments).\n";
 			LL_mu_file << "syst_unc_TF_stat_up = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleMuCR->GetBinErrorUp(i+1) / TF_singleMuCR->GetBinContent(i+1) << " ";
-				else LL_mu_file << 0.0001 << " ";
+				else LL_mu_file << 0.0000 << " ";
 			} LL_mu_file << "\n";
 			LL_mu_file << "syst_unc_TF_stat_dn = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleMuCR->GetBinErrorLow(i+1) / TF_singleMuCR->GetBinContent(i+1) << " ";
-				else LL_mu_file << 0.0001 << " ";
+				else LL_mu_file << 0.0000 << " ";
 			} LL_mu_file << "\n";
 			LL_mu_file << "syst_unc_SF_up = "		; for(int i=0;i<NSB;i++){ LL_mu_file << 0.2 << " "; } LL_mu_file << "\n";
 			LL_mu_file << "syst_unc_SF_dn = "		; for(int i=0;i<NSB;i++){ LL_mu_file << 0.2 << " "; } LL_mu_file << "\n";
@@ -1388,7 +1422,6 @@ int make_datacards()
 		std::ofstream LL_ele_file (("datacards/temp/comb_ele.txt"));
 		if (LL_ele_file.is_open())
 		{
-			LL_ele_file << "# The words after \"#\" are comments. No need to remove them.\n";
 			LL_ele_file << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			LL_ele_file << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			LL_ele_file << "sample = comb     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
@@ -1397,47 +1430,43 @@ int make_datacards()
 			LL_ele_file << "\n# Predicted central numbers (need from all backgrounds)\n";
 			LL_ele_file << "rate = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro->GetBinContent(i+1) << " "; } LL_ele_file << "\n";
 
-			//LL_ele_file << "\n# Control sample events for lost lepton; Raw MC yields for Zinv and ttZ; No need from had. tau and QCD (will be ignored).\n";
 			//LL_ele_file << "cs_event = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro_singleMuCR->GetBinContent(i+1) << " "; } LL_ele_file << "\n";
 
-			LL_ele_file << "\n# Average weight for lost lepton, Zinv and ttZ: avg_weight x cs_event = rate. Will be ignored for had. tau and QCD.\n";
 			LL_ele_file << "# fin_TF_to_mu = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_ele_file << TF_singleMuCR->GetBinContent(i+1) << " ";
-				else LL_ele_file << "0.0001" << " ";
+				else LL_ele_file << "1.0000" << " ";
 			}
 			LL_ele_file << "\n";
 			LL_ele_file << "# fin_TF_to_ele = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_singleElCR->GetBinContent(i+1) > 0) LL_ele_file << TF_singleElCR->GetBinContent(i+1) << " ";
-				else LL_ele_file << "0.0001" << " ";
+				else LL_ele_file << "1.0000" << " ";
 			}
 			LL_ele_file << "\n";
 
-			LL_ele_file << "\n# All the uncertainties in absolute numbers for both stat and syst uncertainties. Needed from QCD and hadronic tau; No need from lost lepton, Zinv and ttZ (will be ignored). For symmetric uncertainties, put the up and dn to be the same.\n";
 			LL_ele_file << "# stat_unc_abs_up = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro_singleElCR->GetBinErrorUp(i+1) << " "; } LL_ele_file << "\n";
 			LL_ele_file << "# stat_unc_abs_dn = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro_singleElCR->GetBinErrorLow(i+1) << " "; } LL_ele_file << "\n";
 			LL_ele_file << "stat_unc_up = ";
 			for(int i=0;i<NSB;i++){
 				if(pro_singleElCR->GetBinContent(i+1) > 0) LL_ele_file << pro_singleElCR->GetBinErrorUp(i+1) / pro_singleElCR->GetBinContent(i+1) << " ";
-				else LL_ele_file << "0.0001" << " ";
+				else LL_ele_file << "0.0000" << " ";
 			} LL_ele_file << "\n";
 			LL_ele_file << "stat_unc_dn = ";
 			for(int i=0;i<NSB;i++){
 				if(pro_singleElCR->GetBinContent(i+1) > 0) LL_ele_file << pro_singleElCR->GetBinErrorLow(i+1) / pro_singleElCR->GetBinContent(i+1) << " ";
-				else LL_ele_file << "0.0001" << " ";
+				else LL_ele_file << "0.0000" << " ";
 			} LL_ele_file << "\n";
 
-			LL_ele_file << "\n# List of all the systematical uncertainties. Do not need combine them. The \"pdf\", \"blackhole\", \"darkmatter\", \"susy\" are keywords to label the different systematic sources (use meaningful names or make comments).\n";
 			LL_ele_file << "syst_unc_TF_stat_up = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_singleElCR->GetBinContent(i+1)) LL_ele_file << TF_singleElCR->GetBinErrorUp(i+1) / TF_singleElCR->GetBinContent(i+1) << " ";
-				else LL_ele_file << "0.0001" << " ";
+				else LL_ele_file << "0.0000" << " ";
 			} LL_ele_file << "\n";
 			LL_ele_file << "syst_unc_TF_stat_dn = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_singleElCR->GetBinContent(i+1)) LL_ele_file << TF_singleElCR->GetBinErrorLow(i+1) / TF_singleElCR->GetBinContent(i+1) << " ";
-				else LL_ele_file << "0.0001" << " ";
+				else LL_ele_file << "0.0000" << " ";
 			} LL_ele_file << "\n";
 			LL_ele_file << "syst_unc_SF_up = "		; for(int i=0;i<NSB;i++){ LL_ele_file << 0.2 << " "; } LL_ele_file << "\n";
 			LL_ele_file << "syst_unc_SF_dn = "		; for(int i=0;i<NSB;i++){ LL_ele_file << 0.2 << " "; } LL_ele_file << "\n";
@@ -1456,7 +1485,6 @@ int make_datacards()
 		std::ofstream LL_comb_file (("datacards/temp/comb_comb.txt"));
 		if (LL_comb_file.is_open())
 		{
-			LL_comb_file << "# The words after \"#\" are comments. No need to remove them.\n";
 			LL_comb_file << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			LL_comb_file << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			LL_comb_file << "sample = comb     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
@@ -1465,47 +1493,43 @@ int make_datacards()
 			LL_comb_file << "\n# Predicted central numbers (need from all backgrounds)\n";
 			LL_comb_file << "rate = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro->GetBinContent(i+1) << " "; } LL_comb_file << "\n";
 
-			//LL_comb_file << "\n# Control sample events for lost lepton; Raw MC yields for Zinv and ttZ; No need from had. tau and QCD (will be ignored).\n";
 			//LL_comb_file << "cs_event = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro_singleMuCR->GetBinContent(i+1) << " "; } LL_comb_file << "\n";
 
-			LL_comb_file << "\n# Average weight for lost lepton, Zinv and ttZ: avg_weight x cs_event = rate. Will be ignored for had. tau and QCD.\n";
 			LL_comb_file << "# fin_TF_to_mu = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_comb_file << TF_singleMuCR->GetBinContent(i+1) << " ";
-				else LL_comb_file << "0.0001" << " ";
+				else LL_comb_file << "1.0000" << " ";
 			}
 			LL_comb_file << "\n";
 			LL_comb_file << "# fin_TF_to_ele = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_singleElCR->GetBinContent(i+1) > 0) LL_comb_file << TF_singleElCR->GetBinContent(i+1) << " ";
-				else LL_comb_file << "0.0001" << " ";
+				else LL_comb_file << "1.0000" << " ";
 			}
 			LL_comb_file << "\n";
 
-			LL_comb_file << "\n# All the uncertainties in absolute numbers for both stat and syst uncertainties. Needed from QCD and hadronic tau; No need from lost lepton, Zinv and ttZ (will be ignored). For symmetric uncertainties, put the up and dn to be the same.\n";
 			LL_comb_file << "# stat_unc_abs_up = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro_combCR->GetBinErrorUp(i+1) / 1.414 << " "; } LL_comb_file << "\n";
 			LL_comb_file << "# stat_unc_abs_dn = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro_combCR->GetBinErrorLow(i+1) / 1.414 << " "; } LL_comb_file << "\n";
 			LL_comb_file << "stat_unc_up = ";
 			for(int i=0;i<NSB;i++){
 				if(pro_combCR->GetBinContent(i+1) > 0) LL_comb_file << pro_combCR->GetBinErrorUp(i+1) / pro_combCR->GetBinContent(i+1) << " ";
-				else LL_comb_file << "0.0001" << " ";
+				else LL_comb_file << "0.0000" << " ";
 			} LL_comb_file << "\n";
 			LL_comb_file << "stat_unc_dn = ";
 			for(int i=0;i<NSB;i++){
 				if(pro_combCR->GetBinContent(i+1) > 0) LL_comb_file << pro_combCR->GetBinErrorLow(i+1) / pro_combCR->GetBinContent(i+1) << " ";
-				else LL_comb_file << "0.0001" << " ";
+				else LL_comb_file << "0.0000" << " ";
 			} LL_comb_file << "\n";
 
-			LL_comb_file << "\n# List of all the systematical uncertainties. Do not need combine them. The \"pdf\", \"blackhole\", \"darkmatter\", \"susy\" are keywords to label the different systematic sources (use meaningful names or make comments).\n";
 			LL_comb_file << "syst_unc_TF_stat_up = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_combCR->GetBinContent(i+1) > 0) LL_comb_file << TF_combCR->GetBinErrorUp(i+1) / TF_combCR->GetBinContent(i+1) << " ";
-				else LL_comb_file << "0.0001" << " ";
+				else LL_comb_file << "0.0000" << " ";
 			} LL_comb_file << "\n";
 			LL_comb_file << "syst_unc_TF_stat_dn = ";
 			for(int i=0;i<NSB;i++){
 				if(TF_combCR->GetBinContent(i+1) > 0) LL_comb_file << TF_combCR->GetBinErrorLow(i+1) / TF_combCR->GetBinContent(i+1) << " ";
-				else LL_comb_file << "0.0001" << " ";
+				else LL_comb_file << "0.0000" << " ";
 			} LL_comb_file << "\n";
 			LL_comb_file << "syst_unc_SF_up = "		; for(int i=0;i<NSB;i++){ LL_comb_file << 0.2 << " "; } LL_comb_file << "\n";
 			LL_comb_file << "syst_unc_SF_dn = "		; for(int i=0;i<NSB;i++){ LL_comb_file << 0.2 << " "; } LL_comb_file << "\n";
@@ -1542,7 +1566,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1581,7 +1605,7 @@ int make_datacards()
 
 			h1->Sumw2();
 
-			std::cout << sp << std::endl;
+			std::cout << "\n" << sp << std::endl;
 			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1612,7 +1636,6 @@ int make_datacards()
 		std::ofstream TTZfile (("datacards/temp/ttz.txt"));
 		if (TTZfile.is_open())
 		{
-			TTZfile << "# The words after \"#\" are comments. No need to remove them.\n";
 			TTZfile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			TTZfile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			TTZfile << "sample = ttz     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
@@ -1621,22 +1644,27 @@ int make_datacards()
 			TTZfile << "\n# Predicted central numbers (need from all backgrounds)\n";
 			TTZfile << "rate = "; for(int i=0;i<NSB;i++){ TTZfile << pro->GetBinContent(i+1) << " "; } TTZfile << "\n";
 
-			TTZfile << "\n# Control sample events for lost lepton; Raw MC yields for Zinv and ttZ; No need from had. tau and QCD (will be ignored).\n";
-			TTZfile << "cs_event = "; for(int i=0;i<NSB;i++){
-				if(avg_weight_sq->GetBinContent(i+1) > 0) TTZfile << pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1) << " ";
-				else TTZfile << "0.0001" << " ";} TTZfile << "\n";
+			TTZfile << "cs_event = ";
+			std::vector<int> cs_event(NSB,0);
+			for(int i=0;i<NSB;i++)
+			{ 
+				if(avg_weight_sq->GetBinContent(i+1) > 0) cs_event[i] = round(pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1));
+				TTZfile << cs_event[i] << " ";
+			} TTZfile << "\n";
 
-			TTZfile << "\n# Average weight for lost lepton, Zinv and ttZ: avg_weight x cs_event = rate. Will be ignored for had. tau and QCD.\n";
-			TTZfile << "avg_weight = "; for(int i=0;i<NSB;i++){
-				if(avg_weight->GetBinContent(i+1) > 0) TTZfile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
-				else TTZfile << "0.01" << " ";} TTZfile << "\n";
+			TTZfile << "avg_weight = ";
+			for(int i=0;i<NSB;i++)
+			{
+				//if(avg_weight->GetBinContent(i+1) > 0) TTZfile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
+				if(cs_event[i] > 0) TTZfile << pro->GetBinContent(i+1) / cs_event[i] << " ";
+				else TTZfile << "0.0000" << " ";
+			} TTZfile << "\n";
 
 			//TTZfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ TTZfile << pro->GetBinErrorUp(i+1) / pro->GetBinContent(i+1) << " "; } TTZfile << "\n";
 			//TTZfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ TTZfile << pro->GetBinErrorLow(i+1) / pro->GetBinContent(i+1) << " "; } TTZfile << "\n";
 
-			TTZfile << "\n# List of all the systematical uncertainties. Do not need combine them. The \"pdf\", \"blackhole\", \"darkmatter\", \"susy\" are keywords to label the different systematic sources (use meaningful names or make comments).\n";
-			TTZfile << "syst_unc_up = "         ; for(int i=0;i<NSB;i++){ TTZfile << 0.3 << " "; } TTZfile << "\n";
-			TTZfile << "syst_unc_dn = "         ; for(int i=0;i<NSB;i++){ TTZfile << 0.3 << " "; } TTZfile << "\n";
+			TTZfile << "syst_unc_up = "         ; for(int i=0;i<NSB;i++){ TTZfile << 0.3 * pro->GetBinContent(i+1) << " "; } TTZfile << "\n";
+			TTZfile << "syst_unc_dn = "         ; for(int i=0;i<NSB;i++){ TTZfile << 0.3 * pro->GetBinContent(i+1) << " "; } TTZfile << "\n";
 			TTZfile.close();
 		}
 		else std::cout << "Unable to open TTZfile";
@@ -1644,31 +1672,240 @@ int make_datacards()
 
 	if (make_Rare_datacard)
 	{
+		TH1D * pro = NULL;
+		TH1D * avg_weight_sq = new TH1D("avg_weight_sq","avg_weight_sq",NSB,0,NSB);
+		TH1D * avg_weight = new TH1D("avg_weight","avg_weight",NSB,0,NSB);
+
+		if (true)
+		{
+			TString sp = "ZZTo2L2Nu";
+
+			TFile *f1 = new TFile("results/" + sp + ".root");
+			TH1D *h1 = (TH1D*)f1->Get(folder + var);
+			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
+			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+
+			double all_events = h2->GetBinContent(1);
+			double left_events = h2->GetBinContent(2);
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			double scale = lumi * CrossSection.at(sp) * 1000 / all_events;
+			for(int i = 0; i < NSB; i++)
+			{
+				if(h1->GetBinContent(i+1) < 0) h1->SetBinContent(i+1, 0);
+
+				avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+h1->GetBinContent(i+1)*scale*scale);
+				avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+h1->GetBinContent(i+1)*scale);
+			}
+
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro = (TH1D*)h1->Clone("rare");
+		}
+
+		if (true)
+		{
+			TString sp = "ZZTo2Q2Nu";
+
+			TFile *f1 = new TFile("results/" + sp + ".root");
+			TH1D *h1 = (TH1D*)f1->Get(folder + var);
+			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
+			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+
+			double all_events = h2->GetBinContent(1);
+			double left_events = h2->GetBinContent(2);
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			double scale = lumi * CrossSection.at(sp) * 1000 / all_events;
+			for(int i = 0; i < NSB; i++)
+			{
+				if(h1->GetBinContent(i+1) < 0) h1->SetBinContent(i+1, 0);
+
+				avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+h1->GetBinContent(i+1)*scale*scale);
+				avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+h1->GetBinContent(i+1)*scale);
+			}
+
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro->Add(h1);
+		}
+
+		if (true)
+		{
+			TString sp = "WZ";
+
+			TFile *f1 = new TFile("results/" + sp + ".root");
+			TH1D *h1 = (TH1D*)f1->Get(folder + var);
+			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
+			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+
+			double all_events = h2->GetBinContent(1);
+			double left_events = h2->GetBinContent(2);
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			double scale = lumi * CrossSection.at(sp) * 1000 / all_events;
+			for(int i = 0; i < NSB; i++)
+			{
+				if(h1->GetBinContent(i+1) < 0) h1->SetBinContent(i+1, 0);
+
+				avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+h1->GetBinContent(i+1)*scale*scale);
+				avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+h1->GetBinContent(i+1)*scale);
+			}
+
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro->Add(h1);
+		}
+
+		if (true)
+		{
+			TString sp = "WWTo2L2Nu";
+
+			TFile *f1 = new TFile("results/" + sp + ".root");
+			TH1D *h1 = (TH1D*)f1->Get(folder + var);
+			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
+			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+
+			double all_events = h2->GetBinContent(1);
+			double left_events = h2->GetBinContent(2);
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			double scale = lumi * CrossSection.at(sp) * 1000 / all_events;
+			for(int i = 0; i < NSB; i++)
+			{
+				if(h1->GetBinContent(i+1) < 0) h1->SetBinContent(i+1, 0);
+
+				avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+h1->GetBinContent(i+1)*scale*scale);
+				avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+h1->GetBinContent(i+1)*scale);
+			}
+
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro->Add(h1);
+		}
+
+		if (true)
+		{
+			TString sp = "WWToLNuQQ";
+
+			TFile *f1 = new TFile("results/" + sp + ".root");
+			TH1D *h1 = (TH1D*)f1->Get(folder + var);
+			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
+			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+
+			double all_events = h2->GetBinContent(1);
+			double left_events = h2->GetBinContent(2);
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			double scale = lumi * CrossSection.at(sp) * 1000 / all_events;
+			for(int i = 0; i < NSB; i++)
+			{
+				if(h1->GetBinContent(i+1) < 0) h1->SetBinContent(i+1, 0);
+
+				avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+h1->GetBinContent(i+1)*scale*scale);
+				avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+h1->GetBinContent(i+1)*scale);
+			}
+
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro->Add(h1);
+		}
+
+		hs->Add(pro);
+		pro->SetBinErrorOption(TH1::kPoisson);
 
 		std::ofstream Rarefile (("datacards/temp/rare.txt"));
 		if (Rarefile.is_open())
 		{
-			Rarefile << "# The words after \"#\" are comments. No need to remove them.\n";
 			Rarefile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			Rarefile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			Rarefile << "sample = rare     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
 			Rarefile << "channel = "; for(int i=0;i<NSB;i++){ Rarefile << "bin" << i+1 << " "; } Rarefile << "\n";
 
 			Rarefile << "\n# Predicted central numbers (need from all backgrounds)\n";
-			Rarefile << "rate = "; for(int i=0;i<NSB;i++){ Rarefile << "0.0001" << " "; } Rarefile << "\n";
+			Rarefile << "rate = "; for(int i=0;i<NSB;i++){ Rarefile << pro->GetBinContent(i+1) << " "; } Rarefile << "\n";
 
-			Rarefile << "\n# Control sample events for lost lepton; Raw MC yields for Zinv and ttZ; No need from had. tau and QCD (will be ignored).\n";
-			Rarefile << "cs_event = "; for(int i=0;i<NSB;i++){ Rarefile << "0.01" << " "; } Rarefile << "\n";
+			Rarefile << "cs_event = ";
+			std::vector<int> cs_event(NSB,0);
+			for(int i=0;i<NSB;i++)
+			{ 
+				if(avg_weight_sq->GetBinContent(i+1) > 0) cs_event[i] = round(pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1));
+				Rarefile << cs_event[i] << " ";
+			} Rarefile << "\n";
 
-			Rarefile << "\n# Average weight for lost lepton, Zinv and ttZ: avg_weight x cs_event = rate. Will be ignored for had. tau and QCD.\n";
-			Rarefile << "avg_weight = "; for(int i=0;i<NSB;i++){ Rarefile << "0.01" << " "; } Rarefile << "\n";
+			Rarefile << "avg_weight = ";
+			for(int i=0;i<NSB;i++)
+			{
+				//if(avg_weight->GetBinContent(i+1) > 0) Rarefile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
+				if(cs_event[i] > 0) Rarefile << pro->GetBinContent(i+1) / cs_event[i] << " ";
+				else Rarefile << "0.0000" << " ";
+			} Rarefile << "\n";
 
 			//Rarefile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ Rarefile << "0.00" << " "; } Rarefile << "\n";
 			//Rarefile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ Rarefile << "0.00" << " "; } Rarefile << "\n";
 
-			Rarefile << "\n# List of all the systematical uncertainties. Do not need combine them. The \"pdf\", \"blackhole\", \"darkmatter\", \"susy\" are keywords to label the different systematic sources (use meaningful names or make comments).\n";
-			Rarefile << "syst_unc_up = "         ; for(int i=0;i<NSB;i++){ Rarefile << 0.00 << " "; } Rarefile << "\n";
-			Rarefile << "syst_unc_dn = "         ; for(int i=0;i<NSB;i++){ Rarefile << 0.00 << " "; } Rarefile << "\n";
+			Rarefile << "syst_unc_up = "         ; for(int i=0;i<NSB;i++){ Rarefile << 0.1 * pro->GetBinContent(i+1) << " "; } Rarefile << "\n";
+			Rarefile << "syst_unc_dn = "         ; for(int i=0;i<NSB;i++){ Rarefile << 0.1 * pro->GetBinContent(i+1) << " "; } Rarefile << "\n";
 			Rarefile.close();
 		}
 		else std::cout << "Unable to open Rarefile";
@@ -1680,15 +1917,19 @@ int make_datacards()
 		std::ofstream Datafile (("datacards/temp/data.txt"));
 		if (Datafile.is_open())
 		{
-			Datafile << "# The words after \"#\" are comments. No need to remove them.\n";
 			Datafile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			Datafile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			Datafile << "sample = data     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
 			Datafile << "channel = "; for(int i=0;i<NSB;i++){ Datafile << "bin" << i+1 << " "; } Datafile << "\n";
 
 			Datafile << "\n# Predicted central numbers (need from all backgrounds)\n";
-			//Datafile << "rate = "; for(int i=0;i<NSB;i++){ Datafile << "0.00" << " "; } Datafile << "\n";
-			Datafile << "rate = "; for(int i=0;i<NSB;i++){ Datafile << ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(i+1) << " "; } Datafile << "\n";
+			Datafile << "rate = ";
+			if(round_data) {
+				for(int i=0;i<NSB;i++){ Datafile << round( ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(i+1) ) << " "; } Datafile << "\n";
+			}
+			else {
+				for(int i=0;i<NSB;i++){ Datafile << ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(i+1) << " "; } Datafile << "\n";
+			}
 			Datafile.close();
 		}
 		else std::cout << "Unable to open Datafile";
@@ -1709,7 +1950,7 @@ int make_datacards()
 		h1->Sumw2();
 		h1->SetBinErrorOption(TH1::kPoisson);
 
-		std::cout << sp << std::endl;
+		std::cout << "\n" << sp << std::endl;
 		std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
 		std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
 		std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
@@ -1730,7 +1971,6 @@ int make_datacards()
 		std::ofstream signalfile (("datacards/temp/signal.txt"));
 		if (signalfile.is_open())
 		{
-			signalfile << "# The words after \"#\" are comments. No need to remove them.\n";
 			signalfile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			signalfile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			signalfile << "sample = signal     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
@@ -1739,17 +1979,14 @@ int make_datacards()
 			signalfile << "\n# Predicted central numbers (need from all backgrounds)\n";
 			signalfile << "rate = "; for(int i=0;i<NSB;i++){ signalfile << h1->GetBinContent(i+1) << " "; } signalfile << "\n";
 
-			signalfile << "\n# Control sample events for lost lepton; Raw MC yields for Zinv and ttZ; No need from had. tau and QCD (will be ignored).\n";
 			signalfile << "cs_event = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
-			signalfile << "contam = "; for(int i=0;i<NSB;i++){ signalfile << "0.01" << " "; } signalfile << "\n";
+			signalfile << "contam = "; for(int i=0;i<NSB;i++){ signalfile << "0.0000" << " "; } signalfile << "\n";
 
-			signalfile << "\n# Average weight for lost lepton, Zinv and ttZ: avg_weight x cs_event = rate. Will be ignored for had. tau and QCD.\n";
 			signalfile << "avg_weight = "; for(int i=0;i<NSB;i++){ signalfile << TF_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
 
 			//signalfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinErrorUp(i+1) / raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
 			//signalfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinErrorLow(i+1) / raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
 
-			signalfile << "\n# List of all the systematical uncertainties. Do not need combine them. The \"pdf\", \"blackhole\", \"darkmatter\", \"susy\" are keywords to label the different systematic sources (use meaningful names or make comments).\n";
 			signalfile << "syst_lumi_unc_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.025 << " "; } signalfile << "\n";
 			signalfile << "syst_lumi_unc_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.025 << " "; } signalfile << "\n";
 			signalfile << "syst_lepVetoUnc_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.03 << " "; } signalfile << "\n";
