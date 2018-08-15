@@ -137,7 +137,6 @@ int main(int argc, char* argv[]){
 	auto mtb_h=new TH1F("mtb_h","MTb",80,0.0,800.0);
 	auto mtb_highdm_h=new TH1F("mtb_highdm_h","MTb high dm",80,0.0,800.0);
 	auto mtb_no_HT_h=new TH1F("mtb_no_HT_h","MTb in loose baseline without HT cut",80,0.0,800.0);
-	auto mtb_CSV_no_HT_h=new TH1F("mtb_CSV_no_HT_h","MTb_CSV in loose baseline without HT cut",80,0.0,800.0);
 	auto mtb_uc_h=new TH1F("mtb_uc_h","MTb (No Cuts)",80,0.0,800.0);
 
 	// Other
@@ -176,18 +175,16 @@ int main(int argc, char* argv[]){
 	auto search_bin_team_A_highdm_MTb140_MT2_singleMuCR_h=new TH1F("search_bin_team_A_highdm_MTb140_MT2_singleMuCR_h","search bin team A high dM, MTb = 140, MT2 >200 single muon control region",51,53.0,104.0);
 	auto search_bin_team_A_highdm_MTb140_MT2_singleElCR_h=new TH1F("search_bin_team_A_highdm_MTb140_MT2_singleElCR_h","search bin team A high dM, MTb = 140, MT2 >200 single electron control region",51,53.0,104.0);
 
-	auto jpt_h=new TH1F("jpt_h","Leading Jet Pt (Baseline Cuts)",80,0.0,400.0);
 	auto jpt_eta_2p5_3p0_h=new TH1F("jpt_eta_2p5_3p0_h","all jets Pt (Baseline Cuts), 2.5 < eta < 3.0",80,0.0,400.0);
 	auto jpt_eta_2p5_3p0_no_HT_h=new TH1F("jpt_eta_2p5_3p0_no_HT_h","all jets Pt (Baseline Cuts no HT), 2.5 < eta < 3.0",80,0.0,400.0);
 	auto nbottom_h=new TH1F("nbottom_h","b Jet Count (Baseline Cuts)",8,0.0,8.0);
-	auto bottom_pt_h=new TH1F("bottom_pt_h","Leading b Jet Pt (Baseline Cuts)",80,0.0,400.0);
 	auto ntop_h=new TH1F("ntop_h","Number of Tops (Baseline Cuts)",8,0.0,8.0);
 	auto njets_h=new TH1F("njets_h","Number of Jets (Baseline Cuts)",30,0.0,30.0);
 	auto njetspt20_h=new TH1F("njetspt20_h","Number of Jets above PT=20 (Baseline Cuts)",15,0.0,15.0);
 	auto njetspt30_h=new TH1F("njetspt30_h","Number of Jets above PT=30 (Baseline Cuts)",15,0.0,15.0);
 	auto HT_h=new TH1F("HT_h","HT (Baseline Cuts)",100,0.0,3000.0);
 	auto genHT_h=new TH1F("genHT_h","Gen Level HT (Baseline Cuts)",100,0.0,3000.0);
-	auto genmet_h=new TH1F("genmet_h","Gen Level MET (Baseline Cuts)",80,0.0,400.0);
+	auto genmet_h=new TH1F("genmet_h","Gen Level MET (Baseline Cuts)",80,0.0,1600.0);
 
 	auto nbottompt20_no_mtb_h=new TH1F("nbottompt20_no_mtb_h","number of bottom without MTb cut",8,0.0,8.0);
 	auto nbottompt20_140_h=new TH1F("nbottompt20_140_h","number of bottom when MTb > 140",8,0.0,8.0);
@@ -317,13 +314,12 @@ int main(int argc, char* argv[]){
 		int nMuons = tr.getVar<int>("nMuons_CUT");
 		int ntop = tr.getVar<int>("nTopCandSortedCnt");
 		int nbjets = tr.getVar<int>("cntCSVS");
-		double mtb1=-10 , mtb2=-10 , mtb=-10 , mt2_b=-10 , mtb_CSV=-10;
+		double mtb=-10 , mt2_b=-10;
 		int nbottompt20=0 , nbottompt30=0 , njetspt20=0 , njetspt30=0 , njetspt50=0;
 		int ntop_merge=0 , ntop_w=0 , ntop_res=0;
 		double HT = tr.getVar<double>("HT");
 		double S_met = met / sqrt(HT);
 		double genHT = tr.getVar<double>("genHT");
-		double jpt = 0 , bottom_pt = 0; 
 		double bad_b_csv = 0;
 		TLorentzVector bad_b_tlv;
 		double b_CSV_1 = 0, b_CSV_2 = 0;
@@ -331,7 +327,6 @@ int main(int argc, char* argv[]){
 
 		int SB_index = SB.find_Binning_Index(nbjets, ntop, mt2, met, HT);
 		std::map<int, std::vector<TLorentzVector>> mTopJets = tr.getMap <int, std::vector<TLorentzVector>> ("mTopJets");
-		int n_dPhi_p5 = 0;
 
 		const std::vector<int>& PdgId = tr.getVec<int>("genDecayPdgIdVec");
 		const std::vector<int>& MomRefId = tr.getVec<int>("genDecayMomRefVec");
@@ -358,20 +353,18 @@ int main(int argc, char* argv[]){
 		for(int index=0; index < njets ; index++)
 		{
 			TLorentzVector tlv = jetsLVec[index];
-			double rjbt = rjbt_vec[index];
+			double rjbt = rjbt_vec[index];		//rjbt stands for reco jet b tag value
 			double tlv_Phi = tlv.Phi();
 			double tlv_Pt = tlv.Pt();
 			double tlv_Eta = tlv.Eta();
 			double dPhi = tlv_Phi - metphi;
 
-			if(index == 0) jpt = tlv_Pt;
 			if(fabs(tlv_Eta) <= 2.4 && tlv_Pt >= 20)
 			{
 				njetspt20++;
 				jetsLVec_pt20.push_back(tlv);
 				if (tlv_Pt >= 30) njetspt30++;
 				if (tlv_Pt >= 50) njetspt50++;
-				if (njetspt20 < 5 && fabs(dPhi) > 0.5) n_dPhi_p5 ++;
 			}
 
 			if(fabs(tlv_Eta) > 2.5 && fabs(tlv_Eta) < 3.0 && tlv_Pt >= 20) jpt_eta_2p5_3p0.push_back(tlv_Pt); 
@@ -400,20 +393,9 @@ int main(int argc, char* argv[]){
 				b_CSV_2_index = index;
 			}
 
-			double MT = sqrt(2*tlv_Pt*met*(1-cos(dPhi)));
-
 			b_jetsLVec.push_back(tlv);
 			nbottompt20++;
 			if(tlv_Pt > 30) nbottompt30++;
-			if(nbottompt20 == 1)
-			{
-				bottom_pt = tlv_Pt;
-				mtb1=MT;
-			}
-			if(nbottompt20 == 2)
-			{
-				mtb2=MT;
-			}
 		} // End Sub-Loop Over Jets
 
 		if(nbottompt30 != nbjets) std::cout << "nbottom (pt > 30) = " << nbottompt30 << " nbjets = " << nbjets << std::endl;
@@ -432,14 +414,13 @@ int main(int argc, char* argv[]){
 		//  Description:  
 		// ===========================================================================
 
-		TLorentzVector fatJet1LVec(0, 0, 0,0);
-		TLorentzVector fatJet2LVec(0, 0, 0,0);
+		TLorentzVector fatJet1LVec(0, 0, 0, 0);
+		TLorentzVector fatJet2LVec(0, 0, 0, 0);
 
 		if (b_jetsLVec.size() == 0)
 		{
 			mt2_b = 0.0;
-			mtb= 0.0; 
-			mtb_CSV= 0.0; 
+			mtb = 0.0; 
 		}
 
 		if (b_jetsLVec.size() == 1)
@@ -448,8 +429,10 @@ int main(int argc, char* argv[]){
 			fatJet2LVec = bad_b_tlv;
 
 			mt2_b = blv.coreMT2calc(fatJet1LVec, fatJet2LVec);
-			mtb = mtb1;
-			mtb_CSV = mtb1;
+			double tlv_Pt_1 = jetsLVec[b_CSV_1_index].Pt();
+			double tlv_Phi_1 = jetsLVec[b_CSV_1_index].Phi();
+			double MT_1 = sqrt(2*tlv_Pt_1*met*(1-cos(tlv_Phi_1 - metphi)));
+			mtb = MT_1;
 		}
 		if (b_jetsLVec.size() >= 2)
 		{
@@ -465,7 +448,6 @@ int main(int argc, char* argv[]){
 
 			mt2_b = cachedMT2vec.front();
 			//    return cachedMT2vec.back();
-			mtb = std::min(mtb1,mtb2);
 
 			double tlv_Pt_1 = jetsLVec[b_CSV_1_index].Pt();
 			double tlv_Phi_1 = jetsLVec[b_CSV_1_index].Phi();
@@ -473,10 +455,8 @@ int main(int argc, char* argv[]){
 			double tlv_Pt_2 = jetsLVec[b_CSV_2_index].Pt();
 			double tlv_Phi_2 = jetsLVec[b_CSV_2_index].Phi();
 			double MT_2 = sqrt(2*tlv_Pt_2*met*(1-cos(tlv_Phi_2 - metphi)));
-			mtb_CSV = std::min(MT_1,MT_2);
+			mtb = std::min(MT_1,MT_2);
 		}
-
-		if (b_jetsLVec.size() < 3 && mtb != mtb_CSV) std::cout << "mtb = " << mtb << " mtb_CSV = " << mtb_CSV << std::endl;
 
 		//std::cout << "no cut mtb = " << mtb << " mt2_b " << mt2_b << std::endl;
 
@@ -514,12 +494,8 @@ int main(int argc, char* argv[]){
 		bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && passnJets && tr.getVar<bool>("passdPhis") && nbjets > 0 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
 		bool pass_baseline=(pass_baseline_no_MT2 && passMT2);		//baseline for SUS-16-050
 		bool pass_baseline_singleLeptCR = (passMT2 && passnJets && tr.getVar<bool>("passdPhis") && nbjets > 0 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") );
-
-		if ((n_dPhi_p5 == 4 && !passdphi_highdm) || (passdphi_highdm && n_dPhi_p5 != 4))
-		std::cout << "number of jets pt > 20, dphi (MET phi) > 0.5 = " << n_dPhi_p5 << std::endl;
-
-		bool pass_high_dM_baseline=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passMET") && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 5 && n_dPhi_p5 == 4 && nbottompt20 >=1 && tr.getVar<bool>("passHT"));		//baseline for SUS-16-049 high dm plus HT cut 
-		bool pass_high_dM_baseline_singleLeptCR=(tr.getVar<bool>("passMET") && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 5 && n_dPhi_p5 == 4 && nbottompt20 >=1 && tr.getVar<bool>("passHT"));		//baseline without lept veto for SUS-16-049 high dm plus HT cut
+		bool pass_high_dM_baseline=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passMET") && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 5 && passdphi_highdm && nbottompt20 >=1 && tr.getVar<bool>("passHT"));		//baseline for SUS-16-049 high dm plus HT cut 
+		bool pass_high_dM_baseline_singleLeptCR=(tr.getVar<bool>("passMET") && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 5 && passdphi_highdm && nbottompt20 >=1 && tr.getVar<bool>("passHT"));		//baseline without lept veto for SUS-16-049 high dm plus HT cut
 		bool pass_MT2_highdm = (ntop == 0 || (ntop >0 && passMT2));
 		bool pass_mtb_lowdm = (nbottompt20 == 0 || (nbottompt20 >0 && mtb <175)); 		//SUS-16-049, low dm, mtb cut
 		bool pass_ISR = (ISRpt > 200 && fabs(ISRLVec.at(0).Eta()) < 2.4 && fabs(ISRLVec.at(0).Phi() - metphi) > 2); 		//SUS-16-049, low dm, ISR cut
@@ -654,8 +630,6 @@ int main(int argc, char* argv[]){
 			HT_h->Fill(HT,evtWeight);
 			genHT_h->Fill(genHT,evtWeight);
 			genmet_h->Fill(genmet,evtWeight);
-			jpt_h->Fill(jpt,evtWeight);
-			bottom_pt_h->Fill(bottom_pt,evtWeight);
 			if(jpt_eta_2p5_3p0.size() == 0) jpt_eta_2p5_3p0_h->Fill(0.0,evtWeight);
 			else jpt_eta_2p5_3p0_h->Fill(jpt_eta_2p5_3p0.at(0),evtWeight);
 
@@ -665,7 +639,6 @@ int main(int argc, char* argv[]){
 		if(pass_loose_baseline_no_HT)
 		{
 			mtb_no_HT_h->Fill(mtb,evtWeight);
-			mtb_CSV_no_HT_h->Fill(mtb_CSV,evtWeight);
 			mt2_no_mtb_h->Fill(mt2,evtWeight);
 			nbottompt20_no_mtb_h->Fill(nbottompt20,evtWeight);
 			nbottompt30_no_mtb_h->Fill(nbottompt30,evtWeight);
@@ -920,7 +893,6 @@ int main(int argc, char* argv[]){
 	jpt_eta_2p5_3p0_h->Write();
 	jpt_eta_2p5_3p0_no_HT_h->Write();
 	mtb_no_HT_h->Write();
-	mtb_CSV_no_HT_h->Write();
 	mtb_highdm_h->Write();
 	mt2_no_mtb_h->Write();
 	nbottompt20_no_mtb_h->Write();
@@ -995,10 +967,8 @@ int main(int argc, char* argv[]){
 
 	met_h->Write();
 	genmet_h->Write();
-	jpt_h->Write();
 	nbottom_h->Write();
 	ntop_h->Write();
-	bottom_pt_h->Write();
 	mt2_h->Write();
 	mt2_b_h->Write();
 	mtb_h->Write();
