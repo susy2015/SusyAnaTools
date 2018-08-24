@@ -84,6 +84,7 @@ public:
     BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");
     ~BaselineVessel();
 
+    inline std::string UseNoLepVar(std::string varname) const;
     void PassBaseline();
     bool passNoiseEventFilterFunc();
     bool passQCDHighMETFilterFunc();

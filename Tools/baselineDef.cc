@@ -84,6 +84,7 @@ bool BaselineVessel::UseLepCleanJets()
   jetVecLabel           = "prodJetsNoLep_jetsLVec";
   CSVVecLabel           = "prodJetsNoLep_recoJetsCSVv2";
   qgLikehoodLabel       = "prodJetsNoLep_qgLikelihood";
+  jetVecLabelAK8        = "prodJetsNoLep_puppiJetsLVec";
   return true;
 }       // -----  end of function BaselineVessel::UseLepCleanJets  -----
 
@@ -104,6 +105,21 @@ bool BaselineVessel::OpenWMassCorrFile()
   }
   return true;
 }       // -----  end of function BaselineVessel::OpenWMassCorrFile  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::UseNoLepVar
+//  Description:  /* cursor */
+// ===========================================================================
+std::string BaselineVessel::UseNoLepVar(std::string varname) const
+{
+  if (UseLepCleanJet)
+    return "prodJetsNoLep_" + varname;
+  else
+    return varname;
+}       // -----  end of function BaselineVessel::UseNoLepVar  -----
+
+
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::SetupTopTagger
@@ -138,37 +154,38 @@ void BaselineVessel::prepareDeepTopTagger()
   tr->registerDerivedVec("qgLikelihood_forTagger" + firstSpec, qgLikelihood_forTagger);
 
   ttUtility::ConstAK4Inputs<float> AK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger);
-  AK4Inputs.addSupplamentalVector("qgPtD",                               tr->getVec<float>("qgPtD"));
-  AK4Inputs.addSupplamentalVector("qgAxis1",                             tr->getVec<float>("qgAxis1"));
-  AK4Inputs.addSupplamentalVector("qgAxis2",                             tr->getVec<float>("qgAxis2"));
-  const std::vector<int> &qgMult_i = tr->getVec<int>("qgMult");
+  AK4Inputs.addSupplamentalVector("qgPtD",                               tr->getVec<float>(UseNoLepVar("qgPtD")));
+  AK4Inputs.addSupplamentalVector("qgAxis1",                             tr->getVec<float>(UseNoLepVar("qgAxis1")));
+  AK4Inputs.addSupplamentalVector("qgAxis2",                             tr->getVec<float>(UseNoLepVar("qgAxis2")));
+  const std::vector<int> &qgMult_i = tr->getVec<int>(UseNoLepVar("qgMult"));
   const std::vector<float> qgMult_f(qgMult_i.begin(), qgMult_i.end());
   AK4Inputs.addSupplamentalVector("qgMult",                              qgMult_f);
-  AK4Inputs.addSupplamentalVector("recoJetschargedHadronEnergyFraction", tr->getVec<float>("recoJetschargedHadronEnergyFraction"));
-  AK4Inputs.addSupplamentalVector("recoJetschargedEmEnergyFraction",     tr->getVec<float>("recoJetschargedEmEnergyFraction"));
-  AK4Inputs.addSupplamentalVector("recoJetsneutralEmEnergyFraction",     tr->getVec<float>("recoJetsneutralEmEnergyFraction"));
-  AK4Inputs.addSupplamentalVector("recoJetsmuonEnergyFraction",          tr->getVec<float>("recoJetsmuonEnergyFraction"));
-  AK4Inputs.addSupplamentalVector("recoJetsHFHadronEnergyFraction",      tr->getVec<float>("recoJetsHFHadronEnergyFraction"));
-  AK4Inputs.addSupplamentalVector("recoJetsHFEMEnergyFraction",          tr->getVec<float>("recoJetsHFEMEnergyFraction"));
-  AK4Inputs.addSupplamentalVector("recoJetsneutralEnergyFraction",       tr->getVec<float>("recoJetsneutralEnergyFraction"));
-  AK4Inputs.addSupplamentalVector("PhotonEnergyFraction",                tr->getVec<float>("PhotonEnergyFraction"));
-  AK4Inputs.addSupplamentalVector("ElectronEnergyFraction",              tr->getVec<float>("ElectronEnergyFraction"));
-  AK4Inputs.addSupplamentalVector("ChargedHadronMultiplicity",           tr->getVec<float>("ChargedHadronMultiplicity"));
-  AK4Inputs.addSupplamentalVector("NeutralHadronMultiplicity",           tr->getVec<float>("NeutralHadronMultiplicity"));
-  AK4Inputs.addSupplamentalVector("PhotonMultiplicity",                  tr->getVec<float>("PhotonMultiplicity"));
-  AK4Inputs.addSupplamentalVector("ElectronMultiplicity",                tr->getVec<float>("ElectronMultiplicity"));
-  AK4Inputs.addSupplamentalVector("MuonMultiplicity",                    tr->getVec<float>("MuonMultiplicity"));
-  AK4Inputs.addSupplamentalVector("DeepCSVb",                            tr->getVec<float>("DeepCSVb"));
-  AK4Inputs.addSupplamentalVector("DeepCSVc",                            tr->getVec<float>("DeepCSVc"));
-  AK4Inputs.addSupplamentalVector("DeepCSVl",                            tr->getVec<float>("DeepCSVl"));
-  AK4Inputs.addSupplamentalVector("DeepCSVbb",                           tr->getVec<float>("DeepCSVbb"));
-  AK4Inputs.addSupplamentalVector("DeepCSVcc",                           tr->getVec<float>("DeepCSVcc"));
+  AK4Inputs.addSupplamentalVector("recoJetschargedHadronEnergyFraction", tr->getVec<float>(UseNoLepVar("recoJetschargedHadronEnergyFraction")));
+  AK4Inputs.addSupplamentalVector("recoJetschargedEmEnergyFraction",     tr->getVec<float>(UseNoLepVar("recoJetschargedEmEnergyFraction")));
+  AK4Inputs.addSupplamentalVector("recoJetsneutralEmEnergyFraction",     tr->getVec<float>(UseNoLepVar("recoJetsneutralEmEnergyFraction")));
+  AK4Inputs.addSupplamentalVector("recoJetsmuonEnergyFraction",          tr->getVec<float>(UseNoLepVar("recoJetsmuonEnergyFraction")));
+  AK4Inputs.addSupplamentalVector("recoJetsHFHadronEnergyFraction",      tr->getVec<float>(UseNoLepVar("recoJetsHFHadronEnergyFraction")));
+  AK4Inputs.addSupplamentalVector("recoJetsHFEMEnergyFraction",          tr->getVec<float>(UseNoLepVar("recoJetsHFEMEnergyFraction")));
+  AK4Inputs.addSupplamentalVector("recoJetsneutralEnergyFraction",       tr->getVec<float>(UseNoLepVar("recoJetsneutralEnergyFraction")));
+  AK4Inputs.addSupplamentalVector("PhotonEnergyFraction",                tr->getVec<float>(UseNoLepVar("PhotonEnergyFraction")));
+  AK4Inputs.addSupplamentalVector("ElectronEnergyFraction",              tr->getVec<float>(UseNoLepVar("ElectronEnergyFraction")));
+  AK4Inputs.addSupplamentalVector("ChargedHadronMultiplicity",           tr->getVec<float>(UseNoLepVar("ChargedHadronMultiplicity")));
+  AK4Inputs.addSupplamentalVector("NeutralHadronMultiplicity",           tr->getVec<float>(UseNoLepVar("NeutralHadronMultiplicity")));
+  AK4Inputs.addSupplamentalVector("PhotonMultiplicity",                  tr->getVec<float>(UseNoLepVar("PhotonMultiplicity")));
+  AK4Inputs.addSupplamentalVector("ElectronMultiplicity",                tr->getVec<float>(UseNoLepVar("ElectronMultiplicity")));
+  AK4Inputs.addSupplamentalVector("MuonMultiplicity",                    tr->getVec<float>(UseNoLepVar("MuonMultiplicity")));
+  AK4Inputs.addSupplamentalVector("DeepCSVb",                            tr->getVec<float>(UseNoLepVar("DeepCSVb")));
+  AK4Inputs.addSupplamentalVector("DeepCSVc",                            tr->getVec<float>(UseNoLepVar("DeepCSVc")));
+  AK4Inputs.addSupplamentalVector("DeepCSVl",                            tr->getVec<float>(UseNoLepVar("DeepCSVl")));
+  AK4Inputs.addSupplamentalVector("DeepCSVbb",                           tr->getVec<float>(UseNoLepVar("DeepCSVbb")));
+  AK4Inputs.addSupplamentalVector("DeepCSVcc",                           tr->getVec<float>(UseNoLepVar("DeepCSVcc")));
 
 
   const std::vector<TLorentzVector> &AK8JetLV = tr->getVec<TLorentzVector>(jetVecLabelAK8);
-  const std::vector<float> &AK8JetSoftdropMass = tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass");
-  const std::vector<float> &AK8JetDeepAK8Top = tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_deepAK8btop" : "deepAK8btop");
-  const std::vector<std::vector<TLorentzVector>> &AK8SubjetLV = tr->getVec<std::vector<TLorentzVector> >(UseLepCleanJet ? "prodJetsNoLep_puppiAK8SubjetLVec" : "puppiAK8SubjetLVec");
+  const std::vector<float> &AK8JetSoftdropMass = tr->getVec<float>(UseNoLepVar("puppisoftDropMass"));
+  const std::vector<float> &AK8JetDeepAK8Top = tr->getVec<float>(UseNoLepVar("deepAK8btop"));
+  const std::vector<std::vector<TLorentzVector>> &AK8SubjetLV = tr->getVec<std::vector<TLorentzVector> >(UseNoLepVar("puppiAK8SubjetLVec"));
+
   //Create AK8 inputs object
   ttUtility::ConstAK8Inputs<float> AK8Inputs(
       AK8JetLV,
@@ -216,12 +233,12 @@ void BaselineVessel::prepareTopTagger()
     //construct vector of constituents 
     ttUtility::ConstAK4Inputs<float> myConstAK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger, *qgLikelihood_forTagger);
     ttUtility::ConstAK8Inputs<float> myConstAK8Inputs(
-        tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec"), 
-        tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppitau1" : "puppitau1"),
-        tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppitau2" : "puppitau2"),
-        tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppitau3" : "puppitau3"),
-        tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass"),
-        tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiSubJetsLVec" : "puppiSubJetsLVec"));
+        tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec")),
+        tr->getVec<float>(UseNoLepVar("puppitau1")),
+        tr->getVec<float>(UseNoLepVar("puppitau2")),
+        tr->getVec<float>(UseNoLepVar("puppitau3")),
+        tr->getVec<float>(UseNoLepVar("puppisoftDropMass")),
+        tr->getVec<TLorentzVector>(UseNoLepVar("puppiSubJetsLVec")));
     if (WMassCorFile != NULL)
     {
       myConstAK8Inputs.setWMassCorrHistos (puppisd_corrGEN     , puppisd_corrRECO_cen, puppisd_corrRECO_for);
@@ -552,12 +569,12 @@ bool BaselineVessel::FlagAK8Jets()
 {
   // AK8 + Ak4 for W + jet
   ttUtility::ConstAK8Inputs<float> myConstAK8Inputs(
-      tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec"), 
-      tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppitau1" : "puppitau1"),
-      tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppitau2" : "puppitau2"),
-      tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppitau3" : "puppitau3"),
-      tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass"),
-      tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiSubJetsLVec" : "puppiSubJetsLVec"));
+      tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec")),
+      tr->getVec<float>(UseNoLepVar("puppitau1")),
+      tr->getVec<float>(UseNoLepVar("puppitau2")),
+      tr->getVec<float>(UseNoLepVar("puppitau3")),
+      tr->getVec<float>(UseNoLepVar("puppisoftDropMass")),
+      tr->getVec<TLorentzVector>(UseNoLepVar("puppiSubJetsLVec")));
   if (WMassCorFile != NULL)
   {
     myConstAK8Inputs.setWMassCorrHistos (puppisd_corrGEN     , puppisd_corrRECO_cen, puppisd_corrRECO_for);
@@ -682,7 +699,7 @@ AK8Flag BaselineVessel::FlagAK8FromTagger(Constituent &ak8 )
 // ===========================================================================
 bool BaselineVessel::GetWAlone() const
 {
-  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec");
+  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec"));
   std::vector<TLorentzVector> *WAlone= new std::vector<TLorentzVector>();
   for(unsigned int i=0; i < vAK8Flag->size(); ++i)
   {
@@ -703,7 +720,7 @@ bool BaselineVessel::GetWAlone() const
 // ===========================================================================
 bool BaselineVessel::GetISRJet() const
 {
-  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec");
+  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec"));
   std::vector<TLorentzVector> *ISRJet = new std::vector<TLorentzVector>();
   std::map<float, TLorentzVector> ISRJetAll;
 
@@ -754,12 +771,12 @@ bool BaselineVessel::GetTopCombs() const
 
   // AK8 + Ak4 for W + jet
   ttUtility::ConstAK8Inputs<float> myConstAK8Inputs(
-      tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiJetsLVec" : "puppiJetsLVec"), 
-      tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppitau1" : "puppitau1"),
-      tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppitau2" : "puppitau2"),
-      tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppitau3" : "puppitau3"),
-      tr->getVec<float>(UseLepCleanJet ? "prodJetsNoLep_puppisoftDropMass" : "puppisoftDropMass"),
-      tr->getVec<TLorentzVector>(UseLepCleanJet ? "prodJetsNoLep_puppiSubJetsLVec" : "puppiSubJetsLVec"));
+      tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec")),
+      tr->getVec<float>(UseNoLepVar("puppitau1")),
+      tr->getVec<float>(UseNoLepVar("puppitau2")),
+      tr->getVec<float>(UseNoLepVar("puppitau3")),
+      tr->getVec<float>(UseNoLepVar("puppisoftDropMass")),
+      tr->getVec<TLorentzVector>(UseNoLepVar("puppiSubJetsLVec")));
   std::vector<Constituent> AK8constituents;
   myConstAK8Inputs.packageConstituents(AK8constituents);
 
@@ -1022,6 +1039,7 @@ float BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLor
 void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
+  UseLepCleanJets();
   PassBaseline();
   FlagAK8Jets();
   GetSoftbJets();
