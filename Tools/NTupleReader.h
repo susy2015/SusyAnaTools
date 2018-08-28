@@ -30,6 +30,8 @@
 #pragma link C++ class vector<TLorentzVector>+;
 #endif
 
+#include <iostream>
+
 /* This class is designed to be a simple interface to reading stop NTuples
    
    To use this class simply open the desired Tree as a TTree or TChain and pass it 
@@ -312,12 +314,17 @@ public:
         }
     }
  
+    void setPrefix(std::string pre){
+        prefix_ = pre;
+    }
  
 private:
     // private variables for internal use
     TTree *tree_;
     int nevt_, evtProcessed_;
     bool isUpdateDisabled_, reThrow_, convertHackActive_;
+
+    std::string prefix_ = "";
     
     // stl collections to hold branch list and associated info
     mutable std::unordered_map<std::string, Handle> branchMap_;
@@ -378,8 +385,16 @@ private:
 
     template<typename T, typename V> T& getTupleObj(const std::string& var, const V& v_tuple) const
     {
+        std::string varName;
+
+        if(checkBranch(prefix_+var)){
+            varName = prefix_+var;
+        } else {
+            varName = var;
+        }
+
         //Find variable in the main tuple map 
-        auto tuple_iter = v_tuple.find(var);
+        auto tuple_iter = v_tuple.find(varName);
         bool intuple = tuple_iter != v_tuple.end() ;
 
         //Check that the variable exists and the requested type matches the true variable type
@@ -395,15 +410,15 @@ private:
                 typen='f';
             if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<double>) && tuple_iter->second.type == typeid(std::vector<float>))
                 typen='d';
-            std::string newname = var+"___" + typen;
+            std::string newname = varName+"___" + typen;
             auto tuple_iter = branchVecMap_.find(newname);
             if (tuple_iter != branchVecMap_.end())
                 return *static_cast<T*>(tuple_iter->second.ptr);
         }
-        else if( !intuple && (typeMap_.find(var) != typeMap_.end())) //If it is not loaded, but is a branch in tuple
+        else if( !intuple && (typeMap_.find(varName) != typeMap_.end())) //If it is not loaded, but is a branch in tuple
         {
             //If found in typeMap_, it can be added on the fly
-            TBranch *branch = tree_->FindBranch(var.c_str());
+            TBranch *branch = tree_->FindBranch(varName.c_str());
         
             //If branch not found continue on to throw exception
             if(branch != nullptr)
@@ -411,7 +426,7 @@ private:
                 registerBranch(branch);
         
                 //get iterator
-                tuple_iter = v_tuple.find(var);
+                tuple_iter = v_tuple.find(varName);
         
                 //force read just this branch
                 branch->GetEvent(nevt_ - 1);

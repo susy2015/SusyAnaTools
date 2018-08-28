@@ -51,9 +51,9 @@ if ($TAGGERCFGDIR:q == "") then
 endif
 
 if ! $?LD_LIBRARY_PATH then
-    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/
+    setenv LD_LIBRARY_PATH ./:/uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/
 else
-    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/:${LD_LIBRARY_PATH}
+    setenv LD_LIBRARY_PATH ./:/uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/:${LD_LIBRARY_PATH}
 endif
 
 ## Get the btagging file
@@ -103,8 +103,8 @@ if ( -f $LEGTOPTAGGERFILE && -l $LEGTOPTAGGERFILE ) then
     rm $LEGTOPTAGGERFILE
 endif
 
-mkdir -p $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_noQGL_binaryCSV_v1.0.2 -f $SIMPLETOPTAGGERFILE -d $TAGGERCFGDIR
+#mkdir -p $TAGGERCFGDIR
+#${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
+#${SRC}/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
+#${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_noQGL_binaryCSV_v1.0.2 -f $SIMPLETOPTAGGERFILE -d $TAGGERCFGDIR
 
