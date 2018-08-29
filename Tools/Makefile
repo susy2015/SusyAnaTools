@@ -21,7 +21,8 @@ LD         = g++
 LDFLAGS    =
 
 OPENCV_DIRECTORY = $(CMSSW_BASE)/src/opencv
-LIBS       = $(shell root-config --glibs)
+LIBS_base  = $(shell root-config --glibs)
+LIBS       = $(LIBS_base)
 LIBS      += -L$(CMSSW_BASE)/lib/${SCRAM_ARCH}/ -lTopTaggerTopTagger -lTopTaggerCfgParser
 LIBS      += -L$(OPENCV_DIRECTORY)/lib/ -lopencv_ml -lopencv_core
 
@@ -105,7 +106,10 @@ AliasTest: $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/StopleAlias.o  
 	$(LD) $^ $(LIBS) -o $@
 
 stopNTuple_skim: $(ODIR)/stopNTuple_skim.o
-	$(LD) $^ $(LIBS) $(MT2LIB) -o $@
+	$(LD) $^ $(LIBS_base) -o $@
+
+make_signalcards: $(ODIR)/make_signalcards.o
+	$(LD) $^ $(LIBS_base) -o $@
 
 clean:
 	rm -f $(ODIR)/*.a $(ODIR)/*.so $(ODIR)/*.o $(ODIR)/*.d $(PROGRAMS) core 

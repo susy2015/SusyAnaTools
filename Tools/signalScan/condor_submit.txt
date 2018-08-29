@@ -1,0 +1,11 @@
+universe = vanilla
+Executable = condor.sh
+Output = condor.out
+Error = condor.err
+Log = condor.log
+transfer_input_files = condor.sh, ../stopNTuple_skim, ../FileList/SMS-T2tt_mStop-400to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt
+#transfer_input_files = condor.sh, ../stopNTuple_skim, test.list
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+x509userproxy = $ENV(X509_USER_PROXY)
+

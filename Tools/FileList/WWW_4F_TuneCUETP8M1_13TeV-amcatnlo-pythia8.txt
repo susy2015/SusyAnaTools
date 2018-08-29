@@ -1,0 +1,4 @@
+root://cmseos.fnal.gov//store/user/lpcsusyhad/Stop_production/SoftBjet_PhotonNtuples/WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8/Final16_softBjetPhotonProduction_WWW/171203_180837/0000/stopFlatNtuples_1.root
+root://cmseos.fnal.gov//store/user/lpcsusyhad/Stop_production/SoftBjet_PhotonNtuples/WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8/Final16_softBjetPhotonProduction_WWW/171203_180837/0000/stopFlatNtuples_2.root
+root://cmseos.fnal.gov//store/user/lpcsusyhad/Stop_production/SoftBjet_PhotonNtuples/WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8/Final16_softBjetPhotonProduction_WWW/171203_180837/0000/stopFlatNtuples_3.root
+root://cmseos.fnal.gov//store/user/lpcsusyhad/Stop_production/SoftBjet_PhotonNtuples/WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8/Final16_softBjetPhotonProduction_WWW/171203_180837/0000/stopFlatNtuples_4.root
