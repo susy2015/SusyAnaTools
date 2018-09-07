@@ -80,7 +80,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 bool BaselineVessel::UseLepCleanJets() 
 {
   UseLepCleanJet        = true;
-  jetVecLabel           = "jetsLVecLepCleaned";
+  jetVecLabel           = "prodJetsNoLep_jetsLVec";
   CSVVecLabel           = "prodJetsNoLep_recoJetsCSVv2";
   qgLikehoodLabel       = "prodJetsNoLep_qgLikelihood";
   return true;
@@ -204,7 +204,7 @@ bool BaselineVessel::PredefineSpec()
   }
   else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
-    jetVecLabel = "jetsLVecLepCleaned";
+    jetVecLabel = "prodJetsNoLep_jetsLVec";
     CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
@@ -787,7 +787,7 @@ bool BaselineVessel::passNoiseEventFilterFunc()
     unsigned int hbheIsoNoiseFilter = isfastsim? 1:tr->getVar<unsigned int>("HBHEIsoNoiseFilter");
     int ecalTPFilter = tr->getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
 
-    int jetIDFilter = isfastsim? 1:tr->getVar<int>("looseJetID_NoLep");
+    int jetIDFilter = isfastsim? 1:tr->getVar<unsigned int>("AK4NoLeplooseJetID");
     // new filters
     const unsigned int & BadPFMuonFilter = tr->getVar<unsigned int>("BadPFMuonFilter");
     bool passBadPFMuonFilter = (&BadPFMuonFilter) != nullptr? tr->getVar<unsigned int>("BadPFMuonFilter") !=0 : true;
@@ -1028,7 +1028,7 @@ bool BaselineVessel::GetMHT() const
   // Calculate MHT
   TLorentzVector MHT(0, 0, 0, 0);
   float SumHT = 0.0; //Using jet > 30 , |eta| < 5
-  for(auto &jet : tr->getVec<TLorentzVector>("jetsLVecLepCleaned"))
+  for(auto &jet : tr->getVec<TLorentzVector>("prodJetsNoLep_jetsLVec"))
   {
     if (jet.Pt() >= 30)
     {
