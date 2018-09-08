@@ -194,7 +194,7 @@ bool BaselineVessel::PredefineSpec()
     METLabel = "met_hadtau";
     METPhiLabel = "metphi_hadtau";
     jetVecLabel = "jetsLVec_hadtau";
-    CSVVecLabel = "recoJetsBtag_0_hadtau";
+    CSVVecLabel = "recoJetsCSVv2_hadtau";
   }
   else if( spec.compare("lostlept") == 0)
   {

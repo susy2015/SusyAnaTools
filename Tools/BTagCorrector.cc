@@ -261,7 +261,7 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     if(!tr.checkBranch("genDecayPdgIdVec")) return;
 
     const std::vector<TLorentzVector>& inputJets = tr.getVec<TLorentzVector>("jetsLVec");
-    const std::vector<float>& recoJetsBtag = tr.getVec<float>("recoJetsBtag_0");
+    const std::vector<float>& recoJetsBtag = tr.getVec<float>("recoJetsCSVv2");
     const std::vector<int>& recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
 
     /*************************************************/

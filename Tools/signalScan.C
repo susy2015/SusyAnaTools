@@ -783,7 +783,7 @@ public:
        const double NNPDF_From_Median_Up = tr.getVar<double>("NNPDF_From_Median_Up");
        const double NNPDF_From_Median_Down = tr.getVar<double>("NNPDF_From_Median_Down");
 
-       const std::vector<double> & recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
+       const std::vector<double> & recoJetsBtag = tr.getVec<double>("recoJetsCSVv2");
        const std::vector<int> & recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
        const std::vector<TLorentzVector> & jetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
 
@@ -1506,7 +1506,7 @@ class SystematicPrep{
 
    void systematicPrep(NTupleReader& tr){
       const std::vector<TLorentzVector>& jetsLVec = tr.getVec<TLorentzVector>("jetsLVec");
-      const std::vector<double> & recoJetsBtag = tr.getVec<double>("recoJetsBtag_0");
+      const std::vector<double> & recoJetsBtag = tr.getVec<double>("recoJetsCSVv2");
       const std::vector<double>& recoJetsJecUnc = tr.getVec<double>("recoJetsJecUnc");
 
       const std::vector<double>& metMagUpVec = tr.getVec<double>("metMagUp");
