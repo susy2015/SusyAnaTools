@@ -111,6 +111,7 @@ bool BaselineVessel::OpenWMassCorrFile()
 bool BaselineVessel::SetupTopTagger(std::string CfgFile_)
 {
   toptaggerCfgFile = CfgFile_;
+  std::cout << "In BaselineVessel::SetupTopTagger(std::string CfgFile_): toptaggerCfgFile = " << toptaggerCfgFile << std::endl;
 
   ttPtr.reset(new TopTagger);
   ttPtr->setCfgFile(toptaggerCfgFile);
@@ -161,7 +162,9 @@ void BaselineVessel::prepareTopTagger()
     }
     std::vector<Constituent> constituents = ttUtility::packageConstituents(myConstAK4Inputs, myConstAK8Inputs);
     //run tagger
+    std::cout << "Before ttPtr->runTagger(constituents): consituents.size() = " << constituents.size() << std::endl;
     ttPtr->runTagger(constituents);
+    std::cout << "After ttPtr->runTagger(constituents): consituents.size() = " << constituents.size() << std::endl;
 }
 
 // ===  FUNCTION  ============================================================
@@ -667,13 +670,18 @@ bool BaselineVessel::GetTopCombs() const
   //get output of tagger
   //Only MVA combs so far
   const TopTaggerResults& ttr = ttPtr->getResults();
+  //printf("ttr.getTopCandidates().size() = %d\n", int(ttr.getTopCandidates().size()));
+  std::cout << "ttr.getTopCandidates().size() = " << ttr.getTopCandidates().size() << std::endl;
+  std::cout << "ttr.getUsedConstituents().size() = " << ttr.getUsedConstituents().size() << std::endl;
+  std::cout << "ttr.getTops().size() = " << ttr.getTops().size() << std::endl;
+  
   int i = 0;
-  for(auto tr : ttr.getTopCandidates() )
+  for(auto& topcand : ttr.getTopCandidates() )
   {
-      if (tr.getNConstituents() != 3) continue;
-      vCombs->push_back(tr.P());
+      if (topcand.getNConstituents() != 3) continue;
+      vCombs->push_back(topcand.P());
       std::vector<TLorentzVector> temp;
-      for(auto cons : tr.getConstituents())
+      for(auto cons : topcand.getConstituents())
       {
           temp.push_back(cons->P());
       }

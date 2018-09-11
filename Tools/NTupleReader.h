@@ -392,7 +392,7 @@ private:
             std::string type1 = abi::__cxa_demangle(tuple_iter->second.type.name(),0,0,&status);
             std::string type2 = abi::__cxa_demangle(typeid(typename std::remove_pointer<T>::type).name(),0,0,&status);
             //printf("var %s: %s and %s\n", var.c_str(), demangle<tuple_iter->second.type.name()>(), demangle<typeid(typename std::remove_pointer<T>::type).name()>());
-            printf("var %s: %s and %s\n", var.c_str(), type1.c_str(), type2.c_str());
+            //printf("var %s: %s and %s\n", var.c_str(), type1.c_str(), type2.c_str());
         }
         else
         {
