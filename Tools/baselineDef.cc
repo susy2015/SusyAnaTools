@@ -312,10 +312,7 @@ void BaselineVessel::PassBaseline()
 
 
   // Form TLorentzVector of MET
-  if (tr->getVar<unsigned int>("run") > 312526) // Set weight to 1 for Data
-    metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
-  else
-    metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
+  metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
 
   // Calculate number of leptons
   const std::vector<int> & muonsFlagIDVec = muonsFlagIDLabel.empty()? std::vector<int>(tr->getVec<float>("muonsMiniIso").size(), 1):tr->getVec<int>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
@@ -674,7 +671,7 @@ bool BaselineVessel::GetTopCombs() const
       if (topcand.getNConstituents() != 3) continue;
       vCombs->push_back(topcand.P());
       std::vector<TLorentzVector> temp;
-      for(auto cons : topcand.getConstituents())
+      for(auto& cons : topcand.getConstituents())
       {
           temp.push_back(cons->P());
       }
@@ -816,7 +813,7 @@ bool BaselineVessel::passQCDHighMETFilterFunc()
 {
   std::vector<TLorentzVector> jetsLVec = tr->getVec<TLorentzVector>("jetsLVec");
   std::vector<float> recoJetsmuonEnergyFraction = tr->getVec<float>("recoJetsmuonEnergyFraction");
-  float metphi =0;
+  float metphi = 0;
   if (tr->getVar<unsigned int>("run") > 312526) // Set weight to 1 for Data
   {
     float metphiv = tr->getVar<float>("metphi");
@@ -1041,10 +1038,7 @@ bool BaselineVessel::GetMHT() const
   tr->registerDerivedVar("MHTPhi"+firstSpec, MHT.Phi());
   tr->registerDerivedVar("MHTSig"+firstSpec, MHT.Pt()/ sqrt(SumHT));
 
-  if (tr->getVar<unsigned int>("run") > 3125261) // Set weight to 1 for Data
-    tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<float>(METLabel)/ sqrt(SumHT));
-  else
-    tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<float>(METLabel)/ sqrt(SumHT));
+  tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<float>(METLabel)/ sqrt(SumHT));
   return true;
 }       // -----  end of function BaselineVessel::GetMHT  -----
 
