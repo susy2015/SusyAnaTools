@@ -383,25 +383,6 @@ private:
         //Find variable in the main tuple map 
         auto tuple_iter = v_tuple.find(var);
         bool intuple = tuple_iter != v_tuple.end() ;
-        bool debug = true;
-        int status = 0;
-        if (debug)
-        {
-            if (intuple)
-            {
-                std::string type1 = abi::__cxa_demangle(tuple_iter->second.type.name(),0,0,&status);
-                std::string type2 = abi::__cxa_demangle(typeid(typename std::remove_pointer<T>::type).name(),0,0,&status);
-                printf("var %s: %s and %s\n", var.c_str(), type1.c_str(), type2.c_str());
-            }
-            // debug statements
-            else
-            {
-                printf("In getTupleObj(): The variable %s in not loaded; will try to laod from the tuple.\n", var.c_str());
-            }
-            // force stdout to display now (e.g. before seg fault)
-            fflush(stdout);
-        }
-
 
         //Check that the variable exists and the requested type matches the true variable type
         if(intuple && (tuple_iter->second.type == typeid(typename std::remove_pointer<T>::type)))
