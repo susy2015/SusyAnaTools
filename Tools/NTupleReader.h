@@ -100,6 +100,8 @@ private:
 
         Handle() : ptr(nullptr), deleter(nullptr), type(typeid(nullptr)) {}
 
+        Handle(const Handle& h) : ptr(h.ptr), deleter(h.deleter), type(h.type) {}
+
         Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr)) :  ptr(ptr), deleter(deleter), type(type) {}
 
         void destroy()
@@ -452,12 +454,11 @@ private:
         auto typeIter = typeMap_.find(var);
         if(typeIter != typeMap_.end())
         {
-            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<T>() +"\", but is found with type \"" + typeIter->second + "\"!!!");
-
+            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<typename std::remove_pointer<T>::type>() +"\", but is found with type \"" + typeIter->second + "\"!!!");
         }
         else
         {
-            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<T>() +"\"!!!");
+            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<typename std::remove_pointer<T>::type>() +"\"!!!");
         }
     }
 
