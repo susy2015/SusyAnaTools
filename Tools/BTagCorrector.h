@@ -138,7 +138,7 @@ public:
         {
             isData = (tr.checkBranch("genDecayPdgIdVec")) ? false : true;
             JetsVec = "jetsLVec";
-            BJetsVec = "recoJetsBtag_0";
+            BJetsVec = "recoJetsCSVv2";
             JetsFlavor = "recoJetsFlavor";
         }
         //For stealth group's nTuples

@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 	  
 	  
         const  vector<TLorentzVector> inputJets = tr->getVec<TLorentzVector>("jetsLVec");
-        const vector<float> recoJetsBtag = tr->getVec<float>("recoJetsBtag_0");
+        const vector<float> recoJetsBtag = tr->getVec<float>("recoJetsCSVv2");
         const vector<int> recoJetsFlavor = tr->getVec<int>("recoJetsFlavor");
          
         float iniWeight = tr->getVar<float>("evtWeight");
