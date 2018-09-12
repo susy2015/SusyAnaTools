@@ -394,11 +394,15 @@ private:
             //printf("var %s: %s and %s\n", var.c_str(), demangle<tuple_iter->second.type.name()>(), demangle<typeid(typename std::remove_pointer<T>::type).name()>());
             //printf("var %s: %s and %s\n", var.c_str(), type1.c_str(), type2.c_str());
         }
-        else
-        {
-            printf("var %s not in tuple\n", var.c_str());
-        }
-        fflush(stdout);
+        // debug statements
+        //else
+        //{
+        //    printf("In getTupleObj(): The variable %s in not loaded; will try to laod from the tuple.\n", var.c_str());
+        //}
+
+        // force stdout to display now (e.g. before seg fault)
+        //fflush(stdout);
+
         //Check that the variable exists and the requested type matches the true variable type
         if(intuple && (tuple_iter->second.type == typeid(typename std::remove_pointer<T>::type)))
         {
