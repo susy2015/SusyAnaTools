@@ -813,14 +813,7 @@ bool BaselineVessel::passQCDHighMETFilterFunc()
 {
   std::vector<TLorentzVector> jetsLVec = tr->getVec<TLorentzVector>("jetsLVec");
   std::vector<float> recoJetsmuonEnergyFraction = tr->getVec<float>("recoJetsmuonEnergyFraction");
-  float metphi = 0;
-  if (tr->getVar<unsigned int>("run") > 312526) // Set weight to 1 for Data
-  {
-    float metphiv = tr->getVar<float>("metphi");
-    metphi = static_cast<float>(metphiv);
-  }
-  else
-    metphi = tr->getVar<float>("metphi");
+  float metphi = tr->getVar<float>("metphi");
 
   int nJetsLoop = recoJetsmuonEnergyFraction.size();
   std::vector<float> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metphi, nJetsLoop, AnaConsts::dphiArr);
