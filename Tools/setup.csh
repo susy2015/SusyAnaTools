@@ -6,6 +6,7 @@ if ($? != 0) then
 endif
 
 set TAGGERCFGDIR=""
+set OPENCV_DIRECTORY="/uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/"
 
 # Now we do the eval part. As the result is a list, we need braces. But they
 # must be quoted, because they must be evaluated when the eval is called.
@@ -51,9 +52,9 @@ if ($TAGGERCFGDIR:q == "") then
 endif
 
 if ! $?LD_LIBRARY_PATH then
-    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/
+    setenv LD_LIBRARY_PATH ./:${OPENCV_DIRECTORY}/lib/:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/
 else
-    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/:${LD_LIBRARY_PATH}
+    setenv LD_LIBRARY_PATH ./:${OPENCV_DIRECTORY}/lib/:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/:${LD_LIBRARY_PATH}
 endif
 
 ## Get the btagging file

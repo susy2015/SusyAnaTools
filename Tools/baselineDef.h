@@ -17,6 +17,7 @@ enum AK8Flag : unsigned
 {
   NoTag,
   TopTag,
+  WTag,
   WinTopTag,
   WAloneTag,
   NoTagLooseb,
@@ -60,6 +61,7 @@ public:
     bool incZEROtop;
     bool UseLepCleanJet;
     bool UseDeepTagger;
+    bool UseDeepCSV;
 
     std::string jetVecLabel;
     std::string CSVVecLabel;
@@ -93,6 +95,7 @@ public:
     bool UseLepCleanJets();
     bool OpenWMassCorrFile();
 
+    bool FlagDeepAK8Jets();
     void operator()(NTupleReader& tr);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
@@ -114,6 +117,8 @@ public:
     bool FlagAK8Jets();
     AK8Flag FlagAK8FromCSV(Constituent &ak8) const;
     AK8Flag FlagAK8FromTagger(Constituent &ak8 );
+    AK8Flag FlagAK8DeepFromCSV(unsigned int AK8index) const;
+    bool CombDeepCSV();
     bool GetISRJet() const;
     bool GetWAlone() const;
     bool GetSoftbJets();

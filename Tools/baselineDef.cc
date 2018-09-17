@@ -18,8 +18,9 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   bToFake               = 1;
   debug                 = false;
   incZEROtop            = false;
-  UseLepCleanJet        = false;
+  UseLepCleanJet        = true;
   UseDeepTagger         = true;
+  UseDeepCSV            = true;
   jetVecLabel           = "jetsLVec";
   CSVVecLabel           = "recoJetsCSVv2";
   METLabel              = "met";
@@ -39,6 +40,10 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   passBaselineNoTag     = true;
   passBaselineNoLepVeto = true;
   metLVec.SetPtEtaPhiM(0, 0, 0, 0);
+  if (UseDeepCSV)
+  {
+    CSVVecLabel           = "DeepCSVcomb";
+  }
 
   if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
 
@@ -71,6 +76,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   PredefineSpec();
 
   SetupTopTagger(toptaggerCfgFile);
+
 }
 
 // ===  FUNCTION  ============================================================
@@ -85,6 +91,10 @@ bool BaselineVessel::UseLepCleanJets()
   CSVVecLabel           = "prodJetsNoLep_recoJetsCSVv2";
   qgLikehoodLabel       = "prodJetsNoLep_qgLikelihood";
   jetVecLabelAK8        = "prodJetsNoLep_puppiJetsLVec";
+  if (UseDeepCSV)
+  {
+    CSVVecLabel           = "prodJetsNoLep_DeepCSVcomb";
+  }
   return true;
 }       // -----  end of function BaselineVessel::UseLepCleanJets  -----
 
@@ -409,6 +419,15 @@ void BaselineVessel::PassBaseline()
 
   // Calculate number of jets and b-tagged jets
   int cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), AnaConsts::cutCSVS, AnaConsts::bTagArr);
+  // TODO: Move the cut value to map
+  // 2016 MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco#Data_MC_Scale_Factors_period_dep
+  // 2017 MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation94X
+  // 2016 MC: Medium WP 0.6324, Tight WP 0.8958
+  // Using Medium WP from Koushik's last study // https://indico.cern.ch/event/597712/contributions/2831328/attachments/1578403/2493318/AN2017_btag2.pdf
+  if (UseDeepCSV) 
+  {
+    cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), 0.6324, AnaConsts::bTagArr); 
+  }
   int cntNJetsPt50Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt50Eta24Arr);
   int cntNJetsPt30Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt30Eta24Arr);
   int cntNJetsPt20Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt20Eta24Arr);
@@ -601,6 +620,48 @@ bool BaselineVessel::FlagAK8Jets()
   return true;
 }       // -----  end of function BaselineVessel::FlagAK8Jets  -----
 
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::FlagDeepAK8Jets
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::FlagDeepAK8Jets()
+{
+  const std::vector<TLorentzVector> &ak8s =  tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec"));
+  const std::vector<float> &btops =  tr->getVec<float>(UseNoLepVar("deepAK8btop"));
+  const std::vector<float> &bWs =  tr->getVec<float>(UseNoLepVar("deepAK8bW"));
+  vAK8Flag = new std::vector<unsigned>();
+  
+  for (unsigned int i = 0; i < ak8s.size(); ++i)
+  {
+    if (btops.at(i) > 0.8)
+    {
+      vAK8Flag->push_back(TopTag);
+    }
+    else if (bWs.at(i) > 0.8)
+    {
+      vAK8Flag->push_back(WTag);
+    }
+    else
+    {
+      unsigned flag = FlagAK8DeepFromCSV(i);
+      vAK8Flag->push_back(NoTag);
+    }
+  }
+
+  std::vector<TLorentzVector> *vWs= new std::vector<TLorentzVector>();
+  for(unsigned int i=0; i < vAK8Flag->size(); ++i)
+  {
+    if (vAK8Flag->at(i) == WAloneTag)
+    {
+      vWs->push_back(ak8s.at(i));
+    }
+  }
+  tr->registerDerivedVec("vWs"+spec, vWs);
+  tr->registerDerivedVec("vAK8Flag"+spec, vAK8Flag);
+
+  GetISRJet();
+  return true;
+}       // -----  end of function BaselineVessel::FlagDeepAK8Jets  -----
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::FlagAK8FromCSV
@@ -632,6 +693,44 @@ AK8Flag BaselineVessel::FlagAK8FromCSV(Constituent &ak8) const
   return NoTagNob;
 }       // -----  end of function BaselineVessel::FlagAK8FromCSV  -----
 
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::FlagAK8DeepFromCSV
+//  Description:  
+// ===========================================================================
+AK8Flag BaselineVessel::FlagAK8DeepFromCSV(unsigned int AK8index) const
+{
+  unsigned loosebcnt =0 ;
+  unsigned mediumbcnt = 0;
+
+  const std::vector<std::vector<TLorentzVector> > &subjets = tr->getVec<std::vector<TLorentzVector> >(UseNoLepVar("puppiAK8SubjetLVec"));
+  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
+  const std::vector<float> &CSV = tr->getVec<float>(CSVVecLabel);
+
+  for(auto sub : subjets.at(AK8index))
+  {
+    for(unsigned int ij=0; ij<jets.size(); ij++)
+    {
+      if (sub.DeltaR(jets.at(ij)) < 0.4)
+      {
+        if (jets.at(ij).Pt() < 20 || fabs(jets.at(ij).Eta()) > 2.4) continue;
+        if (UseDeepCSV)
+        {
+          if (CSV.at(ij) > 0.6324 ) mediumbcnt ++;
+          if (CSV.at(ij) > 0.2219  ) loosebcnt ++;
+        }
+        else{
+          if (CSV.at(ij) > AnaConsts::cutCSVS ) mediumbcnt ++;
+          if (CSV.at(ij) > AnaConsts::cutCSVL ) loosebcnt ++;
+        }
+      }
+    }
+    
+  }
+
+  if (mediumbcnt > 0 ) return NoTagMediumb;
+  if (loosebcnt > 0 ) return NoTagLooseb;
+  return NoTagNob;
+}       // -----  end of function BaselineVessel::FlagAK8DeepFromCSV  -----
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::FlagAK8FromTagger
@@ -756,62 +855,20 @@ bool BaselineVessel::GetTopCombs() const
   //Only MVA combs so far
   const TopTaggerResults& ttr = ttPtr->getResults();
   int i = 0;
-  for(auto tr : ttr.getTopCandidates() )
+  std::vector<TLorentzVector> temp;
+  for(auto topr : ttr.getTopCandidates() )
   {
-      if (tr.getNConstituents() != 3) continue;
-      vCombs->push_back(tr.P());
-      std::vector<TLorentzVector> temp;
-      for(auto cons : tr.getConstituents())
-      {
-          temp.push_back(cons->P());
-      }
-      vCombJets->insert(std::make_pair(i, temp));
-      i++;
-  }
-
-  // AK8 + Ak4 for W + jet
-  ttUtility::ConstAK8Inputs<float> myConstAK8Inputs(
-      tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec")),
-      tr->getVec<float>(UseNoLepVar("puppitau1")),
-      tr->getVec<float>(UseNoLepVar("puppitau2")),
-      tr->getVec<float>(UseNoLepVar("puppitau3")),
-      tr->getVec<float>(UseNoLepVar("puppisoftDropMass")),
-      tr->getVec<TLorentzVector>(UseNoLepVar("puppiSubJetsLVec")));
-  std::vector<Constituent> AK8constituents;
-  myConstAK8Inputs.packageConstituents(AK8constituents);
-
-  for(auto ak8_ : AK8constituents)
-  {
-      auto ak8 = ak8_.P();
-      if (ak8.Pt() < 200 ) continue;
-      if (ak8.M() < 65 ) continue;
-      for(auto ak4 : GetAK4NoSubjet(ak8_, *jetsLVec_forTagger))
-      { 
-          if (ak4.Pt() < 30 ) continue; // Tight working point
-          TLorentzVector sumTop = ak4 + ak8;
-          if (sumTop.M() < 100 || sumTop.M() > 250) continue;
-          if (sumTop.DeltaR(ak8) > 1.0 || sumTop.DeltaR(ak4) > 1.0 ) continue; // Tight working point
-          vCombs->push_back(sumTop);
-          std::vector<TLorentzVector> temp;
-          temp.push_back(ak8);
-          temp.push_back(ak4);
-          vCombJets->insert(std::make_pair(i, temp));
-          i++;
-      }
- 
-    // Ak8 only for top
-    const std::vector<TLorentzVector>  & AK8 = tr->getVec<TLorentzVector>("puppiJetsLVec");
-    for(auto ak8 : AK8)
+    vCombs->push_back(topr.P());
+    temp.clear();
+    const std::vector<const Constituent*>& constituents =  topr.getConstituents();
+    for(auto cons : constituents)
     {
-      if (ak8.Pt() < 400 ) continue;
-      if (ak8.M() < 100 ) continue;
-      vCombs->push_back(ak8);
-      std::vector<TLorentzVector> temp;
-      temp.push_back(ak8);
-      vCombJets->insert(std::make_pair(i, temp));
-      i++;
+      temp.push_back(cons->P());
     }
+    vCombJets->insert(std::make_pair(i, temp));
+    i++;
   }
+
 
   tr->registerDerivedVec("vCombs"+spec, vCombs);
   tr->registerDerivedVec("mCombJets"+spec, vCombJets);
@@ -1040,15 +1097,37 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
   UseLepCleanJets();
+  CombDeepCSV(); //temparory fix for DeepCSV
   PassBaseline();
-  FlagAK8Jets();
+  if (UseDeepTagger)
+    FlagDeepAK8Jets();
+  else
+    FlagAK8Jets();
   GetSoftbJets();
-  GetMHT();
-  GetLeptons();
-  GetRecoZ(81, 101);
+  //GetMHT();
+  //GetLeptons();
+  //GetRecoZ(81, 101);
   GetTopCombs();
 }
 
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::CombDeepCSV
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::CombDeepCSV()
+{
+  std::vector<float> *DeepCSVcomb = new std::vector<float>();
+  const std::vector<float> &DeepCSVb = tr->getVec<float>(UseNoLepVar("DeepCSVb"));
+  const std::vector<float> &DeepCSVbb = tr->getVec<float>(UseNoLepVar("DeepCSVbb"));
+  for (int i = 0; i < DeepCSVb.size(); ++i)
+  {
+    DeepCSVcomb->push_back(DeepCSVb.at(i)+ DeepCSVbb.at(i));
+  }
+
+  tr->registerDerivedVec(UseNoLepVar("DeepCSVcomb"), DeepCSVcomb);
+  return true;
+}       // -----  end of function BaselineVessel::CombDeepCSV  -----
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::GetSoftbJets
