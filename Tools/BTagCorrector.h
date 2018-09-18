@@ -60,7 +60,7 @@ public:
     }
 
     //destructor
-    virtual ~BTagCorrectorTemplate() {}
+    // virtual ~BTagCorrectorTemplate() {}
 
     //accessors
     void SetDebug(bool d) { debug = d; }
@@ -527,7 +527,13 @@ public:
     std::string JetsVec, BJetsVec, JetsFlavor;
 };
 
-//Hack to keep name the same for people down stream
-class BTagCorrector : BTagCorrectorTemplate<float>{};
+//Team hack to keep name the same for people down stream
+class BTagCorrector: public BTagCorrectorTemplate<float>
+{
+  public:
+    // constructors with float as default
+    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : BTagCorrectorTemplate<float>(file, CSVFilePath, CSVFile, isFastSim, suffix){};
+    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : BTagCorrectorTemplate<float>(file,CSVFilePath,"CSVv2_Moriond17_B_H.csv",isFastSim,suffix){};
+};
 
 #endif

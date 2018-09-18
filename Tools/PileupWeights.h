@@ -103,7 +103,12 @@ private:
 
 };
 
-//Hack to keep name the same for people down stream
-class Pileup_Sys : Pileup_SysTemplate<float>{};
+//Team building hack to keep name the same for people down stream
+class Pileup_Sys : public Pileup_SysTemplate<float>
+{
+  public:
+    // constructor with float as default
+    Pileup_Sys(std::string filename="PileupHistograms_Nov17.root") : Pileup_SysTemplate<float>(filename){};
+};
 
 #endif // Pileup_Sys_H
