@@ -4,11 +4,11 @@
 #include "NTupleReader.h"
 #include "TH1.h"
 
-template<typename data_t = float>
-class Pileup_Sys
+template<typename data_t>
+class Pileup_SysTemplate
 {
 public:
-    Pileup_Sys(std::string filename="PileupHistograms_Nov17.root")
+    Pileup_SysTemplate(std::string filename="PileupHistograms_Nov17.root")
     {
         TH1::AddDirectory(false); //magic incantation that lets the root file close if this is not here segfaults 
         //Calling the Jasn file from RA2b currently
@@ -21,7 +21,7 @@ public:
         Pileup_Jasn.Close();
     }
 
-    ~Pileup_Sys()
+    ~Pileup_SysTemplate()
     {
         //dtor Was going to delet histograms after use but this segfaulted the code need second magic incantation
         //delete pu_central;
@@ -102,5 +102,8 @@ private:
     TH1F * pu_down;
 
 };
+
+//Hack to keep name the same for people down stream
+typedef Pileup_SysTemplate<float> Pileup_Sys;
 
 #endif // Pileup_Sys_H
