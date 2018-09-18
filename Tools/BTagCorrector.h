@@ -528,6 +528,6 @@ public:
 };
 
 //Hack to keep name the same for people down stream
-typedef BTagCorrectorTemplate<float> BTagCorrector;
+class BTagCorrector : BTagCorrectorTemplate<float>{};
 
 #endif

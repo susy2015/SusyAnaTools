@@ -104,6 +104,6 @@ private:
 };
 
 //Hack to keep name the same for people down stream
-typedef Pileup_SysTemplate<float> Pileup_Sys;
+class Pileup_Sys : Pileup_SysTemplate<float>{};
 
 #endif // Pileup_Sys_H
