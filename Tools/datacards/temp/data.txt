@@ -1,0 +1,7 @@
+luminosity = 36     # in pb-1 (FIXED)
+channels = 53     # total number of channels -> following our search bin definition (FIXED)
+sample = data     # name of the background: hadtau, lostle, zinv, qcd, ttz
+channel = bin1 bin2 bin3 bin4 bin5 bin6 bin7 bin8 bin9 bin10 bin11 bin12 bin13 bin14 bin15 bin16 bin17 bin18 bin19 bin20 bin21 bin22 bin23 bin24 bin25 bin26 bin27 bin28 bin29 bin30 bin31 bin32 bin33 bin34 bin35 bin36 bin37 bin38 bin39 bin40 bin41 bin42 bin43 bin44 bin45 bin46 bin47 bin48 bin49 bin50 bin51 bin52 bin53 
+
+# Predicted central numbers (need from all backgrounds)
+rate = 2562.78 1974.13 799.685 757.675 256.124 164.816 81.0675 112.673 39.1137 26.1243 12.7974 10.8329 6.39477 3.93035 1.53794 1.30841 552.685 112.298 12.043 2.78796 282.821 50.5348 4.96954 1.29855 39.0676 18.296 7.73282 7.9703 22.7284 10.2881 3.80287 2.94187 43.1211 7.0936 2.49955 42.2133 9.22834 1.17025 81.8414 14.3263 2.74423 34.0728 8.36475 3.34268 3.22465 1.59629 0.92613 7.33418 2.78216 1.83956 7.09551 3.25206 1.95188 

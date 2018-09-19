@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 	if (argc != 5)
 	{
 		std::cerr << "please give 4 arguments" << std::endl;
-		std::cerr << "mother mass, daughter mass signal name and histo name" << std::endl;
+		std::cerr << "mother mass, daughter mass, signal name and histo name" << std::endl;
 		return -1;
 	}
 
@@ -21,17 +21,36 @@ int main(int argc, char* argv[])
 	const double lumi = 36;
 	//const double lumi = 120;
 
-	TString result_path = "results/T2tt_signal_scan/";
+	TFile *f3 = new TFile("xSec.root");
+	TH1D *h3 = NULL;
+
+	TString result_path;
 	TString folder = "";
+
+	if (sp.Contains("T2tt"))
+	{
+		std::cout << "=============== find T2tt =================" << std::endl;
+		result_path = "results/T2tt_signal_scan/";
+		h3 = (TH1D*)f3->Get("stop_xsection");
+	}
+
+	else if (sp.Contains("T1tttt"))
+	{
+		std::cout << "=============== find T1tttt =================" << std::endl;
+		result_path = "results/T1tttt_signal_scan/";
+		h3 = (TH1D*)f3->Get("gluino_xsection");
+	}
+
+	else
+	{
+		std::cout << "only support T2tt and T1tttt, exit now" << std::endl;
+		return -1;
+	}
 
 	TFile *f1 = new TFile(result_path + sp + ".root");
 	TH1D *h1 = (TH1D*)f1->Get(folder + var);
 	//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 	TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
-
-	TFile *f3 = new TFile("xSec.root");
-	TH1D *h3 = (TH1D*)f3->Get("stop_xsection");
-	//TH1D *h3 = (TH1D*)f3->Get(gluino_xsection);
 
 	double CrossSection = h3->GetBinContent(h3->FindBin(mother));
 	int NSB = h1->GetSize() - 2;

@@ -7,7 +7,7 @@ int make_datacards()
 	const double lumi = 36;
 	//const double lumi = 120;
 
-	bool round_data = true;
+	bool round_data = false;
 
 	bool make_QCD_datacard = true;
 	bool make_Zinv_datacard = true;
@@ -18,23 +18,23 @@ int make_datacards()
 	bool make_signal_datacard = true;
 
 	bool team_A_high_dm = false;
-	bool team_A_highdm_MT2 = false;
+	bool team_A_high_dm_MT2 = false;
 	bool team_A_high_dm_merge = false;
-	bool low_dm = false;
-	bool high_dm = true;
-	bool high_dm_merge_HT = true;
+	bool low_dm = true;
+	bool high_dm = false;
+	bool low_and_high_dm = false;
+	bool high_dm_merge_HT = false;
 	bool high_dm_MT2 = false;
-
 	bool old_bins = false; 
 	bool old_bins_MTb = false;
 
 	TString result_path = "results/Signal_";	//for full sim signals
 	result_path = "results/Signal_fastsim_";	//for fast sim singals
 
-	TString signal_name = "T2tt_mStop500_mLSP325";
+	//TString signal_name = "T2tt_mStop500_mLSP325";
 	//TString signal_name = "T2tt_mStop850_mLSP100";
 	//TString signal_name = "T2tt_mStop1000_mLSP500";
-	//TString signal_name = "T2tt_mStop1000_mLSP1";
+	TString signal_name = "T2tt_mStop1000_mLSP1";
 	//TString signal_name = "T1tttt_mGluino1500_mLSP100";
 	//TString signal_name = "T1tttt_mGluino2000_mLSP100";
 	//TString signal_name = "T1tttt_mGluino1200_mLSP800";
@@ -51,27 +51,27 @@ int make_datacards()
 
 	if (team_A_high_dm)
 	{
-		NSB = 51;
 		var = "search_bin_team_A_highdm_h";
 		SingleMuCR = "search_bin_team_A_highdm_singleMuCR_h";
 		SingleElCR = "search_bin_team_A_highdm_singleElCR_h";
-		if (team_A_highdm_MT2)
-		{
-			var = "search_bin_team_A_highdm_MTb175_MT2_h";
-			SingleMuCR = "search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h";
-			SingleElCR = "search_bin_team_A_highdm_MTb175_MT2_singleElCR_h";
-		}
-		if (team_A_high_dm_merge)
-		{
-			var = "search_bin_team_A_highdm_merge_h";
-			SingleMuCR = "search_bin_team_A_highdm_singleMuCR_merge_h";
-			SingleElCR = "search_bin_team_A_highdm_singleElCR_merge_h";
-		}
+	}
+
+	if (team_A_high_dm_MT2)
+	{
+		var = "search_bin_team_A_highdm_MTb175_MT2_h";
+		SingleMuCR = "search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h";
+		SingleElCR = "search_bin_team_A_highdm_MTb175_MT2_singleElCR_h";
+	}
+
+	if (team_A_high_dm_merge)
+	{
+		var = "search_bin_team_A_highdm_merge_h";
+		SingleMuCR = "search_bin_team_A_highdm_singleMuCR_merge_h";
+		SingleElCR = "search_bin_team_A_highdm_singleElCR_merge_h";
 	}
 
 	if (low_dm)
 	{
-		NSB = 53;
 		var = "search_bin_team_A_lowdm_h";
 		SingleMuCR = "search_bin_team_A_lowdm_singleMuCR_h";
 		SingleElCR = "search_bin_team_A_lowdm_singleElCR_h";
@@ -79,21 +79,27 @@ int make_datacards()
 
 	if (high_dm)
 	{
-		NSB = 124;
 		var = "search_bin_highdm_h";
 		SingleMuCR = "search_bin_highdm_singleMuCR_h";
 		SingleElCR = "search_bin_highdm_singleElCR_h";
-		if(high_dm_merge_HT)
-		{
-			var = "search_bin_highdm_merge_HT_h";
-			SingleMuCR = "search_bin_highdm_singleMuCR_merge_HT_h";
-			SingleElCR = "search_bin_highdm_singleElCR_merge_HT_h";
-		}
+	}
+
+	if (low_and_high_dm)
+	{
+		var = "search_bin_low_and_highdm_h";
+		SingleMuCR = "search_bin_low_and_highdm_singleMuCR_h";
+		SingleElCR = "search_bin_low_and_highdm_singleElCR_h";
+	}
+
+	if(high_dm_merge_HT)
+	{
+		var = "search_bin_highdm_merge_HT_h";
+		SingleMuCR = "search_bin_highdm_singleMuCR_merge_HT_h";
+		SingleElCR = "search_bin_highdm_singleElCR_merge_HT_h";
 	}
 
 	if (high_dm_MT2)
 	{
-		NSB = 168;
 		var = "search_bin_highdm_MT2_h";
 		SingleMuCR = "search_bin_highdm_singleMuCR_MT2_h";
 		SingleElCR = "search_bin_highdm_singleElCR_MT2_h";
@@ -101,16 +107,17 @@ int make_datacards()
 
 	if (old_bins)
 	{
-		NSB = 84;
 		var = "search_bin_h";
 		SingleMuCR = "search_bin_singleMuCR_h";
 		SingleElCR = "search_bin_singleElCR_h";
-		if (old_bins_MTb)
-		{
-			var = "search_bin_MTb_h";
-			SingleMuCR = "search_bin_singleMuCR_MTb_h";
-			SingleElCR = "search_bin_singleElCR_MTb_h";
-		}
+
+	}
+
+	if (old_bins_MTb)
+	{
+		var = "search_bin_MTb_h";
+		SingleMuCR = "search_bin_singleMuCR_MTb_h";
+		SingleElCR = "search_bin_singleElCR_MTb_h";
 	}
 
 	THStack *hs = new THStack();
@@ -129,6 +136,8 @@ int make_datacards()
 			TH1D *h1 = (TH1D*)f1->Get(folder + var);
 			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+
+			NSB = h1->GetSize() - 2;
 
 			double all_events = h2->GetBinContent(1);
 			double left_events = h2->GetBinContent(2);

@@ -7,14 +7,16 @@ int Plot_1D_test()
 	const double lumi = 36; 
 	bool plot_log = false;
 	//plot_log = true;
-	bool plot_BG = false;
+	bool plot_sig_pad = false;
+	bool plot_BG = true;
 	bool use_low_stat_sig = false;
 	//use_low_stat_sig = true;
 
 	TString result_path = "results/Signal_";        //for full sim signals
 	result_path = "results/Signal_fastsim_";        //for fast sim singals
 
-	TString signal_name = "T2tt_and_T2bw";
+	TString signal_name = "T2tt_only";
+	//TString signal_name = "T2tt_and_T2bw";
 	//TString signal_name = "T1tttt_and_T5ttcc";
 	//TString signal_name = "T2fbd_and_T2bwC";
 	//TString signal_name = "T2cc_and_T2tt";
@@ -22,7 +24,7 @@ int Plot_1D_test()
 	bool plot_MT2 = false;
 	bool plot_MT2_baseline_no_mt2 = false;
 	bool plot_MTb = false;
-	bool plot_MTb_CSV = false;
+	bool plot_MTb_highdm = true;
 	bool plot_MT2_b = false;
 	bool plot_SB = false;
 	bool plot_SB_team_A_highdm = false;
@@ -34,7 +36,7 @@ int Plot_1D_test()
 	bool plot_ntop_merge = false;
 	bool plot_ntop_w = false;
 	bool plot_ntop_res = false;
-	bool plot_nw = true;
+	bool plot_nw = false;
 	bool plot_gen_w_pt = false;
 	bool plot_gen_b_pt = false;
 	bool plot_gen_w_b_mass = false;
@@ -57,7 +59,7 @@ int Plot_1D_test()
 
 	double xmin =0, xmax = 800, ymin = 0, ymax = 35000, sig_ymax = 1, hs_tot = 1;
 	float padup_height = 0.3, padup_margin = 0, leg_height = 0.5;
-	if(!plot_BG) {padup_height = 0; padup_margin = 0.1, leg_height = 0.7;}
+	if(!plot_sig_pad) {padup_height = 0; padup_margin = 0.1, leg_height = 0.6;}
 	if(plot_log) ymin = 0.1;
 
 	TString title = "MT2";
@@ -92,22 +94,23 @@ int Plot_1D_test()
 
 	if (plot_MTb)
 	{
-		title = "MTb (2 leading pt if nb >2)";
-		var = "mtb_no_HT_h";
-		folder = "";
-		rebin = 5;
-		//xmax = 300;
-		ymax = 14000;
+		title = "MTb [GeV]";
+		var = "mtb_h";
+		//folder = "";
+		rebin = 1;
+		xmin = 10;
+		xmax = 300;
+		ymax = 10000;
 	}
 
-	if (plot_MTb_CSV)
+	if (plot_MTb_highdm)
 	{
-		title = "MTb (2 leading CSV if nb > 2)";
-		var = "mtb_CSV_no_HT_h";
+		title = "MTb [GeV]";
+		var = "mtb_highdm_h";
 		folder = "";
-		rebin = 5;
-		//xmax = 300;
-		ymax = 14000;
+		rebin = 2;
+		xmax = 400;
+		ymax = 3000;
 	}
 
 	if (plot_MT2_b)
@@ -829,6 +832,7 @@ int Plot_1D_test()
 	if (true)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1200_mLSP800";
+		if(signal_name == "T2tt_only") sp = "T2tt_mStop500_mLSP400";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2tt_mStop500_mLSP325";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop500_mLSP490";
 		if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP490";
@@ -879,6 +883,7 @@ int Plot_1D_test()
 	if (true)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1500_mLSP100";
+		if(signal_name == "T2tt_only") sp = "T2tt_mStop500_mLSP325";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2tt_mStop850_mLSP100";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop600_mLSP520";
 		if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP420";
@@ -888,6 +893,7 @@ int Plot_1D_test()
 	if (true)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1000_mLSP800";
+		if(signal_name == "T2tt_only") sp = "T2tt_mStop1000_mLSP650";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop500_mLSP325";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop500_mLSP490";
 		if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop250_mLSP150";
@@ -897,6 +903,7 @@ int Plot_1D_test()
 	if (true)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1500_mLSP100";
+		if(signal_name == "T2tt_only") sp = "T2tt_mStop1000_mLSP1";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop850_mLSP100";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop600_mLSP520";
 		if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop425_mLSP325";
@@ -911,11 +918,11 @@ int Plot_1D_test()
 	latex.DrawLatex(0.1,0.91,"CMS #bf{Simulation}");
 	if(plot_BG) latex.DrawLatex(0.75,0.91,"#bf{36fb^{-1} (13TeV)}");
 	else latex.DrawLatex(0.80,0.91,"#bf{13TeV}");
-	if(plot_BG) latex.DrawLatex(0.15,0.8,"#bf{signal scaled to SM}");
+	if(plot_BG) latex.DrawLatex(0.12,0.8,"#bf{signals scaled to SM}");
 
 	leg->Draw("same");
 
-	if(plot_BG)
+	if(plot_sig_pad)
 	{
 	mycanvas -> cd();
 

@@ -150,16 +150,19 @@ int main(int argc, char* argv[]){
 	auto search_bin_MTb_h=new TH1F("search_bin_MTb_h","search bin with baseline cut + MTb > 175",84,0.0,84.0);
 	auto search_bin_singleMuCR_MTb_h=new TH1F("search_bin_singleMuCR_MTb_h","search bin with baseline cut + MTb > 175, single muon control region",84,0.0,84.0);
 	auto search_bin_singleElCR_MTb_h=new TH1F("search_bin_singleElCR_MTb_h","search bin with baseline cut + MTb > 175, single electron control region",84,0.0,84.0);
+	auto search_bin_low_and_highdm_h=new TH1F("search_bin_low_and_highdm_h","search bin low and high dM, MTb = 175",177,0.0,177.0);
 	auto search_bin_highdm_h=new TH1F("search_bin_highdm_h","search bin high dM, MTb = 175",124,53.0,177.0);
 	auto search_bin_highdm_MT2_h=new TH1F("search_bin_highdm_MT2_h","search bin high dM, MTb = 175 with MT2 bins",168,53.0,221.0);
 	auto search_bin_highdm_merge_HT_h=new TH1F("search_bin_highdm_merge_HT_h","search bin high dM, MTb = 175, merge HT",124,53.0,177.0);
 	auto search_bin_team_A_highdm_h=new TH1F("search_bin_team_A_highdm_h","search bin team A high dM, MTb = 175",51,53.0,104.0);
 	auto search_bin_team_A_highdm_merge_h=new TH1F("search_bin_team_A_highdm_merge_h","search bin team A high dM, MTb = 175, merge top",51,53.0,104.0);
+	auto search_bin_low_and_highdm_singleMuCR_h=new TH1F("search_bin_low_and_highdm_singleMuCR_h","search bin low and high dM single muon control region, MTb = 175",177,0.0,177.0);
 	auto search_bin_highdm_singleMuCR_h=new TH1F("search_bin_highdm_singleMuCR_h","search bin high dM single muon control region, MTb = 175",124,53.0,177.0);
 	auto search_bin_highdm_singleMuCR_MT2_h=new TH1F("search_bin_highdm_singleMuCR_MT2_h","search bin high dM single muon control region, MTb = 175 with MT2 bins",168,53.0,221.0);
 	auto search_bin_highdm_singleMuCR_merge_HT_h=new TH1F("search_bin_highdm_singleMuCR_merge_HT_h","search bin high dM single muon control region, MTb = 175, merge HT",124,53.0,177.0);
 	auto search_bin_team_A_highdm_singleMuCR_h=new TH1F("search_bin_team_A_highdm_singleMuCR_h","search bin team A high dM single muon control region, MTb = 175",51,53.0,104.0);
 	auto search_bin_team_A_highdm_singleMuCR_merge_h=new TH1F("search_bin_team_A_highdm_singleMuCR_merge_h","search bin team A high dM single muon control region, MTb = 175, merge top",51,53.0,104.0);
+	auto search_bin_low_and_highdm_singleElCR_h=new TH1F("search_bin_low_and_highdm_singleElCR_h","search bin low and high dM single electron control region, MTb = 175",177,0.0,177.0);
 	auto search_bin_highdm_singleElCR_h=new TH1F("search_bin_highdm_singleElCR_h","search bin high dM single electron control region, MTb = 175",124,53.0,177.0);
 	auto search_bin_highdm_singleElCR_MT2_h=new TH1F("search_bin_highdm_singleElCR_MT2_h","search bin high dM single electron control region, MTb = 175 with MT2 bins",168,53.0,221.0);
 	auto search_bin_highdm_singleElCR_merge_HT_h=new TH1F("search_bin_highdm_singleElCR_merge_HT_h","search bin high dM single electron control region, MTb = 175, merge HT",124,53.0,177.0);
@@ -264,6 +267,9 @@ int main(int argc, char* argv[]){
 	TH2F *ntop_nw_h = new TH2F("ntop_nw_h","Ntop and Nw correlation",8,0.0,8.0,8,0.0,8.0);
 	TH2F *ISRpt_MET_lowdm_h = new TH2F("ISRpt_MET_lowdm_h","ISRpt vs MET in low dm",80,0.0,1600.0,80,0.0,1600.0);
 
+	int n_fail_mtb = 0, n_fail_met = 0, n_fail_dPhi = 0;
+	int n_old_bin_is_83 = 0, n_highdm_is_176 = 0;
+
 	// ---------- Begin Loop Over Events ----------
 
 	while(tr.getNextEvent()){
@@ -327,6 +333,9 @@ int main(int argc, char* argv[]){
 
 		int SB_index = SB.find_Binning_Index(nbjets, ntop, mt2, met, HT);
 		std::map<int, std::vector<TLorentzVector>> mTopJets = tr.getMap <int, std::vector<TLorentzVector>> ("mTopJets");
+
+		bool old_bin_is_83 = false;
+		bool highdm_is_176 = false;
 
 		const std::vector<int>& PdgId = tr.getVec<int>("genDecayPdgIdVec");
 		const std::vector<int>& MomRefId = tr.getVec<int>("genDecayMomRefVec");
@@ -512,11 +521,17 @@ int main(int argc, char* argv[]){
 			if(mtb > 175) mt2_175_high_h->Fill(mt2,evtWeight);
 			if(mtb > 140 && mtb < 175) mt2_140_175_h->Fill(mt2,evtWeight);
 
-			if (SB_team_A_highdm_index_175 != -1)
+			if (SB_highdm_index_175 != -1)
 			{
+				if (SB_highdm_index_175 == 176) {highdm_is_176 = true; n_highdm_is_176++;}
+				search_bin_low_and_highdm_h->Fill(SB_highdm_index_175,evtWeight);
 				search_bin_highdm_h->Fill(SB_highdm_index_175,evtWeight);
 				search_bin_highdm_MT2_h->Fill(SB_highdm_index_175_MT2,evtWeight);
 				search_bin_highdm_merge_HT_h->Fill(SB_highdm_index_175_merge_HT,evtWeight);
+			}
+
+			if (SB_team_A_highdm_index_175 != -1)
+			{
 				search_bin_team_A_highdm_h->Fill(SB_team_A_highdm_index_175,evtWeight);
 				search_bin_team_A_highdm_merge_h->Fill(SB_team_A_highdm_index_175_merge,evtWeight);
 				if(pass_MT2_highdm) 
@@ -529,11 +544,16 @@ int main(int argc, char* argv[]){
 
 		if(pass_high_dM_baseline_singleLeptCR)
 		{
-			if(nElectrons == 1 && SB_team_A_highdm_index_175 != -1)
+			if(nElectrons == 1 && SB_highdm_index_175 != -1)
 			{
+				search_bin_low_and_highdm_singleElCR_h->Fill(SB_highdm_index_175,evtWeight);
 				search_bin_highdm_singleElCR_h->Fill(SB_highdm_index_175,evtWeight);
 				search_bin_highdm_singleElCR_MT2_h->Fill(SB_highdm_index_175_MT2,evtWeight);
 				search_bin_highdm_singleElCR_merge_HT_h->Fill(SB_highdm_index_175_merge_HT,evtWeight);
+			}
+
+			if(nElectrons == 1 && SB_team_A_highdm_index_175 != -1)
+			{
 				search_bin_team_A_highdm_singleElCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
 				search_bin_team_A_highdm_singleElCR_merge_h->Fill(SB_team_A_highdm_index_175_merge,evtWeight);
 				if(pass_MT2_highdm) 
@@ -543,11 +563,16 @@ int main(int argc, char* argv[]){
 				}
 			}
  
-			if(nMuons == 1 && SB_team_A_highdm_index_175 != -1)
+			if(nMuons == 1 && SB_highdm_index_175 != -1)
 			{
+				search_bin_low_and_highdm_singleMuCR_h->Fill(SB_highdm_index_175,evtWeight);
 				search_bin_highdm_singleMuCR_h->Fill(SB_highdm_index_175,evtWeight);
 				search_bin_highdm_singleMuCR_MT2_h->Fill(SB_highdm_index_175_MT2,evtWeight);
 				search_bin_highdm_singleMuCR_merge_HT_h->Fill(SB_highdm_index_175_merge_HT,evtWeight);
+			}
+
+			if(nMuons == 1 && SB_team_A_highdm_index_175 != -1)
+			{
 				search_bin_team_A_highdm_singleMuCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
 				search_bin_team_A_highdm_singleMuCR_merge_h->Fill(SB_team_A_highdm_index_175_merge,evtWeight);
 				if(pass_MT2_highdm) 
@@ -568,13 +593,26 @@ int main(int argc, char* argv[]){
 			bottompt_scalar_sum_lowdm_h->Fill(bottompt_scalar_sum,evtWeight);
 			ISRpt_MET_lowdm_h->Fill(ISRpt,met,evtWeight);
 			
-			if(SB_team_A_lowdm_index != -1) search_bin_team_A_lowdm_h->Fill(SB_team_A_lowdm_index,evtWeight);
+			if(SB_team_A_lowdm_index != -1) 
+			{
+				search_bin_low_and_highdm_h->Fill(SB_team_A_lowdm_index,evtWeight);
+				search_bin_team_A_lowdm_h->Fill(SB_team_A_lowdm_index,evtWeight);
+			}
 		}
 
 		if(pass_low_dM_baseline_singleLeptCR)
 		{
-			if(nElectrons == 1 && SB_team_A_lowdm_index != -1) search_bin_team_A_lowdm_singleElCR_h->Fill(SB_team_A_lowdm_index,evtWeight); 
-			if(nMuons == 1 && SB_team_A_lowdm_index != -1) search_bin_team_A_lowdm_singleMuCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
+			if(nElectrons == 1 && SB_team_A_lowdm_index != -1) 
+			{
+				search_bin_low_and_highdm_singleElCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
+				search_bin_team_A_lowdm_singleElCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
+			}
+
+			if(nMuons == 1 && SB_team_A_lowdm_index != -1)
+			{
+				search_bin_low_and_highdm_singleMuCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
+				search_bin_team_A_lowdm_singleMuCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
+			}
 		}
 
 
@@ -582,8 +620,9 @@ int main(int argc, char* argv[]){
 
 		if(pass_baseline)
 		{
-			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets = " << nbjets << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
+			//if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets = " << nbjets << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
 			search_bin_h->Fill(SB_index,evtWeight);
+			if (SB_index == 83) {old_bin_is_83 = true; n_old_bin_is_83++;}
 			if (mtb > 175) search_bin_MTb_h->Fill(SB_index,evtWeight);
 		}
 
@@ -595,7 +634,7 @@ int main(int argc, char* argv[]){
 
 		if(pass_baseline_singleLeptCR)
 		{
-			if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets = " << nbjets << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
+			//if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets = " << nbjets << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
 			if(nElectrons == 1)
 			{
 				search_bin_singleElCR_h->Fill(SB_index,evtWeight);
@@ -606,6 +645,14 @@ int main(int argc, char* argv[]){
 				search_bin_singleMuCR_h->Fill(SB_index,evtWeight);
 				if (mtb > 175) search_bin_singleMuCR_MTb_h->Fill(SB_index,evtWeight);
 			}
+		}
+
+		if(old_bin_is_83 && (!highdm_is_176))
+		{
+			std::cout << "njetspt20 = " << njetspt20 << ", ntop = " << ntop << ", ntop_merge = " << ntop_merge << ", nw = " << nw << ", ntop_w = " << ntop_w << ", ntop_res = " << ntop_res << ", nbottompt20 = " << nbottompt20 << ", mtb = " << mtb << ", met = " << met << ", genmet = " << genmet << ", HT = " << HT << ", passdphi_highdm = " << passdphi_highdm << std::endl;
+			if (mtb < 175) n_fail_mtb++;
+			if (met < 400) n_fail_met++;
+			if (passdphi_highdm == 0) n_fail_dPhi++;
 		}
 
 		met_uc_h->Fill(met,evtWeight);
@@ -859,13 +906,16 @@ int main(int argc, char* argv[]){
 	search_bin_MTb_h->Write();
 	search_bin_singleMuCR_MTb_h->Write();
 	search_bin_singleElCR_MTb_h->Write();
+	search_bin_low_and_highdm_h->Write();
 	search_bin_highdm_h->Write();
 	search_bin_highdm_MT2_h->Write();
 	search_bin_highdm_merge_HT_h->Write();
 	search_bin_team_A_highdm_h->Write();
+	search_bin_low_and_highdm_singleMuCR_h->Write();
 	search_bin_highdm_singleMuCR_h->Write();
 	search_bin_highdm_singleMuCR_MT2_h->Write();
 	search_bin_highdm_singleMuCR_merge_HT_h->Write();
+	search_bin_low_and_highdm_singleElCR_h->Write();
 	search_bin_highdm_singleElCR_h->Write();
 	search_bin_highdm_singleElCR_MT2_h->Write();
 	search_bin_highdm_singleElCR_merge_HT_h->Write();
@@ -984,6 +1034,7 @@ int main(int argc, char* argv[]){
 	std::cout << "Pre-Cut MTb-MT2 Covariance is " << mtb_mt2_uc_h->GetCovariance() << " AND Correlation Factor is " << mtb_mt2_uc_h->GetCorrelationFactor() << std::endl;
 
 	std::cout << "Post-Cut MTb-MT2 Covariance is " << mtb_mt2_h->GetCovariance() << " AND Correlation Factor is " << mtb_mt2_h->GetCorrelationFactor() << std::endl;
+	std::cout << "n_old_bin_is_83 = " << n_old_bin_is_83 << ", n_highdm_is_176 = " << n_highdm_is_176 << ". n_fail_mtb = " << n_fail_mtb << ", n_fail_met = " << n_fail_met << ", n_fail_dPhi = " << n_fail_dPhi << std::endl;
 
 	out_file.Close(); // Close (must be ".") File @ebinter
 
