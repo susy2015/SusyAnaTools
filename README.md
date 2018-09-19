@@ -11,7 +11,7 @@ cmsenv
 
 ## Checkout Tagtagger
 cd $CMSSW_BASE/src
-git clone git@github.com:susy2015/TopTagger.git
+git clone -b d1840ab83aa3e8e81ba1a463e22ec7c003f1e355 git@github.com:susy2015/TopTagger.git
 cd TopTagger/TopTagger/test/
 ./configure OPENCVDIR=/uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/
 make -j 8 
@@ -22,7 +22,7 @@ make -j 8
 You can then compile the SUSYAnaTools
 ```
 cd $CMSSW_BASE/src
-git clone git@github.com:susy2015/SusyAnaTools.git
+git clone -b AddNewTagger git@github.com:susy2015/SusyAnaTools.git
 
 cd $CMSSW_BASE/src/SusyAnaTools/Tools/
 autoconf

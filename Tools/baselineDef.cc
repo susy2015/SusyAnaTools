@@ -44,6 +44,10 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   {
     CSVVecLabel           = "DeepCSVcomb";
   }
+  if (UseDeepTagger)
+  {
+    toptaggerCfgFile      = "TopTagger_Deep.cfg";
+  }
 
   if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
 
@@ -482,7 +486,6 @@ void BaselineVessel::PassBaseline()
 
   if (UseDeepTagger)
   {
-    toptaggerCfgFile      = "TopTagger_Deep.cfg";
     prepareDeepTopTagger();
   }
   else{
@@ -851,6 +854,9 @@ bool BaselineVessel::GetTopCombs() const
   std::vector<TLorentzVector> *vCombs = new std::vector<TLorentzVector>();
   std::map<int, std::vector<TLorentzVector> > *vCombJets = new std::map<int, std::vector<TLorentzVector> >();
 
+  std::vector<float> *vDeepResCand = new std::vector<float>();
+  std::vector<float> *vDeepTopCand = new std::vector<float>();
+  std::vector<float> *vDeepWCand = new std::vector<float>();
   //get output of tagger
   //Only MVA combs so far
   const TopTaggerResults& ttr = ttPtr->getResults();
@@ -863,7 +869,16 @@ bool BaselineVessel::GetTopCombs() const
     const std::vector<const Constituent*>& constituents =  topr.getConstituents();
     for(auto cons : constituents)
     {
+      //std::cout << " top score? "  << cons->getTopDisc() << std::endl;
       temp.push_back(cons->P());
+    }
+    if (constituents.size() == 3)
+    {
+      vDeepResCand->push_back( topr.getDiscriminator() );
+    }
+    if (constituents.size() == 1)
+    {
+      vDeepTopCand->push_back(constituents.front()->getTopDisc());
     }
     vCombJets->insert(std::make_pair(i, temp));
     i++;
@@ -872,6 +887,8 @@ bool BaselineVessel::GetTopCombs() const
 
   tr->registerDerivedVec("vCombs"+spec, vCombs);
   tr->registerDerivedVec("mCombJets"+spec, vCombJets);
+  tr->registerDerivedVec("vDeepResCand"+spec, vDeepResCand);
+  tr->registerDerivedVec("vDeepTopCand"+spec, vDeepTopCand);
 
   return true;
 }       // -----  end of function BaselineVessel::GetTopCombs  -----
