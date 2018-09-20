@@ -50,13 +50,22 @@ int main(int argc, char *argv[])
     std::stringstream ssSelKey(selKeyStr);
     std::string buf;
     std::vector<std::string> keyStrVec;
+
+    // don't forget to fill keyStrVec
+    while(ssSelKey >> buf) keyStrVec.push_back(buf);
     
     for(auto& file : ss) 
     {
         if( !keyStrVec.empty() )
         {
             bool found = false;
-            for(auto& str : keyStrVec ){ if( file.first.find(str) !=std::string::npos ) found = true; }
+            for(auto& str : keyStrVec )
+            { 
+                if( file.first.find(str) !=std::string::npos ) { 
+                    found = true; 
+                    break; 
+                }
+            }
             if( !found ) continue;
         }
         if(skipData && file.first.find("Data") != std::string::npos)
