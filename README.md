@@ -66,3 +66,40 @@ $CMSSW_BASE/src/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.0 -f Lega
 ```
 
 Please note that this script will download the deired tagger configuration information in a seperate folder and softlink the necessary files into your corrent directory.  If you have multiple configuration files you work with in the same working directory use the "-f name" option to specify the name of the softlink to the tagger file (the default is TopTagger.cfg).  If you do not want this directory in your working directory you may add the "-d PATH_TO_DOWNLOAD_TO" option to specify where it should download these files.  This is particularly useful if you have several working directories as the script will then only check out each working point once and place softlinks as needed (the model files are rather large so this may save some space if you have many downloaded).  However, "-d" can be omitted and the files will be downloaded in your working directory.  Other configuration file releases can be found here https://github.com/susy2015/TopTaggerCfg/releases
+
+## Check out stop config files
+
+Here are the options for the script.
+```
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -h     
+Usage:
+
+getStopCfg.sh -t RELEASE_TAG [-d checkout_directory] [-f cfg_filename] [-n]
+
+    -t RELEASE_TAG :         This is the github release tag to check out (required option)
+    -d checkout_directory :  This is the directory where the configuration files will be downloaded to (default: .)
+    -f cfg_filename :        Specify this option to name the softlink to the cfg file something other than "sampleSets.cfg"
+    -o :                     Overwrite the softlinks if they already exist
+    -n :                     Download files without producing softlinks
+
+Description: This script automatically downloads the Stop SUSY configuration files
+and produces a softlink to this files in your corrent directory.  This script should
+be run from the directory where the tagger code will be run from.  Stop SUSY 
+configuration releases can be browsed here: 
+
+    https://github.com/susy2015/StopCfg/releases.
+```
+
+Here is a general example.
+```
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t DESIRED_TAG -d PATH_TO_DOWNLOAD_TO
+```
+
+Here is a specific example for the CMSSW8028_2016 tag.
+We create softlinks for sampleSets.cfg and sampleCollections.cfg in our current directory.
+We use the -o flag, which means, "Overwrite the softlinks if they already exist."
+```
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t CMSSW8028_2016 -d . -f sampleSets.cfg -o
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t CMSSW8028_2016 -d . -f sampleCollections.cfg -o
+```
+
