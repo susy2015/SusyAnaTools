@@ -72,6 +72,37 @@ namespace AnaConsts{
 // Note the new working points are for Spring15 samples & data: cutCSVS is the medium working point
 // According to https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80X, the CSVv2M cut is 0.800
    const float cutCSVS = 0.8484, cutCSVL = 0.5426, cutCSVT = 0.9535, cutCSVSold = 0.800; // old is for ICHEP working point
+  // 2016 MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco#Data_MC_Scale_Factors_period_dep
+  // 2017 MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation94X
+   const std::map<std::string, std::map<std::string, float > > CSVv2 = {
+     { "2016MC", {
+                   {"cutL", 0.5426},
+                   {"cutM", 0.8484},
+                   {"cutT", 0.9535}
+ 
+     }},
+     { "2017MC", {
+                   {"cutL", 0.5803},
+                   {"cutM", 0.8838},
+                   {"cutT", 0.9693}
+ 
+     }},
+   };
+   //const float DeepCSV ={
+   const std::map<std::string, std::map<std::string, float > > DeepCSV = {
+     { "2016MC", {
+                   {"cutL", 0.2219},
+                   {"cutM", 0.6324},
+                   {"cutT", 0.8958}
+ 
+     }},
+     { "2017MC", {
+                   {"cutL", 0.1522},
+                   {"cutM", 0.4941},
+                   {"cutT", 0.8001}
+ 
+     }},
+   };
    const float defaultMETcut = 250;
    const float defaultMT2cut = 200;
    const float defaultHTcut = 300;
