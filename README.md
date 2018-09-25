@@ -65,11 +65,16 @@ If the legacy AK4 only version of the tagger is also needed run the following to
 $CMSSW_BASE/src/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.0 -f Legacy_TopTagger.cfg -d PATH_TO_DOWNLOAD_TO
 ```
 
-Please note that this script will download the deired tagger configuration information in a seperate folder and softlink the necessary files into your corrent directory.  If you have multiple configuration files you work with in the same working directory use the "-f name" option to specify the name of the softlink to the tagger file (the default is TopTagger.cfg).  If you do not want this directory in your working directory you may add the "-d PATH_TO_DOWNLOAD_TO" option to specify where it should download these files.  This is particularly useful if you have several working directories as the script will then only check out each working point once and place softlinks as needed (the model files are rather large so this may save some space if you have many downloaded).  However, "-d" can be omitted and the files will be downloaded in your working directory.  Other configuration file releases can be found here https://github.com/susy2015/TopTaggerCfg/releases
+Please note that this script will download the desired tagger configuration information in a seperate folder and softlink the necessary files into your corrent directory.
+If you have multiple configuration files you work with in the same working directory use the "-f name" option to specify the name of the softlink to the tagger file (the default is TopTagger.cfg).
+If you do not want this directory in your working directory you may add the "-d PATH_TO_DOWNLOAD_TO" option to specify where it should download these files.
+This is particularly useful if you have several working directories as the script will then only check out each working point once and place softlinks as needed (the model files are rather large so this may save some space if you have many downloaded).
+However, "-d" can be omitted and the files will be downloaded in your working directory.
+Other configuration file releases can be found here https://github.com/susy2015/TopTaggerCfg/releases
 
 ## Check out stop config files
 
-Here are the options for the script.
+Here are the options for the script. The script is based on the TopTagger/Tools/getTaggerCfg.sh, and thus has the same options and functionality.
 ```
 $CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -h     
 Usage:
@@ -98,8 +103,12 @@ $CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t DESIRED_TAG -d PATH_
 Here is a specific example for the CMSSW8028_2016 tag.
 We create softlinks for sampleSets.cfg and sampleCollections.cfg in our current directory.
 We use the -o flag, which means, "Overwrite the softlinks if they already exist."
+The -f flag specifies the name of the softlink.
 ```
 $CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t CMSSW8028_2016 -d . -f sampleSets.cfg -o
 $CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t CMSSW8028_2016 -d . -f sampleCollections.cfg -o
 ```
+Actually, for our example, we could omit the "-d ." option as we are downloading the files in our current directory. 
+
+Stop SUSY configuration releases can be browsed here: https://github.com/susy2015/StopCfg/releases
 
