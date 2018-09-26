@@ -11,7 +11,10 @@ OVERWRITE=
 # A POSIX variable
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
-STOP_CFG_NAME=sampleSets.cfg
+SETS_CFG=sampleSets.cfg
+COLL_CFG=sampleCollections.cfg
+SETS_LINK_NAME=$SETS_CFG
+COLL_LINK_NAME=$COLL_CFG
 
 function print_help {
     echo "Usage:"
@@ -20,7 +23,8 @@ function print_help {
     echo ""
     echo "    -t RELEASE_TAG :         This is the github release tag to check out (required option)"
     echo "    -d checkout_directory :  This is the directory where the configuration files will be downloaded to (default: .)"
-    echo "    -f cfg_filename :        Specify this option to name the softlink to the cfg file something other than \"sampleSets.cfg\""
+    echo "    -s SETS_LINK_NAME :      Specify this option to name the softlink to \"$SETS_CFG\" something other than \"$SETS_LINK_NAME\""
+    echo "    -c COLL_LINK_NAME :      Specify this option to name the softlink to \"$COLL_CFG\" something other than \"$COLL_LINK_NAME\""
     echo "    -o :                     Overwrite the softlinks if they already exist"
     echo "    -n :                     Download files without producing softlinks"
     echo ""
@@ -36,17 +40,19 @@ function print_help {
 
 # Initialize our own variables:
 
-while getopts "h?d:f:t:no" opt; do
+while getopts "h?t:d:s:c:on" opt; do
     case "$opt" in
     h|\?)
         print_help
         exit 0
         ;;
+    t)  TAG=$OPTARG
+        ;;
     d)  CFG_DIRECTORY=$OPTARG
         ;;
-    f)  STOP_CFG_NAME=$OPTARG
+    s)  SETS_LINK_NAME=$OPTARG
         ;;
-    t)  TAG=$OPTARG
+    c)  COLL_LINK_NAME=$OPTARG
         ;;
     o) OVERWRITE="-f"
         ;;
@@ -69,8 +75,8 @@ STARTING_DIR=$PWD
 
 if [ ! -d $CFG_DIRECTORY ]
 then
-    echo $CFG_DIRECTORY " Is not a valid directory!"
-    exit 0
+    echo "ERROR: $CFG_DIRECTORY is not a valid directory!"
+    exit 1
 fi
 
 cd $CFG_DIRECTORY
@@ -133,9 +139,11 @@ fi
 
 cd $STARTING_DIR
 
+# [[ -z STRING ]] : True of the length if "STRING" is zero.
 if [[ -z $NO_SOFTLINK ]]
 then
-    ln $OVERWRITE -s $DOWNLOAD_DIR/sampleSets.cfg $STOP_CFG_NAME
+    ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG $SETS_LINK_NAME
+    ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG $COLL_LINK_NAME
     if [[ ! -z ${MVAFILES// } ]] 
     then
         for MVAFILE in $MVAFILES; do
@@ -143,3 +151,7 @@ then
         done
     fi
 fi
+
+
+
+
