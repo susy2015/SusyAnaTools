@@ -653,23 +653,44 @@ bool BaselineVessel::FlagDeepAK8Jets()
   const std::vector<TLorentzVector> &ak8s =  tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec"));
   const std::vector<float> &btops =  tr->getVec<float>(UseNoLepVar("deepAK8btop"));
   const std::vector<float> &bWs =  tr->getVec<float>(UseNoLepVar("deepAK8bW"));
-  vAK8Flag = new std::vector<unsigned>();
+  vAK8Flag = new std::vector<unsigned>(ak8s.size(), NoTag);
   
+  std::vector<TLorentzVector> topjets;
+  // Cross check with top tagger
+  for(auto tops : *mTopJets)
+  {
+    if (tops.second.size() == 1)
+      topjets.push_back(tops.second.front());
+  }
+
   for (unsigned int i = 0; i < ak8s.size(); ++i)
   {
-    if (btops.at(i) > 0.8)
+    bool matched = false;
+    for(auto t : topjets)
     {
-      vAK8Flag->push_back(TopTag);
+      if (t == ak8s.at(i))
+      {
+        vAK8Flag->at(i) = TopTag;
+        matched = true;
+        break;
+      }
     }
-    else if (bWs.at(i) > 0.8)
+    if (matched) continue;
+    for(auto t : *vWs)
     {
-      vAK8Flag->push_back(WTag);
+      if (t == ak8s.at(i))
+      {
+        vAK8Flag->at(i) = WTag;
+        matched = true;
+        break;
+      }
     }
-    else
-    {
-      unsigned flag = FlagAK8DeepFromCSV(i);
-      vAK8Flag->push_back(NoTag);
-    }
+  }
+
+  for (unsigned int i = 0; i < ak8s.size(); ++i)
+  {
+    if (vAK8Flag->at(i) != NoTag) continue;
+    vAK8Flag->at(i) = FlagAK8DeepFromCSV(i);
   }
 
   GetISRJet();
@@ -728,12 +749,12 @@ AK8Flag BaselineVessel::FlagAK8DeepFromCSV(unsigned int AK8index) const
         if (jets.at(ij).Pt() < 20 || fabs(jets.at(ij).Eta()) > 2.4) continue;
         if (UseDeepCSV)
         {
-          if (CSV.at(ij) > 0.6324 ) mediumbcnt ++;
-          if (CSV.at(ij) > 0.2219  ) loosebcnt ++;
+          if (CSV.at(ij) > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) mediumbcnt ++;
+          if (CSV.at(ij) > AnaConsts::DeepCSV.at(eraLabel).at("cutL")) loosebcnt ++;
         }
         else{
-          if (CSV.at(ij) > AnaConsts::cutCSVS ) mediumbcnt ++;
-          if (CSV.at(ij) > AnaConsts::cutCSVL ) loosebcnt ++;
+          if (CSV.at(ij) > AnaConsts::CSVv2.at(eraLabel).at("cutM")) mediumbcnt ++;
+          if (CSV.at(ij) > AnaConsts::CSVv2.at(eraLabel).at("cutM")) loosebcnt ++;
         }
       }
     }
@@ -841,7 +862,8 @@ bool BaselineVessel::GetISRJet() const
     if (vAK8Flag->at(i) == NoTagNob)
     {
       float pt = AK8.at(i).Pt();
-      if (pt > 200)
+      if (pt > 200 && fabs(AK8.at(i).Eta()) < 2.4
+          && fabs(TVector2::Phi_mpi_pi(AK8.at(i).Phi()- tr->getVar<float>(METPhiLabel))) > 2)
         ISRJetAll[pt] = AK8.at(i);
     }
   }
