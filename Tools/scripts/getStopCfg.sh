@@ -17,10 +17,11 @@ SETS_LINK_NAME=$SETS_CFG
 COLL_LINK_NAME=$COLL_CFG
 
 function print_help {
+    echo ""
     echo "Usage:"
+    echo "    getStopCfg.sh -t RELEASE_TAG [-d checkout_directory] [-f cfg_filename] [-n]"
     echo ""
-    echo "getStopCfg.sh -t RELEASE_TAG [-d checkout_directory] [-f cfg_filename] [-n]"
-    echo ""
+    echo "Options:"
     echo "    -t RELEASE_TAG :         This is the github release tag to check out (required option)"
     echo "    -d checkout_directory :  This is the directory where the configuration files will be downloaded to (default: .)"
     echo "    -s SETS_LINK_NAME :      Specify this option to name the softlink to \"$SETS_CFG\" something other than \"$SETS_LINK_NAME\""
@@ -28,12 +29,11 @@ function print_help {
     echo "    -o :                     Overwrite the softlinks if they already exist"
     echo "    -n :                     Download files without producing softlinks"
     echo ""
-    echo "Description: This script automatically downloads the Stop SUSY configuration files"
-    echo "and produces a softlink to this files in your corrent directory.  This script should"
-    echo "be run from the directory where the tagger code will be run from.  Stop SUSY "
-    echo "configuration releases can be browsed here: "
-    echo ""
-    echo "    https://github.com/susy2015/StopCfg/releases."
+    echo "Description:"
+    echo "    This script automatically downloads the Stop SUSY configuration files"
+    echo "    and produces a softlink to this files in your corrent directory. This script should"
+    echo "    be run from the directory where the tagger code will be run from. Stop SUSY "
+    echo "    configuration releases can be browsed at https://github.com/susy2015/StopCfg/releases."
     echo ""
 }
 
