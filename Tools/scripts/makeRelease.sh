@@ -11,7 +11,8 @@
 # - config file containing one supplementary file name per line
 # - git token: source a script that does "export GITHUB_TOKEN=<git_token_created_on_github>"
 # - github-release command: softlink /uscms/home/caleb/bin/github-release -> /uscms/home/pastika/bin/github-release
-# - put github-release in path: export PATH="$PATH:~caleb/bin"
+# - put makeRelease.sh in bin: ~caleb/bin/makeRelease.sh
+# - put github-release and makeRelease.sh in path: export PATH="$PATH:~caleb/bin"
 
 
 GITHUB_SUSY2015_URL=https://github.com/susy2015
@@ -27,7 +28,6 @@ MESSAGE=
 BRANCH=
 
 
-echo "GITHUB_TOKEN: $GITHUB_TOKEN"
 
 # A POSIX variable
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
@@ -35,15 +35,21 @@ OPTIND=1         # Reset in case getopts has been used previously in the shell.
 STOP_CFG_NAME=sampleSets.cfg
 
 function print_help {
+    echo ""
     echo "Usage:"
-    echo "makeRelease.sh -t RELEASE_TAG -b BRANCH [-d SUPP_FILE_DIR] [-m MESSAGE]"
+    echo "    makeRelease.sh -t RELEASE_TAG -b BRANCH [-d SUPP_FILE_DIR] [-m MESSAGE]"
     echo ""
-    echo "Description: This script automatically makes a release of the SUSY Stop config files"
+    echo "Description:"
+    echo "    This script automatically makes a release of the SUSY Stop config files"
+    echo "    Run this script from the $REPO_NAME directory"
+    echo "    Source a script that does \"export GITHUB_TOKEN=<git_token_created_on_github>\" before running this script."
     echo ""
-    echo "-t RELEASE_TAG :       This is the github release tag to check out (Required)"
-    echo "-b BRANCH :            Git branch to base release off. This branch must exist. It will be pushed to github. (Required)"
-    echo "-d SUPP_FILE_DIR :     The folder where the supplemental training file can be found (default $SUPP_FILE_DIR)"
-    echo "-m MESSAGE :           Commit message for tag (Default empty)"
+    echo "Options:"
+    echo "    -t RELEASE_TAG :       This is the github release tag to check out (Required)"
+    echo "    -b BRANCH :            Git branch to base release off. This branch must exist. It will be pushed to github. (Required)"
+    echo "    -d SUPP_FILE_DIR :     The folder where the supplemental training file can be found (default $SUPP_FILE_DIR)"
+    echo "    -m MESSAGE :           Commit message for tag (Default empty)"
+    echo ""
 }
 
 
@@ -81,6 +87,15 @@ then
     print_help
     exit 0
 fi
+
+if [[ -z $GITHUB_TOKEN ]]
+then
+    echo "ERROR: GITHUB_TOKEN is empty; this needs to be set with a script"
+    echo "Source a script that does \"export GITHUB_TOKEN=<git_token_created_on_github>\""
+    exit 1
+fi
+
+echo "GITHUB_TOKEN: $GITHUB_TOKEN"
 
 
 # make list of files to tar
