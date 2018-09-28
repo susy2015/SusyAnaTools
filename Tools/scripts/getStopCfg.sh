@@ -3,6 +3,7 @@
 GITHUB_SUSY2015_URL=https://github.com/susy2015
 REPO_NAME=StopCfg
 
+STARTING_DIR=$PWD
 CFG_DIRECTORY=$PWD
 TAG=
 NO_SOFTLINK=
@@ -11,10 +12,13 @@ OVERWRITE=
 # A POSIX variable
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
+SUPP_CFG=supplementaryFiles.cfg
 SETS_CFG=sampleSets.cfg
 COLL_CFG=sampleCollections.cfg
 SETS_LINK_NAME=$SETS_CFG
 COLL_LINK_NAME=$COLL_CFG
+SUPP_FILE_DIR=supplementaryFiles
+TARBALL=SUPP_FILE_TARBALL.tar.gz
 
 function print_help {
     echo ""
@@ -71,7 +75,6 @@ then
     exit 0
 fi
 
-STARTING_DIR=$PWD
 
 if [ ! -d $CFG_DIRECTORY ]
 then
@@ -97,58 +100,100 @@ else
     echo "Directory "$REPO_NAME-$TAG" already present"
 fi
 
+#cd $REPO_NAME-$TAG
+#DOWNLOAD_DIR=$PWD
+
+# From previous TopTagger version of this script
+# here just for reference
+#
+# MVAFILES=
+# 
+# if [ -f sampleSets.cfg ]
+# then
+#     MVAFILES=$(grep "modelFile" sampleSets.cfg | sed 's/[^"]*"\([^"]*\)"/\1/')
+#     MISSING=
+#     if [[ ! -z ${MVAFILES// } ]]
+#     then
+#         for MVAFILE in $MVAFILES; do
+#             if [ ! -f $MVAFILE ]
+#             then
+#                 MISSING="yes"
+#                 break
+#             fi
+#         done
+#         if [[ ! -z ${MISSING// } ]]
+#         then
+#             MVATARBALL=MVAFILES.tar.gz
+#             wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$MVATARBALL
+#             if [ ! -f $MVATARBALL ]
+#             then
+#                 echo "MVA tarball "$MVATARBALL" not found!!!"
+#                 MVATARBALL=${MVAFILES%.*}.tar.gz
+#                 echo "trying "$MVATARBALL
+#                 wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$MVATARBALL
+#                 if [ ! -f $MVATARBALL ]
+#                 then
+#                     echo "MVA tarball "$MVATARBALL" not found!!!"
+#                     exit 0
+#                 fi
+#             fi
+#             tar xzf $MVATARBALL
+#             rm $MVATARBALL
+#         fi
+#     fi
+# fi
+
 cd $REPO_NAME-$TAG
 DOWNLOAD_DIR=$PWD
 
-MVAFILES=
+# note: we don't want this once SUPP_CFG is in the repo
+cd $STARTING_DIR
 
-if [ -f sampleSets.cfg ]
+if [[ -f $SUPP_CFG ]]
 then
-    MVAFILES=$(grep "modelFile" sampleSets.cfg | sed 's/[^"]*"\([^"]*\)"/\1/')
-    MISSING=
-    if [[ ! -z ${MVAFILES// } ]]
+    # note: we don't want this once SUPP_CFG is in the repo
+    cd $REPO_NAME-$TAG
+    if [[ -d $SUPP_FILE_DIR ]] 
     then
-        for MVAFILE in $MVAFILES; do
-            if [ ! -f $MVAFILE ]
-            then
-                MISSING="yes"
-                break
-            fi
-        done
-        if [[ ! -z ${MISSING// } ]]
+        echo "The directory $REPO_NAME-$TAG/$SUPP_FILE_DIR already exists"
+    else
+        if [[ ! -f $TARBALL ]]
         then
-            MVATARBALL=MVAFILES.tar.gz
-            wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$MVATARBALL
-            if [ ! -f $MVATARBALL ]
+            echo "Downloading supplementary files"
+            wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$TARBALL
+            if [ ! -f $TARBALL ]
             then
-                echo "MVA tarball "$MVATARBALL" not found!!!"
-                MVATARBALL=${MVAFILES%.*}.tar.gz
-                echo "trying "$MVATARBALL
-                wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$MVATARBALL
-                if [ ! -f $MVATARBALL ]
-                then
-                    echo "MVA tarball "$MVATARBALL" not found!!!"
-                    exit 0
-                fi
+                echo "ERROR: Tarball $REPO_NAME-$TAG/$TARBALL not found after attempted download"
+                exit 1
             fi
-            tar xzf $MVATARBALL
-            rm $MVATARBALL
+        else
+            echo "The tarball $REPO_NAME-$TAG/$TARBALL already exists"
         fi
+        tar xzf $TARBALL
+        rm $TARBALL
     fi
+else
+    echo "ERROR: The supplementary file config \"$SUPP_CFG\" does not exist"
 fi
+
 
 cd $STARTING_DIR
 
 # [[ -z STRING ]] : True of the length if "STRING" is zero.
 if [[ -z $NO_SOFTLINK ]]
 then
+    # create softlinks
+    echo "Creating softlinks"
     ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG $SETS_LINK_NAME
     ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG $COLL_LINK_NAME
-    if [[ ! -z ${MVAFILES// } ]] 
+    # make list of files to tar
+    if [[ -f $SUPP_CFG ]]
     then
-        for MVAFILE in $MVAFILES; do
-            ln $OVERWRITE -s $DOWNLOAD_DIR/$MVAFILE $MVAFILE
-        done
+        while read -r line || [[ -n "$line" ]]
+        do
+            SUPP_FILE="$line"
+            ln $OVERWRITE -s $DOWNLOAD_DIR/$SUPP_FILE_DIR/$SUPP_FILE $SUPP_FILE
+        done < $SUPP_CFG
     fi
 fi
 
