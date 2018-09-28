@@ -438,6 +438,8 @@ void BaselineVessel::PassBaseline()
 
   // Calculate number of jets and b-tagged jets
   int cntCSVS = 0;
+  vBidxs = new std::vector<unsigned int>();
+  vBjs = new std::vector<TLorentzVector>();
   // TODO: Move the cut value to map
   // 2016 MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco#Data_MC_Scale_Factors_period_dep
   // 2017 MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation94X
@@ -445,10 +447,13 @@ void BaselineVessel::PassBaseline()
   // Using Medium WP from Koushik's last study // https://indico.cern.ch/event/597712/contributions/2831328/attachments/1578403/2493318/AN2017_btag2.pdf
   if (UseDeepCSV) 
     cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), 
-        AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr); 
+        AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
   else
     cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), 
-        AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr); 
+        AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  // Getting the b-jets. Sorted by pt by default
+  for(auto idx : *vBidxs)
+    vBjs->push_back(tr->getVec<TLorentzVector>(jetVecLabel).at(idx));
 
   int cntNJetsPt50Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt50Eta24Arr);
   int cntNJetsPt30Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt30Eta24Arr);
@@ -537,6 +542,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("cntNJetsPt20Eta24" + firstSpec, cntNJetsPt20Eta24);
 
   tr->registerDerivedVec("dPhiVec" + firstSpec, dPhiVec);
+  tr->registerDerivedVec("vBjs" + firstSpec, vBjs);
 
   tr->registerDerivedVar("cntCSVS" + firstSpec, cntCSVS);
 
@@ -1153,6 +1159,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   else
     FlagAK8Jets();
   GetSoftbJets();
+  CompCommonVar();
   //GetMHT();
   //GetLeptons();
   //GetRecoZ(81, 101);
@@ -1367,10 +1374,47 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
 }       // -----  end of function BaselineVessel::GetRecoZ  -----
 
 
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::CompCommonVar
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::CompCommonVar()
+{
+  const std::vector<float>  &bdisc = tr->getVec<float>(CSVVecLabel);
+  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
+   std::map<float, unsigned> discmap;
+   for(auto idx : *vBidxs)
+   {
+     discmap[bdisc[idx]] = idx;
+   }
+   float mtb = 999;
+   float ptb = 0;
+   unsigned cnt = 0;
+
+   for (auto iter = discmap.rbegin(); iter != discmap.rend(); ++iter)
+   {
+     float temp = sqrt(2*jets.at(iter->second).Pt()*tr->getVar<float>(METLabel)
+         *(1-cos(jets.at(iter->second).Phi() - tr->getVar<float>(METPhiLabel))));
+     mtb = std::min(mtb, temp);
+     cnt ++;
+     if (cnt == 2) break;
+   }
+   if (mtb == 999) mtb=0;
+
+   for (unsigned i = 0; i < vBjs->size() && i < 2; ++i)
+   {
+     ptb += vBjs->at(i).Pt();
+   }
+
+   tr->registerDerivedVar("Mtb"+firstSpec, mtb);
+   tr->registerDerivedVar("Ptb"+firstSpec, ptb);
+
+  return true;
+}       // -----  end of function BaselineVessel::CompCommonVar  -----
+
 //**************************************************************************//
 //                                 CleanJets                                //
 //**************************************************************************//
-
 void stopFunctions::CleanJets::setMuonIso(const std::string muIsoFlag) 
 {
   if(muIsoFlag.compare("mini") == 0)

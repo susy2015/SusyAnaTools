@@ -21,13 +21,15 @@ namespace AnaFunctions
     return cntNJets;
   }
 
-  int countCSVS(const std::vector<TLorentzVector> &inputJets, const std::vector<float> &inputCSVS, const float cutCSVS, const AnaConsts::AccRec& jetCutsArr){
+  int countCSVS(const std::vector<TLorentzVector> &inputJets, const std::vector<float> &inputCSVS, const float cutCSVS, const AnaConsts::AccRec& jetCutsArr,
+      std::vector<unsigned int> *outputIdxs){
     const float minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
     int cntNJets =0;
     for(unsigned int ij=0; ij<inputJets.size(); ij++){
       if( !jetPassCuts(inputJets[ij], jetCutsArr) ) continue;
       if( std::isnan(inputCSVS[ij]) ) continue;
       if( inputCSVS[ij] > cutCSVS ) cntNJets ++;
+      outputIdxs->push_back(ij);
     }
     return cntNJets;
   }
