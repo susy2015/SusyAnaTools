@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# makeRelease.sh
+# makeStopRelease.sh
 # Caleb J. Smith
 # September 27, 2018
 # 
@@ -11,8 +11,8 @@
 # - config file containing one supplementary file name per line
 # - git token: source a script that does "export GITHUB_TOKEN=<git_token_created_on_github>"
 # - github-release command: softlink /uscms/home/caleb/bin/github-release -> /uscms/home/pastika/bin/github-release
-# - put makeRelease.sh in bin: ~caleb/bin/makeRelease.sh
-# - put github-release and makeRelease.sh in path: export PATH="$PATH:~caleb/bin"
+# - put makeStopRelease.sh in bin: ~caleb/bin/makeStopRelease.sh
+# - put github-release and makeStopRelease.sh in path: export PATH="$PATH:~caleb/bin"
 
 
 GITHUB_SUSY2015_URL=https://github.com/susy2015
@@ -37,7 +37,7 @@ STOP_CFG_NAME=sampleSets.cfg
 function print_help {
     echo ""
     echo "Usage:"
-    echo "    makeRelease.sh -t RELEASE_TAG -b BRANCH [-d SUPP_FILE_DIR] [-m MESSAGE]"
+    echo "    makeStopRelease.sh -t RELEASE_TAG -b BRANCH [-d SUPP_FILE_DIR] [-m MESSAGE]"
     echo ""
     echo "Options:"
     echo "    -t RELEASE_TAG :       This is the github release tag to check out (Required)"
