@@ -159,7 +159,7 @@ cd $STARTING_DIR
 if [[ -f $SUPP_CFG ]]
 then
     # note: we don't want this once SUPP_CFG is in the repo
-    cd $REPO_NAME-$TAG
+    cd $DOWNLOAD_DIR
     if [[ -d $SUPP_FILE_DIR ]] 
     then
         echo "The directory $REPO_NAME-$TAG/$SUPP_FILE_DIR already exists"
