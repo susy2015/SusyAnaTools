@@ -89,6 +89,7 @@ then
     exit 1
 fi
 
+
 cd $CFG_DIRECTORY
 
 if [ ! -d $REPO_NAME-$TAG ]
@@ -154,15 +155,15 @@ cd $REPO_NAME-$TAG
 DOWNLOAD_DIR=$PWD
 
 # note: we don't want this once SUPP_CFG is in the repo
-cd $STARTING_DIR
+#cd $STARTING_DIR
 
 if [[ -f $SUPP_CFG ]]
 then
     # note: we don't want this once SUPP_CFG is in the repo
-    cd $DOWNLOAD_DIR
+    #cd $DOWNLOAD_DIR
     if [[ -d $SUPP_FILE_DIR ]] 
     then
-        echo "The directory $REPO_NAME-$TAG/$SUPP_FILE_DIR already exists"
+        echo "The directory $DOWNLOAD_DIR/$SUPP_FILE_DIR already exists"
     else
         if [[ ! -f $TARBALL ]]
         then
@@ -170,37 +171,44 @@ then
             wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$TARBALL
             if [ ! -f $TARBALL ]
             then
-                echo "ERROR: Tarball $REPO_NAME-$TAG/$TARBALL not found after attempted download"
+                echo "ERROR: Tarball $DOWNLOAD_DIR/$TARBALL not found after attempted download"
                 exit 1
             fi
         else
-            echo "The tarball $REPO_NAME-$TAG/$TARBALL already exists"
+            echo "The tarball $DOWNLOAD_DIR/$TARBALL already exists"
         fi
         tar xzf $TARBALL
         rm $TARBALL
     fi
 else
-    echo "ERROR: The supplementary file config \"$SUPP_CFG\" does not exist"
+    echo "ERROR: The supplementary file config \"$DOWNLOAD_DIR/$SUPP_CFG\" does not exist"
 fi
 
 
 cd $STARTING_DIR
 
+echo "STARTING_DIR: $STARTING_DIR"
+echo "DOWNLOAD_DIR: $DOWNLOAD_DIR"
+
+
 # [[ -z STRING ]] : True of the length if "STRING" is zero.
 if [[ -z $NO_SOFTLINK ]]
 then
     # create softlinks
-    echo "Creating softlinks"
+    echo "Creating softlinks to config files"
     ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG $SETS_LINK_NAME
     ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG $COLL_LINK_NAME
     # make list of files to tar
-    if [[ -f $SUPP_CFG ]]
+    if [[ -f $DOWNLOAD_DIR/$SUPP_CFG ]]
     then
+        echo "Creating softlinks to supplementary files"
         while read -r line || [[ -n "$line" ]]
         do
             SUPP_FILE="$line"
             ln $OVERWRITE -s $DOWNLOAD_DIR/$SUPP_FILE_DIR/$SUPP_FILE $SUPP_FILE
-        done < $SUPP_CFG
+        done < $DOWNLOAD_DIR/$SUPP_CFG
+    else
+        echo "Config file $DOWNLOAD_DIR/$SUPP_CFG not found"
     fi
 fi
 
