@@ -275,12 +275,12 @@ void NTupleReader::addAlias(const std::string& name, const std::string& alias)
         //Check branchMap for "name"
         if(branch_iter != branchMap_.end())
         {
-            branchMap_[alias] = Handle(branch_iter->second.ptr);
+            branchMap_[alias] = Handle(branch_iter->second);
         }
         //If the variable name is not in branchMap, check branchVecMap
         else if(branchVec_iter != branchVecMap_.end())
         {
-            branchVecMap_[alias] = Handle(branchVec_iter->second.ptr);
+            branchVecMap_[alias] = Handle(branchVec_iter->second);
         }
     }
     else
