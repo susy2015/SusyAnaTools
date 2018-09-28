@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# getStopCfg.sh
+# Caleb J. Smith
+# September 27, 2018
+
+# Required to run this script:
+# - release tag from StopCfg repo that you wish to checkout
+
 GITHUB_SUSY2015_URL=https://github.com/susy2015
 REPO_NAME=StopCfg
 

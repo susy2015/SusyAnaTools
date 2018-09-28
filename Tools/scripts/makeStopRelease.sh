@@ -40,7 +40,7 @@ function print_help {
     echo "    makeStopRelease.sh -t RELEASE_TAG -b BRANCH [-d SUPP_FILE_DIR] [-m MESSAGE]"
     echo ""
     echo "Options:"
-    echo "    -t RELEASE_TAG :       This is the github release tag to check out (Required)"
+    echo "    -t RELEASE_TAG :       This is the github release tag which will be created (Required)"
     echo "    -b BRANCH :            Git branch to base release off. This branch must exist. It will be pushed to github. (Required)"
     echo "    -d SUPP_FILE_DIR :     The folder where the supplemental training file can be found (default $SUPP_FILE_DIR)"
     echo "    -m MESSAGE :           Commit message for tag (Default empty)"
