@@ -41,9 +41,9 @@ function print_help {
     echo "    -n :                     Download files without producing softlinks"
     echo ""
     echo "Description:"
-    echo "    This script automatically downloads the Stop SUSY configuration files"
+    echo "    This script automatically downloads the Stop search configuration files"
     echo "    and produces a softlink to this files in your corrent directory. This script should"
-    echo "    be run from the directory where the tagger code will be run from. Stop SUSY "
+    echo "    be run from the directory where the stop code will be run from. Stop search "
     echo "    configuration releases can be browsed at https://github.com/susy2015/StopCfg/releases."
     echo ""
 }

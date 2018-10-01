@@ -46,7 +46,7 @@ function print_help {
     echo "    -m MESSAGE :           Commit message for tag (Default empty)"
     echo ""
     echo "Description:"
-    echo "    This script automatically makes a release of the SUSY Stop config files"
+    echo "    This script automatically makes a release of the Stop search config files"
     echo "    Run this script from the $REPO_NAME directory"
     echo "    Source a script that does \"export GITHUB_TOKEN=<git_token_created_on_github>\" before running this script."
     echo ""

@@ -74,7 +74,7 @@ Other configuration file releases can be found here https://github.com/susy2015/
 
 ## Check out stop config files
 
-Here are the options for the script. The script is based on the TopTagger/Tools/getTaggerCfg.sh, and thus has the same options and functionality.
+Here are the options for the script `SusyAnaTools/Tools/scripts/getStopCfg.sh`. The script is based on `TopTagger/Tools/getTaggerCfg.sh`, and thus has the same options and functionality.
 ```
 $CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -h 
 
@@ -90,9 +90,9 @@ Options:
     -n :                     Download files without producing softlinks
 
 Description:
-    This script automatically downloads the Stop SUSY configuration files
+    This script automatically downloads the Stop search configuration files
     and produces a softlink to this files in your corrent directory. This script should
-    be run from the directory where the tagger code will be run from. Stop SUSY 
+    be run from the directory where the stop code will be run from. Stop search 
     configuration releases can be browsed at https://github.com/susy2015/StopCfg/releases.
 ```
 
