@@ -6,6 +6,7 @@ if ($? != 0) then
 endif
 
 set TAGGERCFGDIR=""
+set STOPCFGDIR=""
 
 # Now we do the eval part. As the result is a list, we need braces. But they
 # must be quoted, because they must be evaluated when the eval is called.
@@ -47,7 +48,11 @@ else
 endif
 
 if ($TAGGERCFGDIR:q == "") then
-    set TAGGERCFGDIR=$SRC/TopTaggerCfgs
+    set TAGGERCFGDIR=$SRC/myTopTaggerCfgs
+endif
+
+if ($STOPCFGDIR:q == "") then
+    set STOPCFGDIR=$SRC/myStopCfgs
 endif
 
 if ! $?LD_LIBRARY_PATH then
@@ -103,8 +108,18 @@ if ( -f $LEGTOPTAGGERFILE && -l $LEGTOPTAGGERFILE ) then
     rm $LEGTOPTAGGERFILE
 endif
 
+# -p give no error if directory exists
+mkdir -p $STOPCFGDIR
+# -o for overwrite softlinks if they exist
+${SRC}/SusyAnaTools/Tools/scripts/getStopCfg.sh -o -t supp_cfg_tag -d $STOPCFGDIR
+
+# -p give no error if directory exists
 mkdir -p $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
-${SRC}/TopTagger/Tools/getTaggerCfg.sh -t MVAAK8_Tight_noQGL_binaryCSV_v1.0.2 -f $SIMPLETOPTAGGERFILE -d $TAGGERCFGDIR
+# -o for overwrite softlinks if they exist
+${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
+${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
+${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -t MVAAK8_Tight_noQGL_binaryCSV_v1.0.2 -f $SIMPLETOPTAGGERFILE -d $TAGGERCFGDIR
+
+
+
 
