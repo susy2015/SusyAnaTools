@@ -61,36 +61,39 @@ else
     setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/:${LD_LIBRARY_PATH}
 endif
 
-## Get the btagging file
-if (! -f CSVv2_Moriond17_B_H.csv) then
-  ln -s ${SRC}/SusyAnaTools/Tools/CSVFiles/CSVv2_Moriond17_B_H.csv .
-endif
-
-if (! -f allINone_bTagEff.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/data/allINone_bTagEff.root .
-endif
-
-if (! -f allINone_ISRJets.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/ISR_Root_Files/allINone_ISRJets.root .
-endif
-
-if (! -f ISRWeights.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/ISR_Root_Files/ISRWeights.root .
-endif
-
-## Pileup Reweighting
-if (! -f PileupHistograms_0121_69p2mb_pm4p6.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/data/PileupHistograms_0121_69p2mb_pm4p6.root .
-endif
-
-## W softdrop mass correction 
-if (! -f puppiCorr.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/data/puppiCorr.root .
-endif
-
-if (! -f allINone_leptonSF_Moriond17.root) then
-  ln -s ${SRC}/SusyAnaTools/Tools/LeptonSF_Root_Files/allINone_leptonSF_Moriond17.root .
-endif
+# previous version of softlinks
+# no longer needed
+#
+# ## Get the btagging file
+# if (! -f CSVv2_Moriond17_B_H.csv) then
+#   ln -s ${SRC}/SusyAnaTools/Tools/CSVFiles/CSVv2_Moriond17_B_H.csv .
+# endif
+# 
+# if (! -f allINone_bTagEff.root) then
+#   ln -s ${SRC}/SusyAnaTools/Tools/data/allINone_bTagEff.root .
+# endif
+# 
+# if (! -f allINone_ISRJets.root) then
+#   ln -s ${SRC}/SusyAnaTools/Tools/ISR_Root_Files/allINone_ISRJets.root .
+# endif
+# 
+# if (! -f ISRWeights.root) then
+#   ln -s ${SRC}/SusyAnaTools/Tools/ISR_Root_Files/ISRWeights.root .
+# endif
+# 
+# ## Pileup Reweighting
+# if (! -f PileupHistograms_0121_69p2mb_pm4p6.root) then
+#   ln -s ${SRC}/SusyAnaTools/Tools/data/PileupHistograms_0121_69p2mb_pm4p6.root .
+# endif
+# 
+# ## W softdrop mass correction 
+# if (! -f puppiCorr.root) then
+#   ln -s ${SRC}/SusyAnaTools/Tools/data/puppiCorr.root .
+# endif
+# 
+# if (! -f allINone_leptonSF_Moriond17.root) then
+#   ln -s ${SRC}/SusyAnaTools/Tools/LeptonSF_Root_Files/allINone_leptonSF_Moriond17.root .
+# endif
 
 ##Checkout latest toptagger cfg file 
 
