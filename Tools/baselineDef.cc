@@ -10,10 +10,7 @@
 //**************************************************************************//
 
 BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specialization, const std::string filterString) : 
-  tr(&tr_), spec(specialization), 
-  //type3Ptr(NULL),
-  ttPtr(NULL),
-  WMassCorFile(NULL)
+  tr(&tr_), spec(specialization), ttPtr(NULL), WMassCorFile(NULL)
 {
   bToFake               = 1;
   debug                 = false;
@@ -21,6 +18,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   UseLepCleanJet        = true;
   UseDeepTagger         = false;
   UseDeepCSV            = false;
+  eraLabel              = "2016MC";
   jetVecLabel           = "jetsLVec";
   CSVVecLabel           = "recoJetsCSVv2";
   METLabel              = "met";
@@ -42,13 +40,9 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   passBaselineNoLepVeto = true;
   metLVec.SetPtEtaPhiM(0, 0, 0, 0);
   if (UseDeepCSV)
-  {
     CSVVecLabel           = "DeepCSVcomb";
-  }
   if (UseDeepTagger)
-  {
     toptaggerCfgFile      = "TopTagger_Deep.cfg";
-  }
 
   if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
 
@@ -76,12 +70,11 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   }
   firstSpec += taggerLabel;
 
+  //TODO: not updated yet, plan to remove
   printOnce = false;
-
   PredefineSpec();
 
   SetupTopTagger(toptaggerCfgFile);
-
 }
 
 // ===  FUNCTION  ============================================================
@@ -134,11 +127,9 @@ std::string BaselineVessel::UseNoLepVar(std::string varname) const
     return varname;
 }       // -----  end of function BaselineVessel::UseNoLepVar  -----
 
-
-
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::SetupTopTagger
-//  Description:  
+//  Description:
 // ===========================================================================
 bool BaselineVessel::SetupTopTagger(std::string CfgFile_)
 {
@@ -196,15 +187,17 @@ void BaselineVessel::prepareDeepTopTagger()
   AK4Inputs.addSupplamentalVector("DeepCSVcc",                           tr->getVec<float>(UseNoLepVar("DeepCSVcc")));
 
 
-  const std::vector<TLorentzVector> &AK8JetLV = tr->getVec<TLorentzVector>(jetVecLabelAK8);
-  const std::vector<float> &AK8JetSoftdropMass = tr->getVec<float>(UseNoLepVar("puppisoftDropMass"));
-  const std::vector<float> &AK8JetDeepAK8Top = tr->getVec<float>(UseNoLepVar("deepAK8btop"));
-  const std::vector<std::vector<TLorentzVector>> &AK8SubjetLV = tr->getVec<std::vector<TLorentzVector> >(UseNoLepVar("puppiAK8SubjetLVec"));
+  const std::vector<TLorentzVector>              &AK8JetLV           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const std::vector<float>                       &AK8JetSoftdropMass = tr->getVec<float>(UseNoLepVar("puppisoftDropMass"));
+  const std::vector<float>                       &AK8JetDeepAK8Top   = tr->getVec<float>(UseNoLepVar("deepAK8btop"));
+  const std::vector<float>                       &AK8JetDeepAK8W     = tr->getVec<float>(UseNoLepVar("deepAK8bW"));
+  const std::vector<std::vector<TLorentzVector>> &AK8SubjetLV        = tr->getVec<std::vector<TLorentzVector>               >(UseNoLepVar("puppiAK8SubjetLVec"));
 
   //Create AK8 inputs object
   ttUtility::ConstAK8Inputs<float> AK8Inputs(
       AK8JetLV,
       AK8JetDeepAK8Top,
+      AK8JetDeepAK8W,
       AK8JetSoftdropMass,
       AK8SubjetLV
       );
@@ -389,6 +382,7 @@ bool BaselineVessel::PassTopTagger()
   int nTopCandSortedCnt = -1;
   bool passTagger = false;
   vTops = new std::vector<TLorentzVector>();
+  vWs = new std::vector<TLorentzVector>();
   mTopJets = new std::map<int, std::vector<TLorentzVector> >();
 
   nTopCandSortedCnt = GetnTops();
@@ -396,13 +390,34 @@ bool BaselineVessel::PassTopTagger()
 
   tr->registerDerivedVar("nTopCandSortedCnt" + firstSpec, nTopCandSortedCnt);
   tr->registerDerivedVec("vTops"+firstSpec, vTops);
+  tr->registerDerivedVec("vWs"+firstSpec, vWs);
   tr->registerDerivedVec("mTopJets"+firstSpec, mTopJets);
 
   return passTagger;
 }       // -----  end of function BaselineVessel::PassTopTagger  -----
 
+
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::PrintoutConfig
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::PrintoutConfig() const
+{
+  if (!tr->isFirstEvent()) return false;
+  
+  std::cout << "=================== Current Config: " << std::endl;
+  std::cout << "Era Label      : " << eraLabel         << std::endl;
+  std::cout << "AK4Jet Label   : " << jetVecLabel      << std::endl;
+  std::cout << "b-tag Label    : " << CSVVecLabel      << std::endl;
+  std::cout << "top-tag config : " << toptaggerCfgFile << std::endl;
+  std::cout << "MET Label      : " << METLabel         << std::endl;
+  std::cout << "=================== Current Config: " << std::endl;
+  return true;
+}       // -----  end of function BaselineVessel::PrintoutConfig  -----
+
 void BaselineVessel::PassBaseline()
 {
+  PrintoutConfig();
   // Initial value
   passBaseline          = true;
   passBaselineNoTagMT2  = true;
@@ -423,16 +438,24 @@ void BaselineVessel::PassBaseline()
   int nIsoPionTrks = AnaFunctions::countIsoPionTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
 
   // Calculate number of jets and b-tagged jets
-  int cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), AnaConsts::cutCSVS, AnaConsts::bTagArr);
+  int cntCSVS = 0;
+  vBidxs = new std::vector<unsigned int>();
+  vBjs = new std::vector<TLorentzVector>();
   // TODO: Move the cut value to map
   // 2016 MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco#Data_MC_Scale_Factors_period_dep
   // 2017 MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation94X
   // 2016 MC: Medium WP 0.6324, Tight WP 0.8958
   // Using Medium WP from Koushik's last study // https://indico.cern.ch/event/597712/contributions/2831328/attachments/1578403/2493318/AN2017_btag2.pdf
   if (UseDeepCSV) 
-  {
-    cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), 0.6324, AnaConsts::bTagArr); 
-  }
+    cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), 
+        AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  else
+    cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), 
+        AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  // Getting the b-jets. Sorted by pt by default
+  for(auto idx : *vBidxs)
+    vBjs->push_back(tr->getVec<TLorentzVector>(jetVecLabel).at(idx));
+
   int cntNJetsPt50Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt50Eta24Arr);
   int cntNJetsPt30Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt30Eta24Arr);
   int cntNJetsPt20Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt20Eta24Arr);
@@ -455,8 +478,6 @@ void BaselineVessel::PassBaseline()
 
   // Pass number of jets?
   bool passnJets = true;
-  //if( cntNJetsPt50Eta24 < AnaConsts::nJetsSelPt50Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; passBaselineNoLepVeto = false; }
-  //if( cntNJetsPt30Eta24 < AnaConsts::nJetsSelPt30Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; passBaselineNoLepVeto = false; }
   if( cntNJetsPt20Eta24 < AnaConsts::nJetsSelPt20Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; passBaselineNoLepVeto = false; }
   if( debug ) std::cout<<"cntNJetsPt50Eta24 : "<<cntNJetsPt50Eta24<<"  cntNJetsPt30Eta24 : "<<cntNJetsPt30Eta24<<"  cntNJetsPt30 : "<<cntNJetsPt30<<"  passBaseline : "<<passBaseline<<std::endl;
 
@@ -468,7 +489,6 @@ void BaselineVessel::PassBaseline()
   // Pass number of b-tagged jets? 
   // No b-tag in baseline
   bool passBJets = true;
-  //if( !( (AnaConsts::low_nJetsSelBtagged == -1 || cntCSVS >= AnaConsts::low_nJetsSelBtagged) && (AnaConsts::high_nJetsSelBtagged == -1 || cntCSVS < AnaConsts::high_nJetsSelBtagged ) ) ){ passBaseline = false; passBJets = false; passBaselineNoLepVeto = false; }
   if( debug ) std::cout<<"cntCSVS : "<<cntCSVS<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass the baseline MET requirement?
@@ -486,12 +506,10 @@ void BaselineVessel::PassBaseline()
   // Note that to save speed, only do the calculation after previous base line requirements.
 
   if (UseDeepTagger)
-  {
     prepareDeepTopTagger();
-  }
-  else{
+  else
     prepareTopTagger();
-  }
+
   bool passTagger = PassTopTagger();
   //if( !passTagger ){ passBaseline = false; passBaselineNoLepVeto = false; }
 
@@ -525,6 +543,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("cntNJetsPt20Eta24" + firstSpec, cntNJetsPt20Eta24);
 
   tr->registerDerivedVec("dPhiVec" + firstSpec, dPhiVec);
+  tr->registerDerivedVec("vBjs" + firstSpec, vBjs);
 
   tr->registerDerivedVar("cntCSVS" + firstSpec, cntCSVS);
 
@@ -561,24 +580,33 @@ void BaselineVessel::PassBaseline()
 
 int BaselineVessel::GetnTops() const
 {
-  int nTops = 0;
-
   //get output of tagger
   const TopTaggerResults& ttr = ttPtr->getResults();
   //Use result for top var
   std::vector<TopObject*> Ntop = ttr.getTops();  
-  nTops = Ntop.size();
-  for(int it=0; it<nTops; it++)
+
+  for(unsigned int it=0; it<Ntop.size(); it++)
   {
+    TopObject::Type  type = Ntop.at(it)->getType() ;
+    if ( type == TopObject::Type::MERGED_TOP 
+        || type == TopObject::Type::SEMIMERGEDWB_TOP
+        || type == TopObject::Type::RESOLVED_TOP)
+    {
       vTops->push_back(Ntop.at(it)->P());
       std::vector<TLorentzVector> temp;
       for(auto j : Ntop.at(it)->getConstituents())
       {
-          temp.push_back(j->P());
+        temp.push_back(j->P());
       }
       mTopJets->insert(std::make_pair(it, temp));
+    }
+    if ( type == TopObject::Type::MERGED_W)
+    {
+      vWs->push_back(Ntop.at(it)->P());
+    }
   }
 
+  int nTops = vTops->size();
   return nTops;
 }       // -----  end of function VarPerEvent::GetnTops  -----
 
@@ -617,7 +645,6 @@ bool BaselineVessel::FlagAK8Jets()
     vAK8Flag->push_back(flag);
   }
 
-  tr->registerDerivedVec("vAK8Flag"+spec, vAK8Flag);
 
   GetWAlone();
   GetISRJet();
@@ -633,35 +660,45 @@ bool BaselineVessel::FlagDeepAK8Jets()
   const std::vector<TLorentzVector> &ak8s =  tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec"));
   const std::vector<float> &btops =  tr->getVec<float>(UseNoLepVar("deepAK8btop"));
   const std::vector<float> &bWs =  tr->getVec<float>(UseNoLepVar("deepAK8bW"));
-  vAK8Flag = new std::vector<unsigned>();
+  vAK8Flag = new std::vector<unsigned>(ak8s.size(), NoTag);
   
+  std::vector<TLorentzVector> topjets;
+  // Cross check with top tagger
+  for(auto tops : *mTopJets)
+  {
+    if (tops.second.size() == 1)
+      topjets.push_back(tops.second.front());
+  }
+
   for (unsigned int i = 0; i < ak8s.size(); ++i)
   {
-    if (btops.at(i) > 0.8)
+    bool matched = false;
+    for(auto t : topjets)
     {
-      vAK8Flag->push_back(TopTag);
+      if (t == ak8s.at(i))
+      {
+        vAK8Flag->at(i) = TopTag;
+        matched = true;
+        break;
+      }
     }
-    else if (bWs.at(i) > 0.8)
+    if (matched) continue;
+    for(auto t : *vWs)
     {
-      vAK8Flag->push_back(WTag);
-    }
-    else
-    {
-      unsigned flag = FlagAK8DeepFromCSV(i);
-      vAK8Flag->push_back(NoTag);
+      if (t == ak8s.at(i))
+      {
+        vAK8Flag->at(i) = WTag;
+        matched = true;
+        break;
+      }
     }
   }
 
-  std::vector<TLorentzVector> *vWs= new std::vector<TLorentzVector>();
-  for(unsigned int i=0; i < vAK8Flag->size(); ++i)
+  for (unsigned int i = 0; i < ak8s.size(); ++i)
   {
-    if (vAK8Flag->at(i) == WTag)
-    {
-      vWs->push_back(ak8s.at(i));
-    }
+    if (vAK8Flag->at(i) != NoTag) continue;
+    vAK8Flag->at(i) = FlagAK8DeepFromCSV(i);
   }
-  tr->registerDerivedVec("vWs"+spec, vWs);
-  tr->registerDerivedVec("vAK8Flag"+spec, vAK8Flag);
 
   GetISRJet();
   return true;
@@ -719,12 +756,12 @@ AK8Flag BaselineVessel::FlagAK8DeepFromCSV(unsigned int AK8index) const
         if (jets.at(ij).Pt() < 20 || fabs(jets.at(ij).Eta()) > 2.4) continue;
         if (UseDeepCSV)
         {
-          if (CSV.at(ij) > 0.6324 ) mediumbcnt ++;
-          if (CSV.at(ij) > 0.2219  ) loosebcnt ++;
+          if (CSV.at(ij) > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) mediumbcnt ++;
+          if (CSV.at(ij) > AnaConsts::DeepCSV.at(eraLabel).at("cutL")) loosebcnt ++;
         }
         else{
-          if (CSV.at(ij) > AnaConsts::cutCSVS ) mediumbcnt ++;
-          if (CSV.at(ij) > AnaConsts::cutCSVL ) loosebcnt ++;
+          if (CSV.at(ij) > AnaConsts::CSVv2.at(eraLabel).at("cutM")) mediumbcnt ++;
+          if (CSV.at(ij) > AnaConsts::CSVv2.at(eraLabel).at("cutM")) loosebcnt ++;
         }
       }
     }
@@ -832,7 +869,8 @@ bool BaselineVessel::GetISRJet() const
     if (vAK8Flag->at(i) == NoTagNob)
     {
       float pt = AK8.at(i).Pt();
-      if (pt > 200)
+      if (pt > 200 && fabs(AK8.at(i).Eta()) < 2.4
+          && fabs(TVector2::Phi_mpi_pi(AK8.at(i).Phi()- tr->getVar<float>(METPhiLabel))) > 2)
         ISRJetAll[pt] = AK8.at(i);
     }
   }
@@ -1127,7 +1165,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
     FlagAK8Jets();
   //std::cout << __LINE__ << std::endl;
   GetSoftbJets();
-  //std::cout << __LINE__ << std::endl;
+  CompCommonVar();
   //GetMHT();
   //GetLeptons();
   //GetRecoZ(81, 101);
@@ -1343,10 +1381,47 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
 }       // -----  end of function BaselineVessel::GetRecoZ  -----
 
 
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::CompCommonVar
+//  Description:  
+// ===========================================================================
+bool BaselineVessel::CompCommonVar()
+{
+  const std::vector<float>  &bdisc = tr->getVec<float>(CSVVecLabel);
+  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
+   std::map<float, unsigned> discmap;
+   for(auto idx : *vBidxs)
+   {
+     discmap[bdisc[idx]] = idx;
+   }
+   float mtb = 999;
+   float ptb = 0;
+   unsigned cnt = 0;
+
+   for (auto iter = discmap.rbegin(); iter != discmap.rend(); ++iter)
+   {
+     float temp = sqrt(2*jets.at(iter->second).Pt()*tr->getVar<float>(METLabel)
+         *(1-cos(jets.at(iter->second).Phi() - tr->getVar<float>(METPhiLabel))));
+     mtb = std::min(mtb, temp);
+     cnt ++;
+     if (cnt == 2) break;
+   }
+   if (mtb == 999) mtb=0;
+
+   for (unsigned i = 0; i < vBjs->size() && i < 2; ++i)
+   {
+     ptb += vBjs->at(i).Pt();
+   }
+
+   tr->registerDerivedVar("Mtb"+firstSpec, mtb);
+   tr->registerDerivedVar("Ptb"+firstSpec, ptb);
+
+  return true;
+}       // -----  end of function BaselineVessel::CompCommonVar  -----
+
 //**************************************************************************//
 //                                 CleanJets                                //
 //**************************************************************************//
-
 void stopFunctions::CleanJets::setMuonIso(const std::string muIsoFlag) 
 {
   if(muIsoFlag.compare("mini") == 0)

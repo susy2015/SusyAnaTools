@@ -107,6 +107,6 @@ endif
 mkdir -p $TAGGERCFGDIR
 ${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
 ${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
-${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t DeepCombined_Example_v1.0.2 -f $DEEPTOPTAGGERFILE -d $TAGGERCFGDIR
+${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t DeepCombined_Example_v1.0.3 -f $DEEPTOPTAGGERFILE -d $TAGGERCFGDIR
 
 

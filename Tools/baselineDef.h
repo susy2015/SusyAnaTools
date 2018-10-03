@@ -47,7 +47,10 @@ private:
     std::vector<TLorentzVector> *jetsLVec_forTagger;
     std::vector<float> *recoJetsBtag_forTagger;
     std::vector<float> *qgLikelihood_forTagger;
+    std::vector<TLorentzVector> *vBjs;
+    std::vector<unsigned int> *vBidxs;
     std::vector<TLorentzVector> *vTops;
+    std::vector<TLorentzVector> *vWs;
     std::map<int, std::vector<TLorentzVector> > *mTopJets;
     std::vector<unsigned> * vAK8Flag;
 
@@ -63,6 +66,7 @@ public:
     bool UseDeepTagger;
     bool UseDeepCSV;
 
+    std::string eraLabel;
     std::string jetVecLabel;
     std::string CSVVecLabel;
     std::string METLabel;
@@ -88,6 +92,8 @@ public:
 
     inline std::string UseNoLepVar(std::string varname) const;
     void PassBaseline();
+    bool PrintoutConfig() const;
+    bool CompCommonVar();
     bool passNoiseEventFilterFunc();
     bool passQCDHighMETFilterFunc();
     bool passFastsimEventFilterFunc();
