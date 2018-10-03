@@ -93,15 +93,15 @@ endif
 #it is safer to clear our old cfg files, but as a safety only if they are softlinks
 set TOPTAGGERFILE=TopTagger.cfg
 if ( -f $TOPTAGGERFILE && -l $TOPTAGGERFILE ) then
-    rm $TOPTAGGERFILE
+    rm -f $TOPTAGGERFILE
 endif
 set DEEPTOPTAGGERFILE=TopTagger_Deep.cfg
 if ( -f $DEEPTOPTAGGERFILE && -l $DEEPTOPTAGGERFILE ) then
-    rm $DEEPTOPTAGGERFILE
+    rm -f $DEEPTOPTAGGERFILE
 endif
 set LEGTOPTAGGERFILE=Legacy_TopTagger.cfg
 if ( -f $LEGTOPTAGGERFILE && -l $LEGTOPTAGGERFILE ) then
-    rm $LEGTOPTAGGERFILE
+    rm -f $LEGTOPTAGGERFILE
 endif
 
 mkdir -p $TAGGERCFGDIR

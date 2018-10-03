@@ -19,8 +19,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   debug                 = false;
   incZEROtop            = false;
   UseLepCleanJet        = true;
-  UseDeepTagger         = true;
-  UseDeepCSV            = true;
+  UseDeepTagger         = false;
+  UseDeepCSV            = false;
   jetVecLabel           = "jetsLVec";
   CSVVecLabel           = "recoJetsCSVv2";
   METLabel              = "met";
@@ -28,6 +28,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   jetVecLabelAK8        = "puppiJetsLVec";
   qgLikehoodLabel       = "qgLikelihood";
   muonsFlagIDLabel      = "muonsFlagLoose"; 
+  //muonsFlagIDLabel      = "muonsFlagMedium"; 
   elesFlagIDLabel       = "elesFlagVeto";
   toptaggerCfgFile      = "TopTagger.cfg";
   doIsoTrksVeto         = true;
@@ -654,7 +655,7 @@ bool BaselineVessel::FlagDeepAK8Jets()
   std::vector<TLorentzVector> *vWs= new std::vector<TLorentzVector>();
   for(unsigned int i=0; i < vAK8Flag->size(); ++i)
   {
-    if (vAK8Flag->at(i) == WAloneTag)
+    if (vAK8Flag->at(i) == WTag)
     {
       vWs->push_back(ak8s.at(i));
     }
@@ -1113,18 +1114,25 @@ float BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLor
 void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
+  //std::cout << __LINE__ << std::endl;
   UseLepCleanJets();
+  //std::cout << __LINE__ << std::endl;
   CombDeepCSV(); //temparory fix for DeepCSV
+  //std::cout << __LINE__ << std::endl;
   PassBaseline();
+  //std::cout << __LINE__ << std::endl;
   if (UseDeepTagger)
     FlagDeepAK8Jets();
   else
     FlagAK8Jets();
+  //std::cout << __LINE__ << std::endl;
   GetSoftbJets();
+  //std::cout << __LINE__ << std::endl;
   //GetMHT();
   //GetLeptons();
   //GetRecoZ(81, 101);
-  GetTopCombs();
+  //GetTopCombs();  //temp commented for seg fault
+  //std::cout << __LINE__ << std::endl;
 }
 
 
