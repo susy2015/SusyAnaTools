@@ -101,12 +101,12 @@ Here is a general example.
 $CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t DESIRED_TAG -d PATH_TO_DOWNLOAD_TO
 ```
 
-Here is a specific example for the CMSSW8028_2016 tag.
+Here is a specific example for the CMSSW8028_2016_v1.0.1 tag.
 We create softlinks for sampleSets.cfg and sampleCollections.cfg in our current directory.
 We use the -o flag, which means, "Overwrite the softlinks if they already exist."
 The -f flag specifies the name of the softlink.
 ```
-$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t CMSSW8028_2016 -d . -s sampleSets.cfg -c sampleCollections.cfg -o
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t CMSSW8028_2016_v1.0.1 -d . -s sampleSets.cfg -c sampleCollections.cfg -o
 ```
 Actually, for our example, we could omit the "-d ." option as we are downloading the files in our current directory (which is the default).
 
