@@ -42,7 +42,7 @@ function print_help {
     echo "Options:"
     echo "    -t RELEASE_TAG :       This is the github release tag which will be created (Required)"
     echo "    -b BRANCH :            Git branch to base release off. This branch must exist. It will be pushed to github. (Required)"
-    echo "    -d SUPP_FILE_DIR :     The folder where the supplemental training file can be found (default $SUPP_FILE_DIR)"
+    echo "    -d SUPP_FILE_DIR :     The folder where the supplementary files can be found (default $SUPP_FILE_DIR)"
     echo "    -m MESSAGE :           Commit message for tag (Default empty)"
     echo ""
     echo "Description:"
