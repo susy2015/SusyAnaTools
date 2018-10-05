@@ -19,7 +19,7 @@
 
 int main(int argc, char* argv[]){
 
-	const bool debug = false;
+	const bool debug = true;
 	const bool use_new_tagger = true;
 
 	// ---------- Input & Output File Arguments ----------
@@ -403,6 +403,7 @@ int main(int argc, char* argv[]){
 		}
 
 		// ---------- Begin Sub Loop Over Jets ----------
+	if(debug) std::cout << __LINE__ << std::endl;
 
 		for(int index=0; index < njets ; index++)
 		{
@@ -459,6 +460,7 @@ int main(int argc, char* argv[]){
 		if(b_jetsLVec.size() == 1) bottompt_scalar_sum = b_jetsLVec.at(0).Pt();	
 		if(b_jetsLVec.size() > 1) bottompt_scalar_sum = b_jetsLVec.at(0).Pt() + b_jetsLVec.at(1).Pt();	
 
+	if(debug) std::cout << __LINE__ << std::endl;
 		/*for (int i=0; i<b_jetsLVec.size(); i++)
 		  {
 		  std::cout << "event " << tr.getEvtNum() << " # " << i << " bjet pt " << b_jetsLVec.at(i).Pt() << std::endl;
@@ -489,6 +491,7 @@ int main(int argc, char* argv[]){
 			float MT_1 = sqrt(2*tlv_Pt_1*met*(1-cos(tlv_Phi_1 - metphi)));
 			mtb = MT_1;
 		}
+
 		if (b_jetsLVec.size() >= 2)
 		{
 			std::vector<float> cachedMT2vec;
@@ -512,22 +515,27 @@ int main(int argc, char* argv[]){
 			float MT_2 = sqrt(2*tlv_Pt_2*met*(1-cos(tlv_Phi_2 - metphi)));
 			mtb = std::min(MT_1,MT_2);
 		}
+	if(debug) std::cout << __LINE__ << std::endl;
 
 		//std::cout << "no cut mtb = " << mtb << " mt2_b " << mt2_b << std::endl;
-
+		if(ntop > 0)
+		{
+		std::cout << "nTopCandSortedCnt = " << ntop << " mTopJets.size() = " << mTopJets.size() << std::endl;
+		std::cout << "mTopJets.begin()->first = " << mTopJets.begin()->first  << std::endl; 
+		//std::cout << "nTopCandSortedCnt = " << ntop << " mTopJets.size() = " << mTopJets.size() << " mTopJets.at(0).size() = " << mTopJets.at(0).size() << std::endl;
 		for (int i = 0; i < ntop; i++)
 		{
 			//std::cout << "top index " << i << std::endl;
-
 			if (mTopJets.at(i).size() ==1) ntop_merge++;
 			if (mTopJets.at(i).size() ==2) ntop_w++;
 			if (mTopJets.at(i).size() ==3) ntop_res++;
-
 			//for (int k = 0; k < mTopJets.at(i).size(); k++) std::cout << "top daughter " << k << " mass = " << mTopJets.at(i).at(k).M() << std::endl;
+		}
 		}
 
 		if(use_new_tagger) nw = nw_tagger;
 		else nw = nw_tagger + ntop_w;	
+	if(debug) std::cout << __LINE__ << std::endl;
 
 		int SB_highdm(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met, float ht);
 		int SB_highdm_MT2(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met, float ht, float mt2);
@@ -559,6 +567,7 @@ int main(int argc, char* argv[]){
 		bool pass_ISR = (ISRpt > 200 && fabs(ISRLVec.at(0).Eta()) < 2.4 && fabs(ISRLVec.at(0).Phi() - metphi) > 2); 		//SUS-16-049, low dm, ISR cut
 		bool pass_low_dM_baseline=(tr.getVar<bool>("passLeptVeto") && ntop == 0 && nw == 0 && pass_ISR && S_met > 10 && passdphi_lowdm && pass_mtb_lowdm && tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 2); 		//baseline for SUS-16-049 low dm
 		bool pass_low_dM_baseline_singleLeptCR=(ntop == 0 && nw == 0 && pass_ISR && S_met > 10 && passdphi_lowdm && pass_mtb_lowdm && tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 2); 		//baseline without lept veto for SUS-16-049 low dm
+	if(debug) std::cout << __LINE__ << std::endl;
 
 		// ---------- Fill Histograms ----------
 
@@ -807,6 +816,7 @@ int main(int argc, char* argv[]){
 				int n_plus_gen_match = 0, n_minus_gen_match = 0;
 				int n_plus_b_gen_match = 0, n_minus_b_gen_match = 0;
 				int n_plus_w_gen_match = 0, n_minus_w_gen_match = 0;
+	if(debug) std::cout << __LINE__ << std::endl;
 
 				if(ntop > 0)
 				{	
@@ -948,6 +958,7 @@ int main(int argc, char* argv[]){
 	} // End Loop Over Events
 
 	// ---------- Write Histograms to File ----------
+	if(debug) std::cout << __LINE__ << std::endl;
 
 	TFile out_file(outputfile,"RECREATE"); // Creates TFile with name passed to outputfile from input argument
 
