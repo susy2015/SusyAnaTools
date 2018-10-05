@@ -1,7 +1,7 @@
 #!/bin/tcsh
 
 set called=($_)
-set temp=(`getopt -s tcsh -o s:t:l -- $argv:q`)
+set temp=(`getopt -s tcsh -o s:t:lo -- $argv:q`)
 if ($? != 0) then 
   echo "Terminating..." >/dev/stderr
   exit 1
@@ -9,6 +9,7 @@ endif
 
 set STOPCFGDIR=""
 set TAGGERCFGDIR=""
+set OVERWRITE=""
 
 # Now we do the eval part. As the result is a list, we need braces. But they
 # must be quoted, because they must be evaluated when the eval is called.
@@ -27,6 +28,10 @@ while (1)
             breaksw;
         case -l:
             echo "Option l, argument "\`$2:q\'
+            shift
+            breaksw;
+        case -o:
+            set OVERWRITE="-o"
             shift
             breaksw;
         case --:
@@ -83,8 +88,8 @@ endif
 
 # -p give no error if directory exists
 mkdir -p $STOPCFGDIR
-# -o for overwrite softlinks if they exist
-${SRC}/SusyAnaTools/Tools/scripts/getStopCfg.sh -o -t CMSSW8028_2016_v1.0.1 -d $STOPCFGDIR
+# set OVERWRITE = -o via options to overwrite softlinks if they exist
+${SRC}/SusyAnaTools/Tools/scripts/getStopCfg.sh $OVERWRITE -t CMSSW8028_2016_v1.0.2 -d $STOPCFGDIR
 
 ##Checkout latest toptagger cfg file 
 
@@ -104,9 +109,9 @@ endif
 
 # -p give no error if directory exists
 mkdir -p $TAGGERCFGDIR
-# -o for overwrite softlinks if they exist
-${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
-${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
-${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -t MVAAK8_Tight_noQGL_binaryCSV_v1.0.2 -f $SIMPLETOPTAGGERFILE -d $TAGGERCFGDIR
+# set OVERWRITE = -o via options to overwrite softlinks if they exist
+${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
+${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
+${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t MVAAK8_Tight_noQGL_binaryCSV_v1.0.2 -f $SIMPLETOPTAGGERFILE -d $TAGGERCFGDIR
 
 
