@@ -583,13 +583,14 @@ int BaselineVessel::GetnTops() const
   const TopTaggerResults& ttr = ttPtr->getResults();
   //Use result for top var
   std::vector<TopObject*> Ntop = ttr.getTops();  
+  unsigned int topidx = 0;
 
   for(unsigned int it=0; it<Ntop.size(); it++)
   {
     TopObject::Type  type = Ntop.at(it)->getType() ;
-    if ( type == TopObject::Type::MERGED_TOP 
-        || type == TopObject::Type::SEMIMERGEDWB_TOP
-        || type == TopObject::Type::RESOLVED_TOP)
+    if ( type == TopObject::Type::MERGED_TOP
+    || type   == TopObject::Type::SEMIMERGEDWB_TOP
+    || type   == TopObject::Type::RESOLVED_TOP)
     {
       vTops->push_back(Ntop.at(it)->P());
       std::vector<TLorentzVector> temp;
@@ -597,7 +598,7 @@ int BaselineVessel::GetnTops() const
       {
         temp.push_back(j->P());
       }
-      mTopJets->insert(std::make_pair(it, temp));
+      mTopJets->insert(std::make_pair(topidx++, temp));
     }
     if ( type == TopObject::Type::MERGED_W)
     {
@@ -988,6 +989,7 @@ bool BaselineVessel::passNoiseEventFilterFunc()
     int ecalTPFilter = tr->getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
 
     unsigned int jetIDFilter = isfastsim? 1:tr->getVar<unsigned int>("AK4NoLeplooseJetID");
+    //unsigned int jetIDFilter = true;
     // new filters
     const unsigned int & BadPFMuonFilter = tr->getVar<unsigned int>("BadPFMuonFilter");
     bool passBadPFMuonFilter = (&BadPFMuonFilter) != nullptr? tr->getVar<unsigned int>("BadPFMuonFilter") !=0 : true;
@@ -1160,7 +1162,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
     FlagAK8Jets();
   GetSoftbJets();
   CompCommonVar();
-  //GetMHT();
+  GetMHT();
   //GetLeptons();
   //GetRecoZ(81, 101);
   GetTopCombs();
@@ -1253,11 +1255,11 @@ bool BaselineVessel::GetMHT() const
       SumHT += jet.Pt();
     }
   }
-  tr->registerDerivedVar("MHT"+firstSpec, MHT.Pt());
-  tr->registerDerivedVar("MHTPhi"+firstSpec, MHT.Phi());
-  tr->registerDerivedVar("MHTSig"+firstSpec, MHT.Pt()/ sqrt(SumHT));
+  tr->registerDerivedVar("MHT"+firstSpec, static_cast<float>(MHT.Pt()));
+  tr->registerDerivedVar("MHTPhi"+firstSpec, static_cast<float>(MHT.Phi()));
+  tr->registerDerivedVar("MHTSig"+firstSpec, static_cast<float>(MHT.Pt()/ sqrt(SumHT)));
 
-  tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<float>(METLabel)/ sqrt(SumHT));
+  tr->registerDerivedVar("METSig"+firstSpec, static_cast<float>(tr->getVar<float>(METLabel)/ sqrt(SumHT)));
   return true;
 }       // -----  end of function BaselineVessel::GetMHT  -----
 
