@@ -108,48 +108,6 @@ else
     echo "Directory "$REPO_NAME-$TAG" already present"
 fi
 
-#cd $REPO_NAME-$TAG
-#DOWNLOAD_DIR=$PWD
-
-# From previous TopTagger version of this script
-# here just for reference
-#
-# MVAFILES=
-# 
-# if [ -f sampleSets.cfg ]
-# then
-#     MVAFILES=$(grep "modelFile" sampleSets.cfg | sed 's/[^"]*"\([^"]*\)"/\1/')
-#     MISSING=
-#     if [[ ! -z ${MVAFILES// } ]]
-#     then
-#         for MVAFILE in $MVAFILES; do
-#             if [ ! -f $MVAFILE ]
-#             then
-#                 MISSING="yes"
-#                 break
-#             fi
-#         done
-#         if [[ ! -z ${MISSING// } ]]
-#         then
-#             MVATARBALL=MVAFILES.tar.gz
-#             wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$MVATARBALL
-#             if [ ! -f $MVATARBALL ]
-#             then
-#                 echo "MVA tarball "$MVATARBALL" not found!!!"
-#                 MVATARBALL=${MVAFILES%.*}.tar.gz
-#                 echo "trying "$MVATARBALL
-#                 wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$MVATARBALL
-#                 if [ ! -f $MVATARBALL ]
-#                 then
-#                     echo "MVA tarball "$MVATARBALL" not found!!!"
-#                     exit 0
-#                 fi
-#             fi
-#             tar xzf $MVATARBALL
-#             rm $MVATARBALL
-#         fi
-#     fi
-# fi
 
 cd $REPO_NAME-$TAG
 DOWNLOAD_DIR=$PWD
