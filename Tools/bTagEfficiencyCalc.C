@@ -118,11 +118,23 @@ int main(int argc, char* argv[])
         {
 	    std::cout<<"\n   Processing the "<<tr->getEvtNum()-1<<"th event ..."<<std::endl;
         }
-	  
-	  
-        const  vector<TLorentzVector> inputJets = tr->getVec<TLorentzVector>("jetsLVec");
-        const vector<float> recoJetsBtag = tr->getVec<float>("recoJetsBtag_0");
-        const vector<int> recoJetsFlavor = tr->getVec<int>("recoJetsFlavor");
+
+        std::string JetsVec, BJetsVec, JetsFlavor;          
+        if(tr->checkBranch("met"))
+        {
+            JetsVec = "jetsLVec";
+            BJetsVec = "recoJetsCSVv2";
+            JetsFlavor = "recoJetsFlavor";
+        }
+        else if(tr->checkBranch("MET"))
+        {
+            JetsVec = "Jets";
+            BJetsVec = "Jets_bDiscriminatorCSV";
+            JetsFlavor = "Jets_partonFlavor";
+        }
+        const auto& inputJets = tr->getVec<TLorentzVector>(JetsVec);
+        const auto& recoJetsBtag = tr->getVec<float>(BJetsVec);
+        const auto& recoJetsFlavor = tr->getVec<int>(JetsFlavor);          
          
         float iniWeight = tr->getVar<float>("evtWeight");
 

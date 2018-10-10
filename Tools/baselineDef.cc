@@ -81,8 +81,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 bool BaselineVessel::UseLepCleanJets() 
 {
   UseLepCleanJet        = true;
-  jetVecLabel           = "jetsLVecLepCleaned";
-  CSVVecLabel           = "recoJetsBtag_0_LepCleaned";
+  jetVecLabel           = "prodJetsNoLep_jetsLVec";
+  CSVVecLabel           = "prodJetsNoLep_recoJetsCSVv2";
   qgLikehoodLabel       = "prodJetsNoLep_qgLikelihood";
   return true;
 }       // -----  end of function BaselineVessel::UseLepCleanJets  -----
@@ -254,7 +254,7 @@ bool BaselineVessel::PredefineSpec()
     METLabel = "met_hadtau";
     METPhiLabel = "metphi_hadtau";
     jetVecLabel = "jetsLVec_hadtau";
-    CSVVecLabel = "recoJetsBtag_0_hadtau";
+    CSVVecLabel = "recoJetsCSVv2_hadtau";
   }
   else if( spec.compare("lostlept") == 0)
   {
@@ -264,8 +264,8 @@ bool BaselineVessel::PredefineSpec()
   }
   else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
-    jetVecLabel = "jetsLVecLepCleaned";
-    CSVVecLabel = "recoJetsBtag_0_LepCleaned";
+    jetVecLabel = "prodJetsNoLep_jetsLVec";
+    CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
     doMuonVeto  = false;
@@ -372,19 +372,16 @@ void BaselineVessel::PassBaseline()
 
 
   // Form TLorentzVector of MET
-  if (tr->getVar<unsigned int>("run") > 312526) // Set weight to 1 for Data
-    metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
-  else
-    metLVec.SetPtEtaPhiM(tr->getVar<double>(METLabel), 0, tr->getVar<double>(METPhiLabel), 0);
+  metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
 
   // Calculate number of leptons
   const std::vector<int> & muonsFlagIDVec = muonsFlagIDLabel.empty()? std::vector<int>(tr->getVec<float>("muonsMiniIso").size(), 1):tr->getVec<int>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
   const std::vector<int> & elesFlagIDVec = elesFlagIDLabel.empty()? std::vector<int>(tr->getVec<float>("elesMiniIso").size(), 1):tr->getVec<int>(elesFlagIDLabel.c_str()); // Fake electrons since we don't have different ID for electrons now, but maybe later
   int nMuons = AnaFunctions::countMuons(tr->getVec<TLorentzVector>("muonsLVec"), tr->getVec<float>("muonsMiniIso"), tr->getVec<float>("muonsMtw"), muonsFlagIDVec, AnaConsts::muonsMiniIsoArr);
   int nElectrons = AnaFunctions::countElectrons(tr->getVec<TLorentzVector>("elesLVec"), tr->getVec<float>("elesMiniIso"), tr->getVec<float>("elesMtw"), tr->getVec<unsigned int>("elesisEB"), elesFlagIDVec, AnaConsts::elesMiniIsoArr);
-  int nIsoTrks = AnaFunctions::countIsoTrks(tr->getVec<TLorentzVector>("loose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
-  int nIsoLepTrks = AnaFunctions::countIsoLepTrks(tr->getVec<TLorentzVector>("loose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
-  int nIsoPionTrks = AnaFunctions::countIsoPionTrks(tr->getVec<TLorentzVector>("loose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
+  int nIsoTrks = AnaFunctions::countIsoTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
+  int nIsoLepTrks = AnaFunctions::countIsoLepTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
+  int nIsoPionTrks = AnaFunctions::countIsoPionTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
 
   // Calculate number of jets and b-tagged jets
   int cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), AnaConsts::cutCSVS, AnaConsts::bTagArr);
@@ -465,9 +462,9 @@ void BaselineVessel::PassBaseline()
   if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc()<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Register all the calculated variables
-  tr->registerDerivedVar("nMuons_CUT" + firstSpec, nMuons);
-  tr->registerDerivedVar("nElectrons_CUT" + firstSpec, nElectrons);
-  tr->registerDerivedVar("nIsoTrks_CUT" + firstSpec, nIsoTrks);
+  //tr->registerDerivedVar("nMuons_CUT" + firstSpec, nMuons);           // error: do not redefine  
+  //tr->registerDerivedVar("nElectrons_CUT" + firstSpec, nElectrons);   // error: do not redefine
+  //tr->registerDerivedVar("nIsoTrks_CUT" + firstSpec, nIsoTrks);       // error: do not redefine
 
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
@@ -727,13 +724,14 @@ bool BaselineVessel::GetTopCombs() const
   //get output of tagger
   //Only MVA combs so far
   const TopTaggerResults& ttr = ttPtr->getResults();
+  
   int i = 0;
-  for(auto tr : ttr.getTopCandidates() )
+  for(auto& topcand : ttr.getTopCandidates() )
   {
-      if (tr.getNConstituents() != 3) continue;
-      vCombs->push_back(tr.P());
+      if (topcand.getNConstituents() != 3) continue;
+      vCombs->push_back(topcand.P());
       std::vector<TLorentzVector> temp;
-      for(auto cons : tr.getConstituents())
+      for(auto& cons : topcand.getConstituents())
       {
           temp.push_back(cons->P());
       }
@@ -847,7 +845,7 @@ bool BaselineVessel::passNoiseEventFilterFunc()
     unsigned int hbheIsoNoiseFilter = isfastsim? 1:tr->getVar<unsigned int>("HBHEIsoNoiseFilter");
     int ecalTPFilter = tr->getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
 
-    int jetIDFilter = isfastsim? 1:tr->getVar<int>("looseJetID_NoLep");
+    int jetIDFilter = isfastsim? 1:tr->getVar<unsigned int>("AK4NoLeplooseJetID");
     // new filters
     const unsigned int & BadPFMuonFilter = tr->getVar<unsigned int>("BadPFMuonFilter");
     bool passBadPFMuonFilter = (&BadPFMuonFilter) != nullptr? tr->getVar<unsigned int>("BadPFMuonFilter") !=0 : true;
@@ -855,7 +853,7 @@ bool BaselineVessel::passNoiseEventFilterFunc()
     const unsigned int & BadChargedCandidateFilter = tr->getVar<unsigned int>("BadChargedCandidateFilter");
     bool passBadChargedCandidateFilter = (&BadChargedCandidateFilter) != nullptr? tr->getVar<unsigned int>("BadChargedCandidateFilter") !=0 : true;
 
-    bool passMETratioFilter = tr->getVar<double>("calomet")!=0 ? tr->getVar<double>("met")/tr->getVar<double>("calomet") < 5 : true;
+    bool passMETratioFilter = tr->getVar<float>("calomet")!=0 ? tr->getVar<float>("met")/tr->getVar<float>("calomet") < 5 : true;
 
     tr->setReThrow(cached_rethrow);
     return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter && passBadPFMuonFilter && passBadChargedCandidateFilter && passMETratioFilter;
@@ -875,14 +873,7 @@ bool BaselineVessel::passQCDHighMETFilterFunc()
 {
   std::vector<TLorentzVector> jetsLVec = tr->getVec<TLorentzVector>("jetsLVec");
   std::vector<float> recoJetsmuonEnergyFraction = tr->getVec<float>("recoJetsmuonEnergyFraction");
-  double metphi =0;
-  if (tr->getVar<unsigned int>("run") > 312526) // Set weight to 1 for Data
-  {
-    float metphiv = tr->getVar<float>("metphi");
-    metphi = static_cast<double>(metphiv);
-  }
-  else
-    metphi = tr->getVar<double>("metphi");
+  float metphi = tr->getVar<float>("metphi");
 
   int nJetsLoop = recoJetsmuonEnergyFraction.size();
   std::vector<float> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metphi, nJetsLoop, AnaConsts::dphiArr);
@@ -1088,7 +1079,7 @@ bool BaselineVessel::GetMHT() const
   // Calculate MHT
   TLorentzVector MHT(0, 0, 0, 0);
   float SumHT = 0.0; //Using jet > 30 , |eta| < 5
-  for(auto &jet : tr->getVec<TLorentzVector>("jetsLVecLepCleaned"))
+  for(auto &jet : tr->getVec<TLorentzVector>("prodJetsNoLep_jetsLVec"))
   {
     if (jet.Pt() >= 30)
     {
@@ -1100,10 +1091,7 @@ bool BaselineVessel::GetMHT() const
   tr->registerDerivedVar("MHTPhi"+firstSpec, MHT.Phi());
   tr->registerDerivedVar("MHTSig"+firstSpec, MHT.Pt()/ sqrt(SumHT));
 
-  if (tr->getVar<unsigned int>("run") > 3125261) // Set weight to 1 for Data
-    tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<float>(METLabel)/ sqrt(SumHT));
-  else
-    tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<double>(METLabel)/ sqrt(SumHT));
+  tr->registerDerivedVar("METSig"+firstSpec, tr->getVar<float>(METLabel)/ sqrt(SumHT));
   return true;
 }       // -----  end of function BaselineVessel::GetMHT  -----
 
@@ -1387,7 +1375,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   const std::vector<float>&         muonsIso         = tr.getVec<float>(muIsoStr_);
   const std::vector<int>&            muonsFlagIDVec   = muonsFlagIDLabel_.empty()? std::vector<int>(muonsIso.size(), 1):tr.getVec<int>(muonsFlagIDLabel_.c_str());
   const std::vector<int>&            elesFlagIDVec    = elesFlagIDLabel_.empty()? std::vector<int>(elesIso.size(), 1):tr.getVec<int>(elesFlagIDLabel_.c_str());
-  const std::vector<float>&         recoJetsBtag_0   = tr.getVec<float>(bTagLabel_);
+  const std::vector<float>&         recoJetsCSVv2   = tr.getVec<float>(bTagLabel_);
   const std::vector<float>& chargedHadronEnergyFrac  = tr.getVec<float>(chargedHadFracLabel_);
   const std::vector<float>&     neutralEmEnergyFrac  = tr.getVec<float>(neutralEMFracLabel_);
   const std::vector<float>&     chargedEmEnergyFrac  = tr.getVec<float>(chargedEMFracLabel_);
@@ -1405,7 +1393,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
       || elesLVec.size() != elesisEB.size()
       || muonsLVec.size() != muonsIso.size()
       || muonsLVec.size() != muMatchedJetIdx.size()
-      || jetsLVec.size() != recoJetsBtag_0.size()
+      || jetsLVec.size() != recoJetsCSVv2.size()
       || jetsLVec.size() != chargedHadronEnergyFrac.size()
       || jetsLVec.size() != neutralEmEnergyFrac.size()
       || jetsLVec.size() != chargedEmEnergyFrac.size())
@@ -1415,7 +1403,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   }
 
   std::vector<TLorentzVector>* cleanJetVec        = new std::vector<TLorentzVector>(jetsLVec);
-  std::vector<float>* cleanJetBTag               = new std::vector<float>(recoJetsBtag_0);
+  std::vector<float>* cleanJetBTag               = new std::vector<float>(recoJetsCSVv2);
   std::vector<TLorentzVector>* cleanJetpt30ArrVec = new std::vector<TLorentzVector>();
   std::vector<float>* cleanJetpt30ArrBTag        = new std::vector<float>;
   std::vector<float>* cleanChargedHadEFrac       = new std::vector<float>(chargedHadronEnergyFrac);

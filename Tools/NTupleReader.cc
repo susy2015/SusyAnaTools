@@ -35,6 +35,12 @@ NTupleReader::NTupleReader(TTree * tree)
     init();
 }
 
+NTupleReader::NTupleReader()
+{
+    tree_ = nullptr;
+    init();
+}
+
 NTupleReader::~NTupleReader()
 {
     //Clean up any remaining dynamic memory
@@ -50,12 +56,30 @@ void NTupleReader::init()
     reThrow_ = true;
     convertHackActive_ = false;
 
-    tree_->SetBranchStatus("*", 0);
+    if(tree_)
+    {
+        tree_->SetBranchStatus("*", 0);
 
-    // Add desired branches to branchMap_/branchVecMap_
-    populateBranchList();
+        // Add desired branches to branchMap_/branchVecMap_
+        populateBranchList();
+    }
 }
 
+void NTupleReader::setTree(TTree * tree)
+{
+    if(!tree_)
+    {
+        tree_ = tree;
+        tree_->SetBranchStatus("*", 0);
+        
+        // Add desired branches to branchMap_/branchVecMap_
+        populateBranchList();
+    }
+    else
+    {
+        THROW_SATEXCEPTION("Tree already loaded into NTupleReader: you can only load one tree!!!"); 
+    }
+}
 
 std::string NTupleReader::getFileName() const
 {
@@ -275,12 +299,12 @@ void NTupleReader::addAlias(const std::string& name, const std::string& alias)
         //Check branchMap for "name"
         if(branch_iter != branchMap_.end())
         {
-            branchMap_[alias] = Handle(branch_iter->second.ptr);
+            branchMap_[alias] = Handle(branch_iter->second.ptr, nullptr, branch_iter->second.type);
         }
         //If the variable name is not in branchMap, check branchVecMap
         else if(branchVec_iter != branchVecMap_.end())
         {
-            branchVecMap_[alias] = Handle(branchVec_iter->second.ptr);
+            branchVecMap_[alias] = Handle(branchVec_iter->second.ptr, nullptr, branchVec_iter->second.type);
         }
     }
     else
