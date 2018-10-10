@@ -159,6 +159,7 @@ public:
 
     NTupleReader(TTree * tree, const std::set<std::string>& activeBranches_);
     NTupleReader(TTree * tree);
+    NTupleReader();
     ~NTupleReader();
 
     std::string getFileName() const;
