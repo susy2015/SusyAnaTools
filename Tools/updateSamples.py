@@ -92,8 +92,8 @@ def main():
 
     # options
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--samples_file", "-s", default="sampleSets.cfg",    help="file containing sample sets")
     parser.add_argument("--nevents_file", "-e", default="nEvents.txt",       help="file containing number of events with weights")
+    parser.add_argument("--samples_file", "-s", default="sampleSets_v1.cfg", help="file containing sample sets")
     parser.add_argument("--output_file",  "-o", default="sampleSets_v2.cfg", help="output file with updated sample sets")
     options = parser.parse_args()
     samples_file = options.samples_file
@@ -103,9 +103,6 @@ def main():
     print "samples file: {0}".format(samples_file)
     print "nevents file: {0}".format(nevents_file)
     print "output file: {0}".format(output_file)
-
-    print "Copying {0} to sampleSets_v1.cfg".format(samples_file)
-    copyfile(samples_file, "sampleSets_v1.cfg")
 
     samples = open(samples_file, 'r')
     newSamples = open(output_file, 'w')
