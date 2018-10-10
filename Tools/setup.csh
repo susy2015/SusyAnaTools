@@ -76,16 +76,6 @@ endif
 
 ##Checkout stop cfg files and supplementary files
 
-#it is safer to clear our old cfg files, but as a safety only if they are softlinks
-set STOPSETCFG=sampleSets.cfg
-if ( -f $STOPSETCFG && -l $STOPSETCFG ) then
-    rm $STOPSETCFG
-endif
-set STOPCOLCFG=sampleCollections.cfg
-if ( -f $STOPCOLCFG && -l $STOPCOLCFG ) then
-    rm $STOPCOLCFG
-endif
-
 # -p give no error if directory exists
 mkdir -p $STOPCFGDIR
 # set OVERWRITE = -o via options to overwrite softlinks if they exist
@@ -93,24 +83,14 @@ ${SRC}/SusyAnaTools/Tools/scripts/getStopCfg.sh $OVERWRITE -t CMSSW8028_2016_v1.
 
 ##Checkout latest toptagger cfg file 
 
-#it is safer to clear our old cfg files, but as a safety only if they are softlinks
 set TOPTAGGERFILE=TopTagger.cfg
-if ( -f $TOPTAGGERFILE && -l $TOPTAGGERFILE ) then
-    rm $TOPTAGGERFILE
-endif
 set SIMPLETOPTAGGERFILE=TopTagger_Simplified.cfg
-if ( -f $SIMPLETOPTAGGERFILE && -l $SIMPLETOPTAGGERFILE ) then
-    rm $SIMPLETOPTAGGERFILE
-endif
 set LEGTOPTAGGERFILE=Legacy_TopTagger.cfg
-if ( -f $LEGTOPTAGGERFILE && -l $LEGTOPTAGGERFILE ) then
-    rm $LEGTOPTAGGERFILE
-endif
 
 # -p give no error if directory exists
 mkdir -p $TAGGERCFGDIR
 # set OVERWRITE = -o via options to overwrite softlinks if they exist
-${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
+${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t MVAAK8_Tight_v1.2.1 -f $TOPTAGGERFILE -d $TAGGERCFGDIR
 ${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
 ${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t MVAAK8_Tight_noQGL_binaryCSV_v1.0.2 -f $SIMPLETOPTAGGERFILE -d $TAGGERCFGDIR
 
