@@ -1,4 +1,4 @@
-int Plot_1D_AUX_sg (double lumi, TString result_path, TString sp, TString var, TString folder, TLegend* leg, Color_t color, int rebin)
+int Plot_1D_AUX_sg (double signal_scale, TString result_path, TString sp, TString var, TString folder, TLegend* leg, Color_t color, int rebin, bool sig_scale_to_BG)
 {
 	TFile *f1 = new TFile(result_path + sp + ".root");
 	TH1D *h1 = (TH1D*)f1->Get(folder + var);
@@ -15,8 +15,8 @@ int Plot_1D_AUX_sg (double lumi, TString result_path, TString sp, TString var, T
 	//std::cout << "GetEntries = " << h3->GetEntries() << std::endl;
 	std::cout << sp << " Xsec = " << CrossSection.at(sp) << std::endl;
 
-	h1->Scale(lumi / h1->Integral() );
-	//h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+	if(sig_scale_to_BG) h1->Scale(signal_scale / h1->Integral() );
+	else h1->Scale(signal_scale * 50 * CrossSection.at(sp) * 1000 / all_events );
 
 	std::cout << "events rebin= " << h1->Integral()  << std::endl;
 
@@ -77,7 +77,6 @@ int Plot_1D_AUX_sig (double lumi, TString result_path, TString sp, TString var, 
 	h1->Sumw2();
 	h1->Rebin(rebin);
 
-	//h1->Scale(lumi / h1->Integral() );
 	h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 
 	TH1D *significance = (TH1D*)h1->Clone("significance");;

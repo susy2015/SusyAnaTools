@@ -7,15 +7,17 @@ int Plot_1D_test()
 	const double lumi = 36; 
 	bool plot_log = false;
 	//plot_log = true;
-	bool plot_sig_pad = false;
+	bool plot_sig_pad = true;
 	bool plot_BG = true;
 	bool use_low_stat_sig = false;
 	//use_low_stat_sig = true;
+	bool sig_scale_to_BG = false;
 
 	TString result_path = "results/Signal_";        //for full sim signals
 	result_path = "results/Signal_fastsim_";        //for fast sim singals
 
-	TString signal_name = "T2tt_only";
+	TString signal_name = "T2tt_and_T1tttt";
+	//TString signal_name = "T2tt_only";
 	//TString signal_name = "T2tt_and_T2bw";
 	//TString signal_name = "T1tttt_and_T5ttcc";
 	//TString signal_name = "T2fbd_and_T2bwC";
@@ -24,7 +26,7 @@ int Plot_1D_test()
 	bool plot_MT2 = false;
 	bool plot_MT2_baseline_no_mt2 = false;
 	bool plot_MTb = false;
-	bool plot_MTb_highdm = true;
+	bool plot_MTb_highdm = false;
 	bool plot_MT2_b = false;
 	bool plot_SB = false;
 	bool plot_SB_team_A_highdm = false;
@@ -32,7 +34,7 @@ int Plot_1D_test()
 	bool plot_nbottompt20 = false;
 	bool plot_nbottompt20_lowdm = false;
 	bool plot_nbottompt30 = false;
-	bool plot_ntop = false;
+	bool plot_ntop = true;
 	bool plot_ntop_merge = false;
 	bool plot_ntop_w = false;
 	bool plot_ntop_res = false;
@@ -191,13 +193,13 @@ int Plot_1D_test()
 
 	if (plot_ntop)
 	{
-		title = "number of top when MTb > 175";
-		var = "ntop_175_h";
+		title = "ntop, loose baseline";
+		var = "ntop_h";
 		folder = "";
 		rebin = 1;
 		xmax = 8;
 		//ymax = 1000000;
-		ymax = 35000;
+		ymax = 30000;
 		sig_ymax = 3;
 	}
 
@@ -806,32 +808,38 @@ int Plot_1D_test()
 
 		hs->Add(pro);
 	}
-	if(plot_BG){
-	hs->SetMinimum(ymin);
-	hs->SetMaximum(ymax);
-	hs->Draw("hist");
 
-	hs->SetTitle("");
-	hs->GetYaxis()->SetTitle("events");
-	hs->GetXaxis()->SetRangeUser(xmin,xmax);
-	hs->GetYaxis()->SetRangeUser(ymin,ymax);
-	if(plot_SB_team_A_highdm || plot_SB_team_A_lowdm) hs->GetXaxis()->SetNdivisions(30);
-	hs->GetXaxis()->SetTitle(title);
-	hs->GetYaxis()->SetTitleSize(0.045);
-	hs->GetYaxis()->SetTitleOffset(1.2);
+	if(plot_BG)
+	{
+		hs->SetMinimum(ymin);
+		hs->SetMaximum(ymax);
+		hs->Draw("hist");
 
-	if(plot_BG) hs_tot = ((TH1D*)(hs -> GetStack() -> Last())) -> Integral();
-	double hs_bin1 = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(1);
-	double hs_bin2 = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(2);
-	std::cout << "\ntotal BG = " << hs_tot << " bin 1 = " << hs_bin1 << " bin 2 = " << hs_bin2 << "\n" << std::endl;
-	//int n_bins = 80/rebin;
-	//TH1D *significance = new TH1D ("significance", "significance", n_bins, xmin, xmax);
+		hs->SetTitle("");
+		hs->GetYaxis()->SetTitle("events");
+		hs->GetXaxis()->SetRangeUser(xmin,xmax);
+		hs->GetYaxis()->SetRangeUser(ymin,ymax);
+		if(plot_SB_team_A_highdm || plot_SB_team_A_lowdm) hs->GetXaxis()->SetNdivisions(30);
+		hs->GetXaxis()->SetTitle(title);
+		hs->GetYaxis()->SetTitleSize(0.045);
+		hs->GetYaxis()->SetTitleOffset(1.2);
+
+		if(plot_BG) hs_tot = ((TH1D*)(hs -> GetStack() -> Last())) -> Integral();
+		double hs_bin1 = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(1);
+		double hs_bin2 = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(2);
+		std::cout << "\ntotal BG = " << hs_tot << " bin 1 = " << hs_bin1 << " bin 2 = " << hs_bin2 << "\n" << std::endl;
+		//int n_bins = 80/rebin;
+		//TH1D *significance = new TH1D ("significance", "significance", n_bins, xmin, xmax);
 	}
+
 	TString sp;
+	double signal_scale = lumi;
+	if(sig_scale_to_BG) signal_scale = hs_tot; 
 
 	if (true)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1200_mLSP800";
+		if(signal_name == "T2tt_and_T1tttt") sp = "T2tt_mStop500_mLSP325";
 		if(signal_name == "T2tt_only") sp = "T2tt_mStop500_mLSP400";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2tt_mStop500_mLSP325";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop500_mLSP490";
@@ -853,9 +861,9 @@ int Plot_1D_test()
 		//std::cout << "GetEntries = " << h3->GetEntries() << std::endl;
 		std::cout << sp << " Xsec = " << CrossSection.at(sp) << std::endl;
 
-		h1->Scale(hs_tot / h1->Integral() );
-		//h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-		//h1->Scale(lumi * 50 * CrossSection.at(sp) * 1000 / all_events );
+		if(sig_scale_to_BG) h1->Scale(signal_scale / h1->Integral() );
+		else h1->Scale(signal_scale * 50 * CrossSection.at(sp) * 1000 / all_events );
+		//h1->Scale(signal_scale * CrossSection.at(sp) * 1000 / all_events );
 
 		std::cout << "events rebin= " << h1->Integral()  << std::endl;
 
@@ -864,18 +872,18 @@ int Plot_1D_test()
 		h1->SetLineWidth(2);
 		if(plot_BG) h1->Draw("hist same");
 		else{
-		h1->SetMinimum(ymin);
-		h1->SetMaximum(ymax);
-		h1->Draw("hist");
+			h1->SetMinimum(ymin);
+			h1->SetMaximum(ymax);
+			h1->Draw("hist");
 
-		h1->SetTitle("");
-		h1->GetYaxis()->SetTitle("events");
-		h1->GetXaxis()->SetRangeUser(xmin,xmax);
-		h1->GetYaxis()->SetRangeUser(ymin,ymax);
-		if(plot_SB_team_A_highdm || plot_SB_team_A_lowdm) h1->GetXaxis()->SetNdivisions(30);
-		h1->GetXaxis()->SetTitle(title);
-		h1->GetYaxis()->SetTitleSize(0.045);
-		h1->GetYaxis()->SetTitleOffset(1.2);
+			h1->SetTitle("");
+			h1->GetYaxis()->SetTitle("events");
+			h1->GetXaxis()->SetRangeUser(xmin,xmax);
+			h1->GetYaxis()->SetRangeUser(ymin,ymax);
+			if(plot_SB_team_A_highdm || plot_SB_team_A_lowdm) h1->GetXaxis()->SetNdivisions(30);
+			h1->GetXaxis()->SetTitle(title);
+			h1->GetYaxis()->SetTitleSize(0.045);
+			h1->GetYaxis()->SetTitleOffset(1.2);
 		}
 		leg->AddEntry(h1,sp,"l");
 	}
@@ -883,31 +891,34 @@ int Plot_1D_test()
 	if (true)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1500_mLSP100";
+		if(signal_name == "T2tt_and_T1tttt") sp = "T2tt_mStop1000_mLSP1";
 		if(signal_name == "T2tt_only") sp = "T2tt_mStop500_mLSP325";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2tt_mStop850_mLSP100";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop600_mLSP520";
 		if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP420";
-		Plot_1D_AUX_sg (hs_tot, result_path, sp, var, folder, leg, kGreen, rebin);
+		Plot_1D_AUX_sg (signal_scale, result_path, sp, var, folder, leg, kGreen, rebin, sig_scale_to_BG);
 	}
 
 	if (true)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1000_mLSP800";
+		if(signal_name == "T2tt_and_T1tttt") sp = "T1tttt_mGluino1200_mLSP800";
 		if(signal_name == "T2tt_only") sp = "T2tt_mStop1000_mLSP650";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop500_mLSP325";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop500_mLSP490";
 		if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop250_mLSP150";
-		Plot_1D_AUX_sg (hs_tot, result_path, sp, var, folder, leg, kYellow, rebin);
+		Plot_1D_AUX_sg (signal_scale, result_path, sp, var, folder, leg, kYellow, rebin, sig_scale_to_BG);
 	}
 
 	if (true)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1500_mLSP100";
+		if(signal_name == "T2tt_and_T1tttt") sp = "T1tttt_mGluino2000_mLSP100";
 		if(signal_name == "T2tt_only") sp = "T2tt_mStop1000_mLSP1";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop850_mLSP100";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop600_mLSP520";
 		if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop425_mLSP325";
-		Plot_1D_AUX_sg (hs_tot, result_path, sp, var, folder, leg, kBlue, rebin);
+		Plot_1D_AUX_sg (signal_scale, result_path, sp, var, folder, leg, kBlue, rebin, sig_scale_to_BG);
 	}
 
 	TLatex latex;
@@ -918,115 +929,123 @@ int Plot_1D_test()
 	latex.DrawLatex(0.1,0.91,"CMS #bf{Simulation}");
 	if(plot_BG) latex.DrawLatex(0.75,0.91,"#bf{36fb^{-1} (13TeV)}");
 	else latex.DrawLatex(0.80,0.91,"#bf{13TeV}");
-	if(plot_BG) latex.DrawLatex(0.12,0.8,"#bf{signals scaled to SM}");
+	if(plot_BG)
+	{
+		if(sig_scale_to_BG) latex.DrawLatex(0.12,0.8,"#bf{signals scaled to SM}");
+		else latex.DrawLatex(0.12,0.8,"#bf{signals scaled *50}");
+	}
 
 	leg->Draw("same");
 
 	if(plot_sig_pad)
 	{
-	mycanvas -> cd();
+		mycanvas -> cd();
 
-	TPad *paddown = new TPad("paddown", "paddown", 0, 0, 1, 0.3);
-	paddown -> SetTopMargin(0);
-	paddown -> SetBottomMargin(0.3);
-	paddown -> SetGrid();
-	paddown -> Draw();
-	paddown -> cd();
+		TPad *paddown = new TPad("paddown", "paddown", 0, 0, 1, 0.3);
+		paddown -> SetTopMargin(0);
+		paddown -> SetBottomMargin(0.3);
+		paddown -> SetGrid();
+		paddown -> Draw();
+		paddown -> cd();
 
-	if (true)
-	{
-		if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1200_mLSP800";
-		if(signal_name == "T2tt_and_T2bw") sp = "T2tt_mStop500_mLSP325";
-		if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop500_mLSP490";
-		if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP490";
-
-		TFile *f1 = new TFile(result_path + sp + ".root");
-		TH1D *h1 = (TH1D*)f1->Get(folder + var);
-		//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-		TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
-
-		double all_events = h2->GetBinContent(1);
-		double left_events = h2->GetBinContent(2);
-		//int n_bins = ((TH1D*)(hs -> GetStack() -> Last())) -> GetSize() - 2;
-		//TH1D *significance = new TH1D ("significance", title, n_bins, xmin_h, xmax_h);
-
-		h1->Sumw2();
-		h1->Rebin(rebin);
-
-		//h1->Scale(lumi / h1->Integral() );
-		h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-
-		TH1D *significance = (TH1D*)h1->Clone("significance");;
-		int n_bins = significance-> GetSize() - 2;
-			
-		std::cout << "\n" << sp << std::endl;
-
-		for (int i = 1; i <= n_bins; i++)
+		if (true)
 		{
-			double signal = h1->GetBinContent(i);
-			double back_ground = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(i);
-			if (back_ground < 0) back_ground = 0;
-			double signal_uc = sqrt (pow(h1->GetBinError(i),2) + pow(0.16*signal,2));  //signal sys unc = 16%
-			double back_ground_uc = sqrt (pow(((TH1D*)(hs -> GetStack() -> Last())) -> GetBinError(i),2) + pow(0.2*back_ground,2));  //bg sys unc = 20%
-			if (back_ground == 0) back_ground_uc = 1.8;  //unc for empty bin is [0,1.8]
-			double sigma = signal + back_ground + signal_uc*signal_uc + back_ground_uc*back_ground_uc;
-			double ratio = 0;
-			if (sigma > 0) ratio = signal / sqrt(sigma);
-			double minus = 2 * sqrt (sigma) - 2 * sqrt (back_ground + back_ground_uc*back_ground_uc);
-			if (use_low_stat_sig) significance->SetBinContent(i,minus);
-			else significance->SetBinContent(i,ratio);
+			if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1200_mLSP800";
+			if(signal_name == "T2tt_and_T1tttt") sp = "T2tt_mStop500_mLSP325";
+			if(signal_name == "T2tt_and_T2bw") sp = "T2tt_mStop500_mLSP325";
+			if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop500_mLSP490";
+			if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP490";
 
-			std::cout << "bin " << i << " signal = " << signal << " signal uc = " << signal_uc << " BG = " << back_ground << " BG unc = " << back_ground_uc << " significance = " << significance->GetBinContent(i) << std::endl;
+			TFile *f1 = new TFile(result_path + sp + ".root");
+			TH1D *h1 = (TH1D*)f1->Get(folder + var);
+			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
+			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+
+			double all_events = h2->GetBinContent(1);
+			double left_events = h2->GetBinContent(2);
+			//int n_bins = ((TH1D*)(hs -> GetStack() -> Last())) -> GetSize() - 2;
+			//TH1D *significance = new TH1D ("significance", title, n_bins, xmin_h, xmax_h);
+
+			h1->Sumw2();
+			h1->Rebin(rebin);
+
+			//h1->Scale(lumi / h1->Integral() );
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+
+			TH1D *significance = (TH1D*)h1->Clone("significance");;
+			int n_bins = significance-> GetSize() - 2;
+
+			std::cout << "\n" << sp << std::endl;
+
+			for (int i = 1; i <= n_bins; i++)
+			{
+				double signal = h1->GetBinContent(i);
+				double back_ground = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(i);
+				if (back_ground < 0) back_ground = 0;
+				double signal_uc = sqrt (pow(h1->GetBinError(i),2) + pow(0.16*signal,2));  //signal sys unc = 16%
+				double back_ground_uc = sqrt (pow(((TH1D*)(hs -> GetStack() -> Last())) -> GetBinError(i),2) + pow(0.2*back_ground,2));  //bg sys unc = 20%
+				if (back_ground == 0) back_ground_uc = 1.8;  //unc for empty bin is [0,1.8]
+				double sigma = signal + back_ground + signal_uc*signal_uc + back_ground_uc*back_ground_uc;
+				double ratio = 0;
+				if (sigma > 0) ratio = signal / sqrt(sigma);
+				double minus = 2 * sqrt (sigma) - 2 * sqrt (back_ground + back_ground_uc*back_ground_uc);
+				if (use_low_stat_sig) significance->SetBinContent(i,minus);
+				else significance->SetBinContent(i,ratio);
+
+				std::cout << "bin " << i << " signal = " << signal << " signal uc = " << signal_uc << " BG = " << back_ground << " BG unc = " << back_ground_uc << " significance = " << significance->GetBinContent(i) << std::endl;
+			}
+
+			significance->SetTitle("");
+			significance->GetYaxis()->SetTitle("significance");
+			significance->GetXaxis()->SetRangeUser(xmin,xmax);
+			if(plot_SB_team_A_highdm || plot_SB_team_A_lowdm) significance->GetXaxis()->SetNdivisions(30);
+			//significance->GetXaxis()->SetTitle("MT2 [GeV]");
+			significance->GetXaxis()->SetTitle(title);
+			significance->GetXaxis()->SetTitleSize(0.1);
+			significance->GetXaxis()->SetLabelSize(0.08);
+			significance->GetYaxis()->SetTitleOffset(0.5);
+			significance->GetYaxis()->SetTitleSize(0.1);
+			significance->GetYaxis()->SetLabelSize(0.08);
+
+			significance->SetMaximum(sig_ymax);
+			significance->SetLineColor(kRed);
+			significance->SetLineWidth(2);
+			significance->Draw("hist");
+			//leg->AddEntry(h1,sp,"l");
 		}
 
-		significance->SetTitle("");
-		significance->GetYaxis()->SetTitle("significance");
-		significance->GetXaxis()->SetRangeUser(xmin,xmax);
-		if(plot_SB_team_A_highdm || plot_SB_team_A_lowdm) significance->GetXaxis()->SetNdivisions(30);
-		//significance->GetXaxis()->SetTitle("MT2 [GeV]");
-		significance->GetXaxis()->SetTitle(title);
-		significance->GetXaxis()->SetTitleSize(0.1);
-		significance->GetXaxis()->SetLabelSize(0.08);
-		significance->GetYaxis()->SetTitleOffset(0.5);
-		significance->GetYaxis()->SetTitleSize(0.1);
-		significance->GetYaxis()->SetLabelSize(0.08);
+		if (true)
+		{
+			if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1500_mLSP100";
+			if(signal_name == "T2tt_and_T1tttt") sp = "T2tt_mStop1000_mLSP1";
+			if(signal_name == "T2tt_and_T2bw") sp = "T2tt_mStop850_mLSP100";
+			if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop600_mLSP520";
+			if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP420";
+			Plot_1D_AUX_sig (lumi, result_path, sp, var, folder, leg, kGreen, hs, rebin, use_low_stat_sig);
+			//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kGreen, rebin);
+		}
 
-		significance->SetMaximum(sig_ymax);
-		significance->SetLineColor(kRed);
-		significance->SetLineWidth(2);
-		significance->Draw("hist");
-		//leg->AddEntry(h1,sp,"l");
-	}
+		if (true)
+		{
+			if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1000_mLSP800";
+			if(signal_name == "T2tt_and_T1tttt") sp = "T1tttt_mGluino1200_mLSP800";
+			if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop500_mLSP325";
+			if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop500_mLSP490";
+			if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop250_mLSP150";
+			Plot_1D_AUX_sig (lumi, result_path, sp, var, folder, leg, kYellow, hs, rebin, use_low_stat_sig);
+			//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kYellow, rebin);
+		}
 
-	if (true)
-	{
-		if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1500_mLSP100";
-		if(signal_name == "T2tt_and_T2bw") sp = "T2tt_mStop850_mLSP100";
-		if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop600_mLSP520";
-		if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP420";
-		Plot_1D_AUX_sig (lumi, result_path, sp, var, folder, leg, kGreen, hs, rebin, use_low_stat_sig);
-		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kGreen, rebin);
-	}
-
-	if (true)
-	{
-		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1000_mLSP800";
-		if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop500_mLSP325";
-		if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop500_mLSP490";
-		if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop250_mLSP150";
-		Plot_1D_AUX_sig (lumi, result_path, sp, var, folder, leg, kYellow, hs, rebin, use_low_stat_sig);
-		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kYellow, rebin);
-	}
-
-	if (true)
-	{
-		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1500_mLSP100";
-		if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop850_mLSP100";
-		if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop600_mLSP520";
-		if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop425_mLSP325";
-		Plot_1D_AUX_sig (lumi, result_path, sp, var, folder, leg, kBlue, hs, rebin, use_low_stat_sig);
-		//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kBlue, rebin);
-	}
+		if (true)
+		{
+			if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1500_mLSP100";
+			if(signal_name == "T2tt_and_T1tttt") sp = "T1tttt_mGluino2000_mLSP100";
+			if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop850_mLSP100";
+			if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop600_mLSP520";
+			if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop425_mLSP325";
+			Plot_1D_AUX_sig (lumi, result_path, sp, var, folder, leg, kBlue, hs, rebin, use_low_stat_sig);
+			//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kBlue, rebin);
+		}
 	}
 
 	if(use_low_stat_sig)

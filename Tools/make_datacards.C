@@ -21,8 +21,8 @@ int make_datacards()
 	bool team_A_high_dm_MT2 = false;
 	bool team_A_high_dm_merge = false;
 	bool low_dm = false;
-	bool high_dm = true;
-	bool low_and_high_dm = false;
+	bool high_dm = false;
+	bool low_and_high_dm = true;
 	bool high_dm_merge_HT = false;
 	bool high_dm_MT2 = false;
 	bool old_bins = false; 
@@ -34,9 +34,9 @@ int make_datacards()
 	//TString signal_name = "T2tt_mStop500_mLSP325";
 	//TString signal_name = "T2tt_mStop850_mLSP100";
 	//TString signal_name = "T2tt_mStop1000_mLSP500";
-	//TString signal_name = "T2tt_mStop1000_mLSP1";
+	TString signal_name = "T2tt_mStop1000_mLSP1";
 	//TString signal_name = "T1tttt_mGluino1500_mLSP100";
-	TString signal_name = "T1tttt_mGluino2000_mLSP100";
+	//TString signal_name = "T1tttt_mGluino2000_mLSP100";
 	//TString signal_name = "T1tttt_mGluino1200_mLSP800";
 	//TString signal_name = "T2bw_mStop850_mLSP100";
 
@@ -1169,7 +1169,7 @@ int make_datacards()
 			pro_singleElCR->Add(h1_singleElCR);
 		}
 
-		if (false)
+		if (true)
 		{
 			TString sp = "ST_s";
 
@@ -1205,7 +1205,7 @@ int make_datacards()
 			pro_singleElCR->Add(h1_singleElCR);
 		}
 
-		if (false)
+		if (true)
 		{
 			TString sp = "ST_t_antitop";
 
@@ -1241,7 +1241,7 @@ int make_datacards()
 			pro_singleElCR->Add(h1_singleElCR);
 		}
 
-		if (false)
+		if (true)
 		{
 			TString sp = "ST_t_top";
 
@@ -1600,7 +1600,7 @@ int make_datacards()
 			pro = (TH1D*)h1->Clone("TTZ");
 		}
 
-		if (false)
+		if (true)
 		{
 			TString sp = "TTZToQQ";
 

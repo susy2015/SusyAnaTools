@@ -19,8 +19,8 @@
 
 int main(int argc, char* argv[]){
 
-	const bool debug = true;
-	const bool use_new_tagger = true;
+	const bool debug = false;
+	const bool use_new_tagger = false;
 
 	// ---------- Input & Output File Arguments ----------
 
@@ -517,12 +517,12 @@ int main(int argc, char* argv[]){
 		}
 	if(debug) std::cout << __LINE__ << std::endl;
 
-		//std::cout << "no cut mtb = " << mtb << " mt2_b " << mt2_b << std::endl;
-		if(ntop > 0)
-		{
-		std::cout << "nTopCandSortedCnt = " << ntop << " mTopJets.size() = " << mTopJets.size() << std::endl;
-		std::cout << "mTopJets.begin()->first = " << mTopJets.begin()->first  << std::endl; 
+		//if(ntop > 0)
+		//{
+		//std::cout << "nTopCandSortedCnt = " << ntop << " mTopJets.size() = " << mTopJets.size() << std::endl;
+		//std::cout << "mTopJets.begin()->first = " << mTopJets.begin()->first  << std::endl; 
 		//std::cout << "nTopCandSortedCnt = " << ntop << " mTopJets.size() = " << mTopJets.size() << " mTopJets.at(0).size() = " << mTopJets.at(0).size() << std::endl;
+		//}
 		for (int i = 0; i < ntop; i++)
 		{
 			//std::cout << "top index " << i << std::endl;
@@ -530,7 +530,6 @@ int main(int argc, char* argv[]){
 			if (mTopJets.at(i).size() ==2) ntop_w++;
 			if (mTopJets.at(i).size() ==3) ntop_res++;
 			//for (int k = 0; k < mTopJets.at(i).size(); k++) std::cout << "top daughter " << k << " mass = " << mTopJets.at(i).at(k).M() << std::endl;
-		}
 		}
 
 		if(use_new_tagger) nw = nw_tagger;
@@ -579,7 +578,8 @@ int main(int argc, char* argv[]){
 		nMuons_uc_h->Fill(nMuons,evtWeight);
 		nElectrons_uc_h->Fill(nElectrons,evtWeight);
 		if(tr.getVar<bool>("passLeptVeto")) njetspt20_lept_veto_h->Fill(njetspt20,evtWeight);
-		if (ntop == 0 && mt2 != 0) std::cout << "MT2 = " << mt2 << std::endl;
+		//MT2 calculation is currently wrong in baseline. Hope can be fixed
+		//if (ntop == 0 && mt2 != 0) std::cout << "MT2 = " << mt2 << std::endl;
 
 		eff_h->Fill(0.0,evtWeight);
  
