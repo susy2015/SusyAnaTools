@@ -330,6 +330,8 @@ private:
 
     void init();
 
+    void setTree(TTree * tree);
+
     void populateBranchList();
     
     void registerBranch(TBranch * const branch) const;
