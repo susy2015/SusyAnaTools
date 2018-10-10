@@ -364,7 +364,7 @@ std::vector<std::string> NTupleReader::getTupleSpecs(const std::string& varName)
     return specs;
 }
 
-void NTupleReader::setConvertFloatingPointVectors(const bool doubleToFloat, const bool floatToDouble)
+void NTupleReader::setConvertFloatingPointVectors(const bool doubleToFloat, const bool floatToDouble, const bool intToInt)
 {
     if(doubleToFloat) 
     {
@@ -385,6 +385,73 @@ void NTupleReader::setConvertFloatingPointVectors(const bool doubleToFloat, cons
         {
             if (i.second.type == typeid(std::vector<float>))
                 registerFunction(std::bind(&NTupleReader::castVector<float, double>, std::placeholders::_1, i.first, 'd'));
+        }
+    }
+
+    if(intToInt) 
+    {
+        convertHackActive_ = true;
+        for(const auto& i : branchVecMap_)
+        {
+            if (i.second.type == typeid(std::vector<unsigned int>))
+                registerFunction(std::bind(&NTupleReader::castVector<unsigned int, int>, std::placeholders::_1, i.first, 'i'));
+        }
+    }
+}
+
+template <typename Tfrom, typename Tto>
+void NTupleReader::setVectorAlias(const std::string& varFrom, const std::string& varAlias)
+{
+    registerFunction(std::bind(&NTupleReader::addVectorAlias<Tfrom, Tto>, std::placeholders::_1, varFrom, varAlias));
+}
+
+void NTupleReader::setConvertFloatingPointScalars(const bool doubleToFloat, const bool floatToDouble, const bool intToFloat)
+{
+    if(doubleToFloat) 
+    {
+        convertHackActive_ = true;
+        for(const auto& i : branchMap_)
+        {
+            if (i.second.type == typeid(double))
+            {
+                //std::cout << "Converting " << i.first << std::endl;
+                registerFunction(std::bind(&NTupleReader::castScalar<double, float>, std::placeholders::_1, i.first, 'f'));
+            }
+        }
+    }
+
+    if(intToFloat) 
+    {
+        convertHackActive_ = true;
+        for(const auto& i : branchMap_)
+        {
+            if (i.second.type == typeid(int) )
+            {
+                //std::cout << "Converting " << i.first << std::endl;
+                registerFunction(std::bind(&NTupleReader::castScalar<int, float>, std::placeholders::_1, i.first, 'i'));
+            }
+            else if (i.second.type == typeid(unsigned int))
+            {
+                //std::cout << "Converting " << i.first << std::endl;
+                registerFunction(std::bind(&NTupleReader::castScalar<unsigned int, float>, std::placeholders::_1, i.first, 'i'));
+            }
+            else if (i.second.type == typeid(long))
+            {
+                //std::cout << "Converting " << i.first << std::endl;
+                registerFunction(std::bind(&NTupleReader::castScalar<long, float>, std::placeholders::_1, i.first, 'i'));
+            }
+        }
+    }
+
+    if(floatToDouble) 
+    {
+        convertHackActive_ = true;
+        for(const auto& i : branchMap_)
+        {
+            if (i.second.type == typeid(float)){
+                //std::cout << "Converting " << i.first << std::endl;
+                registerFunction(std::bind(&NTupleReader::castScalar<float, double>, std::placeholders::_1, i.first, 'd'));
+            }
         }
     }
 }
@@ -411,5 +478,41 @@ void NTupleReader::castVector(NTupleReader& tr, const std::string& var, const ch
     }
 
     tr.registerDerivedVec(newname, objs);
+}// -----  end of function NTupleReader::CastVector  -----
+
+// ===  FUNCTION  ============================================================
+//         Name:  NTupleReader::CastVector
+//  Description:  /* cursor */
+// ===========================================================================
+template <class Tfrom, class Tto>
+void NTupleReader::addVectorAlias(NTupleReader& tr, const std::string& varFrom, const std::string& varAlias)
+{
+    const std::vector<Tfrom> &obj = tr.getVec<Tfrom>(varFrom);
+
+    std::vector<Tto> *objs = new std::vector<Tto>();
+    objs->reserve(obj.size());
+
+    for(auto& i : obj)
+    {
+        objs->push_back(static_cast<Tto>(i));
+    }
+
+    tr.registerDerivedVec(varAlias, objs);
+}// -----  end of function NTupleReader::CastVector  -----
+
+
+// ===  FUNCTION  ============================================================
+//         Name:  NTupleReader::CastScalar
+//  Description:  /* cursor */
+// ===========================================================================
+template <class Tfrom, class Tto>
+void NTupleReader::castScalar(NTupleReader& tr, const std::string& var, const char typen)
+{
+
+    Tto objs = static_cast<Tto>(tr.getVar<Tfrom>(var));
+
+    std::string newname = var+"___" + typen;
+
+    tr.registerDerivedVar(newname, objs);
 }       // -----  end of function NTupleReader::CastVector  -----
 

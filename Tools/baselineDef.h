@@ -156,7 +156,8 @@ namespace stopFunctions
             setMuonIso("mini");
             setElecIso("mini");
             setJetCollection("jetsLVec");
-            setBTagCollection("recoJetsBtag_0");
+            setBTagCollection("recoJetsCSVv2");
+//            setBTagCollection("recoJetsBtag_0");
             setMuonsFlagID("muonsFlagMedium");
             setElesFlagID("elesFlagVeto");
             setEnergyFractionCollections("recoJetschargedHadronEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedEmEnergyFraction");    

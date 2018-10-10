@@ -155,8 +155,13 @@ private:
     template <class Tfrom, class Tto> 
     static void castVector(NTupleReader& tr, const std::string& var, const char typen);
 
-public:
+    template <class Tfrom, class Tto> 
+    static void castScalar(NTupleReader& tr, const std::string& var, const char typen);
 
+    template <class Tfrom, class Tto> 
+    static void addVectorAlias(NTupleReader& tr, const std::string& varFrom, const std::string& varAlias);
+
+public:
     NTupleReader(TTree * tree, const std::set<std::string>& activeBranches_);
     NTupleReader(TTree * tree);
     ~NTupleReader();
@@ -186,7 +191,11 @@ public:
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
 
-    void setConvertFloatingPointVectors(const bool doubleToFloat = true, const bool floatToDouble = false);
+    void setConvertFloatingPointVectors(const bool doubleToFloat = true, const bool floatToDouble = false, const bool intToInt = false);
+
+    void setConvertFloatingPointScalars(const bool doubleToFloat = true, const bool floatToDouble = false, const bool intToFloat = true);
+
+    template < typename Tfrom, typename Tto> void setVectorAlias(const std::string& varFrom, const std::string& varAlias);
 
     std::vector<std::string> getTupleMembers() const;
     std::vector<std::string> getTupleSpecs(const std::string& varName) const;
@@ -266,13 +275,13 @@ public:
     const void* getPtr(const std::string& var) const;
     const void* getVecPtr(const std::string& var) const;
 
-    template<typename T> const T& getVar(const std::string& var) const
+    template<typename T> const T& getVar(const std::string& var, bool forceLoad = false) const
     {
         //This function can be used to return single variables
 
         try
         {
-            return getTupleObj<T>(var, branchMap_);
+            return getTupleObj<T>(var, branchMap_, forceLoad);
         }
         catch(const SATException& e)
         {
@@ -282,13 +291,13 @@ public:
         }
     }
 
-    template<typename T> const std::vector<T>& getVec(const std::string& var) const
+    template<typename T> const std::vector<T>& getVec(const std::string& var, bool forceLoad = false) const
     {
         //This function can be used to return vectors
 
         try
         {
-            return *getTupleObj<std::vector<T>*>(var, branchVecMap_);
+            return *getTupleObj<std::vector<T>*>(var, branchVecMap_, forceLoad);
         }
         catch(const SATException& e)
         {
@@ -383,7 +392,7 @@ private:
         else THROW_SATEXCEPTION("Variable not found: \"" + name + "\"!!!\n");
     }
 
-    template<typename T, typename V> T& getTupleObj(const std::string& var, const V& v_tuple) const
+    template<typename T, typename V> T& getTupleObj(const std::string& var, const V& v_tuple, bool forceLoad = false) const
     {
         std::string varName;
 
@@ -398,7 +407,7 @@ private:
         bool intuple = tuple_iter != v_tuple.end() ;
 
         //Check that the variable exists and the requested type matches the true variable type
-        if(intuple && (tuple_iter->second.type == typeid(typename std::remove_pointer<T>::type)))
+        if(intuple && ( (tuple_iter->second.type == typeid(typename std::remove_pointer<T>::type)) || forceLoad ))
         {
             return *static_cast<T*>(tuple_iter->second.ptr);
         }
@@ -410,10 +419,46 @@ private:
                 typen='f';
             if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<double>) && tuple_iter->second.type == typeid(std::vector<float>))
                 typen='d';
+            if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<int>) && tuple_iter->second.type == typeid(std::vector<unsigned int>))
+                typen='i';
+
             std::string newname = varName+"___" + typen;
             auto tuple_iter = branchVecMap_.find(newname);
-            if (tuple_iter != branchVecMap_.end())
+            if (tuple_iter != branchVecMap_.end()){
+                //std::cout << "Providing converted vector for " << varName << ", " << newname << std::endl;
                 return *static_cast<T*>(tuple_iter->second.ptr);
+            }
+
+            std::string varType;
+            getType(varName,varType);
+            //std::cout << "Looking for doubles/floats for " << varName << " with type: " << varType << std::endl;
+
+/*
+            if( typeid(typename std::remove_pointer<T>::type) == typeid(float) && tuple_iter->second.type == typeid(double))
+                typen='f';
+            if( typeid(typename std::remove_pointer<T>::type) == typeid(double) && tuple_iter->second.type == typeid(float))
+                typen='d';
+            if( typeid(typename std::remove_pointer<T>::type) == typeid(float) && tuple_iter->second.type == typeid(int))
+                typen='i';
+
+            newname = varName+"___" + typen;
+            auto tuple_iter2 = branchMap_.find(newname);
+            if (tuple_iter2 != branchMap_.end())
+                return *static_cast<T*>(tuple_iter2->second.ptr);
+*/
+
+            auto tuple_iter2 = branchMap_.find(varName+"___d");
+            if (tuple_iter2 != branchMap_.end())
+                return *static_cast<T*>(tuple_iter2->second.ptr);
+
+            auto tuple_iter3 = branchMap_.find(varName+"___f");
+            if (tuple_iter3 != branchMap_.end())
+                return *static_cast<T*>(tuple_iter3->second.ptr);
+
+            auto tuple_iter4 = branchMap_.find(varName+"___i");
+            if (tuple_iter4 != branchMap_.end())
+                return *static_cast<T*>(tuple_iter4->second.ptr);
+
         }
         else if( !intuple && (typeMap_.find(varName) != typeMap_.end())) //If it is not loaded, but is a branch in tuple
         {

@@ -23,13 +23,18 @@
 std::vector<float>* BTagCorrector::GetCorrections(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor)
 {
 
+    if(Jets->size() != Jets_flavor->size()) std::cout << "Jets vector is not the same as Jets_flavor vector " << Jets->size() << " " << Jets_flavor->size() << std::endl;
+
+    int size = Jets->size();
+    size = (size < Jets_flavor->size() ? size : Jets_flavor->size());
+
     //reset probabilities
     std::vector<float> *prob = new std::vector<float>(4,0.0);
     (*prob)[0] = 1.0;
   
     //first loop over jets
-    std::vector<std::vector<float> > sfEffLists = std::vector<std::vector<float> >(Jets->size(),std::vector<float>());
-    for(unsigned ja = 0; ja < Jets->size(); ++ja){
+    std::vector<std::vector<float> > sfEffLists = std::vector<std::vector<float> >(size,std::vector<float>());
+    for(unsigned ja = 0; ja < size; ++ja){
         //HT jet cuts
         if(Jets->at(ja).Pt()< 30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
 
@@ -51,7 +56,7 @@ std::vector<float>* BTagCorrector::GetCorrections(const std::vector<TLorentzVect
         float subprob2 = 0.0;
 	 
         //second loop over jets
-        for(unsigned jb = 0; jb < Jets->size(); ++jb){
+        for(unsigned jb = 0; jb < size; ++jb){
             //skip the same jet
             if(jb==ja) continue;
 	   
@@ -78,7 +83,7 @@ std::vector<float>* BTagCorrector::GetCorrections(const std::vector<TLorentzVect
 	   
             //third loop over jets (only for jb>ja)
             if(jb<ja) continue;
-            for(unsigned jc = 0; jc < Jets->size(); ++jc){
+            for(unsigned jc = 0; jc < size; ++jc){
                 //skip the same jet
                 if(jc==jb || jc==ja) continue;
 	     
@@ -129,12 +134,14 @@ float BTagCorrector::GetSimpleCorrection(const std::vector<TLorentzVector> *Jets
     float dataTag = 1.;
     float dataNoTag = 1.;
   
+    std::cout << "Simple Correction, jets vs jets_flavor: " << Jets->size() << " " << Jets_flavor->size() << std::endl;
+
     //loop over jets
     std::vector<std::vector<float> > sfEffLists = std::vector<std::vector<float> >(Jets->size(),std::vector<float>());
     for(unsigned ja = 0; ja < Jets->size(); ++ja){
+        std::cout << "Jet pT, eta: " << ja << " " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << std::endl; 
         //HT jet cuts
         if(Jets->at(ja).Pt()<30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
-    
         //get sf and eff values (checks if already calculated)
         InitSFEff(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), sfEffLists[ja]);
         float eff_a = sfEffLists[ja][0]; //eff
@@ -261,7 +268,8 @@ void BTagCorrector::registerVarToNTuples(NTupleReader& tr)
     if(!tr.checkBranch("genDecayPdgIdVec")) return;
 
     const std::vector<TLorentzVector>& inputJets = tr.getVec<TLorentzVector>("jetsLVec");
-    const std::vector<float>& recoJetsBtag = tr.getVec<float>("recoJetsBtag_0");
+    const std::vector<float>& recoJetsBtag = tr.getVec<float>("recoJetsCSVv2");
+//    const std::vector<float>& recoJetsBtag = tr.getVec<float>("recoJetsBtag_0");
     const std::vector<int>& recoJetsFlavor = tr.getVec<int>("recoJetsFlavor");
 
     /*************************************************/
