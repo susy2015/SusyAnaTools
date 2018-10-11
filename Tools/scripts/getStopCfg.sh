@@ -82,46 +82,41 @@ then
     exit 0
 fi
 
-
+# Check that CFG_DIRECTORY is a directory
 if [ ! -d $CFG_DIRECTORY ]
 then
     echo "ERROR: $CFG_DIRECTORY is not a valid directory!"
     exit 1
 fi
 
-
 cd $CFG_DIRECTORY
 
+# Download tag
 if [ ! -d $REPO_NAME-$TAG ]
 then
-    echo "Checking out tag: " $TAG
+    echo " - Downloading this REPO-TAG: $REPO_NAME-$TAG"
     wget $GITHUB_SUSY2015_URL/$REPO_NAME/archive/$TAG.tar.gz
     if [ -f $TAG.tar.gz ]
     then
         tar xzf $TAG.tar.gz
         rm $TAG.tar.gz
     else
-        echo "Failed to get " $TAG.tar.gz
-        exit 0
+        echo "ERROR: Failed to get " $TAG.tar.gz
+        exit 1
     fi
 else
-    echo "Directory "$REPO_NAME-$TAG" already present"
+    echo " - Skipping the download of the requested REPO-TAG because the directory "$REPO_NAME-$TAG" is already present"
 fi
 
 
 cd $REPO_NAME-$TAG
 DOWNLOAD_DIR=$PWD
 
-# note: we don't want this once SUPP_CFG is in the repo
-#cd $STARTING_DIR
-
 if [[ -f $SUPP_CFG ]]
 then
-    # note: we don't want this once SUPP_CFG is in the repo
-    #cd $DOWNLOAD_DIR
     if [[ -d $SUPP_FILE_DIR ]] 
     then
-        echo "The directory $DOWNLOAD_DIR/$SUPP_FILE_DIR already exists"
+        echo " - Skipping the download of the supplementary files because the directory $DOWNLOAD_DIR/$SUPP_FILE_DIR already exists"
     else
         if [[ ! -f $TARBALL ]]
         then
@@ -145,9 +140,8 @@ fi
 
 cd $STARTING_DIR
 
-echo "STARTING_DIR: $STARTING_DIR"
-echo "DOWNLOAD_DIR: $DOWNLOAD_DIR"
-
+echo "INFO: STARTING_DIR is $STARTING_DIR"
+echo "INFO: DOWNLOAD_DIR is $DOWNLOAD_DIR"
 
 # [[ -z STRING ]] : True of the length if "STRING" is zero.
 if [[ -z $NO_SOFTLINK ]]
