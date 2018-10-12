@@ -30,7 +30,7 @@ TARBALL=SUPP_FILE_TARBALL.tar.gz
 function print_help {
     echo ""
     echo "Usage:"
-    echo "    getStopCfg.sh -t RELEASE_TAG [-d checkout_directory] [-f cfg_filename] [-n]"
+    echo "    getStopCfg.sh -t RELEASE_TAG [-d checkout_directory] [-f cfg_filename] [-o] [-n]"
     echo ""
     echo "Options:"
     echo "    -t RELEASE_TAG :         This is the github release tag to check out (required option)"
@@ -42,7 +42,7 @@ function print_help {
     echo ""
     echo "Description:"
     echo "    This script automatically downloads the Stop search configuration files"
-    echo "    and produces a softlink to this files in your corrent directory. This script should"
+    echo "    and produces softlinks to these files in your current directory. This script should"
     echo "    be run from the directory where the stop code will be run from. Stop search "
     echo "    configuration releases can be browsed at https://github.com/susy2015/StopCfg/releases."
     echo ""
@@ -82,18 +82,33 @@ then
     exit 0
 fi
 
+echo " - Running getStopCfg.sh"
 
+# get source directory of bash script
+# used for "Easter Egg"...
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+# check if OVERWRITE is set
+# if OVERWRITE is set, ask user for confirmation before continuing
 if [[ -z $OVERWRITE ]]
 then
     # OVERWRITE is not set
+    # continue
     echo "INFO: OVERWRITE is not set. Existing files and softlinks will not be replaced."
     echo "  To replace existing softlinks and files, use the OVERWRITE option -o."
 else
     # OVERWRITE is set
+    # ask user for confirmation before continuing
     echo   "INFO: OVERWRITE is set. Existing files and softlinks will be replaced."
     echo   "  Would you like to continue and replace existing files?"
     printf "  Enter (Y/y/yes/si/oui/ja/da) to continue, and anything else to quit: "
     read answer
+    if [[ $answer == "ok" ]]
+    then
+        # "Easter Egg"...
+        cat $SCRIPTDIR/ok.txt
+        exit 0
+    fi
     if [[ $answer == "Y" || $answer == "y" || $answer == "yes" || $answer == "si" || $answer == "oui" || $answer == "ja" || $answer == "da" ]]
     then
         echo " - Continuing..."
@@ -195,7 +210,5 @@ then
         echo "ERROR: Config file $DOWNLOAD_DIR/$SUPP_CFG not found"
     fi
 fi
-
-
 
 

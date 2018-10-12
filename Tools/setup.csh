@@ -46,12 +46,12 @@ set SRC=""
 
 if ! $?CMSSW_BASE then
     set rootdir=""
-    if ( "$called" != "" ) then  ### called by source 
-        set rootdir=`dirname $called[2]`       # may be relative path
+    if ( "$called" != "" ) then            # called by source 
+        set rootdir=`dirname $called[2]`   # may be relative path
     else
-        set rootdir=`dirname $0`       # may be relative path
+        set rootdir=`dirname $0`           # may be relative path
     endif
-    set rootdir=`cd $rootdir && pwd`/../..    # ensure absolute path
+    set rootdir=`cd $rootdir && pwd`/../.. # ensure absolute path
     echo "CMSSW_BASE not set, setting SRC variable to "$rootdir" assuming local compile"
     set SRC=$rootdir
 else
@@ -68,30 +68,38 @@ if ($TAGGERCFGDIR:q == "") then
     set TAGGERCFGDIR=$SRC/myTopTaggerCfgs
 endif
 
+# run taggerSetup.sh
+tcsh ${SRC}/TopTagger/TopTagger/test/taggerSetup.csh
+
+# set LD_LIBRARY_PATH
 if ! $?LD_LIBRARY_PATH then
-    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/
+    setenv LD_LIBRARY_PATH ./:${SRC}/SusyAnaTools/Tools/obj/
 else
-    setenv LD_LIBRARY_PATH ./:${SRC}/opencv/lib/:${SRC}/TopTagger/TopTagger/test/:${SRC}/SusyAnaTools/Tools/obj/:${LD_LIBRARY_PATH}
+    setenv LD_LIBRARY_PATH ./:${SRC}/SusyAnaTools/Tools/obj/:${LD_LIBRARY_PATH}
 endif
 
-##Checkout stop cfg files and supplementary files
-
-# -p give no error if directory exists
-mkdir -p $STOPCFGDIR
+# get StopCfg and TopTaggerCfg files
 # set OVERWRITE = -o via options to overwrite softlinks if they exist
-${SRC}/SusyAnaTools/Tools/scripts/getStopCfg.sh $OVERWRITE -t CMSSW8028_2016_v1.0.2 -d $STOPCFGDIR
+${SRC}/SusyAnaTools/Tools/scripts/getAllCfg.sh $OVERWRITE -c ${SRC} -s $STOPCFGDIR -t $TAGGERCFGDIR
 
-##Checkout latest toptagger cfg file 
-
-set TOPTAGGERFILE=TopTagger.cfg
-set SIMPLETOPTAGGERFILE=TopTagger_Simplified.cfg
-set LEGTOPTAGGERFILE=Legacy_TopTagger.cfg
-
-# -p give no error if directory exists
-mkdir -p $TAGGERCFGDIR
-# set OVERWRITE = -o via options to overwrite softlinks if they exist
-${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t MVAAK8_Tight_v1.2.1 -f $TOPTAGGERFILE -d $TAGGERCFGDIR
-${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
-${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t MVAAK8_Tight_noQGL_binaryCSV_v1.0.2 -f $SIMPLETOPTAGGERFILE -d $TAGGERCFGDIR
+# ### The following section is moving to getAllCfg.sh
+# 
+# ##Checkout stop cfg files and supplementary files
+# 
+# # -p give no error if directory exists
+# mkdir -p $STOPCFGDIR
+# # set OVERWRITE = -o via options to overwrite softlinks if they exist
+# ${SRC}/SusyAnaTools/Tools/scripts/getStopCfg.sh $OVERWRITE -t CMSSW8028_2016_v1.0.2 -d $STOPCFGDIR
+# 
+# ##Checkout latest toptagger cfg file 
+# 
+# set TOPTAGGERFILE=TopTagger.cfg
+# set SIMPLETOPTAGGERFILE=TopTagger_Simplified.cfg
+# 
+# # -p give no error if directory exists
+# mkdir -p $TAGGERCFGDIR
+# # set OVERWRITE = -o via options to overwrite softlinks if they exist
+# ${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t MVAAK8_Tight_v1.2.1 -f $TOPTAGGERFILE -d $TAGGERCFGDIR
+# ${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t MVAAK8_Tight_noQGL_binaryCSV_v1.0.2 -f $SIMPLETOPTAGGERFILE -d $TAGGERCFGDIR
 
 
