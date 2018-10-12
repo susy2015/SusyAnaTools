@@ -162,9 +162,10 @@ void BaselineVessel::prepareDeepTopTagger()
   AK4Inputs.addSupplamentalVector("qgPtD",                               tr->getVec<float>(UseNoLepVar("qgPtD")));
   AK4Inputs.addSupplamentalVector("qgAxis1",                             tr->getVec<float>(UseNoLepVar("qgAxis1")));
   AK4Inputs.addSupplamentalVector("qgAxis2",                             tr->getVec<float>(UseNoLepVar("qgAxis2")));
-  const std::vector<int> &qgMult_i = tr->getVec<int>(UseNoLepVar("qgMult"));
-  const std::vector<float> qgMult_f(qgMult_i.begin(), qgMult_i.end());
-  AK4Inputs.addSupplamentalVector("qgMult",                              qgMult_f);
+  //const std::vector<int> &qgMult_i = tr->getVec<int>(UseNoLepVar("qgMult"));
+  //const std::vector<float> qgMult_f(qgMult_i.begin(), qgMult_i.end());
+  AK4Inputs.addSupplamentalVector("qgMult",                             tr->getVec<float>(UseNoLepVar("qgMult")));
+  //AK4Inputs.addSupplamentalVector("qgMult",                              qgMult_f);
   AK4Inputs.addSupplamentalVector("recoJetschargedHadronEnergyFraction", tr->getVec<float>(UseNoLepVar("recoJetschargedHadronEnergyFraction")));
   AK4Inputs.addSupplamentalVector("recoJetschargedEmEnergyFraction",     tr->getVec<float>(UseNoLepVar("recoJetschargedEmEnergyFraction")));
   AK4Inputs.addSupplamentalVector("recoJetsneutralEmEnergyFraction",     tr->getVec<float>(UseNoLepVar("recoJetsneutralEmEnergyFraction")));
@@ -988,7 +989,7 @@ bool BaselineVessel::passNoiseEventFilterFunc()
     unsigned int hbheIsoNoiseFilter = isfastsim? 1:tr->getVar<unsigned int>("HBHEIsoNoiseFilter");
     int ecalTPFilter = tr->getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
 
-    unsigned int jetIDFilter = isfastsim? 1:tr->getVar<unsigned int>("AK4NoLeplooseJetID");
+    unsigned int jetIDFilter = isfastsim? 1:tr->getVar<unsigned int>("AK4looseJetID");
     //unsigned int jetIDFilter = true;
     // new filters
     const unsigned int & BadPFMuonFilter = tr->getVar<unsigned int>("BadPFMuonFilter");
@@ -1247,7 +1248,7 @@ bool BaselineVessel::GetMHT() const
   // Calculate MHT
   TLorentzVector MHT(0, 0, 0, 0);
   float SumHT = 0.0; //Using jet > 30 , |eta| < 5
-  for(auto &jet : tr->getVec<TLorentzVector>("prodJetsNoLep_jetsLVec"))
+  for(auto &jet : tr->getVec<TLorentzVector>(jetsLVec))
   {
     if (jet.Pt() >= 30)
     {
