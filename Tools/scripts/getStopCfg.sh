@@ -9,15 +9,17 @@
 
 GITHUB_SUSY2015_URL=https://github.com/susy2015
 REPO_NAME=StopCfg
+RELEASE_URL="$GITHUB_SUSY2015_URL/$REPO_NAME/releases"
 
 STARTING_DIR=$PWD
 CFG_DIRECTORY=$PWD
 TAG=
 NO_SOFTLINK=
 OVERWRITE=
+VERBOSE=
 
 # A POSIX variable
-OPTIND=1         # Reset in case getopts has been used previously in the shell.
+OPTIND=1    # Reset in case getopts has been used previously in the shell.
 
 SUPP_CFG=supplementaryFiles.cfg
 SETS_CFG=sampleSets.cfg
@@ -30,7 +32,7 @@ TARBALL=SUPP_FILE_TARBALL.tar.gz
 function print_help {
     echo ""
     echo "Usage:"
-    echo "    getStopCfg.sh -t RELEASE_TAG [-d checkout_directory] [-f cfg_filename] [-o] [-n]"
+    echo "    getStopCfg.sh -t RELEASE_TAG [-d checkout_directory] [-f cfg_filename] [-o] [-n] [-v]"
     echo ""
     echo "Options:"
     echo "    -t RELEASE_TAG :         This is the github release tag to check out (required option)"
@@ -39,19 +41,20 @@ function print_help {
     echo "    -c COLL_LINK_NAME :      Specify this option to name the softlink to \"$COLL_CFG\" something other than \"$COLL_LINK_NAME\""
     echo "    -o :                     Overwrite the softlinks if they already exist"
     echo "    -n :                     Download files without producing softlinks"
+    echo "    -v :                     increase verbosity: print more stuff... for those who like stuff"
     echo ""
     echo "Description:"
     echo "    This script automatically downloads the Stop search configuration files"
     echo "    and produces softlinks to these files in your current directory. This script should"
     echo "    be run from the directory where the stop code will be run from. Stop search "
-    echo "    configuration releases can be browsed at https://github.com/susy2015/StopCfg/releases."
+    echo "    configuration releases can be browsed at $RELEASE_URL"
     echo ""
 }
 
 
 # Initialize our own variables:
 
-while getopts "h?t:d:s:c:on" opt; do
+while getopts "h?t:d:s:c:onv" opt; do
     case "$opt" in
     h|\?)
         print_help
@@ -67,7 +70,9 @@ while getopts "h?t:d:s:c:on" opt; do
         ;;
     o) OVERWRITE="-f"
         ;;
-    n) NO_SOFTLINK=NO
+    n) NO_SOFTLINK=1
+        ;;
+    v) VERBOSE=1
         ;;
     esac
 done
@@ -118,7 +123,6 @@ else
     fi
 fi
 
-
 # Check that CFG_DIRECTORY is a directory
 if [ ! -d $CFG_DIRECTORY ]
 then
@@ -132,13 +136,21 @@ cd $CFG_DIRECTORY
 if [ ! -d $REPO_NAME-$TAG ]
 then
     echo " - Downloading this REPO-TAG: $REPO_NAME-$TAG"
-    wget $GITHUB_SUSY2015_URL/$REPO_NAME/archive/$TAG.tar.gz
+    if [[ ! -z $VERBOSE ]] # True if VERBOSE is set
+    then
+        wget $GITHUB_SUSY2015_URL/$REPO_NAME/archive/$TAG.tar.gz
+    else
+        wget $GITHUB_SUSY2015_URL/$REPO_NAME/archive/$TAG.tar.gz &> /dev/null
+    fi
     if [ -f $TAG.tar.gz ]
     then
         tar xzf $TAG.tar.gz
         rm $TAG.tar.gz
     else
-        echo "ERROR: Failed to get " $TAG.tar.gz
+        echo "ERROR: Failed to download $GITHUB_SUSY2015_URL/$REPO_NAME/archive/$TAG.tar.gz"
+        echo "  Check that the REPO-TAG that you entered ($REPO_NAME-$TAG)"
+        echo "  exists at $RELEASE_URL"
+        echo "  Check your spelling... you may have a typo! Copy and paste are your friends."
         exit 1
     fi
 else
@@ -149,7 +161,10 @@ fi
 cd $REPO_NAME-$TAG
 DOWNLOAD_DIR=$PWD
 
-echo "INFO: DOWNLOAD_DIR is $DOWNLOAD_DIR"
+if [[ ! -z $VERBOSE ]] # True if VERBOSE is set
+then
+    echo "INFO: DOWNLOAD_DIR is $DOWNLOAD_DIR"
+fi
 
 if [[ -f $SUPP_CFG ]]
 then
@@ -160,7 +175,12 @@ then
         if [[ ! -f $TARBALL ]]
         then
             echo " - Downloading supplementary files"
-            wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$TARBALL
+            if [[ ! -z $VERBOSE ]] # True if VERBOSE is set
+            then
+                wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$TARBALL
+            else
+                wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$TARBALL &> /dev/null
+            fi
             if [ ! -f $TARBALL ]
             then
                 echo "ERROR: Tarball $DOWNLOAD_DIR/$TARBALL not found after attempted download"
@@ -179,7 +199,10 @@ fi
 
 cd $STARTING_DIR
 
-echo "INFO: STARTING_DIR is $STARTING_DIR"
+if [[ ! -z $VERBOSE ]] # True if VERBOSE is set
+then
+    echo "INFO: STARTING_DIR is $STARTING_DIR"
+fi
 
 # If OVERWRITE is set, make solftlinks (using ln) with -f
 # If OVERWRITE is not set, make solftlinks (using ln)
@@ -194,13 +217,13 @@ echo "INFO: STARTING_DIR is $STARTING_DIR"
 if [[ -z $NO_SOFTLINK ]]
 then
     # create softlinks
-    echo " - Creating softlinks to config files"
+    echo " - Creating softlinks to $REPO_NAME config files"
     ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG $SETS_LINK_NAME > /dev/null 2>&1 
     ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG $COLL_LINK_NAME > /dev/null 2>&1
     # make list of files to tar
     if [[ -f $DOWNLOAD_DIR/$SUPP_CFG ]]
     then
-        echo " - Creating softlinks to supplementary files"
+        echo " - Creating softlinks to $REPO_NAME supplementary files"
         while read -r line || [[ -n "$line" ]]
         do
             SUPP_FILE="$line"
