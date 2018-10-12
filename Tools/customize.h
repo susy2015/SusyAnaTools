@@ -65,7 +65,7 @@ namespace AnaConsts{
    const AccRec pt50Eta24Arr = {   -1,       2.4,      50,    -1  };
    const AccRec      dphiArr = {   -1,       4.7,      20,    -1  };
    const AccRec     dphiNArr = {   -1,       2.4,      30,    -1  };
-   const AccRec      bTagArr = {   -1,       2.4,      30,    -1  };
+   const AccRec      bTagArr = {   -1,       2.4,      20,    -1  };
    const AccRec pt20Eta25Arr = {   -1,       2.5,      20,    -1  };
 
 //   const float cutCSVS = 0.814, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
