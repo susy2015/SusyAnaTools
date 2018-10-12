@@ -32,7 +32,8 @@ make -j 8
 ```
 
 <details> <summary> Checkout OpenCV </summary>
-```
+
+```bash
 cd $CMSSW_BASE/src
 git clone git@github.com:susy2015/opencv.git
 cd opencv
@@ -40,6 +41,7 @@ git checkout 3.1.0_StopBugFix
 cmake .
 make -j 8
 ```
+
 </details>
 
 
