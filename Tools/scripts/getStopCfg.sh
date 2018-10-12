@@ -82,6 +82,28 @@ then
     exit 0
 fi
 
+
+if [[ -z $OVERWRITE ]]
+then
+    # OVERWRITE is not set
+    echo "INFO: OVERWRITE is not set. Existing files and softlinks will not be replaced."
+    echo "  To replace existing softlinks and files, use the OVERWRITE option -o."
+else
+    # OVERWRITE is set
+    echo   "INFO: OVERWRITE is set. Existing files and softlinks will be replaced."
+    echo   "  Would you like to continue and replace existing files?"
+    printf "  Enter (Y/y/yes/si/oui/ja/da) to continue, and anything else to quit: "
+    read answer
+    if [[ $answer == "Y" || $answer == "y" || $answer == "yes" || $answer == "si" || $answer == "oui" || $answer == "ja" || $answer == "da" ]]
+    then
+        echo " - Continuing..."
+    else
+        echo " - Quitting..."
+        exit 0
+    fi
+fi
+
+
 # Check that CFG_DIRECTORY is a directory
 if [ ! -d $CFG_DIRECTORY ]
 then
@@ -112,6 +134,8 @@ fi
 cd $REPO_NAME-$TAG
 DOWNLOAD_DIR=$PWD
 
+echo "INFO: DOWNLOAD_DIR is $DOWNLOAD_DIR"
+
 if [[ -f $SUPP_CFG ]]
 then
     if [[ -d $SUPP_FILE_DIR ]] 
@@ -120,7 +144,7 @@ then
     else
         if [[ ! -f $TARBALL ]]
         then
-            echo "Downloading supplementary files"
+            echo " - Downloading supplementary files"
             wget $GITHUB_SUSY2015_URL/$REPO_NAME/releases/download/$TAG/$TARBALL
             if [ ! -f $TARBALL ]
             then
@@ -141,26 +165,34 @@ fi
 cd $STARTING_DIR
 
 echo "INFO: STARTING_DIR is $STARTING_DIR"
-echo "INFO: DOWNLOAD_DIR is $DOWNLOAD_DIR"
 
-# [[ -z STRING ]] : True of the length if "STRING" is zero.
+# If OVERWRITE is set, make solftlinks (using ln) with -f
+# If OVERWRITE is not set, make solftlinks (using ln)
+# Pipe output to /dev/null
+
+# Note: "> /dev/null 2>&1" does this:
+# stdin  ==> fd 0      (default fd 0)
+# stdout ==> /dev/null (default fd 1)
+# stderr ==> stdout    (default fd 2)
+
+# [[ -z STRING ]] : True if the length of "STRING" is zero, False if "STRING" has nonzero length
 if [[ -z $NO_SOFTLINK ]]
 then
     # create softlinks
-    echo "Creating softlinks to config files"
-    ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG $SETS_LINK_NAME
-    ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG $COLL_LINK_NAME
+    echo " - Creating softlinks to config files"
+    ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG $SETS_LINK_NAME > /dev/null 2>&1 
+    ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG $COLL_LINK_NAME > /dev/null 2>&1
     # make list of files to tar
     if [[ -f $DOWNLOAD_DIR/$SUPP_CFG ]]
     then
-        echo "Creating softlinks to supplementary files"
+        echo " - Creating softlinks to supplementary files"
         while read -r line || [[ -n "$line" ]]
         do
             SUPP_FILE="$line"
-            ln $OVERWRITE -s $DOWNLOAD_DIR/$SUPP_FILE_DIR/$SUPP_FILE $SUPP_FILE
+            ln $OVERWRITE -s $DOWNLOAD_DIR/$SUPP_FILE_DIR/$SUPP_FILE $SUPP_FILE > /dev/null 2>&1
         done < $DOWNLOAD_DIR/$SUPP_CFG
     else
-        echo "Config file $DOWNLOAD_DIR/$SUPP_CFG not found"
+        echo "ERROR: Config file $DOWNLOAD_DIR/$SUPP_CFG not found"
     fi
 fi
 
