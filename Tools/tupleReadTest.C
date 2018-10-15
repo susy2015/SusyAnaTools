@@ -16,11 +16,17 @@
 #include <cmath>
 #include "ISRCorrector.h"
 #include "BTagCorrector.h"
+#include "SB_v1.h"
 
 int main(int argc, char* argv[]){
 
 	const bool debug = false;
-	const bool use_new_tagger = false;
+	const bool use_new_tagger = true;
+	const bool do_ISR_BSF = true;
+	const bool t2bw_study = false;
+
+	int max_events = -1;
+	//max_events = 10000;
 
 	// ---------- Input & Output File Arguments ----------
 
@@ -35,12 +41,6 @@ int main(int argc, char* argv[]){
 	const char *inputfilelist = argv[1];
 	const char *outputfile   = argv[2];
 	std::string sample_name(inputfilelist);
-
-	int max_events = -1;
-	//max_events = 10000;
-
-	bool do_ISR_BSF = true;
-	bool t2bw_study = false;
 
 	//if(argc > 3){
 	//   const char *events_input = argv[3]; // Need to Fix
@@ -345,9 +345,9 @@ int main(int argc, char* argv[]){
 		std::vector<float> rjbt_vec = tr.getVec<float>("prodJetsNoLep_recoJetsCSVv2");
 		int njets = jetsLVec.size();
 		float ISR_SF = 1.0;
-		if (find_ISR_SF) ISR_SF = tr.getVar<float>("isr_Unc_Cent");
+		if (do_ISR_BSF && find_ISR_SF) ISR_SF = tr.getVar<float>("isr_Unc_Cent");
 		float B_SF = 1.0;
-		if(find_B_SF) B_SF = tr.getVar<float>("bTagSF_EventWeightSimple_Central");
+		if(do_ISR_BSF && find_B_SF) B_SF = tr.getVar<float>("bTagSF_EventWeightSimple_Central");
 		float evtWeight = tr.getVar<float>("evtWeight");
 		if(do_ISR_BSF) evtWeight = evtWeight*ISR_SF*B_SF;
 		float met = tr.getVar<float>("met"); 
@@ -453,12 +453,14 @@ int main(int argc, char* argv[]){
 			if(tlv_Pt > 30) nbottompt30++;
 		} // End Sub-Loop Over Jets
 
-		if(njetspt20 != njets20_from_baseline) std::cout << "njets (pt > 30) = " << njetspt20 << " njets20_from_baseline = " << njets20_from_baseline << std::endl;
-		if(nbottompt30 != nbjets) std::cout << "nbottom (pt > 30) = " << nbottompt30 << " nbjets = " << nbjets << std::endl;
+		if(njetspt20 != njets20_from_baseline) std::cout << "njets (pt > 20) = " << njetspt20 << " njets20_from_baseline = " << njets20_from_baseline << std::endl;
+		if(nbottompt20 != nbjets) std::cout << "nbottom (pt > 20) = " << nbottompt20 << " nbjets = " << nbjets << std::endl;
 
 		float bottompt_scalar_sum = 0;
 		if(b_jetsLVec.size() == 1) bottompt_scalar_sum = b_jetsLVec.at(0).Pt();	
-		if(b_jetsLVec.size() > 1) bottompt_scalar_sum = b_jetsLVec.at(0).Pt() + b_jetsLVec.at(1).Pt();	
+		if(b_jetsLVec.size() > 1) bottompt_scalar_sum = b_jetsLVec.at(0).Pt() + b_jetsLVec.at(1).Pt();
+		//if(bottompt_scalar_sum != tr.getVar<float>("Ptb")) std::cout << "bottompt_scalar_sum = " << bottompt_scalar_sum << " Ptb = " << tr.getVar<float>("Ptb") << std::endl;
+		//if(tr.getEvtNum() < 4) std::cout << "bottompt_scalar_sum = " << bottompt_scalar_sum << " Ptb = " << tr.getVar<float>("Ptb") << std::endl;
 
 	if(debug) std::cout << __LINE__ << std::endl;
 		/*for (int i=0; i<b_jetsLVec.size(); i++)
@@ -515,6 +517,8 @@ int main(int argc, char* argv[]){
 			float MT_2 = sqrt(2*tlv_Pt_2*met*(1-cos(tlv_Phi_2 - metphi)));
 			mtb = std::min(MT_1,MT_2);
 		}
+		//if(mtb != tr.getVar<float>("Mtb")) std::cout << "mtb = " << mtb << " Mtb = " << tr.getVar<float>("Mtb") << " b_jetsLVec.size() = " << b_jetsLVec.size() << " tr.getVec<float>('vBjs').size() = " << tr.getVec<float>("vBjs").size() << std::endl;
+		//if(tr.getEvtNum() < 4) std::cout << "mtb = " << mtb << " Mtb = " << tr.getVar<float>("Mtb") << " b_jetsLVec.size() = " << b_jetsLVec.size() << " tr.getVec<TLorentzVector>('vBjs').size() = " << tr.getVec<TLorentzVector>("vBjs").size() << std::endl;
 	if(debug) std::cout << __LINE__ << std::endl;
 
 		//if(ntop > 0)
@@ -721,7 +725,7 @@ int main(int argc, char* argv[]){
 
 		if(old_bin_is_83 && (!highdm_is_176))
 		{
-			std::cout << "njetspt20 = " << njetspt20 << ", ntop = " << ntop << ", ntop_merge = " << ntop_merge << ", nw = " << nw << ", nw_tagger = " << nw_tagger << ", ntop_w = " << ntop_w << ", ntop_res = " << ntop_res << ", nbottompt20 = " << nbottompt20 << ", mtb = " << mtb << ", met = " << met << ", genmet = " << genmet << ", HT = " << HT << ", passdphi_highdm = " << passdphi_highdm << std::endl;
+			//std::cout << "njetspt20 = " << njetspt20 << ", ntop = " << ntop << ", ntop_merge = " << ntop_merge << ", nw = " << nw << ", nw_tagger = " << nw_tagger << ", ntop_w = " << ntop_w << ", ntop_res = " << ntop_res << ", nbottompt20 = " << nbottompt20 << ", mtb = " << mtb << ", met = " << met << ", genmet = " << genmet << ", HT = " << HT << ", passdphi_highdm = " << passdphi_highdm << std::endl;
 			if (mtb < 175) n_fail_mtb++;
 			if (met < 400) n_fail_met++;
 			if (passdphi_highdm == 0) n_fail_dPhi++;
@@ -1137,420 +1141,3 @@ int main(int argc, char* argv[]){
 	return 0;
 
 } // End Main
-
-int SB_team_A_highdm(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met)
-{
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 250 && met < 300) return 53;
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 300 && met < 400) return 54;
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 400 && met < 500) return 55;
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 500) return 56;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 250 && met < 300) return 57;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 300 && met < 400) return 58;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 400 && met < 500) return 59;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 500) return 60;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 250 && met < 350) return 61;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 350 && met < 450) return 62;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 450 && met < 550) return 63;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 550) return 64;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 250 && met < 350) return 65;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 350 && met < 450) return 66;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 450 && met < 550) return 67;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 550) return 68;
-	if (nb ==1 && mtb > mtb_cut && ntop >=1 && nres ==0 && nw ==0 && met > 550 && met < 650) return 69;
-	if (nb ==1 && mtb > mtb_cut && ntop >=1 && nres ==0 && nw ==0 && met > 650) return 70;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 250 && met < 350) return 71;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 350 && met < 450) return 72;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 450 && met < 550) return 73;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 550 && met < 650) return 74;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 650) return 75;
-	if (nb ==1 && mtb > mtb_cut && ntop >=1 && nres ==0 && nw >=1 && met > 550) return 76;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 250 && met < 350) return 77;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 350 && met < 450) return 78;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 450 && met < 550) return 79;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 550) return 80;
-	if (nb >=2 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 550 && met < 650) return 81;
-	if (nb >=2 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 650) return 82;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 250 && met < 350) return 83;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 350 && met < 450) return 84;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 450 && met < 550) return 85;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 550 && met < 650) return 86;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 650) return 87;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 250 && met < 350) return 88;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 350 && met < 450) return 89;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 450 && met < 550) return 90;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 550 && met < 650) return 91;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 650) return 92;
-	if (nb >=2 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 550) return 93;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 250 && met < 350) return 94;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 350 && met < 450) return 95;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 450 && met < 550) return 96;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 550) return 97;
-	if (nb >=2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 250 && met < 350) return 98;
-	if (nb >=2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 350 && met < 450) return 99;
-	if (nb >=2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 450) return 100;
-	if (nb >=2 && mtb > mtb_cut && ntop >=2 && nres ==0 && nw ==0 && met > 250) return 101;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres >=2 && nw ==0 && met > 250) return 102;
-	if (nb >=2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw >=2 && met > 250) return 103;
-	return -1;
-}
-
-int SB_team_A_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met)
-{
-	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets <= 5 && met > 450 && met < 550) return 0;
-	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets <= 5 && met > 550 && met < 650) return 1;
-	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets <= 5 && met > 650 && met < 750) return 2;
-	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets <= 5 && met > 750) return 3;
-	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets >= 6 && met > 450 && met < 550) return 4;
-	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets >= 6 && met > 550 && met < 650) return 5;
-	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets >= 6 && met > 650 && met < 750) return 6;
-	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets >= 6 && met > 750) return 7;
-	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets <= 5 && met > 450 && met < 550) return 8;
-	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets <= 5 && met > 550 && met < 650) return 9;
-	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets <= 5 && met > 650 && met < 750) return 10;
-	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets <= 5 && met > 750) return 11;
-	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets >= 6 && met > 450 && met < 550) return 12;
-	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets >= 6 && met > 550 && met < 650) return 13;
-	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets >= 6 && met > 650 && met < 750) return 14;
-	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets >= 6 && met > 750) return 15;
-	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 40 && met > 300 && met < 400) return 16;
-	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 40 && met > 400 && met < 500) return 17;
-	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 40 && met > 500 && met < 600) return 18;
-	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 40 && met > 600) return 19;
-	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 300 && met < 400) return 20;
-	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 400 && met < 500) return 21;
-	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 500 && met < 600) return 22;
-	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 600) return 23;
-	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum < 40 && met > 450 && met < 550) return 24;
-	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum < 40 && met > 550 && met < 650) return 25;
-	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum < 40 && met > 650 && met < 750) return 26;
-	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum < 40 && met > 750) return 27;
-	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 450 && met < 550) return 28;
-	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 550 && met < 650) return 29;
-	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 650 && met < 750) return 30;
-	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 750) return 31;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 300 && met < 400) return 32;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 400 && met < 500) return 33;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 500) return 34;
-	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 80 && met > 300 && met < 400) return 35;
-	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 80 && met > 400 && met < 500) return 36;
-	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 80 && met > 500) return 37;
-	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 80 && bottompt_scalar_sum < 140 && met > 300 && met < 400) return 38;
-	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 80 && bottompt_scalar_sum < 140 && met > 400 && met < 500) return 39;
-	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 80 && bottompt_scalar_sum < 140 && met > 500) return 40;
-	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 140 && njets >= 7 && met > 300 && met < 400) return 41;
-	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 140 && njets >= 7 && met > 400 && met < 500) return 42;
-	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 140 && njets >= 7 && met > 500) return 43;
-	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum < 80 && met > 450 && met < 550) return 44;
-	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum < 80 && met > 550 && met < 650) return 45;
-	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum < 80 && met > 650) return 46;
-	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum > 80 && bottompt_scalar_sum < 140 && met > 450 && met < 550) return 47;
-	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum > 80 && bottompt_scalar_sum < 140 && met > 550 && met < 650) return 48;
-	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum > 80 && bottompt_scalar_sum < 140 && met > 650) return 49;
-	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum > 140 && njets >= 7 && met > 450 && met < 550) return 50;
-	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum > 140 && njets >= 7 && met > 550 && met < 650) return 51;
-	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum > 140 && njets >= 7 && met > 650) return 52;
-	return -1;
-}
-
-int SB_highdm(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met, float ht)
-{
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 250 && met < 300) return 53;
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 300 && met < 400) return 54;
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 400 && met < 500) return 55;
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 500) return 56;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 250 && met < 300) return 57;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 300 && met < 400) return 58;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 400 && met < 500) return 59;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 500) return 60;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 250 && met < 350) return 61;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 350 && met < 450) return 62;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 450 && met < 550) return 63;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 550) return 64;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 250 && met < 350) return 65;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 350 && met < 450) return 66;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 450 && met < 550) return 67;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 550) return 68;
-	if (nb ==1 && mtb > mtb_cut && ntop >=1 && nres ==0 && nw ==0 && met > 550 && met < 650) return 69;
-	if (nb ==1 && mtb > mtb_cut && ntop >=1 && nres ==0 && nw ==0 && met > 650) return 70;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 250 && met < 350) return 71;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 350 && met < 450) return 72;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 450 && met < 550) return 73;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 550 && met < 650) return 74;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 650) return 75;
-	if (nb ==1 && mtb > mtb_cut && ntop >=1 && nres ==0 && nw >=1 && met > 550) return 76;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 250 && met < 350) return 77;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 350 && met < 450) return 78;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 450 && met < 550) return 79;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 550) return 80;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 550 && met < 650) return 81;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 650) return 82;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 250 && met < 350) return 83;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 350 && met < 450) return 84;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 450 && met < 550) return 85;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 550 && met < 650) return 86;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 650) return 87;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 250 && met < 350) return 88;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 350 && met < 450) return 89;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 450 && met < 550) return 90;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 550 && met < 650) return 91;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 650) return 92;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 550) return 93;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 250 && met < 350) return 94;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 350 && met < 450) return 95;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 450 && met < 550) return 96;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 550) return 97;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 250 && met < 350) return 98;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 350 && met < 450) return 99;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 450) return 100;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 250 && met < 450) return 101;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 450 && met < 600) return 102;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 600) return 103;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 250 && met < 450) return 104;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 450 && met < 600) return 105;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 600) return 106;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 250 && met < 450) return 107;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 450 && met < 600) return 108;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 600) return 109;
-	if (nb ==2 && mtb > mtb_cut && ntop+nres+nw >=3 && met > 250 && met < 400) return 110;
-	if (nb ==2 && mtb > mtb_cut && ntop+nres+nw >=3 && met > 400) return 111;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 250 && met < 350 && ht < 1000) return 112;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 250 && met < 350 && ht > 1000 && ht < 1500) return 113;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 250 && met < 350 && ht > 1500) return 114;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 350 && met < 550 && ht < 1000) return 115;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 350 && met < 550 && ht > 1000 && ht < 1500) return 116;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 350 && met < 550 && ht > 1500) return 117;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 550 && ht < 1000) return 118;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 550 && ht > 1000 && ht < 1500) return 119;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 550 && ht > 1500) return 120;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 250 && met < 350 && ht < 1000) return 121;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 250 && met < 350 && ht > 1000 && ht < 1500) return 122;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 250 && met < 350 && ht > 1500) return 123;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 350 && met < 550 && ht < 1000) return 124;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 350 && met < 550 && ht > 1000 && ht < 1500) return 125;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 350 && met < 550 && ht > 1500) return 126;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 550 && ht < 1000) return 127;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 550 && ht > 1000 && ht < 1500) return 128;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 550 && ht > 1500) return 129;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 250 && met < 350 && ht < 1000) return 130;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 250 && met < 350 && ht > 1000 && ht < 1500) return 131;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 250 && met < 350 && ht > 1500) return 132;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 350 && met < 550 && ht < 1000) return 133;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 350 && met < 550 && ht > 1000 && ht < 1500) return 134;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 350 && met < 550 && ht > 1500) return 135;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 550 && ht < 1000) return 136;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 550 && ht > 1000 && ht < 1500) return 137;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 550 && ht > 1500) return 138;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 250 && met < 350 && ht < 1300) return 139;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 250 && met < 350 && ht > 1300) return 140;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 350 && met < 500 && ht < 1300) return 141;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 350 && met < 500 && ht > 1300) return 142;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 500 && ht < 1300) return 143;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 500 && ht > 1300) return 144;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 250 && met < 350 && ht < 1300) return 145;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 250 && met < 350 && ht > 1300) return 146;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 350 && met < 500 && ht < 1300) return 147;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 350 && met < 500 && ht > 1300) return 148;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 500 && ht < 1300) return 149;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 500 && ht > 1300) return 150;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 250 && met < 350 && ht < 1300) return 151;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 250 && met < 350 && ht > 1300) return 152;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 350 && met < 500 && ht < 1300) return 153;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 350 && met < 500 && ht > 1300) return 154;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 500 && ht < 1300) return 155;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 500 && ht > 1300) return 156;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 250 && met < 350 && ht < 1300) return 157;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 250 && met < 350 && ht > 1300) return 158;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 350 && met < 500 && ht < 1300) return 159;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 350 && met < 500 && ht > 1300) return 160;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 500 && ht < 1300) return 161;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 500 && ht > 1300) return 162;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 250 && met < 350 && ht < 1300) return 163;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 250 && met < 350 && ht > 1300) return 164;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 350 && met < 500 && ht < 1300) return 165;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 350 && met < 500 && ht > 1300) return 166;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 500 && ht < 1300) return 167;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 500 && ht > 1300) return 168;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 250 && met < 350 && ht < 1300) return 169;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 250 && met < 350 && ht > 1300) return 170;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 350 && met < 500 && ht < 1300) return 171;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 350 && met < 500 && ht > 1300) return 172;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 500 && ht < 1300) return 173;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 500 && ht > 1300) return 174;
-	if (nb >=3 && mtb > mtb_cut && ntop+nres+nw >=3 && met > 250 && met < 400) return 175;
-	if (nb >=3 && mtb > mtb_cut && ntop+nres+nw >=3 && met > 400) return 176;
-	return -1;
-}
-
-int SB_highdm_MT2(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met, float ht, float mt2)
-{
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 250 && met < 300) return 53;
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 300 && met < 400) return 54;
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 400 && met < 500) return 55;
-	if (nb ==1 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 500) return 56;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 250 && met < 300) return 57;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 300 && met < 400) return 58;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 400 && met < 500) return 59;
-	if (nb >=2 && mtb < mtb_cut && njets >=7 && nres >=1 && met > 500) return 60;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 250 && met < 350) return 61;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 350 && met < 450) return 62;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 450 && met < 550) return 63;
-	if (nb ==1 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 550) return 64;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 250 && met < 350) return 65;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 350 && met < 450) return 66;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 450 && met < 550) return 67;
-	if (nb >=2 && mtb > mtb_cut && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 550) return 68;
-	if (nb ==1 && mtb > mtb_cut && ntop >=1 && nres ==0 && nw ==0 && met > 550 && met < 650) return 69;
-	if (nb ==1 && mtb > mtb_cut && ntop >=1 && nres ==0 && nw ==0 && met > 650) return 70;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 250 && met < 350) return 71;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 350 && met < 450) return 72;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 450 && met < 550) return 73;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 550 && met < 650) return 74;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw ==0 && met > 650) return 75;
-	if (nb ==1 && mtb > mtb_cut && ntop >=1 && nres ==0 && nw >=1 && met > 550 && mt2 < 300) return 76;
-	if (nb ==1 && mtb > mtb_cut && ntop >=1 && nres ==0 && nw >=1 && met > 550 && mt2 > 300 && mt2 < 450) return 77;
-	if (nb ==1 && mtb > mtb_cut && ntop >=1 && nres ==0 && nw >=1 && met > 550 && mt2 > 450) return 78;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 250 && met < 350 && mt2 < 300) return 79;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 250 && met < 350 && mt2 > 300 && mt2 < 450) return 80;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 250 && met < 350 && mt2 > 450) return 81;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 350 && met < 450 && mt2 < 300) return 82;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 350 && met < 450 && mt2 > 300 && mt2 < 450) return 83;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 350 && met < 450 && mt2 > 450) return 84;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 450 && met < 550 && mt2 < 300) return 85;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 450 && met < 550 && mt2 > 300 && mt2 < 450) return 86;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 450 && met < 550 && mt2 > 450) return 87;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 550 && mt2 < 300) return 88;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 550 && mt2 > 300 && mt2 < 450) return 89;
-	if (nb ==1 && mtb > mtb_cut && ntop ==0 && nres >=1 && nw >=1 && met > 550 && mt2 > 450) return 90;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 550 && met < 650) return 91;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 650) return 92;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 250 && met < 350) return 93;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 350 && met < 450) return 94;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 450 && met < 550) return 95;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 550 && met < 650) return 96;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 650) return 97;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 250 && met < 350) return 98;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 350 && met < 450) return 99;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 450 && met < 550) return 100;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 550 && met < 650) return 101;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 650) return 102;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 550 && mt2 < 300) return 103;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 550 && mt2 > 300 && mt2 < 400) return 104;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 550 && mt2 > 400) return 105;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 250 && met < 350 && mt2 < 300) return 106;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 250 && met < 350 && mt2 > 300 && mt2 < 400) return 107;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 250 && met < 350 && mt2 > 400) return 108;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 350 && met < 450 && mt2 < 300) return 109;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 350 && met < 450 && mt2 > 300 && mt2 < 400) return 110;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 350 && met < 450 && mt2 > 400) return 111;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 450 && met < 550 && mt2 < 300) return 112;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 450 && met < 550 && mt2 > 300 && mt2 < 400) return 113;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 450 && met < 550 && mt2 > 400) return 114;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 550 && mt2 < 300) return 115;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 550 && mt2 > 300 && mt2 < 400) return 116;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 550 && mt2 > 400) return 117;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 250 && met < 350 && mt2 < 300) return 118;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 250 && met < 350 && mt2 > 300 && mt2 < 400) return 119;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 250 && met < 350 && mt2 > 400) return 120;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 350 && met < 450 && mt2 < 300) return 121;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 350 && met < 450 && mt2 > 300 && mt2 < 400) return 122;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 350 && met < 450 && mt2 > 400) return 123;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 450 && mt2 < 300) return 124;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 450 && mt2 > 300 && mt2 < 400 ) return 125;
-	if (nb ==2 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 450 && mt2 > 400) return 126;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 250 && met < 450 && mt2 < 300) return 127;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 250 && met < 450 && mt2 > 300 && mt2 < 400) return 128;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 250 && met < 450 && mt2 > 400) return 129;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 450 && met < 600 && mt2 < 300) return 130;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 450 && met < 600 && mt2 > 300 & mt2 < 400) return 131;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 450 && met < 600 && mt2 > 400) return 132;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 600 && mt2 < 300) return 133;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 600 && mt2 > 300 && mt2 < 400) return 134;
-	if (nb ==2 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 600 && mt2 > 400) return 135;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 250 && met < 450 && mt2 < 300) return 136;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 250 && met < 450 && mt2 > 300 && mt2 < 400) return 137;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 250 && met < 450 && mt2 > 400) return 138;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 450 && met < 600 && mt2 < 300) return 139;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 450 && met < 600 && mt2 > 300 && mt2 < 400) return 140;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 450 && met < 600 && mt2 > 400) return 141;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 600 && mt2 < 300) return 142;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 600 && mt2 > 300 && mt2 < 400) return 143;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 600 && mt2 > 400) return 144;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 250 && met < 450 && mt2 < 300) return 145;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 250 && met < 450 && mt2 > 300 && mt2 < 400) return 146;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 250 && met < 450 && mt2 > 400) return 147;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 450 && met < 600 && mt2 < 300) return 148;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 450 && met < 600 && mt2 > 300 && mt2 < 400) return 149;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 450 && met < 600 && mt2 > 400) return 150;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 600 && mt2 < 300) return 151;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 600 && mt2 > 300 && mt2 < 400) return 152;
-	if (nb ==2 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 600 && mt2 > 400) return 153;
-	if (nb ==2 && mtb > mtb_cut && ntop+nres+nw >=3 && met > 250 && met < 400) return 154;
-	if (nb ==2 && mtb > mtb_cut && ntop+nres+nw >=3 && met > 400) return 155;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 250 && met < 350 && ht < 1000) return 156;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 250 && met < 350 && ht > 1000 && ht < 1500) return 157;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 250 && met < 350 && ht > 1500) return 158;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 350 && met < 550 && ht < 1000) return 159;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 350 && met < 550 && ht > 1000 && ht < 1500) return 160;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 350 && met < 550 && ht > 1500) return 161;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 550 && ht < 1000) return 162;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 550 && ht > 1000 && ht < 1500) return 163;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==0 && met > 550 && ht > 1500) return 164;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 250 && met < 350 && ht < 1000) return 165;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 250 && met < 350 && ht > 1000 && ht < 1500) return 166;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 250 && met < 350 && ht > 1500) return 167;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 350 && met < 550 && ht < 1000) return 168;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 350 && met < 550 && ht > 1000 && ht < 1500) return 169;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 350 && met < 550 && ht > 1500) return 170;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 550 && ht < 1000) return 171;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 550 && ht > 1000 && ht < 1500) return 172;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==0 && met > 550 && ht > 1500) return 173;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 250 && met < 350 && ht < 1000) return 174;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 250 && met < 350 && ht > 1000 && ht < 1500) return 175;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 250 && met < 350 && ht > 1500) return 176;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 350 && met < 550 && ht < 1000) return 177;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 350 && met < 550 && ht > 1000 && ht < 1500) return 178;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 350 && met < 550 && ht > 1500) return 179;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 550 && ht < 1000) return 180;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 550 && ht > 1000 && ht < 1500) return 181;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==1 && met > 550 && ht > 1500) return 182;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 250 && met < 350 && ht < 1300) return 183;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 250 && met < 350 && ht > 1300) return 184;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 350 && met < 500 && ht < 1300) return 185;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 350 && met < 500 && ht > 1300) return 186;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 500 && ht < 1300) return 187;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==1 && nw ==0 && met > 500 && ht > 1300) return 188;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 250 && met < 350 && ht < 1300) return 189;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 250 && met < 350 && ht > 1300) return 190;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 350 && met < 500 && ht < 1300) return 191;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 350 && met < 500 && ht > 1300) return 192;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 500 && ht < 1300) return 193;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==1 && nw ==1 && met > 500 && ht > 1300) return 194;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 250 && met < 350 && ht < 1300) return 195;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 250 && met < 350 && ht > 1300) return 196;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 350 && met < 500 && ht < 1300) return 197;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 350 && met < 500 && ht > 1300) return 198;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 500 && ht < 1300) return 199;
-	if (nb >=3 && mtb > mtb_cut && ntop ==1 && nres ==0 && nw ==1 && met > 500 && ht > 1300) return 200;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 250 && met < 350 && ht < 1300) return 201;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 250 && met < 350 && ht > 1300) return 202;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 350 && met < 500 && ht < 1300) return 203;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 350 && met < 500 && ht > 1300) return 204;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 500 && ht < 1300) return 205;
-	if (nb >=3 && mtb > mtb_cut && ntop ==2 && nres ==0 && nw ==0 && met > 500 && ht > 1300) return 206;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 250 && met < 350 && ht < 1300) return 207;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 250 && met < 350 && ht > 1300) return 208;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 350 && met < 500 && ht < 1300) return 209;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 350 && met < 500 && ht > 1300) return 210;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 500 && ht < 1300) return 211;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==2 && nw ==0 && met > 500 && ht > 1300) return 212;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 250 && met < 350 && ht < 1300) return 213;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 250 && met < 350 && ht > 1300) return 214;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 350 && met < 500 && ht < 1300) return 215;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 350 && met < 500 && ht > 1300) return 216;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 500 && ht < 1300) return 217;
-	if (nb >=3 && mtb > mtb_cut && ntop ==0 && nres ==0 && nw ==2 && met > 500 && ht > 1300) return 218;
-	if (nb >=3 && mtb > mtb_cut && ntop+nres+nw >=3 && met > 250 && met < 400) return 219;
-	if (nb >=3 && mtb > mtb_cut && ntop+nres+nw >=3 && met > 400) return 220;
-	return -1;
-}
-

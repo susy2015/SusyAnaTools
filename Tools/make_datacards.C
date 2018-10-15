@@ -21,8 +21,8 @@ int make_datacards()
 	bool team_A_high_dm_MT2 = false;
 	bool team_A_high_dm_merge = false;
 	bool low_dm = false;
-	bool high_dm = false;
-	bool low_and_high_dm = true;
+	bool high_dm = true;
+	bool low_and_high_dm = false;
 	bool high_dm_merge_HT = false;
 	bool high_dm_MT2 = false;
 	bool old_bins = false; 
@@ -45,7 +45,7 @@ int make_datacards()
 	TString SingleMuCR;
 	TString SingleElCR;
 
-	int NSB;
+	int NSB, first_bin;
 	double zinv_sf = 666.8 / 851.6;		//ratio of 050 data card / MC with B_SF
 	double ll_sf = 2957.6 / 3378.4;		//ratio of 050 data card / MC with ISR and B_SF
 
@@ -138,6 +138,7 @@ int make_datacards()
 			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
 
 			NSB = h1->GetSize() - 2;
+			first_bin = int(h1->GetXaxis()->GetBinCenter(1));
 
 			double all_events = h2->GetBinContent(1);
 			double left_events = h2->GetBinContent(2);
@@ -398,7 +399,7 @@ int make_datacards()
 			QCDfile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			QCDfile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			QCDfile << "sample = qcd     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
-			QCDfile << "channel = "; for(int i=0;i<NSB;i++){ QCDfile << "bin" << i+1 << " "; } QCDfile << "\n";
+			QCDfile << "channel = "; for(int i=first_bin;i<first_bin + NSB;i++){ QCDfile << "bin" << i+1 << " "; } QCDfile << "\n";
 
 			QCDfile << "\n# Predicted central numbers (need from all backgrounds)\n";
 			QCDfile << "rate = "; for(int i=0;i<NSB;i++){ QCDfile << pro->GetBinContent(i+1) << " "; } QCDfile << "\n";
@@ -704,7 +705,7 @@ int make_datacards()
 			Zinvfile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			Zinvfile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			Zinvfile << "sample = zinv     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
-			Zinvfile << "channel = "; for(int i=0;i<NSB;i++){ Zinvfile << "bin" << i+1 << " "; } Zinvfile << "\n";
+			Zinvfile << "channel = "; for(int i=first_bin;i<first_bin + NSB;i++){ Zinvfile << "bin" << i+1 << " "; } Zinvfile << "\n";
 
 			Zinvfile << "\n# Predicted central numbers (need from all backgrounds)\n";
 			Zinvfile << "rate = "; for(int i=0;i<NSB;i++){ Zinvfile << pro->GetBinContent(i+1) << " "; } Zinvfile << "\n";
@@ -1371,7 +1372,7 @@ int make_datacards()
 			LL_mu_file << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			LL_mu_file << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			LL_mu_file << "sample = comb     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
-			LL_mu_file << "channel = "; for(int i=0;i<NSB;i++){ LL_mu_file << "bin" << i+1 << " "; } LL_mu_file << "\n";
+			LL_mu_file << "channel = "; for(int i=first_bin;i<first_bin + NSB;i++){ LL_mu_file << "bin" << i+1 << " "; } LL_mu_file << "\n";
 
 			LL_mu_file << "\n# Predicted central numbers (need from all backgrounds)\n";
 			LL_mu_file << "rate = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro->GetBinContent(i+1) << " "; } LL_mu_file << "\n";
@@ -1434,7 +1435,7 @@ int make_datacards()
 			LL_ele_file << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			LL_ele_file << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			LL_ele_file << "sample = comb     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
-			LL_ele_file << "channel = "; for(int i=0;i<NSB;i++){ LL_ele_file << "bin" << i+1 << " "; } LL_ele_file << "\n";
+			LL_ele_file << "channel = "; for(int i=first_bin;i<first_bin + NSB;i++){ LL_ele_file << "bin" << i+1 << " "; } LL_ele_file << "\n";
 
 			LL_ele_file << "\n# Predicted central numbers (need from all backgrounds)\n";
 			LL_ele_file << "rate = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro->GetBinContent(i+1) << " "; } LL_ele_file << "\n";
@@ -1497,7 +1498,7 @@ int make_datacards()
 			LL_comb_file << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			LL_comb_file << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			LL_comb_file << "sample = comb     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
-			LL_comb_file << "channel = "; for(int i=0;i<NSB;i++){ LL_comb_file << "bin" << i+1 << " "; } LL_comb_file << "\n";
+			LL_comb_file << "channel = "; for(int i=first_bin;i<first_bin + NSB;i++){ LL_comb_file << "bin" << i+1 << " "; } LL_comb_file << "\n";
 
 			LL_comb_file << "\n# Predicted central numbers (need from all backgrounds)\n";
 			LL_comb_file << "rate = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro->GetBinContent(i+1) << " "; } LL_comb_file << "\n";
@@ -1648,7 +1649,7 @@ int make_datacards()
 			TTZfile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			TTZfile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			TTZfile << "sample = ttz     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
-			TTZfile << "channel = "; for(int i=0;i<NSB;i++){ TTZfile << "bin" << i+1 << " "; } TTZfile << "\n";
+			TTZfile << "channel = "; for(int i=first_bin;i<first_bin + NSB;i++){ TTZfile << "bin" << i+1 << " "; } TTZfile << "\n";
 
 			TTZfile << "\n# Predicted central numbers (need from all backgrounds)\n";
 			TTZfile << "rate = "; for(int i=0;i<NSB;i++){ TTZfile << pro->GetBinContent(i+1) << " "; } TTZfile << "\n";
@@ -1889,7 +1890,7 @@ int make_datacards()
 			Rarefile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			Rarefile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			Rarefile << "sample = rare     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
-			Rarefile << "channel = "; for(int i=0;i<NSB;i++){ Rarefile << "bin" << i+1 << " "; } Rarefile << "\n";
+			Rarefile << "channel = "; for(int i=first_bin;i<first_bin + NSB;i++){ Rarefile << "bin" << i+1 << " "; } Rarefile << "\n";
 
 			Rarefile << "\n# Predicted central numbers (need from all backgrounds)\n";
 			Rarefile << "rate = "; for(int i=0;i<NSB;i++){ Rarefile << pro->GetBinContent(i+1) << " "; } Rarefile << "\n";
@@ -1929,7 +1930,7 @@ int make_datacards()
 			Datafile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			Datafile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			Datafile << "sample = data     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
-			Datafile << "channel = "; for(int i=0;i<NSB;i++){ Datafile << "bin" << i+1 << " "; } Datafile << "\n";
+			Datafile << "channel = "; for(int i=first_bin;i<first_bin + NSB;i++){ Datafile << "bin" << i+1 << " "; } Datafile << "\n";
 
 			Datafile << "\n# Predicted central numbers (need from all backgrounds)\n";
 			Datafile << "rate = ";
@@ -1983,7 +1984,7 @@ int make_datacards()
 			signalfile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
 			signalfile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
 			signalfile << "sample = signal     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
-			signalfile << "channel = "; for(int i=0;i<NSB;i++){ signalfile << "bin" << i+1 << " "; } signalfile << "\n";
+			signalfile << "channel = "; for(int i=first_bin;i<first_bin + NSB;i++){ signalfile << "bin" << i+1 << " "; } signalfile << "\n";
 
 			signalfile << "\n# Predicted central numbers (need from all backgrounds)\n";
 			signalfile << "rate = "; for(int i=0;i<NSB;i++){ signalfile << h1->GetBinContent(i+1) << " "; } signalfile << "\n";
