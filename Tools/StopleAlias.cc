@@ -40,6 +40,7 @@ void StopleAlias::operator()(NTupleReader& tr_)
 
   MapMET();
   MapJets();
+  MapSoftb();
 
   // Apply AliasMap only for the first event
   if (tr->isFirstEvent())
@@ -80,8 +81,8 @@ bool StopleAlias::MapFilter()
 // ===========================================================================
 bool StopleAlias::MapMET()
 {
-  MapSingleObj<float, float>("met_pt", "met");
-  MapSingleObj<float, float>("met_phi", "metphi");
+  addAlias("met_pt", "met");
+  addAlias("met_phi", "metphi");
   return true;
 }       // -----  end of function StopleAlias::MapMET  -----
 
@@ -94,7 +95,13 @@ bool StopleAlias::MapJets()
 {
   // Ak4 Jets
   MapVectorTLV("ak4_jet", "jetsLVec");
+  MapVectorTLV("ak4_genjet", "genjetsLVec");
+  addAlias("ak4_jet_csv", "recoJetsCSVv2");
 
+  // Ak8 Jets
+  MapVectorTLV("ak8_fatjet_puppi", "puppiJetsLVec");
+  MapVectorTLV("ak8_fatjet", "ak8JetsLVec", "pt", "eta", "phi", "rawmass");
+  addAlias("ak8_fatjet_puppi_sdmass", "puppisoftDropMass");
 
   // Ak8 Jets
   addAlias("ak8_fatjet_puppi_tau1", "puppitau1");
@@ -112,8 +119,9 @@ bool StopleAlias::MapMuon()
 {
   MapVectorTLV("mu", "muonsLVec");
   ProdLepMtw("mu", "muonsMtw");
+  addAlias("mu_miniiso", "muonsMiniIso");
+
   MapVectorObj<int, float>("mu_q", "muonsCharge");
-  MapVectorObj<float, float>("mu_miniiso", "muonsMiniIso");
   MapVectorObj<bool, int>("mu_isTight", "muonsFlagTight");
   MapVectorObj<bool, int>("mu_isMedium", "muonsFlagMedium");
 
@@ -127,12 +135,10 @@ bool StopleAlias::MapMuon()
 // ===========================================================================
 bool StopleAlias::MapElectron()
 {
-  
   MapVectorTLV("ele", "elesLVec");
   ProdLepMtw("ele", "elesMtw");
-
+  addAlias("ele_miniiso", "elesMiniIso");
   MapVectorObj<int, float>("ele_q", "elesCharge");
-  MapVectorObj<float, float>("ele_miniiso", "elesMiniIso");
   MapVectorObj<bool, int>("ele_vetoid", "elesFlagVeto");
   MapVectorObj<bool, int>("ele_mediumid", "elesFlagMedium");
   return true;
@@ -144,10 +150,8 @@ bool StopleAlias::MapElectron()
 // ===========================================================================
 bool StopleAlias::MapGen()
 {
-
   return true;
 }       // -----  end of function StopleAlias::MapGen  -----
-
 
 // ===  FUNCTION  ============================================================
 //         Name:  StopleAlias::MapIsoTrack
@@ -155,9 +159,15 @@ bool StopleAlias::MapGen()
 // ===========================================================================
 bool StopleAlias::MapIsoTrack()
 {
-  MapVectorTLV("pfcand", "loose_isoTrksLVec");
-  
-
+  MapVectorTLV("prodisotrks_looseIsoTrks", "loose_isoTrksLVec");
+  //vector double
+  addAlias("prodisotrks_looseIsoTrks_idx"       , "loose_isoTrks_idx"       );
+  addAlias("prodisotrks_looseIsoTrks_pdgId"     , "loose_isoTrks_pdgId"     );
+  addAlias("prodisotrks_looseIsoTrks_charge"    , "loose_isoTrks_charge"    );
+  addAlias("prodisotrks_looseIsoTrks_mtw"       , "loose_isoTrks_mtw"       );
+  addAlias("prodisotrks_looseIsoTrks_dz"        , "loose_isoTrks_dz"        );
+  addAlias("prodisotrks_looseIsoTrks_iso"       , "loose_isoTrks_iso"       );
+  addAlias("prodisotrks_looseIsoTrks_pfActivity", "loose_isoTrks_pfActivity");
   return true;
 }       // -----  end of function StopleAlias::MapIsoTrack  -----
 
@@ -272,3 +282,42 @@ bool StopleAlias::addAlias(const std::string &Sfrom, const std::string &Sto)
   AliasMap[Sto] =Sfrom;
   return true;
 }       // -----  end of function StopleAlias::addAlias  -----
+
+// ===  FUNCTION  ============================================================
+//         Name:  StopleAlias::MapSoftb
+//  Description:  
+// ===========================================================================
+bool StopleAlias::MapSoftb()
+{
+  MapVectorTLV("sv_sv", "svLVec");
+  addAlias("sv_sv_d3derr",       "svD3Derr");
+  addAlias("sv_sv_d3d",          "svD3D");
+  addAlias("sv_sv_dxy",          "svDXY");
+  addAlias("sv_sv_ntracks",      "svNTracks");
+  addAlias("sv_sv_costhetasvpv", "svCosThetaSVPS");
+
+  addAlias("sv_sv_chi2",   "svChi2");
+  addAlias("sv_sv_ndf",    "svNDF");
+  addAlias("sv_sv_dxyerr", "svDXYerr");
+  addAlias("sv_sv_mass",   "svMass");
+  addAlias("sv_sv_pt",     "svPT");
+  addAlias("sv_sv_phi",    "svPhi");
+  addAlias("sv_sv_eta",    "svETA");
+  // Missing the below mapping
+  //std::vector<float, std::allocator<float> > sv_sv_mva
+  return true;
+}       // -----  end of function StopleAlias::MapSoftb  -----
+
+// ===  FUNCTION  ============================================================
+//         Name:  StopleAlias::MapPhoton
+//  Description:
+// ===========================================================================
+bool StopleAlias::MapPhoton()
+{
+  addAlias("pho_eta", "photonEta");
+  addAlias("pho_pt", "photonPt");
+  addAlias("pho_phi", "photonPhi");
+  MapVectorObj<bool, int>("pho_mediumid", "mediumPhotonID");
+  MapVectorObj<bool, int>("pho_looseid", "loosePhotonID");
+  MapVectorObj<bool, int>("pho_tightid", "tightPhotonID");
+}
