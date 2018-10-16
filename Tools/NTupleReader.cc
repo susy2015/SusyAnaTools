@@ -397,7 +397,7 @@ void NTupleReader::setConvertFloatingPointVectors(const bool doubleToFloat, cons
         {
             if (i.second.type == typeid(std::vector<double>))
             {
-                registerFunction(std::bind(&NTupleReader::castVector<double, float>, std::placeholders::_1, i.first, 'f'));
+                if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<std::function<void(NTupleReader&)>>(std::bind(&NTupleReader::castVector<double, float>, std::placeholders::_1, i.first, 'f')));
             }
         }
     }
@@ -408,7 +408,7 @@ void NTupleReader::setConvertFloatingPointVectors(const bool doubleToFloat, cons
         for(const auto& i : branchVecMap_)
         {
             if (i.second.type == typeid(std::vector<float>))
-                registerFunction(std::bind(&NTupleReader::castVector<float, double>, std::placeholders::_1, i.first, 'd'));
+                if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<std::function<void(NTupleReader&)>>(std::bind(&NTupleReader::castVector<float, double>, std::placeholders::_1, i.first, 'd')));
         }
     }
 }
