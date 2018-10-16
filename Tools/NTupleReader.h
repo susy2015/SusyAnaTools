@@ -134,6 +134,8 @@ private:
     {
     public:
         virtual bool operator()(NTupleReader& tr) = 0;
+
+        virtual ~FuncWrapper() {}
     };
 
     //class for arbitrary return value
