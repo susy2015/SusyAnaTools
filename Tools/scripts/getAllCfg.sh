@@ -75,12 +75,15 @@ $CMSSWSRCDIR/SusyAnaTools/Tools/scripts/getStopCfg.sh $OVERWRITE -t CMSSW8028_20
 ##Checkout latest toptagger cfg file 
 
 TOPTAGGERFILE=TopTagger.cfg
-SIMPLETOPTAGGERFILE=TopTagger_Simplified.cfg
+DEEPTOPTAGGERFILE=TopTagger_Deep.cfg
+#SIMPLETOPTAGGERFILE=TopTagger_Simplified.cfg
 
 # -p give no error if directory exists
 mkdir -p $TAGGERCFGDIR
 # set OVERWRITE = -o via options to overwrite softlinks if they exist
 $CMSSWSRCDIR/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t MVAAK8_Tight_v1.2.1 -f $TOPTAGGERFILE -d $TAGGERCFGDIR
-$CMSSWSRCDIR/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t MVAAK8_Tight_noQGL_binaryCSV_v1.0.2 -f $SIMPLETOPTAGGERFILE -d $TAGGERCFGDIR
+$CMSSWSRCDIR/TopTagger/TopTagger/scripts/getTaggerCfg.sh $OVERWRITE -t DeepCombined_Example_v1.0.3 -f $DEEPTOPTAGGERFILE   -d $TAGGERCFGDIR
 
-
+#${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t MVAAK8_Tight_v1.2.1 -d $TAGGERCFGDIR
+#${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t Legacy_AK4Only_v0.1.1 -f $LEGTOPTAGGERFILE -d $TAGGERCFGDIR
+#${SRC}/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t DeepCombined_Example_v1.0.3 -f $DEEPTOPTAGGERFILE -d $TAGGERCFGDIR
