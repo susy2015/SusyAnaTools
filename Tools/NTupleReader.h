@@ -134,6 +134,8 @@ private:
     {
     public:
         virtual bool operator()(NTupleReader& tr) = 0;
+
+        virtual ~FuncWrapper() {}
     };
 
     //class for arbitrary return value
@@ -149,7 +151,8 @@ private:
             return true;
         }
 
-        FuncWrapperImpl(T f) : func_(f) {}
+        FuncWrapperImpl(T& f) : func_(std::move(f)) {}
+        FuncWrapperImpl(T&& f) : func_(std::move(f)) {}
     };
 
     template <class Tfrom, class Tto> 
@@ -192,7 +195,13 @@ public:
     std::vector<std::string> getTupleMembers() const;
     std::vector<std::string> getTupleSpecs(const std::string& varName) const;
 
-    template<typename T> void registerFunction(T f)
+    template<typename T> void registerFunction(T& f)
+    {
+        if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(f));
+        else THROW_SATEXCEPTION("New functions cannot be registered after tuple reading begins!\n");
+    }
+
+    template<typename T> void registerFunction(T&& f)
     {
         if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(f));
         else THROW_SATEXCEPTION("New functions cannot be registered after tuple reading begins!\n");
