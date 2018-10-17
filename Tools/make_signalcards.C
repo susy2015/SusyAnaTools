@@ -54,6 +54,7 @@ int main(int argc, char* argv[])
 
 	double CrossSection = h3->GetBinContent(h3->FindBin(mother));
 	int NSB = h1->GetSize() - 2;
+	int mid_bin = 53;
 
 	double all_events = h2->GetBinContent(1);
 	double left_events = h2->GetBinContent(2);
@@ -108,8 +109,20 @@ int main(int argc, char* argv[])
 		signalfile << "syst_trigUnc_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.01 << " "; } signalfile << "\n";
 		signalfile << "syst_scaleUnc_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.01 << " "; } signalfile << "\n";
 		signalfile << "syst_scaleUnc_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.01 << " "; } signalfile << "\n";
-		signalfile << "syst_isrUnc_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.20 << " "; } signalfile << "\n";
-		signalfile << "syst_isrUnc_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.20 << " "; } signalfile << "\n";
+		signalfile << "syst_isrUnc_up = ";
+		for(int i=0;i<NSB;i++)
+		{
+			if(i < mid_bin) signalfile << 0.00 << " ";
+			else signalfile << 0.20 << " ";
+		}
+		signalfile << "\n";
+		signalfile << "syst_isrUnc_dn = ";
+		for(int i=0;i<NSB;i++)
+		{
+			if(i < mid_bin) signalfile << 0.00 << " ";
+			else signalfile << 0.20 << " ";
+		}
+		signalfile << "\n";
 		signalfile << "syst_jetJEC_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.15 << " "; } signalfile << "\n";
 		signalfile << "syst_jetJEC_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.15 << " "; } signalfile << "\n";
 		signalfile << "syst_TopReco_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.05 << " "; } signalfile << "\n";

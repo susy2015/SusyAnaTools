@@ -21,8 +21,8 @@ int make_datacards()
 	bool team_A_high_dm_MT2 = false;
 	bool team_A_high_dm_merge = false;
 	bool low_dm = false;
-	bool high_dm = true;
-	bool low_and_high_dm = false;
+	bool high_dm = false;
+	bool low_and_high_dm = true;
 	bool high_dm_merge_HT = false;
 	bool high_dm_MT2 = false;
 	bool old_bins = false; 
@@ -46,6 +46,7 @@ int make_datacards()
 	TString SingleElCR;
 
 	int NSB, first_bin;
+	int mid_bin = 53;
 	double zinv_sf = 666.8 / 851.6;		//ratio of 050 data card / MC with B_SF
 	double ll_sf = 2957.6 / 3378.4;		//ratio of 050 data card / MC with ISR and B_SF
 
@@ -410,7 +411,8 @@ int make_datacards()
 			{ 
 				if(avg_weight_sq->GetBinContent(i+1) > 0) cs_event[i] = round(pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1));
 				QCDfile << cs_event[i] << " ";
-			} QCDfile << "\n";
+			}
+			QCDfile << "\n";
 
 			QCDfile << "avg_weight = ";
 			for(int i=0;i<NSB;i++)
@@ -418,13 +420,28 @@ int make_datacards()
 				//if(avg_weight->GetBinContent(i+1) > 0) QCDfile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
 				if(cs_event[i] > 0) QCDfile << pro->GetBinContent(i+1) / cs_event[i] << " ";
 				else QCDfile << "0.0000" << " ";
-			} QCDfile << "\n";
+			}
+			QCDfile << "\n";
 
 			//QCDfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ QCDfile << pro->GetBinErrorUp(i+1) / pro->GetBinContent(i+1) << " "; } QCDfile << "\n";
 			//QCDfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ QCDfile << pro->GetBinErrorLow(i+1) / pro->GetBinContent(i+1) << " "; } QCDfile << "\n";
 
-			QCDfile << "syst_unc_all_up = "; for(int i=0;i<NSB;i++) { QCDfile << 1.5 << " "; } QCDfile << "\n";
-			QCDfile << "syst_unc_all_dn = "; for(int i=0;i<NSB;i++) { QCDfile << 0.998 << " "; } QCDfile << "\n";
+			QCDfile << "syst_unc_all_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) QCDfile << 0.84 << " ";
+				else QCDfile << 1.5 << " ";
+			}
+			QCDfile << "\n";
+
+			QCDfile << "syst_unc_all_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) QCDfile << 0.84 << " ";
+				else QCDfile << 0.998 << " ";
+			}
+			QCDfile << "\n";
+
 			QCDfile.close();
 		}
 		else std::cout << "Unable to open QCDfile";
@@ -716,7 +733,8 @@ int make_datacards()
 			{ 
 				if(avg_weight_sq->GetBinContent(i+1) > 0) cs_event[i] = round(pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1));
 				Zinvfile << cs_event[i] << " ";
-			} Zinvfile << "\n";
+			}
+			Zinvfile << "\n";
 
 			Zinvfile << "avg_weight = ";
 			for(int i=0;i<NSB;i++)
@@ -724,27 +742,116 @@ int make_datacards()
 				//if(avg_weight->GetBinContent(i+1) > 0) Zinvfile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
 				if(cs_event[i] > 0) Zinvfile << pro->GetBinContent(i+1) / cs_event[i] << " ";
 				else Zinvfile << "0.0000" << " ";
-			} Zinvfile << "\n";
+			}
+			Zinvfile << "\n";
 
 			//Zinvfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ Zinvfile << pro->GetBinErrorUp(i+1) / pro->GetBinContent(i+1) << " "; } Zinvfile << "\n";
 			//Zinvfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ Zinvfile << pro->GetBinErrorLow(i+1) / pro->GetBinContent(i+1) << " "; } Zinvfile << "\n";
 
-			Zinvfile << "syst_unc_shape_central_up = "; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_shape_central_dn = "; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_shape_stat_up = "   ; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_shape_stat_dn = "   ; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_norm_up = "         ; for(int i=0;i<NSB;i++){ Zinvfile << 0.076 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_norm_dn = "         ; for(int i=0;i<NSB;i++){ Zinvfile << 0.076 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_jec_up = "          ; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_jec_dn = "          ; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_btag_up = "         ; for(int i=0;i<NSB;i++){ Zinvfile << 0.1 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_btag_dn = "         ; for(int i=0;i<NSB;i++){ Zinvfile << 0.1 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_pdf_up = "          ; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_pdf_dn = "          ; for(int i=0;i<NSB;i++){ Zinvfile << 0.2 << " "; } Zinvfile << "\n";
+			Zinvfile << "syst_unc_shape_central_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.03 << " ";
+				else Zinvfile << 0.2 << " ";
+			}
+			Zinvfile << "\n";
+			Zinvfile << "syst_unc_shape_central_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.03 << " ";
+				else Zinvfile << 0.2 << " ";
+			}
+			Zinvfile << "\n";
+
+			Zinvfile << "syst_unc_shape_stat_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.00 << " ";
+				else Zinvfile << 0.2 << " ";
+			}
+			Zinvfile << "\n";
+			Zinvfile << "syst_unc_shape_stat_dn = ";
+			for(int i=0;i<NSB;i++){
+				if(i < mid_bin) Zinvfile << 0.00 << " ";
+				else Zinvfile << 0.2 << " ";
+			}
+			Zinvfile << "\n";
+
+			Zinvfile << "syst_unc_norm_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.15 << " ";
+				else Zinvfile << 0.076 << " ";
+			}
+			Zinvfile << "\n";
+			Zinvfile << "syst_unc_norm_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.15 << " ";
+				else Zinvfile << 0.076 << " ";
+			}
+			Zinvfile << "\n";
+
+			Zinvfile << "syst_unc_jec_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.13 << " ";
+				else Zinvfile << 0.2 << " ";
+			}
+			Zinvfile << "\n";
+			Zinvfile << "syst_unc_jec_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.13 << " ";
+				else Zinvfile << 0.2 << " ";
+			}
+			Zinvfile << "\n";
+
+			Zinvfile << "syst_unc_btag_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.07 << " ";
+				else Zinvfile << 0.1 << " ";
+			}
+			Zinvfile << "\n";
+			Zinvfile << "syst_unc_btag_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.07 << " ";
+				else Zinvfile << 0.1 << " ";
+			}
+			Zinvfile << "\n";
+
+			Zinvfile << "syst_unc_pdf_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.00 << " ";
+				else Zinvfile << 0.2 << " ";
+			}
+			Zinvfile << "\n";
+			Zinvfile << "syst_unc_pdf_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.00 << " ";
+				else Zinvfile << 0.2 << " ";
+			}
+			Zinvfile << "\n";
 			//Zinvfile << "syst_unc_mc_stat_up = "      ; for(int i=0;i<NSB;i++){ Zinvfile << 0.4 << " "; } Zinvfile << "\n";
 			//Zinvfile << "syst_unc_mc_stat_dn = "      ; for(int i=0;i<NSB;i++){ Zinvfile << 0.4 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_trig_up = "         ; for(int i=0;i<NSB;i++){ Zinvfile << 0.05 << " "; } Zinvfile << "\n";
-			Zinvfile << "syst_unc_trig_dn = "         ; for(int i=0;i<NSB;i++){ Zinvfile << 0.05 << " "; } Zinvfile << "\n";
+			Zinvfile << "syst_unc_trig_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.00 << " ";
+				else Zinvfile << 0.05 << " ";
+			}
+			Zinvfile << "\n";
+			Zinvfile << "syst_unc_trig_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.00 << " ";
+				else Zinvfile << 0.05 << " ";
+			}
+			Zinvfile << "\n";
 			Zinvfile.close();
 		}
 		else std::cout << "Unable to open Zinvfile";
@@ -1380,13 +1487,15 @@ int make_datacards()
 			//LL_mu_file << "cs_event = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro_singleMuCR->GetBinContent(i+1) << " "; } LL_mu_file << "\n";
 
 			LL_mu_file << "# fin_TF_to_mu = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleMuCR->GetBinContent(i+1) << " ";
 				else LL_mu_file << "1.0000" << " ";
 			}
 			LL_mu_file << "\n";
 			LL_mu_file << "# fin_TF_to_ele = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_singleElCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleElCR->GetBinContent(i+1) << " ";
 				else LL_mu_file << "1.0000" << " ";
 			}
@@ -1395,36 +1504,107 @@ int make_datacards()
 			LL_mu_file << "# stat_unc_abs_up = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro_singleMuCR->GetBinErrorUp(i+1) << " "; } LL_mu_file << "\n";
 			LL_mu_file << "# stat_unc_abs_dn = "; for(int i=0;i<NSB;i++){ LL_mu_file << pro_singleMuCR->GetBinErrorLow(i+1) << " "; } LL_mu_file << "\n";
 			LL_mu_file << "stat_unc_up = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(pro_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << pro_singleMuCR->GetBinErrorUp(i+1) / pro_singleMuCR->GetBinContent(i+1) << " ";
 				else LL_mu_file << 0.0000 << " ";
 			} LL_mu_file << "\n";
 			LL_mu_file << "stat_unc_dn = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(pro_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << pro_singleMuCR->GetBinErrorLow(i+1) / pro_singleMuCR->GetBinContent(i+1) << " ";
 				else LL_mu_file << 0.0000 << " ";
 			} LL_mu_file << "\n";
 
 			LL_mu_file << "syst_unc_TF_stat_up = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleMuCR->GetBinErrorUp(i+1) / TF_singleMuCR->GetBinContent(i+1) << " ";
 				else LL_mu_file << 0.0000 << " ";
-			} LL_mu_file << "\n";
+			}
+			LL_mu_file << "\n";
 			LL_mu_file << "syst_unc_TF_stat_dn = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_mu_file << TF_singleMuCR->GetBinErrorLow(i+1) / TF_singleMuCR->GetBinContent(i+1) << " ";
 				else LL_mu_file << 0.0000 << " ";
-			} LL_mu_file << "\n";
-			LL_mu_file << "syst_unc_SF_up = "		; for(int i=0;i<NSB;i++){ LL_mu_file << 0.2 << " "; } LL_mu_file << "\n";
-			LL_mu_file << "syst_unc_SF_dn = "		; for(int i=0;i<NSB;i++){ LL_mu_file << 0.2 << " "; } LL_mu_file << "\n";
-			LL_mu_file << "syst_unc_JEC_up = " 		; for(int i=0;i<NSB;i++){ LL_mu_file << 0.2 << " "; } LL_mu_file << "\n";
-			LL_mu_file << "syst_unc_JEC_dn = "   		; for(int i=0;i<NSB;i++){ LL_mu_file << 0.2 << " ";} LL_mu_file << "\n";
-			LL_mu_file << "syst_unc_ISR_up = "          ; for(int i=0;i<NSB;i++){ LL_mu_file << 0.05 << " "; } LL_mu_file << "\n";
-			LL_mu_file << "syst_unc_ISR_dn = "          ; for(int i=0;i<NSB;i++){ LL_mu_file << 0.05 << " "; } LL_mu_file << "\n";
-			LL_mu_file << "syst_unc_pdf_up = "          ; for(int i=0;i<NSB;i++){ LL_mu_file << 0.1 << " "; } LL_mu_file << "\n";
-			LL_mu_file << "syst_unc_pdf_dn = "          ; for(int i=0;i<NSB;i++){ LL_mu_file << 0.1 << " "; } LL_mu_file << "\n";
-			LL_mu_file << "syst_unc_btag_up = "         ; for(int i=0;i<NSB;i++){ LL_mu_file << 0.01 << " "; } LL_mu_file << "\n";
-			LL_mu_file << "syst_unc_btag_dn = "         ; for(int i=0;i<NSB;i++){ LL_mu_file << 0.01 << " "; } LL_mu_file << "\n";
+			}
+			LL_mu_file << "\n";
+
+			LL_mu_file << "syst_unc_SF_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_mu_file << 0.08 << " ";
+				else LL_mu_file << 0.2 << " ";
+			}
+			LL_mu_file << "\n";
+			LL_mu_file << "syst_unc_SF_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_mu_file << 0.08 << " ";
+				else LL_mu_file << 0.2 << " ";
+			}
+			LL_mu_file << "\n";
+
+			LL_mu_file << "syst_unc_JEC_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_mu_file << 0.09 << " ";
+				else LL_mu_file << 0.2 << " ";
+			}
+			LL_mu_file << "\n";
+			LL_mu_file << "syst_unc_JEC_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_mu_file << 0.09 << " ";
+				else LL_mu_file << 0.2 << " ";
+			}
+			LL_mu_file << "\n";
+
+			LL_mu_file << "syst_unc_ISR_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_mu_file << 0.05 << " ";
+				else LL_mu_file << 0.05 << " ";
+			}
+			LL_mu_file << "\n";
+			LL_mu_file << "syst_unc_ISR_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_mu_file << 0.05 << " ";
+				else LL_mu_file << 0.05 << " ";
+			}
+			LL_mu_file << "\n";
+
+			LL_mu_file << "syst_unc_pdf_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_mu_file << 0.05 << " ";
+				else LL_mu_file << 0.1 << " ";
+			}
+			LL_mu_file << "\n";
+			LL_mu_file << "syst_unc_pdf_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_mu_file << 0.05 << " ";
+				else LL_mu_file << 0.1 << " ";
+			}
+			LL_mu_file << "\n";
+
+			LL_mu_file << "syst_unc_btag_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_mu_file << 0.04 << " ";
+				else LL_mu_file << 0.01 << " ";
+			}
+			LL_mu_file << "\n";
+			LL_mu_file << "syst_unc_btag_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_mu_file << 0.04 << " ";
+				else LL_mu_file << 0.01 << " ";
+			}
+			LL_mu_file << "\n";
 			LL_mu_file.close();
 		}
 		else std::cout << "Unable to open LL_mu_file";
@@ -1443,13 +1623,15 @@ int make_datacards()
 			//LL_ele_file << "cs_event = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro_singleMuCR->GetBinContent(i+1) << " "; } LL_ele_file << "\n";
 
 			LL_ele_file << "# fin_TF_to_mu = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_ele_file << TF_singleMuCR->GetBinContent(i+1) << " ";
 				else LL_ele_file << "1.0000" << " ";
 			}
 			LL_ele_file << "\n";
 			LL_ele_file << "# fin_TF_to_ele = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_singleElCR->GetBinContent(i+1) > 0) LL_ele_file << TF_singleElCR->GetBinContent(i+1) << " ";
 				else LL_ele_file << "1.0000" << " ";
 			}
@@ -1458,36 +1640,109 @@ int make_datacards()
 			LL_ele_file << "# stat_unc_abs_up = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro_singleElCR->GetBinErrorUp(i+1) << " "; } LL_ele_file << "\n";
 			LL_ele_file << "# stat_unc_abs_dn = "; for(int i=0;i<NSB;i++){ LL_ele_file << pro_singleElCR->GetBinErrorLow(i+1) << " "; } LL_ele_file << "\n";
 			LL_ele_file << "stat_unc_up = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(pro_singleElCR->GetBinContent(i+1) > 0) LL_ele_file << pro_singleElCR->GetBinErrorUp(i+1) / pro_singleElCR->GetBinContent(i+1) << " ";
 				else LL_ele_file << "0.0000" << " ";
-			} LL_ele_file << "\n";
+			}
+			LL_ele_file << "\n";
 			LL_ele_file << "stat_unc_dn = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(pro_singleElCR->GetBinContent(i+1) > 0) LL_ele_file << pro_singleElCR->GetBinErrorLow(i+1) / pro_singleElCR->GetBinContent(i+1) << " ";
 				else LL_ele_file << "0.0000" << " ";
-			} LL_ele_file << "\n";
+			}
+			LL_ele_file << "\n";
 
 			LL_ele_file << "syst_unc_TF_stat_up = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_singleElCR->GetBinContent(i+1)) LL_ele_file << TF_singleElCR->GetBinErrorUp(i+1) / TF_singleElCR->GetBinContent(i+1) << " ";
 				else LL_ele_file << "0.0000" << " ";
-			} LL_ele_file << "\n";
+			}
+			LL_ele_file << "\n";
 			LL_ele_file << "syst_unc_TF_stat_dn = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_singleElCR->GetBinContent(i+1)) LL_ele_file << TF_singleElCR->GetBinErrorLow(i+1) / TF_singleElCR->GetBinContent(i+1) << " ";
 				else LL_ele_file << "0.0000" << " ";
-			} LL_ele_file << "\n";
-			LL_ele_file << "syst_unc_SF_up = "		; for(int i=0;i<NSB;i++){ LL_ele_file << 0.2 << " "; } LL_ele_file << "\n";
-			LL_ele_file << "syst_unc_SF_dn = "		; for(int i=0;i<NSB;i++){ LL_ele_file << 0.2 << " "; } LL_ele_file << "\n";
-			LL_ele_file << "syst_unc_JEC_up = " 		; for(int i=0;i<NSB;i++){ LL_ele_file << 0.2 << " "; } LL_ele_file << "\n";
-			LL_ele_file << "syst_unc_JEC_dn = "   		; for(int i=0;i<NSB;i++){ LL_ele_file << 0.2 << " ";} LL_ele_file << "\n";
-			LL_ele_file << "syst_unc_ISR_up = "          ; for(int i=0;i<NSB;i++){ LL_ele_file << 0.05 << " "; } LL_ele_file << "\n";
-			LL_ele_file << "syst_unc_ISR_dn = "          ; for(int i=0;i<NSB;i++){ LL_ele_file << 0.05 << " "; } LL_ele_file << "\n";
-			LL_ele_file << "syst_unc_pdf_up = "          ; for(int i=0;i<NSB;i++){ LL_ele_file << 0.1 << " "; } LL_ele_file << "\n";
-			LL_ele_file << "syst_unc_pdf_dn = "          ; for(int i=0;i<NSB;i++){ LL_ele_file << 0.1 << " "; } LL_ele_file << "\n";
-			LL_ele_file << "syst_unc_btag_up = "         ; for(int i=0;i<NSB;i++){ LL_ele_file << 0.01 << " "; } LL_ele_file << "\n";
-			LL_ele_file << "syst_unc_btag_dn = "         ; for(int i=0;i<NSB;i++){ LL_ele_file << 0.01 << " "; } LL_ele_file << "\n";
+			}
+			LL_ele_file << "\n";
+
+			LL_ele_file << "syst_unc_SF_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_ele_file << 0.08 << " ";
+				else LL_ele_file << 0.2 << " ";
+			}
+			LL_ele_file << "\n";
+			LL_ele_file << "syst_unc_SF_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_ele_file << 0.08 << " ";
+				else LL_ele_file << 0.2 << " ";
+			}
+			LL_ele_file << "\n";
+
+			LL_ele_file << "syst_unc_JEC_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_ele_file << 0.09 << " ";
+				else LL_ele_file << 0.2 << " ";
+			}
+			LL_ele_file << "\n";
+			LL_ele_file << "syst_unc_JEC_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_ele_file << 0.09 << " ";
+				else LL_ele_file << 0.2 << " ";
+			}
+			LL_ele_file << "\n";
+
+			LL_ele_file << "syst_unc_ISR_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_ele_file << 0.05 << " ";
+				else LL_ele_file << 0.05 << " ";
+			}
+			LL_ele_file << "\n";
+			LL_ele_file << "syst_unc_ISR_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_ele_file << 0.05 << " ";
+				else LL_ele_file << 0.05 << " ";
+			}
+			LL_ele_file << "\n";
+
+			LL_ele_file << "syst_unc_pdf_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_ele_file << 0.05 << " ";
+				else LL_ele_file << 0.1 << " ";
+			}
+			LL_ele_file << "\n";
+			LL_ele_file << "syst_unc_pdf_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_ele_file << 0.05 << " ";
+				else LL_ele_file << 0.1 << " ";
+			}
+			LL_ele_file << "\n";
+
+			LL_ele_file << "syst_unc_btag_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_ele_file << 0.04 << " ";
+				else LL_ele_file << 0.01 << " ";
+			}
+			LL_ele_file << "\n";
+			LL_ele_file << "syst_unc_btag_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_ele_file << 0.04 << " ";
+				else LL_ele_file << 0.01 << " ";
+			}
+			LL_ele_file << "\n";
 			LL_ele_file.close();
 		}
 		else std::cout << "Unable to open LL_ele_file";
@@ -1506,13 +1761,15 @@ int make_datacards()
 			//LL_comb_file << "cs_event = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro_singleMuCR->GetBinContent(i+1) << " "; } LL_comb_file << "\n";
 
 			LL_comb_file << "# fin_TF_to_mu = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_singleMuCR->GetBinContent(i+1) > 0) LL_comb_file << TF_singleMuCR->GetBinContent(i+1) << " ";
 				else LL_comb_file << "1.0000" << " ";
 			}
 			LL_comb_file << "\n";
 			LL_comb_file << "# fin_TF_to_ele = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_singleElCR->GetBinContent(i+1) > 0) LL_comb_file << TF_singleElCR->GetBinContent(i+1) << " ";
 				else LL_comb_file << "1.0000" << " ";
 			}
@@ -1521,36 +1778,109 @@ int make_datacards()
 			LL_comb_file << "# stat_unc_abs_up = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro_combCR->GetBinErrorUp(i+1) / 1.414 << " "; } LL_comb_file << "\n";
 			LL_comb_file << "# stat_unc_abs_dn = "; for(int i=0;i<NSB;i++){ LL_comb_file << pro_combCR->GetBinErrorLow(i+1) / 1.414 << " "; } LL_comb_file << "\n";
 			LL_comb_file << "stat_unc_up = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(pro_combCR->GetBinContent(i+1) > 0) LL_comb_file << pro_combCR->GetBinErrorUp(i+1) / pro_combCR->GetBinContent(i+1) << " ";
 				else LL_comb_file << "0.0000" << " ";
-			} LL_comb_file << "\n";
+			}
+			LL_comb_file << "\n";
 			LL_comb_file << "stat_unc_dn = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(pro_combCR->GetBinContent(i+1) > 0) LL_comb_file << pro_combCR->GetBinErrorLow(i+1) / pro_combCR->GetBinContent(i+1) << " ";
 				else LL_comb_file << "0.0000" << " ";
-			} LL_comb_file << "\n";
+			}
+			LL_comb_file << "\n";
 
 			LL_comb_file << "syst_unc_TF_stat_up = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_combCR->GetBinContent(i+1) > 0) LL_comb_file << TF_combCR->GetBinErrorUp(i+1) / TF_combCR->GetBinContent(i+1) << " ";
 				else LL_comb_file << "0.0000" << " ";
-			} LL_comb_file << "\n";
+			}
+			LL_comb_file << "\n";
 			LL_comb_file << "syst_unc_TF_stat_dn = ";
-			for(int i=0;i<NSB;i++){
+			for(int i=0;i<NSB;i++)
+			{
 				if(TF_combCR->GetBinContent(i+1) > 0) LL_comb_file << TF_combCR->GetBinErrorLow(i+1) / TF_combCR->GetBinContent(i+1) << " ";
 				else LL_comb_file << "0.0000" << " ";
-			} LL_comb_file << "\n";
-			LL_comb_file << "syst_unc_SF_up = "		; for(int i=0;i<NSB;i++){ LL_comb_file << 0.2 << " "; } LL_comb_file << "\n";
-			LL_comb_file << "syst_unc_SF_dn = "		; for(int i=0;i<NSB;i++){ LL_comb_file << 0.2 << " "; } LL_comb_file << "\n";
-			LL_comb_file << "syst_unc_JEC_up = " 		; for(int i=0;i<NSB;i++){ LL_comb_file << 0.2 << " "; } LL_comb_file << "\n";
-			LL_comb_file << "syst_unc_JEC_dn = "   		; for(int i=0;i<NSB;i++){ LL_comb_file << 0.2 << " ";} LL_comb_file << "\n";
-			LL_comb_file << "syst_unc_ISR_up = "          ; for(int i=0;i<NSB;i++){ LL_comb_file << 0.05 << " "; } LL_comb_file << "\n";
-			LL_comb_file << "syst_unc_ISR_dn = "          ; for(int i=0;i<NSB;i++){ LL_comb_file << 0.05 << " "; } LL_comb_file << "\n";
-			LL_comb_file << "syst_unc_pdf_up = "          ; for(int i=0;i<NSB;i++){ LL_comb_file << 0.1 << " "; } LL_comb_file << "\n";
-			LL_comb_file << "syst_unc_pdf_dn = "          ; for(int i=0;i<NSB;i++){ LL_comb_file << 0.1 << " "; } LL_comb_file << "\n";
-			LL_comb_file << "syst_unc_btag_up = "         ; for(int i=0;i<NSB;i++){ LL_comb_file << 0.01 << " "; } LL_comb_file << "\n";
-			LL_comb_file << "syst_unc_btag_dn = "         ; for(int i=0;i<NSB;i++){ LL_comb_file << 0.01 << " "; } LL_comb_file << "\n";
+			}
+			LL_comb_file << "\n";
+
+			LL_comb_file << "syst_unc_SF_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_comb_file << 0.08 << " ";
+				else LL_comb_file << 0.2 << " ";
+			}
+			LL_comb_file << "\n";
+			LL_comb_file << "syst_unc_SF_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_comb_file << 0.08 << " ";
+				else LL_comb_file << 0.2 << " ";
+			}
+			LL_comb_file << "\n";
+
+			LL_comb_file << "syst_unc_JEC_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_comb_file << 0.09 << " ";
+				else LL_comb_file << 0.2 << " ";
+			}
+			LL_comb_file << "\n";
+			LL_comb_file << "syst_unc_JEC_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_comb_file << 0.09 << " ";
+				else LL_comb_file << 0.2 << " ";
+			}
+			LL_comb_file << "\n";
+
+			LL_comb_file << "syst_unc_ISR_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_comb_file << 0.05 << " ";
+				else LL_comb_file << 0.05 << " ";
+			}
+			LL_comb_file << "\n";
+			LL_comb_file << "syst_unc_ISR_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_comb_file << 0.05 << " ";
+				else LL_comb_file << 0.05 << " ";
+			}
+			LL_comb_file << "\n";
+
+			LL_comb_file << "syst_unc_pdf_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_comb_file << 0.05 << " ";
+				else LL_comb_file << 0.1 << " ";
+			}
+			LL_comb_file << "\n";
+			LL_comb_file << "syst_unc_pdf_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_comb_file << 0.05 << " ";
+				else LL_comb_file << 0.1 << " ";
+			}
+			LL_comb_file << "\n";
+
+			LL_comb_file << "syst_unc_btag_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_comb_file << 0.04 << " ";
+				else LL_comb_file << 0.01 << " ";
+			}
+			LL_comb_file << "\n";
+			LL_comb_file << "syst_unc_btag_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) LL_comb_file << 0.04 << " ";
+				else LL_comb_file << 0.01 << " ";
+			}
+			LL_comb_file << "\n";
 			LL_comb_file.close();
 		}
 		else std::cout << "Unable to open LL_comb_file";
@@ -1660,7 +1990,8 @@ int make_datacards()
 			{ 
 				if(avg_weight_sq->GetBinContent(i+1) > 0) cs_event[i] = round(pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1));
 				TTZfile << cs_event[i] << " ";
-			} TTZfile << "\n";
+			}
+			TTZfile << "\n";
 
 			TTZfile << "avg_weight = ";
 			for(int i=0;i<NSB;i++)
@@ -1668,7 +1999,8 @@ int make_datacards()
 				//if(avg_weight->GetBinContent(i+1) > 0) TTZfile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
 				if(cs_event[i] > 0) TTZfile << pro->GetBinContent(i+1) / cs_event[i] << " ";
 				else TTZfile << "0.0000" << " ";
-			} TTZfile << "\n";
+			}
+			TTZfile << "\n";
 
 			//TTZfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ TTZfile << pro->GetBinErrorUp(i+1) / pro->GetBinContent(i+1) << " "; } TTZfile << "\n";
 			//TTZfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ TTZfile << pro->GetBinErrorLow(i+1) / pro->GetBinContent(i+1) << " "; } TTZfile << "\n";
@@ -1901,7 +2233,8 @@ int make_datacards()
 			{ 
 				if(avg_weight_sq->GetBinContent(i+1) > 0) cs_event[i] = round(pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1));
 				Rarefile << cs_event[i] << " ";
-			} Rarefile << "\n";
+			}
+			Rarefile << "\n";
 
 			Rarefile << "avg_weight = ";
 			for(int i=0;i<NSB;i++)
@@ -1909,7 +2242,8 @@ int make_datacards()
 				//if(avg_weight->GetBinContent(i+1) > 0) Rarefile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
 				if(cs_event[i] > 0) Rarefile << pro->GetBinContent(i+1) / cs_event[i] << " ";
 				else Rarefile << "0.0000" << " ";
-			} Rarefile << "\n";
+			}
+			Rarefile << "\n";
 
 			//Rarefile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ Rarefile << "0.00" << " "; } Rarefile << "\n";
 			//Rarefile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ Rarefile << "0.00" << " "; } Rarefile << "\n";
@@ -2007,8 +2341,20 @@ int make_datacards()
 			signalfile << "syst_trigUnc_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.01 << " "; } signalfile << "\n";
 			signalfile << "syst_scaleUnc_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.01 << " "; } signalfile << "\n";
 			signalfile << "syst_scaleUnc_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.01 << " "; } signalfile << "\n";
-			signalfile << "syst_isrUnc_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.20 << " "; } signalfile << "\n";
-			signalfile << "syst_isrUnc_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.20 << " "; } signalfile << "\n";
+			signalfile << "syst_isrUnc_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) signalfile << 0.00 << " ";
+				else signalfile << 0.20 << " ";
+			}
+			signalfile << "\n";
+			signalfile << "syst_isrUnc_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) signalfile << 0.00 << " ";
+				else signalfile << 0.20 << " ";
+			}
+			signalfile << "\n";
 			signalfile << "syst_jetJEC_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.15 << " "; } signalfile << "\n";
 			signalfile << "syst_jetJEC_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.15 << " "; } signalfile << "\n";
 			signalfile << "syst_TopReco_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.05 << " "; } signalfile << "\n";
