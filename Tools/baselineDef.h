@@ -170,7 +170,7 @@ namespace stopFunctions
             setMuonIso("mini");
             setElecIso("mini");
             setJetCollection("jetsLVec");
-            setBTagCollection("recoJetsBtag_0");
+            setBTagCollection("recoJetsCSVv2");
             setMuonsFlagID("muonsFlagMedium");
             setElesFlagID("elesFlagVeto");
             setEnergyFractionCollections("recoJetschargedHadronEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedEmEnergyFraction");    

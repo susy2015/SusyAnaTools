@@ -286,7 +286,7 @@ bool BaselineVessel::PredefineSpec()
     METLabel = "met_hadtau";
     METPhiLabel = "metphi_hadtau";
     jetVecLabel = "jetsLVec_hadtau";
-    CSVVecLabel = "recoJetsBtag_0_hadtau";
+    CSVVecLabel = "recoJetsCSVv2_hadtau";
   }
   else if( spec.compare("lostlept") == 0)
   {
@@ -534,9 +534,9 @@ void BaselineVessel::PassBaseline()
   if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc()<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Register all the calculated variables
-  tr->registerDerivedVar("nMuons_CUT" + firstSpec, nMuons);
-  tr->registerDerivedVar("nElectrons_CUT" + firstSpec, nElectrons);
-  tr->registerDerivedVar("nIsoTrks_CUT" + firstSpec, nIsoTrks);
+  //tr->registerDerivedVar("nMuons_CUT" + firstSpec, nMuons);           // error: do not redefine  
+  //tr->registerDerivedVar("nElectrons_CUT" + firstSpec, nElectrons);   // error: do not redefine
+  //tr->registerDerivedVar("nIsoTrks_CUT" + firstSpec, nIsoTrks);       // error: do not redefine
 
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
@@ -1581,7 +1581,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   const std::vector<float>&         muonsIso         = tr.getVec<float>(muIsoStr_);
   const std::vector<int>&            muonsFlagIDVec   = muonsFlagIDLabel_.empty()? std::vector<int>(muonsIso.size(), 1):tr.getVec<int>(muonsFlagIDLabel_.c_str());
   const std::vector<int>&            elesFlagIDVec    = elesFlagIDLabel_.empty()? std::vector<int>(elesIso.size(), 1):tr.getVec<int>(elesFlagIDLabel_.c_str());
-  const std::vector<float>&         recoJetsBtag_0   = tr.getVec<float>(bTagLabel_);
+  const std::vector<float>&         recoJetsCSVv2   = tr.getVec<float>(bTagLabel_);
   const std::vector<float>& chargedHadronEnergyFrac  = tr.getVec<float>(chargedHadFracLabel_);
   const std::vector<float>&     neutralEmEnergyFrac  = tr.getVec<float>(neutralEMFracLabel_);
   const std::vector<float>&     chargedEmEnergyFrac  = tr.getVec<float>(chargedEMFracLabel_);
@@ -1599,7 +1599,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
       || elesLVec.size() != elesisEB.size()
       || muonsLVec.size() != muonsIso.size()
       || muonsLVec.size() != muMatchedJetIdx.size()
-      || jetsLVec.size() != recoJetsBtag_0.size()
+      || jetsLVec.size() != recoJetsCSVv2.size()
       || jetsLVec.size() != chargedHadronEnergyFrac.size()
       || jetsLVec.size() != neutralEmEnergyFrac.size()
       || jetsLVec.size() != chargedEmEnergyFrac.size())
@@ -1609,7 +1609,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   }
 
   std::vector<TLorentzVector>* cleanJetVec        = new std::vector<TLorentzVector>(jetsLVec);
-  std::vector<float>* cleanJetBTag               = new std::vector<float>(recoJetsBtag_0);
+  std::vector<float>* cleanJetBTag               = new std::vector<float>(recoJetsCSVv2);
   std::vector<TLorentzVector>* cleanJetpt30ArrVec = new std::vector<TLorentzVector>();
   std::vector<float>* cleanJetpt30ArrBTag        = new std::vector<float>;
   std::vector<float>* cleanChargedHadEFrac       = new std::vector<float>(chargedHadronEnergyFrac);
