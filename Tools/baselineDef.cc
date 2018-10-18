@@ -1541,7 +1541,7 @@ int stopFunctions::CleanJets::cleanLeptonFromJet(const TLorentzVector& lep, cons
   if(match < 0)
   {
     //If muon matching to PF candidate has failed, use dR matching as fallback
-    match = AnaFunctions::jetLepdRMatch(lep, jetsLVec, jldRMax);
+    match = AnaFunctions::jetObjectdRMatch(lep, jetsLVec, jldRMax);
   }
 
   if(match >= 0)
