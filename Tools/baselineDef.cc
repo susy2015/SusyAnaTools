@@ -1264,6 +1264,14 @@ bool BaselineVessel::GetMHT() const
   return true;
 }       // -----  end of function BaselineVessel::GetMHT  -----
 
+// ===  FUNCTION  ============================================================
+//         Name:  BaselineVessel::GetPhotons
+//  Description:  Get photons passing eta, pt, and ID selection 
+// ===========================================================================
+bool BaselineVessel::GetPhotons() const
+{
+    return true;
+}       // -----  end of function BaselineVessel::GetPhotons  -----
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::GetLeptons
@@ -1277,10 +1285,10 @@ bool BaselineVessel::GetLeptons() const
   std::vector<int> *vEleChg = new std::vector<int> ();
 
   const std::vector<TLorentzVector> &muonsLVec   = tr->getVec<TLorentzVector>("muonsLVec");
-  const std::vector<float>         &muonsRelIso = tr->getVec<float>("muonsMiniIso");
-  const std::vector<float>         &muonsMtw    = tr->getVec<float>("muonsMtw");
+  const std::vector<float>          &muonsRelIso = tr->getVec<float>("muonsMiniIso");
+  const std::vector<float>          &muonsMtw    = tr->getVec<float>("muonsMtw");
   const std::vector<int>            &muonsFlagID = tr->getVec<int>(muonsFlagIDLabel.c_str());
-  const std::vector<float>         &muonsCharge = tr->getVec<float>("muonsCharge");
+  const std::vector<float>          &muonsCharge = tr->getVec<float>("muonsCharge");
   for(unsigned int im=0; im<muonsLVec.size(); im++){
     if(AnaFunctions::passMuon(muonsLVec[im], muonsRelIso[im], muonsMtw[im], muonsFlagID[im], AnaConsts::muonsMiniIsoArr))
     {
