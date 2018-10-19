@@ -100,6 +100,8 @@ private:
 
         Handle() : ptr(nullptr), deleter(nullptr), type(typeid(nullptr)) {}
 
+        Handle(const Handle& h) : ptr(h.ptr), deleter(h.deleter), type(h.type) {}
+
         Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr)) :  ptr(ptr), deleter(deleter), type(type) {}
 
         void destroy()
@@ -132,6 +134,8 @@ private:
     {
     public:
         virtual bool operator()(NTupleReader& tr) = 0;
+
+        virtual ~FuncWrapper() {}
     };
 
     //class for arbitrary return value
@@ -147,7 +151,8 @@ private:
             return true;
         }
 
-        FuncWrapperImpl(T f) : func_(f) {}
+        FuncWrapperImpl(T& f) : func_(std::move(f)) {}
+        FuncWrapperImpl(T&& f) : func_(std::move(f)) {}
     };
 
     template <class Tfrom, class Tto> 
@@ -157,6 +162,7 @@ public:
 
     NTupleReader(TTree * tree, const std::set<std::string>& activeBranches_);
     NTupleReader(TTree * tree);
+    NTupleReader();
     ~NTupleReader();
 
     std::string getFileName() const;
@@ -189,7 +195,13 @@ public:
     std::vector<std::string> getTupleMembers() const;
     std::vector<std::string> getTupleSpecs(const std::string& varName) const;
 
-    template<typename T> void registerFunction(T f)
+    template<typename T> void registerFunction(T& f)
+    {
+        if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(f));
+        else THROW_SATEXCEPTION("New functions cannot be registered after tuple reading begins!\n");
+    }
+
+    template<typename T> void registerFunction(T&& f)
     {
         if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(f));
         else THROW_SATEXCEPTION("New functions cannot be registered after tuple reading begins!\n");
@@ -328,6 +340,8 @@ private:
 
     void init();
 
+    void setTree(TTree * tree);
+
     void populateBranchList();
     
     void registerBranch(TBranch * const branch) const;
@@ -431,12 +445,11 @@ private:
         auto typeIter = typeMap_.find(var);
         if(typeIter != typeMap_.end())
         {
-            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<T>() +"\", but is found with type \"" + typeIter->second + "\"!!!");
-
+            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<typename std::remove_pointer<T>::type>() +"\", but is found with type \"" + typeIter->second + "\"!!!");
         }
         else
         {
-            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<T>() +"\"!!!");
+            THROW_SATEXCEPTION("Variable not found: \"" + var + "\" with type \"" + demangle<typename std::remove_pointer<T>::type>() +"\"!!!");
         }
     }
 

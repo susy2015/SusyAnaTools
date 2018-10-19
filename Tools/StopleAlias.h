@@ -58,6 +58,8 @@ class StopleAlias
     bool MapIsoTrack();
     bool MapMET();
     bool MapJets();
+    bool MapSoftb();
+    bool MapPhoton();
 
     bool addAlias(const std::string &Sfrom, const std::string &Sto);
     template <class Tfrom, class Tto>
