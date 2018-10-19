@@ -22,6 +22,7 @@ int main(int argc, char* argv[]){
 
 	const bool debug = false;
 	const bool use_new_tagger = true;
+	const bool use_deepCSV = true;
 	const bool do_ISR_BSF = true;
 	const bool t2bw_study = false;
 
@@ -360,9 +361,9 @@ int main(int argc, char* argv[]){
 		int nElectrons = tr.getVar<int>("nElectrons_CUT");
 		int nMuons = tr.getVar<int>("nMuons_CUT");
 		int ntop = tr.getVar<int>("nTopCandSortedCnt");
-		int nbjets = tr.getVar<int>("cntCSVS");
+		int nbjets20_from_baseline = tr.getVar<int>("cntCSVS");
 		int njets20_from_baseline = tr.getVar<int>("cntNJetsPt20Eta24");
-		float mtb=-10 , mt2_b=-10;
+		float mtb=0 , mt2_b=0;
 		int nbottompt20=0 , nbottompt30=0 , njetspt20=0 , njetspt30=0 , njetspt50=0;
 		int ntop_merge=0 , ntop_w=0 , ntop_res=0;
 		int nw=0;
@@ -374,7 +375,7 @@ int main(int argc, char* argv[]){
 		float b_CSV_1 = 0, b_CSV_2 = 0;
 		int b_CSV_1_index = 0, b_CSV_2_index = 0;
 
-		int SB_index = SB.find_Binning_Index(nbjets, ntop, mt2, met, HT);
+		int SB_index = SB.find_Binning_Index(nbjets20_from_baseline, ntop, mt2, met, HT);
 		std::map<int, std::vector<TLorentzVector>> mTopJets = tr.getMap <int, std::vector<TLorentzVector>> ("mTopJets");
 
 		bool old_bin_is_83 = false;
@@ -453,13 +454,15 @@ int main(int argc, char* argv[]){
 			if(tlv_Pt > 30) nbottompt30++;
 		} // End Sub-Loop Over Jets
 
-		if(njetspt20 != njets20_from_baseline) std::cout << "njets (pt > 20) = " << njetspt20 << " njets20_from_baseline = " << njets20_from_baseline << std::endl;
-		if(nbottompt20 != nbjets) std::cout << "nbottom (pt > 20) = " << nbottompt20 << " nbjets = " << nbjets << std::endl;
+		if(njetspt20 != njets20_from_baseline) std::cout << "njetspt20 = " << njetspt20 << " njets20_from_baseline = " << njets20_from_baseline << std::endl;
+		if(!use_deepCSV && (nbottompt20 != nbjets20_from_baseline)) std::cout << "nbottom (pt > 20) = " << nbottompt20 << " nbjets20_from_baseline = " << nbjets20_from_baseline << std::endl;
+		if(use_deepCSV) nbottompt20 = nbjets20_from_baseline;
 
 		float bottompt_scalar_sum = 0;
 		if(b_jetsLVec.size() == 1) bottompt_scalar_sum = b_jetsLVec.at(0).Pt();	
 		if(b_jetsLVec.size() > 1) bottompt_scalar_sum = b_jetsLVec.at(0).Pt() + b_jetsLVec.at(1).Pt();
-		if(fabs(bottompt_scalar_sum - tr.getVar<float>("Ptb")) / bottompt_scalar_sum > 0.0001) std::cout << "bottompt_scalar_sum = " << bottompt_scalar_sum << " Ptb = " << tr.getVar<float>("Ptb") << std::endl;
+		if(use_deepCSV) bottompt_scalar_sum = tr.getVar<float>("Ptb");
+		//if(bottompt_scalar_sum != tr.getVar<float>("Ptb")) std::cout << "bottompt_scalar_sum = " << bottompt_scalar_sum << " Ptb = " << tr.getVar<float>("Ptb") << std::endl;
 		//if(tr.getEvtNum() < 4) std::cout << "bottompt_scalar_sum = " << bottompt_scalar_sum << " Ptb = " << tr.getVar<float>("Ptb") << std::endl;
 
 	if(debug) std::cout << __LINE__ << std::endl;
@@ -517,10 +520,10 @@ int main(int argc, char* argv[]){
 			float MT_2 = sqrt(2*tlv_Pt_2*met*(1-cos(tlv_Phi_2 - metphi)));
 			mtb = std::min(MT_1,MT_2);
 		}
-		std::cout << std::fixed;
-    		std::cout << std::setprecision(5);
-		if(fabs(mtb - tr.getVar<float>("Mtb")) / mtb > 0.0001) std::cout << "mtb = " << mtb << " Mtb = " << tr.getVar<float>("Mtb") << " b_jetsLVec.size() = " << b_jetsLVec.size() << " tr.getVec<TLorentzVector>('vBjs').size() = " << tr.getVec<TLorentzVector>("vBjs").size() << std::endl;
-		if(tr.getEvtNum() < 10) std::cout << "mtb = " << mtb << " Mtb = " << tr.getVar<float>("Mtb") << " b_jetsLVec.size() = " << b_jetsLVec.size() << " tr.getVec<TLorentzVector>('vBjs').size() = " << tr.getVec<TLorentzVector>("vBjs").size() << std::endl;
+
+		if(use_deepCSV) mtb = tr.getVar<float>("Mtb");
+		//if(mtb != tr.getVar<float>("Mtb")) std::cout << "mtb = " << mtb << " Mtb = " << tr.getVar<float>("Mtb") << " b_jetsLVec.size() = " << b_jetsLVec.size() << " tr.getVec<float>('vBjs').size() = " << tr.getVec<float>("vBjs").size() << std::endl;
+		//if(tr.getEvtNum() < 4) std::cout << "mtb = " << mtb << " Mtb = " << tr.getVar<float>("Mtb") << " b_jetsLVec.size() = " << b_jetsLVec.size() << " tr.getVec<TLorentzVector>('vBjs').size() = " << tr.getVec<TLorentzVector>("vBjs").size() << std::endl;
 	if(debug) std::cout << __LINE__ << std::endl;
 
 		//if(ntop > 0)
@@ -562,9 +565,9 @@ int main(int argc, char* argv[]){
 		bool pass_loose_baseline=(pass_loose_baseline_no_HT && tr.getVar<bool>("passHT"));
 
 		//bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passnJets") && tr.getVar<bool>("passdPhis") && tr.getVar<bool>("passBJets") && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
-		bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && passnJets && tr.getVar<bool>("passdPhis") && nbjets > 0 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
+		bool pass_baseline_no_MT2=(tr.getVar<bool>("passLeptVeto") && passnJets && tr.getVar<bool>("passdPhis") && nbjets20_from_baseline > 0 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") ); 
 		bool pass_baseline=(pass_baseline_no_MT2 && passMT2);		//baseline for SUS-16-050
-		bool pass_baseline_singleLeptCR = (passMT2 && passnJets && tr.getVar<bool>("passdPhis") && nbjets > 0 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") );
+		bool pass_baseline_singleLeptCR = (passMT2 && passnJets && tr.getVar<bool>("passdPhis") && nbjets20_from_baseline > 0 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && tr.getVar<bool>("passTagger") && tr.getVar<bool>("passNoiseEventFilter") );
 		bool pass_high_dM_baseline=(tr.getVar<bool>("passLeptVeto") && tr.getVar<bool>("passMET") && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 5 && passdphi_highdm && nbottompt20 >=1 && tr.getVar<bool>("passHT"));		//baseline for SUS-16-049 high dm plus HT cut 
 		bool pass_high_dM_baseline_singleLeptCR=(tr.getVar<bool>("passMET") && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 5 && passdphi_highdm && nbottompt20 >=1 && tr.getVar<bool>("passHT"));		//baseline without lept veto for SUS-16-049 high dm plus HT cut
 		bool pass_MT2_highdm = (ntop == 0 || (ntop >0 && passMT2));
@@ -698,7 +701,7 @@ int main(int argc, char* argv[]){
 
 		if(pass_baseline)
 		{
-			//if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets = " << nbjets << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
+			//if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets20_from_baseline = " << nbjets20_from_baseline << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
 			search_bin_h->Fill(SB_index,evtWeight);
 			if (SB_index == 83) {old_bin_is_83 = true; n_old_bin_is_83++;}
 			if (mtb > 175) search_bin_MTb_h->Fill(SB_index,evtWeight);
@@ -706,13 +709,13 @@ int main(int argc, char* argv[]){
 
 		if(tr.getVar<bool>("passBaseline"))
 		{
-			//if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets = " << nbjets << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
+			//if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets20_from_baseline = " << nbjets20_from_baseline << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
 			search_bin_8026_h->Fill(SB_index,evtWeight);
 		}
 
 		if(pass_baseline_singleLeptCR)
 		{
-			//if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets = " << nbjets << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
+			//if (SB_index < 0 || SB_index > 83) std::cout << "SB = " << SB_index << ", nbjets20_from_baseline = " << nbjets20_from_baseline << ", ntop = " << ntop << ", mt2 = " << mt2 << ", met = " << met << ", HT = " << HT << std::endl;
 			if(nElectrons == 1)
 			{
 				search_bin_singleElCR_h->Fill(SB_index,evtWeight);

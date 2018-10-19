@@ -10,11 +10,11 @@ import tarfile
 import shutil
 import getpass
 
-DelExe    = '../tupleTest'
+DelExe    = '../tupleRead'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
-ProjectName = 'T1tttt_T2tt_and_BG'
-#ProjectName = 'T1tttt_singal_scan_and_BG'
+#ProjectName = 'T1tttt_and_T2tt'		#line [145,623], [626,1257]
+ProjectName = 'BG'				#line [25,106]
 #ProjectName = 'TTbar_test'
 
 Process = {

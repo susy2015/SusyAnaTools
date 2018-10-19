@@ -1,0 +1,1 @@
+/uscms_data/d3/huiwang/CMSSW_9_4_4/src/TopTaggerCfgs/TopTaggerCfg-DeepCombined_Example_v1.0.2/tfModel_frozen_DNN1_deepCVS_GR.pb

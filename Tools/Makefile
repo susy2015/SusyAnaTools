@@ -103,7 +103,7 @@ LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 FILES = $(wildcard $(SDIR)/*.cc)
 OBJS := $(FILES:$(SDIR)/%.cc=$(ODIR)/%.o)
 
-PROGRAMS = tupleReadTest nEvts deepTrim AliasTest bTagEfficiencyCalc ISRJetsProducer # basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots
+PROGRAMS = tupleReadTest tupleRead nEvts deepTrim AliasTest bTagEfficiencyCalc ISRJetsProducer # basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots
 
 all: mkobj SusyAnaTools sampPyWrap $(PROGRAMS)
 
@@ -135,7 +135,10 @@ $(ODIR)/%.o : $(SDIR)/%.cc
 $(ODIR)/%.o : $(SDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
 
-tupleReadTest: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o $(ODIR)/tupleReadTest.o $(ODIR)/customize.o $(ODIR)/BTagCorrector.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/ISRCorrector.o
+tupleReadTest: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o $(ODIR)/tupleReadTest.o $(ODIR)/customize.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/ISRCorrector.o
+	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
+
+tupleRead: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o $(ODIR)/tupleRead.o $(ODIR)/customize.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/ISRCorrector.o
 	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
 
 nEvts: $(ODIR)/nEvts.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o
@@ -150,7 +153,7 @@ basicCheck: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o 
 makeCombPlots: $(ODIR)/samples.o $(ODIR)/SATException.o $(ODIR)/makeCombPlots.o $(ODIR)/searchBins.o
 	$(LD) $^ $(LIBS) -o $@
 
-signalScan: $(ODIR)/baselineDef.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/signalScan.o $(ODIR)/PDFUncertainty.o $(ODIR)/BTagCorrector.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/searchBins.o $(ODIR)/ISRCorrector.o $(ODIR)/customize.o
+signalScan: $(ODIR)/baselineDef.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/signalScan.o $(ODIR)/PDFUncertainty.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/searchBins.o $(ODIR)/ISRCorrector.o $(ODIR)/customize.o
 	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
 
 makeSignalCards: $(ODIR)/samples.o $(ODIR)/SATException.o $(ODIR)/makeSignalCards.o $(ODIR)/searchBins.o
