@@ -1681,6 +1681,7 @@ void stopFunctions::CleanJets::setJecScaleRawToFull(std::string jecScaleRawToFul
 }
 //NOTE!!! Must add Hadron and EM fraction vectors here
 
+
 //Private
 int stopFunctions::CleanJets::cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<float>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<float>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const float& jldRMax, const float photoCleanThresh)
 {

@@ -27,6 +27,9 @@ private:
   void generateCleanedJets(NTupleReader& tr) {
     const auto& gammaLVec = tr.getVec<TLorentzVector>("gammaLVec"); // reco photon
     double htWithoutPhoton = 0.0;
+    int match = -1;
+    match = AnaFunctions::jetObjectdRMatch(photon, jetsLVec, dRMax);
+
     tr.registerDerivedVar("htWithoutPhoton", htWithoutPhoton);
   }
 public:

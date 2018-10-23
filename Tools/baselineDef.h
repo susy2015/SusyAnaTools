@@ -55,7 +55,8 @@ private:
     std::vector<unsigned> * vAK8Flag;
 
     std::vector<TLorentzVector> GetAK4NoSubjet(Constituent &ak8, 
-        std::vector<TLorentzVector> &ak4jets) const;
+    std::vector<TLorentzVector> &ak4jets) const;
+
 public:
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Member ~~~~~
@@ -145,7 +146,10 @@ namespace stopFunctions
     class CleanJets
     {
     public:        
-        void operator()(NTupleReader& tr) {internalCleanJets(tr);}
+        void operator()(NTupleReader& tr) 
+        {
+            internalCleanJets(tr);
+        }
 
         void setMuonIso(const std::string muIsoFlag);
         void setElecIso(const std::string elecIsoFlag);
