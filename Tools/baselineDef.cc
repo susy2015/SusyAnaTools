@@ -84,7 +84,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 bool BaselineVessel::UseLepCleanJets() 
 {
   UseLepCleanJet        = true;
-  jetVecLabel           = "prodJetsNoLep_jetsLVec";
+  //jetVecLabel           = "prodJetsNoLep_jetsLVec";
+  jetVecLabel           = "jetsNoPhotonNoLeptonLVec";
   CSVVecLabel           = "prodJetsNoLep_recoJetsCSVv2";
   qgLikehoodLabel       = "prodJetsNoLep_qgLikelihood";
   jetVecLabelAK8        = "prodJetsNoLep_puppiJetsLVec";
@@ -296,7 +297,8 @@ bool BaselineVessel::PredefineSpec()
   }
   else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
-    jetVecLabel = "prodJetsNoLep_jetsLVec";
+    //jetVecLabel = "prodJetsNoLep_jetsLVec";
+    jetVecLabel = "jetsNoPhotonNoLeptonLVec";
     CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
