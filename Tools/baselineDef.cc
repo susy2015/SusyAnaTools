@@ -16,6 +16,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   debug                 = false;
   incZEROtop            = false;
   UseLepCleanJet        = true;
+  UsePhotonCleanJet     = true;
   UseDeepTagger         = true;
   UseDeepCSV            = true;
   eraLabel              = "2016MC";
@@ -81,19 +82,19 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 //  Description:  By default no Lep clean in Jets. Call this function to
 //  switch input labels
 // ===========================================================================
-bool BaselineVessel::UsePhotonCleanJets() 
-{
-  UseLepCleanJet        = false;
-  jetVecLabel           = "jetsLVec_NoPhoton";
-  CSVVecLabel           = "recoJetsCSVv2_NoPhoton";
-  qgLikehoodLabel       = "qgLikelihood_NoPhoton";
-  jetVecLabelAK8        = "puppiJetsLVec";
-  if (UseDeepCSV)
-  {
-    CSVVecLabel           = "DeepCSVcomb_NoPhoton";
-  }
-  return true;
-}       // -----  end of function BaselineVessel::UsePhotonCleanJets  -----
+// bool BaselineVessel::UsePhotonCleanJets() 
+// {
+//   UseLepCleanJet        = false;
+//   jetVecLabel           = "jetsLVec_NoPhoton";
+//   CSVVecLabel           = "recoJetsCSVv2_NoPhoton";
+//   qgLikehoodLabel       = "qgLikelihood_NoPhoton";
+//   jetVecLabelAK8        = "puppiJetsLVec";
+//   if (UseDeepCSV)
+//   {
+//     CSVVecLabel           = "DeepCSVcomb_NoPhoton";
+//   }
+//   return true;
+// }       // -----  end of function BaselineVessel::UsePhotonCleanJets  -----
 
 
 // ===  FUNCTION  ============================================================
@@ -101,16 +102,23 @@ bool BaselineVessel::UsePhotonCleanJets()
 //  Description:  By default no Lep clean in Jets. Call this function to
 //  switch input labels
 // ===========================================================================
-bool BaselineVessel::UseLepCleanJets() 
+bool BaselineVessel::UseCleanedJets(bool cleanLeptons, bool cleanPhotons) 
 {
-  UseLepCleanJet        = true;
-  jetVecLabel           = "prodJetsNoLep_jetsLVec";
-  CSVVecLabel           = "prodJetsNoLep_recoJetsCSVv2";
-  qgLikehoodLabel       = "prodJetsNoLep_qgLikelihood";
-  jetVecLabelAK8        = "prodJetsNoLep_puppiJetsLVec";
+  std::string leptonTag = "";
+  std::string photonTag = "";
+  if (cleanLeptons) leptonTag = "prodJetsNoLep_";
+  if (cleanPhotons) photonTag = "_NoPhoton";
+  UseLepCleanJet        = cleanLeptons;
+  UsePhotonCleanJet     = cleanPhotons;
+  jetVecLabel           = leptonTag + "jetsLVec"      + photonTag;
+  CSVVecLabel           = leptonTag + "recoJetsCSVv2" + photonTag;
+  qgLikehoodLabel       = leptonTag + "qgLikelihood"  + photonTag;
+  // Photon cleaned AK8 jets are not available yet
+  jetVecLabelAK8        = leptonTag + "puppiJetsLVec";
   if (UseDeepCSV)
   {
-    CSVVecLabel           = "prodJetsNoLep_DeepCSVcomb";
+    // Note that DeepCSVcomb is a derived variable... but it is derived with cleaned variables 
+    CSVVecLabel           = leptonTag + "DeepCSVcomb" + photonTag;
   }
   return true;
 }       // -----  end of function BaselineVessel::UseLepCleanJets  -----
@@ -152,7 +160,10 @@ std::string BaselineVessel::UseNoLepVar(std::string varname) const
 // ===========================================================================
 std::string BaselineVessel::UseNoPhotonVar(std::string varname) const
 {
-  return varname + "_NoPhoton";
+  if (UsePhotonCleanJet)
+    return varname + "_NoPhoton";
+  else
+    return varname;
 }       // -----  end of function BaselineVessel::UseNoPhotonVar  -----
 
 // ===  FUNCTION  ============================================================
@@ -1216,8 +1227,11 @@ float BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLor
 void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
-  UsePhotonCleanJets();
+  //UsePhotonCleanJets();
   //UseLepCleanJets();
+  bool cleanLeptons = true;
+  bool cleanPhotons = true;
+  UseCleanedJets(cleanLeptons, cleanPhotons);
   CombDeepCSV(); //temparory fix for DeepCSV
   PassBaseline();
   if (UseDeepTagger)

@@ -64,6 +64,7 @@ public:
     bool debug;
     bool incZEROtop;
     bool UseLepCleanJet;
+    bool UsePhotonCleanJet;
     bool UseDeepTagger;
     bool UseDeepCSV;
 
@@ -102,8 +103,9 @@ public:
     bool passQCDHighMETFilterFunc();
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
-    bool UseLepCleanJets();
-    bool UsePhotonCleanJets();
+    //bool UseLepCleanJets();
+    //bool UsePhotonCleanJets();
+    bool UseCleanedJets(bool cleanLeptons, bool cleanPhotons);
     bool OpenWMassCorrFile();
 
     bool FlagDeepAK8Jets();
