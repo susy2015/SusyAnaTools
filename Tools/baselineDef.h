@@ -103,8 +103,6 @@ public:
     bool passQCDHighMETFilterFunc();
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
-    //bool UseLepCleanJets();
-    //bool UsePhotonCleanJets();
     bool UseCleanedJets(bool cleanLeptons, bool cleanPhotons);
     bool OpenWMassCorrFile();
 
@@ -112,7 +110,7 @@ public:
     void operator()(NTupleReader& tr);
     
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
+//~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     bool SetupTopTagger(std::string CfgFile_ = "TopTagger.cfg");
     bool PassTopTagger();
     bool GetMHT() const;

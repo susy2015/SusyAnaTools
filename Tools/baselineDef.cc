@@ -77,28 +77,9 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   SetupTopTagger(toptaggerCfgFile);
 }
 
-// ===  FUNCTION  ============================================================
-//         Name:  BaselineVessel::UsePhotonCleanJets
-//  Description:  By default no Lep clean in Jets. Call this function to
-//  switch input labels
-// ===========================================================================
-// bool BaselineVessel::UsePhotonCleanJets() 
-// {
-//   UseLepCleanJet        = false;
-//   jetVecLabel           = "jetsLVec_NoPhoton";
-//   CSVVecLabel           = "recoJetsCSVv2_NoPhoton";
-//   qgLikehoodLabel       = "qgLikelihood_NoPhoton";
-//   jetVecLabelAK8        = "puppiJetsLVec";
-//   if (UseDeepCSV)
-//   {
-//     CSVVecLabel           = "DeepCSVcomb_NoPhoton";
-//   }
-//   return true;
-// }       // -----  end of function BaselineVessel::UsePhotonCleanJets  -----
-
 
 // ===  FUNCTION  ============================================================
-//         Name:  BaselineVessel::UseLepCleanJets
+//         Name:  BaselineVessel::UseCleanedJets
 //  Description:  By default no Lep clean in Jets. Call this function to
 //  switch input labels
 // ===========================================================================
@@ -121,7 +102,7 @@ bool BaselineVessel::UseCleanedJets(bool cleanLeptons, bool cleanPhotons)
     CSVVecLabel           = leptonTag + "DeepCSVcomb" + photonTag;
   }
   return true;
-}       // -----  end of function BaselineVessel::UseLepCleanJets  -----
+}       // -----  end of function BaselineVessel::UseCleanedJets  -----
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::OpenWMassCorrFile
@@ -1227,8 +1208,6 @@ float BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLor
 void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
-  //UsePhotonCleanJets();
-  //UseLepCleanJets();
   bool cleanLeptons = true;
   bool cleanPhotons = true;
   UseCleanedJets(cleanLeptons, cleanPhotons);
