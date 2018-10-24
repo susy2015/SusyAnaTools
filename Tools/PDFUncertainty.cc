@@ -8,7 +8,6 @@ PDFUncertainty::PDFUncertainty()
 
         //Initialize all pdf sets
         for(int in = 0; in < 53; in++){
-            std::cout << "In PDFUncertainty(): in = " << in << std::endl;
             pdf1.push_back(LHAPDF::mkPDF("CT10nlo", in));
 
         }

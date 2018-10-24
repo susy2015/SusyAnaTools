@@ -77,6 +77,32 @@ public:
     std::string elesFlagIDLabel;
     std::string qgLikehoodLabel;
     std::string toptaggerCfgFile;
+    
+    // jet related variables
+    std::string qgPtDLabel;                               
+    std::string qgAxis1Label;                             
+    std::string qgAxis2Label;                             
+    std::string qgMultLabel;                              
+    std::string recoJetschargedHadronEnergyFractionLabel; 
+    std::string recoJetschargedEmEnergyFractionLabel;     
+    std::string recoJetsneutralEmEnergyFractionLabel;     
+    std::string recoJetsmuonEnergyFractionLabel;          
+    std::string recoJetsHFHadronEnergyFractionLabel;     
+    std::string recoJetsHFEMEnergyFractionLabel;          
+    std::string recoJetsneutralEnergyFractionLabel;       
+    std::string PhotonEnergyFractionLabel;                
+    std::string ElectronEnergyFractionLabel;             
+    std::string ChargedHadronMultiplicityLabel;          
+    std::string NeutralHadronMultiplicityLabel;          
+    std::string PhotonMultiplicityLabel;                
+    std::string ElectronMultiplicityLabel;               
+    std::string MuonMultiplicityLabel;                    
+    std::string DeepCSVbLabel;                            
+    std::string DeepCSVcLabel;                            
+    std::string DeepCSVlLabel;                            
+    std::string DeepCSVbbLabel;                           
+    std::string DeepCSVccLabel;                           
+    
     bool doIsoTrksVeto;
     bool doMuonVeto;
     bool doEleVeto;
@@ -92,6 +118,7 @@ public:
     ~BaselineVessel();
 
     inline std::string UseNoLepVar(std::string varname) const;
+    inline std::string UseNoPhotonVar(std::string varname) const;
     void PassBaseline();
     bool PrintoutConfig() const;
     bool CompCommonVar();
@@ -100,10 +127,42 @@ public:
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
     bool UseLepCleanJets();
+    bool UsePhotonCleanJets();
     bool OpenWMassCorrFile();
 
     bool FlagDeepAK8Jets();
     void operator()(NTupleReader& tr);
+    
+    // set jet related variables
+    void SetJetVariables(std::string tag)
+    {
+        jetVecLabel                              = "jetsLVec" + tag;
+        CSVVecLabel                              = "recoJetsCSVv2" + tag;
+        qgLikehoodLabel                          = "qgLikelihood" + tag;
+        qgPtDLabel                               = "qgPtD" + tag;                               
+        qgAxis1Label                             = "qgAxis1" + tag;                             
+        qgAxis2Label                             = "qgAxis2" + tag;                             
+        qgMultLabel                              = "qgMult" + tag;                              
+        recoJetschargedHadronEnergyFractionLabel = "recoJetschargedHadronEnergyFraction" + tag; 
+        recoJetschargedEmEnergyFractionLabel     = "recoJetschargedEmEnergyFraction" + tag;     
+        recoJetsneutralEmEnergyFractionLabel     = "recoJetsneutralEmEnergyFraction" + tag;     
+        recoJetsmuonEnergyFractionLabel          = "recoJetsmuonEnergyFraction" + tag;          
+        recoJetsHFHadronEnergyFractionLabel      = "recoJetsHFHadronEnergyFraction" + tag;     
+        recoJetsHFEMEnergyFractionLabel          = "recoJetsHFEMEnergyFraction" + tag;          
+        recoJetsneutralEnergyFractionLabel       = "recoJetsneutralEnergyFraction" + tag;       
+        PhotonEnergyFractionLabel                = "PhotonEnergyFraction" + tag;                
+        ElectronEnergyFractionLabel              = "ElectronEnergyFraction" + tag;             
+        ChargedHadronMultiplicityLabel           = "ChargedHadronMultiplicity" + tag;          
+        NeutralHadronMultiplicityLabel           = "NeutralHadronMultiplicity" + tag;          
+        PhotonMultiplicityLabel                  = "PhotonMultiplicity" + tag;                
+        ElectronMultiplicityLabel                = "ElectronMultiplicity" + tag;               
+        MuonMultiplicityLabel                    = "MuonMultiplicity" + tag;                    
+        DeepCSVbLabel                            = "DeepCSVb" + tag;                            
+        DeepCSVcLabel                            = "DeepCSVc" + tag;                            
+        DeepCSVlLabel                            = "DeepCSVl" + tag;                            
+        DeepCSVbbLabel                           = "DeepCSVbb" + tag;                           
+        DeepCSVccLabel                           = "DeepCSVcc" + tag;                           
+    }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
     bool SetupTopTagger(std::string CfgFile_ = "TopTagger.cfg");
