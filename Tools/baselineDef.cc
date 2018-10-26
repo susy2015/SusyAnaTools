@@ -1186,6 +1186,7 @@ float BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLor
 void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
+  //GetPhotons();
   bool cleanLeptons = true;
   bool cleanPhotons = true;
   UseCleanedJets(cleanLeptons, cleanPhotons);

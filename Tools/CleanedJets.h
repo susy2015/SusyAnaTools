@@ -27,7 +27,7 @@ private:
 
     void generateCleanedJets(NTupleReader& tr) 
     {
-        const auto& gammaLVec               = tr.getVec<TLorentzVector>("gammaLVec");               // reco photon
+        const auto& gammaLVec               = tr.getVec<TLorentzVector>("gammaLVecPassLooseID");    // selected reco photon
         const auto& jetsLVec                = tr.getVec<TLorentzVector>("jetsLVec");                // jets
         const auto& prodJetsNoLep_jetsLVec  = tr.getVec<TLorentzVector>("prodJetsNoLep_jetsLVec");  // lepton cleaned jets
 
