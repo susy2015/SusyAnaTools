@@ -204,37 +204,15 @@ void BaselineVessel::prepareDeepTopTagger()
                                             "DeepCSVcc"
                                           };
   ttUtility::ConstAK4Inputs<float> AK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger);
+  // first add to AK4Inputs qgMult after converting it to a float
   const std::vector<int> &qgMult_i = tr->getVec<int>(UseNoPhotonVar(UseNoLepVar("qgMult")));
   const std::vector<float> qgMult_f(qgMult_i.begin(), qgMult_i.end());
   AK4Inputs.addSupplamentalVector("qgMult", qgMult_f);
-  // loop over variables
+  // loop over variables and add to AK4Inputs
   for (const auto& variable : AK4Variables)
   {
     AK4Inputs.addSupplamentalVector(variable, tr->getVec<float>(UseNoPhotonVar(UseNoLepVar(variable))));
   }
-  //AK4Inputs.addSupplamentalVector(qgPtDLabel,                               tr->getVec<float>(UseNoLepVar(qgPtDLabel)));
-  //AK4Inputs.addSupplamentalVector(qgAxis1Label,                             tr->getVec<float>(UseNoLepVar(qgAxis1Label)));
-  //AK4Inputs.addSupplamentalVector(qgAxis2Label,                             tr->getVec<float>(UseNoLepVar(qgAxis2Label)));
-  //AK4Inputs.addSupplamentalVector("qgMult",                              qgMult_f);
-  //AK4Inputs.addSupplamentalVector("recoJetschargedHadronEnergyFraction", tr->getVec<float>(UseNoLepVar("recoJetschargedHadronEnergyFraction")));
-  //AK4Inputs.addSupplamentalVector(recoJetschargedEmEnergyFractionLabel,     tr->getVec<float>(UseNoLepVar(recoJetschargedEmEnergyFractionLabel)));
-  //AK4Inputs.addSupplamentalVector(recoJetsneutralEmEnergyFractionLabel,     tr->getVec<float>(UseNoLepVar(recoJetsneutralEmEnergyFractionLabel)));
-  //AK4Inputs.addSupplamentalVector("recoJetsmuonEnergyFraction",          tr->getVec<float>(UseNoLepVar("recoJetsmuonEnergyFraction")));
-  //AK4Inputs.addSupplamentalVector(recoJetsHFHadronEnergyFractionLabel,      tr->getVec<float>(UseNoLepVar(recoJetsHFHadronEnergyFractionLabel)));
-  //AK4Inputs.addSupplamentalVector(recoJetsHFEMEnergyFractionLabel,          tr->getVec<float>(UseNoLepVar(recoJetsHFEMEnergyFractionLabel)));
-  //AK4Inputs.addSupplamentalVector(recoJetsneutralEnergyFractionLabel,       tr->getVec<float>(UseNoLepVar(recoJetsneutralEnergyFractionLabel)));
-  //AK4Inputs.addSupplamentalVector(PhotonEnergyFractionLabel,                tr->getVec<float>(UseNoLepVar(PhotonEnergyFractionLabel)));
-  //AK4Inputs.addSupplamentalVector(ElectronEnergyFractionLabel,              tr->getVec<float>(UseNoLepVar(ElectronEnergyFractionLabel)));
-  //AK4Inputs.addSupplamentalVector(ChargedHadronMultiplicityLabel,           tr->getVec<float>(UseNoLepVar(ChargedHadronMultiplicityLabel)));
-  //AK4Inputs.addSupplamentalVector(NeutralHadronMultiplicityLabel,           tr->getVec<float>(UseNoLepVar(NeutralHadronMultiplicityLabel)));
-  //AK4Inputs.addSupplamentalVector(PhotonMultiplicityLabel,                  tr->getVec<float>(UseNoLepVar(PhotonMultiplicityLabel)));
-  //AK4Inputs.addSupplamentalVector(ElectronMultiplicityLabel,                tr->getVec<float>(UseNoLepVar(ElectronMultiplicityLabel)));
-  //AK4Inputs.addSupplamentalVector(MuonMultiplicityLabel,                    tr->getVec<float>(UseNoLepVar(MuonMultiplicityLabel)));
-  //AK4Inputs.addSupplamentalVector("DeepCSVb",                            tr->getVec<float>(UseNoLepVar("DeepCSVb")));
-  //AK4Inputs.addSupplamentalVector(DeepCSVcLabel,                            tr->getVec<float>(UseNoLepVar(DeepCSVcLabel)));
-  //AK4Inputs.addSupplamentalVector(DeepCSVlLabel,                            tr->getVec<float>(UseNoLepVar(DeepCSVlLabel)));
-  //AK4Inputs.addSupplamentalVector("DeepCSVbb",                           tr->getVec<float>(UseNoLepVar("DeepCSVbb")));
-  //AK4Inputs.addSupplamentalVector(DeepCSVccLabel,                           tr->getVec<float>(UseNoLepVar(DeepCSVccLabel)));
 
 
   const std::vector<TLorentzVector>              &AK8JetLV           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
@@ -350,8 +328,8 @@ bool BaselineVessel::PredefineSpec()
     //CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
     //METLabel    = "cleanMetPt";
     //METPhiLabel = "cleanMetPhi";
-    jetVecLabel = "jetsLVec_NoPhoton";
-    CSVVecLabel = "recoJetsCSVv2_NoPhoton";
+    jetVecLabel = "prodJetsNoLep_jetsLVec_NoPhoton";
+    CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2_NoPhoton";
     METLabel    = "met";
     METPhiLabel = "metphi";
     doMuonVeto  = false;
