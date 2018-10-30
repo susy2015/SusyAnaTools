@@ -6,9 +6,12 @@ from ctypes import POINTER
 class SampleCollection:
     def __init__(self, ssfile, scfile):
         self.lib = cdll.LoadLibrary('../obj/samplesModule.so')
-        self.obj = self.lib.SC_new(ssfile, scfile)
+        self.ss = self.lib.SS_new(ssfile)
+        self.obj = self.lib.SC_new(self.ss, scfile)
         self.lib.SC_samples.restype = POINTER(c_char_p)
         self.lib.SC_samples_names.restype = POINTER(c_char_p)
+        self.lib.SS_samples.restype = POINTER(c_char_p)
+        self.lib.SS_samples_names.restype = POINTER(c_char_p)
         self.lib.SC_samplecollection_names.restype = POINTER(c_char_p)
         self.lib.SC_samplecollection_lumis.restype = POINTER(c_double)
         self.lib.SC_fixed_lumi.restype = c_double
@@ -36,3 +39,21 @@ class SampleCollection:
         list = [(names[i],lumis[i]) for i in xrange(self.lib.SC_samplecollection_size(self.obj))]
         return dict(list)
 
+    def sampleSetList(self):
+        names = self.lib.SS_samples_names(self.ss)
+        files = self.lib.SS_samples(self.ss)
+        list = [(names[i],files[i]) for i in xrange(self.lib.SS_samples_size(self.ss))]
+        return list
+
+class SampleSet:
+    def __init__(self, ssfile):
+        self.lib = cdll.LoadLibrary('../obj/samplesModule.so')
+        self.ss = self.lib.SS_new(ssfile)
+        self.lib.SS_samples.restype = POINTER(c_char_p)
+        self.lib.SS_samples_names.restype = POINTER(c_char_p)
+
+    def sampleSetList(self):
+        names = self.lib.SS_samples_names(self.ss)
+        files = self.lib.SS_samples(self.ss)
+        list = [(names[i],files[i]) for i in xrange(self.lib.SS_samples_size(self.ss))]
+        return list
