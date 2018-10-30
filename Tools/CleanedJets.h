@@ -24,84 +24,70 @@
 class CleanedJets {
 
 private:
+    // AK4 jet variables
+    std::vector<std::string> AK4JetVariables_;
+    // AK8 jet variables
+    std::vector<std::string> AK8JetVariables_;
+    
+    NTupleReader* tr_;
+    void setReader(NTupleReader& tr) { tr_ = &tr; }
 
     void generateCleanedJets(NTupleReader& tr) 
     {
-        const auto& gammaLVec               = tr.getVec<TLorentzVector>("gammaLVecPassLooseID");    // selected reco photon
-        const auto& jetsLVec                = tr.getVec<TLorentzVector>("jetsLVec");                // jets
-        const auto& prodJetsNoLep_jetsLVec  = tr.getVec<TLorentzVector>("prodJetsNoLep_jetsLVec");  // lepton cleaned jets
+        //std::cout << "Running CleanedJets.h" << std::endl;
+        // clean all variables in jet  collection
+        // cleanJetCollection(std::string jetCollectionLVec, std::vector<TLorentzVector> jetCollectionVariables, std::string prefix)
+        cleanJetCollection(tr, "jetsLVec",      AK4JetVariables_, "");
+        cleanJetCollection(tr, "jetsLVec",      AK4JetVariables_, "prodJetsNoLep_");
+        cleanJetCollection(tr, "puppiJetsLVec", AK8JetVariables_, "");
+        cleanJetCollection(tr, "puppiJetsLVec", AK8JetVariables_, "prodJetsNoLep_");
+        //const auto& gammaLVec               = tr.getVec<TLorentzVector>("gammaLVecPassLooseID");    // selected reco photon
+        //const auto& jetsLVec                = tr.getVec<TLorentzVector>("jetsLVec");                // jets
+        //const auto& prodJetsNoLep_jetsLVec  = tr.getVec<TLorentzVector>("prodJetsNoLep_jetsLVec");  // lepton cleaned jets
 
-        const float dRMax = 0.15; // dR between photon and jet
+        //const float dRMax = 0.15; // dR between photon and jet
 
-        // loop over photons
-        // determine which jets to keep
-        std::vector<bool> keepJet1(jetsLVec.size(), true);
-        std::vector<bool> keepJet2(prodJetsNoLep_jetsLVec.size(), true);
-        for (int i = 0; i < gammaLVec.size(); ++i)
-        {
-            //jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax)
-            int match1 = AnaFunctions::jetObjectdRMatch(gammaLVec[i], jetsLVec, dRMax);
-            int match2 = AnaFunctions::jetObjectdRMatch(gammaLVec[i], prodJetsNoLep_jetsLVec, dRMax);
-            if (match1 >= 0) keepJet1[match1] = false;
-            if (match2 >= 0) keepJet2[match2] = false;
-        }
-        
-        
-        std::vector<std::string> jetVectors = {
-                                                "jetsLVec",              
-                                                "recoJetsCSVv2",
-                                                "qgLikelihood",
-                                                "qgPtD",                               
-                                                "qgAxis1",                             
-                                                "qgAxis2",                             
-                                                "qgMult",                              
-                                                "recoJetschargedHadronEnergyFraction", 
-                                                "recoJetschargedEmEnergyFraction",     
-                                                "recoJetsneutralEmEnergyFraction",     
-                                                "recoJetsmuonEnergyFraction",          
-                                                "recoJetsHFHadronEnergyFraction",     
-                                                "recoJetsHFEMEnergyFraction",          
-                                                "recoJetsneutralEnergyFraction",       
-                                                "PhotonEnergyFraction",                
-                                                "ElectronEnergyFraction",             
-                                                "ChargedHadronMultiplicity",          
-                                                "NeutralHadronMultiplicity",          
-                                                "PhotonMultiplicity",                
-                                                "ElectronMultiplicity",               
-                                                "MuonMultiplicity",                    
-                                                "DeepCSVb",                            
-                                                "DeepCSVc",                            
-                                                "DeepCSVl",                            
-                                                "DeepCSVbb",                           
-                                                "DeepCSVcc"
-                                              };
-        
-        std::string noLeptonTag = "prodJetsNoLep_";
-        for (const auto& jetVector : jetVectors)
-        {
-            // jetsLVec is stored as a TLorentz vector
-            if (jetVector.compare("jetsLVec") == 0)
-            {
-                cleanVector<TLorentzVector>(tr, jetVector, keepJet1);
-                cleanVector<TLorentzVector>(tr, noLeptonTag + jetVector, keepJet2);
-            }
-            // qgMult is stored as an integer
-            else if (jetVector.compare("qgMult") == 0)
-            {
-                cleanVector<int>(tr, jetVector, keepJet1);
-                cleanVector<int>(tr, noLeptonTag + jetVector, keepJet2);
-            }
-            // all other variables are floats
-            else
-            {
-                cleanVector<float>(tr, jetVector, keepJet1);
-                cleanVector<float>(tr, noLeptonTag + jetVector, keepJet2);
-            }
-        }
+        //// loop over photons
+        //// determine which jets to keep
+        //std::vector<bool> keepJet1(jetsLVec.size(), true);
+        //std::vector<bool> keepJet2(prodJetsNoLep_jetsLVec.size(), true);
+        //for (int i = 0; i < gammaLVec.size(); ++i)
+        //{
+        //    //jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax)
+        //    int match1 = AnaFunctions::jetObjectdRMatch(gammaLVec[i], jetsLVec, dRMax);
+        //    int match2 = AnaFunctions::jetObjectdRMatch(gammaLVec[i], prodJetsNoLep_jetsLVec, dRMax);
+        //    if (match1 >= 0) keepJet1[match1] = false;
+        //    if (match2 >= 0) keepJet2[match2] = false;
+        //}
+        //
+        //
+        //std::string noLeptonTag = "prodJetsNoLep_";
+        //for (const auto& jetVariable : AK4JetVariables_)
+        //{
+        //    // jetsLVec is stored as a TLorentz vector
+        //    if (jetVariable.compare("jetsLVec") == 0)
+        //    {
+        //        cleanVector<TLorentzVector>(tr, jetVariable, keepJet1);
+        //        cleanVector<TLorentzVector>(tr, noLeptonTag + jetVariable, keepJet2);
+        //    }
+        //    // qgMult is stored as an integer
+        //    else if (jetVariable.compare("qgMult") == 0)
+        //    {
+        //        cleanVector<int>(tr, jetVariable, keepJet1);
+        //        cleanVector<int>(tr, noLeptonTag + jetVariable, keepJet2);
+        //    }
+        //    // all other variables are floats
+        //    else
+        //    {
+        //        cleanVector<float>(tr, jetVariable, keepJet1);
+        //        cleanVector<float>(tr, noLeptonTag + jetVariable, keepJet2);
+        //    }
+        //}
     }
 
     template <class type> void cleanVector(NTupleReader& tr, std::string vectorName, std::vector<bool> keepJet)
     {
+        //std::cout << "In cleanVector(): vectorName = " << vectorName << ", type = " << typeid(type).name() << std::endl;
         const auto& vec = tr.getVec<type>(vectorName); 
         std::vector<type>* cleanedVec = new std::vector<type>();
         if (keepJet.size() != vec.size())
@@ -116,9 +102,91 @@ private:
         tr.registerDerivedVec(vectorName+"_NoPhoton", cleanedVec);
     }
 
+    // clean all variables in jet  collection
+    void cleanJetCollection(NTupleReader& tr, const std::string& jetCollectionLVec, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix)
+    {
+        const auto& gammaLVec = tr.getVec<TLorentzVector>("gammaLVecPassLooseID");      // selected reco photon
+        const auto& jetsLVec  = tr.getVec<TLorentzVector>(prefix + jetCollectionLVec);  // jet lorentz vector
+        const float dRMax = 0.15; // dR between photon and jet
+        // loop over photons
+        // determine which jets to keep
+        std::vector<bool> keepJet(jetsLVec.size(), true);
+        for (int i = 0; i < gammaLVec.size(); ++i)
+        {
+            //jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax)
+            int match = AnaFunctions::jetObjectdRMatch(gammaLVec[i], jetsLVec, dRMax);
+            if (match >= 0) keepJet[match] = false;
+        }
+        
+        // clean all variables in jet collection
+        for (const auto& jetVariable : jetCollectionVariables)
+        {
+            // TLorentzVector
+            if (jetVariable.compare("jetsLVec") == 0 || jetVariable.compare("puppiJetsLVec") == 0)
+            {
+                cleanVector<TLorentzVector>(tr, prefix + jetVariable, keepJet);
+            }
+            // std::vector<TLorentzVector> 
+            else if (jetVariable.compare("puppiAK8SubjetLVec") == 0)
+            {
+                cleanVector<std::vector<TLorentzVector>>(tr, prefix + jetVariable, keepJet);
+            }
+            // int
+            else if (jetVariable.compare("qgMult") == 0)
+            {
+                cleanVector<int>(tr, prefix + jetVariable, keepJet);
+            }
+            // float
+            else
+            {
+                cleanVector<float>(tr, prefix + jetVariable, keepJet);
+            }
+        }
+    }
+
 public:
 
-    CleanedJets(){}
+    CleanedJets()
+    {
+        // AK4 jet variables
+        AK4JetVariables_ = {
+                             "jetsLVec",              
+                             "recoJetsCSVv2",
+                             "qgLikelihood",
+                             "qgPtD",                               
+                             "qgAxis1",                             
+                             "qgAxis2",                             
+                             "qgMult",                              
+                             "recoJetschargedHadronEnergyFraction", 
+                             "recoJetschargedEmEnergyFraction",     
+                             "recoJetsneutralEmEnergyFraction",     
+                             "recoJetsmuonEnergyFraction",          
+                             "recoJetsHFHadronEnergyFraction",     
+                             "recoJetsHFEMEnergyFraction",          
+                             "recoJetsneutralEnergyFraction",       
+                             "PhotonEnergyFraction",                
+                             "ElectronEnergyFraction",             
+                             "ChargedHadronMultiplicity",          
+                             "NeutralHadronMultiplicity",          
+                             "PhotonMultiplicity",                
+                             "ElectronMultiplicity",               
+                             "MuonMultiplicity",                    
+                             "DeepCSVb",                            
+                             "DeepCSVc",                            
+                             "DeepCSVl",                            
+                             "DeepCSVbb",                           
+                             "DeepCSVcc"
+                           };
+        
+        // AK8 jet variables
+        AK8JetVariables_ = {
+                             "puppiJetsLVec",              
+                             "puppiAK8SubjetLVec",              
+                             "puppisoftDropMass",              
+                             "deepAK8btop",              
+                             "deepAK8bW"
+                           };
+    }
 
     ~CleanedJets(){}
 

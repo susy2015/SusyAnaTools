@@ -94,8 +94,7 @@ bool BaselineVessel::UseCleanedJets(bool cleanLeptons, bool cleanPhotons)
   jetVecLabel           = leptonTag + "jetsLVec"      + photonTag;
   CSVVecLabel           = leptonTag + "recoJetsCSVv2" + photonTag;
   qgLikehoodLabel       = leptonTag + "qgLikelihood"  + photonTag;
-  // Photon cleaned AK8 jets are not available yet
-  jetVecLabelAK8        = leptonTag + "puppiJetsLVec";
+  jetVecLabelAK8        = leptonTag + "puppiJetsLVec" + photonTag;
   if (UseDeepCSV)
   {
     // Note that DeepCSVcomb is a derived variable... but it is derived with cleaned variables 
@@ -179,6 +178,9 @@ void BaselineVessel::prepareDeepTopTagger()
   tr->registerDerivedVec("recoJetsBtag_forTagger" + firstSpec, recoJetsBtag_forTagger);
   tr->registerDerivedVec("qgLikelihood_forTagger" + firstSpec, qgLikelihood_forTagger);
 
+  // ----- AK4 Jets -----
+  
+  // AK4 jet variables
   std::vector<std::string> AK4Variables = {
                                             "qgPtD",                               
                                             "qgAxis1",                             
@@ -203,23 +205,36 @@ void BaselineVessel::prepareDeepTopTagger()
                                             "DeepCSVbb",
                                             "DeepCSVcc"
                                           };
+  
   ttUtility::ConstAK4Inputs<float> AK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger);
-  // first add to AK4Inputs qgMult after converting it to a float
-  const std::vector<int> &qgMult_i = tr->getVec<int>(UseNoPhotonVar(UseNoLepVar("qgMult")));
+  
+  // convert qgMult to float and then add to AK4Inputs
+  const std::vector<int>   &qgMult_i = tr->getVec<int>(UseNoPhotonVar(UseNoLepVar("qgMult")));
   const std::vector<float> qgMult_f(qgMult_i.begin(), qgMult_i.end());
   AK4Inputs.addSupplamentalVector("qgMult", qgMult_f);
+  
   // loop over variables and add to AK4Inputs
   for (const auto& variable : AK4Variables)
   {
     AK4Inputs.addSupplamentalVector(variable, tr->getVec<float>(UseNoPhotonVar(UseNoLepVar(variable))));
   }
 
+  // ----- AK8 Jets -----
+
+  // AK8 jet variables
+  //std::vector<std::string> AK8JetVariables_ = {
+  //                                              "puppiAK8SubjetLVec",              
+  //                                              "puppisoftDropMass",              
+  //                                              "deepAK8btop",              
+  //                                              "deepAK8bW"
+  //                                             };
+  
 
   const std::vector<TLorentzVector>              &AK8JetLV           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
-  const std::vector<float>                       &AK8JetSoftdropMass = tr->getVec<float>(UseNoLepVar("puppisoftDropMass"));
-  const std::vector<float>                       &AK8JetDeepAK8Top   = tr->getVec<float>(UseNoLepVar("deepAK8btop"));
-  const std::vector<float>                       &AK8JetDeepAK8W     = tr->getVec<float>(UseNoLepVar("deepAK8bW"));
-  const std::vector<std::vector<TLorentzVector>> &AK8SubjetLV        = tr->getVec<std::vector<TLorentzVector>               >(UseNoLepVar("puppiAK8SubjetLVec"));
+  const std::vector<float>                       &AK8JetSoftdropMass = tr->getVec<float>(UseNoPhotonVar(UseNoLepVar("puppisoftDropMass")));
+  const std::vector<float>                       &AK8JetDeepAK8Top   = tr->getVec<float>(UseNoPhotonVar(UseNoLepVar("deepAK8btop")));
+  const std::vector<float>                       &AK8JetDeepAK8W     = tr->getVec<float>(UseNoPhotonVar(UseNoLepVar("deepAK8bW")));
+  const std::vector<std::vector<TLorentzVector>> &AK8SubjetLV        = tr->getVec<std::vector<TLorentzVector>>(UseNoPhotonVar(UseNoLepVar("puppiAK8SubjetLVec")));
 
   //Create AK8 inputs object
   ttUtility::ConstAK8Inputs<float> AK8Inputs(
