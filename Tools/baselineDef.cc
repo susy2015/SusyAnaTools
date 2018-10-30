@@ -153,6 +153,7 @@ void BaselineVessel::prepareDeepTopTagger()
   qgLikelihood_forTagger  = new std::vector<float>();
   *jetsLVec_forTagger     = tr->getVec<TLorentzVector>(jetVecLabel);
   *recoJetsBtag_forTagger = tr->getVec<float>(CSVVecLabel);
+  //*recoJetsBtag_forTagger = tr->getVec<float>("prodJetsNoLep_recoJetsCSVv2");
   *qgLikelihood_forTagger = tr->getVec<float>(qgLikehoodLabel);
 
   tr->registerDerivedVec("jetsLVec_forTagger" + firstSpec, jetsLVec_forTagger);

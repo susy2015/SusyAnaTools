@@ -103,7 +103,7 @@ LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 FILES = $(wildcard $(SDIR)/*.cc)
 OBJS := $(FILES:$(SDIR)/%.cc=$(ODIR)/%.o)
 
-PROGRAMS = tupleReadTest tupleRead nEvts deepTrim AliasTest bTagEfficiencyCalc ISRJetsProducer # basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots
+PROGRAMS = tupleRead nEvts deepTrim AliasTest bTagEfficiencyCalc ISRJetsProducer # basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots
 
 all: mkobj SusyAnaTools sampPyWrap $(PROGRAMS)
 
@@ -135,7 +135,7 @@ $(ODIR)/%.o : $(SDIR)/%.cc
 $(ODIR)/%.o : $(SDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
 
-tupleReadTest: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o $(ODIR)/tupleReadTest.o $(ODIR)/customize.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/ISRCorrector.o
+tupleReadTest: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o $(ODIR)/tupleReadTest.o $(ODIR)/customize.o
 	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
 
 tupleRead: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o $(ODIR)/tupleRead.o $(ODIR)/customize.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/ISRCorrector.o

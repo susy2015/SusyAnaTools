@@ -210,8 +210,11 @@ int main(int argc, char* argv[]){
 	auto ntop_140_MT2_h=new TH1F("ntop_140_MT2_h","ntop, loose baseline no HT cut, MTb > 140, MT2 cut",8,0.0,8.0);
 	auto ntop_175_h=new TH1F("ntop_175_h","ntop, loose baseline no HT cut, MTb > 175",8,0.0,8.0);
 	auto ntop_175_MT2_h=new TH1F("ntop_175_MT2_h","ntop, loose baseline no HT cut, MTb > 175, MT2 cut",8,0.0,8.0);
+	auto ntop_merge_h=new TH1F("ntop_merge_h","number of fully merged top, loose baseline",8,0.0,8.0);
 	auto ntop_merge_175_h=new TH1F("ntop_merge_175_h","number of fully merged top, loose baseline no HT cut, MTb > 175",8,0.0,8.0);
+	auto ntop_w_h=new TH1F("ntop_w_h","number of partially merged top, loose baseline",8,0.0,8.0);
 	auto ntop_w_175_h=new TH1F("ntop_w_175_h","number of partially merged top, loose baseline no HT cut, MTb > 175",8,0.0,8.0);
+	auto ntop_res_h=new TH1F("ntop_res_h","number of resolved top, loose baseline",8,0.0,8.0);
 	auto ntop_res_175_h=new TH1F("ntop_res_175_h","number of resolved top, loose baseline no HT cut, MTb > 175",8,0.0,8.0);
 
 	auto gen_w_pt_175_h=new TH1F("gen_w_pt_175_h","gen W pt, loose baseline no HT cut, MTb > 175",80,0.0,400.0);
@@ -260,6 +263,10 @@ int main(int argc, char* argv[]){
 	auto search_bin_low_and_highdm_h=new TH1F("search_bin_low_and_highdm_h","search bin low and high dM, MTb = 175",177,0.0,177.0);
 	auto search_bin_low_and_highdm_singleMuCR_h=new TH1F("search_bin_low_and_highdm_singleMuCR_h","search bin low and high dM single muon control region, MTb = 175",177,0.0,177.0);
 	auto search_bin_low_and_highdm_singleElCR_h=new TH1F("search_bin_low_and_highdm_singleElCR_h","search bin low and high dM single electron control region, MTb = 175",177,0.0,177.0);
+
+        auto search_bin_more_HT_bins_h=new TH1F("search_bin_more_HT_bins_h","search bin with more HT bins, MTb = 175",239,0.0,239.0);
+        auto search_bin_more_HT_bins_singleMuCR_h=new TH1F("search_bin_more_HT_bins_singleMuCR_h","search bin with more HT bins, single muon control region, MTb = 175",239,0.0,239.0);
+        auto search_bin_more_HT_bins_singleElCR_h=new TH1F("search_bin_more_HT_bins_singleElCR_h","search bin with more HT bins,  single electron control region, MTb = 175",239,0.0,239.0);
 
 	auto search_bin_highdm_h=new TH1F("search_bin_highdm_h","search bin high dM, MTb = 175",124,53.0,177.0);
 	auto search_bin_highdm_singleMuCR_h=new TH1F("search_bin_highdm_singleMuCR_h","search bin high dM single muon control region, MTb = 175",124,53.0,177.0);
@@ -546,14 +553,18 @@ int main(int argc, char* argv[]){
 	if(debug) std::cout << __LINE__ << std::endl;
 
 		int SB_highdm(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met, float ht);
+		int SB_highdm_more_HT_bins(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met, float ht);
 		int SB_highdm_MT2(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met, float ht, float mt2);
 		int SB_team_A_highdm(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met);
+
 		int SB_highdm_index_175 = SB_highdm(175, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met, HT);
-		int SB_highdm_index_175_MT2 = SB_highdm_MT2(175, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met, HT, mt2);
-		int SB_highdm_index_175_merge_HT = SB_highdm(175, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met, 500);
+		int SB_highdm_more_HT_bins_index_175 = SB_highdm_more_HT_bins(175, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met, HT);
+		int SB_highdm_MT2_index_175 = SB_highdm_MT2(175, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met, HT, mt2);
+		int SB_highdm_merge_HT_index_175 = SB_highdm(175, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met, 500);
 		int SB_team_A_highdm_index_175 = SB_team_A_highdm(175, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met);
-		int SB_team_A_highdm_index_175_merge = SB_team_A_highdm(175, mtb, njetspt20, 0, nw, ntop, nbottompt20, met);
+		int SB_team_A_highdm_merge_index_175 = SB_team_A_highdm(175, mtb, njetspt20, 0, nw, ntop, nbottompt20, met);
 		int SB_team_A_highdm_index_140 = SB_team_A_highdm(140, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met);
+
 		int SB_team_A_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met);
 		int SB_team_A_lowdm_index = SB_team_A_lowdm(njetspt20, nbottompt20, nSV, ISRpt, bottompt_scalar_sum, met);
 
@@ -607,59 +618,53 @@ int main(int argc, char* argv[]){
 				if (SB_highdm_index_175 == 176) {highdm_is_176 = true; n_highdm_is_176++;}
 				search_bin_low_and_highdm_h->Fill(SB_highdm_index_175,evtWeight);
 				search_bin_highdm_h->Fill(SB_highdm_index_175,evtWeight);
-				search_bin_highdm_MT2_h->Fill(SB_highdm_index_175_MT2,evtWeight);
-				search_bin_highdm_merge_HT_h->Fill(SB_highdm_index_175_merge_HT,evtWeight);
 			}
+			if(SB_highdm_more_HT_bins_index_175 != -1) search_bin_more_HT_bins_h->Fill(SB_highdm_more_HT_bins_index_175,evtWeight);
+			if(SB_highdm_MT2_index_175 != -1) search_bin_highdm_MT2_h->Fill(SB_highdm_MT2_index_175,evtWeight);
+			if(SB_highdm_merge_HT_index_175 != -1) search_bin_highdm_merge_HT_h->Fill(SB_highdm_merge_HT_index_175,evtWeight);
 
-			if (SB_team_A_highdm_index_175 != -1)
+			if (SB_team_A_highdm_index_175 != -1) search_bin_team_A_highdm_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+			if (SB_team_A_highdm_merge_index_175 != -1) search_bin_team_A_highdm_merge_h->Fill(SB_team_A_highdm_merge_index_175,evtWeight);
+			if(pass_MT2_highdm) 
 			{
-				search_bin_team_A_highdm_h->Fill(SB_team_A_highdm_index_175,evtWeight);
-				search_bin_team_A_highdm_merge_h->Fill(SB_team_A_highdm_index_175_merge,evtWeight);
-				if(pass_MT2_highdm) 
-				{
-					search_bin_team_A_highdm_MTb175_MT2_h->Fill(SB_team_A_highdm_index_175,evtWeight);
-					search_bin_team_A_highdm_MTb140_MT2_h->Fill(SB_team_A_highdm_index_140,evtWeight);
-				}
+				if(SB_team_A_highdm_index_175 != -1) search_bin_team_A_highdm_MTb175_MT2_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+				if(SB_team_A_highdm_index_140 != -1) search_bin_team_A_highdm_MTb140_MT2_h->Fill(SB_team_A_highdm_index_140,evtWeight);
 			}
 		}
 
 		if(pass_high_dM_baseline_singleLeptCR)
 		{
-			if(nElectrons == 1 && SB_highdm_index_175 != -1)
+			if(nElectrons == 1)
 			{
-				search_bin_low_and_highdm_singleElCR_h->Fill(SB_highdm_index_175,evtWeight);
-				search_bin_highdm_singleElCR_h->Fill(SB_highdm_index_175,evtWeight);
-				search_bin_highdm_singleElCR_MT2_h->Fill(SB_highdm_index_175_MT2,evtWeight);
-				search_bin_highdm_singleElCR_merge_HT_h->Fill(SB_highdm_index_175_merge_HT,evtWeight);
-			}
+				if(SB_highdm_index_175 != -1) search_bin_low_and_highdm_singleElCR_h->Fill(SB_highdm_index_175,evtWeight);
+				if(SB_highdm_index_175 != -1) search_bin_highdm_singleElCR_h->Fill(SB_highdm_index_175,evtWeight);
+				if(SB_highdm_more_HT_bins_index_175 != -1) search_bin_more_HT_bins_singleElCR_h->Fill(SB_highdm_more_HT_bins_index_175,evtWeight);
+				if(SB_highdm_MT2_index_175 != -1) search_bin_highdm_singleElCR_MT2_h->Fill(SB_highdm_MT2_index_175,evtWeight);
+				if(SB_highdm_merge_HT_index_175 != -1) search_bin_highdm_singleElCR_merge_HT_h->Fill(SB_highdm_merge_HT_index_175,evtWeight);
 
-			if(nElectrons == 1 && SB_team_A_highdm_index_175 != -1)
-			{
-				search_bin_team_A_highdm_singleElCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
-				search_bin_team_A_highdm_singleElCR_merge_h->Fill(SB_team_A_highdm_index_175_merge,evtWeight);
+				if(SB_team_A_highdm_index_175 != -1) search_bin_team_A_highdm_singleElCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+				if(SB_team_A_highdm_merge_index_175 != -1) search_bin_team_A_highdm_singleElCR_merge_h->Fill(SB_team_A_highdm_merge_index_175,evtWeight);
 				if(pass_MT2_highdm) 
 				{
-					search_bin_team_A_highdm_MTb175_MT2_singleElCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
-					search_bin_team_A_highdm_MTb140_MT2_singleElCR_h->Fill(SB_team_A_highdm_index_140,evtWeight);
+					if(SB_team_A_highdm_index_175 != -1) search_bin_team_A_highdm_MTb175_MT2_singleElCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+					if(SB_team_A_highdm_index_140 != -1) search_bin_team_A_highdm_MTb140_MT2_singleElCR_h->Fill(SB_team_A_highdm_index_140,evtWeight);
 				}
 			}
  
-			if(nMuons == 1 && SB_highdm_index_175 != -1)
+			if(nMuons == 1)
 			{
-				search_bin_low_and_highdm_singleMuCR_h->Fill(SB_highdm_index_175,evtWeight);
-				search_bin_highdm_singleMuCR_h->Fill(SB_highdm_index_175,evtWeight);
-				search_bin_highdm_singleMuCR_MT2_h->Fill(SB_highdm_index_175_MT2,evtWeight);
-				search_bin_highdm_singleMuCR_merge_HT_h->Fill(SB_highdm_index_175_merge_HT,evtWeight);
-			}
+				if(SB_highdm_index_175 != -1) search_bin_low_and_highdm_singleMuCR_h->Fill(SB_highdm_index_175,evtWeight);
+				if(SB_highdm_index_175 != -1) search_bin_highdm_singleMuCR_h->Fill(SB_highdm_index_175,evtWeight);
+				if(SB_highdm_more_HT_bins_index_175 != -1) search_bin_more_HT_bins_singleMuCR_h->Fill(SB_highdm_more_HT_bins_index_175,evtWeight);
+				if(SB_highdm_MT2_index_175 != -1) search_bin_highdm_singleMuCR_MT2_h->Fill(SB_highdm_MT2_index_175,evtWeight);
+				if(SB_highdm_merge_HT_index_175 != -1) search_bin_highdm_singleMuCR_merge_HT_h->Fill(SB_highdm_merge_HT_index_175,evtWeight);
 
-			if(nMuons == 1 && SB_team_A_highdm_index_175 != -1)
-			{
-				search_bin_team_A_highdm_singleMuCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
-				search_bin_team_A_highdm_singleMuCR_merge_h->Fill(SB_team_A_highdm_index_175_merge,evtWeight);
+				if(SB_team_A_highdm_index_175 != -1) search_bin_team_A_highdm_singleMuCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+				if(SB_team_A_highdm_merge_index_175 != -1) search_bin_team_A_highdm_singleMuCR_merge_h->Fill(SB_team_A_highdm_merge_index_175,evtWeight);
 				if(pass_MT2_highdm) 
 				{
-					search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
-					search_bin_team_A_highdm_MTb140_MT2_singleMuCR_h->Fill(SB_team_A_highdm_index_140,evtWeight);
+					if(SB_team_A_highdm_index_175 != -1) search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+					if(SB_team_A_highdm_index_140 != -1) search_bin_team_A_highdm_MTb140_MT2_singleMuCR_h->Fill(SB_team_A_highdm_index_140,evtWeight);
 				}
 			}
 		}
@@ -677,6 +682,7 @@ int main(int argc, char* argv[]){
 			if(SB_team_A_lowdm_index != -1) 
 			{
 				search_bin_low_and_highdm_h->Fill(SB_team_A_lowdm_index,evtWeight);
+				search_bin_more_HT_bins_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_team_A_lowdm_h->Fill(SB_team_A_lowdm_index,evtWeight);
 			}
 		}
@@ -686,12 +692,14 @@ int main(int argc, char* argv[]){
 			if(nElectrons == 1 && SB_team_A_lowdm_index != -1) 
 			{
 				search_bin_low_and_highdm_singleElCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
+				search_bin_more_HT_bins_singleElCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_team_A_lowdm_singleElCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
 			}
 
 			if(nMuons == 1 && SB_team_A_lowdm_index != -1)
 			{
 				search_bin_low_and_highdm_singleMuCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
+				search_bin_more_HT_bins_singleMuCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_team_A_lowdm_singleMuCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
 			}
 		}
@@ -745,6 +753,9 @@ int main(int argc, char* argv[]){
 			mtb_mt2_h->Fill(mtb,mt2,evtWeight);
 			mtb_h->Fill(mtb,evtWeight);
 			ntop_h->Fill(ntop,evtWeight);
+			ntop_merge_h->Fill(ntop_merge,evtWeight);
+			ntop_w_h->Fill(ntop_w,evtWeight);
+			ntop_res_h->Fill(ntop_res,evtWeight);
 			nbottompt20_h->Fill(nbottompt20,evtWeight);
 			njets_h->Fill(njets,evtWeight);
 			njetspt20_h->Fill(njetspt20,evtWeight);
@@ -1038,6 +1049,9 @@ int main(int argc, char* argv[]){
 
 	// top
 	ntop_h->Write();
+	ntop_merge_h->Write();
+	ntop_w_h->Write();
+	ntop_res_h->Write();
 	ntop_no_HT_h->Write();
 	ntop_140_h->Write();
 	ntop_140_MT2_h->Write();
@@ -1090,6 +1104,10 @@ int main(int argc, char* argv[]){
 	search_bin_low_and_highdm_h->Write();
 	search_bin_low_and_highdm_singleMuCR_h->Write();
 	search_bin_low_and_highdm_singleElCR_h->Write();
+
+	search_bin_more_HT_bins_h->Write();
+	search_bin_more_HT_bins_singleMuCR_h->Write();
+	search_bin_more_HT_bins_singleElCR_h->Write();
 
 	search_bin_highdm_h->Write();
 	search_bin_highdm_singleMuCR_h->Write();

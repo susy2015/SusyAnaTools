@@ -34,9 +34,9 @@ int make_datacards()
 	//TString signal_name = "T2tt_mStop500_mLSP325";
 	//TString signal_name = "T2tt_mStop850_mLSP100";
 	//TString signal_name = "T2tt_mStop1000_mLSP500";
-	TString signal_name = "T2tt_mStop1000_mLSP1";
+	//TString signal_name = "T2tt_mStop1000_mLSP1";
 	//TString signal_name = "T1tttt_mGluino1500_mLSP100";
-	//TString signal_name = "T1tttt_mGluino2000_mLSP100";
+	TString signal_name = "T1tttt_mGluino2000_mLSP100";
 	//TString signal_name = "T1tttt_mGluino1200_mLSP800";
 	//TString signal_name = "T2bw_mStop850_mLSP100";
 
