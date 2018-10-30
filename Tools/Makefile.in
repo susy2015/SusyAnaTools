@@ -138,7 +138,7 @@ tupleTest: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $
 	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
 
 nEvts: $(ODIR)/nEvts.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o
-	$(LD) $^ -o $@
+	$(LD) $^ $(LIBS) -o $@
 
 deepTrim: $(ODIR)/DeepTrim.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/customize.o $(ODIR)/baselineDef.o $(ODIR)/SATException.o
 	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
