@@ -15,8 +15,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   bToFake               = 1;
   debug                 = false;
   incZEROtop            = false;
-  UseLepCleanJet        = true;
-  UsePhotonCleanJet     = true;
+  UseLepCleanJet        = false;
+  UsePhotonCleanJet     = false;
   UseDeepTagger         = true;
   UseDeepCSV            = true;
   eraLabel              = "2016MC";
@@ -83,18 +83,16 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 //  Description:  By default no Lep clean in Jets. Call this function to
 //  switch input labels
 // ===========================================================================
-bool BaselineVessel::UseCleanedJets(bool cleanLeptons, bool cleanPhotons) 
+bool BaselineVessel::UseCleanedJets() 
 {
   std::string leptonTag = "";
   std::string photonTag = "";
-  if (cleanLeptons) leptonTag = "prodJetsNoLep_";
-  if (cleanPhotons) photonTag = "_NoPhoton";
-  UseLepCleanJet        = cleanLeptons;
-  UsePhotonCleanJet     = cleanPhotons;
-  jetVecLabel           = leptonTag + "jetsLVec"      + photonTag;
-  CSVVecLabel           = leptonTag + "recoJetsCSVv2" + photonTag;
-  qgLikehoodLabel       = leptonTag + "qgLikelihood"  + photonTag;
-  jetVecLabelAK8        = leptonTag + "puppiJetsLVec" + photonTag;
+  if (UseLepCleanJet)    leptonTag = "prodJetsNoLep_";
+  if (UsePhotonCleanJet) photonTag = "_NoPhoton";
+  jetVecLabel     = leptonTag + "jetsLVec"      + photonTag;
+  CSVVecLabel     = leptonTag + "recoJetsCSVv2" + photonTag;
+  qgLikehoodLabel = leptonTag + "qgLikelihood"  + photonTag;
+  jetVecLabelAK8  = leptonTag + "puppiJetsLVec" + photonTag;
   if (UseDeepCSV)
   {
     // Note that DeepCSVcomb is a derived variable... but it is derived with cleaned variables 
@@ -343,6 +341,8 @@ bool BaselineVessel::PredefineSpec()
     //CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
     //METLabel    = "cleanMetPt";
     //METPhiLabel = "cleanMetPhi";
+    UseLepCleanJet    = true;
+    UsePhotonCleanJet = true;
     jetVecLabel = "prodJetsNoLep_jetsLVec_NoPhoton";
     CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2_NoPhoton";
     METLabel    = "met";
@@ -1202,9 +1202,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
   //GetPhotons();
-  bool cleanLeptons = true;
-  bool cleanPhotons = true;
-  UseCleanedJets(cleanLeptons, cleanPhotons);
+  UseCleanedJets();
   CombDeepCSV(); //temparory fix for DeepCSV
   PassBaseline();
   if (UseDeepTagger)

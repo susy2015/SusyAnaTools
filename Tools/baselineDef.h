@@ -103,7 +103,7 @@ public:
     bool passQCDHighMETFilterFunc();
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
-    bool UseCleanedJets(bool cleanLeptons, bool cleanPhotons);
+    bool UseCleanedJets();
     bool OpenWMassCorrFile();
 
     bool FlagDeepAK8Jets();
