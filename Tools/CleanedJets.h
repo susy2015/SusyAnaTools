@@ -41,48 +41,6 @@ private:
         cleanJetCollection(tr, "jetsLVec",      AK4JetVariables_, "prodJetsNoLep_");
         cleanJetCollection(tr, "puppiJetsLVec", AK8JetVariables_, "");
         cleanJetCollection(tr, "puppiJetsLVec", AK8JetVariables_, "prodJetsNoLep_");
-        //const auto& gammaLVec               = tr.getVec<TLorentzVector>("gammaLVecPassLooseID");    // selected reco photon
-        //const auto& jetsLVec                = tr.getVec<TLorentzVector>("jetsLVec");                // jets
-        //const auto& prodJetsNoLep_jetsLVec  = tr.getVec<TLorentzVector>("prodJetsNoLep_jetsLVec");  // lepton cleaned jets
-
-        //const float dRMax = 0.15; // dR between photon and jet
-
-        //// loop over photons
-        //// determine which jets to keep
-        //std::vector<bool> keepJet1(jetsLVec.size(), true);
-        //std::vector<bool> keepJet2(prodJetsNoLep_jetsLVec.size(), true);
-        //for (int i = 0; i < gammaLVec.size(); ++i)
-        //{
-        //    //jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax)
-        //    int match1 = AnaFunctions::jetObjectdRMatch(gammaLVec[i], jetsLVec, dRMax);
-        //    int match2 = AnaFunctions::jetObjectdRMatch(gammaLVec[i], prodJetsNoLep_jetsLVec, dRMax);
-        //    if (match1 >= 0) keepJet1[match1] = false;
-        //    if (match2 >= 0) keepJet2[match2] = false;
-        //}
-        //
-        //
-        //std::string noLeptonTag = "prodJetsNoLep_";
-        //for (const auto& jetVariable : AK4JetVariables_)
-        //{
-        //    // jetsLVec is stored as a TLorentz vector
-        //    if (jetVariable.compare("jetsLVec") == 0)
-        //    {
-        //        cleanVector<TLorentzVector>(tr, jetVariable, keepJet1);
-        //        cleanVector<TLorentzVector>(tr, noLeptonTag + jetVariable, keepJet2);
-        //    }
-        //    // qgMult is stored as an integer
-        //    else if (jetVariable.compare("qgMult") == 0)
-        //    {
-        //        cleanVector<int>(tr, jetVariable, keepJet1);
-        //        cleanVector<int>(tr, noLeptonTag + jetVariable, keepJet2);
-        //    }
-        //    // all other variables are floats
-        //    else
-        //    {
-        //        cleanVector<float>(tr, jetVariable, keepJet1);
-        //        cleanVector<float>(tr, noLeptonTag + jetVariable, keepJet2);
-        //    }
-        //}
     }
 
     template <class type> void cleanVector(NTupleReader& tr, std::string vectorName, std::vector<bool> keepJet)
