@@ -32,21 +32,21 @@ private:
     NTupleReader* tr_;
     void setReader(NTupleReader& tr) { tr_ = &tr; }
 
-    void generateCleanedJets(NTupleReader& tr) 
+    void generateCleanedJets() 
     {
         //std::cout << "Running CleanedJets.h" << std::endl;
         // clean all variables in jet  collection
         // cleanJetCollection(std::string jetCollectionLVec, std::vector<TLorentzVector> jetCollectionVariables, std::string prefix)
-        cleanJetCollection(tr, "jetsLVec",      AK4JetVariables_, "");
-        cleanJetCollection(tr, "jetsLVec",      AK4JetVariables_, "prodJetsNoLep_");
-        cleanJetCollection(tr, "puppiJetsLVec", AK8JetVariables_, "");
-        cleanJetCollection(tr, "puppiJetsLVec", AK8JetVariables_, "prodJetsNoLep_");
+        cleanJetCollection("jetsLVec",      AK4JetVariables_, "");
+        cleanJetCollection("jetsLVec",      AK4JetVariables_, "prodJetsNoLep_");
+        cleanJetCollection("puppiJetsLVec", AK8JetVariables_, "");
+        cleanJetCollection("puppiJetsLVec", AK8JetVariables_, "prodJetsNoLep_");
     }
 
-    template <class type> void cleanVector(NTupleReader& tr, std::string vectorName, std::vector<bool> keepJet)
+    template <class type> void cleanVector(std::string vectorName, std::vector<bool> keepJet)
     {
         //std::cout << "In cleanVector(): vectorName = " << vectorName << ", type = " << typeid(type).name() << std::endl;
-        const auto& vec = tr.getVec<type>(vectorName); 
+        const auto& vec = tr_->getVec<type>(vectorName); 
         std::vector<type>* cleanedVec = new std::vector<type>();
         if (keepJet.size() != vec.size())
         {
@@ -57,14 +57,14 @@ private:
         {
             if (keepJet[i]) cleanedVec->push_back(vec[i]);
         }
-        tr.registerDerivedVec(vectorName+"_NoPhoton", cleanedVec);
+        tr_->registerDerivedVec(vectorName+"_NoPhoton", cleanedVec);
     }
 
     // clean all variables in jet  collection
-    void cleanJetCollection(NTupleReader& tr, const std::string& jetCollectionLVec, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix)
+    void cleanJetCollection(const std::string& jetCollectionLVec, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix)
     {
-        const auto& gammaLVec = tr.getVec<TLorentzVector>("gammaLVecPassLooseID");      // selected reco photon
-        const auto& jetsLVec  = tr.getVec<TLorentzVector>(prefix + jetCollectionLVec);  // jet lorentz vector
+        const auto& gammaLVec = tr_->getVec<TLorentzVector>("gammaLVecPassLooseID");      // selected reco photon
+        const auto& jetsLVec  = tr_->getVec<TLorentzVector>(prefix + jetCollectionLVec);  // jet lorentz vector
         const float dRMax = 0.15; // dR between photon and jet
         // loop over photons
         // determine which jets to keep
@@ -82,22 +82,22 @@ private:
             // TLorentzVector
             if (jetVariable.compare("jetsLVec") == 0 || jetVariable.compare("puppiJetsLVec") == 0)
             {
-                cleanVector<TLorentzVector>(tr, prefix + jetVariable, keepJet);
+                cleanVector<TLorentzVector>(prefix + jetVariable, keepJet);
             }
             // std::vector<TLorentzVector> 
             else if (jetVariable.compare("puppiAK8SubjetLVec") == 0)
             {
-                cleanVector<std::vector<TLorentzVector>>(tr, prefix + jetVariable, keepJet);
+                cleanVector<std::vector<TLorentzVector>>(prefix + jetVariable, keepJet);
             }
             // int
             else if (jetVariable.compare("qgMult") == 0)
             {
-                cleanVector<int>(tr, prefix + jetVariable, keepJet);
+                cleanVector<int>(prefix + jetVariable, keepJet);
             }
             // float
             else
             {
-                cleanVector<float>(tr, prefix + jetVariable, keepJet);
+                cleanVector<float>(prefix + jetVariable, keepJet);
             }
         }
     }
@@ -150,7 +150,9 @@ public:
 
     void operator()(NTupleReader& tr)
     {
-        generateCleanedJets(tr);
+        // first set NTupleReader
+        setReader(tr);
+        generateCleanedJets();
     }
 };
 
