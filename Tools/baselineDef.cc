@@ -85,18 +85,18 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 // ===========================================================================
 bool BaselineVessel::UseCleanedJets() 
 {
-  std::string leptonTag = "";
-  std::string photonTag = "";
-  if (UseLepCleanJet)    leptonTag = "prodJetsNoLep_";
-  if (UsePhotonCleanJet) photonTag = "_NoPhoton";
-  jetVecLabel     = leptonTag + "jetsLVec"      + photonTag;
-  CSVVecLabel     = leptonTag + "recoJetsCSVv2" + photonTag;
-  qgLikehoodLabel = leptonTag + "qgLikelihood"  + photonTag;
-  jetVecLabelAK8  = leptonTag + "puppiJetsLVec" + photonTag;
+  std::string prefix = "";
+  std::string suffix = "";
+  if (UseLepCleanJet)    prefix = "prodJetsNoLep_";
+  if (UsePhotonCleanJet) suffix = "_NoPhoton";
+  jetVecLabel     = prefix + "jetsLVec"      + suffix;
+  CSVVecLabel     = prefix + "recoJetsCSVv2" + suffix;
+  qgLikehoodLabel = prefix + "qgLikelihood"  + suffix;
+  jetVecLabelAK8  = prefix + "puppiJetsLVec" + suffix;
   if (UseDeepCSV)
   {
     // Note that DeepCSVcomb is a derived variable... but it is derived with cleaned variables 
-    CSVVecLabel           = leptonTag + "DeepCSVcomb" + photonTag;
+    CSVVecLabel           = prefix + "DeepCSVcomb" + suffix;
   }
   return true;
 }       // -----  end of function BaselineVessel::UseCleanedJets  -----
@@ -119,30 +119,18 @@ bool BaselineVessel::OpenWMassCorrFile()
   return true;
 }       // -----  end of function BaselineVessel::OpenWMassCorrFile  -----
 
-
 // ===  FUNCTION  ============================================================
-//         Name:  BaselineVessel::UseNoLepVar
+//         Name:  BaselineVessel::UseCleanedJetsVar
 //  Description:  /* cursor */
 // ===========================================================================
-std::string BaselineVessel::UseNoLepVar(std::string varname) const
+std::string BaselineVessel::UseCleanedJetsVar(std::string varname) const
 {
-  if (UseLepCleanJet)
-    return "prodJetsNoLep_" + varname;
-  else
-    return varname;
-}       // -----  end of function BaselineVessel::UseNoLepVar  -----
-
-// ===  FUNCTION  ============================================================
-//         Name:  BaselineVessel::UseNoPhotonVar
-//  Description:  /* cursor */
-// ===========================================================================
-std::string BaselineVessel::UseNoPhotonVar(std::string varname) const
-{
-  if (UsePhotonCleanJet)
-    return varname + "_NoPhoton";
-  else
-    return varname;
-}       // -----  end of function BaselineVessel::UseNoPhotonVar  -----
+  std::string prefix = "";
+  std::string suffix = "";
+  if (UseLepCleanJet)    prefix = "prodJetsNoLep_";
+  if (UsePhotonCleanJet) suffix = "_NoPhoton";
+  return prefix + varname + suffix;
+}       // -----  end of function BaselineVessel::UseCleanedJetsVar  -----
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::SetupTopTagger
@@ -207,14 +195,14 @@ void BaselineVessel::prepareDeepTopTagger()
   ttUtility::ConstAK4Inputs<float> AK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger);
   
   // convert qgMult to float and then add to AK4Inputs
-  const std::vector<int>   &qgMult_i = tr->getVec<int>(UseNoPhotonVar(UseNoLepVar("qgMult")));
+  const std::vector<int>   &qgMult_i = tr->getVec<int>(UseCleanedJetsVar("qgMult"));
   const std::vector<float> qgMult_f(qgMult_i.begin(), qgMult_i.end());
   AK4Inputs.addSupplamentalVector("qgMult", qgMult_f);
   
   // loop over variables and add to AK4Inputs
   for (const auto& variable : AK4Variables)
   {
-    AK4Inputs.addSupplamentalVector(variable, tr->getVec<float>(UseNoPhotonVar(UseNoLepVar(variable))));
+    AK4Inputs.addSupplamentalVector(variable, tr->getVec<float>(UseCleanedJetsVar(variable)));
   }
 
   // ----- AK8 Jets -----
@@ -229,10 +217,10 @@ void BaselineVessel::prepareDeepTopTagger()
   
 
   const std::vector<TLorentzVector>              &AK8JetLV           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
-  const std::vector<float>                       &AK8JetSoftdropMass = tr->getVec<float>(UseNoPhotonVar(UseNoLepVar("puppisoftDropMass")));
-  const std::vector<float>                       &AK8JetDeepAK8Top   = tr->getVec<float>(UseNoPhotonVar(UseNoLepVar("deepAK8btop")));
-  const std::vector<float>                       &AK8JetDeepAK8W     = tr->getVec<float>(UseNoPhotonVar(UseNoLepVar("deepAK8bW")));
-  const std::vector<std::vector<TLorentzVector>> &AK8SubjetLV        = tr->getVec<std::vector<TLorentzVector>>(UseNoPhotonVar(UseNoLepVar("puppiAK8SubjetLVec")));
+  const std::vector<float>                       &AK8JetSoftdropMass = tr->getVec<float>(UseCleanedJetsVar("puppisoftDropMass"));
+  const std::vector<float>                       &AK8JetDeepAK8Top   = tr->getVec<float>(UseCleanedJetsVar("deepAK8btop"));
+  const std::vector<float>                       &AK8JetDeepAK8W     = tr->getVec<float>(UseCleanedJetsVar("deepAK8bW"));
+  const std::vector<std::vector<TLorentzVector>> &AK8SubjetLV        = tr->getVec<std::vector<TLorentzVector>>(UseCleanedJetsVar("puppiAK8SubjetLVec"));
 
   //Create AK8 inputs object
   ttUtility::ConstAK8Inputs<float> AK8Inputs(
@@ -282,12 +270,12 @@ void BaselineVessel::prepareTopTagger()
     //construct vector of constituents 
     ttUtility::ConstAK4Inputs<float> myConstAK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger, *qgLikelihood_forTagger);
     ttUtility::ConstAK8Inputs<float> myConstAK8Inputs(
-        tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec")),
-        tr->getVec<float>(UseNoLepVar("puppitau1")),
-        tr->getVec<float>(UseNoLepVar("puppitau2")),
-        tr->getVec<float>(UseNoLepVar("puppitau3")),
-        tr->getVec<float>(UseNoLepVar("puppisoftDropMass")),
-        tr->getVec<TLorentzVector>(UseNoLepVar("puppiSubJetsLVec")));
+        tr->getVec<TLorentzVector>(UseCleanedJetsVar("puppiJetsLVec")),
+        tr->getVec<float>(UseCleanedJetsVar("puppitau1")),
+        tr->getVec<float>(UseCleanedJetsVar("puppitau2")),
+        tr->getVec<float>(UseCleanedJetsVar("puppitau3")),
+        tr->getVec<float>(UseCleanedJetsVar("puppisoftDropMass")),
+        tr->getVec<TLorentzVector>(UseCleanedJetsVar("puppiSubJetsLVec")));
     if (WMassCorFile != NULL)
     {
       myConstAK8Inputs.setWMassCorrHistos (puppisd_corrGEN     , puppisd_corrRECO_cen, puppisd_corrRECO_for);
@@ -341,12 +329,12 @@ bool BaselineVessel::PredefineSpec()
     //CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
     //METLabel    = "cleanMetPt";
     //METPhiLabel = "cleanMetPhi";
-    UseLepCleanJet    = true;
+    //jetVecLabel = "jetsLVec_NoPhoton";
+    //CSVVecLabel = "recoJetsCSVv2_NoPhoton";
+    //METLabel    = "met";
+    //METPhiLabel = "metphi";
+    UseLepCleanJet    = false;
     UsePhotonCleanJet = true;
-    jetVecLabel = "prodJetsNoLep_jetsLVec_NoPhoton";
-    CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2_NoPhoton";
-    METLabel    = "met";
-    METPhiLabel = "metphi";
     doMuonVeto  = false;
     doEleVeto   = false;
     doIsoTrksVeto = false;
@@ -453,6 +441,7 @@ bool BaselineVessel::PrintoutConfig() const
   if (!tr->isFirstEvent()) return false;
   
   std::cout << "=== Current Config ===" << std::endl;
+  std::cout << "    Specialization : " << spec             << std::endl;
   std::cout << "    Era Label      : " << eraLabel         << std::endl;
   std::cout << "    AK4Jet Label   : " << jetVecLabel      << std::endl;
   std::cout << "    b-tag Label    : " << CSVVecLabel      << std::endl;
@@ -668,12 +657,12 @@ bool BaselineVessel::FlagAK8Jets()
 {
   // AK8 + Ak4 for W + jet
   ttUtility::ConstAK8Inputs<float> myConstAK8Inputs(
-      tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec")),
-      tr->getVec<float>(UseNoLepVar("puppitau1")),
-      tr->getVec<float>(UseNoLepVar("puppitau2")),
-      tr->getVec<float>(UseNoLepVar("puppitau3")),
-      tr->getVec<float>(UseNoLepVar("puppisoftDropMass")),
-      tr->getVec<TLorentzVector>(UseNoLepVar("puppiSubJetsLVec")));
+      tr->getVec<TLorentzVector>(UseCleanedJetsVar("puppiJetsLVec")),
+      tr->getVec<float>(UseCleanedJetsVar("puppitau1")),
+      tr->getVec<float>(UseCleanedJetsVar("puppitau2")),
+      tr->getVec<float>(UseCleanedJetsVar("puppitau3")),
+      tr->getVec<float>(UseCleanedJetsVar("puppisoftDropMass")),
+      tr->getVec<TLorentzVector>(UseCleanedJetsVar("puppiSubJetsLVec")));
   if (WMassCorFile != NULL)
   {
     myConstAK8Inputs.setWMassCorrHistos (puppisd_corrGEN     , puppisd_corrRECO_cen, puppisd_corrRECO_for);
@@ -705,9 +694,9 @@ bool BaselineVessel::FlagAK8Jets()
 // ===========================================================================
 bool BaselineVessel::FlagDeepAK8Jets()
 {
-  const std::vector<TLorentzVector> &ak8s =  tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec"));
-  const std::vector<float> &btops =  tr->getVec<float>(UseNoLepVar("deepAK8btop"));
-  const std::vector<float> &bWs =  tr->getVec<float>(UseNoLepVar("deepAK8bW"));
+  const std::vector<TLorentzVector> &ak8s =  tr->getVec<TLorentzVector>(UseCleanedJetsVar("puppiJetsLVec"));
+  const std::vector<float> &btops =  tr->getVec<float>(UseCleanedJetsVar("deepAK8btop"));
+  const std::vector<float> &bWs =  tr->getVec<float>(UseCleanedJetsVar("deepAK8bW"));
   vAK8Flag = new std::vector<unsigned>(ak8s.size(), NoTag);
   
   std::vector<TLorentzVector> topjets;
@@ -791,7 +780,7 @@ AK8Flag BaselineVessel::FlagAK8DeepFromCSV(unsigned int AK8index) const
   unsigned loosebcnt =0 ;
   unsigned mediumbcnt = 0;
 
-  const std::vector<std::vector<TLorentzVector> > &subjets = tr->getVec<std::vector<TLorentzVector> >(UseNoLepVar("puppiAK8SubjetLVec"));
+  const std::vector<std::vector<TLorentzVector> > &subjets = tr->getVec<std::vector<TLorentzVector> >(UseCleanedJetsVar("puppiAK8SubjetLVec"));
   const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
   const std::vector<float> &CSV = tr->getVec<float>(CSVVecLabel);
 
@@ -887,7 +876,7 @@ AK8Flag BaselineVessel::FlagAK8FromTagger(Constituent &ak8 )
 // ===========================================================================
 bool BaselineVessel::GetWAlone() const
 {
-  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec"));
+  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseCleanedJetsVar("puppiJetsLVec"));
   std::vector<TLorentzVector> *WAlone= new std::vector<TLorentzVector>();
   for(unsigned int i=0; i < vAK8Flag->size(); ++i)
   {
@@ -908,7 +897,7 @@ bool BaselineVessel::GetWAlone() const
 // ===========================================================================
 bool BaselineVessel::GetISRJet() const
 {
-  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseNoLepVar("puppiJetsLVec"));
+  const std::vector<TLorentzVector> &AK8 = tr->getVec<TLorentzVector>(UseCleanedJetsVar("puppiJetsLVec"));
   std::vector<TLorentzVector> *ISRJet = new std::vector<TLorentzVector>();
   std::map<float, TLorentzVector> ISRJetAll;
 
@@ -1225,14 +1214,14 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 bool BaselineVessel::CombDeepCSV()
 {
   std::vector<float> *DeepCSVcomb = new std::vector<float>();
-  const std::vector<float> &DeepCSVb = tr->getVec<float>(UseNoPhotonVar(UseNoLepVar("DeepCSVb")));
-  const std::vector<float> &DeepCSVbb = tr->getVec<float>(UseNoPhotonVar(UseNoLepVar("DeepCSVbb")));
+  const std::vector<float> &DeepCSVb = tr->getVec<float>(UseCleanedJetsVar("DeepCSVb"));
+  const std::vector<float> &DeepCSVbb = tr->getVec<float>(UseCleanedJetsVar("DeepCSVbb"));
   for (int i = 0; i < DeepCSVb.size(); ++i)
   {
     DeepCSVcomb->push_back(DeepCSVb.at(i)+ DeepCSVbb.at(i));
   }
 
-  tr->registerDerivedVec(UseNoPhotonVar(UseNoLepVar("DeepCSVcomb")), DeepCSVcomb);
+  tr->registerDerivedVec(UseCleanedJetsVar("DeepCSVcomb"), DeepCSVcomb);
   return true;
 }       // -----  end of function BaselineVessel::CombDeepCSV  -----
 

@@ -94,8 +94,7 @@ public:
     BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");
     ~BaselineVessel();
 
-    inline std::string UseNoLepVar(std::string varname) const;
-    inline std::string UseNoPhotonVar(std::string varname) const;
+    inline std::string UseCleanedJetsVar(std::string varname) const;
     void PassBaseline();
     bool PrintoutConfig() const;
     bool CompCommonVar();
