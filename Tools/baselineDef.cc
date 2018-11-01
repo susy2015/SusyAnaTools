@@ -17,7 +17,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   incZEROtop            = false;
   UseLepCleanJet        = false;
   UsePhotonCleanJet     = false;
-  UseDeepTagger         = true;
+  UseDeepTagger         = false;
   UseDeepCSV            = true;
   eraLabel              = "2016MC";
   jetVecLabel           = "jetsLVec";
@@ -265,7 +265,7 @@ void BaselineVessel::prepareTopTagger()
   tr->registerDerivedVec("qgLikelihood_forTagger" + firstSpec, qgLikelihood_forTagger);
 
   
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ New TopTagger ~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ New TopTagger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // top tagger
     //construct vector of constituents 
     ttUtility::ConstAK4Inputs<float> myConstAK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger, *qgLikelihood_forTagger);
@@ -275,7 +275,7 @@ void BaselineVessel::prepareTopTagger()
         tr->getVec<float>(UseCleanedJetsVar("puppitau2")),
         tr->getVec<float>(UseCleanedJetsVar("puppitau3")),
         tr->getVec<float>(UseCleanedJetsVar("puppisoftDropMass")),
-        tr->getVec<TLorentzVector>(UseCleanedJetsVar("puppiSubJetsLVec")));
+        tr->getVec<std::vector<TLorentzVector>>(UseCleanedJetsVar("puppiAK8SubjetLVec")));
     if (WMassCorFile != NULL)
     {
       myConstAK8Inputs.setWMassCorrHistos (puppisd_corrGEN     , puppisd_corrRECO_cen, puppisd_corrRECO_for);
@@ -662,7 +662,7 @@ bool BaselineVessel::FlagAK8Jets()
       tr->getVec<float>(UseCleanedJetsVar("puppitau2")),
       tr->getVec<float>(UseCleanedJetsVar("puppitau3")),
       tr->getVec<float>(UseCleanedJetsVar("puppisoftDropMass")),
-      tr->getVec<TLorentzVector>(UseCleanedJetsVar("puppiSubJetsLVec")));
+      tr->getVec<std::vector<TLorentzVector>>(UseCleanedJetsVar("puppiAK8SubjetLVec")));
   if (WMassCorFile != NULL)
   {
     myConstAK8Inputs.setWMassCorrHistos (puppisd_corrGEN     , puppisd_corrRECO_cen, puppisd_corrRECO_for);

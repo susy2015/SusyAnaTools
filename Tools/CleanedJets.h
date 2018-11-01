@@ -141,6 +141,9 @@ public:
                              "puppiJetsLVec",              
                              "puppiAK8SubjetLVec",              
                              "puppisoftDropMass",              
+                             "puppitau1",
+                             "puppitau2",
+                             "puppitau3",
                              "deepAK8btop",              
                              "deepAK8bW"
                            };
