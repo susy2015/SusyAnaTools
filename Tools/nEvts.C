@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
     if(getNegWeights)
         std::cout << "Will compute negative weight fraction" << std::endl;
     
-    AnaSamples::SampleSet        ss("sampleSets_v1.cfg");
-    AnaSamples::SampleCollection sc("sampleCollections_v1.cfg", ss);
+    AnaSamples::SampleSet        ss("sampleSets.cfg");
+    AnaSamples::SampleCollection sc("sampleCollections.cfg", ss);
 
     std::string selKeyStr;
     if(argc >= optind+1)
@@ -82,16 +82,12 @@ int main(int argc, char *argv[])
         //    std::cout << "DIFFERENT:\t";
         //std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << nEntries << "\twas: " << file.second.nEvts  << std::endl;
 
-        if(getNegWeights)
-        {
-
-            TH1* h3 = new TH1D("h3", "h3", 2, -100000, 100000);
+        TH1* h3 = new TH1D("h3", "h3", 2, -100000, 100000);
             
-            t->Draw("stored_weight>>h3", "stored_weight", "goff");
-            std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << "Neg weigths = " << int(h3->GetBinContent(1)) << ", Pos weights = " << int(h3->GetBinContent(2)) << std::endl;
-            // delete TH1* to avoid memory leaks / save memory / not crash / be safe
-            delete h3;
-        }
+        t->Draw("stored_weight>>h3", "1", "goff");
+        std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << "Neg weigths = " << int(h3->GetBinContent(1)) << ", Pos weights = " << int(h3->GetBinContent(2)) << std::endl;
+        // delete TH1* to avoid memory leaks / save memory / not crash / be safe
+        delete h3;
         // delete TChain* to avoid memory leaks / save memory / not crash / be safe
         delete t;
     }   

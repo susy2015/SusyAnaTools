@@ -1585,7 +1585,7 @@ bool BaselineVessel::CompCommonVar()
    {
      discmap[bdisc[idx]] = idx;
    }
-   float mtb = 999;
+   float mtb = 99999;
    float ptb = 0;
    unsigned cnt = 0;
 
@@ -1597,7 +1597,7 @@ bool BaselineVessel::CompCommonVar()
      cnt ++;
      if (cnt == 2) break;
    }
-   if (mtb == 999) mtb=0;
+   if (mtb == 99999) mtb=0;
 
    for (unsigned i = 0; i < vBjs->size() && i < 2; ++i)
    {
