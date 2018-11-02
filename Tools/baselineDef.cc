@@ -207,15 +207,6 @@ void BaselineVessel::prepareDeepTopTagger()
 
   // ----- AK8 Jets -----
 
-  // AK8 jet variables
-  //std::vector<std::string> AK8JetVariables_ = {
-  //                                              "puppiAK8SubjetLVec",              
-  //                                              "puppisoftDropMass",              
-  //                                              "deepAK8btop",              
-  //                                              "deepAK8bW"
-  //                                             };
-  
-
   const std::vector<TLorentzVector>              &AK8JetLV           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
   const std::vector<float>                       &AK8JetSoftdropMass = tr->getVec<float>(UseCleanedJetsVar("puppisoftDropMass"));
   const std::vector<float>                       &AK8JetDeepAK8Top   = tr->getVec<float>(UseCleanedJetsVar("deepAK8btop"));
