@@ -1711,13 +1711,13 @@ void stopFunctions::CleanJets::setJecScaleRawToFull(std::string jecScaleRawToFul
 
 
 //Private
-int stopFunctions::CleanJets::cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<float>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<float>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const float& jldRMax, const float photoCleanThresh)
+int stopFunctions::CleanJets::cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<float>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<float>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const float& jldRMax, std::vector<float>* dRvec, const float photoCleanThresh)
 {
   int match = lepMatchedJetIdx;
   if(match < 0)
   {
     //If muon matching to PF candidate has failed, use dR matching as fallback
-    match = AnaFunctions::jetObjectdRMatch(lep, jetsLVec, jldRMax);
+    match = AnaFunctions::jetObjectdRMatch(lep, jetsLVec, jldRMax, dRvec);
   }
 
   if(match >= 0)
@@ -1766,6 +1766,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   const std::vector<int>&            eleMatchedJetIdx           = tr.getVec<int>("eleMatchedJetIdx");
   const std::vector<unsigned int>&   elesisEB                   = tr.getVec<unsigned int>("elesisEB");
   const std::vector<float>&          recoJetsJecScaleRawToFull  = recoJetsJecScaleRawToFullLabel_.empty()? std::vector<float>(jetsLVec.size(), 1):tr.getVec<float>(recoJetsJecScaleRawToFullLabel_.c_str());
+  std::vector<float>* dRvec = new std::vector<float>();
 
   const unsigned int& run   = tr.getVar<unsigned int>("run");
   const unsigned int& lumi  = tr.getVar<unsigned int>("lumi");
@@ -1823,8 +1824,8 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
       }
 
       int match = -1;
-      if(forceDr_) match = cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
-      else         match = cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, photoCleanThresh_);
+      if(forceDr_) match = cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec, photoCleanThresh_);
+      else         match = cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec, photoCleanThresh_);
 
       if( match >= 0 ) rejectJetIdx_formuVec->push_back(match);
       else rejectJetIdx_formuVec->push_back(-1);
@@ -1842,8 +1843,8 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
       }
 
       int match = -1;
-      if(forceDr_) match = cleanLeptonFromJet(elesLVec[iE],                   -1, jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
-      else         match = cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax);
+      if(forceDr_) match = cleanLeptonFromJet(elesLVec[iE],                   -1, jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec);
+      else         match = cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec);
 
       if( match >= 0 ) rejectJetIdx_foreleVec->push_back(match);
       else rejectJetIdx_foreleVec->push_back(-1);
@@ -1891,6 +1892,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   }
 
   tr.registerDerivedVar("nJetsRemoved", static_cast<int>(jetsLVec.size() - jetsKept));
+  tr.registerDerivedVar("dRjetsAndLeptons", dRvec);
   tr.registerDerivedVar("cleanHt", HT);
   tr.registerDerivedVar("cleanMHt", MHT.Pt());
   tr.registerDerivedVar("cleanMHtPhi", MHT.Phi());

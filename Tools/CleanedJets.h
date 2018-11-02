@@ -65,6 +65,7 @@ private:
     {
         const auto& gammaLVec = tr_->getVec<TLorentzVector>("gammaLVecPassLooseID");      // selected reco photon
         const auto& jetsLVec  = tr_->getVec<TLorentzVector>(prefix + jetCollectionLVec);  // jet lorentz vector
+        std::vector<float>* dRvec = new std::vector<float>();
         const float dRMax = 0.15; // dR between photon and jet
         // loop over photons
         // determine which jets to keep
@@ -72,7 +73,7 @@ private:
         for (int i = 0; i < gammaLVec.size(); ++i)
         {
             //jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax)
-            int match = AnaFunctions::jetObjectdRMatch(gammaLVec[i], jetsLVec, dRMax);
+            int match = AnaFunctions::jetObjectdRMatch(gammaLVec[i], jetsLVec, dRMax, dRvec);
             if (match >= 0) keepJet[match] = false;
         }
         
@@ -100,6 +101,8 @@ private:
                 cleanVector<float>(prefix + jetVariable, keepJet);
             }
         }
+        // dR between jets and photon
+        tr_->registerDerivedVec("dRjetsAndPhoton", dRvec);
     }
 
 public:

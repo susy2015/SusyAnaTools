@@ -319,7 +319,7 @@ namespace AnaFunctions
   }
 
   // match dR between jet and object (photon, lepton, etc)
-  int jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax)
+  int jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax, std::vector<float>* dRvec)
   {
     float dRmin = 999.0;
     int minJMatch = -1;
@@ -327,6 +327,7 @@ namespace AnaFunctions
     for(int iJet = 0; iJet < jetsLVec.size(); ++iJet)
     {
       float dR = ROOT::Math::VectorUtil::DeltaR(jetsLVec[iJet], object);
+      if (dRvec) dRvec->push_back(dR);
       if(dR < dRmin)
       {
         dRmin = dR;
