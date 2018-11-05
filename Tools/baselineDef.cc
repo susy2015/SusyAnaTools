@@ -314,6 +314,30 @@ bool BaselineVessel::PredefineSpec()
     doEleVeto = false; 
     doIsoTrksVeto = false;
   }
+  else if (spec.compare("NoVeto") == 0)
+  {
+    UseLepCleanJet    = false;
+    UsePhotonCleanJet = false;
+    doMuonVeto  = false;
+    doEleVeto   = false;
+    doIsoTrksVeto = false;
+  }
+  else if (spec.compare("NoLepton") == 0)
+  {
+    UseLepCleanJet    = true;
+    UsePhotonCleanJet = false;
+    doMuonVeto  = false;
+    doEleVeto   = false;
+    doIsoTrksVeto = false;
+  }
+  else if (spec.compare("NoPhoton") == 0)
+  {
+    UseLepCleanJet    = false;
+    UsePhotonCleanJet = true;
+    doMuonVeto  = false;
+    doEleVeto   = false;
+    doIsoTrksVeto = false;
+  }
   else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
     //jetVecLabel = "prodJetsNoLep_jetsLVec";

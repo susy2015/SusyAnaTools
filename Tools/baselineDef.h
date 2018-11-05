@@ -39,7 +39,7 @@ private:
     TF1   *puppisd_corrRECO_cen;
     TF1   *puppisd_corrRECO_for;
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
+//~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~~~~~~~~~~~~~~
     std::shared_ptr<TopTagger> ttPtr;
 
     //  container
@@ -59,7 +59,7 @@ private:
 
 public:
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Member ~~~~~
+//~~~~~~~~~~~~~~~~~~ Member ~~~~~~~~~~~~~~~~~~
     int  bToFake;
     bool debug;
     bool incZEROtop;
