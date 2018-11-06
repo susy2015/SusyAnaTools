@@ -18,7 +18,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   UseLepCleanJet        = false;
   UsePhotonCleanJet     = false;
   UseDeepTagger         = true;
-  UseDeepCSV            = true;
+  UseDeepCSV            = false;
   eraLabel              = "2016MC";
   jetVecLabel           = "jetsLVec";
   CSVVecLabel           = "recoJetsCSVv2";
@@ -1233,7 +1233,8 @@ bool BaselineVessel::CombDeepCSV()
   const std::vector<float> &DeepCSVbb = tr->getVec<float>(UseCleanedJetsVar("DeepCSVbb"));
   for (int i = 0; i < DeepCSVb.size(); ++i)
   {
-    DeepCSVcomb->push_back(DeepCSVb.at(i)+ DeepCSVbb.at(i));
+    //printf("DEBUG: DeepCSVb.at(%d) + DeepCSVbb.at(%d) = %f + %f = %f\n", i, i, DeepCSVb.at(i), DeepCSVbb.at(i), DeepCSVb.at(i) + DeepCSVbb.at(i));
+    DeepCSVcomb->push_back(DeepCSVb.at(i) + DeepCSVbb.at(i));
   }
 
   tr->registerDerivedVec(UseCleanedJetsVar("DeepCSVcomb"), DeepCSVcomb);
