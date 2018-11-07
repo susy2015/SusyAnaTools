@@ -344,10 +344,10 @@ bool BaselineVessel::PredefineSpec()
     //CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
     //METLabel    = "cleanMetPt";
     //METPhiLabel = "cleanMetPhi";
-    //jetVecLabel = "jetsLVec_NoPhoton";
-    //CSVVecLabel = "recoJetsCSVv2_NoPhoton";
-    //METLabel    = "met";
-    //METPhiLabel = "metphi";
+    jetVecLabel = "jetsLVec_NoPhoton";
+    CSVVecLabel = "recoJetsCSVv2_NoPhoton";
+    METLabel    = "metWithPhoton";
+    METPhiLabel = "metphiWithPhoton";
     UseLepCleanJet    = false;
     UsePhotonCleanJet = true;
     doMuonVeto  = false;
