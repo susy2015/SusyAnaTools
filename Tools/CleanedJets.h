@@ -66,7 +66,7 @@ private:
         const auto& gammaLVec = tr_->getVec<TLorentzVector>("gammaLVecPassLooseID");      // selected reco photon
         const auto& jetsLVec  = tr_->getVec<TLorentzVector>(prefix + jetCollectionLVec);  // jet lorentz vector
         std::vector<float>* dRvec = new std::vector<float>();
-        const float dRMax = 0.15; // dR between photon and jet
+        const float dRMax = 0.20; // dR between photon and jet
         // loop over photons
         // determine which jets to keep
         std::vector<bool> keepJet(jetsLVec.size(), true);
