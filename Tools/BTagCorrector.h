@@ -25,7 +25,7 @@ class BTagCorrectorTemplate
 {
 public:
     //constructor
-    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT", std::string myVarSuffix = "") : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL), myVarSuffix_(myVarSuffix)
+    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL), MCBranch("genDecayPdgIdVec"), JetsVec("jetsLVec"), BJetsVec("recoJetsCSVv2"), JetsFlavor("recoJetsFlavor")
     {
         //Stops unwanted segfaults.
         TH1::AddDirectory(false);
@@ -55,7 +55,7 @@ public:
         }
     }
 
-    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT", std::string myVarSuffix = "") : BTagCorrectorTemplate(file,CSVFilePath,"CSVv2_Moriond17_B_H.csv",isFastSim,suffix,myVarSuffix)
+    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : BTagCorrectorTemplate(file,CSVFilePath,"CSVv2_Moriond17_B_H.csv",isFastSim,suffix)
     {
     }
 
@@ -135,26 +135,12 @@ public:
 	readerFastDown = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "down");
 	readerFastDown.load(calibFast, BTagEntry::FLAV_B, "fastsim"); readerFastDown.load(calibFast, BTagEntry::FLAV_C, "fastsim");  readerFastDown.load(calibFast, BTagEntry::FLAV_UDSG, "fastsim"); 	
     }
-    void SetTreeNames(const NTupleReader& tr)
+    void SetVarNames(std::string MCBranchName, std::string JetsVecName, std::string BJetsVecName, std::string JetsFlavorName)
     {
-        //Switch based on which nTuples are used
-
-        //For stop group's nTuples
-        if(tr.checkBranch("met"))
-        {
-            isData = (tr.checkBranch("genDecayPdgIdVec")) ? false : true;
-            JetsVec = "jetsLVec";
-            BJetsVec = "recoJetsCSVv2";
-            JetsFlavor = "recoJetsFlavor";
-        }
-        //For stealth group's nTuples
-        else if(tr.checkBranch("MET"))
-        {
-            isData = (tr.checkBranch("GenParticles_PdgId")) ? false : true;
-            JetsVec = "Jets"+myVarSuffix_;
-            BJetsVec = "Jets"+myVarSuffix_+"_bDiscriminatorCSV";
-            JetsFlavor = "Jets"+myVarSuffix_+"_partonFlavor";
-        }
+        MCBranch = MCBranchName;
+        JetsVec = JetsVecName;
+        BJetsVec = BJetsVecName;
+        JetsFlavor = JetsFlavorName;
     }
     
     void SetBtagSFunc(int u) { btagSFunc = u; }
@@ -401,7 +387,7 @@ public:
     void registerVarToNTuples(NTupleReader& tr)
     {
         //Check if this is data
-        if( isData ) return;
+        if( (tr.checkBranch(MCBranch)) ? false : true ) return;
         const auto& inputJets = tr.getVec<TLorentzVector>(JetsVec);
         const auto& recoJetsBtag = tr.getVec<data_t>(BJetsVec);
         const auto& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
@@ -511,12 +497,11 @@ public:
     //Operator
     void operator()(NTupleReader& tr)
     {
-        SetTreeNames(tr);
         registerVarToNTuples(tr);
     }
 
     //member variables
-    bool debug, fastsim, isData;
+    bool debug, fastsim;
     int btagSFunc, mistagSFunc;
     int btagCFunc, ctagCFunc, mistagCFunc;
     BTagCalibration calib, calibFast;
@@ -524,8 +509,7 @@ public:
     BTagCalibrationReader readerFast, readerFastUp, readerFastDown;
     TH2F *h_eff_b, *h_eff_c, *h_eff_udsg;
     TFile *inFile;
-    std::string JetsVec, BJetsVec, JetsFlavor;
-    std::string myVarSuffix_;
+    std::string MCBranch, JetsVec, BJetsVec, JetsFlavor;
 };
 
 //Team hack to keep name the same for people down stream
@@ -533,8 +517,8 @@ class BTagCorrector: public BTagCorrectorTemplate<float>
 {
   public:
     // constructors with float as default
-    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT", std::string myVarSuffix = "") : BTagCorrectorTemplate<float>(file, CSVFilePath, CSVFile, isFastSim, suffix, myVarSuffix){};
-    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT", std::string myVarSuffix = "") : BTagCorrectorTemplate<float>(file,CSVFilePath,"CSVv2_Moriond17_B_H.csv",isFastSim,suffix, myVarSuffix){};
+    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : BTagCorrectorTemplate<float>(file, CSVFilePath, CSVFile, isFastSim, suffix){};
+    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : BTagCorrectorTemplate<float>(file,CSVFilePath,"CSVv2_Moriond17_B_H.csv",isFastSim,suffix){};
 };
 
 #endif
