@@ -73,8 +73,10 @@ namespace AnaSamples
         // modify weights of sample 1
         for (int i = 0; i < sampleTags1.size(); i++)
         {
-            FileSummary fs = sampleSet_[sampleTags1[i]];
+            // use reference to change object
+            FileSummary& fs = sampleSet_[sampleTags1[i]];
             fs.setWeight(xsec_ratio * fs.getWeight());
+            //sampleSet_[sampleTags1[i]] = fs;
         }
     }
 
