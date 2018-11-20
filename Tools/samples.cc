@@ -45,43 +45,36 @@ namespace AnaSamples
     }
 
     // modify weights to compare two MC samples
-    void SampleSet::modifyWeights(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2, std::vector<bool>& matchingTags1)
+    void SampleSet::modifyWeights(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2)
     {
-        if (sampleTags1.size() != matchingTags1.size())
+        double sum_xsec1 = 0.0;
+        double sum_xsec2 = 0.0;
+        // add sample 1 cross sections
+        for (int i = 0; i < sampleTags1.size(); i++)
         {
-            std::cout << "ERROR: sampleTags1 and matchingTags1 need to be the same size" << std::endl;
-            return;
+            FileSummary fs = sampleSet_[sampleTags1[i]];
+            double xsec = fs.kfactor * fs.xsec;
+            sum_xsec1 += xsec;
+            printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
         }
-        int nSamples = sampleTags1.size();
-        int nMatching = 0;
-        double sum_xsec_ratios = 0.0;
-        for (int i = 0; i < nSamples; i++)
+        // add sample 2 cross sections
+        for (int i = 0; i < sampleTags2.size(); i++)
         {
-            // if the samples have a matching range, add the cross section ratios to calculate average factor
-            if (matchingTags1[i])
-            {
-                FileSummary fs1 = sampleSet_[sampleTags1[i]];
-                FileSummary fs2 = sampleSet_[sampleTags2[i]];
-                
-                double xsec_ratio = (fs2.xsec * fs2.kfactor) / (fs1.xsec * fs1.kfactor);
-                sum_xsec_ratios += xsec_ratio;
-                nMatching += 1;
-
-                printf("%s / %s xsec_ratio = %f\n", fs2.tag.c_str(), fs1.tag.c_str(), xsec_ratio);
-            }
+            FileSummary fs = sampleSet_[sampleTags2[i]];
+            double xsec = fs.kfactor * fs.xsec;
+            sum_xsec2 += xsec;
+            printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
         }
-        if (nMatching == 0)
+        // calculate cross section ratio
+        double xsec_ratio = sum_xsec2 / sum_xsec1;
+        printf("k * sum_xsec1 = %f\n", sum_xsec1);
+        printf("k * sum_xsec2 = %f\n", sum_xsec2);
+        printf("xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
+        // modify weights of sample 1
+        for (int i = 0; i < sampleTags1.size(); i++)
         {
-            std::cout << "ERROR: No matches found in matchingTags1. Please include at least one match (true)." << std::endl;
-            return;
-        }
-        // calculate average cross section ratio
-        double ave_xsec_ratio = sum_xsec_ratios / double(nMatching);
-        printf("ave_xsec_ratio = %f\n", ave_xsec_ratio);
-        for (int i = 0; i < nSamples; i++)
-        {
-            FileSummary fs1 = sampleSet_[sampleTags1[i]];
-            fs1.setWeight(ave_xsec_ratio * fs1.getWeight());
+            FileSummary fs = sampleSet_[sampleTags1[i]];
+            fs.setWeight(xsec_ratio * fs.getWeight());
         }
     }
 

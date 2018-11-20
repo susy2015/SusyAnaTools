@@ -162,7 +162,7 @@ namespace AnaSamples
     }
     
     // modify weights to compare two MC samples
-    void modifyWeights(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2, std::vector<bool>& matchingTags);
+    void modifyWeights(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2);
 
    private:
     std::string fDir_;
