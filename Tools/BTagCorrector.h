@@ -25,7 +25,7 @@ class BTagCorrectorTemplate
 {
 public:
     //constructor
-    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL) 
+    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT", std::string myVarSuffix = "") : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL), myVarSuffix_(myVarSuffix)
     {
         //Stops unwanted segfaults.
         TH1::AddDirectory(false);
@@ -55,7 +55,7 @@ public:
         }
     }
 
-    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : BTagCorrectorTemplate(file,CSVFilePath,"CSVv2_Moriond17_B_H.csv",isFastSim,suffix)
+    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT", std::string myVarSuffix = "") : BTagCorrectorTemplate(file,CSVFilePath,"CSVv2_Moriond17_B_H.csv",isFastSim,suffix,myVarSuffix)
     {
     }
 
@@ -151,9 +151,9 @@ public:
         else if(tr.checkBranch("MET"))
         {
             isData = (tr.checkBranch("GenParticles_PdgId")) ? false : true;
-            JetsVec = "Jets";
-            BJetsVec = "Jets_bDiscriminatorCSV";
-            JetsFlavor = "Jets_partonFlavor";
+            JetsVec = "Jets"+myVarSuffix_;
+            BJetsVec = "Jets"+myVarSuffix_+"_bDiscriminatorCSV";
+            JetsFlavor = "Jets"+myVarSuffix_+"_partonFlavor";
         }
     }
     
@@ -525,6 +525,7 @@ public:
     TH2F *h_eff_b, *h_eff_c, *h_eff_udsg;
     TFile *inFile;
     std::string JetsVec, BJetsVec, JetsFlavor;
+    std::string myVarSuffix_;
 };
 
 //Team hack to keep name the same for people down stream
@@ -532,8 +533,8 @@ class BTagCorrector: public BTagCorrectorTemplate<float>
 {
   public:
     // constructors with float as default
-    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : BTagCorrectorTemplate<float>(file, CSVFilePath, CSVFile, isFastSim, suffix){};
-    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : BTagCorrectorTemplate<float>(file,CSVFilePath,"CSVv2_Moriond17_B_H.csv",isFastSim,suffix){};
+    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT", std::string myVarSuffix = "") : BTagCorrectorTemplate<float>(file, CSVFilePath, CSVFile, isFastSim, suffix, myVarSuffix){};
+    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT", std::string myVarSuffix = "") : BTagCorrectorTemplate<float>(file,CSVFilePath,"CSVv2_Moriond17_B_H.csv",isFastSim,suffix, myVarSuffix){};
 };
 
 #endif
