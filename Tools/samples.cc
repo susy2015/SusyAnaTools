@@ -19,6 +19,7 @@ namespace AnaSamples
             filePathAndName = fileName;
         }
 
+        std::cout << "In FileSummary::readFileList(): filePathAndName = " << filePathAndName << std::endl;
         FILE *f = fopen(filePathAndName.c_str(), "r");
         char buff[1024];
         if(f)
@@ -30,7 +31,7 @@ namespace AnaSamples
             }
             fclose(f);
         }
-        else std::cout << "Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
+        else std::cout << "In FileSummary::readFileList(): Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
     }
 
     void FileSummary::addCollection(const std::string& colName)
@@ -41,6 +42,47 @@ namespace AnaSamples
     std::map<std::string, FileSummary>& SampleSet::getMap()
     {
         return sampleSet_;
+    }
+
+    // modify weights to compare two MC samples
+    void SampleSet::modifyWeights(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2, std::vector<bool>& matchingTags1)
+    {
+        if (sampleTags1.size() != matchingTags1.size())
+        {
+            std::cout << "ERROR: sampleTags1 and matchingTags1 need to be the same size" << std::endl;
+            return;
+        }
+        int nSamples = sampleTags1.size();
+        int nMatching = 0;
+        double sum_xsec_ratios = 0.0;
+        for (int i = 0; i < nSamples; i++)
+        {
+            // if the samples have a matching range, add the cross section ratios to calculate average factor
+            if (matchingTags1[i])
+            {
+                FileSummary fs1 = sampleSet_[sampleTags1[i]];
+                FileSummary fs2 = sampleSet_[sampleTags2[i]];
+                
+                double xsec_ratio = (fs2.xsec * fs2.kfactor) / (fs1.xsec * fs1.kfactor);
+                sum_xsec_ratios += xsec_ratio;
+                nMatching += 1;
+
+                printf("%s / %s xsec_ratio = %f\n", fs2.tag.c_str(), fs1.tag.c_str(), xsec_ratio);
+            }
+        }
+        if (nMatching == 0)
+        {
+            std::cout << "ERROR: No matches found in matchingTags1. Please include at least one match (true)." << std::endl;
+            return;
+        }
+        // calculate average cross section ratio
+        double ave_xsec_ratio = sum_xsec_ratios / double(nMatching);
+        printf("ave_xsec_ratio = %f\n", ave_xsec_ratio);
+        for (int i = 0; i < nSamples; i++)
+        {
+            FileSummary fs1 = sampleSet_[sampleTags1[i]];
+            fs1.setWeight(ave_xsec_ratio * fs1.getWeight());
+        }
     }
 
     bool SampleSet::parseCfgLine(const char* buf)
