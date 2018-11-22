@@ -388,7 +388,7 @@ public:
     void registerVarToNTuples(NTupleReader& tr)
     {
         //Check if this is data
-        if( (tr.checkBranch(MCBranch)) ? false : true ) return;
+        if( !tr.checkBranch(MCBranch) ) return;
         const auto& inputJets = tr.getVec<TLorentzVector>(JetsVec);
         const auto& recoJetsBtag = tr.getVec<data_t>(BJetsVec);
         const auto& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
