@@ -25,7 +25,7 @@ class BTagCorrectorTemplate
 {
 public:
     //constructor
-    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL) 
+    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL), MCBranch("genDecayPdgIdVec"), JetsVec("jetsLVec"), BJetsVec("recoJetsCSVv2"), JetsFlavor("recoJetsFlavor"), myVarSuffix_("")
     {
         //Stops unwanted segfaults.
         TH1::AddDirectory(false);
@@ -135,26 +135,13 @@ public:
 	readerFastDown = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "down");
 	readerFastDown.load(calibFast, BTagEntry::FLAV_B, "fastsim"); readerFastDown.load(calibFast, BTagEntry::FLAV_C, "fastsim");  readerFastDown.load(calibFast, BTagEntry::FLAV_UDSG, "fastsim"); 	
     }
-    void SetTreeNames(const NTupleReader& tr)
+    void SetVarNames(std::string MCBranchName, std::string JetsVecName, std::string BJetsVecName, std::string JetsFlavorName, std::string myVarSuffix = "")
     {
-        //Switch based on which nTuples are used
-
-        //For stop group's nTuples
-        if(tr.checkBranch("met"))
-        {
-            isData = (tr.checkBranch("genDecayPdgIdVec")) ? false : true;
-            JetsVec = "jetsLVec";
-            BJetsVec = "recoJetsCSVv2";
-            JetsFlavor = "recoJetsFlavor";
-        }
-        //For stealth group's nTuples
-        else if(tr.checkBranch("MET"))
-        {
-            isData = (tr.checkBranch("GenParticles_PdgId")) ? false : true;
-            JetsVec = "Jets";
-            BJetsVec = "Jets_bDiscriminatorCSV";
-            JetsFlavor = "Jets_partonFlavor";
-        }
+        MCBranch = MCBranchName;
+        JetsVec = JetsVecName;
+        BJetsVec = BJetsVecName;
+        JetsFlavor = JetsFlavorName;
+        myVarSuffix_ = myVarSuffix;
     }
     
     void SetBtagSFunc(int u) { btagSFunc = u; }
@@ -401,7 +388,7 @@ public:
     void registerVarToNTuples(NTupleReader& tr)
     {
         //Check if this is data
-        if( isData ) return;
+        if( !tr.checkBranch(MCBranch) ) return;
         const auto& inputJets = tr.getVec<TLorentzVector>(JetsVec);
         const auto& recoJetsBtag = tr.getVec<data_t>(BJetsVec);
         const auto& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
@@ -428,11 +415,11 @@ public:
         // Method 1b) in different b-jet mullticipity bins.
         std::vector<data_t> *evtWeightProb_Central = GetCorrections(&inputJets, &recoJetsFlavor);
         //Register derived quantities to nTuples.
-        tr.registerDerivedVar("bTagSF_EventWeightSimple_Central", evtWeightSimple_Central);
+        tr.registerDerivedVar("bTagSF_EventWeightSimple_Central"+myVarSuffix_, evtWeightSimple_Central);
         //evtWeightProb[0] = probability of 0 Btags...... evtWeightProb[3] = probability of 3 Btags
         //put event in each btag bin, weighted by evtWeightprob[0], evtWeightprob[1],
         // evtWeightprob[2], evtWeightprob[3] for nb = 0, 1, 2, 3+
-        tr.registerDerivedVec("bTagSF_EventWeightProb_Central", evtWeightProb_Central);
+        tr.registerDerivedVec("bTagSF_EventWeightProb_Central"+myVarSuffix_, evtWeightProb_Central);
 
 
         /*************************************************/
@@ -448,8 +435,8 @@ public:
             evtWeightSimple_Up= 1.0;
         }
         std::vector<data_t> *evtWeightProb_Up = GetCorrections(&inputJets, &recoJetsFlavor);
-        tr.registerDerivedVar("bTagSF_EventWeightSimple_Up", evtWeightSimple_Up);
-        tr.registerDerivedVec("bTagSF_EventWeightProb_Up", evtWeightProb_Up);
+        tr.registerDerivedVar("bTagSF_EventWeightSimple_Up"+myVarSuffix_, evtWeightSimple_Up);
+        tr.registerDerivedVec("bTagSF_EventWeightProb_Up"+myVarSuffix_, evtWeightProb_Up);
 
 
         /*************************************************/
@@ -465,8 +452,8 @@ public:
             evtWeightSimple_Down= 1.0;
         }
         std::vector<data_t> *evtWeightProb_Down = GetCorrections(&inputJets, &recoJetsFlavor);
-        tr.registerDerivedVar("bTagSF_EventWeightSimple_Down", evtWeightSimple_Down);
-        tr.registerDerivedVec("bTagSF_EventWeightProb_Down", evtWeightProb_Down);
+        tr.registerDerivedVar("bTagSF_EventWeightSimple_Down"+myVarSuffix_, evtWeightSimple_Down);
+        tr.registerDerivedVec("bTagSF_EventWeightProb_Down"+myVarSuffix_, evtWeightProb_Down);
 
    
         /*************************************************/
@@ -482,8 +469,8 @@ public:
             evtWeightSimple_mistag_Up= 1.0;
         }
         std::vector<data_t> *evtWeightProb_mistag_Up =  GetCorrections(&inputJets, &recoJetsFlavor);
-        tr.registerDerivedVar("mistagSF_EventWeightSimple_Up", evtWeightSimple_mistag_Up);
-        tr.registerDerivedVec("mistagSF_EventWeightProb_Up", evtWeightProb_mistag_Up);
+        tr.registerDerivedVar("mistagSF_EventWeightSimple_Up"+myVarSuffix_, evtWeightSimple_mistag_Up);
+        tr.registerDerivedVec("mistagSF_EventWeightProb_Up"+myVarSuffix_, evtWeightProb_mistag_Up);
 
 
         /*************************************************/
@@ -499,8 +486,8 @@ public:
             evtWeightSimple_mistag_Down= 1.0;
         }
         std::vector<data_t> *evtWeightProb_mistag_Down = GetCorrections(&inputJets, &recoJetsFlavor);
-        tr.registerDerivedVar("mistagSF_EventWeightSimple_Down", evtWeightSimple_mistag_Down);
-        tr.registerDerivedVec("mistagSF_EventWeightProb_Down", evtWeightProb_mistag_Down);
+        tr.registerDerivedVar("mistagSF_EventWeightSimple_Down"+myVarSuffix_, evtWeightSimple_mistag_Down);
+        tr.registerDerivedVec("mistagSF_EventWeightProb_Down"+myVarSuffix_, evtWeightProb_mistag_Down);
 
         /*************************************************/
         // Example to use these variables are in
@@ -511,12 +498,11 @@ public:
     //Operator
     void operator()(NTupleReader& tr)
     {
-        SetTreeNames(tr);
         registerVarToNTuples(tr);
     }
 
     //member variables
-    bool debug, fastsim, isData;
+    bool debug, fastsim;
     int btagSFunc, mistagSFunc;
     int btagCFunc, ctagCFunc, mistagCFunc;
     BTagCalibration calib, calibFast;
@@ -524,7 +510,7 @@ public:
     BTagCalibrationReader readerFast, readerFastUp, readerFastDown;
     TH2F *h_eff_b, *h_eff_c, *h_eff_udsg;
     TFile *inFile;
-    std::string JetsVec, BJetsVec, JetsFlavor;
+    std::string MCBranch, JetsVec, BJetsVec, JetsFlavor, myVarSuffix_;
 };
 
 //Team hack to keep name the same for people down stream
