@@ -63,8 +63,9 @@ public:
     int  bToFake;
     bool debug;
     bool incZEROtop;
-    bool UseLepCleanJet;
-    bool UsePhotonCleanJet;
+    bool UseLeptonCleanJet;
+    bool UseDRLeptonCleanJet;
+    bool UseDRPhotonCleanJet;
     bool UseDeepTagger;
     bool UseDeepCSV;
 

@@ -15,8 +15,9 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   bToFake               = 1;
   debug                 = false;
   incZEROtop            = false;
-  UseLepCleanJet        = false;
-  UsePhotonCleanJet     = false;
+  UseLeptonCleanJet     = false;
+  UseDRLeptonCleanJet   = false;
+  UseDRPhotonCleanJet   = false;
   UseDeepTagger         = true;
   UseDeepCSV            = false;
   eraLabel              = "2016MC";
@@ -87,8 +88,9 @@ bool BaselineVessel::UseCleanedJets()
 {
   std::string prefix = "";
   std::string suffix = "";
-  if (UseLepCleanJet)    prefix = "prodJetsNoLep_";
-  if (UsePhotonCleanJet) suffix = "_NoPhoton";
+  if (UseLeptonCleanJet)        prefix = "prodJetsNoLep_";
+  if      (UseDRPhotonCleanJet) suffix = "_drPhotonCleaned";
+  else if (UseDRLeptonCleanJet) suffix = "_drLeptonCleaned";
   jetVecLabel     = prefix + "jetsLVec"      + suffix;
   CSVVecLabel     = prefix + "recoJetsCSVv2" + suffix;
   qgLikehoodLabel = prefix + "qgLikelihood"  + suffix;
@@ -127,8 +129,9 @@ std::string BaselineVessel::UseCleanedJetsVar(std::string varname) const
 {
   std::string prefix = "";
   std::string suffix = "";
-  if (UseLepCleanJet)    prefix = "prodJetsNoLep_";
-  if (UsePhotonCleanJet) suffix = "_NoPhoton";
+  if      (UseLeptonCleanJet)   prefix = "prodJetsNoLep_";
+  if      (UseDRPhotonCleanJet) suffix = "_drPhotonCleaned";
+  else if (UseDRLeptonCleanJet) suffix = "_drLeptonCleaned";
   return prefix + varname + suffix;
 }       // -----  end of function BaselineVessel::UseCleanedJetsVar  -----
 
@@ -316,24 +319,36 @@ bool BaselineVessel::PredefineSpec()
   }
   else if (spec.compare("NoVeto") == 0)
   {
-    UseLepCleanJet    = false;
-    UsePhotonCleanJet = false;
+    UseLeptonCleanJet   = false;
+    UseDRPhotonCleanJet = false;
+    UseDRLeptonCleanJet = false;
     doMuonVeto  = false;
     doEleVeto   = false;
     doIsoTrksVeto = false;
   }
-  else if (spec.compare("NoLepton") == 0)
+  else if (spec.compare("PFLeptonCleaned") == 0)
   {
-    UseLepCleanJet    = true;
-    UsePhotonCleanJet = false;
+    UseLeptonCleanJet   = true;
+    UseDRPhotonCleanJet = false;
+    UseDRLeptonCleanJet = false;
     doMuonVeto  = false;
     doEleVeto   = false;
     doIsoTrksVeto = false;
   }
-  else if (spec.compare("NoPhoton") == 0)
+  else if (spec.compare("DRLeptonCleaned") == 0)
   {
-    UseLepCleanJet    = false;
-    UsePhotonCleanJet = true;
+    UseLeptonCleanJet   = false;
+    UseDRPhotonCleanJet = false;
+    UseDRLeptonCleanJet = true;
+    doMuonVeto  = false;
+    doEleVeto   = false;
+    doIsoTrksVeto = false;
+  }
+  else if (spec.compare("DRPhotonCleaned") == 0)
+  {
+    UseLeptonCleanJet   = false;
+    UseDRPhotonCleanJet = true;
+    UseDRLeptonCleanJet = false;
     doMuonVeto  = false;
     doEleVeto   = false;
     doIsoTrksVeto = false;
@@ -344,12 +359,13 @@ bool BaselineVessel::PredefineSpec()
     //CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
     //METLabel    = "cleanMetPt";
     //METPhiLabel = "cleanMetPhi";
-    jetVecLabel = "jetsLVec_NoPhoton";
-    CSVVecLabel = "recoJetsCSVv2_NoPhoton";
+    jetVecLabel = "jetsLVec_drPhotonCleaned";
+    CSVVecLabel = "recoJetsCSVv2_drPhotonCleaned";
     METLabel    = "metWithPhoton";
     METPhiLabel = "metphiWithPhoton";
-    UseLepCleanJet    = false;
-    UsePhotonCleanJet = true;
+    UseLeptonCleanJet   = false;
+    UseDRPhotonCleanJet = true;
+    UseDRLeptonCleanJet = false;
     doMuonVeto  = false;
     doEleVeto   = false;
     doIsoTrksVeto = false;

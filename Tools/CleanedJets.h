@@ -15,9 +15,11 @@
 #include "SusyAnaTools/Tools/customize.h"
 #include "Math/VectorUtil.h"
 
-#include <vector>
 #include <iostream>
+#include <sstream>
 #include <string>
+#include <vector>
+#include <iterator>
 
 #endif
 
@@ -36,14 +38,16 @@ private:
     {
         //std::cout << "Running CleanedJets.h" << std::endl;
         // clean all variables in jet  collection
-        // cleanJetCollection(std::string jetCollectionLVec, std::vector<TLorentzVector> jetCollectionVariables, std::string prefix)
-        cleanJetCollection("jetsLVec",      AK4JetVariables_, "");
-        cleanJetCollection("jetsLVec",      AK4JetVariables_, "prodJetsNoLep_");
-        cleanJetCollection("puppiJetsLVec", AK8JetVariables_, "");
-        cleanJetCollection("puppiJetsLVec", AK8JetVariables_, "prodJetsNoLep_");
+        // cleanJetCollection(std::string jetCollectionName, std::vector<TLorentzVector> jetCollectionVariables, std::string prefix)
+        cleanJetCollection("jetsLVec",      "gammaLVecPassLooseID", AK4JetVariables_, "",               "_drPhotonCleaned");
+        cleanJetCollection("jetsLVec",      "gammaLVecPassLooseID", AK4JetVariables_, "prodJetsNoLep_", "_drPhotonCleaned");
+        cleanJetCollection("jetsLVec",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned");
+        cleanJetCollection("puppiJetsLVec", "gammaLVecPassLooseID", AK8JetVariables_, "",               "_drPhotonCleaned");
+        cleanJetCollection("puppiJetsLVec", "gammaLVecPassLooseID", AK8JetVariables_, "prodJetsNoLep_", "_drPhotonCleaned");
+        cleanJetCollection("puppiJetsLVec", "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned");
     }
 
-    template <class type> void cleanVector(std::string vectorName, std::vector<bool> keepJet)
+    template <class type> void cleanVector(std::string vectorName, std::vector<bool> keepJet, const std::string& suffix)
     {
         //std::cout << "In cleanVector(): vectorName = " << vectorName << ", type = " << typeid(type).name() << std::endl;
         const auto& vec = tr_->getVec<type>(vectorName); 
@@ -57,24 +61,51 @@ private:
         {
             if (keepJet[i]) cleanedVec->push_back(vec[i]);
         }
-        tr_->registerDerivedVec(vectorName+"_NoPhoton", cleanedVec);
+        tr_->registerDerivedVec(vectorName+suffix, cleanedVec);
+    }
+
+    template<typename T>
+    void split(const std::string &s, const char& delim, T result) {
+        std::stringstream ss;
+        ss.str(s);
+        std::string item;
+        while (std::getline(ss, item, delim))
+        {
+            *(result++) = item;
+        }
+    }
+
+    // return vector of strings given names separated by deliminator, e.g. "electron;muon"
+    std::vector<std::string> getVecFromString(const std::string &s, const char& delim) {
+        if (! delim) std::cout << "ERROR in getVecFromString(): please provide delim" << std::endl;
+        std::vector<std::string> splitString;
+        split(s, delim, std::back_inserter(splitString));
+        return splitString;
     }
 
     // clean all variables in jet  collection
-    void cleanJetCollection(const std::string& jetCollectionLVec, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix)
+    void cleanJetCollection(const std::string& jetCollectionName, const std::string& objectNameString, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix, const std::string& suffix)
     {
-        const auto& gammaLVec = tr_->getVec<TLorentzVector>("gammaLVecPassLooseID");      // selected reco photon
-        const auto& jetsLVec  = tr_->getVec<TLorentzVector>(prefix + jetCollectionLVec);  // jet lorentz vector
+        // vector of vector of TLV
+        // fill with different objects (photons, or muons and leptons)
+        std::vector<std::string> objectNameVec = getVecFromString(objectNameString, ';'); 
+
+        const auto& jetsLVec  = tr_->getVec<TLorentzVector>(prefix + jetCollectionName);  // jet lorentz vector
         std::vector<float>* dRvec = new std::vector<float>();
         const float dRMax = 0.20; // dR between photon and jet
         // loop over photons
         // determine which jets to keep
         std::vector<bool> keepJet(jetsLVec.size(), true);
-        for (int i = 0; i < gammaLVec.size(); ++i)
+        for (const auto& objectName : objectNameVec)
         {
-            //jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax)
-            int match = AnaFunctions::jetObjectdRMatch(gammaLVec[i], jetsLVec, dRMax, dRvec);
-            if (match >= 0) keepJet[match] = false;
+            const auto& objectLVec = tr_->getVec<TLorentzVector>(objectName);
+
+            for (int i = 0; i < objectLVec.size(); ++i)
+            {
+                //jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax)
+                int match = AnaFunctions::jetObjectdRMatch(objectLVec[i], jetsLVec, dRMax, dRvec);
+                if (match >= 0) keepJet[match] = false;
+            }
         }
         
         // clean all variables in jet collection
@@ -83,26 +114,26 @@ private:
             // TLorentzVector
             if (jetVariable.compare("jetsLVec") == 0 || jetVariable.compare("puppiJetsLVec") == 0)
             {
-                cleanVector<TLorentzVector>(prefix + jetVariable, keepJet);
+                cleanVector<TLorentzVector>(prefix + jetVariable, keepJet, suffix);
             }
             // std::vector<TLorentzVector> 
             else if (jetVariable.compare("puppiAK8SubjetLVec") == 0)
             {
-                cleanVector<std::vector<TLorentzVector>>(prefix + jetVariable, keepJet);
+                cleanVector<std::vector<TLorentzVector>>(prefix + jetVariable, keepJet, suffix);
             }
             // int
             else if (jetVariable.compare("qgMult") == 0)
             {
-                cleanVector<int>(prefix + jetVariable, keepJet);
+                cleanVector<int>(prefix + jetVariable, keepJet, suffix);
             }
             // float
             else
             {
-                cleanVector<float>(prefix + jetVariable, keepJet);
+                cleanVector<float>(prefix + jetVariable, keepJet, suffix);
             }
         }
         // dR between jets and photon
-        tr_->registerDerivedVec("dRjetsAndPhoton", dRvec);
+        tr_->registerDerivedVec("dR_" + prefix + jetCollectionName + suffix, dRvec);
     }
 
 public:
