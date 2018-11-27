@@ -98,7 +98,7 @@ bool BaselineVessel::UseCleanedJets()
   if (UseDeepCSV)
   {
     // Note that DeepCSVcomb is a derived variable... but it is derived with cleaned variables 
-    CSVVecLabel           = prefix + "DeepCSVcomb" + suffix;
+    CSVVecLabel   = prefix + "DeepCSVcomb" + suffix;
   }
   return true;
 }       // -----  end of function BaselineVessel::UseCleanedJets  -----
