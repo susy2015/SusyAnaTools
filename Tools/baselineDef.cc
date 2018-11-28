@@ -355,14 +355,14 @@ bool BaselineVessel::PredefineSpec()
   }
   else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
-    //jetVecLabel = "prodJetsNoLep_jetsLVec";
-    //CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
-    //METLabel    = "cleanMetPt";
-    //METPhiLabel = "cleanMetPhi";
-    jetVecLabel = "jetsLVec_drPhotonCleaned";
-    CSVVecLabel = "recoJetsCSVv2_drPhotonCleaned";
-    METLabel    = "metWithPhoton";
-    METPhiLabel = "metphiWithPhoton";
+    jetVecLabel = "prodJetsNoLep_jetsLVec";
+    CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
+    METLabel    = "cleanMetPt";
+    METPhiLabel = "cleanMetPhi";
+    //jetVecLabel = "jetsLVec_drPhotonCleaned";
+    //CSVVecLabel = "recoJetsCSVv2_drPhotonCleaned";
+    //METLabel    = "metWithPhoton";
+    //METPhiLabel = "metphiWithPhoton";
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
