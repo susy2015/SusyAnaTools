@@ -98,6 +98,7 @@ private:
         std::vector<bool> keepJet(jetsLVec.size(), true);
         for (const auto& objectName : objectNameVec)
         {
+            //printf("%s - %s - %s\n", jetCollectionName.c_str(), objectNameString.c_str(), objectName.c_str());
             const auto& objectLVec = tr_->getVec<TLorentzVector>(objectName);
 
             for (int i = 0; i < objectLVec.size(); ++i)
