@@ -13,6 +13,7 @@ class NTupleReader::FuncWrapperImpl<std::function<bool(NTupleReader&)>> : public
 {
 private:
     std::function<bool(NTupleReader&)> func_;
+    
 public:
     bool operator()(NTupleReader& tr)
     {
@@ -313,7 +314,7 @@ void NTupleReader::addAlias(const std::string& name, const std::string& alias)
     }
 }
 
-const void* NTupleReader::getPtr(const std::string& var) const
+void* NTupleReader::getVarPtr(const std::string& var) const
 {
     //This function can be used to return the variable pointer
     try
@@ -323,7 +324,7 @@ const void* NTupleReader::getPtr(const std::string& var) const
         {
             return tuple_iter->second.ptr;
         }
-
+            
         THROW_SATEXCEPTION("NTupleReader::getPtr(...): Variable not found: " + var);
     }
     catch(const SATException& e)
@@ -333,10 +334,14 @@ const void* NTupleReader::getPtr(const std::string& var) const
     }
 }
 
+const void* NTupleReader::getPtr(const std::string& var) const
+{
+    return getVarPtr(var);
+}
+
 const void* NTupleReader::getVecPtr(const std::string& var) const
 {
     //This function can be used to return the variable pointer
-
     try
     {
         auto tuple_iter = branchVecMap_.find(var);
