@@ -271,6 +271,21 @@ public:
         }
     }
 
+    template<typename T> T& createDerivedVar(const std::string& name)
+    {
+        T varTemp;
+        registerDerivedVar(name, varTemp);
+        auto* var = static_cast<T*>(getVarPtr(name));
+        return (*var);
+    }
+
+    template<typename T> std::vector<T>& createDerivedVec(const std::string& name)
+    {
+        std::vector<T>* vec = new std::vector<T>();
+        registerDerivedVec(name, vec);
+        return (*vec);
+    }
+
     void addAlias(const std::string& name, const std::string& alias);
 
     const void* getPtr(const std::string& var) const;
@@ -345,6 +360,8 @@ private:
     void populateBranchList();
     
     void registerBranch(TBranch * const branch) const;
+
+    void* getVarPtr(const std::string& var) const;
 
     bool calculateDerivedVariables();
 
