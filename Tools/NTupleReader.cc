@@ -125,16 +125,19 @@ void NTupleReader::registerBranch(TBranch * const branch) const
 {
     std::string type;
     std::string name(branch->GetName());
-    int NData = 0, leafLength = -1;
+    int leafLength = -1;
+    TLeaf *countLeaf = nullptr;
 
     TObjArray *lol = branch->GetListOfLeaves();
     int lolSize = lol->GetEntries();
+    
     if (lolSize >= 1) 
     {
         TLeaf *leaf = (TLeaf*)lol->UncheckedAt(0);
         type = leaf->GetTypeName();
-        NData = leaf->GetNdata();
         leafLength = leaf->GetLen();
+        //count leaf is set if the branch holds a variable length array
+        countLeaf = leaf->GetLeafCount();
     }
     else
     {
@@ -142,7 +145,7 @@ void NTupleReader::registerBranch(TBranch * const branch) const
     }
 
     //Check if this is an array or singleton (vectors count as singleton)
-    if(leafLength == 1 && NData == 1)
+    if(leafLength == 1 && !countLeaf)
     {
         if(type.find("vector<vector") != std::string::npos)
         {
@@ -207,7 +210,7 @@ void NTupleReader::registerBranch(TBranch * const branch) const
             else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
         }
     }
-    else if(leafLength == 0) //slight hack, but leafLength == 0 always seems true for arrays, but not singletons
+    else if(countLeaf) //if this ptr is non-null then this is a variable length array
     {
         if     (type.find("double")         != std::string::npos) registerArrayBranch<double>(name, branch);
         else if(type.find("unsigned int")   != std::string::npos) registerArrayBranch<unsigned int>(name, branch);
