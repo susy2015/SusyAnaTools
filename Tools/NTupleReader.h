@@ -82,10 +82,10 @@ private:
         virtual void destroy(void *ptr)
         {
             //Delete vector
-            T *vecptr = *static_cast<T**>(ptr);
+            T vecptr = *static_cast<T*>(ptr);
             if(vecptr != nullptr) delete vecptr;
 
-            //depete pointer to vector
+            //delete pointer to vector
             delete static_cast<T*>(ptr);
         }
     };
