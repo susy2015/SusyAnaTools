@@ -8,7 +8,6 @@
 #include "TLeaf.h"
 #include "TTree.h"
 
-#include <cstdio>
 #include <vector>
 #include <map>
 #include <unordered_map>
