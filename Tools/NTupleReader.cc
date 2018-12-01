@@ -220,7 +220,7 @@ void NTupleReader::registerBranch(TBranch * const branch) const
         else if(type.find("short")          != std::string::npos) registerArrayBranch<short>(name, branch);
         else if(type.find("char")           != std::string::npos) registerArrayBranch<char>(name, branch);
         else if(type.find("int")            != std::string::npos) registerArrayBranch<int>(name, branch);
-        else if(type.find("bool")           != std::string::npos);// registerArrayBranch<bool>(name, branch);
+        else if(type.find("bool")           != std::string::npos) registerArrayBranch<uint8_t>(name, branch);
         else if(type.find("string")         != std::string::npos) registerArrayBranch<std::string>(name, branch);
         else if(type.find("TLorentzVector") != std::string::npos) registerArrayBranch<TLorentzVector>(name, branch);
         else if(type.find("float")          != std::string::npos) registerArrayBranch<float>(name, branch);
@@ -230,7 +230,7 @@ void NTupleReader::registerBranch(TBranch * const branch) const
         else if(type.find("Float_t")        != std::string::npos) registerArrayBranch<float>(name, branch);
         else if(type.find("Double_t")       != std::string::npos) registerArrayBranch<double>(name, branch);
         else if(type.find("Int_t")          != std::string::npos) registerArrayBranch<int>(name, branch);
-        else if(type.find("Bool_t")         != std::string::npos);// registerArrayBranch<Bool_t>(name, branch);
+        else if(type.find("Bool_t")         != std::string::npos) registerArrayBranch<uint8_t>(name, branch);
         else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
     }
     else
