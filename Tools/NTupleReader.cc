@@ -1,10 +1,7 @@
 #include "NTupleReader.h"
 
-#include "TROOT.h"
-#include "TInterpreter.h"
+#include "TFile.h"
 #include "TObjArray.h"
-
-#include <iostream>
 
 //specialization for bool return value
 template<>

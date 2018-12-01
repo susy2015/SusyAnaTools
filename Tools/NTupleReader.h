@@ -3,11 +3,10 @@
 
 #include "SATException.h"
 
-#include "TFile.h"
+#include "TLorentzVector.h"
 #include "TBranch.h"
 #include "TLeaf.h"
 #include "TTree.h"
-#include "TLorentzVector.h"
 
 #include <cstdio>
 #include <vector>
@@ -19,9 +18,6 @@
 #include <typeindex>
 #include <functional>
 #include <cxxabi.h>
-#include <iostream>
-
-#include <iostream>
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -30,6 +26,7 @@
 
 #pragma link C++ class vector<TLorentzVector>+;
 #endif
+
 
 /* This class is designed to be a simple interface to reading stop NTuples
    
