@@ -98,7 +98,7 @@ private:
         {
             //Delete vector if one already exists
             T* vecptr = static_cast<T*>(ptr);
-            //if(*vecptr != nullptr) delete *vecptr;
+            if(*vecptr != nullptr) delete *vecptr;
 
             //with vector cleaned up, create new vector
             //this typedef seems manditory to unconfuse the compilier 
