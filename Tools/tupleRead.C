@@ -16,7 +16,7 @@
 #include <cmath>
 #include "ISRCorrector.h"
 #include "BTagCorrector.h"
-#include "SB_v1.h"
+#include "SB2018.h"
 
 int main(int argc, char* argv[]){
 
@@ -89,12 +89,12 @@ int main(int argc, char* argv[]){
 	BaselineVessel blv(tr, "", "fastsim");
 	if(use_new_tagger)
 	{
-        blv.UseDeepTagger = true;
-        if(new_tagger_cfg == "default") blv.SetupTopTagger("./TopTagger_Deep.cfg");
-        if(new_tagger_cfg == "res_tight_ak8_tight") blv.SetupTopTagger("./TopTagger_res_tight_ak8_tight.cfg");
-        if(new_tagger_cfg == "res_tight_ak8_loose") blv.SetupTopTagger("./TopTagger_res_tight_ak8_loose.cfg");
-        if(new_tagger_cfg == "res_mid_ak8_tight") blv.SetupTopTagger("./TopTagger_res_mid_ak8_tight.cfg");
-        if(new_tagger_cfg == "res_mid_ak8_loose") blv.SetupTopTagger("./TopTagger_res_mid_ak8_loose.cfg");
+		blv.UseDeepTagger = true;
+		if(new_tagger_cfg == "default") blv.SetupTopTagger("./TopTagger_Deep.cfg");
+		if(new_tagger_cfg == "res_tight_ak8_tight") blv.SetupTopTagger("./TopTagger_res_tight_ak8_tight.cfg");
+		if(new_tagger_cfg == "res_tight_ak8_loose") blv.SetupTopTagger("./TopTagger_res_tight_ak8_loose.cfg");
+		if(new_tagger_cfg == "res_mid_ak8_tight") blv.SetupTopTagger("./TopTagger_res_mid_ak8_tight.cfg");
+		if(new_tagger_cfg == "res_mid_ak8_loose") blv.SetupTopTagger("./TopTagger_res_mid_ak8_loose.cfg");
 	}
 
 	if(debug) std::cout << __LINE__ << std::endl;
@@ -160,6 +160,33 @@ int main(int argc, char* argv[]){
 	auto genmet_h=new TH1F("genmet_h","genMET, loose baseline",80,0.0,1600.0);
 
 	auto met_1b_100_h=new TH1F("met_1b_100_h","MET, b=1, t>=1, w=0, res=0",80,0.0,1600.0);
+	auto met_1b_010_h=new TH1F("met_1b_010_h","MET, b=1, t=0, w>=1, res=0",80,0.0,1600.0);
+	auto met_1b_001_h=new TH1F("met_1b_001_h","MET, b=1, t=0, w=0, res>=1",80,0.0,1600.0);
+	auto met_1b_110_h=new TH1F("met_1b_110_h","MET, b=1, t>=1, w>=1, res=0",80,0.0,1600.0);
+	auto met_1b_011_h=new TH1F("met_1b_011_h","MET, b=1, t=0, w>=1, res>=1",80,0.0,1600.0);
+	auto met_1b_101_h=new TH1F("met_1b_101_h","MET, b=1, t>=1, w=0, res>=1",80,0.0,1600.0);
+
+	auto met_2b_100_h=new TH1F("met_2b_100_h","MET, b=2, t=1, w=0, res=0",80,0.0,1600.0);
+	auto met_2b_010_h=new TH1F("met_2b_010_h","MET, b=2, t=0, w=1, res=0",80,0.0,1600.0);
+	auto met_2b_001_h=new TH1F("met_2b_001_h","MET, b=2, t=0, w=0, res=1",80,0.0,1600.0);
+	auto met_2b_110_h=new TH1F("met_2b_110_h","MET, b=2, t=1, w=1, res=0",80,0.0,1600.0);
+	auto met_2b_011_h=new TH1F("met_2b_011_h","MET, b=2, t=0, w=1, res=1",80,0.0,1600.0);
+	auto met_2b_101_h=new TH1F("met_2b_101_h","MET, b=2, t=1, w=0, res=1",80,0.0,1600.0);
+	auto met_2b_200_h=new TH1F("met_2b_200_h","MET, b=2, t=2, w=0, res=0",80,0.0,1600.0);
+	auto met_2b_020_h=new TH1F("met_2b_020_h","MET, b=2, t=0, w=2, res=0",80,0.0,1600.0);
+	auto met_2b_002_h=new TH1F("met_2b_002_h","MET, b=2, t=0, w=0, res=2",80,0.0,1600.0);
+	auto met_2b_3_h=new TH1F("met_2b_3_h","MET, b=2, t+res+w >= 3",80,0.0,1600.0);
+
+	auto met_3b_100_h=new TH1F("met_3b_100_h","MET, b>=3, t=1, w=0, res=0",80,0.0,1600.0);
+	auto met_3b_010_h=new TH1F("met_3b_010_h","MET, b>=3, t=0, w=1, res=0",80,0.0,1600.0);
+	auto met_3b_001_h=new TH1F("met_3b_001_h","MET, b>=3, t=0, w=0, res=1",80,0.0,1600.0);
+	auto met_3b_110_h=new TH1F("met_3b_110_h","MET, b>=3, t=1, w=1, res=0",80,0.0,1600.0);
+	auto met_3b_011_h=new TH1F("met_3b_011_h","MET, b>=3, t=0, w=1, res=1",80,0.0,1600.0);
+	auto met_3b_101_h=new TH1F("met_3b_101_h","MET, b>=3, t=1, w=0, res=1",80,0.0,1600.0);
+	auto met_3b_200_h=new TH1F("met_3b_200_h","MET, b>=3, t=2, w=0, res=0",80,0.0,1600.0);
+	auto met_3b_020_h=new TH1F("met_3b_020_h","MET, b>=3, t=0, w=2, res=0",80,0.0,1600.0);
+	auto met_3b_002_h=new TH1F("met_3b_002_h","MET, b>=3, t=0, w=0, res=2",80,0.0,1600.0);
+	auto met_3b_3_h=new TH1F("met_3b_3_h","MET, b>=3, t+res+w >= 3",80,0.0,1600.0);
 
 	// MT2
 	auto mt2_h=new TH1F("mt2_h","MT2, loose baseline",80,0.0,800.0);
@@ -273,16 +300,20 @@ int main(int argc, char* argv[]){
 	auto search_bin_singleElCR_MTb_h=new TH1F("search_bin_singleElCR_MTb_h","search bin with baseline cut + MTb > 175, single electron control region",84,0.0,84.0);
 
 	auto search_bin_low_and_highdm_h=new TH1F("search_bin_low_and_highdm_h","search bin low and high dM, MTb = 175",177,0.0,177.0);
-	auto search_bin_low_and_highdm_singleMuCR_h=new TH1F("search_bin_low_and_highdm_singleMuCR_h","search bin low and high dM single muon control region, MTb = 175",177,0.0,177.0);
-	auto search_bin_low_and_highdm_singleElCR_h=new TH1F("search_bin_low_and_highdm_singleElCR_h","search bin low and high dM single electron control region, MTb = 175",177,0.0,177.0);
+	auto search_bin_low_and_highdm_singleMuCR_h=new TH1F("search_bin_low_and_highdm_singleMuCR_h","search bin low and high dM, single muon control region, MTb = 175",177,0.0,177.0);
+	auto search_bin_low_and_highdm_singleElCR_h=new TH1F("search_bin_low_and_highdm_singleElCR_h","search bin low and high dM, single electron control region, MTb = 175",177,0.0,177.0);
 
-        auto search_bin_more_HT_bins_h=new TH1F("search_bin_more_HT_bins_h","search bin with more HT bins, MTb = 175",239,0.0,239.0);
-        auto search_bin_more_HT_bins_singleMuCR_h=new TH1F("search_bin_more_HT_bins_singleMuCR_h","search bin with more HT bins, single muon control region, MTb = 175",239,0.0,239.0);
-        auto search_bin_more_HT_bins_singleElCR_h=new TH1F("search_bin_more_HT_bins_singleElCR_h","search bin with more HT bins, single electron control region, MTb = 175",239,0.0,239.0);
+	auto search_bin_v2_h=new TH1F("search_bin_v2_h","search bin v2, MTb = 175",204,0.0,204.0);
+	auto search_bin_v2_singleMuCR_h=new TH1F("search_bin_v2_singleMuCR_h","search bin v2, single muon control region, MTb = 175",204,0.0,204.0);
+	auto search_bin_v2_singleElCR_h=new TH1F("search_bin_v2_singleElCR_h","search bin v2, single electron control region, MTb = 175",204,0.0,204.0);
 
-        auto search_bin_more_HT_bins_merge_h=new TH1F("search_bin_more_HT_bins_merge_h","search bin with more HT bins, MTb = 175, merge top",239,0.0,239.0);
-        auto search_bin_more_HT_bins_singleMuCR_merge_h=new TH1F("search_bin_more_HT_bins_singleMuCR_merge_h","search bin with more HT bins, single muon control region, MTb = 175, merge top",239,0.0,239.0);
-        auto search_bin_more_HT_bins_singleElCR_merge_h=new TH1F("search_bin_more_HT_bins_singleElCR_merge_h","search bin with more HT bins, single electron control region, MTb = 175, merge top",239,0.0,239.0);
+	auto search_bin_more_HT_bins_h=new TH1F("search_bin_more_HT_bins_h","search bin with more HT bins, MTb = 175",239,0.0,239.0);
+	auto search_bin_more_HT_bins_singleMuCR_h=new TH1F("search_bin_more_HT_bins_singleMuCR_h","search bin with more HT bins, single muon control region, MTb = 175",239,0.0,239.0);
+	auto search_bin_more_HT_bins_singleElCR_h=new TH1F("search_bin_more_HT_bins_singleElCR_h","search bin with more HT bins, single electron control region, MTb = 175",239,0.0,239.0);
+
+	auto search_bin_more_HT_bins_merge_h=new TH1F("search_bin_more_HT_bins_merge_h","search bin with more HT bins, MTb = 175, merge top",239,0.0,239.0);
+	auto search_bin_more_HT_bins_singleMuCR_merge_h=new TH1F("search_bin_more_HT_bins_singleMuCR_merge_h","search bin with more HT bins, single muon control region, MTb = 175, merge top",239,0.0,239.0);
+	auto search_bin_more_HT_bins_singleElCR_merge_h=new TH1F("search_bin_more_HT_bins_singleElCR_merge_h","search bin with more HT bins, single electron control region, MTb = 175, merge top",239,0.0,239.0);
 
 	auto search_bin_highdm_h=new TH1F("search_bin_highdm_h","search bin high dM, MTb = 175",124,53.0,177.0);
 	auto search_bin_highdm_singleMuCR_h=new TH1F("search_bin_highdm_singleMuCR_h","search bin high dM single muon control region, MTb = 175",124,53.0,177.0);
@@ -333,13 +364,13 @@ int main(int argc, char* argv[]){
 	while(tr.getNextEvent()){
 
 		/*if(tr.getEvtNum() == 1){
-			tr.printTupleMembers();
-			FILE * fout = fopen("NTupleTypes.txt", "w");
-			tr.printTupleMembers(fout);
-			fclose(fout);
-		}*/
+		  tr.printTupleMembers();
+		  FILE * fout = fopen("NTupleTypes.txt", "w");
+		  tr.printTupleMembers(fout);
+		  fclose(fout);
+		  }*/
 
-	if(debug) std::cout << __LINE__ << std::endl;
+		if(debug) std::cout << __LINE__ << std::endl;
 
 		if(max_events > 0 && tr.getEvtNum() > max_events) break;
 
@@ -348,7 +379,7 @@ int main(int argc, char* argv[]){
 		}
 
 		//  std::cout << "MET " << tr.getVar<float>("met")  << " nTop" << tr.getVar<int>("nTopCandSortedCnt") << " Phi " << tr.getVar<float>("metphi") << std::endl;
-	if(debug) std::cout << __LINE__ << std::endl;
+		if(debug) std::cout << __LINE__ << std::endl;
 
 		std::vector<TLorentzVector> jetsLVec = tr.getVec<TLorentzVector>("prodJetsNoLep_jetsLVec");
 		std::vector<TLorentzVector> jetsLVec_pt20;
@@ -409,7 +440,7 @@ int main(int argc, char* argv[]){
 		const std::vector<TLorentzVector>& gen_LVec = tr.getVec<TLorentzVector>("genDecayLVec");
 		int n_gen_w = 0, n_gen_b = 0;
 
-	if(debug) std::cout << __LINE__ << std::endl;
+		if(debug) std::cout << __LINE__ << std::endl;
 
 		if(tr.getEvtNum() < 10)
 		{
@@ -427,7 +458,7 @@ int main(int argc, char* argv[]){
 		}
 
 		// ---------- Begin Sub Loop Over Jets ----------
-	if(debug) std::cout << __LINE__ << std::endl;
+		if(debug) std::cout << __LINE__ << std::endl;
 
 		for(int index=0; index < njets ; index++)
 		{
@@ -488,7 +519,7 @@ int main(int argc, char* argv[]){
 		//if(bottompt_scalar_sum != tr.getVar<float>("Ptb")) std::cout << "bottompt_scalar_sum = " << bottompt_scalar_sum << " Ptb = " << tr.getVar<float>("Ptb") << std::endl;
 		//if(tr.getEvtNum() < 4) std::cout << "bottompt_scalar_sum = " << bottompt_scalar_sum << " Ptb = " << tr.getVar<float>("Ptb") << std::endl;
 
-	if(debug) std::cout << __LINE__ << std::endl;
+		if(debug) std::cout << __LINE__ << std::endl;
 		/*for (int i=0; i<b_jetsLVec.size(); i++)
 		  {
 		  std::cout << "event " << tr.getEvtNum() << " # " << i << " bjet pt " << b_jetsLVec.at(i).Pt() << std::endl;
@@ -547,7 +578,7 @@ int main(int argc, char* argv[]){
 		if(use_deepCSV) mtb = tr.getVar<float>("Mtb");
 		//if(mtb != tr.getVar<float>("Mtb")) std::cout << "mtb = " << mtb << " Mtb = " << tr.getVar<float>("Mtb") << " b_jetsLVec.size() = " << b_jetsLVec.size() << " tr.getVec<float>('vBjs').size() = " << tr.getVec<float>("vBjs").size() << std::endl;
 		//if(tr.getEvtNum() < 4) std::cout << "mtb = " << mtb << " Mtb = " << tr.getVar<float>("Mtb") << " b_jetsLVec.size() = " << b_jetsLVec.size() << " tr.getVec<TLorentzVector>('vBjs').size() = " << tr.getVec<TLorentzVector>("vBjs").size() << std::endl;
-	if(debug) std::cout << __LINE__ << std::endl;
+		if(debug) std::cout << __LINE__ << std::endl;
 
 		//if(ntop > 0)
 		//{
@@ -567,14 +598,16 @@ int main(int argc, char* argv[]){
 		if(use_new_tagger && ntop != ntop_merge + ntop_res) std::cout << "ntop = " << ntop << " ntop_merge = " << ntop_merge << " ntop_res = " << ntop_res << std::endl;
 		if(use_new_tagger) nw = nw_tagger;
 		else nw = nw_tagger + ntop_w;	
-	if(debug) std::cout << __LINE__ << std::endl;
+		if(debug) std::cout << __LINE__ << std::endl;
 
 		int SB_highdm(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met, float ht);
+		int SBv2_highdm(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met, float ht);
 		int SB_highdm_more_HT_bins(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met, float ht);
 		int SB_highdm_MT2(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met, float ht, float mt2);
 		int SB_team_A_highdm(float mtb_cut, float mtb, int njets, int ntop, int nw, int nres, int nb, float met);
 
 		int SB_highdm_index_175 = SB_highdm(175, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met, HT);
+		int SBv2_highdm_index_175 = SBv2_highdm(175, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met, HT);
 		int SB_highdm_more_HT_bins_index_175 = SB_highdm_more_HT_bins(175, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met, HT);
 		int SB_highdm_more_HT_bins_merge_index_175 = SB_highdm_more_HT_bins(175, mtb, njetspt20, 0, nw, ntop, nbottompt20, met, HT);
 		int SB_highdm_MT2_index_175 = SB_highdm_MT2(175, mtb, njetspt20, ntop_merge, nw, ntop_res, nbottompt20, met, HT, mt2);
@@ -604,7 +637,7 @@ int main(int argc, char* argv[]){
 		bool pass_ISR = (ISRpt > 200 && fabs(ISRLVec.at(0).Eta()) < 2.4 && fabs(ISRLVec.at(0).Phi() - metphi) > 2); 		//SUS-16-049, low dm, ISR cut
 		bool pass_low_dM_baseline=(tr.getVar<bool>("passLeptVeto") && ntop == 0 && nw == 0 && pass_ISR && S_met > 10 && passdphi_lowdm && pass_mtb_lowdm && tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 2); 		//baseline for SUS-16-049 low dm
 		bool pass_low_dM_baseline_singleLeptCR=(ntop == 0 && nw == 0 && pass_ISR && S_met > 10 && passdphi_lowdm && pass_mtb_lowdm && tr.getVar<bool>("passMET")  && tr.getVar<bool>("passNoiseEventFilter") && njetspt20 >= 2); 		//baseline without lept veto for SUS-16-049 low dm
-	if(debug) std::cout << __LINE__ << std::endl;
+		if(debug) std::cout << __LINE__ << std::endl;
 
 		// ---------- Fill Histograms ----------
 
@@ -620,7 +653,7 @@ int main(int argc, char* argv[]){
 		//if (ntop == 0 && mt2 != 0) std::cout << "MT2 = " << mt2 << std::endl;
 
 		eff_h->Fill(0.0,evtWeight);
- 
+
 		if(pass_high_dM_baseline)
 		{
 			mtb_highdm_h->Fill(mtb,evtWeight);
@@ -633,26 +666,64 @@ int main(int argc, char* argv[]){
 
 			if(SB_highdm_more_HT_bins_index_175 != -1 && SB_highdm_more_HT_bins_merge_index_175 == -1) std::cout << "mtb, " << mtb << " njetspt20, " << njetspt20 << " ntop_merge, " << ntop_merge << " nw, " << nw << " ntop_res, " << ntop_res << " nbottompt20, " << nbottompt20 << " met, " << met << " HT, " << HT  << std::endl;
 
-			if (SB_highdm_index_175 != -1)
+			if(SB_highdm_index_175 != -1)
 			{
-				if (SB_highdm_index_175 == 176) {highdm_is_176 = true; n_highdm_is_176++;}
+				if(SB_highdm_index_175 == 176) {highdm_is_176 = true; n_highdm_is_176++;}
 				search_bin_low_and_highdm_h->Fill(SB_highdm_index_175,evtWeight);
 				search_bin_highdm_h->Fill(SB_highdm_index_175,evtWeight);
 			}
+			if(SBv2_highdm_index_175 != -1) search_bin_v2_h->Fill(SBv2_highdm_index_175,evtWeight);
+			if(met > 250 && mtb > 175 && !(ntop_merge == 0 && nw == 0 && ntop_res == 0) && SBv2_highdm_index_175 == -1)
+			std::cout << "SBv2_highdm check: nbottompt20 " << nbottompt20 << " ntop_merge " << ntop_merge << " nw " << nw << " ntop_res " << ntop_res << " met " << met << " HT " << HT << std::endl;
+ 
 			if(SB_highdm_more_HT_bins_index_175 != -1) search_bin_more_HT_bins_h->Fill(SB_highdm_more_HT_bins_index_175,evtWeight);
 			if(SB_highdm_more_HT_bins_merge_index_175 != -1) search_bin_more_HT_bins_merge_h->Fill(SB_highdm_more_HT_bins_merge_index_175,evtWeight);
 			if(SB_highdm_MT2_index_175 != -1) search_bin_highdm_MT2_h->Fill(SB_highdm_MT2_index_175,evtWeight);
 			if(SB_highdm_merge_HT_index_175 != -1) search_bin_highdm_merge_HT_h->Fill(SB_highdm_merge_HT_index_175,evtWeight);
 
-			if (SB_team_A_highdm_index_175 != -1) search_bin_team_A_highdm_h->Fill(SB_team_A_highdm_index_175,evtWeight);
-			if (SB_team_A_highdm_merge_index_175 != -1) search_bin_team_A_highdm_merge_h->Fill(SB_team_A_highdm_merge_index_175,evtWeight);
+			if(SB_team_A_highdm_index_175 != -1) search_bin_team_A_highdm_h->Fill(SB_team_A_highdm_index_175,evtWeight);
+			if(SB_team_A_highdm_merge_index_175 != -1) search_bin_team_A_highdm_merge_h->Fill(SB_team_A_highdm_merge_index_175,evtWeight);
 			if(pass_MT2_highdm) 
 			{
 				if(SB_team_A_highdm_index_175 != -1) search_bin_team_A_highdm_MTb175_MT2_h->Fill(SB_team_A_highdm_index_175,evtWeight);
 				if(SB_team_A_highdm_index_140 != -1) search_bin_team_A_highdm_MTb140_MT2_h->Fill(SB_team_A_highdm_index_140,evtWeight);
 			}
-		//=================================== MET binning study ==========================================
-		if(nbottompt20 == 1 && ntop_merge >= 1 && nw == 0 && ntop_res == 0) met_1b_100_h->Fill(met,evtWeight);
+			//=================================== MET binning study ==========================================
+			if(mtb > 175)
+			{
+				if(nbottompt20 == 1 && ntop_merge >= 1 && nw == 0 && ntop_res == 0) met_1b_100_h->Fill(met,evtWeight);
+				if(nbottompt20 == 1 && ntop_merge == 0 && nw >= 1 && ntop_res == 0) met_1b_010_h->Fill(met,evtWeight);
+				if(nbottompt20 == 1 && ntop_merge == 0 && nw == 0 && ntop_res >= 1) 
+				{met_1b_001_h->Fill(met,evtWeight);
+				if(met > 250 && (SB_highdm_more_HT_bins_index_175 < 75 || SB_highdm_more_HT_bins_index_175 > 89))
+				std::cout << "SB_highdm_more_HT_bins: nbottompt20 " << nbottompt20 << " ntop_merge " << ntop_merge << " nw " << nw << " ntop_res " << ntop_res << " met " << met << " HT " << HT << std::endl;
+				}
+				if(nbottompt20 == 1 && ntop_merge >= 1 && nw >= 1 && ntop_res == 0) met_1b_110_h->Fill(met,evtWeight);
+				if(nbottompt20 == 1 && ntop_merge == 0 && nw >= 1 && ntop_res >= 1) met_1b_011_h->Fill(met,evtWeight);
+				if(nbottompt20 == 1 && ntop_merge >= 1 && nw == 0 && ntop_res >= 1) met_1b_101_h->Fill(met,evtWeight);
+
+				if(nbottompt20 == 2 && ntop_merge == 1 && nw == 0 && ntop_res == 0) met_2b_100_h->Fill(met,evtWeight);
+				if(nbottompt20 == 2 && ntop_merge == 0 && nw == 1 && ntop_res == 0) met_2b_010_h->Fill(met,evtWeight);
+				if(nbottompt20 == 2 && ntop_merge == 0 && nw == 0 && ntop_res == 1) met_2b_001_h->Fill(met,evtWeight);
+				if(nbottompt20 == 2 && ntop_merge == 1 && nw == 1 && ntop_res == 0) met_2b_110_h->Fill(met,evtWeight);
+				if(nbottompt20 == 2 && ntop_merge == 0 && nw == 1 && ntop_res == 1) met_2b_011_h->Fill(met,evtWeight);
+				if(nbottompt20 == 2 && ntop_merge == 1 && nw == 0 && ntop_res == 1) met_2b_101_h->Fill(met,evtWeight);
+				if(nbottompt20 == 2 && ntop_merge == 2 && nw == 0 && ntop_res == 0) met_2b_200_h->Fill(met,evtWeight);
+				if(nbottompt20 == 2 && ntop_merge == 0 && nw == 2 && ntop_res == 0) met_2b_020_h->Fill(met,evtWeight);
+				if(nbottompt20 == 2 && ntop_merge == 0 && nw == 0 && ntop_res == 2) met_2b_002_h->Fill(met,evtWeight);
+				if(nbottompt20 == 2 && ntop_merge + nw + ntop_res >= 3) met_2b_3_h->Fill(met,evtWeight);
+
+				if(nbottompt20 >= 3 && ntop_merge == 1 && nw == 0 && ntop_res == 0) met_3b_100_h->Fill(met,evtWeight);
+				if(nbottompt20 >= 3 && ntop_merge == 0 && nw == 1 && ntop_res == 0) met_3b_010_h->Fill(met,evtWeight);
+				if(nbottompt20 >= 3 && ntop_merge == 0 && nw == 0 && ntop_res == 1) met_3b_001_h->Fill(met,evtWeight);
+				if(nbottompt20 >= 3 && ntop_merge == 1 && nw == 1 && ntop_res == 0) met_3b_110_h->Fill(met,evtWeight);
+				if(nbottompt20 >= 3 && ntop_merge == 0 && nw == 1 && ntop_res == 1) met_3b_011_h->Fill(met,evtWeight);
+				if(nbottompt20 >= 3 && ntop_merge == 1 && nw == 0 && ntop_res == 1) met_3b_101_h->Fill(met,evtWeight);
+				if(nbottompt20 >= 3 && ntop_merge == 2 && nw == 0 && ntop_res == 0) met_3b_200_h->Fill(met,evtWeight);
+				if(nbottompt20 >= 3 && ntop_merge == 0 && nw == 2 && ntop_res == 0) met_3b_020_h->Fill(met,evtWeight);
+				if(nbottompt20 >= 3 && ntop_merge == 0 && nw == 0 && ntop_res == 2) met_3b_002_h->Fill(met,evtWeight);
+				if(nbottompt20 >= 3 && ntop_merge + nw + ntop_res >= 3) met_3b_3_h->Fill(met,evtWeight);
+			}
 
 		}
 
@@ -662,6 +733,7 @@ int main(int argc, char* argv[]){
 			{
 				if(SB_highdm_index_175 != -1) search_bin_low_and_highdm_singleElCR_h->Fill(SB_highdm_index_175,evtWeight);
 				if(SB_highdm_index_175 != -1) search_bin_highdm_singleElCR_h->Fill(SB_highdm_index_175,evtWeight);
+				if(SBv2_highdm_index_175 != -1) search_bin_v2_singleElCR_h->Fill(SBv2_highdm_index_175,evtWeight);
 				if(SB_highdm_more_HT_bins_index_175 != -1) search_bin_more_HT_bins_singleElCR_h->Fill(SB_highdm_more_HT_bins_index_175,evtWeight);
 				if(SB_highdm_more_HT_bins_merge_index_175 != -1) search_bin_more_HT_bins_singleElCR_merge_h->Fill(SB_highdm_more_HT_bins_merge_index_175,evtWeight);
 				if(SB_highdm_MT2_index_175 != -1) search_bin_highdm_singleElCR_MT2_h->Fill(SB_highdm_MT2_index_175,evtWeight);
@@ -675,11 +747,12 @@ int main(int argc, char* argv[]){
 					if(SB_team_A_highdm_index_140 != -1) search_bin_team_A_highdm_MTb140_MT2_singleElCR_h->Fill(SB_team_A_highdm_index_140,evtWeight);
 				}
 			}
- 
+
 			if(nMuons == 1)
 			{
 				if(SB_highdm_index_175 != -1) search_bin_low_and_highdm_singleMuCR_h->Fill(SB_highdm_index_175,evtWeight);
 				if(SB_highdm_index_175 != -1) search_bin_highdm_singleMuCR_h->Fill(SB_highdm_index_175,evtWeight);
+				if(SBv2_highdm_index_175 != -1) search_bin_v2_singleMuCR_h->Fill(SBv2_highdm_index_175,evtWeight);
 				if(SB_highdm_more_HT_bins_index_175 != -1) search_bin_more_HT_bins_singleMuCR_h->Fill(SB_highdm_more_HT_bins_index_175,evtWeight);
 				if(SB_highdm_more_HT_bins_merge_index_175 != -1) search_bin_more_HT_bins_singleMuCR_merge_h->Fill(SB_highdm_more_HT_bins_merge_index_175,evtWeight);
 				if(SB_highdm_MT2_index_175 != -1) search_bin_highdm_singleMuCR_MT2_h->Fill(SB_highdm_MT2_index_175,evtWeight);
@@ -704,10 +777,11 @@ int main(int argc, char* argv[]){
 			ISRpt_lowdm_h->Fill(ISRpt,evtWeight);
 			bottompt_scalar_sum_lowdm_h->Fill(bottompt_scalar_sum,evtWeight);
 			ISRpt_MET_lowdm_h->Fill(ISRpt,met,evtWeight);
-			
+
 			if(SB_team_A_lowdm_index != -1) 
 			{
 				search_bin_low_and_highdm_h->Fill(SB_team_A_lowdm_index,evtWeight);
+				search_bin_v2_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_more_HT_bins_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_more_HT_bins_merge_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_team_A_lowdm_h->Fill(SB_team_A_lowdm_index,evtWeight);
@@ -719,6 +793,7 @@ int main(int argc, char* argv[]){
 			if(nElectrons == 1 && SB_team_A_lowdm_index != -1) 
 			{
 				search_bin_low_and_highdm_singleElCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
+				search_bin_v2_singleElCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_more_HT_bins_singleElCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_more_HT_bins_singleElCR_merge_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_team_A_lowdm_singleElCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
@@ -727,6 +802,7 @@ int main(int argc, char* argv[]){
 			if(nMuons == 1 && SB_team_A_lowdm_index != -1)
 			{
 				search_bin_low_and_highdm_singleMuCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
+				search_bin_v2_singleMuCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_more_HT_bins_singleMuCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_more_HT_bins_singleMuCR_merge_h->Fill(SB_team_A_lowdm_index,evtWeight);
 				search_bin_team_A_lowdm_singleMuCR_h->Fill(SB_team_A_lowdm_index,evtWeight);
@@ -865,7 +941,7 @@ int main(int argc, char* argv[]){
 				int n_plus_gen_match = 0, n_minus_gen_match = 0;
 				int n_plus_b_gen_match = 0, n_minus_b_gen_match = 0;
 				int n_plus_w_gen_match = 0, n_minus_w_gen_match = 0;
-	if(debug) std::cout << __LINE__ << std::endl;
+				if(debug) std::cout << __LINE__ << std::endl;
 
 				if(ntop > 0)
 				{	
@@ -915,28 +991,28 @@ int main(int argc, char* argv[]){
 							{
 								if(mTopJets.at(0).at(i).DeltaR(plus_b_jets.at(j)) < 0.4)
 								{n_plus_gen_match++;
-								n_plus_b_gen_match++;}
+									n_plus_b_gen_match++;}
 							}
 
 							for (int j = 0; j < plus_w_jets.size(); j++)
 							{
 								if(mTopJets.at(0).at(i).DeltaR(plus_w_jets.at(j)) < 0.4)
 								{n_plus_gen_match++;
-								n_plus_w_gen_match++;}
+									n_plus_w_gen_match++;}
 							}
 
 							for (int j = 0; j < minus_b_jets.size(); j++)
 							{
 								if(mTopJets.at(0).at(i).DeltaR(minus_b_jets.at(j)) < 0.4)
 								{n_minus_gen_match++;
-								n_minus_b_gen_match++;}
+									n_minus_b_gen_match++;}
 							}
 
 							for (int j = 0; j < minus_w_jets.size(); j++)
 							{
 								if(mTopJets.at(0).at(i).DeltaR(minus_w_jets.at(j)) < 0.4)
 								{n_minus_gen_match++;
-								n_minus_w_gen_match++;}
+									n_minus_w_gen_match++;}
 							}
 						}
 						n_res_gen_match_h->Fill(std::max(n_plus_gen_match, n_minus_gen_match), evtWeight);
@@ -951,16 +1027,16 @@ int main(int argc, char* argv[]){
 
 					if(plus_temp.size() >= 2)
 					{
-					plus_sum_temp = plus_temp.at(0) + plus_temp.at(1);
-					gen_w_b_mass_175_h->Fill(plus_sum_temp.M(),evtWeight);
-					gen_w_b_delta_r_175_h->Fill(plus_temp.at(0).DeltaR(plus_temp.at(1)),evtWeight);
+						plus_sum_temp = plus_temp.at(0) + plus_temp.at(1);
+						gen_w_b_mass_175_h->Fill(plus_sum_temp.M(),evtWeight);
+						gen_w_b_delta_r_175_h->Fill(plus_temp.at(0).DeltaR(plus_temp.at(1)),evtWeight);
 					}
 
 					if (minus_temp.size() >= 2)
 					{
-					minus_sum_temp = minus_temp.at(0) + minus_temp.at(1);
-					gen_w_b_mass_175_h->Fill(minus_sum_temp.M(),evtWeight);
-					gen_w_b_delta_r_175_h->Fill(minus_temp.at(0).DeltaR(minus_temp.at(1)),evtWeight);
+						minus_sum_temp = minus_temp.at(0) + minus_temp.at(1);
+						gen_w_b_mass_175_h->Fill(minus_sum_temp.M(),evtWeight);
+						gen_w_b_delta_r_175_h->Fill(minus_temp.at(0).DeltaR(minus_temp.at(1)),evtWeight);
 					}
 
 					if (t2bw_study && n_gen_w != 2) std::cout << "number of gen w is " << n_gen_w << std::endl;
@@ -972,7 +1048,7 @@ int main(int argc, char* argv[]){
 						{
 							std::cout << PdgId.at(i) << " ";
 							if(MomRefId.at(i) != -1)
-							std::cout << "(index = " << i << ", pt = " << gen_LVec.at(i).Pt() << ", mom id = " << PdgId.at(MomRefId.at(i)) << ", mom index = " << MomRefId.at(i) << ") ";
+								std::cout << "(index = " << i << ", pt = " << gen_LVec.at(i).Pt() << ", mom id = " << PdgId.at(MomRefId.at(i)) << ", mom index = " << MomRefId.at(i) << ") ";
 						}
 						std::cout << "\n" << std::endl;
 					}
@@ -984,7 +1060,7 @@ int main(int argc, char* argv[]){
 						{
 							std::cout << PdgId.at(i) << " ";
 							if(MomRefId.at(i) != -1)
-							std::cout << "(index = " << i << ", pt = " << gen_LVec.at(i).Pt() << ", mom id = " << PdgId.at(MomRefId.at(i)) << ", mom index = " << MomRefId.at(i) << ") ";
+								std::cout << "(index = " << i << ", pt = " << gen_LVec.at(i).Pt() << ", mom id = " << PdgId.at(MomRefId.at(i)) << ", mom index = " << MomRefId.at(i) << ") ";
 						}
 						std::cout << "\n" << std::endl;
 					}
@@ -1023,6 +1099,34 @@ int main(int argc, char* argv[]){
 	genmet_h->Write();
 
 	met_1b_100_h->Write();
+	met_1b_010_h->Write();
+	met_1b_001_h->Write();
+	met_1b_110_h->Write();
+	met_1b_011_h->Write();
+	met_1b_101_h->Write();
+
+	met_2b_100_h->Write();
+	met_2b_010_h->Write();
+	met_2b_001_h->Write();
+	met_2b_110_h->Write();
+	met_2b_011_h->Write();
+	met_2b_101_h->Write();
+	met_2b_200_h->Write();
+	met_2b_020_h->Write();
+	met_2b_002_h->Write();
+	met_2b_3_h->Write();
+
+	met_3b_100_h->Write();
+	met_3b_010_h->Write();
+	met_3b_001_h->Write();
+	met_3b_110_h->Write();
+	met_3b_011_h->Write();
+	met_3b_101_h->Write();
+	met_3b_200_h->Write();
+	met_3b_020_h->Write();
+	met_3b_002_h->Write();
+	met_3b_3_h->Write();
+
 
 	// MT2
 	mt2_h->Write();
@@ -1135,6 +1239,10 @@ int main(int argc, char* argv[]){
 	search_bin_low_and_highdm_h->Write();
 	search_bin_low_and_highdm_singleMuCR_h->Write();
 	search_bin_low_and_highdm_singleElCR_h->Write();
+
+	search_bin_v2_h->Write();
+	search_bin_v2_singleMuCR_h->Write();
+	search_bin_v2_singleElCR_h->Write();
 
 	search_bin_more_HT_bins_h->Write();
 	search_bin_more_HT_bins_singleMuCR_h->Write();

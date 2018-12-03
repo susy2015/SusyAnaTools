@@ -23,7 +23,8 @@ int make_datacards()
 	bool low_dm = false;
 	bool high_dm = false;
 	bool low_and_high_dm = false;
-	bool more_HT_bins = true;
+	bool SBv2 = true;
+	bool more_HT_bins = false;
 	bool more_HT_bins_merge = false;
 	bool high_dm_merge_HT = false;
 	bool high_dm_MT2 = false;
@@ -35,8 +36,8 @@ int make_datacards()
 
 	//TString signal_name = "T2tt_mStop550_mLSP400";
 	//TString signal_name = "T2tt_mStop850_mLSP100";
-	//TString signal_name = "T2tt_mStop1000_mLSP1";
-	TString signal_name = "T2tt_mStop1000_mLSP500";
+	TString signal_name = "T2tt_mStop1000_mLSP1";
+	//TString signal_name = "T2tt_mStop1000_mLSP500";
 	//TString signal_name = "T1tttt_mGluino1200_mLSP800";
 	//TString signal_name = "T1tttt_mGluino2000_mLSP100";
 	//TString signal_name = "T1tttt_mGluino2000_mLSP1000";
@@ -92,6 +93,13 @@ int make_datacards()
 		var = "search_bin_low_and_highdm_h";
 		SingleMuCR = "search_bin_low_and_highdm_singleMuCR_h";
 		SingleElCR = "search_bin_low_and_highdm_singleElCR_h";
+	}
+
+	if (SBv2)
+	{
+		var = "search_bin_v2_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_h";
+		SingleElCR = "search_bin_v2_singleElCR_h";
 	}
 
 	if (more_HT_bins)

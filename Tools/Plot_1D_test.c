@@ -4,14 +4,14 @@ int Plot_1D_test()
 {
 	gROOT->ForceStyle();
 
-	const double lumi = 36; 
+	const double lumi = 120; 
 	bool plot_log = false;
 	//plot_log = true;
 	bool plot_sig_pad = true;
 	bool plot_BG = true;
 	bool use_low_stat_sig = false;
 	//use_low_stat_sig = true;
-	bool sig_scale_to_BG = false;
+	bool sig_scale_to_BG = true;
 
 	TString result_path = "results/Signal_";        //for full sim signals
 	result_path = "results/Signal_fastsim_";        //for fast sim singals
@@ -34,7 +34,7 @@ int Plot_1D_test()
 	bool plot_nbottompt20 = false;
 	bool plot_nbottompt20_lowdm = false;
 	bool plot_nbottompt30 = false;
-	bool plot_ntop = true;
+	bool plot_ntop = false;
 	bool plot_ntop_merge = false;
 	bool plot_ntop_w = false;
 	bool plot_ntop_res = false;
@@ -53,13 +53,14 @@ int Plot_1D_test()
 	bool plot_HT = false;
 	bool plot_MET = false;
 	bool plot_MET_lowdm = false;
+	bool plot_MET_binning_study = true;
 	bool plot_ISR_pt_lowdm = false;
 	bool plot_bottom_pt_lowdm = false;
 	bool plot_MT2_different_MTb = false;
 	bool plot_jpt_eta_2p5_3p0 = false;
 	bool plot_jpt_eta_2p5_3p0_no_HT = false;
 
-	double xmin =0, xmax = 800, ymin = 0, ymax = 35000, sig_ymax = 1, hs_tot = 1;
+	float xmin =0, xmax = 800, ymin = 0, ymax = 35000, sig_ymax = 1, hs_tot = 1;
 	float padup_height = 0.3, padup_margin = 0, leg_height = 0.5;
 	if(!plot_sig_pad) {padup_height = 0; padup_margin = 0.1, leg_height = 0.6;}
 	if(plot_log) ymin = 0.1;
@@ -69,6 +70,19 @@ int Plot_1D_test()
 	TString folder = "Baseline_Only/";
 
 	int rebin = 1;
+
+	if (plot_MET_binning_study)
+	{	
+		//title = "MT2";
+		//var = "mt2_h";
+		title = "";
+		var = "met_2b_010_h";
+		folder = "";
+		//rebin = 5;
+		xmin = 200;
+		xmax = 800;
+		ymax = -1;
+	}
 
 	if (plot_MT2)
 	{	
@@ -478,6 +492,8 @@ int Plot_1D_test()
 			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
 
+			title = h1->GetTitle();
+
 			double all_events = h2->GetBinContent(1);
 			double left_events = h2->GetBinContent(2);
 
@@ -621,6 +637,7 @@ int Plot_1D_test()
 		//pro->Draw("bsame");
 		pro->SetFillColor(kGreen);
 		leg->AddEntry(pro,"z+jets","f");
+		std::cout << "zinv total ====================================== " << pro->Integral() << std::endl;
 
 		hs->Add(pro);
 	}
@@ -812,10 +829,11 @@ int Plot_1D_test()
 	if(plot_BG)
 	{
 		hs->SetMinimum(ymin);
+		if(ymax == -1) ymax = hs-> GetMaximum() * 1.2; 
 		hs->SetMaximum(ymax);
 		hs->Draw("hist");
 
-		hs->SetTitle("");
+		//hs->SetTitle("");
 		hs->GetYaxis()->SetTitle("events");
 		hs->GetXaxis()->SetRangeUser(xmin,xmax);
 		hs->GetYaxis()->SetRangeUser(ymin,ymax);
@@ -839,7 +857,7 @@ int Plot_1D_test()
 	if (true)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1200_mLSP800";
-		if(signal_name == "T2tt_and_T1tttt") sp = "T2tt_mStop500_mLSP325";
+		if(signal_name == "T2tt_and_T1tttt") sp = "T2tt_mStop1000_mLSP500";
 		if(signal_name == "T2tt_only") sp = "T2tt_mStop500_mLSP400";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2tt_mStop500_mLSP325";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop500_mLSP490";
@@ -902,7 +920,7 @@ int Plot_1D_test()
 	if (true)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1000_mLSP800";
-		if(signal_name == "T2tt_and_T1tttt") sp = "T1tttt_mGluino1200_mLSP800";
+		if(signal_name == "T2tt_and_T1tttt") sp = "T1tttt_mGluino2000_mLSP1000";
 		if(signal_name == "T2tt_only") sp = "T2tt_mStop1000_mLSP650";
 		if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop500_mLSP325";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop500_mLSP490";
@@ -927,11 +945,14 @@ int Plot_1D_test()
 	//latex.SetTextAlign(13);  //align at top
 	//latex.DrawLatex(0.5,ymax+0.4,"#bf{CMS} Preliminary, 2017 data");
 	latex.DrawLatex(0.1,0.91,"CMS #bf{Simulation}");
-	if(plot_BG) latex.DrawLatex(0.75,0.91,"#bf{36fb^{-1} (13TeV)}");
+	TString lumi_and_energy = std::to_string((int)lumi) + "fb^{-1} (13TeV)";
+	if(plot_BG) latex.DrawLatex(0.75,0.91,lumi_and_energy);
 	else latex.DrawLatex(0.80,0.91,"#bf{13TeV}");
+	TString sig_scale = "#splitline{signals scaled to}{BG sum =" + std::to_string(hs_tot) + "}";
 	if(plot_BG)
 	{
-		if(sig_scale_to_BG) latex.DrawLatex(0.12,0.8,"#bf{signals scaled to SM}");
+		//if(sig_scale_to_BG) latex.DrawLatex(0.12,0.82,"#bf{signals scaled to \n BG sum = }");
+		if(sig_scale_to_BG) latex.DrawLatex(0.12,0.82,sig_scale);
 		else latex.DrawLatex(0.12,0.8,"#bf{signals scaled *50}");
 	}
 
@@ -951,7 +972,7 @@ int Plot_1D_test()
 		if (true)
 		{
 			if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1200_mLSP800";
-			if(signal_name == "T2tt_and_T1tttt") sp = "T2tt_mStop500_mLSP325";
+			if(signal_name == "T2tt_and_T1tttt") sp = "T2tt_mStop1000_mLSP500";
 			if(signal_name == "T2tt_and_T2bw") sp = "T2tt_mStop500_mLSP325";
 			if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop500_mLSP490";
 			if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP490";
@@ -1028,7 +1049,7 @@ int Plot_1D_test()
 		if (true)
 		{
 			if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1000_mLSP800";
-			if(signal_name == "T2tt_and_T1tttt") sp = "T1tttt_mGluino1200_mLSP800";
+			if(signal_name == "T2tt_and_T1tttt") sp = "T1tttt_mGluino2000_mLSP1000";
 			if(signal_name == "T2tt_and_T2bw") sp = "T2bw_mStop500_mLSP325";
 			if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop500_mLSP490";
 			if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop250_mLSP150";
