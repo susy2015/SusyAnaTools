@@ -14,6 +14,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 {
   bToFake               = 1;
   debug                 = false;
+  printConfig           = false;
   incZEROtop            = false;
   UseLeptonCleanJet     = false;
   UseDRLeptonCleanJet   = false;
@@ -363,8 +364,8 @@ bool BaselineVessel::PredefineSpec()
     //CSVVecLabel = "recoJetsCSVv2_drPhotonCleaned";
     //METLabel    = "metWithPhoton";
     //METPhiLabel = "metphiWithPhoton";
-    UseLeptonCleanJet   = false;
-    UseDRPhotonCleanJet = true;
+    UseLeptonCleanJet   = true;
+    UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = false;
     doMuonVeto  = false;
     doEleVeto   = false;
@@ -484,7 +485,7 @@ bool BaselineVessel::PrintoutConfig() const
 
 void BaselineVessel::PassBaseline()
 {
-  PrintoutConfig();
+  if (printConfig) PrintoutConfig();
   // Initial value
   passBaseline          = true;
   passBaselineNoTagMT2  = true;

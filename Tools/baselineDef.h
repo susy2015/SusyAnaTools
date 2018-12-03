@@ -62,6 +62,7 @@ public:
 //~~~~~~~~~~~~~~~~~~ Member ~~~~~~~~~~~~~~~~~~
     int  bToFake;
     bool debug;
+    bool printConfig;
     bool incZEROtop;
     bool UseLeptonCleanJet;
     bool UseDRLeptonCleanJet;
