@@ -320,6 +320,9 @@ bool BaselineVessel::PredefineSpec()
   }
   else if (spec.compare("NoVeto") == 0)
   {
+    METLabel    = "cleanMetPt";
+    METPhiLabel = "cleanMetPhi";
+    
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = false;
@@ -329,6 +332,9 @@ bool BaselineVessel::PredefineSpec()
   }
   else if (spec.compare("PFLeptonCleaned") == 0)
   {
+    METLabel    = "cleanMetPt";
+    METPhiLabel = "cleanMetPhi";
+    
     UseLeptonCleanJet   = true;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = false;
@@ -338,6 +344,9 @@ bool BaselineVessel::PredefineSpec()
   }
   else if (spec.compare("DRLeptonCleaned") == 0)
   {
+    METLabel    = "cleanMetPt";
+    METPhiLabel = "cleanMetPhi";
+    
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = true;
@@ -347,6 +356,9 @@ bool BaselineVessel::PredefineSpec()
   }
   else if (spec.compare("DRPhotonCleaned") == 0)
   {
+    METLabel    = "metWithPhoton";
+    METPhiLabel = "metphiWithPhoton";
+    
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
@@ -356,20 +368,24 @@ bool BaselineVessel::PredefineSpec()
   }
   else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
-    jetVecLabel = "prodJetsNoLep_jetsLVec";
-    CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
-    METLabel    = "cleanMetPt";
-    METPhiLabel = "cleanMetPhi";
     //jetVecLabel = "jetsLVec_drPhotonCleaned";
     //CSVVecLabel = "recoJetsCSVv2_drPhotonCleaned";
     //METLabel    = "metWithPhoton";
     //METPhiLabel = "metphiWithPhoton";
+    
+    //jetVecLabel = "prodJetsNoLep_jetsLVec";
+    //CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
+   
+    METLabel    = "cleanMetPt";
+    METPhiLabel = "cleanMetPhi";
+    
     UseLeptonCleanJet   = true;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = false;
     doMuonVeto  = false;
     doEleVeto   = false;
     doIsoTrksVeto = false;
+    
     if(spec.compare("Zinv1b") == 0)
     {
       CSVVecLabel = "cleanJetpt30ArrBTag1fake";
@@ -551,7 +567,9 @@ void BaselineVessel::PassBaseline()
 
   // Pass deltaPhi?
   bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
-  if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; std::cout << "DPHI CUT IS FALSE" << std::endl; }
+  if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
+  //if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; std::cout << "DPHI_FAIL" << std::endl; }
+  //else std::cout << "DPHI_PASS" << std::endl;
   if( debug ) std::cout<<"dPhi0 : "<<dPhiVec->at(0)<<"  dPhi1 : "<<dPhiVec->at(1)<<"  dPhi2 : "<<dPhiVec->at(2)<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass number of b-tagged jets? 
@@ -601,6 +619,7 @@ void BaselineVessel::PassBaseline()
   if( !passFastsimEventFilterFunc() ) { passFastsimEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
   if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc()<<"  passBaseline : "<<passBaseline<<std::endl;
 
+
   // Register all the calculated variables
   //tr->registerDerivedVar("nMuons_CUT" + firstSpec, nMuons);           // error: do not redefine  
   //tr->registerDerivedVar("nElectrons_CUT" + firstSpec, nElectrons);   // error: do not redefine
@@ -644,6 +663,10 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("HT" + firstSpec, HT);
 
   if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
+  //if (passBaseline) std::cout << "BASELINE_PASS" << std::endl;
+  //else              std::cout << "BASELINE_FAIL" << std::endl;
+  // debugging dPhi
+  if( passBaseline ) std::cout << "passBaseline" << firstSpec << ": BASELINE_PASS --- dPhi0 : " << dPhiVec->at(0) << "  dPhi1 : " << dPhiVec->at(1) << "  dPhi2 : " << dPhiVec->at(2) << "  passBaseline : " << passBaseline << std::endl;
 } 
 
 int BaselineVessel::GetnTops() const
