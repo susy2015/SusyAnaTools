@@ -14,7 +14,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 {
   bToFake               = 1;
   debug                 = false;
-  printConfig           = false;
+  printConfig           = true;
   incZEROtop            = false;
   UseLeptonCleanJet     = false;
   UseDRLeptonCleanJet   = false;
@@ -89,7 +89,7 @@ bool BaselineVessel::UseCleanedJets()
 {
   std::string prefix = "";
   std::string suffix = "";
-  if (UseLeptonCleanJet)        prefix = "prodJetsNoLep_";
+  if      (UseLeptonCleanJet)   prefix = "prodJetsNoLep_";
   if      (UseDRPhotonCleanJet) suffix = "_drPhotonCleaned";
   else if (UseDRLeptonCleanJet) suffix = "_drLeptonCleaned";
   jetVecLabel     = prefix + "jetsLVec"      + suffix;
@@ -551,7 +551,7 @@ void BaselineVessel::PassBaseline()
 
   // Pass deltaPhi?
   bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
-  if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
+  if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; std::cout << "DPHI CUT IS FALSE" << std::endl; }
   if( debug ) std::cout<<"dPhi0 : "<<dPhiVec->at(0)<<"  dPhi1 : "<<dPhiVec->at(1)<<"  dPhi2 : "<<dPhiVec->at(2)<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass number of b-tagged jets? 
