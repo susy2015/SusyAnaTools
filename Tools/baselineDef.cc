@@ -663,10 +663,12 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("HT" + firstSpec, HT);
 
   if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
+  
   //if (passBaseline) std::cout << "BASELINE_PASS" << std::endl;
   //else              std::cout << "BASELINE_FAIL" << std::endl;
   // debugging dPhi
-  if( passBaseline ) std::cout << "passBaseline" << firstSpec << ": BASELINE_PASS --- dPhi0 : " << dPhiVec->at(0) << "  dPhi1 : " << dPhiVec->at(1) << "  dPhi2 : " << dPhiVec->at(2) << "  passBaseline : " << passBaseline << std::endl;
+  //if( passBaseline ) std::cout << "passBaseline" << firstSpec << ": BASELINE_PASS --- dPhi0 : " << dPhiVec->at(0) << "  dPhi1 : " << dPhiVec->at(1) << "  dPhi2 : " << dPhiVec->at(2) << "  passBaseline : " << passBaseline << std::endl;
+
 } 
 
 int BaselineVessel::GetnTops() const
