@@ -95,13 +95,17 @@ def getNewSample(sample, sample_dict, threads, nevents_file):
     # calculate events directly without nevents_file
     else:
         message = ""
-        sample_file = sample_dict[name]
+        try:
+            sample_file = sample_dict[name]
+        except KeyError:
+            print "KeyError for name: {0}".format(name)
+            return newSample
         #print "sample_file: {0}".format(sample_file)
         #print "threads: {0}".format(threads)
         try:
             new_pos_weights, new_neg_weights = getNEvts(sample_file, threads)
         except TypeError:
-            #print "TypeError for sample_file: {0}".format(sample_file)
+            print "TypeError for sample_file: {0}".format(sample_file)
             return newSample
         # compare integers, not strings!
         if old_neg_weights == new_neg_weights and old_pos_weights == new_pos_weights:
@@ -112,10 +116,10 @@ def getNewSample(sample, sample_dict, threads, nevents_file):
         sample_list[-3] = str(new_pos_weights)
         # print at the end
         message = "old weights: ({0}, {1}) new weights: ({2}, {3}) --- {4}".format(old_pos_weights, old_neg_weights, new_pos_weights, new_neg_weights, message)
+        print "{0}: {1}".format(name, message)
         # replace commas and a space removed by split()
         # replace endline that was removed by strip()
         newSample = ", ".join(sample_list) + "\n"
-        nevents.close()
     return newSample
 
 def main1():
@@ -124,7 +128,7 @@ def main1():
     parser.add_argument("--nevents_file", "-e", default="",                     help="file containing number of events with weights")
     parser.add_argument("--samples_file", "-s", default="../sampleSets.cfg",    help="Existing SampleSets.cfg file")
     parser.add_argument("--output_file",  "-o", default="../sampleSets_v1.cfg", help="New SampleSets.cfg file to create")
-    parser.add_argument("--threads",      "-t", default=4,                      help="Number of threads to use (default: 4)")
+    parser.add_argument("--threads",      "-t", default=0,                      help="Number of threads to use (default: 0)")
     
     options = parser.parse_args()
     samples_file = options.samples_file
