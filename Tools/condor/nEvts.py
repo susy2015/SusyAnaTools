@@ -43,12 +43,18 @@ except ImportError:
 
 
 def getNEvts(fileList, threads=4):
-    p = Pool(threads)
-    
-    files = p.map(getFiles, [fileList])[0]
+    if threads > 0:
+        p = Pool(threads)
+        files = p.map(getFiles, [fileList])[0]
+    else:
+        files = getFiles(fileList)
+    return None # for testing only
 
     if files:
-        results = p.map(getNEvtsProcess, files)
+        if threads > 0:
+            results = p.map(getNEvtsProcess, files)
+        else:
+            results = getNEvtsProcess(files)
         return sum(results)
     else:
         return None
@@ -69,9 +75,11 @@ if __name__ == "__main__":
 
     ss = SampleSet(options.sampleSetCfg)
     samples = [(name, file.replace("/eos/uscms", "root://cmseos.fnal.gov/")) for name, file in ss.sampleSetList()]
+    #print samples
 
     for name, file in samples:
         if re.search(options.dataSetPattern, name):
+            print "name: {0} file: {1}".format(name, file)
             try:
                 nPos, nNeg = getNEvts(file, options.threads)
                 print "%s, %s, Positive weights: %i, Negative weights: %i"%(name, file, nPos, nNeg)
