@@ -153,7 +153,7 @@ def main1():
                 weight_dict[name] = {}
                 weight_dict[name]["pos"] = int(nPos)
                 weight_dict[name]["neg"] = int(nNeg)
-                print "{0}, {1}, Positive weights: {2}, Negative weights: {3}".format(name, s_file, nPos, nNeg)
+                print "{0}, {1}, Positive weights: {2}, Negative weights: {3}".format(name, s_file, weight_dict[name]["pos"], weight_dict[name]["neg"])
             except TypeError:
                 print "TypeError: name = {0}, s_file = {1}".format(name, s_file)
                 pass
