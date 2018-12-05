@@ -37,7 +37,7 @@ regex2 = re.compile('(.*),.*/eos.*')
 # cDSname, cFPath, cfName, cTPath, &f1,           &f2,      &f3,      &f4
 #
 
-def getNewSample(sample, sample_dict, threads, nevents_file):
+def getNewSample(sample, weight_dict, nevents_file):
     # be careful: strip() removes spaces and endlines
     sample_list = list(x.strip() for x in sample.split(','))
     name = sample_list[0] 
@@ -96,17 +96,13 @@ def getNewSample(sample, sample_dict, threads, nevents_file):
     else:
         message = ""
         try:
-            sample_file = sample_dict[name]
+            weights = weight_dict[name]
         except KeyError:
             print "KeyError for name: {0}".format(name)
             return newSample
         #print "sample_file: {0}".format(sample_file)
-        #print "threads: {0}".format(threads)
-        try:
-            new_pos_weights, new_neg_weights = getNEvts(sample_file, threads)
-        except TypeError:
-            print "TypeError for sample_file: {0}".format(sample_file)
-            return newSample
+        new_pos_weights = weights["pos"]
+        new_neg_weights = weights["neg"]
         # compare integers, not strings!
         if old_neg_weights == new_neg_weights and old_pos_weights == new_pos_weights:
             message += " old and new weights are the same"
@@ -125,16 +121,18 @@ def getNewSample(sample, sample_dict, threads, nevents_file):
 def main1():
     # options
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--nevents_file", "-e", default="",                     help="file containing number of events with weights")
-    parser.add_argument("--samples_file", "-s", default="../sampleSets.cfg",    help="Existing SampleSets.cfg file")
-    parser.add_argument("--output_file",  "-o", default="../sampleSets_v1.cfg", help="New SampleSets.cfg file to create")
-    parser.add_argument("--threads",      "-t", default=0,                      help="Number of threads to use (default: 0)")
+    parser.add_argument("--nevents_file",    "-e", default="",                     help="file containing number of events with weights")
+    parser.add_argument("--samples_file",    "-s", default="../sampleSets.cfg",    help="Existing SampleSets.cfg file")
+    parser.add_argument("--output_file",     "-o", default="../sampleSets_v1.cfg", help="New SampleSets.cfg file to create")
+    parser.add_argument("--threads",         "-t", default=4,                      help="Number of threads to use (default: 0)")
+    parser.add_argument("--dataset_pattern", "-d", default = ".*",                 help="Regexp defining sampleSets to check (Defaults to all)")
     
     options = parser.parse_args()
     samples_file = options.samples_file
     nevents_file = options.nevents_file
     output_file  = options.output_file
     threads      = int(options.threads)
+    dataset_pattern = options.dataset_pattern
 
     print "samples file: {0}".format(samples_file)
     print "nevents file: {0}".format(nevents_file)
@@ -143,11 +141,22 @@ def main1():
     inputSamples  = open(samples_file, 'r')
     outputSamples = open(output_file, 'w')
     
-    ss = SampleSet(options.samples_file)
+    ss = SampleSet(samples_file)
     samples = [(name, s_file.replace("/eos/uscms", "root://cmseos.fnal.gov/")) for name, s_file in ss.sampleSetList()]
-    sample_dict = {}
-    for key, val in samples:
-        sample_dict[key] = val
+    
+    weight_dict = {}
+    
+    for name, s_file in samples:
+        if re.search(dataset_pattern, name):
+            try:
+                nPos, nNeg = getNEvts(s_file, threads)
+                weight_dict[name] = {}
+                weight_dict[name]["pos"] = int(nPos)
+                weight_dict[name]["neg"] = int(nNeg)
+                print "{0}, {1}, Positive weights: {2}, Negative weights: {3}".format(name, s_file, nPos, nNeg)
+            except TypeError:
+                print "TypeError: name = {0}, s_file = {1}".format(name, s_file)
+                pass
 
     # for each sample, find the correct weights
     for sample in inputSamples:
@@ -164,8 +173,10 @@ def main1():
         if sample[0] == "#":
             outputSamples.write(newSample)
             continue
-        # otherwise, assume that it is a sample and get new sample to write to file
-        newSample = getNewSample(sample, sample_dict, threads, nevents_file)
+        # if sample matches pattern, assume that it is a sample and get new sample to write to file
+        if re.search(dataset_pattern, sample):
+            newSample = getNewSample(sample, weight_dict, nevents_file)
+            print "newSample: {0}".format(newSample)
         outputSamples.write(newSample)
 
     inputSamples.close()
