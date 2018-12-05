@@ -320,8 +320,8 @@ bool BaselineVessel::PredefineSpec()
   }
   else if (spec.compare("NoVeto") == 0)
   {
-    METLabel    = "cleanMetPt";
-    METPhiLabel = "cleanMetPhi";
+    METLabel    = "met";
+    METPhiLabel = "metphi";
     
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = false;
@@ -329,6 +329,7 @@ bool BaselineVessel::PredefineSpec()
     doMuonVeto  = false;
     doEleVeto   = false;
     doIsoTrksVeto = false;
+    dodPhis = false;
   }
   else if (spec.compare("PFLeptonCleaned") == 0)
   {
@@ -341,6 +342,7 @@ bool BaselineVessel::PredefineSpec()
     doMuonVeto  = false;
     doEleVeto   = false;
     doIsoTrksVeto = false;
+    dodPhis = false;
   }
   else if (spec.compare("DRLeptonCleaned") == 0)
   {
@@ -353,6 +355,7 @@ bool BaselineVessel::PredefineSpec()
     doMuonVeto  = false;
     doEleVeto   = false;
     doIsoTrksVeto = false;
+    dodPhis = false;
   }
   else if (spec.compare("DRPhotonCleaned") == 0)
   {
@@ -365,6 +368,7 @@ bool BaselineVessel::PredefineSpec()
     doMuonVeto  = false;
     doEleVeto   = false;
     doIsoTrksVeto = false;
+    dodPhis = false;
   }
   else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
@@ -385,6 +389,7 @@ bool BaselineVessel::PredefineSpec()
     doMuonVeto  = false;
     doEleVeto   = false;
     doIsoTrksVeto = false;
+    dodPhis = false;
     
     if(spec.compare("Zinv1b") == 0)
     {
