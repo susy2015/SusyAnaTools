@@ -320,8 +320,8 @@ bool BaselineVessel::PredefineSpec()
   }
   else if (spec.compare("NoVeto") == 0)
   {
-    METLabel    = "met";
-    METPhiLabel = "metphi";
+    METLabel    = "cleanMetPt";
+    METPhiLabel = "cleanMetPhi";
     
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = false;
