@@ -39,7 +39,7 @@ private:
     TF1   *puppisd_corrRECO_cen;
     TF1   *puppisd_corrRECO_for;
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
+//~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~~~~~~~~~~~~~~
     std::shared_ptr<TopTagger> ttPtr;
 
     //  container
@@ -55,14 +55,18 @@ private:
     std::vector<unsigned> * vAK8Flag;
 
     std::vector<TLorentzVector> GetAK4NoSubjet(Constituent &ak8, 
-        std::vector<TLorentzVector> &ak4jets) const;
+    std::vector<TLorentzVector> &ak4jets) const;
+
 public:
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Member ~~~~~
+//~~~~~~~~~~~~~~~~~~ Member ~~~~~~~~~~~~~~~~~~
     int  bToFake;
     bool debug;
+    bool printConfig;
     bool incZEROtop;
-    bool UseLepCleanJet;
+    bool UseLeptonCleanJet;
+    bool UseDRLeptonCleanJet;
+    bool UseDRPhotonCleanJet;
     bool UseDeepTagger;
     bool UseDeepCSV;
 
@@ -76,6 +80,8 @@ public:
     std::string elesFlagIDLabel;
     std::string qgLikehoodLabel;
     std::string toptaggerCfgFile;
+    
+    
     bool doIsoTrksVeto;
     bool doMuonVeto;
     bool doEleVeto;
@@ -90,7 +96,7 @@ public:
     BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");
     ~BaselineVessel();
 
-    inline std::string UseNoLepVar(std::string varname) const;
+    inline std::string UseCleanedJetsVar(std::string varname) const;
     void PassBaseline();
     bool PrintoutConfig() const;
     bool CompCommonVar();
@@ -98,17 +104,21 @@ public:
     bool passQCDHighMETFilterFunc();
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
-    bool UseLepCleanJets();
+    bool UseCleanedJets();
     bool OpenWMassCorrFile();
 
     bool FlagDeepAK8Jets();
     void operator()(NTupleReader& tr);
+    
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~
+//~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     bool SetupTopTagger(std::string CfgFile_ = "TopTagger.cfg");
     bool PassTopTagger();
     bool GetMHT() const;
     bool GetLeptons() const;
+    bool GetPhotons() const;
+    bool photonPassECALEtaCuts(const TLorentzVector& photon) const;
+    bool photonPassEtaPtCuts(const TLorentzVector& photon) const;
     bool GetRecoZ( const int zMassMin, const int zMassMax) const;
     bool GetRecoZ(const std::string leptype, const std::string lepchg, std::vector<TLorentzVector>* recoZVec,
         std::map<unsigned int, std::pair<unsigned int, unsigned int> > *TypeZLepIdx, 
@@ -142,7 +152,10 @@ namespace stopFunctions
     class CleanJets
     {
     public:        
-        void operator()(NTupleReader& tr) {internalCleanJets(tr);}
+        void operator()(NTupleReader& tr) 
+        {
+            internalCleanJets(tr);
+        }
 
         void setMuonIso(const std::string muIsoFlag);
         void setElecIso(const std::string elecIsoFlag);
@@ -196,7 +209,7 @@ namespace stopFunctions
         bool disableMuon_, disableElec_;
         bool forceDr_;
 
-        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<float>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<float>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const float& jldRMax, const float photoCleanThresh = -999.9);
+        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<float>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<float>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const float& jldRMax, std::vector<float>* dRvec = nullptr, const float photoCleanThresh = -999.9);
         void internalCleanJets(NTupleReader& tr);
     };
 

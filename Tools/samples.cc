@@ -19,6 +19,7 @@ namespace AnaSamples
             filePathAndName = fileName;
         }
 
+        std::cout << "In FileSummary::readFileList(): filePathAndName = " << filePathAndName << std::endl;
         FILE *f = fopen(filePathAndName.c_str(), "r");
         char buff[1024];
         if(f)
@@ -30,7 +31,7 @@ namespace AnaSamples
             }
             fclose(f);
         }
-        else std::cout << "Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
+        else std::cout << "In FileSummary::readFileList(): Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
     }
 
     void FileSummary::addCollection(const std::string& colName)
@@ -38,9 +39,39 @@ namespace AnaSamples
         collections_.insert(colName);
     }
 
-    std::map<std::string, FileSummary>& SampleSet::getMap()
+    // modify weights to compare two MC samples
+    void SampleSet::modifyWeights(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2)
     {
-        return sampleSet_;
+        double sum_xsec1 = 0.0;
+        double sum_xsec2 = 0.0;
+        // add sample 1 cross sections
+        for (int i = 0; i < sampleTags1.size(); i++)
+        {
+            FileSummary fs = sampleSet_[sampleTags1[i]];
+            double xsec = fs.kfactor * fs.xsec;
+            sum_xsec1 += xsec;
+            //printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
+        }
+        // add sample 2 cross sections
+        for (int i = 0; i < sampleTags2.size(); i++)
+        {
+            FileSummary fs = sampleSet_[sampleTags2[i]];
+            double xsec = fs.kfactor * fs.xsec;
+            sum_xsec2 += xsec;
+            //printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
+        }
+        // calculate cross section ratio
+        double xsec_ratio = sum_xsec2 / sum_xsec1;
+        //printf("k * sum_xsec1 = %f\n", sum_xsec1);
+        //printf("k * sum_xsec2 = %f\n", sum_xsec2);
+        printf("In modifyWeights(): xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
+        // modify weights of sample 1
+        for (int i = 0; i < sampleTags1.size(); i++)
+        {
+            // use reference to change object
+            FileSummary& fs = sampleSet_[sampleTags1[i]];
+            fs.setWeight(xsec_ratio * fs.getWeight());
+        }
     }
 
     bool SampleSet::parseCfgLine(const char* buf)
@@ -70,7 +101,39 @@ namespace AnaSamples
     {
         readCfg(file);
     }
-
+    
+    // modify weights to compare two MC samples
+    void SampleCollection::modifyWeights(std::string& sampleTag1, std::string sampleTag2)
+    {
+        double sum_xsec1 = 0.0;
+        double sum_xsec2 = 0.0;
+        // add sample 1 cross sections
+        for(const auto& fs : sampleSet_[sampleTag1])
+        {
+            double xsec = fs.kfactor * fs.xsec;
+            sum_xsec1 += xsec;
+            //printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
+        }
+        // add sample 2 cross sections
+        for(const auto& fs : sampleSet_[sampleTag2])
+        {
+            double xsec = fs.kfactor * fs.xsec;
+            sum_xsec2 += xsec;
+            //printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
+        }
+        // calculate cross section ratio
+        double xsec_ratio = sum_xsec2 / sum_xsec1;
+        //printf("k * sum_xsec1 = %f\n", sum_xsec1);
+        //printf("k * sum_xsec2 = %f\n", sum_xsec2);
+        printf("In modifyWeights(): xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
+        // modify weights of sample 1
+        // use reference to change object
+        for(auto& fs : sampleSet_[sampleTag1])
+        {
+            fs.setWeight(xsec_ratio * fs.getWeight());
+        }
+    }
+    
     bool SampleCollection::parseCfgLine(const char* buf)
     {
         char rbuf[BUF_LEN_];

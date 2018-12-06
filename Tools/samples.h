@@ -37,6 +37,7 @@ namespace AnaSamples
     }
 
     double getWeight() const {return weight_;}
+    void setWeight(double w) {weight_ = w;}
     const std::vector<std::string>& getFilelist() const {return filelist_;}
     template<class T> void addFilesToChain(T* chain,  int startfile =0, int filerun= -1) const
     {
@@ -159,13 +160,17 @@ namespace AnaSamples
     {
         sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, lumi, kfactor, color);
     }
+    
+    // modify weights to compare two MC samples
+    void modifyWeights(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2);
+    
 
    private:
     std::string fDir_;
     bool isCondor_;
     double lumi_;
-
-    std::map<std::string, FileSummary>& getMap();
+    
+    std::map<std::string, FileSummary>& getMap() { return sampleSet_; }
     
     bool parseCfgLine(const char* buf);
   };
@@ -179,6 +184,10 @@ namespace AnaSamples
     {
       return totalLumiMap_[name];
     }
+    
+    // modify weights to compare two MC samples
+    void modifyWeights(std::string& sampleTag1, std::string sampleTag2);
+
    private:
     std::map<std::string, double> totalLumiMap_;
     std::map<std::string, std::vector<std::string>> nameVec_;

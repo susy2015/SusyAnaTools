@@ -8,9 +8,9 @@
 #include "Math/VectorUtil.h"
 
 // Top Tagger
-#include "TopTagger/TopTagger/include/TopTagger.h"
-#include "TopTagger/TopTagger/include/TopTaggerResults.h"
-#include "TopTagger/TopTagger/include/TopTaggerUtilities.h"
+#include "TopTagger/TopTagger/interface/TopTagger.h"
+#include "TopTagger/TopTagger/interface/TopTaggerResults.h"
+#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
 
 #include <iostream>
 #include <cstdio>
@@ -108,22 +108,22 @@ namespace AnaConsts{
    const float defaultHTcut = 300;
 
 //                                    minAbsEta, maxAbsEta, minPt, maxPt,   maxIso,  maxMtw
-   const IsoAccRec     muonsArr =    {   -1,       2.4,      10,     -1,       0.2,     -1  };
-   const IsoAccRec muonsMiniIsoArr = {   -1,       2.4,      5,     -1,       0.2,     -1  };
-   const IsoAccRec muonsTrigArr =    {   -1,       2.4,       5,     -1,       0.4,     -1  };
-//   const IsoAccRec   isoTrksArr =    {   -1,        -1,      10,     -1,       0.1,    100  };
-   const IsoAccRec   isoLepTrksArr = {   -1,       2.5,       5,     -1,       0.2,    100  };
-   const IsoAccRec   isoHadTrksArr = {   -1,       2.5,      10,     -1,       0.1,    100  };
-//   const IsoAccRec   isoTrksArr =    {   -1,        -1,     10,     -1,       0.1,    120  };
+   const IsoAccRec muonsArr        = {   -1,       2.4,      10,     -1,       0.2,     -1  };
+   const IsoAccRec muonsMiniIsoArr = {   -1,       2.4,       5,     -1,       0.2,     -1  };
+   const IsoAccRec muonsTrigArr    = {   -1,       2.4,       5,     -1,       0.4,     -1  };
+// const IsoAccRec isoTrksArr      = {   -1,        -1,      10,     -1,       0.1,    100  };
+   const IsoAccRec isoLepTrksArr   = {   -1,       2.5,       5,     -1,       0.2,    100  };
+   const IsoAccRec isoHadTrksArr   = {   -1,       2.5,      10,     -1,       0.1,    100  };
+// const IsoAccRec isoTrksArr      = {   -1,        -1,      10,     -1,       0.1,    120  };
 
 //                                       minAbsEta, maxAbsEta, minPt, maxPt, maxIsoEB, maxIsoEE,  maxMtw
-   const ElecIsoAccRec     elesArr =    {   -1,       2.5,      10,     -1,  0.164369, 0.212604,    -1  };
-   const ElecIsoAccRec elesMiniIsoArr = {   -1,       2.5,      5,     -1,     0.10,     0.10,     -1  };
-   const ElecIsoAccRec  oldelesArr =    {   -1,       2.5,       5,     -1,     0.15,     0.15,     -1  };
+   const ElecIsoAccRec elesArr        = {   -1,       2.5,      10,     -1,  0.164369, 0.212604,    -1  };
+   const ElecIsoAccRec elesMiniIsoArr = {   -1,       2.5,       5,     -1,     0.10,      0.10,    -1  };
+   const ElecIsoAccRec oldelesArr     = {   -1,       2.5,       5,     -1,     0.15,      0.15,    -1  };
 
-//                                  minAbsEta, maxAbsEta, minPt, maxPt,   mindR,   maxdR
-   const ActRec     muonsAct =    {   -1,       -1,        10,    -1,       -1,     1.0  };
-   const ActRec      elesAct =    {   -1,       -1,        10,    -1,       -1,     1.0  };
+//                                       minAbsEta, maxAbsEta, minPt, maxPt,   mindR,   maxdR
+   const ActRec muonsAct              = {   -1,       -1,        10,    -1,     -1,      1.0  };
+   const ActRec elesAct               = {   -1,       -1,        10,    -1,     -1,      1.0  };
 
    const float  dPhi0_CUT = 0.5, dPhi1_CUT = 0.5, dPhi2_CUT = 0.3;
    const float  minDPhiN_CUT = 6;
@@ -187,7 +187,8 @@ namespace AnaFunctions{
   void prepareForNtupleReader();
   float calcHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr);
   bool passBaseline();
-  int jetLepdRMatch(const TLorentzVector& lep, const std::vector<TLorentzVector>& jetsLVec, const float jldRMax);
+  // match dR between jet and object (photon, lepton, etc)
+  int jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax, std::vector<float>* dRvec);
   bool passElectronAccOnly(const TLorentzVector& elec, const AnaConsts::ElecIsoAccRec& elesArr);
   TLorentzVector calcMHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr);
   int countIsoLepTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<float> &isoTrksIso, const std::vector<float> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);
