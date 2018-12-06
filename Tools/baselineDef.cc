@@ -19,7 +19,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   UseLeptonCleanJet     = false;
   UseDRLeptonCleanJet   = false;
   UseDRPhotonCleanJet   = false;
-  UseDeepTagger         = false;
+  UseDeepTagger         = true;
   UseDeepCSV            = false;
   eraLabel              = "2016MC";
   jetVecLabel           = "jetsLVec";

@@ -8,9 +8,9 @@
 #include "Math/VectorUtil.h"
 
 // Top Tagger
-#include "TopTagger/TopTagger/include/TopTagger.h"
-#include "TopTagger/TopTagger/include/TopTaggerResults.h"
-#include "TopTagger/TopTagger/include/TopTaggerUtilities.h"
+#include "TopTagger/TopTagger/interface/TopTagger.h"
+#include "TopTagger/TopTagger/interface/TopTaggerResults.h"
+#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
 
 #include <iostream>
 #include <cstdio>
