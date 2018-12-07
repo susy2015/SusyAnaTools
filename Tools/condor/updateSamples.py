@@ -14,6 +14,14 @@ from shutil import copyfile
 from samples import SampleSet
 from nEvts import getNEvts
 
+# colors for printing to terminal
+class TextColor:
+    red = "\033[91m"
+    green = "\033[92m"
+    blue = "\033[94m"
+    end = "\033[0m"
+
+
 # regex
 # regular expression to get sample name and positive/negative weights
 #
@@ -37,7 +45,7 @@ regex2 = re.compile('(.*),.*/eos.*')
 # cDSname, cFPath, cfName, cTPath, &f1,           &f2,      &f3,      &f4
 #
 
-def getNewSample(sample, weight_dict, nevents_file):
+def getNewSample(sample, weight_dict, neventsFile):
     # be careful: strip() removes spaces and endlines
     sample_list = list(x.strip() for x in sample.split(','))
     name = sample_list[0] 
@@ -60,11 +68,12 @@ def getNewSample(sample, weight_dict, nevents_file):
         print "ERROR: Skipping sample_list = {0}".format(sample_list)
         return newSample
     # only use nevents_file if it is provided (not empty string)
-    if nevents_file:
-        nevents = open(nevents_file, 'r')
+    if neventsFile:
+        # return to the beginning of the file
+        neventsFile.seek(0)
         num_matches = 0
         message = ""
-        for nevent in nevents:
+        for nevent in neventsFile:
             match = regex1.match(nevent)
             if not match:
                 continue
@@ -91,7 +100,6 @@ def getNewSample(sample, weight_dict, nevents_file):
         # replace commas and a space removed by split()
         # replace endline that was removed by strip()
         newSample = ", ".join(sample_list) + "\n"
-        nevents.close()
     # calculate events directly without nevents_file
     else:
         message = ""
@@ -122,41 +130,59 @@ def main1():
     # options
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--nevents_file",    "-e", default="",                     help="file containing number of events with weights")
-    parser.add_argument("--samples_file",    "-s", default="../sampleSets.cfg",    help="Existing SampleSets.cfg file")
+    parser.add_argument("--input_file",      "-i", default="../sampleSets.cfg",    help="Existing SampleSets.cfg file")
     parser.add_argument("--output_file",     "-o", default="../sampleSets_v1.cfg", help="New SampleSets.cfg file to create")
     parser.add_argument("--threads",         "-t", default=4,                      help="Number of threads to use (default: 0)")
     parser.add_argument("--dataset_pattern", "-d", default = ".*",                 help="Regexp defining sampleSets to check (Defaults to all)")
     
     options = parser.parse_args()
-    samples_file = options.samples_file
+    input_file = options.input_file
     nevents_file = options.nevents_file
     output_file  = options.output_file
     threads      = int(options.threads)
     dataset_pattern = options.dataset_pattern
 
-    print "samples file: {0}".format(samples_file)
-    print "nevents file: {0}".format(nevents_file)
-    print "output file: {0}".format(output_file)
+    print "  samples file: {0}".format(input_file)
+    print "  nevents file: {0}".format(nevents_file)
+    print "  output file: {0}".format(output_file)
 
-    inputSamples  = open(samples_file, 'r')
-    outputSamples = open(output_file, 'w')
+    try:
+        inputSamples  = open(input_file, 'r')
+    except:
+        print TextColor.red + "ERROR opening input file {0}".format(input_file) + TextColor.end
+        return
+    try:
+        outputSamples  = open(output_file, 'w')
+    except:
+        print TextColor.red + "ERROR opening output file {0}".format(output_file) + TextColor.end
+        return
     
-    ss = SampleSet(samples_file)
+    ss = SampleSet(input_file)
     samples = [(name, s_file.replace("/eos/uscms", "root://cmseos.fnal.gov/")) for name, s_file in ss.sampleSetList()]
     
     weight_dict = {}
     
-    for name, s_file in samples:
-        if re.search(dataset_pattern, name):
-            try:
-                nPos, nNeg = getNEvts(s_file, threads)
-                weight_dict[name] = {}
-                weight_dict[name]["pos"] = int(nPos)
-                weight_dict[name]["neg"] = int(nNeg)
-                print "{0}, {1}, Positive weights: {2}, Negative weights: {3}".format(name, s_file, weight_dict[name]["pos"], weight_dict[name]["neg"])
-            except TypeError:
-                print "TypeError: name = {0}, s_file = {1}".format(name, s_file)
-                pass
+    neventsFile = False
+    if nevents_file:
+        # open nevents file if it is provided
+        try:
+            neventsFile = open(nevents_file, 'r')
+        except:
+            print TextColor.red + "ERROR opening nevents file {0}".format(nevents_file) + TextColor.end
+            return
+    else:
+        # only get weights using getNEvts() if nevents_file is not provided by user
+        for name, s_file in samples:
+            if re.search(dataset_pattern, name):
+                try:
+                    nPos, nNeg = getNEvts(s_file, threads)
+                    weight_dict[name] = {}
+                    weight_dict[name]["pos"] = int(nPos)
+                    weight_dict[name]["neg"] = int(nNeg)
+                    print "{0}, {1}, Positive weights: {2}, Negative weights: {3}".format(name, s_file, weight_dict[name]["pos"], weight_dict[name]["neg"])
+                except TypeError:
+                    print "TypeError: name = {0}, s_file = {1}".format(name, s_file)
+                    pass
 
     # for each sample, find the correct weights
     for sample in inputSamples:
@@ -175,12 +201,14 @@ def main1():
             continue
         # if sample matches pattern, assume that it is a sample and get new sample to write to file
         if re.search(dataset_pattern, sample):
-            newSample = getNewSample(sample, weight_dict, nevents_file)
-            print "newSample: {0}".format(newSample)
+            newSample = getNewSample(sample, weight_dict, neventsFile)
+            #print "newSample: {0}".format(newSample)
         outputSamples.write(newSample)
 
     inputSamples.close()
     outputSamples.close()
+    if neventsFile: 
+        neventsFile.close()
 
 def main2():
 
