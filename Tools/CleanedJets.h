@@ -41,9 +41,9 @@ private:
         // cleanJetCollection(std::string jetCollectionName, std::vector<TLorentzVector> jetCollectionVariables, std::string prefix)
         
         cleanJetCollection("jetsLVec",      "gammaLVecPassLooseID", AK4JetVariables_, "",               "_drPhotonCleaned");
-        cleanJetCollection("jetsLVec",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned");
+        cleanJetCollection("jetsLVec",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned", 10.0); // p_t > 10.0
         cleanJetCollection("puppiJetsLVec", "gammaLVecPassLooseID", AK8JetVariables_, "",               "_drPhotonCleaned");
-        cleanJetCollection("puppiJetsLVec", "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned");
+        cleanJetCollection("puppiJetsLVec", "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned", 10.0); // p_t > 10.0
         
         //cleanJetCollection("jetsLVec",      "gammaLVecPassLooseID", AK4JetVariables_, "prodJetsNoLep_", "_drPhotonCleaned");
         //cleanJetCollection("puppiJetsLVec", "gammaLVecPassLooseID", AK8JetVariables_, "prodJetsNoLep_", "_drPhotonCleaned");
@@ -86,7 +86,7 @@ private:
     }
 
     // clean all variables in jet  collection
-    void cleanJetCollection(const std::string& jetCollectionName, const std::string& objectNameString, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix, const std::string& suffix)
+    void cleanJetCollection(const std::string& jetCollectionName, const std::string& objectNameString, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix, const std::string& suffix, double max_pt = -1.0)
     {
         // vector of vector of TLV
         // fill with different objects (photons, or muons and leptons)
@@ -108,6 +108,15 @@ private:
                 //jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax)
                 int match = AnaFunctions::jetObjectdRMatch(objectLVec[i], jetsLVec, dRMax, dRvec);
                 if (match >= 0) keepJet[match] = false;
+            }
+        }
+
+        // apply jet p_t cut
+        if (max_pt > 0.0)
+        {
+            for (int i = 0; i < jetsLVec.size(); i++)
+            {
+                if (jetsLVec[i].Pt() < max_pt) keepJet[i] = false; 
             }
         }
         
