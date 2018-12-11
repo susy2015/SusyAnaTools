@@ -1,6 +1,7 @@
 #ifndef ANASAMPLES_SAMPLES_H
 #define ANASAMPLES_SAMPLES_H
 
+#include <iostream>
 #include <string>
 #include <map>
 #include <vector>
@@ -153,11 +154,13 @@ namespace AnaSamples
     SampleSet(std::string fDir = fileDir, bool isCondor = false, double lumi = luminosity);
     void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) 
     {
+        //std::cout << "In addSample(): filePath = " << filePath << std::endl;
         sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, xsec, lumi, nEvts, kfactor, color);
     }
 
     void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName,  const std::string& treePath, double lumi, double kfactor, int color = kBlack) 
     {
+        //std::cout << "In addSample(): filePath = " << filePath << std::endl;
         sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, lumi, kfactor, color);
     }
     

@@ -19,7 +19,7 @@ namespace AnaSamples
             filePathAndName = fileName;
         }
 
-        std::cout << "In FileSummary::readFileList(): filePath: " << filePath << std::endl;
+        std::cout << "In FileSummary::readFileList(): filePath = " << filePath << std::endl;
         std::cout << "In FileSummary::readFileList(): filePathAndName = " << filePathAndName << std::endl;
         FILE *f = fopen(filePathAndName.c_str(), "r");
         char buff[1024];
@@ -80,6 +80,7 @@ namespace AnaSamples
         char cDSname[256], cFPath[256], cfName[256], cTPath[256];
         float f1, f2, f3, f4;
         int nMatches = sscanf(buf, "%s %s %s %s %f %f %f %f", cDSname, cFPath, cfName, cTPath, &f1, &f2, &f3, &f4);
+        std::cout << "cFPath = " << cFPath << " nMatches = " << nMatches << " isCondor_ = " << isCondor_ << std::endl;
         if(nMatches == 8) //this is MC 
         {
             //                                                        xsec        NEvts+ NEvts-  kfactor
