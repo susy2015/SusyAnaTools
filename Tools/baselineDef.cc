@@ -79,6 +79,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   SetupTopTagger(toptaggerCfgFile);
 }
 
+// constructor without nullptr as argument
+BaselineVessel::BaselineVessel(const std::string specialization, const std::string filterString) : BaselineVessel(*static_cast<NTupleReader*>(nullptr), specialization, filterString) {}
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::UseCleanedJets

@@ -21,8 +21,6 @@
 #include <vector>
 #include <iterator>
 
-#endif
-
 class CleanedJets {
 
 private:
@@ -205,3 +203,4 @@ public:
     }
 };
 
+#endif

@@ -19,6 +19,7 @@ namespace AnaSamples
             filePathAndName = fileName;
         }
 
+        std::cout << "In FileSummary::readFileList(): filePath: " << filePath << std::endl;
         std::cout << "In FileSummary::readFileList(): filePathAndName = " << filePathAndName << std::endl;
         FILE *f = fopen(filePathAndName.c_str(), "r");
         char buff[1024];
