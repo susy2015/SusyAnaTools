@@ -14,7 +14,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 {
   bToFake               = 1;
   debug                 = false;
-  printConfig           = true;
+  printConfig           = false;
   incZEROtop            = false;
   UseLeptonCleanJet     = false;
   UseDRLeptonCleanJet   = false;
@@ -68,7 +68,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
     TObjArray * objArr = stripT.Tokenize(" ");
     TObjString* firstObj = dynamic_cast<TObjString*>(objArr->At(0));
     firstSpec = firstObj->GetString().Data();
-    std::cout<<"\nfirstSpec : "<<firstSpec.c_str()<<"  spec : "<<spec.c_str()<<"  isfastsim : "<<isfastsim<<std::endl<<std::endl;
+    //std::cout<<"\nfirstSpec : "<<firstSpec.c_str()<<"  spec : "<<spec.c_str()<<"  isfastsim : "<<isfastsim<<std::endl<<std::endl;
   }
   firstSpec += taggerLabel;
 
@@ -456,7 +456,7 @@ bool BaselineVessel::PredefineSpec()
 
   if( !printOnce ){
     printOnce = true;
-    std::cout<<"spec : "<<spec.c_str()<<"  jetVecLabel : "<<jetVecLabel.c_str() <<"  CSVVecLabel : "<<CSVVecLabel.c_str() <<"  METLabel : "<<METLabel.c_str()<< std::endl;
+    //std::cout<<"spec : "<<spec.c_str()<<"  jetVecLabel : "<<jetVecLabel.c_str() <<"  CSVVecLabel : "<<CSVVecLabel.c_str() <<"  METLabel : "<<METLabel.c_str()<< std::endl;
   }  
   
 
