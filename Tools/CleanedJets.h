@@ -38,14 +38,17 @@ private:
         // clean all variables in jet  collection
         // void cleanJetCollection(const std::string& jetCollectionName, const std::string& objectNameString, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix, const std::string& suffix, bool doDRCleaning, bool doJetCuts)
         
-        cleanJetCollection("jetsLVec",      "gammaLVecPassLooseID", AK4JetVariables_, "",               "_drPhotonCleaned", true, true);
-        cleanJetCollection("jetsLVec",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned", true, true);
-        cleanJetCollection("jetsLVec",      "",                     AK4JetVariables_, "",               "_pt20eta24",       false, true);
-        cleanJetCollection("jetsLVec",      "",                     AK4JetVariables_, "prodJetsNoLep_", "_pt20eta24",       false, true);
-        cleanJetCollection("puppiJetsLVec", "gammaLVecPassLooseID", AK8JetVariables_, "",               "_drPhotonCleaned", true, true);
-        cleanJetCollection("puppiJetsLVec", "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned", true, true);
-        cleanJetCollection("puppiJetsLVec", "",                     AK8JetVariables_, "",               "_pt20eta24",       false, true);
-        cleanJetCollection("puppiJetsLVec", "",                     AK8JetVariables_, "prodJetsNoLep_", "_pt20eta24",       false, true);
+        //                  jetCollectionName, objectNameString,    jetCollectionVariables, prefix,     suffix,               doDRCleaning, doJetCuts
+        cleanJetCollection("jetsLVec",      "gammaLVecPassLooseID", AK4JetVariables_, "",               "_drPhotonCleaned",           true, false);
+        cleanJetCollection("jetsLVec",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned",           true, false);
+        cleanJetCollection("jetsLVec",      "",                     AK4JetVariables_, "",               "_pt20eta24",                 false, true);
+        cleanJetCollection("jetsLVec",      "",                     AK4JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
+        cleanJetCollection("jetsLVec",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
+        cleanJetCollection("puppiJetsLVec", "gammaLVecPassLooseID", AK8JetVariables_, "",               "_drPhotonCleaned",           true, false);
+        cleanJetCollection("puppiJetsLVec", "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned",           true, false);
+        cleanJetCollection("puppiJetsLVec", "",                     AK8JetVariables_, "",               "_pt20eta24",                 false, true);
+        cleanJetCollection("puppiJetsLVec", "",                     AK8JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
+        cleanJetCollection("puppiJetsLVec", "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
         
         //cleanJetCollection("jetsLVec",      "gammaLVecPassLooseID", AK4JetVariables_, "prodJetsNoLep_", "_drPhotonCleaned");
         //cleanJetCollection("puppiJetsLVec", "gammaLVecPassLooseID", AK8JetVariables_, "prodJetsNoLep_", "_drPhotonCleaned");
@@ -79,17 +82,28 @@ private:
         }
     }
 
-    // return vector of strings given names separated by deliminator, e.g. "electron;muon"
+    // return vector of strings given names separated by deliminator, e.g. "electron;muon" ---> {"electron", "muon"} 
     std::vector<std::string> getVecFromString(const std::string &s, const char& delim) {
-        if (! delim) std::cout << "ERROR in getVecFromString(): please provide delim" << std::endl;
         std::vector<std::string> splitString;
+        if (!delim)
+        {
+            std::cout << "ERROR in getVecFromString(): please provide string (s) and char (delim)" << std::endl;
+            return splitString;
+        }
         split(s, delim, std::back_inserter(splitString));
+        //std::cout << "original string: " << s << " split string:";
+        //for (auto const& a : splitString) std::cout << " " << a;
+        //std::cout << std::endl;
         return splitString;
     }
 
     // clean all variables in jet  collection
     void cleanJetCollection(const std::string& jetCollectionName, const std::string& objectNameString, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix, const std::string& suffix, bool doDRCleaning, bool doJetCuts)
     {
+        std::string message = "Creating Jet Collection " + prefix + jetCollectionName + suffix;
+        if (doDRCleaning) message += " with DR cleaning";
+        if (doJetCuts)    message += " with pt and eta cuts";
+        std::cout << message << std::endl;
         // vector of vector of TLV
         // fill with different objects (photons, or muons and leptons)
         std::vector<std::string> objectNameVec = getVecFromString(objectNameString, ';'); 
