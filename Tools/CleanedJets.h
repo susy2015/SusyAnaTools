@@ -101,9 +101,10 @@ private:
     void cleanJetCollection(const std::string& jetCollectionName, const std::string& objectNameString, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix, const std::string& suffix, bool doDRCleaning, bool doJetCuts)
     {
         //std::string message = "Creating Jet Collection " + prefix + jetCollectionName + suffix;
-        if (doDRCleaning) message += " with DR cleaning";
-        if (doJetCuts)    message += " with pt and eta cuts";
-        std::cout << message << std::endl;
+        //if (doDRCleaning) message += " with DR cleaning";
+        //if (doJetCuts)    message += " with pt and eta cuts";
+        //std::cout << message << std::endl;
+
         // vector of vector of TLV
         // fill with different objects (photons, or muons and leptons)
         std::vector<std::string> objectNameVec = getVecFromString(objectNameString, ';'); 
