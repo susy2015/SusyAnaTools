@@ -1,5 +1,4 @@
 // CleanedJets.h
-//
 // Caleb J. Smith
 // October 22, 2018
 
@@ -14,6 +13,7 @@
 #include "SusyAnaTools/Tools/NTupleReader.h"
 #include "SusyAnaTools/Tools/customize.h"
 #include "Math/VectorUtil.h"
+#include "SusyAnaTools/Tools/SusyUtility.h"
 
 #include <iostream>
 #include <sstream>
@@ -54,32 +54,6 @@ private:
         //cleanJetCollection("puppiJetsLVec", "gammaLVecPassLooseID", AK8JetVariables_, "prodJetsNoLep_", "_drPhotonCleaned");
     }
 
-    template<typename T>
-    void split(const std::string &s, const char& delim, T result) {
-        std::stringstream ss;
-        ss.str(s);
-        std::string item;
-        while (std::getline(ss, item, delim))
-        {
-            *(result++) = item;
-        }
-    }
-
-    // return vector of strings given names separated by deliminator, e.g. "electron;muon" ---> {"electron", "muon"} 
-    std::vector<std::string> getVecFromString(const std::string &s, const char& delim) {
-        std::vector<std::string> splitString;
-        if (!delim)
-        {
-            std::cout << "ERROR in getVecFromString(): please provide string (s) and char (delim)" << std::endl;
-            return splitString;
-        }
-        split(s, delim, std::back_inserter(splitString));
-        //std::cout << "original string: " << s << " split string:";
-        //for (auto const& a : splitString) std::cout << " " << a;
-        //std::cout << std::endl;
-        return splitString;
-    }
-
     template <class type> void cleanVector(std::string vectorName, std::vector<bool> keepJet, const std::string& suffix)
     {
         //std::cout << "In cleanVector(): vectorName = " << vectorName << ", type = " << typeid(type).name() << std::endl;
@@ -107,7 +81,7 @@ private:
 
         // vector of vector of TLV
         // fill with different objects (photons, or muons and leptons)
-        std::vector<std::string> objectNameVec = getVecFromString(objectNameString, ';'); 
+        std::vector<std::string> objectNameVec = SusyUtility::getVecFromString(objectNameString, ';'); 
 
         const auto& jetsLVec  = tr_->getVec<TLorentzVector>(prefix + jetCollectionName);  // jet lorentz vector
         std::vector<float>* dRvec = new std::vector<float>();
