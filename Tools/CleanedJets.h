@@ -54,23 +54,6 @@ private:
         //cleanJetCollection("puppiJetsLVec", "gammaLVecPassLooseID", AK8JetVariables_, "prodJetsNoLep_", "_drPhotonCleaned");
     }
 
-    template <class type> void cleanVector(std::string vectorName, std::vector<bool> keepJet, const std::string& suffix)
-    {
-        //std::cout << "In cleanVector(): vectorName = " << vectorName << ", type = " << typeid(type).name() << std::endl;
-        const auto& vec = tr_->getVec<type>(vectorName); 
-        std::vector<type>* cleanedVec = new std::vector<type>();
-        if (keepJet.size() != vec.size())
-        {
-            std::cout << "ERROR in cleanVector(): vector sizes do not match for " << vectorName << std::endl;
-            std::cout << "In cleanVector(): keepJet.size() = " << keepJet.size() << " and vec.size() = " << vec.size() << std::endl;
-        }
-        for (int i = 0; i < vec.size(); ++i)
-        {
-            if (keepJet[i]) cleanedVec->push_back(vec[i]);
-        }
-        tr_->registerDerivedVec(vectorName+suffix, cleanedVec);
-    }
-
     template<typename T>
     void split(const std::string &s, const char& delim, T result) {
         std::stringstream ss;
@@ -97,10 +80,27 @@ private:
         return splitString;
     }
 
+    template <class type> void cleanVector(std::string vectorName, std::vector<bool> keepJet, const std::string& suffix)
+    {
+        //std::cout << "In cleanVector(): vectorName = " << vectorName << ", type = " << typeid(type).name() << std::endl;
+        const auto& vec = tr_->getVec<type>(vectorName); 
+        std::vector<type>* cleanedVec = new std::vector<type>();
+        if (keepJet.size() != vec.size())
+        {
+            std::cout << "ERROR in cleanVector(): vector sizes do not match for " << vectorName << std::endl;
+            std::cout << "In cleanVector(): keepJet.size() = " << keepJet.size() << " and vec.size() = " << vec.size() << std::endl;
+        }
+        for (int i = 0; i < vec.size(); ++i)
+        {
+            if (keepJet[i]) cleanedVec->push_back(vec[i]);
+        }
+        tr_->registerDerivedVec(vectorName + suffix, cleanedVec);
+    }
+
     // clean all variables in jet  collection
     void cleanJetCollection(const std::string& jetCollectionName, const std::string& objectNameString, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix, const std::string& suffix, bool doDRCleaning, bool doJetCuts)
     {
-        std::string message = "Creating Jet Collection " + prefix + jetCollectionName + suffix;
+        //std::string message = "Creating Jet Collection " + prefix + jetCollectionName + suffix;
         if (doDRCleaning) message += " with DR cleaning";
         if (doJetCuts)    message += " with pt and eta cuts";
         std::cout << message << std::endl;
