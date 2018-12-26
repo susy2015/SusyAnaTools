@@ -580,8 +580,6 @@ void BaselineVessel::PassBaseline()
   // Pass deltaPhi?
   bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
   if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
-  //if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; std::cout << "DPHI_FAIL" << std::endl; }
-  //else std::cout << "DPHI_PASS" << std::endl;
   if( debug ) std::cout<<"dPhi0 : "<<dPhiVec->at(0)<<"  dPhi1 : "<<dPhiVec->at(1)<<"  dPhi2 : "<<dPhiVec->at(2)<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass number of b-tagged jets? 
@@ -675,12 +673,6 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("HT" + firstSpec, HT);
 
   if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
-  
-  //if (passBaseline) std::cout << "BASELINE_PASS" << std::endl;
-  //else              std::cout << "BASELINE_FAIL" << std::endl;
-  // debugging dPhi
-  //if( passBaseline ) std::cout << "passBaseline" << firstSpec << ": BASELINE_PASS --- dPhi0 : " << dPhiVec->at(0) << "  dPhi1 : " << dPhiVec->at(1) << "  dPhi2 : " << dPhiVec->at(2) << "  passBaseline : " << passBaseline << std::endl;
-
 } 
 
 int BaselineVessel::GetnTops() const

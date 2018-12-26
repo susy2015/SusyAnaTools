@@ -33,7 +33,7 @@ bool SearchBins::searchBinDef::compare(const int ibJet, const int iTop, const fl
 SearchBins::SearchBins(std::string binEra) :
   binEra_(binEra)
 {
-    //std::cout<<"\nbinEra_ : "<<binEra_.c_str()<<std::endl<<std::endl;
+    std::cout<<"\nbinEra_ : "<<binEra_.c_str()<<std::endl<<std::endl;
     NSearchRegions_ = 0;
 
     if(binEra_.compare("SB_37_2015") == 0)
