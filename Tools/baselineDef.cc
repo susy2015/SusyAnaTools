@@ -20,7 +20,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   UseDRLeptonCleanJet   = false;
   UseDRPhotonCleanJet   = false;
   UseDeepTagger         = true;
-  UseDeepCSV            = false;
+  UseDeepCSV            = true;
   eraLabel              = "2016MC";
   jetVecLabel           = "jetsLVec";
   CSVVecLabel           = "recoJetsCSVv2";
@@ -325,6 +325,7 @@ bool BaselineVessel::PredefineSpec()
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
     
+    UseDeepCSV          = false; // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = false;
@@ -338,6 +339,7 @@ bool BaselineVessel::PredefineSpec()
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
     
+    UseDeepCSV          = false; // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = true;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = false;
@@ -351,6 +353,7 @@ bool BaselineVessel::PredefineSpec()
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
     
+    UseDeepCSV          = false; // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = true;
@@ -364,6 +367,7 @@ bool BaselineVessel::PredefineSpec()
     METLabel    = "metWithPhoton";
     METPhiLabel = "metphiWithPhoton";
     
+    UseDeepCSV          = false; // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
@@ -385,6 +389,7 @@ bool BaselineVessel::PredefineSpec()
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
     
+    UseDeepCSV          = false; // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = true;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = false;
