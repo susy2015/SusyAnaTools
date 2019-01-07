@@ -87,6 +87,41 @@ namespace AnaSamples
     }
     const T& null() const {return nullT_;}
     
+    //double getCrossSectionRatio(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2)
+    //{
+    //    double sum_xsec1 = 0.0;
+    //    double sum_xsec2 = 0.0;
+    //    // add sample 1 cross sections
+    //    for (int i = 0; i < sampleTags1.size(); i++)
+    //    {
+    //        FileSummary fs = sampleSet_[sampleTags1[i]];
+    //        double xsec = fs.kfactor * fs.xsec;
+    //        sum_xsec1 += xsec;
+    //        //printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
+    //    }
+    //    // add sample 2 cross sections
+    //    for (int i = 0; i < sampleTags2.size(); i++)
+    //    {
+    //        FileSummary fs = sampleSet_[sampleTags2[i]];
+    //        double xsec = fs.kfactor * fs.xsec;
+    //        sum_xsec2 += xsec;
+    //        //printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
+    //    }
+    //    // calculate cross section ratio
+    //    double xsec_ratio = sum_xsec2 / sum_xsec1;
+    //    //printf("k * sum_xsec1 = %f\n", sum_xsec1);
+    //    //printf("k * sum_xsec2 = %f\n", sum_xsec2);
+    //    printf("In getCrossSectionRatio(): xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
+    //    return xsec_ratio; 
+    //    // modify weights of sample 1
+    //    //for (int i = 0; i < sampleTags1.size(); i++)
+    //    //{
+    //    //    // use reference to change object
+    //    //    FileSummary& fs = sampleSet_[sampleTags1[i]];
+    //    //    fs.setWeight(xsec_ratio * fs.getWeight());
+    //    //}
+    //}
+    
    protected:
     std::map<std::string, T> sampleSet_;
     const T nullT_;
@@ -163,7 +198,7 @@ namespace AnaSamples
     }
     
     // modify weights to compare two MC samples
-    void modifyWeights(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2);
+    double getCrossSectionRatio(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2);
     
 
    private:
@@ -187,7 +222,7 @@ namespace AnaSamples
     }
     
     // modify weights to compare two MC samples
-    void modifyWeights(std::string& sampleTag1, std::string sampleTag2);
+    double getCrossSectionRatio(std::string& sampleTag1, std::string sampleTag2);
 
    private:
     std::map<std::string, double> totalLumiMap_;
