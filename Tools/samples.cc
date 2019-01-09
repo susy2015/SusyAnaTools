@@ -63,15 +63,8 @@ namespace AnaSamples
         double xsec_ratio = sum_xsec2 / sum_xsec1;
         //printf("k * sum_xsec1 = %f\n", sum_xsec1);
         //printf("k * sum_xsec2 = %f\n", sum_xsec2);
-        printf("In getCrossSectionRatio(): xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
+        printf("In SampleSet::getCrossSectionRatio(): xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
         return xsec_ratio; 
-        // modify weights of sample 1
-        //for (int i = 0; i < sampleTags1.size(); i++)
-        //{
-        //    // use reference to change object
-        //    FileSummary& fs = sampleSet_[sampleTags1[i]];
-        //    fs.setWeight(xsec_ratio * fs.getWeight());
-        //}
     }
 
     bool SampleSet::parseCfgLine(const char* buf)
@@ -125,14 +118,8 @@ namespace AnaSamples
         double xsec_ratio = sum_xsec2 / sum_xsec1;
         //printf("k * sum_xsec1 = %f\n", sum_xsec1);
         //printf("k * sum_xsec2 = %f\n", sum_xsec2);
-        printf("In getCrossSectionRatio(): xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
+        printf("In SampleCollection::getCrossSectionRatio(): xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
         return xsec_ratio;
-        // modify weights of sample 1
-        // use reference to change object
-        //for(auto& fs : sampleSet_[sampleTag1])
-        //{
-        //    fs.setWeight(xsec_ratio * fs.getWeight());
-        //}
     }
     
     bool SampleCollection::parseCfgLine(const char* buf)
