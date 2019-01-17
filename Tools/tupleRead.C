@@ -28,6 +28,7 @@ int main(int argc, char* argv[]){
 
 	//const TString new_tagger_cfg = "default";
 	const TString new_tagger_cfg = "res_tight_ak8_tight";
+	//const TString new_tagger_cfg = "res_tight_ak8_tight_W_loose";
 	//const TString new_tagger_cfg = "res_tight_ak8_loose";
 	//const TString new_tagger_cfg = "res_mid_ak8_tight";
 	//const TString new_tagger_cfg = "res_mid_ak8_loose";
@@ -92,6 +93,7 @@ int main(int argc, char* argv[]){
 		blv.UseDeepTagger = true;
 		if(new_tagger_cfg == "default") blv.SetupTopTagger("./TopTagger_Deep.cfg");
 		if(new_tagger_cfg == "res_tight_ak8_tight") blv.SetupTopTagger("./TopTagger_res_tight_ak8_tight.cfg");
+		if(new_tagger_cfg == "res_tight_ak8_tight_W_loose") blv.SetupTopTagger("./TopTagger_res_tight_ak8_tight_W_loose.cfg");
 		if(new_tagger_cfg == "res_tight_ak8_loose") blv.SetupTopTagger("./TopTagger_res_tight_ak8_loose.cfg");
 		if(new_tagger_cfg == "res_mid_ak8_tight") blv.SetupTopTagger("./TopTagger_res_mid_ak8_tight.cfg");
 		if(new_tagger_cfg == "res_mid_ak8_loose") blv.SetupTopTagger("./TopTagger_res_mid_ak8_loose.cfg");
