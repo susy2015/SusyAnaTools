@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
     
     for(auto& file : ss) 
     {
+        //std::cout << "first: " << file.first << " second: " << file.second.tag << std::endl;
         if( !keyStrVec.empty() )
         {
             bool found = false;
@@ -65,8 +66,10 @@ int main(int argc, char *argv[])
                     found = true; 
                     break; 
                 }
-            }
-            if( !found ) continue;
+            } 
+            if ( found ) std::cout << "Found sample. first: " << file.first << " second: " << file.second.tag << std::endl;
+            else         continue;
+            //if( !found ) continue;
         }
         if(skipData && file.first.find("Data") != std::string::npos)
         {
@@ -76,6 +79,7 @@ int main(int argc, char *argv[])
 
         TChain *t = new TChain(file.second.treePath.c_str());
         file.second.addFilesToChain(t);
+        std::cout << "created TChain and added file" << std::endl;
     
         //int nEntries = t->GetEntries();
         //if(nEntries != file.second.nEvts)
@@ -83,8 +87,10 @@ int main(int argc, char *argv[])
         //std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << nEntries << "\twas: " << file.second.nEvts  << std::endl;
 
         TH1* h3 = new TH1D("h3", "h3", 2, -100000, 100000);
+        std::cout << "created histogram" << std::endl;
             
         t->Draw("stored_weight>>h3", "1", "goff");
+        std::cout << "completed t->Draw()" << std::endl;
         std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << "Neg weigths = " << int(h3->GetBinContent(1)) << ", Pos weights = " << int(h3->GetBinContent(2)) << std::endl;
         // delete TH1* to avoid memory leaks / save memory / not crash / be safe
         delete h3;
