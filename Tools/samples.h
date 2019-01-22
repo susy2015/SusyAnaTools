@@ -71,7 +71,8 @@ namespace AnaSamples
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_72X_July_2015_v1.1/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/Spring15_74X_July_2015_v1.1/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/Spring15_74X_Oct_2015_Ntp_v2X/";
-  static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/";
+  //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/";
+  static const std::string fileDir = "/cms/data/store/user/lpcsusyhad/";
 
   template<class T>
   class SampleBase

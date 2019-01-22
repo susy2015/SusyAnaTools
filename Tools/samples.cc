@@ -92,6 +92,7 @@ namespace AnaSamples
     
     SampleSet::SampleSet(std::string file, bool isCondor, double lumi) : isCondor_(isCondor), lumi_(lumi)
     {
+        std::cout << "SampleSet file: " << file << std::endl;
         readCfg(file);
     }
     
@@ -157,6 +158,7 @@ namespace AnaSamples
 
     SampleCollection::SampleCollection(const std::string& file, SampleSet& samples) : ss_(samples)
     {
+        std::cout << "SampleCollection file: " << file << std::endl;
         readCfg(file);
     }
 
