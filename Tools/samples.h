@@ -134,6 +134,10 @@ namespace AnaSamples
 
             fclose(fin);
         }
+        else
+        {
+            std::cout << "ERROR: Unable to open file " << file << std::endl;
+        }
     }
 
 

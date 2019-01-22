@@ -3,6 +3,16 @@ import optparse
 from glob import glob
 import re
 
+def copy(filename, path, force = False):
+    if force:
+        command = "xrdcp --force %s %s"%(filename, "/".join([path, filename]))
+    else:
+        command = "xrdcp %s %s"%(filename, "/".join([path, filename]))
+    print command
+    with os.popen(command) as stdout:
+        for l in stdout:
+            print l.strip("\n")
+
 def eoscp(filename, path, force = False, eosurl = "root://cmseos.fnal.gov"):
     if force:
         command = "xrdcp --force %s %s/%s"%(filename, eosurl, "/".join([path, filename]))
@@ -54,6 +64,7 @@ if __name__ == "__main__":
 
     parser = optparse.OptionParser("usage: %prog [options]\n")
     
+    parser.add_option ('-p',      dest='path',       type='string',    default = "",                           help="File path to copy text files")
     parser.add_option ('-d',      dest='directory',  type='string',    default = "",                           help="File path to begin")
     parser.add_option ('-f',      dest='file',       type='string',    default = "",                           help="File name to transfer")
     parser.add_option ('-e',      dest='eosurl',     type='string',    default = "root://cmseos.fnal.gov",     help="Eos url (Defaults to root://cmseos.fnal.gov)")
@@ -68,6 +79,10 @@ if __name__ == "__main__":
     options, args = parser.parse_args()
     
     startPath = options.directory
+    if options.path:
+        copyPath = options.path
+    else:
+        copyPath = startPath
     
     if options.list:
         with eosls(startPath, "-l", eosurl = options.eosurl) as stdout:
@@ -94,7 +109,8 @@ if __name__ == "__main__":
                     f.close()
             
                     if options.copy:
-                        eoscp(fileName, startPath, options.force, eosurl = options.eosurl)
+                        #eoscp(fileName, startPath, options.force, eosurl = options.eosurl)
+                        copy(fileName, copyPath, options.force)
 
     if options.copy and len(options.file) and not options.list:
         files = glob(options.file)
@@ -102,5 +118,6 @@ if __name__ == "__main__":
             print "No files to transfer with glob options.file"
         else:
             for f in files:
-                eoscp(f, startPath, options.force, eosurl = options.eosurl)
+                #eoscp(f, startPath, options.force, eosurl = options.eosurl)
+                copy(f, copyPath, options.force)
             
