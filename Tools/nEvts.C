@@ -15,27 +15,20 @@ int main(int argc, char *argv[])
     int opt;
     int option_index = 0;
     static struct option long_options[] = {
-        {"negw",     no_argument, 0, 'w'},
         {"skipData", no_argument, 0, 's'}
     };
 
-    bool getNegWeights = false, skipData = false;
+    bool skipData = false;
     while((opt=getopt_long(argc, argv, "ws", long_options, &option_index)) != -1)
     {
         switch(opt)
         {
-        case 'w':
-            getNegWeights = true;
-            break;
-
         case 's':
             skipData = true;
             break;
         }
     }
   
-    if(getNegWeights)
-        std::cout << "Will compute negative weight fraction" << std::endl;
     
     AnaSamples::SampleSet        ss("sampleSets.cfg");
     AnaSamples::SampleCollection sc("sampleCollections.cfg", ss);
@@ -44,7 +37,7 @@ int main(int argc, char *argv[])
     if(argc >= optind+1)
     {
         selKeyStr = argv[optind];
-        std::cout << "selKeyStr : " << selKeyStr << std::endl;
+        //std::cout << "selKeyStr : " << selKeyStr << std::endl;
     }
 
     std::stringstream ssSelKey(selKeyStr);
@@ -67,9 +60,9 @@ int main(int argc, char *argv[])
                     break; 
                 }
             } 
-            if ( found ) std::cout << "Found sample. first: " << file.first << " second: " << file.second.tag << std::endl;
-            else         continue;
-            //if( !found ) continue;
+            //if ( found ) std::cout << "Found sample. first: " << file.first << " second: " << file.second.tag << std::endl;
+            //else         continue;
+            if( !found ) continue;
         }
         if(skipData && file.first.find("Data") != std::string::npos)
         {
@@ -79,7 +72,7 @@ int main(int argc, char *argv[])
 
         TChain *t = new TChain(file.second.treePath.c_str());
         file.second.addFilesToChain(t);
-        std::cout << "created TChain and added file" << std::endl;
+        //std::cout << "created TChain and added file" << std::endl;
     
         //int nEntries = t->GetEntries();
         //if(nEntries != file.second.nEvts)
@@ -87,10 +80,10 @@ int main(int argc, char *argv[])
         //std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << nEntries << "\twas: " << file.second.nEvts  << std::endl;
 
         TH1* h3 = new TH1D("h3", "h3", 2, -100000, 100000);
-        std::cout << "created histogram" << std::endl;
+        //std::cout << "created histogram" << std::endl;
             
         t->Draw("stored_weight>>h3", "1", "goff");
-        std::cout << "completed t->Draw()" << std::endl;
+        //std::cout << "completed t->Draw()" << std::endl;
         std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << "Neg weigths = " << int(h3->GetBinContent(1)) << ", Pos weights = " << int(h3->GetBinContent(2)) << std::endl;
         // delete TH1* to avoid memory leaks / save memory / not crash / be safe
         delete h3;
