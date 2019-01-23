@@ -5,9 +5,9 @@ import re
 
 def copy(filename, path, force = False):
     if force:
-        command = "xrdcp --force %s %s"%(filename, "/".join([path, filename]))
+        command = "cp --force %s %s"%(filename, "/".join([path, filename]))
     else:
-        command = "xrdcp %s %s"%(filename, "/".join([path, filename]))
+        command = "cp %s %s"%(filename, "/".join([path, filename]))
     print command
     with os.popen(command) as stdout:
         for l in stdout:
