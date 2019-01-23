@@ -33,8 +33,8 @@ class TextColor:
 #  3: '0'                                   - number of negative weights
 #  4: '32283695'                            - number of positive weights
 
-regex1 = re.compile('(.*): (.*)\t/eos.*Neg weigths = (.*), Pos weights = (.*)')
-regex2 = re.compile('(.*),.*/eos.*')
+#regex1 = re.compile('(.*): (.*)\t/eos.*Neg weigths = (.*), Pos weights = (.*)')
+regex1 = re.compile('(.*): (.*)\t/cms.*Neg weigths = (.*), Pos weights = (.*)')
 
 # from samples.cc
 #                                                       dataset, path,   file,   tree,   cross section, nevents+, nevents-, kfactor 
@@ -52,9 +52,10 @@ def getNewSample(sample, weight_dict, neventsFile):
     #print "sample_list: {0}".format(sample_list)
     # values are floats, but we want integers
     newSample = ", ".join(sample_list) + "\n"
-    if "Data" in sample or "data" in sample:
-        print "Skipping data sample: {0}".format(name)
-        return newSample
+    print sample
+    #if "Data" in sample or "data" in sample:
+    #    print "Skipping data sample: {0}".format(name)
+    #    return newSample
     try:
         old_neg_weights = int(float(sample_list[-2]))
     except:
