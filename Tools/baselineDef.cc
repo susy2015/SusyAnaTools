@@ -1344,9 +1344,10 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   //GetPhotons();
   UseCleanedJets();
   CombDeepCSV(); //temparory fix for DeepCSV
+  // --- Do within PassBaseline();
   //CompCommonVar(); // registers mtb; used by PassBaseline(); now put in PassBaseline().
   PassBaseline();
-  // do within PassBaseline();
+  // --- Do within PassBaseline();
   //if (UseDeepTagger)
   //  FlagDeepAK8Jets();
   //else
@@ -1723,14 +1724,6 @@ bool BaselineVessel::CompCommonVar()
   const std::vector<float>  &bdisc = tr->getVec<float>(CSVVecLabel);
   const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
   std::map<float, unsigned> discmap;
-  try
-  {
-    std::cout << "Size of vBidxs: " << vBidxs->size() << std::endl;
-  } 
-  catch (const std::exception& e) 
-  {
-    std::cout << "ERROR: cannot get size of vBidxs." << std::endl;
-  }
   for(auto idx : *vBidxs)
   {
     discmap[bdisc[idx]] = idx;
