@@ -1,11 +1,7 @@
 #include "NTupleReader.h"
 
-#include "TROOT.h"
-#include "TInterpreter.h"
+#include "TFile.h"
 #include "TObjArray.h"
-#include "TLeaf.h"
-
-#include <iostream>
 
 //specialization for bool return value
 template<>
@@ -127,66 +123,136 @@ void NTupleReader::populateBranchList()
 
 void NTupleReader::registerBranch(TBranch * const branch) const
 {
-    std::string type(branch->GetTitle());
+    std::string type;
     std::string name(branch->GetName());
+    int leafLength = -1;
+    TLeaf *countLeaf = nullptr;
 
-    if(type.compare(name) == 0)
+    TObjArray *lol = branch->GetListOfLeaves();
+    int lolSize = lol->GetEntries();
+    
+    if (lolSize >= 1) 
     {
-        TObjArray *lol = branch->GetListOfLeaves();
-        if (lol->GetEntries() == 1) 
+        TLeaf *leaf = (TLeaf*)lol->UncheckedAt(0);
+        type = leaf->GetTypeName();
+        leafLength = leaf->GetLen();
+        //count leaf is set if the branch holds a variable length array
+        countLeaf = leaf->GetLeafCount();
+    }
+    else
+    {
+        THROW_SATEXCEPTION("Branch \"" + name + "\" has no leaves and therefore no data!!!???!!!");
+    }
+
+    //Check if this is an array or singleton (vectors count as singleton)
+    if(leafLength == 1 && !countLeaf)
+    {
+        if(type.find("vector<vector") != std::string::npos)
         {
-            TLeaf *leaf = (TLeaf*)lol->UncheckedAt(0);
-            type = leaf->GetTypeName();
+            if     (type.find("double")         != std::string::npos) registerVecBranch<std::vector<double>>(name);
+            else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<std::vector<unsigned int>>(name);
+            else if(type.find("unsigned long")  != std::string::npos) registerVecBranch<std::vector<unsigned long>>(name);
+            else if(type.find("unsigned char")  != std::string::npos) registerVecBranch<std::vector<unsigned char>>(name);
+            else if(type.find("unsigned short") != std::string::npos) registerVecBranch<std::vector<unsigned short>>(name);
+            else if(type.find("short")          != std::string::npos) registerVecBranch<std::vector<short>>(name);
+            else if(type.find("char")           != std::string::npos) registerVecBranch<std::vector<char>>(name);
+            else if(type.find("int")            != std::string::npos) registerVecBranch<std::vector<int>>(name);
+            else if(type.find("bool")           != std::string::npos) registerVecBranch<std::vector<bool>>(name);
+            else if(type.find("string")         != std::string::npos) registerVecBranch<std::vector<std::string>>(name);
+            else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<std::vector<TLorentzVector>>(name);
+            else if(type.find("float")          != std::string::npos) registerVecBranch<std::vector<float>>(name);
+            else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
+        }
+        else if(type.find("vector") != std::string::npos)
+        {
+            if     (type.find("double")         != std::string::npos) registerVecBranch<double>(name);
+            else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<unsigned int>(name);
+            else if(type.find("unsigned long")  != std::string::npos) registerVecBranch<unsigned long>(name);
+            else if(type.find("unsigned char")  != std::string::npos) registerVecBranch<unsigned char>(name);
+            else if(type.find("unsigned short") != std::string::npos) registerVecBranch<unsigned short>(name);
+            else if(type.find("short")          != std::string::npos) registerVecBranch<short>(name);
+            else if(type.find("char")           != std::string::npos) registerVecBranch<char>(name);
+            else if(type.find("int")            != std::string::npos) registerVecBranch<int>(name);
+            else if(type.find("bool")           != std::string::npos) registerVecBranch<bool>(name);
+            else if(type.find("string")         != std::string::npos) registerVecBranch<std::string>(name);
+            else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<TLorentzVector>(name);
+            else if(type.find("float")          != std::string::npos) registerVecBranch<float>(name);
+            else if(type.find("UInt_t")    != std::string::npos) registerVecBranch<UInt_t>(name);
+            else if(type.find("ULong64_t") != std::string::npos) registerVecBranch<ULong64_t>(name);
+            else if(type.find("UChar_t")   != std::string::npos) registerVecBranch<char>(name);
+            else if(type.find("Float_t")   != std::string::npos) registerVecBranch<float>(name);
+            else if(type.find("Double_t")  != std::string::npos) registerVecBranch<double>(name);
+            else if(type.find("Int_t")     != std::string::npos) registerVecBranch<int>(name);
+            else if(type.find("Bool_t")    != std::string::npos) registerVecBranch<bool>(name);
+            else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
+        }
+        else
+        {
+            if     (type.find("UInt_t")    != std::string::npos) registerBranch<UInt_t>(name);
+            else if(type.find("ULong64_t") != std::string::npos) registerBranch<ULong64_t>(name);
+            else if(type.find("UChar_t")   != std::string::npos) registerBranch<char>(name);
+            else if(type.find("Float_t")   != std::string::npos) registerBranch<float>(name);
+            else if(type.find("Double_t")  != std::string::npos) registerBranch<double>(name);
+            else if(type.find("Int_t")     != std::string::npos) registerBranch<int>(name);
+            else if(type.find("Bool_t")    != std::string::npos) registerBranch<bool>(name);
+            else if(type.find("/D") != std::string::npos) registerBranch<double>(name);
+            else if(type.find("/I") != std::string::npos) registerBranch<int>(name);
+            else if(type.find("/i") != std::string::npos) registerBranch<unsigned int>(name);
+            else if(type.find("/F") != std::string::npos) registerBranch<float>(name);
+            else if(type.find("/C") != std::string::npos) registerBranch<char>(name);
+            else if(type.find("/c") != std::string::npos) registerBranch<unsigned char>(name);
+            else if(type.find("/S") != std::string::npos) registerBranch<short>(name);
+            else if(type.find("/s") != std::string::npos) registerBranch<unsigned short>(name);
+            else if(type.find("/O") != std::string::npos) registerBranch<bool>(name);
+            else if(type.find("/L") != std::string::npos) registerBranch<unsigned long>(name);
+            else if(type.find("/l") != std::string::npos) registerBranch<long>(name);
+            else if(type.find("/b") != std::string::npos) registerBranch<bool>(name);
+            else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
         }
     }
-
-    if(type.find("vector<vector") != std::string::npos)
+    else if(countLeaf) //if this ptr is non-null then this is a variable length array
     {
-        if     (type.find("double")         != std::string::npos) registerVecBranch<std::vector<double>>(name);
-        else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<std::vector<unsigned int>>(name);
-        else if(type.find("unsigned long")  != std::string::npos) registerVecBranch<std::vector<unsigned long>>(name);
-        else if(type.find("unsigned char")  != std::string::npos) registerVecBranch<std::vector<unsigned char>>(name);
-        else if(type.find("unsigned short") != std::string::npos) registerVecBranch<std::vector<unsigned short>>(name);
-        else if(type.find("short")          != std::string::npos) registerVecBranch<std::vector<short>>(name);
-        else if(type.find("char")           != std::string::npos) registerVecBranch<std::vector<char>>(name);
-        else if(type.find("int")            != std::string::npos) registerVecBranch<std::vector<int>>(name);
-        else if(type.find("bool")           != std::string::npos) registerVecBranch<std::vector<bool>>(name);
-        else if(type.find("string")         != std::string::npos) registerVecBranch<std::vector<std::string>>(name);
-        else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<std::vector<TLorentzVector>>(name);
-        else if(type.find("float")          != std::string::npos) registerVecBranch<std::vector<float>>(name);
-        else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
-    }
-    else if(type.find("vector") != std::string::npos)
-    {
-        if     (type.find("double")         != std::string::npos) registerVecBranch<double>(name);
-        else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<unsigned int>(name);
-        else if(type.find("unsigned long")  != std::string::npos) registerVecBranch<unsigned long>(name);
-        else if(type.find("unsigned char")  != std::string::npos) registerVecBranch<unsigned char>(name);
-        else if(type.find("unsigned short") != std::string::npos) registerVecBranch<unsigned short>(name);
-        else if(type.find("short")          != std::string::npos) registerVecBranch<short>(name);
-        else if(type.find("char")           != std::string::npos) registerVecBranch<char>(name);
-        else if(type.find("int")            != std::string::npos) registerVecBranch<int>(name);
-        else if(type.find("bool")           != std::string::npos) registerVecBranch<bool>(name);
-        else if(type.find("string")         != std::string::npos) registerVecBranch<std::string>(name);
-        else if(type.find("TLorentzVector") != std::string::npos) registerVecBranch<TLorentzVector>(name);
-        else if(type.find("float")          != std::string::npos) registerVecBranch<float>(name);
+        if     (type.find("double")         != std::string::npos) registerArrayBranch<double>(name, branch);
+        else if(type.find("unsigned int")   != std::string::npos) registerArrayBranch<unsigned int>(name, branch);
+        else if(type.find("unsigned long")  != std::string::npos) registerArrayBranch<unsigned long>(name, branch);
+        else if(type.find("unsigned char")  != std::string::npos) registerArrayBranch<unsigned char>(name, branch);
+        else if(type.find("unsigned short") != std::string::npos) registerArrayBranch<unsigned short>(name, branch);
+        else if(type.find("short")          != std::string::npos) registerArrayBranch<short>(name, branch);
+        else if(type.find("char")           != std::string::npos) registerArrayBranch<char>(name, branch);
+        else if(type.find("int")            != std::string::npos) registerArrayBranch<int>(name, branch);
+        else if(type.find("bool")           != std::string::npos) registerArrayBranch<uint8_t>(name, branch);
+        else if(type.find("string")         != std::string::npos) registerArrayBranch<std::string>(name, branch);
+        else if(type.find("TLorentzVector") != std::string::npos) registerArrayBranch<TLorentzVector>(name, branch);
+        else if(type.find("float")          != std::string::npos) registerArrayBranch<float>(name, branch);
+        else if(type.find("UInt_t")         != std::string::npos) registerArrayBranch<UInt_t>(name, branch);
+        else if(type.find("ULong64_t")      != std::string::npos) registerArrayBranch<ULong64_t>(name, branch);
+        else if(type.find("UChar_t")        != std::string::npos) registerArrayBranch<char>(name, branch);
+        else if(type.find("Float_t")        != std::string::npos) registerArrayBranch<float>(name, branch);
+        else if(type.find("Double_t")       != std::string::npos) registerArrayBranch<double>(name, branch);
+        else if(type.find("Int_t")          != std::string::npos) registerArrayBranch<int>(name, branch);
+        else if(type.find("Bool_t")         != std::string::npos) registerArrayBranch<uint8_t>(name, branch);
         else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
     }
     else
     {
-        if     (type.find("/D") != std::string::npos) registerBranch<double>(name);
-        else if(type.find("/I") != std::string::npos) registerBranch<int>(name);
-        else if(type.find("/i") != std::string::npos) registerBranch<unsigned int>(name);
-        else if(type.find("/F") != std::string::npos) registerBranch<float>(name);
-        else if(type.find("/C") != std::string::npos) registerBranch<char>(name);
-        else if(type.find("/c") != std::string::npos) registerBranch<unsigned char>(name);
-        else if(type.find("/S") != std::string::npos) registerBranch<short>(name);
-        else if(type.find("/s") != std::string::npos) registerBranch<unsigned short>(name);
-        else if(type.find("/O") != std::string::npos) registerBranch<bool>(name);
-        else if(type.find("/L") != std::string::npos) registerBranch<unsigned long>(name);
-        else if(type.find("/l") != std::string::npos) registerBranch<long>(name);
-        else if(type.find("/b") != std::string::npos) registerBranch<bool>(name);
-        else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
+        //THROW_SATEXCEPTION("Branch \"" + name + "\" with type \"" + type + "\" has no data!!!");
+    }
+}
+
+void NTupleReader::createVectorsForArrayReads(int evt)
+{
+    for(auto& handlePair : branchVecMap_)
+    {
+        //If the size branch is set, this is an array read
+        if(handlePair.second.branch)
+        {
+            //Get the array length
+            //Perhaps this is bad to hardcode type
+            handlePair.second.branch->GetEntry(evt);
+            UInt_t ArrayLen = getVar<UInt_t>(std::string(handlePair.second.branch->GetName()));
+            //Prep the vector which will hold the data
+            handlePair.second.create(ArrayLen);
+        }
     }
 }
 
@@ -201,10 +267,14 @@ bool NTupleReader::goToEventInternal(int evt, const bool filter)
     bool passFilters = false;
     do
     {
+        //Create vectors for array reads 
+        createVectorsForArrayReads(evt);
+        //Load data from TTree
         status = tree_->GetEntry(evt);
         if (status == 0) return false;
         nevt_ = evt + 1;
         ++evtProcessed_;
+        //Calculate extra derived variables 
         passFilters = calculateDerivedVariables();
     }
     while(filter && (status > 0 && !passFilters && ++evt));
