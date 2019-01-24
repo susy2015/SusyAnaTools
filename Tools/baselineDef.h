@@ -51,6 +51,7 @@ private:
     std::vector<unsigned int> *vBidxs;
     std::vector<TLorentzVector> *vTops;
     std::vector<TLorentzVector> *vWs;
+    std::vector<TLorentzVector> *vResolvedTops;
     std::map<int, std::vector<TLorentzVector> > *mTopJets;
     std::vector<unsigned> * vAK8Flag;
 
@@ -88,6 +89,8 @@ public:
     bool doMET;
     bool dodPhis;
     bool passBaseline;
+    bool passBaselineLowDM;
+    bool passBaselineHighDM;
     bool passBaselineNoTagMT2;
     bool passBaselineNoTag;
     bool passBaselineNoLepVeto;

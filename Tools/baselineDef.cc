@@ -37,6 +37,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   doMET                 = true;
   dodPhis               = true;
   passBaseline          = true;
+  passBaselineLowDM     = true;
+  passBaselineHighDM    = true;
   passBaselineNoTagMT2  = true;
   passBaselineNoTag     = true;
   passBaselineNoLepVeto = true;
@@ -44,7 +46,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   if (UseDeepCSV)
     CSVVecLabel           = "DeepCSVcomb";
   if (UseDeepTagger)
-    toptaggerCfgFile      = "TopTagger_Deep.cfg";
+    toptaggerCfgFile      = "TopTagger_DeepCombined.cfg";
 
   if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
 
@@ -475,15 +477,22 @@ bool BaselineVessel::PredefineSpec()
 bool BaselineVessel::PassTopTagger()
 {
   int nTopCandSortedCnt = -1;
+  int nWs = -1;
+  int nResolvedTops = -1;
   bool passTagger = false;
   vTops = new std::vector<TLorentzVector>();
   vWs = new std::vector<TLorentzVector>();
+  vResolvedTops = new std::vector<TLorentzVector>();
   mTopJets = new std::map<int, std::vector<TLorentzVector> >();
 
   nTopCandSortedCnt = GetnTops();
+  nWs = vWs->size();
+  nResolvedTops = vResolvedTops->size();
   passTagger = (incZEROtop || nTopCandSortedCnt >= AnaConsts::low_nTopCandSortedSel); 
 
   tr->registerDerivedVar("nTopCandSortedCnt" + firstSpec, nTopCandSortedCnt);
+  tr->registerDerivedVar("nWs"+firstSpec, nWs);
+  tr->registerDerivedVar("nResolvedTops"+firstSpec, nResolvedTops);
   tr->registerDerivedVec("vTops"+firstSpec, vTops);
   tr->registerDerivedVec("vWs"+firstSpec, vWs);
   tr->registerDerivedVec("mTopJets"+firstSpec, mTopJets);
@@ -516,13 +525,20 @@ void BaselineVessel::PassBaseline()
   if (printConfig) PrintoutConfig();
   // Initial value
   passBaseline          = true;
+  passBaselineLowDM     = true;
+  passBaselineHighDM    = true;
   passBaselineNoTagMT2  = true;
   passBaselineNoTag     = true;
   passBaselineNoLepVeto = true;
 
 
+  // get jet collection
+  const auto& jet_vec = tr->getVec<TLorentzVector>(jetVecLabel);
+
   // Form TLorentzVector of MET
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
+  float met = metLVec.Pt();
+  float metphi = metLVec.Phi();
 
   // Calculate number of leptons
   const std::vector<int> & muonsFlagIDVec = muonsFlagIDLabel.empty()? std::vector<int>(tr->getVec<float>("muonsMiniIso").size(), 1):tr->getVec<int>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
@@ -543,28 +559,30 @@ void BaselineVessel::PassBaseline()
   // 2016 MC: Medium WP 0.6324, Tight WP 0.8958
   // Using Medium WP from Koushik's last study // https://indico.cern.ch/event/597712/contributions/2831328/attachments/1578403/2493318/AN2017_btag2.pdf
   if (UseDeepCSV) 
-    cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), 
+    cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
         AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
   else
-    cntCSVS = AnaFunctions::countCSVS(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), 
+    cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
         AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
   // Getting the b-jets. Sorted by pt by default
   for(auto idx : *vBidxs)
-    vBjs->push_back(tr->getVec<TLorentzVector>(jetVecLabel).at(idx));
+    vBjs->push_back(jet_vec.at(idx));
 
-  int cntNJetsPt50Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt50Eta24Arr);
-  int cntNJetsPt30Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt30Eta24Arr);
-  int cntNJetsPt20Eta24 = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt20Eta24Arr);
-  int cntNJetsPt30      = AnaFunctions::countJets(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt30Arr);
+  int cntNJetsPt50Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt50Eta24Arr);
+  int cntNJetsPt30Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Eta24Arr);
+  int cntNJetsPt20Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt20Eta24Arr);
+  int cntNJetsPt30      = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Arr);
 
   // Calculate deltaPhi
   std::vector<float> * dPhiVec = new std::vector<float>();
-  (*dPhiVec) = AnaFunctions::calcDPhi(tr->getVec<TLorentzVector>(jetVecLabel), metLVec.Phi(), 3, AnaConsts::dphiArr);
+  (*dPhiVec) = AnaFunctions::calcDPhi(jet_vec, metphi, 3, AnaConsts::dphiArr);
+
 
   // Pass lepton veto?
   bool passMuonVeto = (nMuons == AnaConsts::nMuonsSel), passEleVeto = (nElectrons == AnaConsts::nElectronsSel), passIsoTrkVeto = (nIsoTrks == AnaConsts::nIsoTrksSel);
   bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTrksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTrksSel);
   bool passLeptVeto = passMuonVeto && passEleVeto && passIsoTrkVeto;
+  
   if( doMuonVeto && !passMuonVeto ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
   if( doEleVeto && !passEleVeto ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
   // Isolated track veto is disabled for now
@@ -588,12 +606,12 @@ void BaselineVessel::PassBaseline()
   if( debug ) std::cout<<"cntCSVS : "<<cntCSVS<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass the baseline MET requirement?
-  bool passMET = (metLVec.Pt() >= AnaConsts::defaultMETcut);
+  bool passMET = (met >= AnaConsts::defaultMETcut);
   if( doMET && !passMET ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
-  if( debug ) std::cout<<"met : "<<tr->getVar<float>("met")<<"  defaultMETcut : "<<AnaConsts::defaultMETcut<<"  passBaseline : "<<passBaseline<<std::endl;
+  if( debug ) std::cout<<"met : "<<met<<"  defaultMETcut : "<<AnaConsts::defaultMETcut<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass the HT cut for trigger?
-  float HT = AnaFunctions::calcHT(tr->getVec<TLorentzVector>(jetVecLabel), AnaConsts::pt20Eta24Arr);
+  float HT = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
   bool passHT = true;
   if( HT < AnaConsts::defaultHTcut ){ passHT = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
   if( debug ) std::cout<<"HT : "<<HT<<"  defaultHTcut : "<<AnaConsts::defaultHTcut<<"  passHT : "<<passHT<<"  passBaseline : "<<passBaseline<<std::endl;
@@ -630,7 +648,86 @@ void BaselineVessel::PassBaseline()
   if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc()<<"  passBaseline : "<<passBaseline<<std::endl;
 
 
+
+  // Call CompCommonVar() after vBidxs is filled.
+  CompCommonVar();
+  // Call FlagDeepAK8Jets() or FlagAK8Jets() after prepare and pass top tagger functions
+  if (UseDeepTagger)
+    FlagDeepAK8Jets();
+  else
+    FlagAK8Jets();
+
+  //---------------------------------------//
+  //--- Updated Baseline (January 2019) ---//
+  //---------------------------------------//
+
+  // low dm and high dm baselines from Hui Wang, branch hui_new_tagger
+  // https://github.com/susy2015/SusyAnaTools/blob/hui_new_tagger/Tools/tupleRead.C#L629-L639
+  // https://github.com/susy2015/SusyAnaTools/blob/5e4f54e1aa985daff90f1ad7a220b8d17e4b7290/Tools/tupleRead.C#L629-L639
+  
+  // variables for passBaselineLowDM and passBaselineHighDM
+  const auto& ISRLVec = tr->getVec<TLorentzVector>("vISRJet");
+  float mtb           = tr->getVar<float>("mtb");
+  int nWs             = tr->getVar<int>("nWs");
+  int nTops           = tr->getVar<int>("nTopCandSortedCnt");
+  int nBottoms        = cntCSVS;
+  int nJets           = cntNJetsPt20Eta24;
+  float ISRpt = 0.0;
+  float S_met = met / sqrt(HT);
+  if(ISRLVec.size() == 1) ISRpt = ISRLVec.at(0).Pt();
+
+  //SUS-16-049, low dm, ISR cut
+  bool pass_ISR = (
+                       ISRpt > 200
+                    && fabs(ISRLVec.at(0).Eta()) < 2.4
+                    && fabs(ISRLVec.at(0).Phi() - metphi) > 2
+                  );
+  
+  //SUS-16-049, low dm, mtb cut
+  bool pass_mtb_lowdm = (nBottoms == 0 || (nBottoms > 0 && mtb < 175));  
+
+  //SUS-16-049, low dm, dphi(met, j1) > 0.5, dphi(met, j23) > 0.15
+  bool passdphi_lowdm = ( 
+                             (nJets == 2 && fabs(jet_vec.at(0).Phi() - metphi) > 0.5 && fabs(jet_vec.at(1).Phi() - metphi) > 0.15)
+                          || (nJets  > 2 && fabs(jet_vec.at(0).Phi() - metphi) > 0.5 && fabs(jet_vec.at(1).Phi() - metphi) > 0.15 && fabs(jet_vec.at(2).Phi() - metphi) > 0.15)
+                        );
+  //SUS-16-049, high dm, dphi(met, jet1234) > 0.5
+  bool passdphi_highdm = (
+                              nJets >= 4 
+                           && fabs(jet_vec.at(0).Phi() - metphi) > 0.5 
+                           && fabs(jet_vec.at(1).Phi() - metphi) > 0.5 
+                           && fabs(jet_vec.at(2).Phi() - metphi) > 0.5 
+                           && fabs(jet_vec.at(3).Phi() - metphi) > 0.5
+                         );
+  
+  //baseline for SUS-16-049 low dm
+  passBaselineLowDM = (
+                           passLeptVeto
+                        && nTops == 0
+                        && nWs == 0
+                        && pass_ISR
+                        && S_met > 10
+                        && passdphi_lowdm
+                        && pass_mtb_lowdm
+                        && passMET
+                        && passNoiseEventFilter
+                        && nJets >= 2
+                      );      
+  
+  //baseline for SUS-16-049 high dm plus HT cut
+  passBaselineHighDM = (
+                            passLeptVeto
+                         && passMET
+                         && passNoiseEventFilter
+                         && nJets >= 5
+                         && passdphi_highdm
+                         && nBottoms >= 1
+                         && passHT
+                       );      
+
+
   // Register all the calculated variables
+ 
   //tr->registerDerivedVar("nMuons_CUT" + firstSpec, nMuons);           // error: do not redefine  
   //tr->registerDerivedVar("nElectrons_CUT" + firstSpec, nElectrons);   // error: do not redefine
   //tr->registerDerivedVar("nIsoTrks_CUT" + firstSpec, nIsoTrks);       // error: do not redefine
@@ -638,15 +735,10 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
   tr->registerDerivedVar("cntNJetsPt20Eta24" + firstSpec, cntNJetsPt20Eta24);
-
   tr->registerDerivedVec("dPhiVec" + firstSpec, dPhiVec);
   tr->registerDerivedVec("vBjs" + firstSpec, vBjs);
-
   tr->registerDerivedVar("cntCSVS" + firstSpec, cntCSVS);
-
-
   tr->registerDerivedVar("cntNJetsPt30" + firstSpec, cntNJetsPt30);
-
   tr->registerDerivedVar("passLeptVeto" + firstSpec, passLeptVeto);
   tr->registerDerivedVar("passMuonVeto" + firstSpec, passMuonVeto);
   tr->registerDerivedVar("passEleVeto" + firstSpec, passEleVeto);
@@ -664,15 +756,15 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("passQCDHighMETFilter" + firstSpec, passQCDHighMETFilter);
   tr->registerDerivedVar("passFastsimEventFilter" + firstSpec, passFastsimEventFilter);
   tr->registerDerivedVar("passBaseline" + firstSpec, passBaseline);
+  tr->registerDerivedVar("passBaselineLowDM" + firstSpec, passBaselineLowDM);
+  tr->registerDerivedVar("passBaselineHighDM" + firstSpec, passBaselineHighDM);
   tr->registerDerivedVar("passBaselineNoTagMT2" + firstSpec, passBaselineNoTagMT2);
   tr->registerDerivedVar("passBaselineNoTag" + firstSpec, passBaselineNoTag);
   tr->registerDerivedVar("passBaselineNoLepVeto" + firstSpec, passBaselineNoLepVeto);
-
   tr->registerDerivedVar("best_had_brJet_MT2" + firstSpec,    MT2);
-
   tr->registerDerivedVar("HT" + firstSpec, HT);
 
-  if( debug ) std::cout<<"passBaseline : "<<passBaseline<<"  passBaseline : "<<passBaseline<<std::endl;
+  if( debug ) std::cout<<"passBaseline : "<<passBaseline<<" passBaselineLowDM  : "<<passBaselineLowDM<<" passBaselineHighDM  : "<<passBaselineHighDM<<std::endl;
 } 
 
 int BaselineVessel::GetnTops() const
@@ -698,10 +790,8 @@ int BaselineVessel::GetnTops() const
       }
       mTopJets->insert(std::make_pair(topidx++, temp));
     }
-    if ( type == TopObject::Type::MERGED_W)
-    {
-      vWs->push_back(Ntop.at(it)->P());
-    }
+    if ( type == TopObject::Type::MERGED_W ) vWs->push_back(Ntop.at(it)->P());
+    if ( type == TopObject::Type::RESOLVED_TOP ) vResolvedTops->push_back(Ntop.at(it)->P());
   }
 
   int nTops = vTops->size();
@@ -1254,13 +1344,14 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   //GetPhotons();
   UseCleanedJets();
   CombDeepCSV(); //temparory fix for DeepCSV
+  //CompCommonVar(); // registers mtb; used by PassBaseline(); now put in PassBaseline().
   PassBaseline();
-  if (UseDeepTagger)
-    FlagDeepAK8Jets();
-  else
-    FlagAK8Jets();
+  // do within PassBaseline();
+  //if (UseDeepTagger)
+  //  FlagDeepAK8Jets();
+  //else
+  //  FlagAK8Jets();
   GetSoftbJets();
-  CompCommonVar();
   GetMHT();
   //GetLeptons();
   //GetRecoZ(81, 101);
@@ -1631,32 +1722,40 @@ bool BaselineVessel::CompCommonVar()
 {
   const std::vector<float>  &bdisc = tr->getVec<float>(CSVVecLabel);
   const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
-   std::map<float, unsigned> discmap;
-   for(auto idx : *vBidxs)
-   {
-     discmap[bdisc[idx]] = idx;
-   }
-   float mtb = 99999;
-   float ptb = 0;
-   unsigned cnt = 0;
+  std::map<float, unsigned> discmap;
+  try
+  {
+    std::cout << "Size of vBidxs: " << vBidxs->size() << std::endl;
+  } 
+  catch (const std::exception& e) 
+  {
+    std::cout << "ERROR: cannot get size of vBidxs." << std::endl;
+  }
+  for(auto idx : *vBidxs)
+  {
+    discmap[bdisc[idx]] = idx;
+  }
+  float mtb = 99999;
+  float ptb = 0;
+  unsigned cnt = 0;
 
-   for (auto iter = discmap.rbegin(); iter != discmap.rend(); ++iter)
-   {
-     float temp = sqrt(2*jets.at(iter->second).Pt()*tr->getVar<float>(METLabel)
-         *(1-cos(jets.at(iter->second).Phi() - tr->getVar<float>(METPhiLabel))));
-     mtb = std::min(mtb, temp);
-     cnt ++;
-     if (cnt == 2) break;
-   }
-   if (mtb == 99999) mtb=0;
+  for (auto iter = discmap.rbegin(); iter != discmap.rend(); ++iter)
+  {
+    float temp = sqrt(2*jets.at(iter->second).Pt()*tr->getVar<float>(METLabel)
+        *(1-cos(jets.at(iter->second).Phi() - tr->getVar<float>(METPhiLabel))));
+    mtb = std::min(mtb, temp);
+    cnt ++;
+    if (cnt == 2) break;
+  }
+  if (mtb == 99999) mtb=0;
 
-   for (unsigned i = 0; i < vBjs->size() && i < 2; ++i)
-   {
-     ptb += vBjs->at(i).Pt();
-   }
+  for (unsigned i = 0; i < vBjs->size() && i < 2; ++i)
+  {
+    ptb += vBjs->at(i).Pt();
+  }
 
-   tr->registerDerivedVar("Mtb"+firstSpec, mtb);
-   tr->registerDerivedVar("Ptb"+firstSpec, ptb);
+  tr->registerDerivedVar("mtb"+firstSpec, mtb);
+  tr->registerDerivedVar("ptb"+firstSpec, ptb);
 
   return true;
 }       // -----  end of function BaselineVessel::CompCommonVar  -----
