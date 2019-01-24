@@ -52,21 +52,21 @@ def getNewSample(sample, weight_dict, neventsFile):
     #print "sample_list: {0}".format(sample_list)
     # values are floats, but we want integers
     newSample = ", ".join(sample_list) + "\n"
-    print sample
-    #if "Data" in sample or "data" in sample:
-    #    print "Skipping data sample: {0}".format(name)
-    #    return newSample
+    #print sample
+    if "Data" in sample:
+        print "Skipping data sample: {0}".format(name)
+        return newSample
     try:
         old_neg_weights = int(float(sample_list[-2]))
     except:
         print "ERROR: sample_list format is not correct; {0} is not a number".format(sample_list[-2])
-        print "ERROR: Skipping sample_list = {0}".format(sample_list)
+        print "       Skipping sample_list = {0}".format(sample_list)
         return newSample
     try:
         old_pos_weights = int(float(sample_list[-3]))
     except:
         print "ERROR: sample_list format is not correct; {0} is not a number".format(sample_list[-3])
-        print "ERROR: Skipping sample_list = {0}".format(sample_list)
+        print "       Skipping sample_list = {0}".format(sample_list)
         return newSample
     # only use nevents_file if it is provided (not empty string)
     if neventsFile:
