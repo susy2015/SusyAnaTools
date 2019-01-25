@@ -34,10 +34,6 @@ private:
 
     void generateCleanedJets() 
     {
-        //std::cout << "Running CleanedJets.h" << std::endl;
-        // clean all variables in jet  collection
-        // void cleanJetCollection(const std::string& jetCollectionName, const std::string& objectNameString, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix, const std::string& suffix, bool doDRCleaning, bool doJetCuts)
-        
         //                  jetCollectionName, objectNameString,    jetCollectionVariables, prefix,     suffix,               doDRCleaning, doJetCuts
         cleanJetCollection("jetsLVec",      "gammaLVecPassLooseID", AK4JetVariables_, "",               "_drPhotonCleaned",           true, false);
         cleanJetCollection("jetsLVec",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned",           true, false);
@@ -49,14 +45,10 @@ private:
         cleanJetCollection("puppiJetsLVec", "",                     AK8JetVariables_, "",               "_pt20eta24",                 false, true);
         cleanJetCollection("puppiJetsLVec", "",                     AK8JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
         cleanJetCollection("puppiJetsLVec", "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
-        
-        //cleanJetCollection("jetsLVec",      "gammaLVecPassLooseID", AK4JetVariables_, "prodJetsNoLep_", "_drPhotonCleaned");
-        //cleanJetCollection("puppiJetsLVec", "gammaLVecPassLooseID", AK8JetVariables_, "prodJetsNoLep_", "_drPhotonCleaned");
     }
 
     template <class type> void cleanVector(std::string vectorName, std::vector<bool> keepJet, const std::string& suffix)
     {
-        //std::cout << "In cleanVector(): vectorName = " << vectorName << ", type = " << typeid(type).name() << std::endl;
         const auto& vec = tr_->getVec<type>(vectorName); 
         std::vector<type>* cleanedVec = new std::vector<type>();
         if (keepJet.size() != vec.size())
@@ -74,19 +66,11 @@ private:
     // clean all variables in jet  collection
     void cleanJetCollection(const std::string& jetCollectionName, const std::string& objectNameString, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix, const std::string& suffix, bool doDRCleaning, bool doJetCuts)
     {
-        //std::string message = "Creating Jet Collection " + prefix + jetCollectionName + suffix;
-        //if (doDRCleaning) message += " with DR cleaning";
-        //if (doJetCuts)    message += " with pt and eta cuts";
-        //std::cout << message << std::endl;
-
-        // vector of vector of TLV
-        // fill with different objects (photons, or muons and leptons)
         std::vector<std::string> objectNameVec = SusyUtility::getVecFromString(objectNameString, ';'); 
 
         const auto& jetsLVec  = tr_->getVec<TLorentzVector>(prefix + jetCollectionName);  // jet lorentz vector
         std::vector<float>* dRvec = new std::vector<float>();
         const float dRMax = 0.20; // dR between photon and jet
-
 
         // vector determining which jets to keep 
         std::vector<bool> keepJet(jetsLVec.size(), true);
@@ -95,26 +79,17 @@ private:
         {
             for (const auto& objectName : objectNameVec)
             {
-                //printf("%s - %s - %s\n", jetCollectionName.c_str(), objectNameString.c_str(), objectName.c_str());
                 const auto& objectLVec = tr_->getVec<TLorentzVector>(objectName);
 
                 for (int i = 0; i < objectLVec.size(); ++i)
                 {
-                    //jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax)
                     int match = AnaFunctions::jetObjectdRMatch(objectLVec[i], jetsLVec, dRMax, dRvec);
                     if (match >= 0) keepJet[match] = false;
                 }
             }
         }
 
-        //// apply jet p_t cut
-        //if (max_pt > 0.0)
-        //{
-        //    for (int i = 0; i < jetsLVec.size(); i++)
-        //    {
-        //        if (jetsLVec[i].Pt() < max_pt) keepJet[i] = false; 
-        //    }
-        //}
+        // apply jet p_t and eta cuts
         if(doJetCuts)
         {
             for (int i = 0; i < jetsLVec.size(); i++)
