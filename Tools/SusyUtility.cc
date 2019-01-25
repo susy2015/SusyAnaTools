@@ -31,9 +31,6 @@ namespace SusyUtility
             return splitString;
         }
         split(s, delim, std::back_inserter(splitString));
-        //std::cout << "original string: " << s << " split string:";
-        //for (auto const& a : splitString) std::cout << " " << a;
-        //std::cout << std::endl;
         return splitString;
     }
 }

@@ -19,35 +19,24 @@ def getFiles(fileList):
 try:
     import uproot
 
-    print "Using uproot"
-
     def getNEvtsProcess(fileURL):
-        #print "calling getNEvtsProcess using uproot: fileURL = {0}".format(fileURL)
-        #print "calling getNEvtsProcess using uproot"
         try:
             with uproot.open(fileURL) as f:
                 array = f["stopTreeMaker"]["AUX"]["stored_weight"].array()
         except:
-            #print "ERROR: unable to open fileURL = {0}".format(fileURL)
             print "ERROR: unable to open fileURL"
             return None
-        #print "after array"
         totalEvents = array.shape[0]
         totalNeg = (array[:] < 0).sum()
         totalPos = totalEvents - totalNeg
-        #print "getNEvtsProcess() returning {0}".format(np.array((totalPos, totalNeg)))
         return np.array((totalPos, totalNeg))
 
 except ImportError:
 
     #uproot is not found, fall back to using ROOT
     import ROOT
-    
-    print "Using ROOT"
 
     def getNEvtsProcess(fileURL):
-        #print "calling getNEvtsProcess using ROOT: fileURL = {0}".format(fileURL)
-        #print "calling getNEvtsProcess using ROOT"
         try:
             f = ROOT.TFile.Open(fileURL)
         except:
@@ -56,13 +45,11 @@ except ImportError:
         tree = f.Get("stopTreeMaker/AUX")
         if not tree:
             print "tree is empty"
-        #print "after tree"
         h = ROOT.TH1D("h", "h", 2, -100, 100)
         tree.Draw("stored_weight>>h", "1", "goff")
         totalNeg = h.GetBinContent(0) + h.GetBinContent(1)
         totalPos = h.GetBinContent(2) + h.GetBinContent(3)
         f.Close()
-        #print "getNEvtsProcess() returning {0}".format(np.array((totalPos, totalNeg)))
         return np.array((totalPos, totalNeg))
 
 
@@ -75,13 +62,10 @@ def getNEvts(fileList, threads=4):
     #return None # for testing only
 
     if files:
-        #print "files exist"
-        #print "threads = {0}".format(threads)
         if threads > 0:
             results = p.map(getNEvtsProcess, files)
         else:
             results = list(getNEvtsProcess(f) for f in files)
-        #print "getNEvts() returning results: {0}".format(results)
         return sum(results)
     else:
         print "files do not exist: getNEvts() returning None"
@@ -103,7 +87,6 @@ if __name__ == "__main__":
 
     ss = SampleSet(options.sampleSetCfg)
     samples = [(name, file.replace("/eos/uscms", "root://cmseos.fnal.gov/")) for name, file in ss.sampleSetList()]
-    #print samples
 
     for name, file in samples:
         if re.search(options.dataSetPattern, name):

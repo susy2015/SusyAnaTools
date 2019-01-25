@@ -70,7 +70,6 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
     TObjArray * objArr = stripT.Tokenize(" ");
     TObjString* firstObj = dynamic_cast<TObjString*>(objArr->At(0));
     firstSpec = firstObj->GetString().Data();
-    //std::cout<<"\nfirstSpec : "<<firstSpec.c_str()<<"  spec : "<<spec.c_str()<<"  isfastsim : "<<isfastsim<<std::endl<<std::endl;
   }
   firstSpec += taggerLabel;
 
