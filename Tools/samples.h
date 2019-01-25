@@ -167,7 +167,7 @@ namespace AnaSamples
     }
     
     // modify weights to compare two MC samples
-    double getCrossSectionRatio(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2);
+    double getCrossSectionRatio(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2, bool verbose = false);
     
 
    private:
@@ -191,7 +191,7 @@ namespace AnaSamples
     }
     
     // modify weights to compare two MC samples
-    double getCrossSectionRatio(std::string& sampleTag1, std::string sampleTag2);
+    double getCrossSectionRatio(std::string& sampleTag1, std::string sampleTag2, bool verbose = false);
 
    private:
     std::map<std::string, double> totalLumiMap_;

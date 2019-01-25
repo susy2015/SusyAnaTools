@@ -39,7 +39,7 @@ namespace AnaSamples
     }
 
     // modify weights to compare two MC samples
-    double SampleSet::getCrossSectionRatio(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2)
+    double SampleSet::getCrossSectionRatio(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2, bool verbose)
     {
         double sum_xsec1 = 0.0;
         double sum_xsec2 = 0.0;
@@ -49,7 +49,6 @@ namespace AnaSamples
             FileSummary fs = sampleSet_[sampleTags1[i]];
             double xsec = fs.kfactor * fs.xsec;
             sum_xsec1 += xsec;
-            //printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
         }
         // add sample 2 cross sections
         for (int i = 0; i < sampleTags2.size(); i++)
@@ -57,13 +56,16 @@ namespace AnaSamples
             FileSummary fs = sampleSet_[sampleTags2[i]];
             double xsec = fs.kfactor * fs.xsec;
             sum_xsec2 += xsec;
-            //printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
         }
         // calculate cross section ratio
         double xsec_ratio = sum_xsec2 / sum_xsec1;
-        //printf("k * sum_xsec1 = %f\n", sum_xsec1);
-        //printf("k * sum_xsec2 = %f\n", sum_xsec2);
-        printf("In SampleSet::getCrossSectionRatio(): xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
+        if (verbose) 
+        {
+            printf("In SampleSet::getCrossSectionRatio():\n");
+            printf("  k * sum_xsec1 = %f\n", sum_xsec1);
+            printf("  k * sum_xsec2 = %f\n", sum_xsec2);
+            printf("  xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
+        }
         return xsec_ratio; 
     }
 
@@ -92,12 +94,11 @@ namespace AnaSamples
     
     SampleSet::SampleSet(std::string file, bool isCondor, double lumi) : isCondor_(isCondor), lumi_(lumi)
     {
-        //std::cout << "SampleSet file: " << file << std::endl;
         readCfg(file);
     }
     
     // modify weights to compare two MC samples
-    double SampleCollection::getCrossSectionRatio(std::string& sampleTag1, std::string sampleTag2)
+    double SampleCollection::getCrossSectionRatio(std::string& sampleTag1, std::string sampleTag2, bool verbose)
     {
         double sum_xsec1 = 0.0;
         double sum_xsec2 = 0.0;
@@ -106,20 +107,22 @@ namespace AnaSamples
         {
             double xsec = fs.kfactor * fs.xsec;
             sum_xsec1 += xsec;
-            //printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
         }
         // add sample 2 cross sections
         for(const auto& fs : sampleSet_[sampleTag2])
         {
             double xsec = fs.kfactor * fs.xsec;
             sum_xsec2 += xsec;
-            //printf("%s k * xsec = %f\n", fs.tag.c_str(), xsec);
         }
         // calculate cross section ratio
         double xsec_ratio = sum_xsec2 / sum_xsec1;
-        //printf("k * sum_xsec1 = %f\n", sum_xsec1);
-        //printf("k * sum_xsec2 = %f\n", sum_xsec2);
-        printf("In SampleCollection::getCrossSectionRatio(): xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
+        if (verbose) 
+        {
+            printf("In SampleSet::getCrossSectionRatio():\n");
+            printf("  k * sum_xsec1 = %f\n", sum_xsec1);
+            printf("  k * sum_xsec2 = %f\n", sum_xsec2);
+            printf("  xsec_ratio = %f / %f = %f\n", sum_xsec2, sum_xsec1, xsec_ratio);
+        }
         return xsec_ratio;
     }
     
@@ -158,7 +161,6 @@ namespace AnaSamples
 
     SampleCollection::SampleCollection(const std::string& file, SampleSet& samples) : ss_(samples)
     {
-        //std::cout << "SampleCollection file: " << file << std::endl;
         readCfg(file);
     }
 
