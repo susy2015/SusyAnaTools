@@ -34,7 +34,6 @@ class TextColor:
 #  4: '32283695'                            - number of positive weights
 
 #regex1 = re.compile('(.*): (.*)\t/eos.*Neg weigths = (.*), Pos weights = (.*)')
-regex1 = re.compile('(.*): (.*)\t/cms.*Neg weigths = (.*), Pos weights = (.*)')
 
 # from samples.cc
 #                                                       dataset, path,   file,   tree,   cross section, nevents+, nevents-, kfactor 
@@ -45,7 +44,9 @@ regex1 = re.compile('(.*): (.*)\t/cms.*Neg weigths = (.*), Pos weights = (.*)')
 # cDSname, cFPath, cfName, cTPath, &f1,           &f2,      &f3,      &f4
 #
 
-def getNewSample(sample, weight_dict, neventsFile):
+def getNewSample(sample, weight_dict, neventsFile, file_pattern):
+    #regex1 = re.compile('(.*): (.*)\t/cms.*Neg weigths = (.*), Pos weights = (.*)')
+    regex1 = re.compile('(.*): (.*)\t' + file_pattern + '.*Neg weigths = (.*), Pos weights = (.*)')
     # be careful: strip() removes spaces and endlines
     sample_list = list(x.strip() for x in sample.split(','))
     name = sample_list[0] 
@@ -135,13 +136,15 @@ def main1():
     parser.add_argument("--output_file",     "-o", default="../sampleSets_v1.cfg", help="New SampleSets.cfg file to create")
     parser.add_argument("--threads",         "-t", default=4,                      help="Number of threads to use (default: 0)")
     parser.add_argument("--dataset_pattern", "-d", default = ".*",                 help="Regexp defining sampleSets to check (Defaults to all)")
+    parser.add_argument("--file_pattern",    "-p", default = "/eos",               help="Pattern at beginning of file path for regex matching (default: /eos)")
     
-    options = parser.parse_args()
-    input_file = options.input_file
-    nevents_file = options.nevents_file
-    output_file  = options.output_file
-    threads      = int(options.threads)
-    dataset_pattern = options.dataset_pattern
+    options          = parser.parse_args()
+    input_file       = options.input_file
+    nevents_file     = options.nevents_file
+    output_file      = options.output_file
+    threads          = int(options.threads)
+    dataset_pattern  = options.dataset_pattern
+    file_pattern     = options.file_pattern
 
     print "  samples file: {0}".format(input_file)
     print "  nevents file: {0}".format(nevents_file)
@@ -202,7 +205,7 @@ def main1():
             continue
         # if sample matches pattern, assume that it is a sample and get new sample to write to file
         if re.search(dataset_pattern, sample):
-            newSample = getNewSample(sample, weight_dict, neventsFile)
+            newSample = getNewSample(sample, weight_dict, neventsFile, file_pattern)
             #print "newSample: {0}".format(newSample)
         outputSamples.write(newSample)
 
