@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     };
 
     bool skipData = false;
-    while((opt=getopt_long(argc, argv, "ws", long_options, &option_index)) != -1)
+    while((opt=getopt_long(argc, argv, "s", long_options, &option_index)) != -1)
     {
         switch(opt)
         {
