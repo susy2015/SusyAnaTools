@@ -134,6 +134,7 @@ def main():
     parser.add_argument("--threads",         "-t", default=4,                      help="Number of threads to use (default: 0)")
     parser.add_argument("--dataset_pattern", "-d", default = ".*",                 help="Regexp defining sampleSets to check (Defaults to all)")
     parser.add_argument("--file_pattern",    "-p", default = "/eos",               help="Pattern at beginning of file path for regex matching (default: /eos)")
+    parser.add_argument("--legacy",          "-l", default = False, action = "store_true", help="Use legacy ntuples instead of Nano AOD ntuples (default: False)")
     
     options          = parser.parse_args()
     input_file       = options.input_file
@@ -142,10 +143,12 @@ def main():
     threads          = int(options.threads)
     dataset_pattern  = options.dataset_pattern
     file_pattern     = options.file_pattern
+    legacy           = options.legacy
 
     print "  samples file: {0}".format(input_file)
     print "  nevents file: {0}".format(nevents_file)
     print "  output file: {0}".format(output_file)
+    print "  use legacy ntuples: {0}".format(legacy)
 
     try:
         inputSamples  = open(input_file, 'r')
@@ -176,11 +179,11 @@ def main():
         for name, s_file in samples:
             if re.search(dataset_pattern, name):
                 try:
-                    nPos, nNeg = getNEvts(s_file, threads)
+                    nPos, nNeg = getNEvts(s_file, threads, legacy)
                     weight_dict[name] = {}
                     weight_dict[name]["pos"] = int(nPos)
                     weight_dict[name]["neg"] = int(nNeg)
-                    print "{0}, {1}, Positive weights: {2}, Negative weights: {3}".format(name, s_file, weight_dict[name]["pos"], weight_dict[name]["neg"])
+                    #print "{0}, {1}, Positive weights: {2}, Negative weights: {3}".format(name, s_file, weight_dict[name]["pos"], weight_dict[name]["neg"])
                 except TypeError:
                     print "TypeError: name = {0}, s_file = {1}".format(name, s_file)
                     pass
