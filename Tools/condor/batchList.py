@@ -79,8 +79,10 @@ if __name__ == "__main__":
     options, args = parser.parse_args()
     
     startPath = options.directory
+    useEoscp = True
     if options.path:
         copyPath = options.path
+        useEoscp = False
     else:
         copyPath = startPath
     
@@ -109,8 +111,10 @@ if __name__ == "__main__":
                     f.close()
             
                     if options.copy:
-                        #eoscp(fileName, startPath, options.force, eosurl = options.eosurl)
-                        copy(fileName, copyPath, options.force)
+                        if useEoscp:
+                            eoscp(fileName, startPath, options.force, eosurl = options.eosurl)
+                        else:
+                            copy(fileName, copyPath, options.force)
 
     if options.copy and len(options.file) and not options.list:
         files = glob(options.file)
@@ -118,6 +122,9 @@ if __name__ == "__main__":
             print "No files to transfer with glob options.file"
         else:
             for f in files:
-                #eoscp(f, startPath, options.force, eosurl = options.eosurl)
-                copy(f, copyPath, options.force)
-            
+                if useEoscp:
+                    eoscp(f, startPath, options.force, eosurl = options.eosurl)
+                else:
+                    copy(f, copyPath, options.force)
+           
+
