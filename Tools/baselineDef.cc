@@ -174,30 +174,30 @@ void BaselineVessel::prepareDeepTopTagger()
   // ----- AK4 Jets -----
   
   // AK4 jet variables
-  std::vector<std::string> AK4Variables = {
-                                            "qgPtD",                               
-                                            "qgAxis1",                             
-                                            "qgAxis2",                             
-                                            "recoJetschargedHadronEnergyFraction", 
-                                            "recoJetschargedEmEnergyFraction",     
-                                            "recoJetsneutralEmEnergyFraction",     
-                                            "recoJetsmuonEnergyFraction",          
-                                            "recoJetsHFHadronEnergyFraction",     
-                                            "recoJetsHFEMEnergyFraction",          
-                                            "recoJetsneutralEnergyFraction",       
-                                            "PhotonEnergyFraction",                
-                                            "ElectronEnergyFraction",             
-                                            "ChargedHadronMultiplicity",          
-                                            "NeutralHadronMultiplicity",          
-                                            "PhotonMultiplicity",                
-                                            "ElectronMultiplicity",               
-                                            "MuonMultiplicity",                    
-                                            "DeepCSVb",                            
-                                            "DeepCSVc",                            
-                                            "DeepCSVl",                            
-                                            "DeepCSVbb",
-                                            "DeepCSVcc"
-                                          };
+  std::map<std::string, std::string> AK4Variables;
+  //            name for top tagger                     name in ntuple
+  AK4Variables["qgPtD"]                               = "qgPtD"; 
+  AK4Variables["qgAxis1"]                             = "qgAxis1"; 
+  AK4Variables["qgAxis2"]                             = "qgAxis2"; 
+  AK4Variables["recoJetschargedHadronEnergyFraction"] = "recoJetschargedHadronEnergyFraction"; 
+  AK4Variables["recoJetschargedEmEnergyFraction"]     = "recoJetschargedEmEnergyFraction"; 
+  AK4Variables["recoJetsneutralEmEnergyFraction"]     = "recoJetsneutralEmEnergyFraction"; 
+  AK4Variables["recoJetsmuonEnergyFraction"]          = "recoJetsmuonEnergyFraction"; 
+  AK4Variables["recoJetsHFHadronEnergyFraction"]      = "recoJetsHFHadronEnergyFraction";
+  AK4Variables["recoJetsHFEMEnergyFraction"]          = "recoJetsHFEMEnergyFraction"; 
+  AK4Variables["recoJetsneutralEnergyFraction"]       = "recoJetsneutralEnergyFraction"; 
+  AK4Variables["PhotonEnergyFraction"]                = "PhotonEnergyFraction"; 
+  AK4Variables["ElectronEnergyFraction"]              = "ElectronEnergyFraction";
+  AK4Variables["ChargedHadronMultiplicity"]           = "ChargedHadronMultiplicity";
+  AK4Variables["NeutralHadronMultiplicity"]           = "NeutralHadronMultiplicity";
+  AK4Variables["PhotonMultiplicity"]                  = "PhotonMultiplicity"; 
+  AK4Variables["ElectronMultiplicity"]                = "ElectronMultiplicity"; 
+  AK4Variables["MuonMultiplicity"]                    = "MuonMultiplicity"; 
+  AK4Variables["DeepCSVb"]                            = "DeepCSVb"; 
+  AK4Variables["DeepCSVc"]                            = "DeepCSVc"; 
+  AK4Variables["DeepCSVl"]                            = "DeepCSVl"; 
+  AK4Variables["DeepCSVbb"]                           = "DeepCSVbb";     
+  AK4Variables["DeepCSVcc"]                           = "DeepCSVcc";      
   
   ttUtility::ConstAK4Inputs<float> AK4Inputs(*jetsLVec_forTagger, *recoJetsBtag_forTagger);
   
@@ -209,7 +209,8 @@ void BaselineVessel::prepareDeepTopTagger()
   // loop over variables and add to AK4Inputs
   for (const auto& variable : AK4Variables)
   {
-    AK4Inputs.addSupplamentalVector(variable, tr->getVec<float>(UseCleanedJetsVar(variable)));
+    //                              first: name for top tagger                          second: name in ntuple
+    AK4Inputs.addSupplamentalVector(variable.first, tr->getVec<float>(UseCleanedJetsVar(variable.second)));
   }
 
   // ----- AK8 Jets -----
