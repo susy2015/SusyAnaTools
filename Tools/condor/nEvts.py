@@ -87,10 +87,10 @@ if __name__ == "__main__":
 
     parser = optparse.OptionParser("usage: %prog [options]\n")
 
-    parser.add_option ('-s', "--sampleSetCfg",        dest='sampleSetCfg',     type='string', default = "../sampleSets.cfg",  help="SampleSet.cfg file to use")
-    parser.add_option ('-d', "--dataSetPattern",      dest='dataSetPattern',   type='string', default = ".*",                 help="Regexp defining sampleSets to check (Defaults to all)")
-    parser.add_option ('-t', "--threads",             dest='threads',          type='int',    default = 4,                    help="Number of threads to use (default: 4)")
-    parser.add_option ('-l', "--legacy",              dest='legacy',           type='bool',   default = False,                help="Use legacy ntuples instead of Nano AOD ntuples (default: False)")
+    parser.add_option ('-s', "--sampleSetCfg",    dest='sampleSetCfg',     type='string',          default = "../sampleSets.cfg",  help="SampleSet.cfg file to use")
+    parser.add_option ('-d', "--dataSetPattern",  dest='dataSetPattern',   type='string',          default = ".*",                 help="Regexp defining sampleSets to check (Defaults to all)")
+    parser.add_option ('-t', "--threads",         dest='threads',          type='int',             default = 4,                    help="Number of threads to use (default: 4)")
+    parser.add_option ('-l', "--legacy",          dest='legacy',           action = 'store_true',  default = False,                help="Use legacy ntuples instead of Nano AOD ntuples (default: False)")
 
     options, args = parser.parse_args()
 
