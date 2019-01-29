@@ -15,8 +15,7 @@
 
 namespace SusyUtility
 {
-    template<typename T>
-    void split(const std::string &s, const char& delim, T result);
+    void split(const std::string &s, const char& delim, std::vector<std::string>& result);
     
     // return vector of strings given names separated by deliminator, e.g. "electron;muon" ---> {"electron", "muon"} 
     std::vector<std::string> getVecFromString(const std::string &s, const char& delim);
