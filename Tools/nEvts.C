@@ -37,7 +37,6 @@ int main(int argc, char *argv[])
     if(argc >= optind+1)
     {
         selKeyStr = argv[optind];
-        //std::cout << "selKeyStr : " << selKeyStr << std::endl;
     }
 
     std::stringstream ssSelKey(selKeyStr);
@@ -59,8 +58,6 @@ int main(int argc, char *argv[])
                     break; 
                 }
             } 
-            //if ( found ) std::cout << "Found sample. first: " << file.first << " second: " << file.second.tag << std::endl;
-            //else         continue;
             if( !found ) continue;
         }
         if(skipData && file.first.find("Data") != std::string::npos)
