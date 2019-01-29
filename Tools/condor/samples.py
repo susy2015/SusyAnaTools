@@ -25,10 +25,10 @@ class SampleCollection:
         return self.lib.SC_fixed_lumi()
 
     def sampleList(self, name):
-        names = self.lib.SC_samples(self.obj, name)
-        files = self.lib.SC_samples_names(self.obj, name)
+        files = self.lib.SC_samples(self.obj, name)
+        names = self.lib.SC_samples_names(self.obj, name)
         nEvts = self.lib.SC_samples_nEvts(self.obj, name)
-        list = [(names[i],files[i],nEvts[i]) for i in xrange(self.lib.SC_samples_size(self.obj, name))]
+        list = [(files[i],names[i],nEvts[i]) for i in xrange(self.lib.SC_samples_size(self.obj, name))]
         return list
 
     def sampleCollectionList(self):
