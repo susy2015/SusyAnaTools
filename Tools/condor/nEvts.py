@@ -22,7 +22,8 @@ try:
     def getNEvtsProcess(fileURL):
         try:
             with uproot.open(fileURL) as f:
-                array = f["stopTreeMaker"]["AUX"]["stored_weight"].array()
+                #array = f["stopTreeMaker"]["AUX"]["stored_weight"].array()
+                array = f["Events"]["genWeight"].array()
         except:
             print "ERROR: unable to open fileURL"
             return None
@@ -42,11 +43,13 @@ except ImportError:
         except:
             print "ERROR: unable to open fileURL"
             return None
-        tree = f.Get("stopTreeMaker/AUX")
+        #tree = f.Get("stopTreeMaker/AUX")
+        tree = f.Get("Events")
         if not tree:
             print "tree is empty"
         h = ROOT.TH1D("h", "h", 2, -100, 100)
-        tree.Draw("stored_weight>>h", "1", "goff")
+        #tree.Draw("stored_weight>>h", "1", "goff")
+        tree.Draw("genWeight>>h", "1", "goff")
         totalNeg = h.GetBinContent(0) + h.GetBinContent(1)
         totalPos = h.GetBinContent(2) + h.GetBinContent(3)
         f.Close()

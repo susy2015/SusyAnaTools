@@ -21,8 +21,7 @@ class TextColor:
     blue = "\033[94m"
     end = "\033[0m"
 
-
-# regex
+# --- regex --- #
 # regular expression to get sample name and positive/negative weights
 #
 # Processing file(s): SMS-T2tt_fastsim_mStop-150to250 /eos/uscms/store/user/lpcsusyhad/Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/SMS-T2tt_mStop-150to250_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt  Neg weigths = 0, Pos weights = 32283695
@@ -32,9 +31,9 @@ class TextColor:
 #  2: 'SMS-T2tt_fastsim_mStop-150to250'     - dataset name   
 #  3: '0'                                   - number of negative weights
 #  4: '32283695'                            - number of positive weights
-
-#regex1 = re.compile('(.*): (.*)\t/eos.*Neg weigths = (.*), Pos weights = (.*)')
-
+#
+#regex = re.compile('(.*): (.*)\t/eos.*Neg weigths = (.*), Pos weights = (.*)')
+#
 # from samples.cc
 #                                                       dataset, path,   file,   tree,   cross section, nevents+, nevents-, kfactor 
 # int nMatches = sscanf(buf, "%s %s %s %s %f %f %f %f", cDSname, cFPath, cfName, cTPath, &f1,           &f2,      &f3,      &f4);
@@ -43,17 +42,15 @@ class TextColor:
 # dataset, path,   file,   tree,   cross section, nevents+, nevents-, kfactor 
 # cDSname, cFPath, cfName, cTPath, &f1,           &f2,      &f3,      &f4
 #
+# ------------- #
 
 def getNewSample(sample, weight_dict, neventsFile, file_pattern):
-    #regex1 = re.compile('(.*): (.*)\t/cms.*Neg weigths = (.*), Pos weights = (.*)')
-    regex1 = re.compile('(.*): (.*)\t' + file_pattern + '.*Neg weigths = (.*), Pos weights = (.*)')
+    regex = re.compile('(.*): (.*)\t' + file_pattern + '.*Neg weigths = (.*), Pos weights = (.*)')
     # be careful: strip() removes spaces and endlines
     sample_list = list(x.strip() for x in sample.split(','))
     name = sample_list[0] 
-    #print "sample_list: {0}".format(sample_list)
     # values are floats, but we want integers
     newSample = ", ".join(sample_list) + "\n"
-    #print sample
     if "Data" in sample:
         print "Skipping data sample: {0}".format(name)
         return newSample
@@ -76,7 +73,7 @@ def getNewSample(sample, weight_dict, neventsFile, file_pattern):
         num_matches = 0
         message = ""
         for nevent in neventsFile:
-            match = regex1.match(nevent)
+            match = regex.match(nevent)
             if not match:
                 continue
             if name == match.group(2):
@@ -128,7 +125,7 @@ def getNewSample(sample, weight_dict, neventsFile, file_pattern):
         newSample = ", ".join(sample_list) + "\n"
     return newSample
 
-def main1():
+def main():
     # options
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--nevents_file",    "-e", default="",                     help="file containing number of events with weights")
@@ -214,32 +211,7 @@ def main1():
     if neventsFile: 
         neventsFile.close()
 
-def main2():
-
-    parser = optparse.OptionParser("usage: %prog [options]\n")
-
-    parser.add_option ('-s', "--sampleSetCfg",        dest='sampleSetCfg',     type='string', default = "../sampleSets.cfg",    help="Existing SampleSet.cfg file to use")
-    parser.add_option ('-n', "--newSampleSetCfg",     dest='newSampleSetCfg',  type='string', default = "../sampleSets_v1.cfg", help="New SampleSet.cfg file to create")
-    parser.add_option ('-e', "--nevents_file",        default="",              help="file containing number of events with weights")
-    parser.add_option ('-d', "--dataSetPattern",      dest='dataSetPattern',   type='string', default = ".*",                   help="Regexp defining sampleSets to check (Defaults to all)")
-    parser.add_option ('-t', "--threads",             dest='threads',          type='int',    default = 4,                      help="Number of threads to use (default: 4)")
-
-    options, args = parser.parse_args()
-
-    ss = SampleSet(options.sampleSetCfg)
-    samples = [(name, file.replace("/eos/uscms", "root://cmseos.fnal.gov/")) for name, file in ss.sampleSetList()]
-    sample_dict = {}
-    for key, val in samples:
-        sample_dict[key] = val
-
-    for name, file in samples:
-        if re.search(options.dataSetPattern, name):
-            try:
-                nPos, nNeg = getNEvts(file, options.threads)
-                print "%s, %s, Positive weights: %i, Negative weights: %i"%(name, file, nPos, nNeg)
-            except TypeError:
-                pass
 
 if __name__ == "__main__":
-    main1()
+    main()
 
