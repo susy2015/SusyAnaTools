@@ -120,9 +120,6 @@ public:
     bool PassTopTagger();
     bool GetMHT() const;
     bool GetLeptons() const;
-    bool GetPhotons() const;
-    bool photonPassECALEtaCuts(const TLorentzVector& photon) const;
-    bool photonPassEtaPtCuts(const TLorentzVector& photon) const;
     bool GetRecoZ( const int zMassMin, const int zMassMax) const;
     bool GetRecoZ(const std::string leptype, const std::string lepchg, std::vector<TLorentzVector>* recoZVec,
         std::map<unsigned int, std::pair<unsigned int, unsigned int> > *TypeZLepIdx, 
