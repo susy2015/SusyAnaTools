@@ -1,6 +1,7 @@
 #ifndef ANASAMPLES_SAMPLES_H
 #define ANASAMPLES_SAMPLES_H
 
+#include <iostream>
 #include <string>
 #include <map>
 #include <vector>
@@ -70,7 +71,8 @@ namespace AnaSamples
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_72X_July_2015_v1.1/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/Spring15_74X_July_2015_v1.1/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/Spring15_74X_Oct_2015_Ntp_v2X/";
-  static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/";
+  //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/";
+  static const std::string fileDir = "/cms/data/store/user/lpcsusyhad/";
 
   template<class T>
   class SampleBase
@@ -133,6 +135,10 @@ namespace AnaSamples
 
             fclose(fin);
         }
+        else
+        {
+            std::cout << "ERROR: Unable to open file " << file << std::endl;
+        }
     }
 
 
@@ -159,13 +165,17 @@ namespace AnaSamples
     {
         sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, lumi, kfactor, color);
     }
+    
+    // modify weights to compare two MC samples
+    double getCrossSectionRatio(const std::vector<std::string>& sampleTags1, const std::vector<std::string>& sampleTags2, bool verbose = false);
+    
 
    private:
     std::string fDir_;
     bool isCondor_;
     double lumi_;
-
-    std::map<std::string, FileSummary>& getMap();
+    
+    std::map<std::string, FileSummary>& getMap() { return sampleSet_; }
     
     bool parseCfgLine(const char* buf);
   };
@@ -179,6 +189,10 @@ namespace AnaSamples
     {
       return totalLumiMap_[name];
     }
+    
+    // modify weights to compare two MC samples
+    double getCrossSectionRatio(std::string& sampleTag1, std::string sampleTag2, bool verbose = false);
+
    private:
     std::map<std::string, double> totalLumiMap_;
     std::map<std::string, std::vector<std::string>> nameVec_;

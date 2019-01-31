@@ -15,27 +15,25 @@ int main(int argc, char *argv[])
     int opt;
     int option_index = 0;
     static struct option long_options[] = {
-        {"negw",     no_argument, 0, 'w'},
-        {"skipData", no_argument, 0, 's'}
+        {"skipData", no_argument, 0, 's'},
+        {"legacy",   no_argument, 0, 'l'}
     };
 
-    bool getNegWeights = false, skipData = false;
-    while((opt=getopt_long(argc, argv, "ws", long_options, &option_index)) != -1)
+    bool skipData = false;
+    bool legacy = false;
+    while((opt=getopt_long(argc, argv, "sl", long_options, &option_index)) != -1)
     {
         switch(opt)
         {
-        case 'w':
-            getNegWeights = true;
-            break;
-
         case 's':
             skipData = true;
+            break;
+        case 'l':
+            legacy = true;
             break;
         }
     }
   
-    if(getNegWeights)
-        std::cout << "Will compute negative weight fraction" << std::endl;
     
     AnaSamples::SampleSet        ss("sampleSets.cfg");
     AnaSamples::SampleCollection sc("sampleCollections.cfg", ss);
@@ -44,7 +42,6 @@ int main(int argc, char *argv[])
     if(argc >= optind+1)
     {
         selKeyStr = argv[optind];
-        std::cout << "selKeyStr : " << selKeyStr << std::endl;
     }
 
     std::stringstream ssSelKey(selKeyStr);
@@ -65,7 +62,7 @@ int main(int argc, char *argv[])
                     found = true; 
                     break; 
                 }
-            }
+            } 
             if( !found ) continue;
         }
         if(skipData && file.first.find("Data") != std::string::npos)
@@ -83,12 +80,22 @@ int main(int argc, char *argv[])
         //std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << nEntries << "\twas: " << file.second.nEvts  << std::endl;
 
         TH1* h3 = new TH1D("h3", "h3", 2, -100000, 100000);
-            
-        t->Draw("stored_weight>>h3", "1", "goff");
+        
+        // weight name for CMSSW8028_2016 ntuples: stored_weight           
+        if (legacy) 
+        {
+            t->Draw("stored_weight>>h3", "1", "goff");
+        }
+        // weight name for prod2016MCv2_NANO_Skim ntuples: genWeight 
+        else
+        {
+            t->Draw("genWeight>>h3", "1", "goff");
+        }
+        
         std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << "Neg weigths = " << int(h3->GetBinContent(1)) << ", Pos weights = " << int(h3->GetBinContent(2)) << std::endl;
-        // delete TH1* to avoid memory leaks / save memory / not crash / be safe
+        
+        // delete TH1* and TChain* to avoid memory leaks / save memory / not crash / be safe
         delete h3;
-        // delete TChain* to avoid memory leaks / save memory / not crash / be safe
         delete t;
     }   
 }
