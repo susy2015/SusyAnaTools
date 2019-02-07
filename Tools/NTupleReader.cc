@@ -267,6 +267,7 @@ bool NTupleReader::goToEventInternal(int evt, const bool filter)
     bool passFilters = false;
     do
     {
+        clearDerivedVectors();
         //Create vectors for array reads 
         createVectorsForArrayReads(evt);
         //Load data from TTree
@@ -290,6 +291,18 @@ void NTupleReader::disableUpdate()
 {
     isUpdateDisabled_ = true;
     printf("NTupleReader::disableUpdate(): You have disabled tuple updates.  You may therefore be using old variablre definitions.  Be sure you are ok with this!!!\n");
+}
+
+void NTupleReader::clearDerivedVectors()
+{
+    for(auto& branchPair : branchVecMap_)
+    {
+        auto& deleterPtr = branchPair.second.deleter;
+        if(deleterPtr)
+        {
+            deleterPtr->deletePtr(branchPair.second.ptr);
+        }
+    }
 }
 
 bool NTupleReader::calculateDerivedVariables()

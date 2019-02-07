@@ -56,7 +56,8 @@ private:
     class deleter_base
     {
     public:
-        virtual void create(void *, const unsigned int, TBranch*) {};
+        virtual void create(void *, const unsigned int, TBranch*) {}
+        virtual void deletePtr(void *) {}
         virtual void destroy(void *) = 0;
         virtual ~deleter_base() {}
     };
@@ -77,11 +78,19 @@ private:
     class vec_deleter : public deleter_base
     {
     public:
+        virtual void deletePtr(void *ptr)
+        {
+            //Delete vector
+            T& vecptr = *static_cast<T*>(ptr);
+            if(vecptr != nullptr) delete vecptr;
+            vecptr = nullptr;
+        }
+
         virtual void destroy(void *ptr)
         {
             //Delete vector
             T vecptr = *static_cast<T*>(ptr);
-            if(vecptr != nullptr) delete vecptr;
+            if(vecptr != nullptr) delete vecptr;            
 
             //delete pointer to vector
             delete static_cast<T*>(ptr);
@@ -93,6 +102,8 @@ private:
     class array_deleter : public vec_deleter<T>
     {
     public:
+        void deletePtr(void* ptr) {}
+
         void create(void * ptr, const unsigned int size, TBranch* branch)
         {
             //Delete vector if one already exists
@@ -250,7 +261,7 @@ public:
     void setReThrow(const bool);
     bool getReThrow() const;
 
-    template<typename T> void registerDerivedVar(const std::string& name, T var)
+    template<typename T> void registerDerivedVar(const std::string& name, T var) const
     {
         try
         {
@@ -275,7 +286,7 @@ public:
         }
     }
 
-    template<typename T> void registerDerivedVec(const std::string& name, T* var)
+    template<typename T> void registerDerivedVec(const std::string& name, T* var) const
     {
         try
         {
@@ -305,7 +316,7 @@ public:
         }
     }
 
-    template<typename T> T& createDerivedVar(const std::string& name)
+    template<typename T> T& createDerivedVar(const std::string& name) const 
     {
         T varTemp;
         registerDerivedVar(name, varTemp);
@@ -313,9 +324,16 @@ public:
         return (*var);
     }
 
-    template<typename T> std::vector<T>& createDerivedVec(const std::string& name)
+    template<typename T> std::vector<T>& createDerivedVec(const std::string& name) const 
     {
         std::vector<T>* vec = new std::vector<T>();
+        registerDerivedVec(name, vec);
+        return (*vec);
+    }
+
+    template<typename T> std::vector<T>& createDerivedVec(const std::string& name, unsigned int nElem) const 
+    {
+        std::vector<T>* vec = new std::vector<T>(nElem);
         registerDerivedVec(name, vec);
         return (*vec);
     }
@@ -357,6 +375,60 @@ public:
         }
     }
 
+    template<typename T> const std::vector<TLorentzVector>& getVec_LVFromPtEtaPhiM(const std::string& ptVar, const std::string& etaVar, const std::string& phiVar, const std::string& massVar) const
+    {
+        //This function can be used to return vectors of TLorentzVectors if pt,eta,phi,mass are stored in independent vectors 
+        try
+        {
+            //compose (hopefully) unique name for the TLV in the map
+            std::string tlvName = "TLorentzVector_" + ptVar + etaVar + phiVar + massVar;
+
+            //check if tlvName has already been created
+            auto iter = branchVecMap_.find(tlvName);
+            if(iter != branchVecMap_.end() && *(static_cast<void**>(iter->second.ptr)) != nullptr)
+            {
+                //vector TLorentzVector has already been calcualted, simply return it 
+                return getVec<TLorentzVector>(tlvName);
+            }
+
+            //The vector has not been made for this event yet 
+            //get components
+            auto& pt   = getVec<T>(ptVar);
+            auto& eta  = getVec<T>(etaVar);
+            auto& phi  = getVec<T>(phiVar);
+            auto& mass = getVec<T>(massVar);
+
+            //check vector lengths
+            if(pt.size() != eta.size() || pt.size() != phi.size() || pt.size() != mass.size())
+            {
+                THROW_SATEXCEPTION("TLorentzVector component input vectors have unequal length!!! (" + ptVar + ":" + std::to_string(pt.size()) + " "  + etaVar + ":" + std::to_string(eta.size()) + " "  + phiVar + ":" + std::to_string(phi.size()) + " "  + massVar + ":" + std::to_string(mass.size()) + ")");
+            }
+
+            //create vector<TLorentzVector> with number of elements necessary
+            auto& tlv = createDerivedVec<TLorentzVector>(tlvName, pt.size());
+
+            for(unsigned int i = 0; i < tlv.size(); ++i)
+            {
+                tlv[i].SetPtEtaPhiM(pt[i], eta[i], phi[i], mass[i]);
+            }
+
+            //return resultant vector
+            return tlv;
+            
+        }
+        catch(const SATException& e)
+        {
+            if(isFirstEvent()) e.print();
+            if(reThrow_) throw;
+            return *static_cast<std::vector<TLorentzVector>*>(nullptr);
+        }
+    }
+
+    template<typename T> const std::vector<TLorentzVector>& getVec_LVFromNano(const std::string& Collection) const
+    {
+        return getVec_LVFromPtEtaPhiM<T>(Collection + "_pt", Collection + "_eta", Collection + "_phi", Collection + "_mass");
+    }
+
     template<typename T, typename V> const std::map<T, V>& getMap(const std::string& var) const
     {
         //This function can be used to return maps
@@ -396,6 +468,8 @@ private:
     void registerBranch(TBranch * const branch) const;
 
     void* getVarPtr(const std::string& var) const;
+
+    void clearDerivedVectors();
 
     bool calculateDerivedVariables();
     
