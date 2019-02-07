@@ -43,11 +43,34 @@
 
 class NTupleReader;
 
+//"Iterator" to allow use with for loops
+class NTupleReaderIterator
+{
+    friend NTupleReader;
+
+private:
+    NTupleReader& tr_;
+    mutable int current_;
+    NTupleReaderIterator(NTupleReader& tr, int begin);
+
+public:        
+    NTupleReaderIterator& operator++();
+
+    const NTupleReaderIterator& operator++() const ;
+
+    bool operator==(const NTupleReaderIterator& itr) const;
+    bool operator!=(const NTupleReaderIterator& itr) const;
+
+    NTupleReader& operator*();
+};
+
 void baselineUpdate(NTupleReader& tr);
 
 class NTupleReader
 {
     friend void baselineUpdate(NTupleReader& tr);
+
+    friend NTupleReaderIterator;
 
 private:
 
@@ -223,6 +246,16 @@ public:
     }
 
     int getNEntries() const;
+
+    NTupleReaderIterator begin()
+    {
+        return NTupleReaderIterator(*this, 0);
+    }
+
+    NTupleReaderIterator end()
+    {
+        return NTupleReaderIterator(*this, -1);
+    }
 
     inline bool checkBranch(const std::string& name) const
     {

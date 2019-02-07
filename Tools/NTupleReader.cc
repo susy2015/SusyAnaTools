@@ -3,6 +3,57 @@
 #include "TFile.h"
 #include "TObjArray.h"
 
+NTupleReaderIterator::NTupleReaderIterator(NTupleReader& tr, int begin) : tr_(tr), current_(begin)
+{
+    //read first event
+    if(!tr_.goToEvent(current_))
+    {
+        current_ = -1;
+    }
+}
+
+NTupleReaderIterator& NTupleReaderIterator::operator++()
+{
+    if(tr_.goToEvent(current_ + 1))
+    {
+        ++current_;
+    }
+    else
+    {
+        current_ = -1;
+    }
+    return *this;
+}
+
+const NTupleReaderIterator& NTupleReaderIterator::operator++() const
+{
+    if(tr_.goToEvent(current_ + 1))
+    {
+        ++current_;
+    }
+    else
+    {
+        current_ = -1;
+    }
+    return *this;
+}
+
+bool NTupleReaderIterator::operator!=(const NTupleReaderIterator& itr) const 
+{
+    return current_ != itr.current_;
+}
+
+bool NTupleReaderIterator::operator==(const NTupleReaderIterator& itr) const 
+{
+    return !operator!=(itr);
+}
+
+
+NTupleReader& NTupleReaderIterator::operator*()
+{
+    return tr_;
+}
+
 //specialization for bool return value
 template<>
 class NTupleReader::FuncWrapperImpl<std::function<bool(NTupleReader&)>> : public FuncWrapper
@@ -272,7 +323,11 @@ bool NTupleReader::goToEventInternal(int evt, const bool filter)
         createVectorsForArrayReads(evt);
         //Load data from TTree
         status = tree_->GetEntry(evt);
-        if (status == 0) return false;
+        if (status <= 0) //0 means event not found, -1 means IO error
+        {
+            nevt_ = -1;
+            return false;
+        }
         nevt_ = evt + 1;
         ++evtProcessed_;
         //Calculate extra derived variables 
