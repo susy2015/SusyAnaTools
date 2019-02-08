@@ -622,19 +622,21 @@ void BaselineVessel::PassBaseline()
   // Calculate top tagger related variables. 
   // Note that to save speed, only do the calculation after previous base line requirements.
 
-  if (UseDeepTagger)
-    prepareDeepTopTagger();
-  else
-    prepareTopTagger();
+  //if (UseDeepTagger)
+  //  prepareDeepTopTagger();
+  //else
+  //  prepareTopTagger();
 
-  bool passTagger = PassTopTagger();
+  const auto& nTops = tr->getVar<unsigned int>("nResolvedTopCandidate");
+  bool passTagger = (incZEROtop || nTops >= AnaConsts::low_nTopCandSortedSel); 
+  //bool passTagger = PassTopTagger();
   //if( !passTagger ){ passBaseline = false; passBaselineNoLepVeto = false; }
 
   // Pass the baseline MT2 requirement?
-  bool passMT2 = true;
-  float MT2 = CalcMT2();
+  //bool passMT2 = true;
+  //float MT2 = CalcMT2();
   //if( MT2 < AnaConsts::defaultMT2cut ){ passBaseline = false; passBaselineNoTag = false; passMT2 = false; passBaselineNoLepVeto = false; }
-  if( debug ) std::cout<<"MT2 : "<<MT2 <<"  defaultMT2cut : "<<AnaConsts::defaultMT2cut<<"  passBaseline : "<<passBaseline<<std::endl;
+  //if( debug ) std::cout<<"MT2 : "<<MT2 <<"  defaultMT2cut : "<<AnaConsts::defaultMT2cut<<"  passBaseline : "<<passBaseline<<std::endl;
 
   bool passNoiseEventFilter = true;
   if( !passNoiseEventFilterFunc() ) { passNoiseEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
@@ -642,23 +644,23 @@ void BaselineVessel::PassBaseline()
 
   // pass QCD high MET filter
   bool passQCDHighMETFilter = true;
-  if( !passQCDHighMETFilterFunc() ) { passQCDHighMETFilter = false; }
-  if( debug ) std::cout<<"passQCDHighMETFilter : "<< passQCDHighMETFilter <<"  passBaseline : "<<passBaseline<<std::endl;
+  //if( !passQCDHighMETFilterFunc() ) { passQCDHighMETFilter = false; }
+  //if( debug ) std::cout<<"passQCDHighMETFilter : "<< passQCDHighMETFilter <<"  passBaseline : "<<passBaseline<<std::endl;
 
   // pass the special filter for fastsim
   bool passFastsimEventFilter = true;
-  if( !passFastsimEventFilterFunc() ) { passFastsimEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
-  if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc()<<"  passBaseline : "<<passBaseline<<std::endl;
+  //if( !passFastsimEventFilterFunc() ) { passFastsimEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
+  //if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc()<<"  passBaseline : "<<passBaseline<<std::endl;
 
 
 
   // Call CompCommonVar() after vBidxs is filled.
   CompCommonVar();
   // Call FlagDeepAK8Jets() or FlagAK8Jets() after prepare and pass top tagger functions
-  if (UseDeepTagger)
-    FlagDeepAK8Jets();
-  else
-    FlagAK8Jets();
+  //if (UseDeepTagger)
+  //  FlagDeepAK8Jets();
+  //else
+  //  FlagAK8Jets();
 
   //---------------------------------------//
   //--- Updated Baseline (January 2019) ---//
@@ -669,21 +671,27 @@ void BaselineVessel::PassBaseline()
   // https://github.com/susy2015/SusyAnaTools/blob/5e4f54e1aa985daff90f1ad7a220b8d17e4b7290/Tools/tupleRead.C#L629-L639
   
   // variables for passBaselineLowDM and passBaselineHighDM
-  const auto& ISRLVec = tr->getVec<TLorentzVector>("vISRJet");
-  float mtb           = tr->getVar<float>("mtb");
-  int nWs             = tr->getVar<int>("nWs");
-  int nTops           = tr->getVar<int>("nTopCandSortedCnt");
-  int nBottoms        = cntCSVS;
-  int nJets           = cntNJetsPt20Eta24;
-  float ISRpt = 0.0;
+  // get ISR jet
+  TLorentzVector ISRLVec;
+  const auto& FatJets = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const auto& Stop0l_ISRJetIdx = tr->getVar<int>("Stop0l_ISRJetIdx");
+  if (Stop0l_ISRJetIdx < FatJets.size()) ISRLVec = FatJets[Stop0l_ISRJetIdx];
+
+  //const auto& ISRLVec   = tr->getVec<TLorentzVector>("vISRJet");
+  const auto& ISRpt     = tr->getVar<float>("Stop0l_ISRJetPt");
+  const auto& mtb       = tr->getVar<float>("Stop0l_Mtb");
+  const auto& nWs       = tr->getVar<int>("Stop0l_nW");
+  const auto& nBottoms  = cntCSVS;
+  const auto& nJets     = cntNJetsPt20Eta24;
   float S_met = met / sqrt(HT);
-  if(ISRLVec.size() == 1) ISRpt = ISRLVec.at(0).Pt();
+  //if(ISRLVec.size() == 1) ISRpt = ISRLVec.at(0).Pt();
+
 
   //SUS-16-049, low dm, ISR cut
   bool pass_ISR = (
                        ISRpt > 200
-                    && fabs(ISRLVec.at(0).Eta()) < 2.4
-                    && fabs(ISRLVec.at(0).Phi() - metphi) > 2
+                    && fabs(ISRLVec.Eta()) < 2.4
+                    && fabs(ISRLVec.Phi() - metphi) > 2
                   );
   
   //SUS-16-049, low dm, mtb cut
@@ -752,7 +760,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("passdPhis" + firstSpec, passdPhis);
   tr->registerDerivedVar("passBJets" + firstSpec, passBJets);
   tr->registerDerivedVar("passMET" + firstSpec, passMET);
-  tr->registerDerivedVar("passMT2" + firstSpec, passMT2);
+  //tr->registerDerivedVar("passMT2" + firstSpec, passMT2);
   tr->registerDerivedVar("passHT" + firstSpec, passHT);
   tr->registerDerivedVar("passTagger" + firstSpec, passTagger);
   tr->registerDerivedVar("passNoiseEventFilter" + firstSpec, passNoiseEventFilter);
@@ -764,7 +772,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("passBaselineNoTagMT2" + firstSpec, passBaselineNoTagMT2);
   tr->registerDerivedVar("passBaselineNoTag" + firstSpec, passBaselineNoTag);
   tr->registerDerivedVar("passBaselineNoLepVeto" + firstSpec, passBaselineNoLepVeto);
-  tr->registerDerivedVar("best_had_brJet_MT2" + firstSpec,    MT2);
+  //tr->registerDerivedVar("best_had_brJet_MT2" + firstSpec,    MT2);
   tr->registerDerivedVar("HT" + firstSpec, HT);
 
   if( debug ) std::cout<<"passBaseline : "<<passBaseline<<" passBaselineLowDM  : "<<passBaselineLowDM<<" passBaselineHighDM  : "<<passBaselineHighDM<<std::endl;
@@ -1175,23 +1183,24 @@ bool BaselineVessel::passNoiseEventFilterFunc()
       passDataSpec = goodVerticesFilter && eeBadScFilter && passglobalTightHalo2016Filter;
     }
 
-    unsigned int hbheNoiseFilter = isfastsim? 1:tr->getVar<unsigned int>("HBHENoiseFilter");
-    unsigned int hbheIsoNoiseFilter = isfastsim? 1:tr->getVar<unsigned int>("HBHEIsoNoiseFilter");
-    int ecalTPFilter = tr->getVar<int>("EcalDeadCellTriggerPrimitiveFilter");
+    bool hbheNoiseFilter = isfastsim? 1:tr->getVar<bool>("Flag_HBHENoiseFilter");
+    bool hbheIsoNoiseFilter = isfastsim? 1:tr->getVar<bool>("Flag_HBHENoiseIsoFilter");
+    bool ecalTPFilter = tr->getVar<bool>("Flag_EcalDeadCellTriggerPrimitiveFilter");
 
-    unsigned int jetIDFilter = isfastsim? 1:tr->getVar<unsigned int>("AK4looseJetID");
-    //unsigned int jetIDFilter = true;
+    //bool jetIDFilter = isfastsim? 1:tr->getVar<bool>("AK4looseJetID");
+    //bool jetIDFilter = true;
     // new filters
-    const unsigned int & BadPFMuonFilter = tr->getVar<unsigned int>("BadPFMuonFilter");
-    bool passBadPFMuonFilter = (&BadPFMuonFilter) != nullptr? tr->getVar<unsigned int>("BadPFMuonFilter") !=0 : true;
+    const bool & BadPFMuonFilter = tr->getVar<bool>("Flag_BadPFMuonFilter");
+    bool passBadPFMuonFilter = (&BadPFMuonFilter) != nullptr? tr->getVar<bool>("Flag_BadPFMuonFilter") !=0 : true;
 
-    const unsigned int & BadChargedCandidateFilter = tr->getVar<unsigned int>("BadChargedCandidateFilter");
-    bool passBadChargedCandidateFilter = (&BadChargedCandidateFilter) != nullptr? tr->getVar<unsigned int>("BadChargedCandidateFilter") !=0 : true;
+    const bool & BadChargedCandidateFilter = tr->getVar<bool>("Flag_BadChargedCandidateFilter");
+    bool passBadChargedCandidateFilter = (&BadChargedCandidateFilter) != nullptr? tr->getVar<bool>("Flag_BadChargedCandidateFilter") !=0 : true;
 
-    bool passMETratioFilter = tr->getVar<float>("calomet")!=0 ? tr->getVar<float>("met")/tr->getVar<float>("calomet") < 5 : true;
+    //bool passMETratioFilter = tr->getVar<float>("calomet")!=0 ? tr->getVar<float>("met")/tr->getVar<float>("calomet") < 5 : true;
 
     tr->setReThrow(cached_rethrow);
-    return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter && passBadPFMuonFilter && passBadChargedCandidateFilter && passMETratioFilter;
+    //return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && jetIDFilter && passBadPFMuonFilter && passBadChargedCandidateFilter && passMETratioFilter;
+    return passDataSpec && hbheNoiseFilter && hbheIsoNoiseFilter && ecalTPFilter && passBadPFMuonFilter && passBadChargedCandidateFilter;
   }
   catch (std::string var)
   {
@@ -1206,7 +1215,7 @@ bool BaselineVessel::passNoiseEventFilterFunc()
 
 bool BaselineVessel::passQCDHighMETFilterFunc()
 {
-  std::vector<TLorentzVector> jetsLVec = tr->getVec<TLorentzVector>("jetsLVec");
+  std::vector<TLorentzVector> jetsLVec = tr->getVec<TLorentzVector>(jetVecLabel);
   std::vector<float> recoJetsmuonEnergyFraction = tr->getVec<float>("recoJetsmuonEnergyFraction");
   float metphi = tr->getVar<float>("metphi");
 
