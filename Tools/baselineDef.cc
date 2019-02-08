@@ -22,14 +22,14 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   UseDeepTagger         = true;
   UseDeepCSV            = true;
   eraLabel              = "2016MC";
-  jetVecLabel           = "jetsLVec";
-  CSVVecLabel           = "recoJetsCSVv2";
-  METLabel              = "met";
-  METPhiLabel           = "metphi";
-  jetVecLabelAK8        = "puppiJetsLVec";
+  jetVecLabel           = "JetTLV";
+  CSVVecLabel           = "Jet_btagDeepB";
+  METLabel              = "MET_pt";
+  METPhiLabel           = "MET_phi";
+  jetVecLabelAK8        = "FatJetTLV";
   qgLikehoodLabel       = "qgLikelihood";
-  muonsFlagIDLabel      = "muonsFlagLoose"; 
-  elesFlagIDLabel       = "elesFlagVeto";
+  muonsFlagIDLabel      = "Muon_Stop0l"; 
+  elesFlagIDLabel       = "Electron_Stop0l";
   toptaggerCfgFile      = "TopTagger.cfg";
   doIsoTrksVeto         = true;
   doMuonVeto            = true;
@@ -44,7 +44,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   passBaselineNoLepVeto = true;
   metLVec.SetPtEtaPhiM(0, 0, 0, 0);
   if (UseDeepCSV)
-    CSVVecLabel           = "DeepCSVcomb";
+    CSVVecLabel           = "Jet_btagDeepB";
   if (UseDeepTagger)
     toptaggerCfgFile      = "TopTagger_DeepCombined.cfg";
 
@@ -95,14 +95,14 @@ bool BaselineVessel::UseCleanedJets()
   if      (UseLeptonCleanJet)   prefix = "prodJetsNoLep_";
   if      (UseDRPhotonCleanJet) suffix = "_drPhotonCleaned";
   else if (UseDRLeptonCleanJet) suffix = "_drLeptonCleaned";
-  jetVecLabel     = prefix + "jetsLVec"      + suffix;
-  CSVVecLabel     = prefix + "recoJetsCSVv2" + suffix;
+  jetVecLabel     = prefix + "JetTLV"        + suffix;
+  CSVVecLabel     = prefix + "Jet_btagDeepB" + suffix;
   qgLikehoodLabel = prefix + "qgLikelihood"  + suffix;
-  jetVecLabelAK8  = prefix + "puppiJetsLVec" + suffix;
+  jetVecLabelAK8  = prefix + "FatJetTLV"     + suffix;
   if (UseDeepCSV)
   {
     // Note that DeepCSVcomb is a derived variable... but it is derived with cleaned variables 
-    CSVVecLabel   = prefix + "DeepCSVcomb" + suffix;
+    CSVVecLabel   = prefix + "Jet_btagDeepB" + suffix;
   }
   return true;
 }       // -----  end of function BaselineVessel::UseCleanedJets  -----
@@ -541,13 +541,16 @@ void BaselineVessel::PassBaseline()
   float metphi = metLVec.Phi();
 
   // Calculate number of leptons
-  const std::vector<int> & muonsFlagIDVec = muonsFlagIDLabel.empty()? std::vector<int>(tr->getVec<float>("muonsMiniIso").size(), 1):tr->getVec<int>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
-  const std::vector<int> & elesFlagIDVec = elesFlagIDLabel.empty()? std::vector<int>(tr->getVec<float>("elesMiniIso").size(), 1):tr->getVec<int>(elesFlagIDLabel.c_str()); // Fake electrons since we don't have different ID for electrons now, but maybe later
-  int nMuons = AnaFunctions::countMuons(tr->getVec<TLorentzVector>("muonsLVec"), tr->getVec<float>("muonsMiniIso"), tr->getVec<float>("muonsMtw"), muonsFlagIDVec, AnaConsts::muonsMiniIsoArr);
-  int nElectrons = AnaFunctions::countElectrons(tr->getVec<TLorentzVector>("elesLVec"), tr->getVec<float>("elesMiniIso"), tr->getVec<float>("elesMtw"), tr->getVec<unsigned int>("elesisEB"), elesFlagIDVec, AnaConsts::elesMiniIsoArr);
-  int nIsoTrks = AnaFunctions::countIsoTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
-  int nIsoLepTrks = AnaFunctions::countIsoLepTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
-  int nIsoPionTrks = AnaFunctions::countIsoPionTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
+  const auto& muonsFlagIDVec = muonsFlagIDLabel.empty() ? std::vector<unsigned char>(tr->getVec<float>("muonsMiniIso").size(), 1): tr->getVec<unsigned char>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
+  const auto& elesFlagIDVec  = elesFlagIDLabel.empty()  ? std::vector<unsigned char>(tr->getVec<float>("elesMiniIso").size(), 1):  tr->getVec<unsigned char>(elesFlagIDLabel.c_str());  // Fake electrons since we don't have different ID for electrons now, but maybe later
+  int nMuons     = tr->getVar<unsigned int>("nMuon");
+  int nElectrons = tr->getVar<unsigned int>("nElectron");
+  int nIsoTrks   = tr->getVar<unsigned int>("nIsoTrack");
+  //int nMuons = AnaFunctions::countMuons(tr->getVec<TLorentzVector>("MuonTLV"), tr->getVec<float>("muonsMiniIso"), tr->getVec<float>("muonsMtw"), muonsFlagIDVec, AnaConsts::muonsMiniIsoArr);
+  //int nElectrons = AnaFunctions::countElectrons(tr->getVec<TLorentzVector>("ElectronTLV"), tr->getVec<float>("elesMiniIso"), tr->getVec<float>("elesMtw"), tr->getVec<unsigned int>("elesisEB"), elesFlagIDVec, AnaConsts::elesMiniIsoArr);
+  //int nIsoTrks = AnaFunctions::countIsoTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
+  //int nIsoLepTrks = AnaFunctions::countIsoLepTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
+  //int nIsoPionTrks = AnaFunctions::countIsoPionTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
 
   // Calculate number of jets and b-tagged jets
   int cntCSVS = 0;
@@ -580,7 +583,7 @@ void BaselineVessel::PassBaseline()
 
   // Pass lepton veto?
   bool passMuonVeto = (nMuons == AnaConsts::nMuonsSel), passEleVeto = (nElectrons == AnaConsts::nElectronsSel), passIsoTrkVeto = (nIsoTrks == AnaConsts::nIsoTrksSel);
-  bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTrksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTrksSel);
+  //bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTrksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTrksSel);
   bool passLeptVeto = passMuonVeto && passEleVeto && passIsoTrkVeto;
   
   if( doMuonVeto && !passMuonVeto ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
@@ -743,8 +746,8 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("passMuonVeto" + firstSpec, passMuonVeto);
   tr->registerDerivedVar("passEleVeto" + firstSpec, passEleVeto);
   tr->registerDerivedVar("passIsoTrkVeto" + firstSpec, passIsoTrkVeto);
-  tr->registerDerivedVar("passIsoLepTrkVeto" + firstSpec, passIsoLepTrkVeto);
-  tr->registerDerivedVar("passIsoPionTrkVeto" + firstSpec, passIsoPionTrkVeto);
+  //tr->registerDerivedVar("passIsoLepTrkVeto" + firstSpec, passIsoLepTrkVeto);
+  //tr->registerDerivedVar("passIsoPionTrkVeto" + firstSpec, passIsoPionTrkVeto);
   tr->registerDerivedVar("passnJets" + firstSpec, passnJets);
   tr->registerDerivedVar("passdPhis" + firstSpec, passdPhis);
   tr->registerDerivedVar("passBJets" + firstSpec, passBJets);
@@ -1342,7 +1345,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
   UseCleanedJets();
-  CombDeepCSV(); //temparory fix for DeepCSV
+  //CombDeepCSV(); //temparory fix for DeepCSV
   // --- Do within PassBaseline();
   //CompCommonVar(); // registers mtb; used by PassBaseline(); now put in PassBaseline().
   PassBaseline();
@@ -1465,22 +1468,22 @@ bool BaselineVessel::GetLeptons() const
   std::vector<int> *vMuonChg = new std::vector<int> ();
   std::vector<int> *vEleChg = new std::vector<int> ();
 
-  const std::vector<TLorentzVector> &muonsLVec   = tr->getVec<TLorentzVector>("muonsLVec");
+  const std::vector<TLorentzVector> &MuonTLV   = tr->getVec<TLorentzVector>("MuonTLV");
   const std::vector<float>          &muonsRelIso = tr->getVec<float>("muonsMiniIso");
   const std::vector<float>          &muonsMtw    = tr->getVec<float>("muonsMtw");
   const std::vector<int>            &muonsFlagID = tr->getVec<int>(muonsFlagIDLabel.c_str());
   const std::vector<float>          &muonsCharge = tr->getVec<float>("muonsCharge");
-  for(unsigned int im=0; im<muonsLVec.size(); im++){
-    if(AnaFunctions::passMuon(muonsLVec[im], muonsRelIso[im], muonsMtw[im], muonsFlagID[im], AnaConsts::muonsMiniIsoArr))
+  for(unsigned int im=0; im<MuonTLV.size(); im++){
+    if(AnaFunctions::passMuon(MuonTLV[im], muonsRelIso[im], muonsMtw[im], muonsFlagID[im], AnaConsts::muonsMiniIsoArr))
     {
       if (!vMuons->empty()) // Making sure the vMuons are sorted in Pt
-        assert(muonsLVec.at(im).Pt() <= vMuons->back().Pt());
-      vMuons->push_back(muonsLVec.at(im));
+        assert(MuonTLV.at(im).Pt() <= vMuons->back().Pt());
+      vMuons->push_back(MuonTLV.at(im));
       vMuonChg->push_back(muonsCharge.at(im));
     }
   }
 
-  const std::vector<TLorentzVector> &electronsLVec   = tr->getVec<TLorentzVector>("elesLVec");
+  const std::vector<TLorentzVector> &electronsLVec   = tr->getVec<TLorentzVector>("ElectronTLV");
   const std::vector<float> &electronsRelIso         = tr->getVec<float>("elesMiniIso");
   const std::vector<float> &electronsMtw            = tr->getVec<float>("elesMtw");
   const std::vector<unsigned int> &isEBVec           = tr->getVec<unsigned int>("elesisEB");
@@ -1764,33 +1767,33 @@ int stopFunctions::CleanJets::cleanLeptonFromJet(const TLorentzVector& lep, cons
 
 void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
 {
-  const std::vector<TLorentzVector>& jetsLVec                   = tr.getVec<TLorentzVector>(jetVecLabel_);
-  const std::vector<TLorentzVector>& elesLVec                   = tr.getVec<TLorentzVector>("elesLVec");
-  const std::vector<TLorentzVector>& muonsLVec                  = tr.getVec<TLorentzVector>("muonsLVec");
-  const std::vector<TLorentzVector>& photonsLVec                = tr.getVec<TLorentzVector>("gammaLVec");
-  const std::vector<float>&          elesIso                    = tr.getVec<float>(elecIsoStr_);
-  const std::vector<float>&          muonsIso                   = tr.getVec<float>(muIsoStr_);
-  const std::vector<int>&            muonsFlagIDVec             = muonsFlagIDLabel_.empty()? std::vector<int>(muonsIso.size(), 1):tr.getVec<int>(muonsFlagIDLabel_.c_str());
-  const std::vector<int>&            elesFlagIDVec              = elesFlagIDLabel_.empty()? std::vector<int>(elesIso.size(), 1):tr.getVec<int>(elesFlagIDLabel_.c_str());
-  const std::vector<float>&          recoJetsCSVv2              = tr.getVec<float>(bTagLabel_);
-  const std::vector<float>&          chargedHadronEnergyFrac    = tr.getVec<float>(chargedHadFracLabel_);
-  const std::vector<float>&          neutralEmEnergyFrac        = tr.getVec<float>(neutralEMFracLabel_);
-  const std::vector<float>&          chargedEmEnergyFrac        = tr.getVec<float>(chargedEMFracLabel_);
-  const std::vector<int>&            muMatchedJetIdx            = tr.getVec<int>("muMatchedJetIdx");
-  const std::vector<int>&            eleMatchedJetIdx           = tr.getVec<int>("eleMatchedJetIdx");
-  const std::vector<unsigned int>&   elesisEB                   = tr.getVec<unsigned int>("elesisEB");
-  const std::vector<float>&          recoJetsJecScaleRawToFull  = recoJetsJecScaleRawToFullLabel_.empty()? std::vector<float>(jetsLVec.size(), 1):tr.getVec<float>(recoJetsJecScaleRawToFullLabel_.c_str());
+  const auto& jetsLVec                   = tr.getVec<TLorentzVector>(jetVecLabel_);
+  const auto& ElectronTLV                   = tr.getVec<TLorentzVector>("ElectronTLV");
+  const auto& MuonTLV                  = tr.getVec<TLorentzVector>("MuonTLV");
+  const auto& photonsLVec                = tr.getVec<TLorentzVector>("gammaLVec");
+  const auto& elesIso                    = tr.getVec<float>(elecIsoStr_);
+  const auto& muonsIso                   = tr.getVec<float>(muIsoStr_);
+  const auto& muonsFlagIDVec             = muonsFlagIDLabel_.empty()? std::vector<unsigned char>(muonsIso.size(), 1): tr.getVec<unsigned char>(muonsFlagIDLabel_.c_str());
+  const auto& elesFlagIDVec              = elesFlagIDLabel_.empty()?  std::vector<unsigned char>(elesIso.size(), 1):  tr.getVec<unsigned char>(elesFlagIDLabel_.c_str());
+  const auto& recoJetsCSVv2              = tr.getVec<float>(bTagLabel_);
+  const auto& chargedHadronEnergyFrac    = tr.getVec<float>(chargedHadFracLabel_);
+  const auto& neutralEmEnergyFrac        = tr.getVec<float>(neutralEMFracLabel_);
+  const auto& chargedEmEnergyFrac        = tr.getVec<float>(chargedEMFracLabel_);
+  const auto& muMatchedJetIdx            = tr.getVec<int>("muMatchedJetIdx");
+  const auto& eleMatchedJetIdx           = tr.getVec<int>("eleMatchedJetIdx");
+  const auto& elesisEB                   = tr.getVec<unsigned int>("elesisEB");
+  const auto& recoJetsJecScaleRawToFull  = recoJetsJecScaleRawToFullLabel_.empty()? std::vector<float>(jetsLVec.size(), 1):tr.getVec<float>(recoJetsJecScaleRawToFullLabel_.c_str());
   std::vector<float>* dRvec = new std::vector<float>();
 
-  const unsigned int& run   = tr.getVar<unsigned int>("run");
-  const unsigned int& lumi  = tr.getVar<unsigned int>("lumi");
-  const unsigned int& event = tr.getVar<unsigned int>("event");
+  const auto& run   = tr.getVar<unsigned int>("run");
+  const auto& lumi  = tr.getVar<unsigned int>("lumi");
+  const auto& event = tr.getVar<unsigned int>("event");
 
-  if(elesLVec.size() != elesIso.size() 
-      || elesLVec.size() != eleMatchedJetIdx.size()
-      || elesLVec.size() != elesisEB.size()
-      || muonsLVec.size() != muonsIso.size()
-      || muonsLVec.size() != muMatchedJetIdx.size()
+  if(ElectronTLV.size() != elesIso.size() 
+      || ElectronTLV.size() != eleMatchedJetIdx.size()
+      || ElectronTLV.size() != elesisEB.size()
+      || MuonTLV.size() != muonsIso.size()
+      || MuonTLV.size() != muMatchedJetIdx.size()
       || jetsLVec.size() != recoJetsCSVv2.size()
       || jetsLVec.size() != chargedHadronEnergyFrac.size()
       || jetsLVec.size() != neutralEmEnergyFrac.size()
@@ -1829,17 +1832,17 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
 
   if(!disableMuon_)
   {
-    for(int iM = 0; iM < muonsLVec.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
+    for(int iM = 0; iM < MuonTLV.size() && iM < muonsIso.size() && iM < muMatchedJetIdx.size(); ++iM)
     {
-      if(!AnaFunctions::passMuon(muonsLVec[iM], muonsIso[iM], 0.0, muonsFlagIDVec[iM], muIsoReq_) && muonsLVec[iM].Pt() > muonPtThresh_) 
+      if(!AnaFunctions::passMuon(MuonTLV[iM], muonsIso[iM], 0.0, muonsFlagIDVec[iM], muIsoReq_) && MuonTLV[iM].Pt() > muonPtThresh_) 
       {
         rejectJetIdx_formuVec->push_back(-1);
         continue;
       }
 
       int match = -1;
-      if(forceDr_) match = cleanLeptonFromJet(muonsLVec[iM],                  -1, jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec, photoCleanThresh_);
-      else         match = cleanLeptonFromJet(muonsLVec[iM], muMatchedJetIdx[iM], jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec, photoCleanThresh_);
+      if(forceDr_) match = cleanLeptonFromJet(MuonTLV[iM],                  -1, jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec, photoCleanThresh_);
+      else         match = cleanLeptonFromJet(MuonTLV[iM], muMatchedJetIdx[iM], jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec, photoCleanThresh_);
 
       if( match >= 0 ) rejectJetIdx_formuVec->push_back(match);
       else rejectJetIdx_formuVec->push_back(-1);
@@ -1848,17 +1851,17 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
 
   if(!disableElec_)
   {
-    for(int iE = 0; iE < elesLVec.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
+    for(int iE = 0; iE < ElectronTLV.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
     {
-      if(!AnaFunctions::passElectron(elesLVec[iE], elesIso[iE], 0.0, elesisEB[iE], elesFlagIDVec[iE], elecIsoReq_) && elesLVec[iE].Pt() > elecPtThresh_) 
+      if(!AnaFunctions::passElectron(ElectronTLV[iE], elesIso[iE], 0.0, elesisEB[iE], elesFlagIDVec[iE], elecIsoReq_) && ElectronTLV[iE].Pt() > elecPtThresh_) 
       {
         rejectJetIdx_foreleVec->push_back(-1);
         continue;
       }
 
       int match = -1;
-      if(forceDr_) match = cleanLeptonFromJet(elesLVec[iE],                   -1, jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec);
-      else         match = cleanLeptonFromJet(elesLVec[iE], eleMatchedJetIdx[iE], jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec);
+      if(forceDr_) match = cleanLeptonFromJet(ElectronTLV[iE],                   -1, jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec);
+      else         match = cleanLeptonFromJet(ElectronTLV[iE], eleMatchedJetIdx[iE], jetsLVec, recoJetsJecScaleRawToFull, keepJetPFCandMatch, neutralEmEnergyFrac, cleanJetVec, jldRMax, dRvec);
 
       if( match >= 0 ) rejectJetIdx_foreleVec->push_back(match);
       else rejectJetIdx_foreleVec->push_back(-1);

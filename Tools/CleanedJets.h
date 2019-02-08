@@ -35,16 +35,16 @@ private:
     void generateCleanedJets() 
     {
         //                  jetCollectionName, objectNameString,    jetCollectionVariables, prefix,     suffix,               doDRCleaning, doJetCuts
-        cleanJetCollection("jetsLVec",      "gammaLVecPassLooseID", AK4JetVariables_, "",               "_drPhotonCleaned",           true, false);
-        cleanJetCollection("jetsLVec",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned",           true, false);
-        cleanJetCollection("jetsLVec",      "",                     AK4JetVariables_, "",               "_pt20eta24",                 false, true);
-        cleanJetCollection("jetsLVec",      "",                     AK4JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
-        cleanJetCollection("jetsLVec",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
-        cleanJetCollection("puppiJetsLVec", "gammaLVecPassLooseID", AK8JetVariables_, "",               "_drPhotonCleaned",           true, false);
-        cleanJetCollection("puppiJetsLVec", "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned",           true, false);
-        cleanJetCollection("puppiJetsLVec", "",                     AK8JetVariables_, "",               "_pt20eta24",                 false, true);
-        cleanJetCollection("puppiJetsLVec", "",                     AK8JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
-        cleanJetCollection("puppiJetsLVec", "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
+        cleanJetCollection("JetTLV",      "gammaLVecPassLooseID", AK4JetVariables_, "",               "_drPhotonCleaned",           true, false);
+        cleanJetCollection("JetTLV",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned",           true, false);
+        cleanJetCollection("JetTLV",      "",                     AK4JetVariables_, "",               "_pt20eta24",                 false, true);
+        //cleanJetCollection("JetTLV",      "",                     AK4JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
+        cleanJetCollection("JetTLV",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
+        cleanJetCollection("FatJetTLV",   "gammaLVecPassLooseID", AK8JetVariables_, "",               "_drPhotonCleaned",           true, false);
+        cleanJetCollection("FatJetTLV",   "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned",           true, false);
+        cleanJetCollection("FatJetTLV",   "",                     AK8JetVariables_, "",               "_pt20eta24",                 false, true);
+        //cleanJetCollection("FatJetTLV",   "",                     AK8JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
+        cleanJetCollection("FatJetTLV",   "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
     }
 
     template <class type> void cleanVector(std::string vectorName, std::vector<bool> keepJet, const std::string& suffix)
@@ -101,25 +101,47 @@ private:
         // clean all variables in jet collection
         for (const auto& jetVariable : jetCollectionVariables)
         {
-            // TLorentzVector
-            if (jetVariable.compare("jetsLVec") == 0 || jetVariable.compare("puppiJetsLVec") == 0)
+            // get type
+            std::string type;
+            tr_->getType(jetVariable, type);
+            std::cout << jetVariable << " : " << type << std::endl; 
+            // check for vector
+            if (type.find("vector") != std::string::npos)
             {
-                cleanVector<TLorentzVector>(prefix + jetVariable, keepJet, suffix);
+                if      (type.find("TLorentzVector")    != std::string::npos) cleanVector<TLorentzVector>(prefix + jetVariable, keepJet, suffix);
+                else if (type.find("float")             != std::string::npos) cleanVector<float>(prefix + jetVariable, keepJet, suffix);
+                else if (type.find("double")            != std::string::npos) cleanVector<double>(prefix + jetVariable, keepJet, suffix);
+                else if (type.find("unsigned int")      != std::string::npos) cleanVector<unsigned int>(prefix + jetVariable, keepJet, suffix);
+                else if (type.find("int")               != std::string::npos) cleanVector<int>(prefix + jetVariable, keepJet, suffix);
+                else if (type.find("unsigned char")     != std::string::npos) cleanVector<unsigned char>(prefix + jetVariable, keepJet, suffix);
+                else if (type.find("char")              != std::string::npos) cleanVector<char>(prefix + jetVariable, keepJet, suffix);
+                else
+                {
+                    std::cout << "The variable " << jetVariable << "with type " << type << " has an unusual type. Jet cleaning will not be applied to it. You may add this type to SusyAnaTools/Tools/CleanedJets.h if you need this variable." << std::endl;
+                }
+                //if (jetVariable.compare("JetTLV") == 0 || jetVariable.compare("FatJetTLV") == 0 || jetVariable.compare("SubJetTLV") == 0)
+                //{
+                //    cleanVector<TLorentzVector>(prefix + jetVariable, keepJet, suffix);
+                //}
+                // std::vector<TLorentzVector> 
+                // else if (jetVariable.compare("SubJetTLV") == 0)
+                // {
+                //     cleanVector<std::vector<TLorentzVector>>(prefix + jetVariable, keepJet, suffix);
+                // }
+                // // int
+                // else if (jetVariable.compare("qgMult") == 0)
+                // {
+                //     cleanVector<int>(prefix + jetVariable, keepJet, suffix);
+                // }
+                // check for float
+                // else
+                // {
+                //     cleanVector<float>(prefix + jetVariable, keepJet, suffix);
+                // }
             }
-            // std::vector<TLorentzVector> 
-            else if (jetVariable.compare("puppiAK8SubjetLVec") == 0)
-            {
-                cleanVector<std::vector<TLorentzVector>>(prefix + jetVariable, keepJet, suffix);
-            }
-            // int
-            else if (jetVariable.compare("qgMult") == 0)
-            {
-                cleanVector<int>(prefix + jetVariable, keepJet, suffix);
-            }
-            // float
             else
             {
-                cleanVector<float>(prefix + jetVariable, keepJet, suffix);
+                std::cout << "The variable " << jetVariable << "with type " << type << " is not a vector. Jet cleaning will not be applied to it." << std::endl;
             }
         }
         // dR between jets and photon
@@ -132,44 +154,44 @@ public:
     {
         // AK4 jet variables
         AK4JetVariables_ = {
-                             "jetsLVec",              
-                             "recoJetsCSVv2",
-                             "qgLikelihood",
-                             "qgPtD",                               
-                             "qgAxis1",                             
-                             "qgAxis2",                             
-                             "qgMult",                              
-                             "recoJetschargedHadronEnergyFraction", 
-                             "recoJetschargedEmEnergyFraction",     
-                             "recoJetsneutralEmEnergyFraction",     
-                             "recoJetsmuonEnergyFraction",          
-                             "recoJetsHFHadronEnergyFraction",     
-                             "recoJetsHFEMEnergyFraction",          
-                             "recoJetsneutralEnergyFraction",       
-                             "PhotonEnergyFraction",                
-                             "ElectronEnergyFraction",             
-                             "ChargedHadronMultiplicity",          
-                             "NeutralHadronMultiplicity",          
-                             "PhotonMultiplicity",                
-                             "ElectronMultiplicity",               
-                             "MuonMultiplicity",                    
-                             "DeepCSVb",                            
-                             "DeepCSVc",                            
-                             "DeepCSVl",                            
-                             "DeepCSVbb",                           
-                             "DeepCSVcc"
+                             "JetTLV",              
+                             //"recoJetsCSVv2",
+                             //"qgLikelihood",
+                             //"qgPtD",                               
+                             //"qgAxis1",                             
+                             //"qgAxis2",                             
+                             //"qgMult",                              
+                             //"recoJetschargedHadronEnergyFraction", 
+                             //"recoJetschargedEmEnergyFraction",     
+                             //"recoJetsneutralEmEnergyFraction",     
+                             //"recoJetsmuonEnergyFraction",          
+                             //"recoJetsHFHadronEnergyFraction",     
+                             //"recoJetsHFEMEnergyFraction",          
+                             //"recoJetsneutralEnergyFraction",       
+                             //"PhotonEnergyFraction",                
+                             //"ElectronEnergyFraction",             
+                             //"ChargedHadronMultiplicity",          
+                             //"NeutralHadronMultiplicity",          
+                             //"PhotonMultiplicity",                
+                             //"ElectronMultiplicity",               
+                             //"MuonMultiplicity",                    
+                             //"DeepCSVb",                            
+                             //"DeepCSVc",                            
+                             //"DeepCSVl",                            
+                             //"DeepCSVbb",                           
+                             //"DeepCSVcc"
                            };
         
         // AK8 jet variables
         AK8JetVariables_ = {
-                             "puppiJetsLVec",              
-                             "puppiAK8SubjetLVec",              
-                             "puppisoftDropMass",              
-                             "puppitau1",
-                             "puppitau2",
-                             "puppitau3",
-                             "deepAK8btop",              
-                             "deepAK8bW"
+                             "FatJetTLV",              
+                             "SubJetTLV",              
+                             //"puppisoftDropMass",              
+                             //"puppitau1",
+                             //"puppitau2",
+                             //"puppitau3",
+                             //"deepAK8btop",              
+                             //"deepAK8bW"
                            };
     }
 

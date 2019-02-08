@@ -28,20 +28,23 @@ private:
     void generateGetVectors() 
     {
         // register vector of TLorentzVectors
-        registerTLV("Jet");       // AK4 jets
-        registerTLV("FatJet");    // AK8 jets 
-        registerTLV("SubJet");    // AK8 subjets
-        registerTLV("GenJet");    // generated AK4 jets
-        registerTLV("GenJetAK8"); // generated AK8 jets
-        registerTLV("Electron");  // electrons
-        registerTLV("Muon");      // muons
-        registerTLV("Photon");    // photons
+        registerTLV("Jet");         // AK4 jets
+        registerTLV("FatJet");      // AK8 jets 
+        registerTLV("SubJet");      // AK8 subjets
+        registerTLV("GenJet");      // generated AK4 jets
+        registerTLV("GenJetAK8");   // generated AK8 jets
+        registerTLV("GenPart");     // interesting gen particles
+        registerTLV("Electron");    // electrons
+        registerTLV("Muon");        // muons
+        registerTLV("Photon");      // photons
+        //registerTLV("IsoTrack");    // isolated tracks
+        // you need to register IsoTrack by hand because IsoTrack_mass does not exist
     }
 
     void registerTLV(const std::string& objectName)
     {
         // print statement for testing
-        std::cout << "registerTLV(" << objectName << ")" << std::endl;
+        std::cout << "Calling registerTLV(" << objectName << ") to register " << objectName << "TLV" << std::endl;
         // new vector of TLorentzVector
         std::vector<TLorentzVector>* VectorTLV = new std::vector<TLorentzVector>();
         // get pt, eta, phi, mass
