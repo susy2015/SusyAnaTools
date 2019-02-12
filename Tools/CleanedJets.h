@@ -141,7 +141,7 @@ private:
             }
             else
             {
-                std::cout << "The variable " << jetVariable << "with type " << type << " is not a vector. Jet cleaning will not be applied to it." << std::endl;
+                std::cout << "The variable " << jetVariable << " with type " << type << " is not a vector. Jet cleaning will not be applied to it." << std::endl;
             }
         }
         // dR between jets and photon
@@ -155,6 +155,11 @@ public:
         // AK4 jet variables
         AK4JetVariables_ = {
                              "JetTLV",              
+                             "Jet_pt",              
+                             "Jet_eta",              
+                             "Jet_phi",              
+                             "Jet_mass",              
+                             //"Jet_btagDeepB",              
                              //"recoJetsCSVv2",
                              //"qgLikelihood",
                              //"qgPtD",                               
@@ -185,7 +190,15 @@ public:
         // AK8 jet variables
         AK8JetVariables_ = {
                              "FatJetTLV",              
+                             "FatJet_pt",              
+                             "FatJet_eta",              
+                             "FatJet_phi",              
+                             "FatJet_mass",              
                              "SubJetTLV",              
+                             "SubJet_pt",              
+                             "SubJet_eta",              
+                             "SubJet_phi",              
+                             "SubJet_mass",              
                              //"puppisoftDropMass",              
                              //"puppitau1",
                              //"puppitau2",

@@ -388,17 +388,18 @@ bool BaselineVessel::PredefineSpec()
     //jetVecLabel = "prodJetsNoLep_jetsLVec";
     //CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
    
-    METLabel    = "cleanMetPt";
-    METPhiLabel = "cleanMetPhi";
+    // fix LepInfo.h before using cleanMetPt and cleanMetPhi
+    //METLabel    = "cleanMetPt";
+    //METPhiLabel = "cleanMetPhi";
     
-    UseDeepCSV          = false; // broken in CMSSW8028_2016 ntuples 
-    UseLeptonCleanJet   = true;
-    UseDRPhotonCleanJet = false;
+    UseDeepCSV          = true;  // broken in CMSSW8028_2016 ntuples 
+    UseLeptonCleanJet   = false;
+    UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
-    doMuonVeto  = false;
-    doEleVeto   = false;
-    doIsoTrksVeto = false;
-    dodPhis = false;
+    doMuonVeto          = true;
+    doEleVeto           = true;
+    doIsoTrksVeto       = true;
+    dodPhis             = true;
     
     if(spec.compare("Zinv1b") == 0)
     {
@@ -561,12 +562,20 @@ void BaselineVessel::PassBaseline()
   // 2017 MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation94X
   // 2016 MC: Medium WP 0.6324, Tight WP 0.8958
   // Using Medium WP from Koushik's last study // https://indico.cern.ch/event/597712/contributions/2831328/attachments/1578403/2493318/AN2017_btag2.pdf
-  if (UseDeepCSV) 
-    cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
-        AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
-  else
-    cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
-        AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  
+  // TODO
+  // use Stop0l_nbtags for now; need to update this to calculate from jet collection
+  cntCSVS = tr->getVar<int>("Stop0l_nbtags");  
+  
+  // calculate cntCSVS from jet collection
+  //if (UseDeepCSV) 
+  //  cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
+  //      AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  //else
+  //  cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
+  //      AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  
+  
   // Getting the b-jets. Sorted by pt by default
   for(auto idx : *vBidxs)
     vBjs->push_back(jet_vec.at(idx));
@@ -627,8 +636,10 @@ void BaselineVessel::PassBaseline()
   //else
   //  prepareTopTagger();
 
-  const auto& nTops = tr->getVar<unsigned int>("nResolvedTopCandidate");
-  bool passTagger = (incZEROtop || nTops >= AnaConsts::low_nTopCandSortedSel); 
+  //const auto& nTops = tr->getVar<unsigned int>("nResolvedTopCandidate");
+  const auto& nMergedTops   = tr->getVar<int>("Stop0l_nTop");
+  const auto& nResolvedTops = tr->getVar<int>("Stop0l_nResolved");
+  bool passTagger = (incZEROtop || nMergedTops >= AnaConsts::low_nTopCandSortedSel); 
   //bool passTagger = PassTopTagger();
   //if( !passTagger ){ passBaseline = false; passBaselineNoLepVeto = false; }
 
@@ -672,26 +683,27 @@ void BaselineVessel::PassBaseline()
   
   // variables for passBaselineLowDM and passBaselineHighDM
   // get ISR jet
-  TLorentzVector ISRLVec;
+  TLorentzVector ISRJet;
   const auto& FatJets = tr->getVec<TLorentzVector>(jetVecLabelAK8);
   const auto& Stop0l_ISRJetIdx = tr->getVar<int>("Stop0l_ISRJetIdx");
-  if (Stop0l_ISRJetIdx < FatJets.size()) ISRLVec = FatJets[Stop0l_ISRJetIdx];
+  if (Stop0l_ISRJetIdx < FatJets.size()) ISRJet = FatJets[Stop0l_ISRJetIdx];
 
-  //const auto& ISRLVec   = tr->getVec<TLorentzVector>("vISRJet");
-  const auto& ISRpt     = tr->getVar<float>("Stop0l_ISRJetPt");
-  const auto& mtb       = tr->getVar<float>("Stop0l_Mtb");
-  const auto& nWs       = tr->getVar<int>("Stop0l_nW");
-  const auto& nBottoms  = cntCSVS;
-  const auto& nJets     = cntNJetsPt20Eta24;
-  float S_met = met / sqrt(HT);
-  //if(ISRLVec.size() == 1) ISRpt = ISRLVec.at(0).Pt();
+  //const auto& ISRJet   = tr->getVec<TLorentzVector>("vISRJet");
+  const auto& ISRpt        = tr->getVar<float>("Stop0l_ISRJetPt");
+  const auto& mtb          = tr->getVar<float>("Stop0l_Mtb");
+  const auto& nWs          = tr->getVar<int>("Stop0l_nW");
+  const auto& nBottoms     = cntCSVS;
+  const auto& nSoftBottoms = tr->getVar<int>("Stop0l_nSoftb");;
+  const auto& nJets        = cntNJetsPt20Eta24;
+  float S_met              = met / sqrt(HT);
+  //if(ISRJet.size() == 1) ISRpt = ISRJet.at(0).Pt();
 
 
   //SUS-16-049, low dm, ISR cut
   bool pass_ISR = (
                        ISRpt > 200
-                    && fabs(ISRLVec.Eta()) < 2.4
-                    && fabs(ISRLVec.Phi() - metphi) > 2
+                    && fabs(ISRJet.Eta()) < 2.4
+                    && fabs(ISRJet.Phi() - metphi) > 2
                   );
   
   //SUS-16-049, low dm, mtb cut
@@ -714,7 +726,7 @@ void BaselineVessel::PassBaseline()
   //baseline for SUS-16-049 low dm
   passBaselineLowDM = (
                            passLeptVeto
-                        && nTops == 0
+                        && nMergedTops == 0
                         && nWs == 0
                         && pass_ISR
                         && S_met > 10
@@ -748,7 +760,13 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("cntNJetsPt20Eta24" + firstSpec, cntNJetsPt20Eta24);
   tr->registerDerivedVec("dPhiVec" + firstSpec, dPhiVec);
   tr->registerDerivedVec("vBjs" + firstSpec, vBjs);
-  tr->registerDerivedVar("cntCSVS" + firstSpec, cntCSVS);
+  tr->registerDerivedVar("ISRJet" + firstSpec, ISRJet);
+  tr->registerDerivedVar("nSoftBottoms" + firstSpec, nSoftBottoms);
+  tr->registerDerivedVar("nMergedTops" + firstSpec, nMergedTops);
+  tr->registerDerivedVar("nResolvedTops" + firstSpec, nResolvedTops);
+  tr->registerDerivedVar("nBottoms" + firstSpec, nBottoms);
+  tr->registerDerivedVar("nWs" + firstSpec, nWs);
+  tr->registerDerivedVar("nJets" + firstSpec, nJets);
   tr->registerDerivedVar("cntNJetsPt30" + firstSpec, cntNJetsPt30);
   tr->registerDerivedVar("passLeptVeto" + firstSpec, passLeptVeto);
   tr->registerDerivedVar("passMuonVeto" + firstSpec, passMuonVeto);
@@ -1367,7 +1385,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   GetMHT();
   //GetLeptons();
   //GetRecoZ(81, 101);
-  GetTopCombs();
+  //GetTopCombs();
 }
 
 
