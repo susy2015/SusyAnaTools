@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     }
   
     
-    AnaSamples::SampleSet        ss("sampleSets.cfg");
+    AnaSamples::SampleSet        ss("sampleSets_2016.cfg");
     AnaSamples::SampleCollection sc("sampleCollections.cfg", ss);
 
     std::string selKeyStr;
