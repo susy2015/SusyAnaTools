@@ -393,7 +393,7 @@ private:
 
     void populateBranchList();
     
-    void registerBranch(TBranch * const branch) const;
+    void registerBranch(TBranch * const branch, bool activate = true) const;
 
     void* getVarPtr(const std::string& var) const;
 
@@ -403,45 +403,54 @@ private:
 
     bool goToEventInternal(int evt, const bool filter);
 
-    template<typename T> void registerBranch(const std::string& name) const
+    template<typename T> void registerBranch(const std::string& name, bool activate = true) const
     {
-        branchMap_[name] = createHandle(new T());
-
         typeMap_[name] = demangle<T>();
 
-        tree_->SetBranchStatus(name.c_str(), 1);
-        tree_->SetBranchAddress(name.c_str(), branchMap_[name].ptr);
+        if(activate)
+        {
+            branchMap_[name] = createHandle(new T());
+
+            tree_->SetBranchStatus(name.c_str(), 1);
+            tree_->SetBranchAddress(name.c_str(), branchMap_[name].ptr);
+        }
     }
     
-    template<typename T> void registerVecBranch(const std::string& name) const
+    template<typename T> void registerVecBranch(const std::string& name, bool activate = true) const
     {
-        branchVecMap_[name] = createVecHandle(new std::vector<T>*());
-
         typeMap_[name] = demangle<std::vector<T>>();
 
-        tree_->SetBranchStatus(name.c_str(), 1);
-        tree_->SetBranchAddress(name.c_str(), branchVecMap_[name].ptr);
+        if(activate)
+        {
+            branchVecMap_[name] = createVecHandle(new std::vector<T>*());
+
+            tree_->SetBranchStatus(name.c_str(), 1);
+            tree_->SetBranchAddress(name.c_str(), branchVecMap_[name].ptr);
+        }
     }
 
-    template<typename T> void registerArrayBranch(const std::string& name, TBranch * branch) const
+    template<typename T> void registerArrayBranch(const std::string& name, TBranch * branch, bool activate = true) const
     {
-        //get the event count branch
-        TLeaf *l = (TLeaf*)branch->GetListOfLeaves()->At(0); 
-        TBranch* countBranch = nullptr;
-        if(l->GetLeafCount())
-        { 
-            countBranch = l->GetLeafCount()->GetBranch();
-        }
-        else
-        {
-            THROW_SATEXCEPTION("Branch \"" + name + "\" appears to be an array, but there is no size branch");
-        }
-
-        branchVecMap_[name] = createArrayHandle(new std::vector<T>*(), countBranch, branch);
-
         typeMap_[name] = demangle<std::vector<T>>();
 
-        tree_->SetBranchStatus(name.c_str(), 1);
+        if(activate)
+        {
+            //get the event count branch
+            TLeaf *l = (TLeaf*)branch->GetListOfLeaves()->At(0); 
+            TBranch* countBranch = nullptr;
+            if(l->GetLeafCount())
+            { 
+                countBranch = l->GetLeafCount()->GetBranch();
+            }
+            else
+            {
+                THROW_SATEXCEPTION("Branch \"" + name + "\" appears to be an array, but there is no size branch");
+            }
+
+            branchVecMap_[name] = createArrayHandle(new std::vector<T>*(), countBranch, branch);
+
+            tree_->SetBranchStatus(name.c_str(), 1);
+        }
     }
 
     template<typename T> void updateTupleVar(const std::string& name, const T& var)
