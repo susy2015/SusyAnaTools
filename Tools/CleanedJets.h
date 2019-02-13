@@ -53,8 +53,7 @@ private:
         std::vector<type>* cleanedVec = new std::vector<type>();
         if (keepJet.size() != vec.size())
         {
-            std::cout << "ERROR in cleanVector(): vector sizes do not match for " << vectorName << std::endl;
-            std::cout << "In cleanVector(): keepJet.size() = " << keepJet.size() << " and vec.size() = " << vec.size() << std::endl;
+            std::cout << "ERROR in cleanVector(): vector sizes do not match for " << vectorName << ": keepJet.size() = " << keepJet.size() << " and vec.size() = " << vec.size() << std::endl;
         }
         for (int i = 0; i < vec.size(); ++i)
         {
@@ -104,7 +103,7 @@ private:
             // get type
             std::string type;
             tr_->getType(jetVariable, type);
-            std::cout << jetVariable << " : " << type << std::endl; 
+            //std::cout << jetVariable << " : " << type << std::endl; 
             // check for vector
             if (type.find("vector") != std::string::npos)
             {

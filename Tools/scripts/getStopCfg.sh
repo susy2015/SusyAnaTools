@@ -22,7 +22,7 @@ VERBOSE=
 OPTIND=1    # Reset in case getopts has been used previously in the shell.
 
 SUPP_CFG=supplementaryFiles.cfg
-SETS_CFG=sampleSets.cfg
+SETS_CFG=sampleSets_2016.cfg
 COLL_CFG=sampleCollections.cfg
 SETS_LINK_NAME=$SETS_CFG
 COLL_LINK_NAME=$COLL_CFG

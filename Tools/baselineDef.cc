@@ -666,7 +666,7 @@ void BaselineVessel::PassBaseline()
 
 
   // Call CompCommonVar() after vBidxs is filled.
-  CompCommonVar();
+  //CompCommonVar();
   // Call FlagDeepAK8Jets() or FlagAK8Jets() after prepare and pass top tagger functions
   //if (UseDeepTagger)
   //  FlagDeepAK8Jets();
@@ -691,6 +691,7 @@ void BaselineVessel::PassBaseline()
   //const auto& ISRJet   = tr->getVec<TLorentzVector>("vISRJet");
   const auto& ISRpt        = tr->getVar<float>("Stop0l_ISRJetPt");
   const auto& mtb          = tr->getVar<float>("Stop0l_Mtb");
+  const auto& ptb          = tr->getVar<float>("Stop0l_Ptb");
   const auto& nWs          = tr->getVar<int>("Stop0l_nW");
   const auto& nBottoms     = cntCSVS;
   const auto& nSoftBottoms = tr->getVar<int>("Stop0l_nSoftb");;
@@ -767,6 +768,8 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("nBottoms" + firstSpec, nBottoms);
   tr->registerDerivedVar("nWs" + firstSpec, nWs);
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
+  tr->registerDerivedVar("ptb" + firstSpec, ptb);
+  tr->registerDerivedVar("mtb" + firstSpec, mtb);
   tr->registerDerivedVar("cntNJetsPt30" + firstSpec, cntNJetsPt30);
   tr->registerDerivedVar("passLeptVeto" + firstSpec, passLeptVeto);
   tr->registerDerivedVar("passMuonVeto" + firstSpec, passMuonVeto);
@@ -1208,11 +1211,11 @@ bool BaselineVessel::passNoiseEventFilterFunc()
     //bool jetIDFilter = isfastsim? 1:tr->getVar<bool>("AK4looseJetID");
     //bool jetIDFilter = true;
     // new filters
-    const bool & BadPFMuonFilter = tr->getVar<bool>("Flag_BadPFMuonFilter");
-    bool passBadPFMuonFilter = (&BadPFMuonFilter) != nullptr? tr->getVar<bool>("Flag_BadPFMuonFilter") !=0 : true;
+    const auto& BadPFMuonFilter = bool(tr->getVar<char>("Flag_BadPFMuonFilter"));
+    bool passBadPFMuonFilter = &BadPFMuonFilter != nullptr ? BadPFMuonFilter : true;
 
-    const bool & BadChargedCandidateFilter = tr->getVar<bool>("Flag_BadChargedCandidateFilter");
-    bool passBadChargedCandidateFilter = (&BadChargedCandidateFilter) != nullptr? tr->getVar<bool>("Flag_BadChargedCandidateFilter") !=0 : true;
+    const auto& BadChargedCandidateFilter = bool(tr->getVar<char>("Flag_BadChargedCandidateFilter"));
+    bool passBadChargedCandidateFilter = &BadChargedCandidateFilter != nullptr ? BadChargedCandidateFilter : true;
 
     //bool passMETratioFilter = tr->getVar<float>("calomet")!=0 ? tr->getVar<float>("met")/tr->getVar<float>("calomet") < 5 : true;
 

@@ -26,7 +26,6 @@ namespace AnaSamples
     FileSummary() {}
     FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(xsec), lumi(lumi), kfactor(kfactor), nEvts(nEvts), color(color), isData_(false)
     {
-      std::cout << "FileSummary(): treePath = " << treePath << std::endl;
       weight_ = xsec * lumi * kfactor / nEvts;
     }
 

@@ -44,7 +44,7 @@ private:
     void registerTLV(const std::string& objectName)
     {
         // print statement for testing
-        std::cout << "Calling registerTLV(" << objectName << ") to register " << objectName << "TLV" << std::endl;
+        if (verbose_)   std::cout << "Calling registerTLV(" << objectName << ") to register " << objectName << "TLV" << std::endl;
         // new vector of TLorentzVector
         std::vector<TLorentzVector>* VectorTLV = new std::vector<TLorentzVector>();
         // get pt, eta, phi, mass
@@ -72,15 +72,19 @@ private:
     }
 
 public:
+    bool verbose_; 
 
     GetVectors(){}
 
     ~GetVectors(){}
+    
+    void setVerbosity(bool v) { verbose_ = v; }
 
     void operator()(NTupleReader& tr)
     {
         // first set NTupleReader
         setReader(tr);
+        setVerbosity(false);
         generateGetVectors();
     }
 };
