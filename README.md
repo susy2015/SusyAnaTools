@@ -1,35 +1,68 @@
-### Instructions
+# Instructions
 
-## TopTagger Code
 
-To Checkout TopTagger Code:
+## Setup CMSSW
+
+First setup a CMSSW release. The exact release version does not matter. You should do this from a working directory in your ~/nobackup area, which has more storage space on cmslpc (for example, ~/nobackup/SusyAnalysis).
 
 ```
+mkdir ~/nobackup/SusyAnalysis
+cd ~/nobackup/SusyAnalysis
 cmsrel CMSSW_9_4_4
 cd CMSSW_9_4_4
 cmsenv
+```
 
-## Checkout Tagtagger
+
+## TopTagger Repo
+
+Checkout and compile the TopTagger repository.
+
+```
 cd $CMSSW_BASE/src
 git clone git@github.com:susy2015/TopTagger.git
+cd TopTagger/TopTagger/test/
+./configure
+make -j 8 
+```
+
+<details> <summary> OpenCV on cmslpc (not longer needed) </summary>
+
+Most users should no longer use OpenCV. Do this instead only if you need OpenCV. 
+```
 cd TopTagger/TopTagger/test/
 ./configure OPENCVDIR=/uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/
 make -j 8 
 ```
 
-## SUSYAnaTools Code
+</details>
 
-You can then compile the SUSYAnaTools
+
+## SusyAnaTools Repo
+
+Checkout and compile the SusyAnaTools repository.
+
 ```
 cd $CMSSW_BASE/src
-git clone -b AddNewTagger git@github.com:susy2015/SusyAnaTools.git
-
-cd $CMSSW_BASE/src/SusyAnaTools/Tools/
+git clone git@github.com:susy2015/SusyAnaTools.git
+cd SusyAnaTools/Tools/
 autoconf
-#note if you are not on the LPC you will have to follow the instructions below to install OpenCV on your system
+./configure
+make -j 8 
+```
+
+<details> <summary> OpenCV on cmslpc (not longer needed) </summary>
+
+Most users should no longer use OpenCV. Do this instead only if you need OpenCV. 
+```
+cd SusyAnaTools/Tools/
 ./configure OPENCVDIR=/uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/
 make -j 8 
 ```
+
+If you are not on the LPC and you need OpenCV, you will have to follow the instructions below to install OpenCV on your system.
+
+</details>
 
 <details> <summary> Checkout OpenCV </summary>
 
