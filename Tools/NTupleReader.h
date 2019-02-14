@@ -261,6 +261,13 @@ public:
     {
         return (typeMap_.find(name) != typeMap_.end());
     }
+
+    inline const bool checkBranchInTree(const std::string& name) const
+    {
+        TBranch* br = static_cast<TBranch*>(tree_->FindBranch(name.c_str()));
+        return (br != nullptr);
+    }
+
     inline bool hasVar(const std::string& name) const {return checkBranch(name); }
 
     bool goToEvent(int evt);
