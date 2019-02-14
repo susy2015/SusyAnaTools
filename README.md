@@ -28,11 +28,25 @@ make -j 8
 
 <details> <summary> OpenCV on cmslpc (not longer needed) </summary>
 
-Most users should no longer use OpenCV. Do this instead only if you need OpenCV. 
+Most users should no longer use OpenCV. Do this instead only if you need OpenCV. If you are not on the LPC and you need OpenCV, you will have to follow the instructions below to install OpenCV on your system.
+
 ```
 cd TopTagger/TopTagger/test/
 ./configure OPENCVDIR=/uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/
 make -j 8 
+```
+
+</details>
+
+<details> <summary> Checkout OpenCV </summary>
+
+```bash
+cd $CMSSW_BASE/src
+git clone git@github.com:susy2015/opencv.git
+cd opencv
+git checkout 3.1.0_StopBugFix
+cmake .
+make -j 8
 ```
 
 </details>
@@ -53,14 +67,13 @@ make -j 8
 
 <details> <summary> OpenCV on cmslpc (not longer needed) </summary>
 
-Most users should no longer use OpenCV. Do this instead only if you need OpenCV. 
+Most users should no longer use OpenCV. Do this instead only if you need OpenCV. If you are not on the LPC and you need OpenCV, you will have to follow the instructions below to install OpenCV on your system.
+
 ```
 cd SusyAnaTools/Tools/
 ./configure OPENCVDIR=/uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/
 make -j 8 
 ```
-
-If you are not on the LPC and you need OpenCV, you will have to follow the instructions below to install OpenCV on your system.
 
 </details>
 
