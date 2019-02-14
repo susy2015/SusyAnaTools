@@ -118,25 +118,6 @@ private:
                 {
                     std::cout << "The variable " << jetVariable << "with type " << type << " has an unusual type. Jet cleaning will not be applied to it. You may add this type to SusyAnaTools/Tools/CleanedJets.h if you need this variable." << std::endl;
                 }
-                //if (jetVariable.compare("JetTLV") == 0 || jetVariable.compare("FatJetTLV") == 0 || jetVariable.compare("SubJetTLV") == 0)
-                //{
-                //    cleanVector<TLorentzVector>(prefix + jetVariable, keepJet, suffix);
-                //}
-                // std::vector<TLorentzVector> 
-                // else if (jetVariable.compare("SubJetTLV") == 0)
-                // {
-                //     cleanVector<std::vector<TLorentzVector>>(prefix + jetVariable, keepJet, suffix);
-                // }
-                // // int
-                // else if (jetVariable.compare("qgMult") == 0)
-                // {
-                //     cleanVector<int>(prefix + jetVariable, keepJet, suffix);
-                // }
-                // check for float
-                // else
-                // {
-                //     cleanVector<float>(prefix + jetVariable, keepJet, suffix);
-                // }
             }
             else
             {
@@ -158,7 +139,7 @@ public:
                              "Jet_eta",              
                              "Jet_phi",              
                              "Jet_mass",              
-                             //"Jet_btagDeepB",              
+                             "Jet_btagDeepB",              
                              //"recoJetsCSVv2",
                              //"qgLikelihood",
                              //"qgPtD",                               
