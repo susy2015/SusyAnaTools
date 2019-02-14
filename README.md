@@ -3,13 +3,13 @@
 
 ## Setup CMSSW
 
-First setup a CMSSW release. The exact release version does not matter. You should do this from a working directory in your ~/nobackup area, which has more storage space on cmslpc (for example, ~/nobackup/SusyAnalysis).
+First setup a CMSSW release. We recommend CMSSW_10_2_9, which has support for uproot. You should do this from a working directory in your ~/nobackup area, which has more storage space on cmslpc (for example, ~/nobackup/SusyAnalysis).
 
 ```
 mkdir ~/nobackup/SusyAnalysis
 cd ~/nobackup/SusyAnalysis
-cmsrel CMSSW_9_4_4
-cd CMSSW_9_4_4
+cmsrel CMSSW_10_2_9
+cd CMSSW_10_2_9
 cmsenv
 ```
 
