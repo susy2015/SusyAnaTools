@@ -36,12 +36,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   doEleVeto             = true;
   doMET                 = true;
   dodPhis               = true;
-  passBaseline          = true;
   passBaselineLowDM     = true;
   passBaselineHighDM    = true;
-  passBaselineNoTagMT2  = true;
-  passBaselineNoTag     = true;
-  passBaselineNoLepVeto = true;
   metLVec.SetPtEtaPhiM(0, 0, 0, 0);
   if (UseDeepCSV)
     CSVVecLabel           = "Jet_btagDeepB";
@@ -525,18 +521,13 @@ void BaselineVessel::PassBaseline()
 {
   if (printConfig) PrintoutConfig();
   // Initial value
-  passBaseline          = true;
-  passBaselineLowDM     = true;
-  passBaselineHighDM    = true;
-  passBaselineNoTagMT2  = true;
-  passBaselineNoTag     = true;
-  passBaselineNoLepVeto = true;
-
-
-  // get jet collection
+  passBaselineLowDM  = true;
+  passBaselineHighDM = true;
+  
+  // Get jet collection
   const auto& jet_vec = tr->getVec<TLorentzVector>(jetVecLabel);
 
-  // Form TLorentzVector of MET
+  // Create TLorentzVector for MET
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
   float met = metLVec.Pt();
   float metphi = metLVec.Phi();
@@ -595,38 +586,22 @@ void BaselineVessel::PassBaseline()
   //bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTrksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTrksSel);
   bool passLeptVeto = passMuonVeto && passEleVeto && passIsoTrkVeto;
   
-  if( doMuonVeto && !passMuonVeto ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
-  if( doEleVeto && !passEleVeto ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
-  // Isolated track veto is disabled for now
-  if( doIsoTrksVeto && !passIsoTrkVeto ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; }
-
-  if( debug ) std::cout<<"nMuons : "<<nMuons<<"  nElectrons : "<<nElectrons<<"  nIsoTrks : "<<nIsoTrks<<"  passBaseline : "<<passBaseline<<std::endl;
-
   // Pass number of jets?
   bool passnJets = true;
-  if( cntNJetsPt20Eta24 < AnaConsts::nJetsSelPt20Eta24 ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passnJets = false; passBaselineNoLepVeto = false; }
-  if( debug ) std::cout<<"cntNJetsPt50Eta24 : "<<cntNJetsPt50Eta24<<"  cntNJetsPt30Eta24 : "<<cntNJetsPt30Eta24<<"  cntNJetsPt30 : "<<cntNJetsPt30<<"  passBaseline : "<<passBaseline<<std::endl;
-
   // Pass deltaPhi?
   bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
-  if( dodPhis && !passdPhis ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
-  if( debug ) std::cout<<"dPhi0 : "<<dPhiVec->at(0)<<"  dPhi1 : "<<dPhiVec->at(1)<<"  dPhi2 : "<<dPhiVec->at(2)<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass number of b-tagged jets? 
   // No b-tag in baseline
   bool passBJets = true;
-  if( debug ) std::cout<<"cntCSVS : "<<cntCSVS<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass the baseline MET requirement?
   bool passMET = (met >= AnaConsts::defaultMETcut);
-  if( doMET && !passMET ){ passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
-  if( debug ) std::cout<<"met : "<<met<<"  defaultMETcut : "<<AnaConsts::defaultMETcut<<"  passBaseline : "<<passBaseline<<std::endl;
 
   // Pass the HT cut for trigger?
   float HT = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
   bool passHT = true;
-  if( HT < AnaConsts::defaultHTcut ){ passHT = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
-  if( debug ) std::cout<<"HT : "<<HT<<"  defaultHTcut : "<<AnaConsts::defaultHTcut<<"  passHT : "<<passHT<<"  passBaseline : "<<passBaseline<<std::endl;
+  if( HT < AnaConsts::defaultHTcut ){ passHT = false; }
 
   // Calculate top tagger related variables. 
   // Note that to save speed, only do the calculation after previous base line requirements.
@@ -641,29 +616,9 @@ void BaselineVessel::PassBaseline()
   const auto& nResolvedTops = tr->getVar<int>("Stop0l_nResolved");
   bool passTagger = (incZEROtop || nMergedTops >= AnaConsts::low_nTopCandSortedSel); 
   //bool passTagger = PassTopTagger();
-  //if( !passTagger ){ passBaseline = false; passBaselineNoLepVeto = false; }
-
-  // Pass the baseline MT2 requirement?
-  //bool passMT2 = true;
-  //float MT2 = CalcMT2();
-  //if( MT2 < AnaConsts::defaultMT2cut ){ passBaseline = false; passBaselineNoTag = false; passMT2 = false; passBaselineNoLepVeto = false; }
-  //if( debug ) std::cout<<"MT2 : "<<MT2 <<"  defaultMT2cut : "<<AnaConsts::defaultMT2cut<<"  passBaseline : "<<passBaseline<<std::endl;
-
-  bool passNoiseEventFilter = true;
-  if( !passNoiseEventFilterFunc() ) { passNoiseEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
-  if( debug ) std::cout<<"passNoiseEventFilterFunc : "<<passNoiseEventFilterFunc()<<"  passBaseline : "<<passBaseline<<std::endl;
-
-  // pass QCD high MET filter
+  bool passNoiseEventFilter = passNoiseEventFilterFunc();
   bool passQCDHighMETFilter = true;
-  //if( !passQCDHighMETFilterFunc() ) { passQCDHighMETFilter = false; }
-  //if( debug ) std::cout<<"passQCDHighMETFilter : "<< passQCDHighMETFilter <<"  passBaseline : "<<passBaseline<<std::endl;
-
-  // pass the special filter for fastsim
   bool passFastsimEventFilter = true;
-  //if( !passFastsimEventFilterFunc() ) { passFastsimEventFilter = false; passBaseline = false; passBaselineNoTagMT2 = false; passBaselineNoTag = false; passBaselineNoLepVeto = false; }
-  //if( debug ) std::cout<<"passFastsimEventFilterFunc : "<<passFastsimEventFilterFunc()<<"  passBaseline : "<<passBaseline<<std::endl;
-
-
 
   // Call CompCommonVar() after vBidxs is filled.
   //CompCommonVar();
@@ -751,11 +706,6 @@ void BaselineVessel::PassBaseline()
 
 
   // Register all the calculated variables
- 
-  //tr->registerDerivedVar("nMuons_CUT" + firstSpec, nMuons);           // error: do not redefine  
-  //tr->registerDerivedVar("nElectrons_CUT" + firstSpec, nElectrons);   // error: do not redefine
-  //tr->registerDerivedVar("nIsoTrks_CUT" + firstSpec, nIsoTrks);       // error: do not redefine
-
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
   tr->registerDerivedVar("cntNJetsPt20Eta24" + firstSpec, cntNJetsPt20Eta24);
@@ -787,16 +737,10 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("passNoiseEventFilter" + firstSpec, passNoiseEventFilter);
   tr->registerDerivedVar("passQCDHighMETFilter" + firstSpec, passQCDHighMETFilter);
   tr->registerDerivedVar("passFastsimEventFilter" + firstSpec, passFastsimEventFilter);
-  tr->registerDerivedVar("passBaseline" + firstSpec, passBaseline);
-  tr->registerDerivedVar("passBaselineLowDM" + firstSpec, passBaselineLowDM);
-  tr->registerDerivedVar("passBaselineHighDM" + firstSpec, passBaselineHighDM);
-  tr->registerDerivedVar("passBaselineNoTagMT2" + firstSpec, passBaselineNoTagMT2);
-  tr->registerDerivedVar("passBaselineNoTag" + firstSpec, passBaselineNoTag);
-  tr->registerDerivedVar("passBaselineNoLepVeto" + firstSpec, passBaselineNoLepVeto);
   //tr->registerDerivedVar("best_had_brJet_MT2" + firstSpec,    MT2);
   tr->registerDerivedVar("HT" + firstSpec, HT);
-
-  if( debug ) std::cout<<"passBaseline : "<<passBaseline<<" passBaselineLowDM  : "<<passBaselineLowDM<<" passBaselineHighDM  : "<<passBaselineHighDM<<std::endl;
+  tr->registerDerivedVar("passBaselineLowDM" + firstSpec, passBaselineLowDM);
+  tr->registerDerivedVar("passBaselineHighDM" + firstSpec, passBaselineHighDM);
 } 
 
 int BaselineVessel::GetnTops() const
