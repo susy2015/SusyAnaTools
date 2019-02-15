@@ -1,20 +1,19 @@
 #include "NTupleReader.h"
-#include "baselineDef.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
-#include <iostream>
 #include <cstdio>
-#include <string>
-#include <ctime>
 
+#include "TopTagger/TopTagger/interface/TopTagger.h"
+#include "TopTagger/TopTagger/interface/TopTaggerResults.h"
+#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
+#include "TopTagger/CfgParser/include/TTException.h"
 
 int main()
 {
-    char nBase[] = "root://cmseos.fnal.gov//store/user/lpcsusyhad/Stop_production/Spring16_80X_Nov_2016_Ntp_v11X_new_IDs/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring16_80X_Nov_2016_Ntp_v11p0_new_IDs_TTJets_SingleLeptFromT/161111_230825/0000/stopFlatNtuples_%i.root";
+    char nBase[] = "/home/pastika/topTagger/traingTupleTest/prod2017MC_NANO_962.root";
 
-
-    TChain *ch = new TChain("stopTreeMaker/AUX");
+    TChain *ch = new TChain("Events");
 
     char chname[512];
     for(int i = 1; i <= 1; ++i)
@@ -26,31 +25,124 @@ int main()
     try
     {
         NTupleReader tr(ch);
-        tr.addAlias("met", "aliasedMET");
-        tr.addAlias("jetsLVec", "aliasedJetsLVec");
-        //BaselineVessel blv(tr);
-        //tr.registerFunction(blv);
 
-        while(tr.getNextEvent())
+        //Set up top tagger
+        TopTagger tt("TopTagger.cfg", ".");
+
+        for(auto& tr : tr)
         {
-            if(tr.getEvtNum() == 1)
+            //get necessary tagger input variables 
+
+            //AK4 jets
+            const auto& Jet_LV = tr.getVec_LVFromNano<float>("Jet");
+            const auto& Jet_csvv2 = tr.getVec<float>("Jet_btagCSVV2");
+            
+            //resolved top candidates
+            const auto& ResTopCand_LV = tr.getVec_LVFromNano<float>("ResolvedTopCandidate");
+            const auto& ResTopCand_discriminator = tr.getVec<float>("ResolvedTopCandidate_discriminator");
+            const auto& ResTopCand_j1Idx = tr.getVec<int>("ResolvedTopCandidate_j1Idx");
+            const auto& ResTopCand_j2Idx = tr.getVec<int>("ResolvedTopCandidate_j2Idx");
+            const auto& ResTopCand_j3Idx = tr.getVec<int>("ResolvedTopCandidate_j3Idx");
+
+            //AK8 jets
+            const auto& FatJet_LV = tr.getVec_LVFromNano<float>("FatJet");
+            const auto& FatJet_deepAK8_t = tr.getVec<float>("FatJet_deepTag_TvsQCD");
+            const auto& FatJet_deepAK8_w = tr.getVec<float>("FatJet_deepTag_WvsQCD");
+            const auto& FatJet_msoftdrop = tr.getVec<float>("FatJet_msoftdrop");
+            const auto& FatJet_subJetIdx1 = tr.getVec<int>("FatJet_subJetIdx1");
+            const auto& FatJet_subJetIdx2 = tr.getVec<int>("FatJet_subJetIdx2");
+
+            //AK8 subjets 
+            const auto& SubJet_LV = tr.getVec_LVFromNano<float>("SubJet");
+
+            //Select AK4 jets to use in tagger
+            //When reading from the resolvedTopCandidate collection from nanoAOD you must pass ALL ak4 jets to ttUtility::ConstAK4Inputs below, 
+            //but we can specify a filter vector to tell it to ignore jets we don't want 
+            std::vector<uint8_t> ak4Filter(Jet_LV.size(), true);
+            for(int i = 0; i < ak4Filter.size(); ++i)
             {
-                tr.printTupleMembers();
-                FILE * fout = fopen("NTupleTypes.txt", "w");
-                tr.printTupleMembers(fout);
-                fclose(fout);
+                //no need to slow the tagger down considering low pt jets
+                if(Jet_LV[i].Pt() < 20.0) ak4Filter[i] = false;
+
+                //do some logic here to decide which jet was lepton/photon matched
+                bool isLepPhotonMatch = false;
+                if(isLepPhotonMatch) ak4Filter[i] = false;
             }
-      
-            //std::cout << "MET " << tr.getVar<double>("met")  << " nTop" << tr.getVar<int>("nTopCandSortedCnt") << std::endl;
-            std::cout << "MET " << tr.getVar<double>("met")  << " aliasedMET " << tr.getVar<double>("aliasedMET");
-            std::cout << "Nj " << tr.getVec<TLorentzVector>("jetsLVec").size() << " aliasedNj " << tr.getVec<TLorentzVector>("aliasedJetsLVec").size() << std::endl;
+
+            //Select AK8 jets to use in tagger
+            std::vector<uint8_t> ak8Filter(FatJet_LV.size(), true);
+            for(int i = 0; i < ak8Filter.size(); ++i)
+            {
+                //no need to slow the tagger down considering low pt jets
+                if(FatJet_LV[i].Pt() < 200.0) ak8Filter[i] = false;
+
+                //do some logic here to decide which jet was lepton/photon matched
+                bool isLepPhotonMatch = false;
+                if(isLepPhotonMatch) ak8Filter[i] = false;
+            }
+
+            //Corrrolate AK8 jets and their subjets
+            unsigned int nFatJets = FatJet_LV.size();
+            unsigned int nSubJets = SubJet_LV.size();
+            std::vector<std::vector<TLorentzVector>> subjets(nFatJets);
+            for(int i = 0; i < nFatJets; ++i)
+            {
+                if(FatJet_subJetIdx1[i] >= 0 && FatJet_subJetIdx1[i] < nSubJets) subjets[i].push_back(SubJet_LV[i]);
+                if(FatJet_subJetIdx2[i] >= 0 && FatJet_subJetIdx2[i] < nSubJets) subjets[i].push_back(SubJet_LV[i]);
+            }
+
+            //Create top tagger input helpers
+            ttUtility::ConstAK4Inputs<float> ak4Inputs(Jet_LV, Jet_csvv2);
+            ak4Inputs.setFilterVector(ak4Filter);
+            ttUtility::ConstAK8Inputs<float> ak8Inputs(FatJet_LV, FatJet_deepAK8_t, FatJet_deepAK8_w, FatJet_msoftdrop, subjets);
+            ak8Inputs.setFilterVector(ak8Filter);
+            ttUtility::ConstResolvedCandInputs<float> resInputs(ResTopCand_LV, ResTopCand_discriminator, ResTopCand_j1Idx, ResTopCand_j2Idx, ResTopCand_j3Idx);
+
+            //make top tagger constituents, order matters here, ak4Inputs must not come after resInputs as the ak4Inputs are needed to build the resolved top candidates 
+            std::vector<Constituent> constituents = packageConstituents(ak4Inputs, resInputs, ak8Inputs);
+
+            //run top tager
+            tt.runTagger(constituents);
+
+            //get tagger results 
+            const TopTaggerResults& ttr = tt.getResults();
+
+            //print top properties
+            //get reconstructed top
+            const std::vector<TopObject*>& tops = ttr.getTops();
+
+            //print the number of tops found in the event 
+            printf("\tN tops: %ld\n", tops.size());
+
+
+            for(const TopObject* top : tops)
+            {
+                //print basic top properties (top->p() gives a TLorentzVector)
+                //N constituents refers to the number of jets included in the top
+                //3 for resolved tops 
+                //2 for W+jet tops
+                //1 for fully merged AK8 tops
+                printf("\tTop properties: Type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf,   M: %7.3lf\n", static_cast<int>(top->getType()), top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M());
+
+                //get vector of top constituents 
+                const std::vector<Constituent const *>& constituents = top->getConstituents();
+
+                //Print properties of individual top constituent jets 
+                for(const Constituent* constituent : constituents)
+                {
+                    printf("\t\tConstituent properties: Constituent type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf\n", constituent->getType(), constituent->p().Pt(), constituent->p().Eta(), constituent->p().Phi());
+                }                
+            }
         }
     }
     catch(const SATException& e)
     {
         e.print();
     }
+    catch(const TTException& e)
+    {
+        e.print();
+    }
 
     return 0;
 }
-
