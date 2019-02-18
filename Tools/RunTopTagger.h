@@ -50,11 +50,12 @@ private:
         const auto& SubJet_LV = tr.getVec_LVFromNano<float>("SubJet");
 
 
-        auto* AllTopsTLV      = new std::vector<TLorentzVector>();
-        auto* MergedTopsTLV   = new std::vector<TLorentzVector>();
-        auto* ResolvedTopsTLV = new std::vector<TLorentzVector>();
-        auto* WTLV            = new std::vector<TLorentzVector>();
-        auto* TopJetsMap      = new std::map< int , std::vector<TLorentzVector> >();
+        auto* AllTopsTLV        = new std::vector<TLorentzVector>();
+        auto* MergedTopsTLV     = new std::vector<TLorentzVector>();
+        auto* SemiMergedTopsTLV = new std::vector<TLorentzVector>();
+        auto* ResolvedTopsTLV   = new std::vector<TLorentzVector>();
+        auto* WTLV              = new std::vector<TLorentzVector>();
+        auto* TopJetsMap        = new std::map< int , std::vector<TLorentzVector> >();
         int nAllTops        = -1;
         int nMergedTops     = -1;
         int nSemiMergedTops = -1;
@@ -122,41 +123,44 @@ private:
         //print top properties
         //get reconstructed tops
         const std::vector<TopObject*>& tops = ttr.getTops();
-        std::map<TopObject::Type, std::vector<TopObject*>> topsByType = ttr.getTopsByType();
-        const std::vector<TopObject*>& MergedTops     = topsByType[TopObject::Type::MERGED_TOP];
-        const std::vector<TopObject*>& SemiMergedTops = topsByType[TopObject::Type::SEMIMERGEDWB_TOP];
-        const std::vector<TopObject*>& ResolvedTops   = topsByType[TopObject::Type::RESOLVED_TOP];
-        nMergedTops = MergedTops.size();
-        nSemiMergedTops = SemiMergedTops.size();
-        nResolvedTops = ResolvedTops.size();
-        nAllTops = nMergedTops + nSemiMergedTops + nResolvedTops;
-
-        //print the number of tops found in the event 
-        //if (tops.size() > 1) printf("N tops: %ld\n", tops.size());
-        if (tops.size() > 1)
-        {
-            printf("tops.size() =  %ld ",      tops.size());
-            printf("nAllTops =  %ld ",         nAllTops);
-            printf("nMergedTops =  %ld ",      nMergedTops);
-            printf("nSemiMergedTops =  %ld ",  nSemiMergedTops);
-            printf("nResolvedTops =  %ld ",    nResolvedTops);
-            std::cout << std::endl;
-        }
+        
+        // --- version using topsByType map
+        // --- requires different loops and reordering of AllTops
+        //
+        // std::map<TopObject::Type, std::vector<TopObject*>> topsByType = ttr.getTopsByType();
+        // const std::vector<TopObject*>& MergedTops     = topsByType[TopObject::Type::MERGED_TOP];
+        // const std::vector<TopObject*>& SemiMergedTops = topsByType[TopObject::Type::SEMIMERGEDWB_TOP];
+        // const std::vector<TopObject*>& ResolvedTops   = topsByType[TopObject::Type::RESOLVED_TOP];
+        // const std::vector<TopObject*>& Ws             = topsByType[TopObject::Type::MERGED_W];
+        // nMergedTops = MergedTops.size();
+        // nSemiMergedTops = SemiMergedTops.size();
+        // nResolvedTops = ResolvedTops.size();
+        // nAllTops = nMergedTops + nSemiMergedTops + nResolvedTops;
+        // nWs = Ws.size();
+        // for (const auto* top : MergedTops)      MergedTopsTLV->push_back(top->p());
+        // for (const auto* top : SemiMergedTops)  SemiMergedTopsTLV->push_back(top->p());
+        // for (const auto* top : ResolvedTops)    ResolvedTopsTLV->push_back(top->p());
+        // for (const auto* top : Ws)              WTLV->push_back(top->p());
+        //
+        // --- version using topsByType map
 
         int i = 0;
         for(const TopObject* top : tops)
         {
-            TopObject::Type type = top->getType() ;
-            if (tops.size() > 1) std::cout << "  top type: " << type << std::endl;
+            TopObject::Type type = top->getType();
+            //if (tops.size() > 1) std::cout << "  top type: " << type << std::endl;
             //std::cout << "  top type: " << type << std::endl;
-
-            
             
             //std::cout << "  top type: " << type << std::endl;
             if (   type == TopObject::Type::MERGED_TOP
                 || type == TopObject::Type::SEMIMERGEDWB_TOP
                 || type == TopObject::Type::RESOLVED_TOP)
             {
+                AllTopsTLV->push_back(top->p());
+                if (type == TopObject::Type::MERGED_TOP)        MergedTopsTLV->push_back(top->p());
+                if (type == TopObject::Type::SEMIMERGEDWB_TOP)  SemiMergedTopsTLV->push_back(top->p());
+                if (type == TopObject::Type::RESOLVED_TOP)      ResolvedTopsTLV->push_back(top->p());
+                if (type == TopObject::Type::MERGED_W)          WTLV->push_back(top->p());
 
                 //print basic top properties (top->p() gives a TLorentzVector)
                 //N constituents refers to the number of jets included in the top
@@ -177,13 +181,36 @@ private:
             }
             i++;
         }
+
+        // number of tops
+        nAllTops        = AllTopsTLV->size();
+        nMergedTops     = MergedTopsTLV->size();
+        nSemiMergedTops = SemiMergedTopsTLV->size();
+        nResolvedTops   = ResolvedTopsTLV->size();
+        nWs             = WTLV->size();
+        
+        //print the number of tops found in the event 
+        //if (tops.size() > 1)
+        if (true)
+        {
+            printf("tops.size() =  %ld ",      tops.size());
+            printf("nAllTops =  %ld ",         nAllTops);
+            printf("nMergedTops =  %ld ",      nMergedTops);
+            printf("nSemiMergedTops =  %ld ",  nSemiMergedTops);
+            printf("nResolvedTops =  %ld ",    nResolvedTops);
+            printf("nWs =  %ld ",              nWs);
+            std::cout << std::endl;
+        }
+        
         tr.registerDerivedVec("AllTopsTLV", AllTopsTLV);
         tr.registerDerivedVec("MergedTopsTLV", MergedTopsTLV);
+        tr.registerDerivedVec("SemiMergedTopsTLV", SemiMergedTopsTLV);
         tr.registerDerivedVec("ResolvedTopsTLV", ResolvedTopsTLV);
         tr.registerDerivedVec("WTLV", WTLV);
         tr.registerDerivedVec("TopJetsMap", TopJetsMap);
         tr.registerDerivedVar("nAllTops", nAllTops);
         tr.registerDerivedVar("nMergedTops", nMergedTops);
+        tr.registerDerivedVar("nSemiMergedTops", nSemiMergedTops);
         tr.registerDerivedVar("nResolvedTops", nResolvedTops);
         tr.registerDerivedVar("nWs", nWs);
     }
