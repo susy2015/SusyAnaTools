@@ -49,6 +49,18 @@ private:
         //AK8 subjets 
         const auto& SubJet_LV = tr.getVec_LVFromNano<float>("SubJet");
 
+
+        auto* AllTopsTLV      = new std::vector<TLorentzVector>();
+        auto* MergedTopsTLV   = new std::vector<TLorentzVector>();
+        auto* ResolvedTopsTLV = new std::vector<TLorentzVector>();
+        auto* WTLV            = new std::vector<TLorentzVector>();
+        auto* TopJetsMap      = new std::map< int , std::vector<TLorentzVector> >();
+        int nAllTops        = -1;
+        int nMergedTops     = -1;
+        int nSemiMergedTops = -1;
+        int nResolvedTops   = -1;
+        int nWs             = -1;
+
         //Select AK4 jets to use in tagger
         //When reading from the resolvedTopCandidate collection from nanoAOD you must pass ALL ak4 jets to ttUtility::ConstAK4Inputs below, 
         //but we can specify a filter vector to tell it to ignore jets we don't want 
@@ -108,33 +120,72 @@ private:
         const TopTaggerResults& ttr = tt.getResults();
 
         //print top properties
-        //get reconstructed top
+        //get reconstructed tops
         const std::vector<TopObject*>& tops = ttr.getTops();
+        std::map<TopObject::Type, std::vector<TopObject*>> topsByType = ttr.getTopsByType();
+        const std::vector<TopObject*>& MergedTops     = topsByType[TopObject::Type::MERGED_TOP];
+        const std::vector<TopObject*>& SemiMergedTops = topsByType[TopObject::Type::SEMIMERGEDWB_TOP];
+        const std::vector<TopObject*>& ResolvedTops   = topsByType[TopObject::Type::RESOLVED_TOP];
+        nMergedTops = MergedTops.size();
+        nSemiMergedTops = SemiMergedTops.size();
+        nResolvedTops = ResolvedTops.size();
+        nAllTops = nMergedTops + nSemiMergedTops + nResolvedTops;
 
         //print the number of tops found in the event 
-        if (tops.size() > 1) printf("\tN tops: %ld\n", tops.size());
-        //printf("\tN tops: %ld\n", tops.size());
+        //if (tops.size() > 1) printf("N tops: %ld\n", tops.size());
+        if (tops.size() > 1)
+        {
+            printf("tops.size() =  %ld ",      tops.size());
+            printf("nAllTops =  %ld ",         nAllTops);
+            printf("nMergedTops =  %ld ",      nMergedTops);
+            printf("nSemiMergedTops =  %ld ",  nSemiMergedTops);
+            printf("nResolvedTops =  %ld ",    nResolvedTops);
+            std::cout << std::endl;
+        }
 
-
+        int i = 0;
         for(const TopObject* top : tops)
         {
-            //print basic top properties (top->p() gives a TLorentzVector)
-            //N constituents refers to the number of jets included in the top
-            //3 for resolved tops 
-            //2 for W+jet tops
-            //1 for fully merged AK8 tops
+            TopObject::Type type = top->getType() ;
+            if (tops.size() > 1) std::cout << "  top type: " << type << std::endl;
+            //std::cout << "  top type: " << type << std::endl;
+
             
-            //printf("\tTop properties: Type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf,   M: %7.3lf\n", static_cast<int>(top->getType()), top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M());
-
-            //get vector of top constituents 
-            const std::vector<Constituent const *>& constituents = top->getConstituents();
-
-            //Print properties of individual top constituent jets 
-            for(const Constituent* constituent : constituents)
+            
+            //std::cout << "  top type: " << type << std::endl;
+            if (   type == TopObject::Type::MERGED_TOP
+                || type == TopObject::Type::SEMIMERGEDWB_TOP
+                || type == TopObject::Type::RESOLVED_TOP)
             {
-                //printf("\t\tConstituent properties: Constituent type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf\n", constituent->getType(), constituent->p().Pt(), constituent->p().Eta(), constituent->p().Phi());
-            }                
+
+                //print basic top properties (top->p() gives a TLorentzVector)
+                //N constituents refers to the number of jets included in the top
+                //3 for resolved tops 
+                //2 for W+jet tops
+                //1 for fully merged AK8 tops
+                
+                //printf("\tTop properties: Type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf,   M: %7.3lf\n", static_cast<int>(top->getType()), top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M());
+
+                //get vector of top constituents 
+                const std::vector<Constituent const *>& constituents = top->getConstituents();
+
+                //Print properties of individual top constituent jets 
+                for(const Constituent* constituent : constituents)
+                {
+                    //printf("\t\tConstituent properties: Constituent type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf\n", constituent->getType(), constituent->p().Pt(), constituent->p().Eta(), constituent->p().Phi());
+                }                
+            }
+            i++;
         }
+        tr.registerDerivedVec("AllTopsTLV", AllTopsTLV);
+        tr.registerDerivedVec("MergedTopsTLV", MergedTopsTLV);
+        tr.registerDerivedVec("ResolvedTopsTLV", ResolvedTopsTLV);
+        tr.registerDerivedVec("WTLV", WTLV);
+        tr.registerDerivedVec("TopJetsMap", TopJetsMap);
+        tr.registerDerivedVar("nAllTops", nAllTops);
+        tr.registerDerivedVar("nMergedTops", nMergedTops);
+        tr.registerDerivedVar("nResolvedTops", nResolvedTops);
+        tr.registerDerivedVar("nWs", nWs);
     }
     
 public:
