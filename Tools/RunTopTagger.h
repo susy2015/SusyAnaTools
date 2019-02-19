@@ -144,7 +144,8 @@ private:
         //
         // --- version using topsByType map
 
-        int i = 0;
+        std::cout << "----------------------------------------------------------------------" << std::endl;
+        unsigned int topidx = 0;
         for(const TopObject* top : tops)
         {
             TopObject::Type type = top->getType();
@@ -168,18 +169,21 @@ private:
                 //2 for W+jet tops
                 //1 for fully merged AK8 tops
                 
-                //printf("\tTop properties: Type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf,   M: %7.3lf\n", static_cast<int>(top->getType()), top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M());
+                printf("\tTop properties: Type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf,   M: %7.3lf\n", static_cast<int>(top->getType()), top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M());
 
                 //get vector of top constituents 
                 const std::vector<Constituent const *>& constituents = top->getConstituents();
+                std::vector<TLorentzVector> temp;
 
                 //Print properties of individual top constituent jets 
                 for(const Constituent* constituent : constituents)
                 {
-                    //printf("\t\tConstituent properties: Constituent type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf\n", constituent->getType(), constituent->p().Pt(), constituent->p().Eta(), constituent->p().Phi());
+                    printf("\t\tConstituent properties: Constituent type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf\n", constituent->getType(), constituent->p().Pt(), constituent->p().Eta(), constituent->p().Phi());
+                    temp.push_back(constituent->p());
                 }                
+                TopJetsMap->insert(std::make_pair(topidx, temp));
+                ++topidx;
             }
-            i++;
         }
 
         // number of tops
