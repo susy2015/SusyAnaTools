@@ -22,6 +22,9 @@
 class RunTopTagger {
 
 private:
+    std::shared_ptr<TopTagger> tt_; // std::unique_ptr gives a compile error
+    std::string taggerCfg_;
+    std::string jetCollectionTag_;
 
     void runTopTagger(NTupleReader& tr) 
     {
@@ -110,15 +113,17 @@ private:
         
         // TopTagger
         //std::cout << "Create TopTagger object" << std::endl;
-        TopTagger tt("TopTagger.cfg", ".");
+        //TopTagger tt("TopTagger.cfg", ".");
 
         //run top tager
-        //std::cout << "Run TopTagger" << std::endl;
-        tt.runTagger(constituents);
+        //std::cout << "tt_->runTagger(constituents)" << std::endl;
+        //tt.runTagger(constituents);
+        tt_->runTagger(constituents);
+
 
         //get tagger results 
         //std::cout << "Get TopTagger results" << std::endl;
-        const TopTaggerResults& ttr = tt.getResults();
+        const TopTaggerResults& ttr = tt_->getResults();
 
         //print top properties
         //get reconstructed tops
@@ -144,7 +149,9 @@ private:
         //
         // --- version using topsByType map
 
-        std::cout << "----------------------------------------------------------------------" << std::endl;
+        bool printTops = false;
+
+        if (printTops) std::cout << "----------------------------------------------------------------------" << std::endl;
         unsigned int topidx = 0;
         for(const TopObject* top : tops)
         {
@@ -152,6 +159,8 @@ private:
             //if (tops.size() > 1) std::cout << "  top type: " << type << std::endl;
             //std::cout << "  top type: " << type << std::endl;
             
+            if (type == TopObject::Type::MERGED_W)          WTLV->push_back(top->p());
+
             //std::cout << "  top type: " << type << std::endl;
             if (   type == TopObject::Type::MERGED_TOP
                 || type == TopObject::Type::SEMIMERGEDWB_TOP
@@ -161,7 +170,6 @@ private:
                 if (type == TopObject::Type::MERGED_TOP)        MergedTopsTLV->push_back(top->p());
                 if (type == TopObject::Type::SEMIMERGEDWB_TOP)  SemiMergedTopsTLV->push_back(top->p());
                 if (type == TopObject::Type::RESOLVED_TOP)      ResolvedTopsTLV->push_back(top->p());
-                if (type == TopObject::Type::MERGED_W)          WTLV->push_back(top->p());
 
                 //print basic top properties (top->p() gives a TLorentzVector)
                 //N constituents refers to the number of jets included in the top
@@ -169,7 +177,7 @@ private:
                 //2 for W+jet tops
                 //1 for fully merged AK8 tops
                 
-                printf("\tTop properties: Type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf,   M: %7.3lf\n", static_cast<int>(top->getType()), top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M());
+                if (printTops) printf("\tTop properties: Type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf,   M: %7.3lf\n", static_cast<int>(top->getType()), top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M());
 
                 //get vector of top constituents 
                 const std::vector<Constituent const *>& constituents = top->getConstituents();
@@ -178,7 +186,7 @@ private:
                 //Print properties of individual top constituent jets 
                 for(const Constituent* constituent : constituents)
                 {
-                    printf("\t\tConstituent properties: Constituent type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf\n", constituent->getType(), constituent->p().Pt(), constituent->p().Eta(), constituent->p().Phi());
+                    if (printTops) printf("\t\tConstituent properties: Constituent type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf\n", constituent->getType(), constituent->p().Pt(), constituent->p().Eta(), constituent->p().Phi());
                     temp.push_back(constituent->p());
                 }                
                 TopJetsMap->insert(std::make_pair(topidx, temp));
@@ -195,7 +203,7 @@ private:
         
         //print the number of tops found in the event 
         //if (tops.size() > 1)
-        if (true)
+        if (printTops)
         {
             printf("tops.size() =  %ld ",      tops.size());
             printf("nAllTops =  %ld ",         nAllTops);
@@ -221,7 +229,14 @@ private:
     
 public:
 
-    RunTopTagger(){}
+    RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string jetCollectionTag = "") :
+        taggerCfg_ (taggerCfg),
+        jetCollectionTag_ (jetCollectionTag),
+        tt_ (new TopTagger())
+    {
+        std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", jetCollectionTag_ = " << jetCollectionTag_ << std::endl;
+        tt_->setCfgFile(taggerCfg_);
+    }
     
     ~RunTopTagger(){}
 

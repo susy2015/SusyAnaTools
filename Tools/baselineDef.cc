@@ -36,13 +36,14 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   doEleVeto             = true;
   doMET                 = true;
   dodPhis               = true;
-  passBaselineLowDM     = true;
-  passBaselineHighDM    = true;
+  passBaselineLowDM     = false;
+  passBaselineHighDM    = false;
   metLVec.SetPtEtaPhiM(0, 0, 0, 0);
   if (UseDeepCSV)
     CSVVecLabel           = "Jet_btagDeepB";
   if (UseDeepTagger)
-    toptaggerCfgFile      = "TopTagger_DeepCombined.cfg";
+    toptaggerCfgFile      = "TopTagger.cfg";
+    //toptaggerCfgFile      = "TopTagger_DeepCombined.cfg";
 
   if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
 
@@ -73,7 +74,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   printOnce = false;
   PredefineSpec();
 
-  SetupTopTagger(toptaggerCfgFile);
+  //SetupTopTagger(toptaggerCfgFile);
 }
 
 // constructor without nullptr as argument
@@ -521,8 +522,8 @@ void BaselineVessel::PassBaseline()
 {
   if (printConfig) PrintoutConfig();
   // Initial value
-  passBaselineLowDM  = true;
-  passBaselineHighDM = true;
+  passBaselineLowDM  = false;
+  passBaselineHighDM = false;
   
   // Get jet collection
   const auto& jet_vec = tr->getVec<TLorentzVector>(jetVecLabel);
@@ -742,6 +743,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("passBaselineLowDM" + firstSpec, passBaselineLowDM);
   tr->registerDerivedVar("passBaselineHighDM" + firstSpec, passBaselineHighDM);
 } 
+
 
 int BaselineVessel::GetnTops() const
 {
