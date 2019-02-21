@@ -601,8 +601,7 @@ void BaselineVessel::PassBaseline()
 
   // Pass the HT cut for trigger?
   float HT = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
-  bool passHT = true;
-  if( HT < AnaConsts::defaultHTcut ){ passHT = false; }
+  bool passHT = (HT >= AnaConsts::defaultHTcut);
 
   // Calculate top tagger related variables. 
   // Note that to save speed, only do the calculation after previous base line requirements.
