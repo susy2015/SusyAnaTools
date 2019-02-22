@@ -45,7 +45,22 @@ int main()
             // }
             // break;
       
-            // //std::cout << "MET " << tr.getVar<double>("met")  << " nTop" << tr.getVar<int>("nTopCandSortedCnt") << std::endl;
+            printf("MET_pt: %10f MET_phi: %10f nJet: %10d Jet_pt: %10d Stop0l_nHOT: %-10d Stop0l_HOTtype: %10d\n",
+                    tr.getVar<float>("MET_pt"),
+                    tr.getVar<float>("MET_phi"),
+                    tr.getVar<unsigned int>("nJet"),
+                    tr.getVec<float>("Jet_pt").size(),
+                    tr.getVar<int>("Stop0l_nHOT"),
+                    tr.getVec<int>("Stop0l_HOTtype").size()
+                    );
+            
+            //std::cout << "MET_pt: "         << tr.getVar<float>("MET_pt") << " ";
+            //std::cout << "MET_phi: "        << tr.getVar<float>("MET_phi") << " ";
+            //std::cout << "Jet_pt: "         << tr.getVec<float>("Jet_pt").size() << " ";
+            //std::cout << "Stop0l_nHOT: "    << tr.getVar<int>("Stop0l_nHOT") << " ";
+            //std::cout << "Stop0l_HOTtype: " << tr.getVec<int>("Stop0l_HOTtype").size() << " ";
+            //std::cout << std::endl;
+            
             // //std::cout << "MET " << tr.getVar<double>("met")  << " aliasedMET " << tr.getVar<double>("aliasedMET");
             // //std::cout << "Nj " << tr.getVec<TLorentzVector>("jetsLVec").size() << " aliasedNj " << tr.getVec<TLorentzVector>("aliasedJetsLVec").size() << std::endl;
         }

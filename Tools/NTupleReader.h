@@ -79,7 +79,7 @@ private:
     class deleter_base
     {
     public:
-        virtual void create(void *, TBranch*, const NTupleReader&) {}
+        virtual void create(void *, TBranch*, const NTupleReader&, int evt) {}
         virtual void deletePtr(void *) {}
         virtual void destroy(void *) = 0;
         virtual ~deleter_base() {}
@@ -127,12 +127,13 @@ private:
     public:
         void deletePtr(void* ptr) {}
 
-        void create(void * ptr, TBranch* branch, const NTupleReader& tr)
+        void create(void * ptr, TBranch* branch, const NTupleReader& tr, int evt)
         {
             //Get the array length
             //now the type is N
-            branch->GetEntry(tr.getEvtNum() - 1);
+            branch->GetEntry(evt);
             const N& ArrayLen = tr.getVar<N>(std::string(branch->GetName()));
+            //printf("name: %s ArrayLen: %d evt: %d branch->GetEntryNumber(): %d\n", branch->GetName(), ArrayLen, evt, branch->GetReadEntry());
             
             //Delete vector if one already exists
             T* vecptr = static_cast<T*>(ptr);
@@ -162,11 +163,11 @@ private:
 
         Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr), TBranch* branch = nullptr, TBranch* branchVec = nullptr) :  ptr(ptr), deleter(deleter), type(type), branch(branch), branchVec(branchVec) {}
 
-        void create(const NTupleReader& tr) const
+        void create(const NTupleReader& tr, int evt) const
         {
             if(deleter)
             {
-                deleter->create(ptr, branchVec, tr);
+                deleter->create(ptr, branch, tr, evt);
             }
         }
 
@@ -412,7 +413,6 @@ public:
     template<typename T> const T& getVar(const std::string& var) const
     {
         //This function can be used to return single variables
-        printf("I am the VARIABLE %s\n", var.c_str());
 
         try
         {
@@ -429,7 +429,6 @@ public:
     template<typename T> const std::vector<T>& getVec(const std::string& var) const
     {
         //This function can be used to return vectors
-        printf("I am the VECTOR %s\n", var.c_str());
 
         try
         {
@@ -589,7 +588,6 @@ private:
                 THROW_SATEXCEPTION("Branch \"" + name + "\" appears to be an array, but there is no size branch");
             }
         
-            printf("In registerBranch() name, type: %s, %s\n", name.c_str(), typeMap_[name].c_str());
 
             branchVecMap_[name] = createArrayHandle(new std::vector<T>*(), countBranch, branch);
 
@@ -660,7 +658,7 @@ private:
                 if(tuple_iter->second.branch)
                 {
                     //Prep the vector which will hold the data
-                    tuple_iter->second.create(*this);
+                    tuple_iter->second.create(*this, nevt_ - 1);
                 }
 
                 //force read just this branch

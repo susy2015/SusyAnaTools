@@ -300,7 +300,7 @@ void NTupleReader::createVectorsForArrayReads(int evt)
         if(handlePair.second.branch)
         {
             //Prep the vector which will hold the data
-            handlePair.second.create(*this);
+            handlePair.second.create(*this, evt);
         }
     }
 }
