@@ -1166,11 +1166,35 @@ bool BaselineVessel::passNoiseEventFilterFunc()
     //bool jetIDFilter = isfastsim? 1:tr->getVar<bool>("AK4looseJetID");
     //bool jetIDFilter = true;
     // new filters
+
+    bool BadPFMuonFilter = true;
+    std::string Flag_BadPFMuonFilter_type;
+    tr->getType("Flag_BadPFMuonFilter", Flag_BadPFMuonFilter_type);
+    if (Flag_BadPFMuonFilter_type.compare("bool") == 0 || Flag_BadPFMuonFilter_type.compare("Bool_t") == 0)
+    {
+        BadPFMuonFilter = tr->getVar<bool>("Flag_BadPFMuonFilter");
+    }
+    else if (Flag_BadPFMuonFilter_type.compare("char") == 0 || Flag_BadPFMuonFilter_type.compare("UChar_t") == 0)
+    {
+        BadPFMuonFilter = bool(tr->getVar<char>("Flag_BadPFMuonFilter"));
+    }
+
     //const auto& BadPFMuonFilter = bool(tr->getVar<char>("Flag_BadPFMuonFilter"));
-    const auto& BadPFMuonFilter = bool(tr->getVar<bool>("Flag_BadPFMuonFilter"));
+    //const auto& BadPFMuonFilter = bool(tr->getVar<bool>("Flag_BadPFMuonFilter"));
     bool passBadPFMuonFilter = &BadPFMuonFilter != nullptr ? BadPFMuonFilter : true;
 
-    const auto& BadChargedCandidateFilter = bool(tr->getVar<char>("Flag_BadChargedCandidateFilter"));
+    bool BadChargedCandidateFilter = true;
+    std::string Flag_BadChargedCandidateFilter_type;
+    tr->getType("Flag_BadChargedCandidateFilter", Flag_BadChargedCandidateFilter_type);
+    if (Flag_BadChargedCandidateFilter_type.compare("bool") == 0 || Flag_BadChargedCandidateFilter_type.compare("Bool_t") == 0)
+    {
+        BadChargedCandidateFilter = tr->getVar<bool>("Flag_BadChargedCandidateFilter");
+    }
+    else if (Flag_BadChargedCandidateFilter_type.compare("char") == 0 || Flag_BadChargedCandidateFilter_type.compare("UChar_t") == 0)
+    {
+        BadChargedCandidateFilter = bool(tr->getVar<char>("Flag_BadChargedCandidateFilter"));
+    }
+    //const auto& BadChargedCandidateFilter = bool(tr->getVar<char>("Flag_BadChargedCandidateFilter"));
     bool passBadChargedCandidateFilter = &BadChargedCandidateFilter != nullptr ? BadChargedCandidateFilter : true;
 
     //bool passMETratioFilter = tr->getVar<float>("calomet")!=0 ? tr->getVar<float>("met")/tr->getVar<float>("calomet") < 5 : true;
