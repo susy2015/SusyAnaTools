@@ -79,7 +79,7 @@ private:
     class deleter_base
     {
     public:
-        virtual void create(void *, TBranch*, const NTupleReader&, int evt) {}
+        virtual void create(void *, TBranch*, TBranch*, const NTupleReader&, int evt) {}
         virtual void deletePtr(void *) {}
         virtual void destroy(void *) = 0;
         virtual ~deleter_base() {}
@@ -127,13 +127,11 @@ private:
     public:
         void deletePtr(void* ptr) {}
 
-        void create(void * ptr, TBranch* branch, const NTupleReader& tr, int evt)
+        void create(void * ptr, TBranch* branch, TBranch* branchVec, const NTupleReader& tr, int evt)
         {
             //Get the array length
-            //now the type is N
-            branch->GetEntry(evt);
+            if(branch->GetReadEntry() != evt) branch->GetEntry(evt);
             const N& ArrayLen = tr.getVar<N>(std::string(branch->GetName()));
-            //printf("name: %s ArrayLen: %d evt: %d branch->GetEntryNumber(): %d\n", branch->GetName(), ArrayLen, evt, branch->GetReadEntry());
             
             //Delete vector if one already exists
             T* vecptr = static_cast<T*>(ptr);
@@ -143,7 +141,7 @@ private:
             //this typedef seems manditory to unconfuse the compilier 
             typedef typename std::remove_pointer<T>::type vec_type;
             *vecptr = new vec_type(ArrayLen);
-            branch->SetAddress( (*vecptr)->data() );
+            branchVec->SetAddress( (*vecptr)->data() );
         }
     };
 
@@ -167,7 +165,7 @@ private:
         {
             if(deleter)
             {
-                deleter->create(ptr, branch, tr, evt);
+                deleter->create(ptr, branch, branchVec, tr, evt);
             }
         }
 
