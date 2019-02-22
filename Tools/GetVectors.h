@@ -31,9 +31,14 @@ private:
         registerTLV("Jet");         // AK4 jets
         registerTLV("FatJet");      // AK8 jets 
         registerTLV("SubJet");      // AK8 subjets
-        registerTLV("GenJet");      // generated AK4 jets
-        registerTLV("GenJetAK8");   // generated AK8 jets
-        registerTLV("GenPart");     // interesting gen particles
+        
+        if (tr_->checkBranch("GenJet_pt"))
+        {
+            registerTLV("GenJet");      // generated AK4 jets
+            registerTLV("GenJetAK8");   // generated AK8 jets
+            registerTLV("GenPart");     // interesting gen particles
+        }
+        
         registerTLV("Electron");    // electrons
         registerTLV("Muon");        // muons
         registerTLV("Photon");      // photons

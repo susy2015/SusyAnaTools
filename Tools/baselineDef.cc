@@ -1138,15 +1138,25 @@ bool BaselineVessel::passNoiseEventFilterFunc()
 
     bool passDataSpec = true;
     if( tr->getVar<unsigned int>("run") >= 100000 ){ // hack to know if it's data or MC...
-      int goodVerticesFilter = tr->getVar<int>("goodVerticesFilter");
+      int goodVerticesFilter = true;
+      if (tr->checkBranch("goodVerticesFilter"))
+      {
+          goodVerticesFilter = tr->getVar<int>("goodVerticesFilter");
+      }
       // new filters
-      const int & globalTightHalo2016Filter = tr->getVar<int>("globalTightHalo2016Filter");
-      bool passglobalTightHalo2016Filter = (&globalTightHalo2016Filter) != nullptr? tr->getVar<int>("globalTightHalo2016Filter") !=0 : true;
+      //const int & globalTightHalo2016Filter = tr->getVar<int>("globalTightHalo2016Filter");
+      //bool passGlobalTightHalo2016Filter = (&globalTightHalo2016Filter) != nullptr? tr->getVar<int>("globalTightHalo2016Filter") !=0 : true;
+      bool globalTightHalo2016Filter = true;
+      if (tr->checkBranch("globalTightHalo2016Filter"))
+      {
+          globalTightHalo2016Filter = tr->getVar<bool>("globalTightHalo2016Filter");
+      }
+      bool passGlobalTightHalo2016Filter = globalTightHalo2016Filter;
 
       //int eeBadScFilter = tr->getVar<int>("eeBadScFilter");
       int eeBadScFilter = true;
 
-      passDataSpec = goodVerticesFilter && eeBadScFilter && passglobalTightHalo2016Filter;
+      passDataSpec = goodVerticesFilter && eeBadScFilter && passGlobalTightHalo2016Filter;
     }
 
     bool hbheNoiseFilter = isfastsim? 1:tr->getVar<bool>("Flag_HBHENoiseFilter");
@@ -1156,7 +1166,8 @@ bool BaselineVessel::passNoiseEventFilterFunc()
     //bool jetIDFilter = isfastsim? 1:tr->getVar<bool>("AK4looseJetID");
     //bool jetIDFilter = true;
     // new filters
-    const auto& BadPFMuonFilter = bool(tr->getVar<char>("Flag_BadPFMuonFilter"));
+    //const auto& BadPFMuonFilter = bool(tr->getVar<char>("Flag_BadPFMuonFilter"));
+    const auto& BadPFMuonFilter = bool(tr->getVar<bool>("Flag_BadPFMuonFilter"));
     bool passBadPFMuonFilter = &BadPFMuonFilter != nullptr ? BadPFMuonFilter : true;
 
     const auto& BadChargedCandidateFilter = bool(tr->getVar<char>("Flag_BadChargedCandidateFilter"));
