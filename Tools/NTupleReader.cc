@@ -193,9 +193,8 @@ void NTupleReader::registerBranch(TBranch * const branch, bool activate) const
     }
     else
     {
-        THROW_SATEXCEPTION("Branch \"" + name + "\" has no leaves and therefore no data!!!???!!!");
+        THROW_SATEXCEPTION("Branch \"" + name + "\" has no leaves and therefore no data!!!\?\?\?!!!");
     }
-
 
     //Check if this is an array or singleton (vectors count as singleton)
     if(leafLength == 1 && !countLeaf)
@@ -288,7 +287,7 @@ void NTupleReader::registerBranch(TBranch * const branch, bool activate) const
     }
     else
     {
-        //THROW_SATEXCEPTION("Branch \"" + name + "\" with type \"" + type + "\" has no data!!!");
+        THROW_SATEXCEPTION("Branch \"" + name + "\" with type \"" + type + "\" has no data!!!");
     }
 }
 
