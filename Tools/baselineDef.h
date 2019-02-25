@@ -83,9 +83,9 @@ public:
     std::string toptaggerCfgFile;
     
     
-    bool doIsoTrksVeto;
-    bool doMuonVeto;
     bool doEleVeto;
+    bool doMuonVeto;
+    bool doIsoTrkVeto;
     bool doMET;
     bool dodPhis;
     bool passBaselineLowDM;

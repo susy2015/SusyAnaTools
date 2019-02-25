@@ -31,9 +31,9 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   muonsFlagIDLabel      = "Muon_Stop0l"; 
   elesFlagIDLabel       = "Electron_Stop0l";
   toptaggerCfgFile      = "TopTagger.cfg";
-  doIsoTrksVeto         = true;
-  doMuonVeto            = true;
   doEleVeto             = true;
+  doMuonVeto            = true;
+  doIsoTrkVeto          = true;
   doMET                 = true;
   dodPhis               = true;
   passBaselineLowDM     = false;
@@ -298,7 +298,7 @@ bool BaselineVessel::PredefineSpec()
 
   if( spec.compare("noIsoTrksVeto") == 0)
   {
-    doIsoTrksVeto = false;
+    doIsoTrkVeto = false;
   }
   else if( spec.compare("incZEROtop") == 0)
   {
@@ -307,7 +307,7 @@ bool BaselineVessel::PredefineSpec()
   else if( spec.compare("hadtau") == 0)
   {
     doMuonVeto = false;
-    doIsoTrksVeto = false;
+    doIsoTrkVeto = false;
     METLabel = "met_hadtau";
     METPhiLabel = "metphi_hadtau";
     jetVecLabel = "jetsLVec_hadtau";
@@ -317,7 +317,7 @@ bool BaselineVessel::PredefineSpec()
   {
     doMuonVeto = false;
     doEleVeto = false; 
-    doIsoTrksVeto = false;
+    doIsoTrkVeto = false;
   }
   else if (spec.compare("NoVeto") == 0)
   {
@@ -330,7 +330,7 @@ bool BaselineVessel::PredefineSpec()
     UseDRLeptonCleanJet = false;
     doMuonVeto  = false;
     doEleVeto   = false;
-    doIsoTrksVeto = false;
+    doIsoTrkVeto = false;
     dodPhis = false;
   }
   else if (spec.compare("PFLeptonCleaned") == 0)
@@ -344,23 +344,25 @@ bool BaselineVessel::PredefineSpec()
     UseDRLeptonCleanJet = false;
     doMuonVeto  = false;
     doEleVeto   = false;
-    doIsoTrksVeto = false;
+    doIsoTrkVeto = false;
     dodPhis = false;
   }
+  // Z invisible Z to LL control region
   else if (spec.compare("DRLeptonCleaned") == 0)
   {
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
     
-    UseDeepCSV          = false; // broken in CMSSW8028_2016 ntuples 
+    UseDeepCSV          = true;  // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = true;
     doMuonVeto  = false;
     doEleVeto   = false;
-    doIsoTrksVeto = false;
-    dodPhis = false;
+    doIsoTrkVeto = false;
+    dodPhis = true;
   }
+  // Z invisible photon control region
   else if (spec.compare("DRPhotonCleaned") == 0)
   {
     METLabel    = "metWithPhoton";
@@ -370,10 +372,10 @@ bool BaselineVessel::PredefineSpec()
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
-    doMuonVeto  = false;
-    doEleVeto   = false;
-    doIsoTrksVeto = false;
-    dodPhis = false;
+    doMuonVeto  = true;
+    doEleVeto   = true;
+    doIsoTrkVeto = true;
+    dodPhis = true;
   }
   else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
@@ -395,7 +397,7 @@ bool BaselineVessel::PredefineSpec()
     UseDRLeptonCleanJet = false;
     doMuonVeto          = true;
     doEleVeto           = true;
-    doIsoTrksVeto       = true;
+    doIsoTrkVeto       = true;
     dodPhis             = true;
     
     if(spec.compare("Zinv1b") == 0)
@@ -521,9 +523,6 @@ bool BaselineVessel::PrintoutConfig() const
 void BaselineVessel::PassBaseline()
 {
   if (printConfig) PrintoutConfig();
-  // Initial value
-  passBaselineLowDM  = false;
-  passBaselineHighDM = false;
   
   // Get jet collection
   const auto& jet_vec = tr->getVec<TLorentzVector>(jetVecLabel);
@@ -681,8 +680,7 @@ void BaselineVessel::PassBaseline()
   
   //baseline for SUS-16-049 low dm
   passBaselineLowDM = (
-                           passLeptVeto
-                        && nMergedTops == 0
+                           nMergedTops == 0
                         && nWs == 0
                         && pass_ISR
                         && S_met > 10
@@ -695,14 +693,33 @@ void BaselineVessel::PassBaseline()
   
   //baseline for SUS-16-049 high dm plus HT cut
   passBaselineHighDM = (
-                            passLeptVeto
-                         && passMET
+                            passMET
                          && passNoiseEventFilter
                          && nJets >= 5
                          && passdphi_highdm
                          && nBottoms >= 1
                          && passHT
                        );      
+  
+  // ------------------------------------ // 
+  // --- Apply Lepton Vetos if needed --- //
+  // ------------------------------------ // 
+
+  if (doEleVeto)
+  {
+      passBaselineLowDM  = passBaselineLowDM  && passEleVeto;
+      passBaselineHighDM = passBaselineHighDM && passEleVeto;
+  }
+  if (doMuonVeto)
+  {
+      passBaselineLowDM  = passBaselineLowDM  && passMuonVeto;
+      passBaselineHighDM = passBaselineHighDM && passMuonVeto;
+  }
+  if (doIsoTrkVeto)
+  {
+      passBaselineLowDM  = passBaselineLowDM  && passIsoTrkVeto;
+      passBaselineHighDM = passBaselineHighDM && passIsoTrkVeto;
+  }
 
 
   // Register all the calculated variables
@@ -739,7 +756,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("passFastsimEventFilter" + firstSpec, passFastsimEventFilter);
   //tr->registerDerivedVar("best_had_brJet_MT2" + firstSpec,    MT2);
   tr->registerDerivedVar("HT" + firstSpec, HT);
-  tr->registerDerivedVar("passBaselineLowDM" + firstSpec, passBaselineLowDM);
+  tr->registerDerivedVar("passBaselineLowDM"  + firstSpec, passBaselineLowDM);
   tr->registerDerivedVar("passBaselineHighDM" + firstSpec, passBaselineHighDM);
 } 
 

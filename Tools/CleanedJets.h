@@ -69,7 +69,7 @@ private:
 
         const auto& jetsLVec  = tr_->getVec<TLorentzVector>(prefix + jetCollectionName);  // jet lorentz vector
         std::vector<float>* dRvec = new std::vector<float>();
-        const float dRMax = 0.20; // dR between photon and jet
+        const float dRMax = 0.20; // dR cut between jets and object
 
         // vector determining which jets to keep 
         std::vector<bool> keepJet(jetsLVec.size(), true);
@@ -124,7 +124,7 @@ private:
                 std::cout << "The variable " << jetVariable << " with type " << type << " is not a vector. Jet cleaning will not be applied to it." << std::endl;
             }
         }
-        // dR between jets and photon
+        // dR between jets and object
         tr_->registerDerivedVec("dR_" + prefix + jetCollectionName + suffix, dRvec);
     }
 
