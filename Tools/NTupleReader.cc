@@ -193,7 +193,7 @@ void NTupleReader::registerBranch(TBranch * const branch, bool activate) const
     }
     else
     {
-        THROW_SATEXCEPTION("Branch \"" + name + "\" has no leaves and therefore no data!!!???!!!");
+        THROW_SATEXCEPTION("Branch \"" + name + "\" has no leaves and therefore no data!!!\?\?\?!!!");
     }
 
     //Check if this is an array or singleton (vectors count as singleton)
@@ -287,7 +287,7 @@ void NTupleReader::registerBranch(TBranch * const branch, bool activate) const
     }
     else
     {
-        //THROW_SATEXCEPTION("Branch \"" + name + "\" with type \"" + type + "\" has no data!!!");
+        THROW_SATEXCEPTION("Branch \"" + name + "\" with type \"" + type + "\" has no data!!!");
     }
 }
 
@@ -298,12 +298,8 @@ void NTupleReader::createVectorsForArrayReads(int evt)
         //If the size branch is set, this is an array read
         if(handlePair.second.branch)
         {
-            //Get the array length
-            //Perhaps this is bad to hardcode type
-            handlePair.second.branch->GetEntry(evt);
-            UInt_t ArrayLen = getVar<UInt_t>(std::string(handlePair.second.branch->GetName()));
             //Prep the vector which will hold the data
-            handlePair.second.create(ArrayLen);
+            handlePair.second.create(*this, evt);
         }
     }
 }
