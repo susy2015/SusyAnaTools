@@ -79,7 +79,7 @@ private:
     class deleter_base
     {
     public:
-        virtual void create(void *, const unsigned int, TBranch*) {}
+        virtual void create(void *, TBranch*, TBranch*, const NTupleReader&, int evt) {}
         virtual void deletePtr(void *) {}
         virtual void destroy(void *) = 0;
         virtual ~deleter_base() {}
@@ -121,14 +121,18 @@ private:
     };
 
     //Templated class to create/store vector object deleter for arrays
-    template<typename T>
+    template<typename T, typename N>
     class array_deleter : public vec_deleter<T>
     {
     public:
         void deletePtr(void* ptr) {}
 
-        void create(void * ptr, const unsigned int size, TBranch* branch)
+        void create(void * ptr, TBranch* branch, TBranch* branchVec, const NTupleReader& tr, int evt)
         {
+            //Get the array length
+            if(branch->GetReadEntry() != evt) branch->GetEntry(evt);
+            const N& ArrayLen = tr.getVar<N>(std::string(branch->GetName()));
+            
             //Delete vector if one already exists
             T* vecptr = static_cast<T*>(ptr);
             if(*vecptr != nullptr) delete *vecptr;
@@ -136,8 +140,8 @@ private:
             //with vector cleaned up, create new vector
             //this typedef seems manditory to unconfuse the compilier 
             typedef typename std::remove_pointer<T>::type vec_type;
-            *vecptr = new vec_type(size);
-            branch->SetAddress( (*vecptr)->data() );
+            *vecptr = new vec_type(ArrayLen);
+            branchVec->SetAddress( (*vecptr)->data() );
         }
     };
 
@@ -157,11 +161,11 @@ private:
 
         Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr), TBranch* branch = nullptr, TBranch* branchVec = nullptr) :  ptr(ptr), deleter(deleter), type(type), branch(branch), branchVec(branchVec) {}
 
-        void create(const unsigned int size) const
+        void create(const NTupleReader& tr, int evt) const
         {
             if(deleter)
             {
-                deleter->create(ptr, size, branchVec);
+                deleter->create(ptr, branch, branchVec, tr, evt);
             }
         }
 
@@ -193,7 +197,28 @@ private:
     template<typename T>
     static inline Handle createArrayHandle(T* ptr, TBranch* branch, TBranch* branchVec)
     {
-        return Handle(ptr, new array_deleter<T>, typeid(typename std::remove_pointer<T>::type), branch, branchVec);
+        std::string type;
+        TObjArray *lol = branch->GetListOfLeaves();
+        int lolSize = lol->GetEntries();
+        
+        if (lolSize >= 1) 
+        {
+            TLeaf *leaf = (TLeaf*)lol->UncheckedAt(0);
+            type = leaf->GetTypeName();
+        }
+
+        if(type.compare("int") == 0 || type.compare("Int_t") == 0)
+        {
+            return Handle(ptr, new array_deleter<T, int>, typeid(typename std::remove_pointer<T>::type), branch, branchVec);
+        }
+        else if(type.compare("unsigned int") == 0 || type.compare("UInt_t") == 0)
+        {
+            return Handle(ptr, new array_deleter<T, unsigned int>, typeid(typename std::remove_pointer<T>::type), branch, branchVec);
+        }
+        else
+        {
+            THROW_SATEXCEPTION("ERROR: Unknown array length type: " + type);
+        }
     }
 
     //function wrapper 
@@ -560,6 +585,7 @@ private:
             {
                 THROW_SATEXCEPTION("Branch \"" + name + "\" appears to be an array, but there is no size branch");
             }
+        
 
             branchVecMap_[name] = createArrayHandle(new std::vector<T>*(), countBranch, branch);
 
@@ -625,13 +651,12 @@ private:
                 tuple_iter = v_tuple.find(var);
         
                 //if this is an array, force read length
+                if (tuple_iter == v_tuple.end()) THROW_SATEXCEPTION("ERROR: The variable "+var+" of type "+typeMap_[var]+" was not registered");
+
                 if(tuple_iter->second.branch)
                 {
-                    //Get the array length
-                    //Perhaps this is bad to hardcode type
-                    UInt_t ArrayLen = getVar<UInt_t>(std::string(tuple_iter->second.branch->GetName()));
                     //Prep the vector which will hold the data
-                    tuple_iter->second.create(ArrayLen);
+                    tuple_iter->second.create(*this, nevt_ - 1);
                 }
 
                 //force read just this branch

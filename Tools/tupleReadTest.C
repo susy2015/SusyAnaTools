@@ -11,10 +11,9 @@
 
 int main()
 {
-    char nBase[] = "root://cmseos.fnal.gov//store/user/lpcsusyhad/Stop_production/Spring16_80X_Nov_2016_Ntp_v11X_new_IDs/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Spring16_80X_Nov_2016_Ntp_v11p0_new_IDs_TTJets_SingleLeptFromT/161111_230825/0000/stopFlatNtuples_%i.root";
+    char nBase[] = "root://cmseos.fnal.gov//store/user/lpcsusyhad/Stop_production/Summer16_94X_v3/PostProcessed_10Feb2019_v1//Data_SingleMuon_2016/Data_SingleMuon_2016_0.root";
 
-
-    TChain *ch = new TChain("stopTreeMaker/AUX");
+    TChain *ch = new TChain("Events");
 
     char chname[512];
     for(int i = 1; i <= 1; ++i)
@@ -25,11 +24,7 @@ int main()
 
     try
     {
-        NTupleReader tr(ch);
-        tr.addAlias("met", "aliasedMET");
-        tr.addAlias("jetsLVec", "aliasedJetsLVec");
-        //BaselineVessel blv(tr);
-        //tr.registerFunction(blv);
+        NTupleReader tr(ch, {"nJet"});
 
         while(tr.getNextEvent())
         {
@@ -41,9 +36,17 @@ int main()
                 fclose(fout);
             }
       
-            //std::cout << "MET " << tr.getVar<double>("met")  << " nTop" << tr.getVar<int>("nTopCandSortedCnt") << std::endl;
-            std::cout << "MET " << tr.getVar<double>("met")  << " aliasedMET " << tr.getVar<double>("aliasedMET");
-            std::cout << "Nj " << tr.getVec<TLorentzVector>("jetsLVec").size() << " aliasedNj " << tr.getVec<TLorentzVector>("aliasedJetsLVec").size() << std::endl;
+            int njets = tr.getVar<unsigned int>("nJet");
+
+            printf("MET_pt: %10f MET_phi: %10f nJet: %10d Jet_pt: %10d Stop0l_nHOT: %-10d Stop0l_HOTtype: %10d\n",
+                    tr.getVar<float>("MET_pt"),
+                    tr.getVar<float>("MET_phi"),
+                    njets,
+                    tr.getVec<float>("Jet_pt").size(),
+                    tr.getVar<int>("Stop0l_nHOT"),
+                    tr.getVec<int>("Stop0l_HOTtype").size()
+                    );
+            
         }
     }
     catch(const SATException& e)
