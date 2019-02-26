@@ -198,7 +198,7 @@ namespace stopFunctions
         std::string muonsFlagIDLabel_, elesFlagIDLabel_;
         std::string recoJetsJecScaleRawToFullLabel_;
         AnaConsts::IsoAccRec muIsoReq_;
-        AnaConsts::ElecIsoAccRec elecIsoReq_;
+        AnaConsts::IsoAccRec elecIsoReq_;
         float elecPtThresh_;
         float muonPtThresh_;
         float photoCleanThresh_;

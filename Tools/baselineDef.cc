@@ -1513,11 +1513,10 @@ bool BaselineVessel::GetLeptons() const
   const std::vector<TLorentzVector> &electronsLVec   = tr->getVec<TLorentzVector>("ElectronTLV");
   const std::vector<float> &electronsRelIso         = tr->getVec<float>("elesMiniIso");
   const std::vector<float> &electronsMtw            = tr->getVec<float>("elesMtw");
-  const std::vector<unsigned int> &isEBVec           = tr->getVec<unsigned int>("elesisEB");
   const std::vector<int> &electronsFlagID            = tr->getVec<int>(elesFlagIDLabel.c_str());
   const std::vector<float>         &electronsCharge = tr->getVec<float>("elesCharge");
   for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
-    if(AnaFunctions::passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], isEBVec[ie], electronsFlagID[ie], AnaConsts::elesMiniIsoArr)) 
+    if(AnaFunctions::passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], electronsFlagID[ie], AnaConsts::elesMiniIsoArr)) 
     {
       if (!vEles->empty()) // Making sure the vEles are sorted in Pt
         assert(electronsLVec.at(ie).Pt() <= vEles->back().Pt());
@@ -1808,7 +1807,6 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   const auto& chargedEmEnergyFrac        = tr.getVec<float>(chargedEMFracLabel_);
   const auto& muMatchedJetIdx            = tr.getVec<int>("muMatchedJetIdx");
   const auto& eleMatchedJetIdx           = tr.getVec<int>("eleMatchedJetIdx");
-  const auto& elesisEB                   = tr.getVec<unsigned int>("elesisEB");
   const auto& recoJetsJecScaleRawToFull  = recoJetsJecScaleRawToFullLabel_.empty()? std::vector<float>(jetsLVec.size(), 1):tr.getVec<float>(recoJetsJecScaleRawToFullLabel_.c_str());
   std::vector<float>* dRvec = new std::vector<float>();
 
@@ -1818,7 +1816,6 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
 
   if(ElectronTLV.size() != elesIso.size() 
       || ElectronTLV.size() != eleMatchedJetIdx.size()
-      || ElectronTLV.size() != elesisEB.size()
       || MuonTLV.size() != muonsIso.size()
       || MuonTLV.size() != muMatchedJetIdx.size()
       || jetsLVec.size() != recoJetsCSVv2.size()
@@ -1880,7 +1877,7 @@ void stopFunctions::CleanJets::internalCleanJets(NTupleReader& tr)
   {
     for(int iE = 0; iE < ElectronTLV.size() && iE < elesIso.size() && iE < eleMatchedJetIdx.size(); ++iE)
     {
-      if(!AnaFunctions::passElectron(ElectronTLV[iE], elesIso[iE], 0.0, elesisEB[iE], elesFlagIDVec[iE], elecIsoReq_) && ElectronTLV[iE].Pt() > elecPtThresh_) 
+      if(!AnaFunctions::passElectron(ElectronTLV[iE], elesIso[iE], 0.0, elesFlagIDVec[iE], elecIsoReq_) && ElectronTLV[iE].Pt() > elecPtThresh_) 
       {
         rejectJetIdx_foreleVec->push_back(-1);
         continue;

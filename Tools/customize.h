@@ -39,11 +39,6 @@ namespace AnaConsts{
         float minAbsEta, maxAbsEta, minPt, maxPt, maxIso, maxMtw;
     };
 
-    struct ElecIsoAccRec
-    {
-        float minAbsEta, maxAbsEta, minPt, maxPt, maxIsoEB, maxIsoEE, maxMtw;
-    };
-
     struct ActRec
     {
         float minAbsEta, maxAbsEta, minPt, maxPt, mindR, maxdR;
@@ -117,9 +112,10 @@ namespace AnaConsts{
 //   const IsoAccRec isoTrksArr      = {   -1,        -1,      10,     -1,       0.1,    120  };
 
 //                                       minAbsEta, maxAbsEta, minPt, maxPt, maxIsoEB, maxIsoEE,  maxMtw
-   const ElecIsoAccRec elesArr        = {   -1,       2.5,      10,     -1,  0.164369, 0.212604,    -1  };
-   const ElecIsoAccRec elesMiniIsoArr = {   -1,       2.5,       5,     -1,     0.10,      0.10,    -1  };
-   const ElecIsoAccRec oldelesArr     = {   -1,       2.5,       5,     -1,     0.15,      0.15,    -1  };
+   //const ElecIsoAccRec elesArr        = {   -1,       2.5,      10,     -1,  0.164369, 0.212604,    -1  };
+   const IsoAccRec elesArr        = {   -1,       2.5,      10,     -1,     0.10,    -1  };
+   const IsoAccRec elesMiniIsoArr = {   -1,       2.5,       5,     -1,     0.10,    -1  };
+   const IsoAccRec oldelesArr     = {   -1,       2.5,       5,     -1,     0.15,    -1  };
 
 //                                       minAbsEta, maxAbsEta, minPt, maxPt,   mindR,   maxdR
    const ActRec muonsAct              = {   -1,       -1,        10,    -1,     -1,      1.0  };
@@ -174,9 +170,9 @@ namespace AnaFunctions{
   bool passMuon(const TLorentzVector& muon, const float& muonIso, const float& muonMtw, unsigned char flagID, const AnaConsts::IsoAccRec& muonsArr);
   bool passMuonAccOnly(const TLorentzVector& muon, const AnaConsts::IsoAccRec& muonsArr);
   int countMuons(const std::vector<TLorentzVector> &muonsLVec, const std::vector<float> &muonsRelIso, const std::vector<float> &muonsMtw, const std::vector<unsigned char> &muonsFlagID, const AnaConsts::IsoAccRec& muonsArr);
-  bool passElectron(const TLorentzVector& elec, const float electronIso, const float electronMtw, bool isEB, unsigned char flagID, const AnaConsts::ElecIsoAccRec& elesArr);
-  int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<float> &electronsRelIso, const std::vector<float> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr);
-  int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<float> &electronsRelIso, const std::vector<float> &electronsMtw, const std::vector<unsigned int>& isEBVec, const std::vector<unsigned char> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr);
+  bool passElectron(const TLorentzVector& elec, const float electronIso, const float electronMtw, unsigned char flagID, const AnaConsts::IsoAccRec& elesArr);
+  int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<float> &electronsRelIso, const std::vector<float> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::IsoAccRec& elesArr);
+  int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<float> &electronsRelIso, const std::vector<float> &electronsMtw, const std::vector<unsigned int>& isEBVec, const std::vector<unsigned char> &electronsFlagID, const AnaConsts::IsoAccRec& elesArr);
   float getElectronActivity(const TLorentzVector& elec, const std::vector<TLorentzVector>& jetLVec, const std::vector<float>& recoJetschargedHadronEnergyFraction, const AnaConsts::ActRec& elesAct);
   float getMuonActivity(const TLorentzVector& muon, const std::vector<TLorentzVector>& jetLVec, const std::vector<float>& recoJetschargedHadronEnergyFraction, const std::vector<float>& recoJetschargedEmEnergyFraction, const AnaConsts::ActRec& muonsAct);
   bool passIsoTrk(const TLorentzVector& isoTrk, const float isoTrkIso, const float isoTrkMtw, const AnaConsts::IsoAccRec& isoTrksArr);
@@ -189,7 +185,7 @@ namespace AnaFunctions{
   bool passBaseline();
   // match dR between jet and object (photon, lepton, etc)
   int jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax, std::vector<float>* dRvec);
-  bool passElectronAccOnly(const TLorentzVector& elec, const AnaConsts::ElecIsoAccRec& elesArr);
+  bool passElectronAccOnly(const TLorentzVector& elec, const AnaConsts::IsoAccRec& elesArr);
   TLorentzVector calcMHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr);
   int countIsoLepTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<float> &isoTrksIso, const std::vector<float> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);
   int countIsoPionTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<float> &isoTrksIso, const std::vector<float> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);

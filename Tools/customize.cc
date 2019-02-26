@@ -114,9 +114,9 @@ namespace AnaFunctions
     return cntNMuons;
   }
 
-  bool passElectron(const TLorentzVector& elec, const float electronIso, const float electronMtw, bool isEB, unsigned char flagID, const AnaConsts::ElecIsoAccRec& elesArr)
+  bool passElectron(const TLorentzVector& elec, const float electronIso, const float electronMtw, unsigned char flagID, const AnaConsts::IsoAccRec& elesArr)
   {
-    const float minAbsEta = elesArr.minAbsEta, maxAbsEta = elesArr.maxAbsEta, minPt = elesArr.minPt, maxPt = elesArr.maxPt, maxIso = (isEB)?(elesArr.maxIsoEB):(elesArr.maxIsoEE), maxMtw = elesArr.maxMtw;
+    const float minAbsEta = elesArr.minAbsEta, maxAbsEta = elesArr.maxAbsEta, minPt = elesArr.minPt, maxPt = elesArr.maxPt, maxIso = elesArr.maxIso, maxMtw = elesArr.maxMtw;
     float perelectronpt = elec.Pt(), perelectroneta = elec.Eta();
     return ( minAbsEta == -1 || fabs(perelectroneta) >= minAbsEta )
       && ( maxAbsEta == -1 || fabs(perelectroneta) < maxAbsEta )
@@ -127,7 +127,7 @@ namespace AnaFunctions
       && flagID;
   }
 
-  bool passElectronAccOnly(const TLorentzVector& elec, const AnaConsts::ElecIsoAccRec& elesArr)
+  bool passElectronAccOnly(const TLorentzVector& elec, const AnaConsts::IsoAccRec& elesArr)
   {
     const float minAbsEta = elesArr.minAbsEta, maxAbsEta = elesArr.maxAbsEta, minPt = elesArr.minPt, maxPt = elesArr.maxPt;
     float perelectronpt = elec.Pt(), perelectroneta = elec.Eta();
@@ -137,20 +137,20 @@ namespace AnaFunctions
       && (     maxPt == -1 || perelectronpt < maxPt );
   }
 
-  int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<float> &electronsRelIso, const std::vector<float> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr){
+  int countOldElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<float> &electronsRelIso, const std::vector<float> &electronsMtw, const std::vector<int> &electronsFlagID, const AnaConsts::IsoAccRec& elesArr){
 
     int cntNElectrons = 0;
     for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
-      if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], true, electronsFlagID[ie], elesArr)) cntNElectrons ++;
+      if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], electronsFlagID[ie], elesArr)) cntNElectrons ++;
     }
     return cntNElectrons;
   }
 
-  int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<float> &electronsRelIso, const std::vector<float> &electronsMtw, const std::vector<unsigned int>& isEBVec, const std::vector<unsigned char> &electronsFlagID, const AnaConsts::ElecIsoAccRec& elesArr){
+  int countElectrons(const std::vector<TLorentzVector> &electronsLVec, const std::vector<float> &electronsRelIso, const std::vector<float> &electronsMtw, const std::vector<unsigned char> &electronsFlagID, const AnaConsts::IsoAccRec& elesArr){
 
     int cntNElectrons = 0;
     for(unsigned int ie=0; ie<electronsLVec.size(); ie++){
-      if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], isEBVec[ie], electronsFlagID[ie], elesArr)) cntNElectrons ++;
+      if(passElectron(electronsLVec[ie], electronsRelIso[ie], electronsMtw[ie], electronsFlagID[ie], elesArr)) cntNElectrons ++;
     }
     return cntNElectrons;
   }
