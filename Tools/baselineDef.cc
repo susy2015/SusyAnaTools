@@ -540,8 +540,8 @@ void BaselineVessel::PassBaseline()
   float metphi = metLVec.Phi();
 
   // Calculate number of leptons
-  const auto& elesFlagIDVec  = elesFlagIDLabel.empty()  ? std::vector<unsigned char>(tr->getVec<float>("elesMiniIso").size(), 1):  tr->getVec<unsigned char>(elesFlagIDLabel.c_str());  // Fake electrons since we don't have different ID for electrons now, but maybe later
-  const auto& muonsFlagIDVec = muonsFlagIDLabel.empty() ? std::vector<unsigned char>(tr->getVec<float>("muonsMiniIso").size(), 1): tr->getVec<unsigned char>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
+  // const auto& elesFlagIDVec  = elesFlagIDLabel.empty()  ? std::vector<unsigned char>(tr->getVec<float>("elesMiniIso").size(), 1):  tr->getVec<unsigned char>(elesFlagIDLabel.c_str());  // Fake electrons since we don't have different ID for electrons now, but maybe later
+  // const auto& muonsFlagIDVec = muonsFlagIDLabel.empty() ? std::vector<unsigned char>(tr->getVec<float>("muonsMiniIso").size(), 1): tr->getVec<unsigned char>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
   
 
   // Pass_LeptonVeto
@@ -1396,6 +1396,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   // --- Do within PassBaseline();
   //CompCommonVar(); // registers mtb; used by PassBaseline(); now put in PassBaseline().
   PassBaseline();
+  PassTrigger();
   // --- Do within PassBaseline();
   //if (UseDeepTagger)
   //  FlagDeepAK8Jets();
@@ -1406,6 +1407,33 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   //GetLeptons();
   //GetRecoZ(81, 101);
   //GetTopCombs();
+}
+
+void BaselineVessel::PassTrigger()
+{
+    bool passMuTrigger     = false;
+    bool passPhotonTrigger = false;
+    
+    if( tr->getVar<bool>("HLT_Photon175") ||
+        tr->getVar<bool>("HLT_Photon75") ||
+        tr->getVar<bool>("HLT_Photon90_CaloIdL_PFHT500") ||
+        tr->getVar<bool>("HLT_Photon90")
+      )
+    {
+        passPhotonTrigger = true;
+    }
+
+    if( tr->getVar<bool>("HLT_IsoMu24") ||
+        tr->getVar<bool>("HLT_IsoTkMu24") ||
+        tr->getVar<bool>("HLT_Mu50") ||
+        tr->getVar<bool>("HLT_Mu55")
+      )
+    {
+        passMuTrigger = true;
+    }
+    
+    tr->registerDerivedVar("passMuTrigger",     passMuTrigger);
+    tr->registerDerivedVar("passPhotonTrigger", passPhotonTrigger);
 }
 
 

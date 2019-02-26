@@ -98,6 +98,7 @@ public:
 
     inline std::string UseCleanedJetsVar(std::string varname) const;
     void PassBaseline();
+    void PassTrigger();
     bool PrintoutConfig() const;
     bool CompCommonVar();
     bool passNoiseEventFilterFunc();
