@@ -31,6 +31,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   muonsFlagIDLabel      = "Muon_Stop0l"; 
   elesFlagIDLabel       = "Electron_Stop0l";
   toptaggerCfgFile      = "TopTagger.cfg";
+  doLeptonVeto          = true;
   doEleVeto             = true;
   doMuonVeto            = true;
   doIsoTrkVeto          = true;
@@ -315,8 +316,9 @@ bool BaselineVessel::PredefineSpec()
   }
   else if( spec.compare("lostlept") == 0)
   {
-    doMuonVeto = false;
-    doEleVeto = false; 
+    doLeptonVeto = false;
+    doEleVeto    = false;
+    doMuonVeto   = false;
     doIsoTrkVeto = false;
   }
   else if (spec.compare("NoVeto") == 0)
@@ -328,8 +330,9 @@ bool BaselineVessel::PredefineSpec()
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = false;
-    doMuonVeto  = false;
-    doEleVeto   = false;
+    doLeptonVeto = false;
+    doEleVeto    = false;
+    doMuonVeto   = false;
     doIsoTrkVeto = false;
     dodPhis = false;
   }
@@ -342,8 +345,9 @@ bool BaselineVessel::PredefineSpec()
     UseLeptonCleanJet   = true;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = false;
-    doMuonVeto  = false;
-    doEleVeto   = false;
+    doLeptonVeto = false;
+    doEleVeto    = false;
+    doMuonVeto   = false;
     doIsoTrkVeto = false;
     dodPhis = false;
   }
@@ -357,8 +361,9 @@ bool BaselineVessel::PredefineSpec()
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = true;
-    doMuonVeto  = false;
-    doEleVeto   = false;
+    doLeptonVeto = false;
+    doEleVeto    = false;
+    doMuonVeto   = false;
     doIsoTrkVeto = false;
     dodPhis = true;
   }
@@ -372,8 +377,9 @@ bool BaselineVessel::PredefineSpec()
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
-    doMuonVeto  = true;
-    doEleVeto   = true;
+    doLeptonVeto = true;
+    doEleVeto    = true;
+    doMuonVeto   = true;
     doIsoTrkVeto = true;
     dodPhis = true;
   }
@@ -395,9 +401,10 @@ bool BaselineVessel::PredefineSpec()
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
-    doMuonVeto          = true;
-    doEleVeto           = true;
-    doIsoTrkVeto       = true;
+    doLeptonVeto = false;
+    doEleVeto    = false;
+    doMuonVeto   = false;
+    doIsoTrkVeto = false;
     dodPhis             = true;
     
     if(spec.compare("Zinv1b") == 0)
@@ -533,10 +540,16 @@ void BaselineVessel::PassBaseline()
   float metphi = metLVec.Phi();
 
   // Calculate number of leptons
-  const auto& muonsFlagIDVec = muonsFlagIDLabel.empty() ? std::vector<unsigned char>(tr->getVec<float>("muonsMiniIso").size(), 1): tr->getVec<unsigned char>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
   const auto& elesFlagIDVec  = elesFlagIDLabel.empty()  ? std::vector<unsigned char>(tr->getVec<float>("elesMiniIso").size(), 1):  tr->getVec<unsigned char>(elesFlagIDLabel.c_str());  // Fake electrons since we don't have different ID for electrons now, but maybe later
-  int nMuons     = tr->getVar<unsigned int>("nMuon");
+  const auto& muonsFlagIDVec = muonsFlagIDLabel.empty() ? std::vector<unsigned char>(tr->getVec<float>("muonsMiniIso").size(), 1): tr->getVec<unsigned char>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
+  
+
+  // Pass_LeptonVeto
+  int Pass_LeptonVeto = tr->getVar<bool>("Pass_LeptonVeto");
+  
+  // TODO: this is wrong... you need to count number of leptons passing veto selection (Electron_Stop0l, Muon_Stop0l, and IsoTrack_Stop0l bool flags)
   int nElectrons = tr->getVar<unsigned int>("nElectron");
+  int nMuons     = tr->getVar<unsigned int>("nMuon");
   int nIsoTrks   = tr->getVar<unsigned int>("nIsoTrack");
   //int nMuons = AnaFunctions::countMuons(tr->getVec<TLorentzVector>("MuonTLV"), tr->getVec<float>("muonsMiniIso"), tr->getVec<float>("muonsMtw"), muonsFlagIDVec, AnaConsts::muonsMiniIsoArr);
   //int nElectrons = AnaFunctions::countElectrons(tr->getVec<TLorentzVector>("ElectronTLV"), tr->getVec<float>("elesMiniIso"), tr->getVec<float>("elesMtw"), tr->getVec<unsigned int>("elesisEB"), elesFlagIDVec, AnaConsts::elesMiniIsoArr);
@@ -584,7 +597,8 @@ void BaselineVessel::PassBaseline()
   // Pass lepton veto?
   bool passMuonVeto = (nMuons == AnaConsts::nMuonsSel), passEleVeto = (nElectrons == AnaConsts::nElectronsSel), passIsoTrkVeto = (nIsoTrks == AnaConsts::nIsoTrksSel);
   //bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTrksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTrksSel);
-  bool passLeptVeto = passMuonVeto && passEleVeto && passIsoTrkVeto;
+  //bool passLeptVeto = passMuonVeto && passEleVeto && passIsoTrkVeto;
+  bool passLeptVeto = Pass_LeptonVeto;
   
   // Pass number of jets?
   bool passnJets = true;
@@ -705,20 +719,26 @@ void BaselineVessel::PassBaseline()
   // --- Apply Lepton Vetos if needed --- //
   // ------------------------------------ // 
 
-  if (doEleVeto)
+  // if (doEleVeto)
+  // {
+  //     passBaselineLowDM  = passBaselineLowDM  && passEleVeto;
+  //     passBaselineHighDM = passBaselineHighDM && passEleVeto;
+  // }
+  // if (doMuonVeto)
+  // {
+  //     passBaselineLowDM  = passBaselineLowDM  && passMuonVeto;
+  //     passBaselineHighDM = passBaselineHighDM && passMuonVeto;
+  // }
+  // if (doIsoTrkVeto)
+  // {
+  //     passBaselineLowDM  = passBaselineLowDM  && passIsoTrkVeto;
+  //     passBaselineHighDM = passBaselineHighDM && passIsoTrkVeto;
+  // }
+  
+  if (doLeptonVeto)
   {
-      passBaselineLowDM  = passBaselineLowDM  && passEleVeto;
-      passBaselineHighDM = passBaselineHighDM && passEleVeto;
-  }
-  if (doMuonVeto)
-  {
-      passBaselineLowDM  = passBaselineLowDM  && passMuonVeto;
-      passBaselineHighDM = passBaselineHighDM && passMuonVeto;
-  }
-  if (doIsoTrkVeto)
-  {
-      passBaselineLowDM  = passBaselineLowDM  && passIsoTrkVeto;
-      passBaselineHighDM = passBaselineHighDM && passIsoTrkVeto;
+      passBaselineLowDM  = passBaselineLowDM  && passLeptVeto;
+      passBaselineHighDM = passBaselineHighDM && passLeptVeto;
   }
 
 

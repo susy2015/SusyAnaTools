@@ -82,7 +82,7 @@ public:
     std::string qgLikehoodLabel;
     std::string toptaggerCfgFile;
     
-    
+    bool doLeptonVeto; 
     bool doEleVeto;
     bool doMuonVeto;
     bool doIsoTrkVeto;
