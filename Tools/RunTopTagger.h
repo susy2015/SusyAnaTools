@@ -24,7 +24,8 @@ class RunTopTagger {
 private:
     std::shared_ptr<TopTagger> tt_; // std::unique_ptr gives a compile error
     std::string taggerCfg_;
-    std::string jetCollectionTag_;
+    std::string jetCleaningObject_;
+    std::string suffix_;
 
     void runTopTagger(NTupleReader& tr) 
     {
@@ -91,7 +92,7 @@ private:
             if(isLepPhotonMatch) ak8Filter[i] = false;
         }
 
-        //Corrrolate AK8 jets and their subjets
+        //Correlate AK8 jets and their subjets
         unsigned int nFatJets = FatJet_LV.size();
         unsigned int nSubJets = SubJet_LV.size();
         std::vector<std::vector<TLorentzVector>> subjets(nFatJets);
@@ -229,12 +230,13 @@ private:
     
 public:
 
-    RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string jetCollectionTag = "") :
+    RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string jetCleaningObject = "", std::string suffix = "") :
         taggerCfg_ (taggerCfg),
-        jetCollectionTag_ (jetCollectionTag),
+        jetCleaningObject_ (jetCleaningObject),
+        suffix_ (suffix),
         tt_ (new TopTagger())
     {
-        std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", jetCollectionTag_ = " << jetCollectionTag_ << std::endl;
+        std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", jetCleaningObject_ = " << jetCleaningObject_ <<  ", suffix_ = " << suffix_ << std::endl;
         tt_->setCfgFile(taggerCfg_);
     }
     

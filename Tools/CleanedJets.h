@@ -34,26 +34,27 @@ private:
 
     void generateCleanedJets() 
     {
+
         //                  jetCollectionName, objectNameString,    jetCollectionVariables, prefix,     suffix,               doDRCleaning, doJetCuts
         cleanJetCollection("JetTLV",      "gammaLVecPassLooseID", AK4JetVariables_, "",               "_drPhotonCleaned",           true, false);
         cleanJetCollection("JetTLV",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned",           true, false);
-        cleanJetCollection("JetTLV",      "",                     AK4JetVariables_, "",               "_pt20eta24",                 false, true);
+        //cleanJetCollection("JetTLV",      "",                     AK4JetVariables_, "",               "_pt20eta24",                 false, true);
         //cleanJetCollection("JetTLV",      "",                     AK4JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
-        cleanJetCollection("JetTLV",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
+        //cleanJetCollection("JetTLV",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
         cleanJetCollection("FatJetTLV",   "gammaLVecPassLooseID", AK8JetVariables_, "",               "_drPhotonCleaned",           true, false);
         cleanJetCollection("FatJetTLV",   "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned",           true, false);
-        cleanJetCollection("FatJetTLV",   "",                     AK8JetVariables_, "",               "_pt20eta24",                 false, true);
+        //cleanJetCollection("FatJetTLV",   "",                     AK8JetVariables_, "",               "_pt20eta24",                 false, true);
         //cleanJetCollection("FatJetTLV",   "",                     AK8JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
-        cleanJetCollection("FatJetTLV",   "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
+        //cleanJetCollection("FatJetTLV",   "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
     }
 
-    template <class type> void cleanVector(std::string vectorName, std::vector<bool> keepJet, const std::string& suffix)
+    template <class type> void cleanVector(const std::string& vectorName, const std::vector<bool>& keepJet, const std::string& suffix)
     {
         const auto& vec = tr_->getVec<type>(vectorName); 
         std::vector<type>* cleanedVec = new std::vector<type>();
         if (keepJet.size() != vec.size())
         {
-            //std::cout << "ERROR in cleanVector(): vector sizes do not match for " << vectorName << ": keepJet.size() = " << keepJet.size() << " and vec.size() = " << vec.size() << std::endl;
+            std::cout << "ERROR in cleanVector(): vector sizes do not match for " << vectorName << ": keepJet.size() = " << keepJet.size() << " and vec.size() = " << vec.size() << std::endl;
         }
         for (int i = 0; i < vec.size(); ++i)
         {
@@ -105,7 +106,11 @@ private:
             tr_->getType(jetVariable, type);
             //std::cout << jetVariable << " : " << type << std::endl; 
             // check for vector
-            if (type.find("vector") != std::string::npos)
+            if (type.find("std::vector<std::vector") != std::string::npos)
+            {
+                if (type.find("TLorentzVector") != std::string::npos) cleanVector<std::vector<TLorentzVector>>(prefix + jetVariable, keepJet, suffix);
+            }
+            else if (type.find("vector") != std::string::npos)
             {
                 if      (type.find("TLorentzVector")    != std::string::npos) cleanVector<TLorentzVector>(prefix + jetVariable, keepJet, suffix);
                 else if (type.find("float")             != std::string::npos) cleanVector<float>(prefix + jetVariable, keepJet, suffix);
@@ -135,10 +140,6 @@ public:
         // AK4 jet variables
         AK4JetVariables_ = {
                              "JetTLV",              
-                             "Jet_pt",              
-                             "Jet_eta",              
-                             "Jet_phi",              
-                             "Jet_mass",              
                              "Jet_btagDeepB",              
                              //"recoJetsCSVv2",
                              //"qgLikelihood",
@@ -170,15 +171,7 @@ public:
         // AK8 jet variables
         AK8JetVariables_ = {
                              "FatJetTLV",              
-                             "FatJet_pt",              
-                             "FatJet_eta",              
-                             "FatJet_phi",              
-                             "FatJet_mass",              
-                             "SubJetTLV",              
-                             "SubJet_pt",              
-                             "SubJet_eta",              
-                             "SubJet_phi",              
-                             "SubJet_mass",              
+                             "SubJetTLV_AK8Matched",              
                              //"puppisoftDropMass",              
                              //"puppitau1",
                              //"puppitau2",

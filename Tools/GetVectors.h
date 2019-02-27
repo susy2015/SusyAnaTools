@@ -27,10 +27,14 @@ private:
 
     void generateGetVectors() 
     {
-        // register vector of TLorentzVectors
+        // register vector<TLorentzVector>
         registerTLV("Jet");         // AK4 jets
         registerTLV("FatJet");      // AK8 jets 
         registerTLV("SubJet");      // AK8 subjets
+        
+        // assign subjets to their AK8 jets
+        // register vector<vector<TLorentzVector>> of subjets
+        registerSubJets("_AK8Matched");
         
         if (tr_->checkBranch("GenJet_pt"))
         {
@@ -44,6 +48,28 @@ private:
         registerTLV("Photon");      // photons
         //registerTLV("IsoTrack");    // isolated tracks
         // you need to register IsoTrack by hand because IsoTrack_mass does not exist
+    }
+
+    void registerSubJets(const std::string& tag)
+    {
+        //AK8 jets
+        const auto& FatJet_TLV        = tr_->getVec<TLorentzVector>("FatJetTLV");
+        const auto& FatJet_subJetIdx1 = tr_->getVec<int>("FatJet_subJetIdx1");
+        const auto& FatJet_subJetIdx2 = tr_->getVec<int>("FatJet_subJetIdx2");
+        //AK8 subjets
+        const auto& SubJet_TLV        = tr_->getVec<TLorentzVector>("SubJetTLV");
+        
+        //Corrrolate AK8 jets and their subjets
+        unsigned int nFatJets = FatJet_TLV.size();
+        unsigned int nSubJets = SubJet_TLV.size();
+        //std::vector<std::vector<TLorentzVector>> subjets(nFatJets);
+        auto& subjets = tr_->createDerivedVec<std::vector<TLorentzVector>>("SubJetTLV" + tag, nFatJets);
+        for(int i = 0; i < nFatJets; ++i)
+        {
+            if(FatJet_subJetIdx1[i] >= 0 && FatJet_subJetIdx1[i] < nSubJets) subjets[i].push_back(SubJet_TLV[i]);
+            if(FatJet_subJetIdx2[i] >= 0 && FatJet_subJetIdx2[i] < nSubJets) subjets[i].push_back(SubJet_TLV[i]);
+        }
+        //tr_->registerDerivedVec("SubJetTLV" + tag, subjets);
     }
 
     void registerTLV(const std::string& objectName)
