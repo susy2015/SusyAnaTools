@@ -352,7 +352,7 @@ bool BaselineVessel::PredefineSpec()
     dodPhis = false;
   }
   // Z invisible Z to LL control region
-  else if (spec.compare("DRLeptonCleaned") == 0)
+  else if (spec.compare("_drLeptonCleaned") == 0)
   {
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
@@ -368,7 +368,7 @@ bool BaselineVessel::PredefineSpec()
     dodPhis = true;
   }
   // Z invisible photon control region
-  else if (spec.compare("DRPhotonCleaned") == 0)
+  else if (spec.compare("_drPhotonCleaned") == 0)
   {
     METLabel    = "metWithPhoton";
     METPhiLabel = "metphiWithPhoton";
