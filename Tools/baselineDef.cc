@@ -14,7 +14,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 {
   bToFake               = 1;
   debug                 = false;
-  printConfig           = false;
+  printConfig           = true;
   incZEROtop            = false;
   UseLeptonCleanJet     = false;
   UseDRLeptonCleanJet   = false;
@@ -23,7 +23,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   UseDeepCSV            = true;
   eraLabel              = "2016MC";
   jetVecLabel           = "JetTLV";
-  CSVVecLabel           = "Jet_btagDeepB";
+  CSVVecLabel           = "Jet_btagCSVV2";
   METLabel              = "MET_pt";
   METPhiLabel           = "MET_phi";
   jetVecLabelAK8        = "FatJetTLV";
@@ -94,7 +94,7 @@ bool BaselineVessel::UseCleanedJets()
   if      (UseDRPhotonCleanJet) suffix = "_drPhotonCleaned";
   else if (UseDRLeptonCleanJet) suffix = "_drLeptonCleaned";
   jetVecLabel     = prefix + "JetTLV"        + suffix;
-  CSVVecLabel     = prefix + "Jet_btagDeepB" + suffix;
+  CSVVecLabel     = prefix + "Jet_btagCSVV2" + suffix;
   qgLikehoodLabel = prefix + "qgLikelihood"  + suffix;
   jetVecLabelAK8  = prefix + "FatJetTLV"     + suffix;
   if (UseDeepCSV)
@@ -341,7 +341,7 @@ bool BaselineVessel::PredefineSpec()
     METLabel    = "cleanMetPt";
     METPhiLabel = "cleanMetPhi";
     
-    UseDeepCSV          = false; // broken in CMSSW8028_2016 ntuples 
+    UseDeepCSV          = true; // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = true;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = false;
@@ -373,7 +373,7 @@ bool BaselineVessel::PredefineSpec()
     METLabel    = "metWithPhoton";
     METPhiLabel = "metphiWithPhoton";
     
-    UseDeepCSV          = false; // broken in CMSSW8028_2016 ntuples 
+    UseDeepCSV          = true; // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
@@ -569,15 +569,15 @@ void BaselineVessel::PassBaseline()
   
   // TODO
   // use Stop0l_nbtags for now; need to update this to calculate from jet collection
-  cntCSVS = tr->getVar<int>("Stop0l_nbtags");  
+  //cntCSVS = tr->getVar<int>("Stop0l_nbtags");  
   
   // calculate cntCSVS from jet collection
-  //if (UseDeepCSV) 
-  //  cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
-  //      AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
-  //else
-  //  cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
-  //      AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  if (UseDeepCSV) 
+    cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
+        AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  else
+    cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
+        AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
   
   
   // Getting the b-jets. Sorted by pt by default
@@ -623,12 +623,8 @@ void BaselineVessel::PassBaseline()
   //  prepareDeepTopTagger();
   //else
   //  prepareTopTagger();
-
-  //const auto& nTops = tr->getVar<unsigned int>("nResolvedTopCandidate");
-  const auto& nMergedTops   = tr->getVar<int>("Stop0l_nTop");
-  const auto& nResolvedTops = tr->getVar<int>("Stop0l_nResolved");
-  bool passTagger = (incZEROtop || nMergedTops >= AnaConsts::low_nTopCandSortedSel); 
   //bool passTagger = PassTopTagger();
+
   bool passNoiseEventFilter = passNoiseEventFilterFunc();
   bool passQCDHighMETFilter = true;
   bool passFastsimEventFilter = true;
@@ -657,14 +653,18 @@ void BaselineVessel::PassBaseline()
   if (Stop0l_ISRJetIdx < FatJets.size()) ISRJet = FatJets[Stop0l_ISRJetIdx];
 
   //const auto& ISRJet   = tr->getVec<TLorentzVector>("vISRJet");
+  const auto& nMergedTops   = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
+  const auto& nResolvedTops = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
+  const auto& nWs          = tr->getVar<int>(UseCleanedJetsVar("nWs"));
   const auto& ISRpt        = tr->getVar<float>("Stop0l_ISRJetPt");
   const auto& mtb          = tr->getVar<float>("Stop0l_Mtb");
   const auto& ptb          = tr->getVar<float>("Stop0l_Ptb");
-  const auto& nWs          = tr->getVar<int>("Stop0l_nW");
   const auto& nBottoms     = cntCSVS;
   const auto& nSoftBottoms = tr->getVar<int>("Stop0l_nSoftb");;
   const auto& nJets        = cntNJetsPt20Eta24;
   float S_met              = met / sqrt(HT);
+  
+  bool passTagger = (incZEROtop || nMergedTops >= AnaConsts::low_nTopCandSortedSel); 
   //if(ISRJet.size() == 1) ISRpt = ISRJet.at(0).Pt();
 
 
