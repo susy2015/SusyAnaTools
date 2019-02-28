@@ -24,34 +24,42 @@ class RunTopTagger {
 private:
     std::shared_ptr<TopTagger> tt_; // std::unique_ptr gives a compile error
     std::string taggerCfg_;
-    std::string jetCleaningObject_;
     std::string suffix_;
+    bool doLeptonCleaning_;
+    bool doPhotonCleaning_;
 
     void runTopTagger(NTupleReader& tr) 
     {
         //get necessary tagger input variables 
 
         //AK4 jets
-        const auto& Jet_LV    = tr.getVec_LVFromNano<float>("Jet");
-        const auto& Jet_csvv2 = tr.getVec<float>("Jet_btagCSVV2");
-        
-        //resolved top candidates
-        const auto& ResTopCand_LV = tr.getVec_LVFromNano<float>("ResolvedTopCandidate");
-        const auto& ResTopCand_discriminator = tr.getVec<float>("ResolvedTopCandidate_discriminator");
-        const auto& ResTopCand_j1Idx = tr.getVec<int>("ResolvedTopCandidate_j1Idx");
-        const auto& ResTopCand_j2Idx = tr.getVec<int>("ResolvedTopCandidate_j2Idx");
-        const auto& ResTopCand_j3Idx = tr.getVec<int>("ResolvedTopCandidate_j3Idx");
+        const auto& Jet_LV              = tr.getVec_LVFromNano<float>("Jet");
+        const auto& Jet_csvv2           = tr.getVec<float>("Jet_btagCSVV2");
+        const auto& Jet_matchesPhoton   = tr.getVec<bool>("Jet_matchesPhoton");
+        const auto& Jet_matchesElectron = tr.getVec<bool>("Jet_matchesElectron");
+        const auto& Jet_matchesMuon     = tr.getVec<bool>("Jet_matchesMuon");
 
         //AK8 jets
-        const auto& FatJet_LV = tr.getVec_LVFromNano<float>("FatJet");
-        const auto& FatJet_deepAK8_t = tr.getVec<float>("FatJet_deepTag_TvsQCD");
-        const auto& FatJet_deepAK8_w = tr.getVec<float>("FatJet_deepTag_WvsQCD");
-        const auto& FatJet_msoftdrop = tr.getVec<float>("FatJet_msoftdrop");
-        const auto& FatJet_subJetIdx1 = tr.getVec<int>("FatJet_subJetIdx1");
-        const auto& FatJet_subJetIdx2 = tr.getVec<int>("FatJet_subJetIdx2");
+        const auto& FatJet_LV              = tr.getVec_LVFromNano<float>("FatJet");
+        const auto& FatJet_deepAK8_t       = tr.getVec<float>("FatJet_deepTag_TvsQCD");
+        const auto& FatJet_deepAK8_w       = tr.getVec<float>("FatJet_deepTag_WvsQCD");
+        const auto& FatJet_msoftdrop       = tr.getVec<float>("FatJet_msoftdrop");
+        const auto& FatJet_subJetIdx1      = tr.getVec<int>("FatJet_subJetIdx1");
+        const auto& FatJet_subJetIdx2      = tr.getVec<int>("FatJet_subJetIdx2");
+        const auto& FatJet_matchesPhoton   = tr.getVec<bool>("FatJet_matchesPhoton");
+        const auto& FatJet_matchesElectron = tr.getVec<bool>("FatJet_matchesElectron");
+        const auto& FatJet_matchesMuon     = tr.getVec<bool>("FatJet_matchesMuon");
 
         //AK8 subjets 
         const auto& SubJet_LV = tr.getVec_LVFromNano<float>("SubJet");
+        
+        //resolved top candidates
+        const auto& ResTopCand_LV            = tr.getVec_LVFromNano<float>("ResolvedTopCandidate");
+        const auto& ResTopCand_discriminator = tr.getVec<float>("ResolvedTopCandidate_discriminator");
+        const auto& ResTopCand_j1Idx         = tr.getVec<int>("ResolvedTopCandidate_j1Idx");
+        const auto& ResTopCand_j2Idx         = tr.getVec<int>("ResolvedTopCandidate_j2Idx");
+        const auto& ResTopCand_j3Idx         = tr.getVec<int>("ResolvedTopCandidate_j3Idx");
+
 
 
         auto* AllTopsTLV        = new std::vector<TLorentzVector>();
@@ -69,6 +77,7 @@ private:
         //Select AK4 jets to use in tagger
         //When reading from the resolvedTopCandidate collection from nanoAOD you must pass ALL ak4 jets to ttUtility::ConstAK4Inputs below, 
         //but we can specify a filter vector to tell it to ignore jets we don't want 
+        // true: use jet; false: ignore jet
         std::vector<uint8_t> ak4Filter(Jet_LV.size(), true);
         for(int i = 0; i < ak4Filter.size(); ++i)
         {
@@ -76,8 +85,14 @@ private:
             if(Jet_LV[i].Pt() < 20.0) ak4Filter[i] = false;
 
             //do some logic here to decide which jet was lepton/photon matched
-            bool isLepPhotonMatch = false;
-            if(isLepPhotonMatch) ak4Filter[i] = false;
+            if (doLeptonCleaning_)
+            {
+                if (Jet_matchesElectron[i] || Jet_matchesMuon[i]) ak4Filter[i] = false;
+            }
+            if (doPhotonCleaning_)
+            {
+                if (Jet_matchesPhoton[i]) ak4Filter[i] = false;
+            }
         }
 
         //Select AK8 jets to use in tagger
@@ -88,8 +103,14 @@ private:
             if(FatJet_LV[i].Pt() < 200.0) ak8Filter[i] = false;
 
             //do some logic here to decide which jet was lepton/photon matched
-            bool isLepPhotonMatch = false;
-            if(isLepPhotonMatch) ak8Filter[i] = false;
+            if (doLeptonCleaning_)
+            {
+                if (Jet_matchesElectron[i] || Jet_matchesMuon[i]) ak8Filter[i] = false;
+            }
+            if (doPhotonCleaning_)
+            {
+                if (Jet_matchesPhoton[i]) ak8Filter[i] = false;
+            }
         }
 
         //Correlate AK8 jets and their subjets
@@ -215,28 +236,29 @@ private:
             std::cout << std::endl;
         }
         
-        tr.registerDerivedVec("AllTopsTLV", AllTopsTLV);
-        tr.registerDerivedVec("MergedTopsTLV", MergedTopsTLV);
-        tr.registerDerivedVec("SemiMergedTopsTLV", SemiMergedTopsTLV);
-        tr.registerDerivedVec("ResolvedTopsTLV", ResolvedTopsTLV);
-        tr.registerDerivedVec("WTLV", WTLV);
-        tr.registerDerivedVec("TopJetsMap", TopJetsMap);
-        tr.registerDerivedVar("nAllTops", nAllTops);
-        tr.registerDerivedVar("nMergedTops", nMergedTops);
-        tr.registerDerivedVar("nSemiMergedTops", nSemiMergedTops);
-        tr.registerDerivedVar("nResolvedTops", nResolvedTops);
-        tr.registerDerivedVar("nWs", nWs);
+        tr.registerDerivedVec("AllTopsTLV" + suffix_,           AllTopsTLV);
+        tr.registerDerivedVec("MergedTopsTLV" + suffix_,        MergedTopsTLV);
+        tr.registerDerivedVec("SemiMergedTopsTLV" + suffix_,    SemiMergedTopsTLV);
+        tr.registerDerivedVec("ResolvedTopsTLV" + suffix_,      ResolvedTopsTLV);
+        tr.registerDerivedVec("WTLV" + suffix_,                 WTLV);
+        tr.registerDerivedVec("TopJetsMap" + suffix_,           TopJetsMap);
+        tr.registerDerivedVar("nAllTops" + suffix_,             nAllTops);
+        tr.registerDerivedVar("nMergedTops" + suffix_,          nMergedTops);
+        tr.registerDerivedVar("nSemiMergedTops" + suffix_,      nSemiMergedTops);
+        tr.registerDerivedVar("nResolvedTops" + suffix_,        nResolvedTops);
+        tr.registerDerivedVar("nWs" + suffix_,                  nWs);
     }
     
 public:
 
-    RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string jetCleaningObject = "", std::string suffix = "") :
+    RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string suffix = "", bool doLeptonCleaning = false, bool doPhotonCleaning = false) :
         taggerCfg_ (taggerCfg),
-        jetCleaningObject_ (jetCleaningObject),
         suffix_ (suffix),
+        doLeptonCleaning_ (doLeptonCleaning),
+        doPhotonCleaning_ (doPhotonCleaning),
         tt_ (new TopTagger())
     {
-        std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", jetCleaningObject_ = " << jetCleaningObject_ <<  ", suffix_ = " << suffix_ << std::endl;
+        std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", suffix_ = " << suffix_ << ", doLeptonCleaning_ = " << doLeptonCleaning_ << ", doPhotonCleaning_ = " << doPhotonCleaning_ << std::endl;
         tt_->setCfgFile(taggerCfg_);
     }
     
