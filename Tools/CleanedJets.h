@@ -37,21 +37,24 @@ private:
         // register Jet matches object variables
         registerJetMatchesObject();
 
-        //                  jetCollectionName, objectNameString,    jetCollectionVariables, prefix,     suffix,               doDRCleaning, doJetCuts
-        cleanJetCollection("JetTLV",      "gammaLVecPassLooseID", AK4JetVariables_, "",               "_drPhotonCleaned",           true, false);
-        cleanJetCollection("JetTLV",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned",           true, false);
+        //                  jetCollectionName, jetCollectionVariables, prefix, suffix, doLeptonCleaning, doPhotonCleaning, doJetCuts
+        cleanJetCollection("Jet",      AK4JetVariables_, "", "_drLeptonCleaned", true,  false, false);
+        cleanJetCollection("Jet",      AK4JetVariables_, "", "_drPhotonCleaned", false, true,  false);
+        cleanJetCollection("FatJet",   AK8JetVariables_, "", "_drLeptonCleaned", true,  false, false);
+        cleanJetCollection("FatJet",   AK8JetVariables_, "", "_drPhotonCleaned", false, true,  false);
+        
         //cleanJetCollection("JetTLV",      "",                     AK4JetVariables_, "",               "_pt20eta24",                 false, true);
         //cleanJetCollection("JetTLV",      "",                     AK4JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
         //cleanJetCollection("JetTLV",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
-        cleanJetCollection("FatJetTLV",   "gammaLVecPassLooseID", AK8JetVariables_, "",               "_drPhotonCleaned",           true, false);
-        cleanJetCollection("FatJetTLV",   "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned",           true, false);
         //cleanJetCollection("FatJetTLV",   "",                     AK8JetVariables_, "",               "_pt20eta24",                 false, true);
         //cleanJetCollection("FatJetTLV",   "",                     AK8JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
         //cleanJetCollection("FatJetTLV",   "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
+    
     }
 
     void registerJetMatchesObject()
     {
+        //TODO: use photon and leptons passing cuts and ID for jet cleaning (instead of all photons and leptons)
         const auto& Jet_TLV            = tr_->getVec<TLorentzVector>("JetTLV");
         const auto& FatJet_TLV         = tr_->getVec<TLorentzVector>("FatJetTLV");
         const auto& Photon_TLV         = tr_->getVec<TLorentzVector>("PhotonTLV");
@@ -93,37 +96,60 @@ private:
     }
 
     // clean all variables in jet  collection
-    void cleanJetCollection(const std::string& jetCollectionName, const std::string& objectNameString, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix, const std::string& suffix, bool doDRCleaning, bool doJetCuts)
+    void cleanJetCollection(const std::string& jetCollectionName, const std::vector<std::string>& jetCollectionVariables, const std::string& prefix, const std::string& suffix, bool doLeptonCleaning, bool doPhotonCleaning, bool doJetCuts)
     {
-        std::vector<std::string> objectNameVec = SusyUtility::getVecFromString(objectNameString, ';'); 
 
-        const auto& jetsLVec  = tr_->getVec<TLorentzVector>(prefix + jetCollectionName);  // jet lorentz vector
+        const auto& Jet_TLV  = tr_->getVec<TLorentzVector>(prefix + jetCollectionName + "TLV");  // jet lorentz vector
+        const int& nJets = Jet_TLV.size();
         std::vector<float>* dRvec = new std::vector<float>();
         const float dRMax = 0.20; // dR cut between jets and object
 
         // vector determining which jets to keep 
-        std::vector<bool> keepJet(jetsLVec.size(), true);
-        // loop over objects: remove jets using DR matching
-        if (doDRCleaning)
+        std::vector<bool> keepJet(nJets, true);
+        
+        // remove jets matched to leptons
+        if (doLeptonCleaning)
         {
-            for (const auto& objectName : objectNameVec)
+            const auto& Jet_matchesElectron = tr_->getVec<bool>(prefix + jetCollectionName + "_matchesElectron");
+            const auto& Jet_matchesMuon     = tr_->getVec<bool>(prefix + jetCollectionName + "_matchesMuon");
+            
+            // check lengths
+            if (Jet_matchesElectron.size() != nJets || Jet_matchesMuon.size() != nJets)
             {
-                const auto& objectLVec = tr_->getVec<TLorentzVector>(objectName);
+                std::cout << "ERROR in " << __func__ << ": variables for jet collection " << jetCollectionName << " do not have the same length." << std::endl;
+                return;
+            }
 
-                for (int i = 0; i < objectLVec.size(); ++i)
-                {
-                    int match = AnaFunctions::jetObjectdRMatch(objectLVec[i], jetsLVec, dRMax, dRvec);
-                    if (match >= 0) keepJet[match] = false;
-                }
+            for (int i = 0; i < nJets; ++i)
+            {
+                if (Jet_matchesElectron[i] || Jet_matchesMuon[i]) keepJet[i] = false;
+            }
+        }
+        
+        // remove jets matched to photons
+        if (doPhotonCleaning)
+        {
+            const auto& Jet_matchesPhoton = tr_->getVec<bool>(prefix + jetCollectionName + "_matchesPhoton");
+            
+            // check lengths
+            if (Jet_matchesPhoton.size() != nJets)
+            {
+                std::cout << "ERROR in " << __func__ << ": variables for jet collection " << jetCollectionName << " do not have the same length." << std::endl;
+                return;
+            }
+
+            for (int i = 0; i < nJets; ++i)
+            {
+                if (Jet_matchesPhoton[i]) keepJet[i] = false;
             }
         }
 
         // apply jet p_t and eta cuts
         if(doJetCuts)
         {
-            for (int i = 0; i < jetsLVec.size(); i++)
+            for (int i = 0; i < nJets; i++)
             {
-                if ( ! AnaFunctions::jetPassCuts(jetsLVec[i], AnaConsts::pt20Eta24Arr) ) keepJet[i] = false; 
+                if ( ! AnaFunctions::jetPassCuts(Jet_TLV[i], AnaConsts::pt20Eta24Arr) ) keepJet[i] = false; 
             }
         }
         
