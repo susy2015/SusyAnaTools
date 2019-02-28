@@ -34,6 +34,8 @@ private:
 
     void generateCleanedJets() 
     {
+        // register Jet matches object variables
+        registerJetMatchesObject();
 
         //                  jetCollectionName, objectNameString,    jetCollectionVariables, prefix,     suffix,               doDRCleaning, doJetCuts
         cleanJetCollection("JetTLV",      "gammaLVecPassLooseID", AK4JetVariables_, "",               "_drPhotonCleaned",           true, false);
@@ -46,6 +48,33 @@ private:
         //cleanJetCollection("FatJetTLV",   "",                     AK8JetVariables_, "",               "_pt20eta24",                 false, true);
         //cleanJetCollection("FatJetTLV",   "",                     AK8JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
         //cleanJetCollection("FatJetTLV",   "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
+    }
+
+    void registerJetMatchesObject()
+    {
+        const auto& Jet_TLV            = tr_->getVec<TLorentzVector>("JetTLV");
+        const auto& FatJet_TLV         = tr_->getVec<TLorentzVector>("FatJetTLV");
+        const auto& Photon_TLV         = tr_->getVec<TLorentzVector>("PhotonTLV");
+        const auto& Electron_TLV       = tr_->getVec<TLorentzVector>("ElectronTLV");
+        const auto& Muon_TLV           = tr_->getVec<TLorentzVector>("MuonTLV");
+        const auto& Photon_jetIdx      = tr_->getVec<int>("Photon_jetIdx");
+        const auto& Electron_jetIdx    = tr_->getVec<int>("Electron_jetIdx");
+        const auto& Muon_jetIdx        = tr_->getVec<int>("Muon_jetIdx");
+        auto& Jet_matchesPhoton        = tr_->createDerivedVec<bool>("Jet_matchesPhoton");
+        auto& Jet_matchesElectron      = tr_->createDerivedVec<bool>("Jet_matchesElectron");
+        auto& Jet_matchesMuon          = tr_->createDerivedVec<bool>("Jet_matchesMuon");
+        auto& FatJet_matchesPhoton     = tr_->createDerivedVec<bool>("FatJet_matchesPhoton");
+        auto& FatJet_matchesElectron   = tr_->createDerivedVec<bool>("FatJet_matchesElectron");
+        auto& FatJet_matchesMuon       = tr_->createDerivedVec<bool>("FatJet_matchesMuon");
+        
+        const float DRMAX = 0.2;
+        Jet_matchesPhoton      = AnaFunctions::getJetMatchesObjectVec(Jet_TLV, Photon_TLV, Photon_jetIdx, DRMAX);
+        Jet_matchesElectron    = AnaFunctions::getJetMatchesObjectVec(Jet_TLV, Electron_TLV, Electron_jetIdx, DRMAX);
+        Jet_matchesMuon        = AnaFunctions::getJetMatchesObjectVec(Jet_TLV, Muon_TLV, Muon_jetIdx, DRMAX);
+        FatJet_matchesPhoton   = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Photon_TLV, Photon_jetIdx, DRMAX);
+        FatJet_matchesElectron = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Electron_TLV, Electron_jetIdx, DRMAX);
+        FatJet_matchesMuon     = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Muon_TLV, Muon_jetIdx, DRMAX);
+
     }
 
     template <class type> void cleanVector(const std::string& vectorName, const std::vector<bool>& keepJet, const std::string& suffix)

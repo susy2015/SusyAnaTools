@@ -337,5 +337,32 @@ namespace AnaFunctions
     if(dRmin < jetObjectdRMax) return minJMatch;
     else                       return -1;
   }
+  
+  // true if jet matches object, false otherwise
+  std::vector<bool> getJetMatchesObjectVec(const std::vector<TLorentzVector>& Jet_TLV, const std::vector<TLorentzVector>& Object_TLV, const std::vector<int>& Object_JetIndex, const float& DRMAX)
+  {
+    int nJets    = Jet_TLV.size();
+    int nObjects = Object_TLV.size();
+    std::vector<bool> Jet_MatchesObject(nJets, false);
+    if (Object_JetIndex.size() != nObjects)
+    {
+      std::cout << "EROR in " << __func__ << ": Object vectors do not have the same size." << std::endl;
+      return Jet_MatchesObject;
+    }
+    for (int i = 0; i < nObjects; ++i)
+    {
+      int matchingJetIndex = Object_JetIndex[i];
+      // matchingJetIndex = -1: not matched to jet; also, matchingJetIndex should be less than nJets
+      if (matchingJetIndex > -1 && matchingJetIndex < nJets)
+      {
+        float dR = ROOT::Math::VectorUtil::DeltaR(Object_TLV[i], Jet_TLV[matchingJetIndex]);
+        if (dR < DRMAX)
+        {
+          Jet_MatchesObject[matchingJetIndex] = true;
+        }
+      }
+    }
+    return Jet_MatchesObject;
+  }
 
 }
