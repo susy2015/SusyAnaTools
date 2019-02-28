@@ -57,12 +57,21 @@ private:
         //TODO: use photon and leptons passing cuts and ID for jet cleaning (instead of all photons and leptons)
         const auto& Jet_TLV            = tr_->getVec<TLorentzVector>("JetTLV");
         const auto& FatJet_TLV         = tr_->getVec<TLorentzVector>("FatJetTLV");
-        const auto& Photon_TLV         = tr_->getVec<TLorentzVector>("PhotonTLV");
-        const auto& Electron_TLV       = tr_->getVec<TLorentzVector>("ElectronTLV");
-        const auto& Muon_TLV           = tr_->getVec<TLorentzVector>("MuonTLV");
-        const auto& Photon_jetIdx      = tr_->getVec<int>("Photon_jetIdx");
-        const auto& Electron_jetIdx    = tr_->getVec<int>("Electron_jetIdx");
-        const auto& Muon_jetIdx        = tr_->getVec<int>("Muon_jetIdx");
+        // use all objects for cleaning
+        // const auto& Photon_TLV         = tr_->getVec<TLorentzVector>("PhotonTLV");
+        // const auto& Electron_TLV       = tr_->getVec<TLorentzVector>("ElectronTLV");
+        // const auto& Muon_TLV           = tr_->getVec<TLorentzVector>("MuonTLV");
+        // const auto& Photon_jetIdx      = tr_->getVec<int>("Photon_jetIdx");
+        // const auto& Electron_jetIdx    = tr_->getVec<int>("Electron_jetIdx");
+        // const auto& Muon_jetIdx        = tr_->getVec<int>("Muon_jetIdx");
+        // use objects passing cuts for cleaning
+        const auto& Photon_TLV         = tr_->getVec<TLorentzVector>("gammaLVecPassLooseID");
+        const auto& Electron_TLV       = tr_->getVec<TLorentzVector>("cutElecVec");
+        const auto& Muon_TLV           = tr_->getVec<TLorentzVector>("cutMuVec");
+        const auto& Photon_jetIdx      = tr_->getVec<int>("gammaJetIndexPassLooseID");
+        const auto& Electron_jetIdx    = tr_->getVec<int>("cutElecJetIndex");
+        const auto& Muon_jetIdx        = tr_->getVec<int>("cutMuJetIndex");
+        // jet matches object variables that we derive here
         auto& Jet_matchesPhoton        = tr_->createDerivedVec<bool>("Jet_matchesPhoton");
         auto& Jet_matchesElectron      = tr_->createDerivedVec<bool>("Jet_matchesElectron");
         auto& Jet_matchesMuon          = tr_->createDerivedVec<bool>("Jet_matchesMuon");
@@ -71,9 +80,9 @@ private:
         auto& FatJet_matchesMuon       = tr_->createDerivedVec<bool>("FatJet_matchesMuon");
         
         const float DRMAX = 0.2;
-        Jet_matchesPhoton      = AnaFunctions::getJetMatchesObjectVec(Jet_TLV, Photon_TLV, Photon_jetIdx, DRMAX);
-        Jet_matchesElectron    = AnaFunctions::getJetMatchesObjectVec(Jet_TLV, Electron_TLV, Electron_jetIdx, DRMAX);
-        Jet_matchesMuon        = AnaFunctions::getJetMatchesObjectVec(Jet_TLV, Muon_TLV, Muon_jetIdx, DRMAX);
+        Jet_matchesPhoton      = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Photon_TLV, Photon_jetIdx, DRMAX);
+        Jet_matchesElectron    = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Electron_TLV, Electron_jetIdx, DRMAX);
+        Jet_matchesMuon        = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Muon_TLV, Muon_jetIdx, DRMAX);
         FatJet_matchesPhoton   = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Photon_TLV, Photon_jetIdx, DRMAX);
         FatJet_matchesElectron = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Electron_TLV, Electron_jetIdx, DRMAX);
         FatJet_matchesMuon     = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Muon_TLV, Muon_jetIdx, DRMAX);
