@@ -1414,10 +1414,10 @@ void BaselineVessel::PassTrigger()
     bool passMuTrigger     = false;
     bool passPhotonTrigger = false;
     
-    if( tr->getVar<bool>("HLT_Photon175") ||
-        tr->getVar<bool>("HLT_Photon75") ||
-        tr->getVar<bool>("HLT_Photon90_CaloIdL_PFHT500") ||
-        tr->getVar<bool>("HLT_Photon90")
+    if( tr->getVar<bool>("HLT_Photon175")
+        //tr->getVar<bool>("HLT_Photon75") || // this is prescaled
+        //tr->getVar<bool>("HLT_Photon90_CaloIdL_PFHT500") || // not present in run 278820 from 2016 
+        //tr->getVar<bool>("HLT_Photon90") // this is prescaled
       )
     {
         passPhotonTrigger = true;
