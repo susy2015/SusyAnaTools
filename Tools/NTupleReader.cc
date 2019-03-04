@@ -249,10 +249,11 @@ void NTupleReader::registerBranch(TBranch * const branch, bool activate) const
         {
             if     (type.find("UInt_t")    != std::string::npos) registerBranch<UInt_t>(name, activate);
             else if(type.find("ULong64_t") != std::string::npos) registerBranch<ULong64_t>(name, activate);
-            else if(type.find("UChar_t")   != std::string::npos) registerBranch<char>(name, activate);
+            else if(type.find("UChar_t")   != std::string::npos) registerBranch<UChar_t>(name, activate);
             else if(type.find("Float_t")   != std::string::npos) registerBranch<float>(name, activate);
             else if(type.find("Double_t")  != std::string::npos) registerBranch<double>(name, activate);
             else if(type.find("Int_t")     != std::string::npos) registerBranch<int>(name, activate);
+            else if(type.find("Long64_t")  != std::string::npos) registerBranch<Long64_t>(name, activate);
             else if(type.find("Bool_t")    != std::string::npos) registerBranch<bool>(name, activate);
             else if(type.find("/D") != std::string::npos) registerBranch<double>(name, activate);
             else if(type.find("/I") != std::string::npos) registerBranch<int>(name, activate);
@@ -285,7 +286,7 @@ void NTupleReader::registerBranch(TBranch * const branch, bool activate) const
         else if(type.find("float")          != std::string::npos) registerArrayBranch<float>(name, branch, activate);
         else if(type.find("UInt_t")         != std::string::npos) registerArrayBranch<UInt_t>(name, branch, activate);
         else if(type.find("ULong64_t")      != std::string::npos) registerArrayBranch<ULong64_t>(name, branch, activate);
-        else if(type.find("UChar_t")        != std::string::npos) registerArrayBranch<char>(name, branch, activate);
+        else if(type.find("UChar_t")        != std::string::npos) registerArrayBranch<UChar_t>(name, branch, activate);
         else if(type.find("Float_t")        != std::string::npos) registerArrayBranch<float>(name, branch, activate);
         else if(type.find("Double_t")       != std::string::npos) registerArrayBranch<double>(name, branch, activate);
         else if(type.find("Int_t")          != std::string::npos) registerArrayBranch<int>(name, branch, activate);
