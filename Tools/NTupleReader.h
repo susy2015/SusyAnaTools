@@ -183,7 +183,7 @@ private:
     template<typename T>
     static inline Handle createHandle(T* ptr)
     {
-        return Handle(ptr, new deleter<T>, typeid(T));
+        return Handle(ptr, new deleter<T>, typeid(typename std::remove_pointer<T>::type));
     }
 
     //Helper to make vector Handle
