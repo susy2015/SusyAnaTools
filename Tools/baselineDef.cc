@@ -323,8 +323,8 @@ bool BaselineVessel::PredefineSpec()
   }
   else if (spec.compare("NoVeto") == 0)
   {
-    METLabel    = "cleanMetPt";
-    METPhiLabel = "cleanMetPhi";
+    METLabel    = "metWithLL";
+    METPhiLabel = "metphiWithLL";
     
     UseDeepCSV          = false; // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = false;
@@ -338,8 +338,8 @@ bool BaselineVessel::PredefineSpec()
   }
   else if (spec.compare("PFLeptonCleaned") == 0)
   {
-    METLabel    = "cleanMetPt";
-    METPhiLabel = "cleanMetPhi";
+    METLabel    = "metWithLL";
+    METPhiLabel = "metphiWithLL";
     
     UseDeepCSV          = true; // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = true;
@@ -354,8 +354,8 @@ bool BaselineVessel::PredefineSpec()
   // Z invisible Z to LL control region
   else if (spec.compare("_drLeptonCleaned") == 0)
   {
-    METLabel    = "cleanMetPt";
-    METPhiLabel = "cleanMetPhi";
+    METLabel    = "metWithLL";
+    METPhiLabel = "metphiWithLL";
     
     UseDeepCSV          = true;  // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = false;
@@ -393,9 +393,9 @@ bool BaselineVessel::PredefineSpec()
     //jetVecLabel = "prodJetsNoLep_jetsLVec";
     //CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
    
-    // fix LepInfo.h before using cleanMetPt and cleanMetPhi
-    //METLabel    = "cleanMetPt";
-    //METPhiLabel = "cleanMetPhi";
+    // fix LepInfo.h before using metWithLL and metphiWithLL
+    //METLabel    = "metWithLL";
+    //METPhiLabel = "metphiWithLL";
     
     UseDeepCSV          = true;  // broken in CMSSW8028_2016 ntuples 
     UseLeptonCleanJet   = false;
