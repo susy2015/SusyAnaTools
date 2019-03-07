@@ -1424,7 +1424,7 @@ void BaselineVessel::PassTrigger()
     }
 
     if( tr->getVar<bool>("HLT_IsoMu24") ||
-        tr->getVar<bool>("HLT_IsoTkMu24") ||
+        //tr->getVar<bool>("HLT_IsoTkMu24") || // does not exist in 2017
         tr->getVar<bool>("HLT_Mu50") ||
         tr->getVar<bool>("HLT_Mu55")
       )

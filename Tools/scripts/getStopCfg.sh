@@ -22,10 +22,14 @@ VERBOSE=
 OPTIND=1    # Reset in case getopts has been used previously in the shell.
 
 SUPP_CFG=supplementaryFiles.cfg
-SETS_CFG=sampleSets_2016.cfg
-COLL_CFG=sampleCollections.cfg
-SETS_LINK_NAME=$SETS_CFG
-COLL_LINK_NAME=$COLL_CFG
+SETS_CFG_2016=sampleSets_PostProcessed_2016.cfg
+SETS_CFG_2017=sampleSets_PostProcessed_2017.cfg
+COLL_CFG_2016=sampleCollections_2016.cfg
+COLL_CFG_2017=sampleCollections_2017.cfg
+SETS_LINK_NAME_2016=$SETS_CFG_2016
+SETS_LINK_NAME_2017=$SETS_CFG_2017
+COLL_LINK_NAME_2016=$COLL_CFG_2016
+COLL_LINK_NAME_2017=$COLL_CFG_2017
 SUPP_FILE_DIR=supplementaryFiles
 TARBALL=SUPP_FILE_TARBALL.tar.gz
 
@@ -37,8 +41,10 @@ function print_help {
     echo "Options:"
     echo "    -t RELEASE_TAG :         This is the github release tag to check out (required option)"
     echo "    -d checkout_directory :  This is the directory where the configuration files will be downloaded to (default: .)"
-    echo "    -s SETS_LINK_NAME :      Specify this option to name the softlink to \"$SETS_CFG\" something other than \"$SETS_LINK_NAME\""
-    echo "    -c COLL_LINK_NAME :      Specify this option to name the softlink to \"$COLL_CFG\" something other than \"$COLL_LINK_NAME\""
+    echo "    -a SETS_LINK_NAME_2016 : Specify this option to name the softlink to \"$SETS_CFG_2016\" something other than \"$SETS_LINK_NAME_2016\""
+    echo "    -b SETS_LINK_NAME_2017 : Specify this option to name the softlink to \"$SETS_CFG_2017\" something other than \"$SETS_LINK_NAME_2017\""
+    echo "    -x COLL_LINK_NAME_2016 : Specify this option to name the softlink to \"$COLL_CFG_2016\" something other than \"$COLL_LINK_NAME_2016\""
+    echo "    -y COLL_LINK_NAME_2017 : Specify this option to name the softlink to \"$COLL_CFG_2017\" something other than \"$COLL_LINK_NAME_2017\""
     echo "    -o :                     Overwrite the softlinks if they already exist"
     echo "    -n :                     Download files without producing softlinks"
     echo "    -v :                     increase verbosity: print more stuff... for those who like stuff"
@@ -54,7 +60,7 @@ function print_help {
 
 # Initialize our own variables:
 
-while getopts "h?t:d:s:c:onv" opt; do
+while getopts "h?t:d:a:b:x:y:onv" opt; do
     case "$opt" in
     h|\?)
         print_help
@@ -64,9 +70,13 @@ while getopts "h?t:d:s:c:onv" opt; do
         ;;
     d)  CFG_DIRECTORY=$OPTARG
         ;;
-    s)  SETS_LINK_NAME=$OPTARG
+    a)  SETS_LINK_NAME_2016=$OPTARG
         ;;
-    c)  COLL_LINK_NAME=$OPTARG
+    b)  SETS_LINK_NAME_2017=$OPTARG
+        ;;
+    x)  COLL_LINK_NAME_2016=$OPTARG
+        ;;
+    y)  COLL_LINK_NAME_2017=$OPTARG
         ;;
     o) OVERWRITE="-f"
         ;;
@@ -224,8 +234,10 @@ if [[ -z $NO_SOFTLINK ]]
 then
     # create softlinks
     echo " - Creating softlinks to $REPO_NAME config files"
-    ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG $SETS_LINK_NAME > /dev/null 2>&1 
-    ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG $COLL_LINK_NAME > /dev/null 2>&1
+    ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG_2016 $SETS_LINK_NAME_2016 > /dev/null 2>&1 
+    ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG_2017 $SETS_LINK_NAME_2017 > /dev/null 2>&1 
+    ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG_2016 $COLL_LINK_NAME_2016 > /dev/null 2>&1
+    ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG_2017 $COLL_LINK_NAME_2017 > /dev/null 2>&1
     # make list of files to tar
     if [[ -f $DOWNLOAD_DIR/$SUPP_CFG ]]
     then

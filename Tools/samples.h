@@ -170,7 +170,7 @@ namespace AnaSamples
     friend class SampleCollection;
    
    public:
-    SampleSet(std::string fDir = fileDir, bool isCondor = false, double lumi = luminosity);
+    SampleSet(std::string fDir = fileDir, bool isCondor = false, double lumi = luminosity_2016);
     void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) 
     {
         sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, xsec, lumi, nEvts, kfactor, color);
