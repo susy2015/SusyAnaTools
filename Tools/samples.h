@@ -66,16 +66,19 @@ namespace AnaSamples
   bool operator!= (const FileSummary& lhs, const FileSummary& rhs);
 
   // previously used luminosity (2016)
-  static const double luminosity = 35866.210733056; // in pb-1
+  //static const double luminosity = 35866.210733056; // in pb-1
 
   // --- Luminosities from Stealth Stop group (Kelvin and Nadja) --- //
   // Single Electron Luminosity
   //static const double luminosity_2016 = 35908.886; // in pb-1
   //static const double luminosity_2017 = 41525.529; // in pb-1
   // Single Muon Luminosity
-  static const double luminosity_2016 = 35917.149; // in pb-1
-  static const double luminosity_2017 = 41525.250; // in pb-1
+  //static const double luminosity_2016 = 35917.149; // in pb-1
+  //static const double luminosity_2017 = 41525.250; // in pb-1
   // --------------------------------------------------------------- //
+  
+  static const double luminosity_2016 = 35861.695285122; // in pb-1
+  static const double luminosity_2017 = 41525.250;       // in pb-1
   
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Mar14_2014_v2/";
