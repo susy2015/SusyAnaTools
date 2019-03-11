@@ -21,6 +21,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   UseDRPhotonCleanJet   = false;
   UseDeepTagger         = true;
   UseDeepCSV            = true;
+  year_                 = "2017";
   eraLabel              = "2016MC";
   jetVecLabel           = "JetTLV";
   CSVVecLabel           = "Jet_btagCSVV2";
@@ -1409,24 +1410,45 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   //GetTopCombs();
 }
 
+// TODO: Use triggers that are not pre-scaled per year
+//       Make each trigger exists for the specific year
 void BaselineVessel::PassTrigger()
 {
     bool passMuTrigger     = false;
     bool passPhotonTrigger = false;
     
-    if( tr->getVar<bool>("HLT_Photon175")
-        //tr->getVar<bool>("HLT_Photon75") || // this is prescaled
-        //tr->getVar<bool>("HLT_Photon90_CaloIdL_PFHT500") || // not present in run 278820 from 2016 
-        //tr->getVar<bool>("HLT_Photon90") // this is prescaled
-      )
+    // ---------------------- //
+    // --- Photon Trigger --- //
+    // ---------------------- //
+    // 2016, HLT_Photon175 (not pre-scaled): photon turn on at 200 GeV
+    // 2017, HLT_Photon200 (not pre-scaled): photon turn on at 220 GeV
+    // HLT_Photon75 is pre-scaled
+    // HLT_Photon90 is pre-scaled
+    // HLT_Photon90_CaloIdL_PFHT500 is not present for all of 2016 data (e.g. run 278820)
+    
+    if (year_.compare("2016") == 0)
     {
-        passPhotonTrigger = true;
+        if( tr->getVar<bool>("HLT_Photon175") )
+        {
+            passPhotonTrigger = true;
+        }
     }
+    if (year_.compare("2017") == 0)
+    {
+        if( tr->getVar<bool>("HLT_Photon200") )
+        {
+            passPhotonTrigger = true;
+        }
+    }
+    
+    // -------------------- //
+    // --- Muon Trigger --- //
+    // -------------------- //
+    // HLT_IsoTkMu24 does not exist in 2017 data
+    // HLT_Mu55 does not exist in 2017 data
 
     if( tr->getVar<bool>("HLT_IsoMu24") ||
-        //tr->getVar<bool>("HLT_IsoTkMu24") || // does not exist in 2017
         tr->getVar<bool>("HLT_Mu50")
-        // tr->getVar<bool>("HLT_Mu55") // does not exist in 2017
       )
     {
         passMuTrigger = true;

@@ -71,6 +71,7 @@ public:
     bool UseDeepTagger;
     bool UseDeepCSV;
 
+    std::string year_;
     std::string eraLabel;
     std::string jetVecLabel;
     std::string CSVVecLabel;
