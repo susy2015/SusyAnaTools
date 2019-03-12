@@ -21,7 +21,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   UseDRPhotonCleanJet   = false;
   UseDeepTagger         = true;
   UseDeepCSV            = true;
-  year_                 = "2017";
+  year_                 = "2016";
   eraLabel              = "2016MC";
   jetVecLabel           = "JetTLV";
   CSVVecLabel           = "Jet_btagCSVV2";
