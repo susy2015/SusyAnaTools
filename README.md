@@ -134,41 +134,42 @@ Other configuration file releases can be found here https://github.com/susy2015/
 
 ## Check out stop config files
 
-Here are the options for the script `SusyAnaTools/Tools/scripts/getStopCfg.sh`. The script is based on `TopTagger/Tools/getTaggerCfg.sh`, and thus has the same options and functionality.
+Top checkout StopCfg files, use the script `SusyAnaTools/Tools/scripts/getStopCfg.sh`. Here are the options.
 ```
-$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -h 
-
 Usage:
-    getStopCfg.sh -t RELEASE_TAG [-d checkout_directory] [-f cfg_filename] [-n]
+    getStopCfg.sh -t RELEASE_TAG [-d checkout_directory] [-f cfg_filename] [-o] [-n] [-v]
 
 Options:
     -t RELEASE_TAG :         This is the github release tag to check out (required option)
     -d checkout_directory :  This is the directory where the configuration files will be downloaded to (default: .)
-    -s SETS_LINK_NAME :      Specify this option to name the softlink to "sampleSets.cfg" something other than "sampleSets.cfg"
-    -c COLL_LINK_NAME :      Specify this option to name the softlink to "sampleCollections.cfg" something other than "sampleCollections.cfg"
+    -a SETS_LINK_NAME_2016 : Specify this option to name the softlink to "sampleSets_PostProcessed_2016.cfg" something other than "sampleSets_PostProcessed_2016.cfg"
+    -b SETS_LINK_NAME_2017 : Specify this option to name the softlink to "sampleSets_PostProcessed_2017.cfg" something other than "sampleSets_PostProcessed_2017.cfg"
+    -x COLL_LINK_NAME_2016 : Specify this option to name the softlink to "sampleCollections_2016.cfg" something other than "sampleCollections_2016.cfg"
+    -y COLL_LINK_NAME_2017 : Specify this option to name the softlink to "sampleCollections_2017.cfg" something other than "sampleCollections_2017.cfg"
     -o :                     Overwrite the softlinks if they already exist
     -n :                     Download files without producing softlinks
+    -v :                     increase verbosity: print more stuff... for those who like stuff
 
 Description:
     This script automatically downloads the Stop search configuration files
-    and produces a softlink to this files in your corrent directory. This script should
+    and produces softlinks to these files in your current directory. This script should
     be run from the directory where the stop code will be run from. Stop search 
-    configuration releases can be browsed at https://github.com/susy2015/StopCfg/releases.
+    configuration releases can be browsed at https://github.com/susy2015/StopCfg/releases
+
 ```
 
-Here is a general example.
-```
-$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t DESIRED_TAG -d PATH_TO_DOWNLOAD_TO
-```
+Stop SUSY configuration releases can be browsed here: https://github.com/susy2015/StopCfg/releases.
 
-Here is a specific example for the CMSSW8028_2016_v1.0.1 tag.
-We create softlinks for sampleSets.cfg and sampleCollections.cfg in our current directory.
-We use the -o flag, which means, "Overwrite the softlinks if they already exist."
-The -f flag specifies the name of the softlink.
+Here is the general usage
 ```
-$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t CMSSW8028_2016_v1.0.1 -d . -s sampleSets.cfg -c sampleCollections.cfg -o
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t DESIRED_TAG -d PATH_TO_DOWNLOAD_TO -o
 ```
-Actually, for our example, we could omit the "-d ." option as we are downloading the files in our current directory (which is the default).
+Here is a specific example.
 
-Stop SUSY configuration releases can be browsed here: https://github.com/susy2015/StopCfg/releases
+```
+mkdir myStopCfgs
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t PostProcess_StopNtuple_v1.0.3 -d myStopCfgs -o
+```
+The release will be downloaded to the directory provided with the "-d" option (myStopCfgs in this example). The softlinks will be created in the directory where the script is run. We use the -o flag, which means, "Overwrite softlinks and files in my current directory if they already exist."
+
 
