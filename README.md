@@ -98,13 +98,19 @@ Checkout the top tagger configuration files using the following tag.
 
 Current tag for NanoSUSY ntuples: DeepCombined_fromNanoAOD_RES_T_DeepAK8_T_v1.0.1
 
-Run this command from your working area, i.e. the directory where softlinks to the configuration and supplementary files will be placed. You can use "-d" to provide the directory where the folder containing the original files will be downloaded. You can use "-o" to overwrite existing softlinks and files. You can provide the full path to TopTagger/TopTagger/scripts/getTaggerCfg.sh, or you can add TopTagger/TopTagger/scripts to your PATH.
+You may see all TopTaggerCfg releases/tags with release notes at https://github.com/susy2015/TopTaggerCfg/releases. 
 
+Run this command from your working area, i.e. the directory where softlinks to the configuration and supplementary files will be placed. You can use "-d" to provide the directory where the folder containing the original files will be downloaded. You can use "-o" to overwrite existing softlinks and files. You can provide the full path to TopTagger/TopTagger/scripts/getTaggerCfg.sh, or you can add `TopTagger/TopTagger/scripts` to your PATH.
+
+Command using full path:
+```
+$CMSSW_BASE/src/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t DeepCombined_fromNanoAOD_RES_T_DeepAK8_T_v1.0.1
+```
+
+Command if `TopTagger/TopTagger/scripts` is in your PATH:
 ```
 getTaggerCfg.sh -t DeepCombined_fromNanoAOD_RES_T_DeepAK8_T_v1.0.1
 ```
-
-You may see all TopTaggerCfg releases/tags with release notes at https://github.com/susy2015/TopTaggerCfg/releases. 
 
 ### StopCfg Files
 
@@ -112,12 +118,19 @@ Checkout the stop search configuration files using the following tag.
 
 Current tag for NanoSUSY ntuples: PostProcess_StopNtuple_v1.0.3
 
-Run this command from your working area, i.e. the directory where softlinks to the configuration and supplementary files will be placed. You can use "-d" to provide the directory where the folder containing the original files will be downloaded. You can use "-o" to overwrite existing softlinks and files. You can provide the full path to SusyAnaTools/Tools/scripts/getStopCfg.sh, or you can add SusyAnaTools/Tools/scripts to your PATH.
+You may see all StopCfg releases/tags with release notes at https://github.com/susy2015/StopCfg/releases. 
+
+Run this command from your working area, i.e. the directory where softlinks to the configuration and supplementary files will be placed. You can use "-d" to provide the directory where the folder containing the original files will be downloaded. You can use "-o" to overwrite existing softlinks and files. You can provide the full path to SusyAnaTools/Tools/scripts/getStopCfg.sh, or you can add `SusyAnaTools/Tools/scripts` to your PATH.
+
+Command using full path:
+```
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t PostProcess_StopNtuple_v1.0.3
+```
+
+Command if `SusyAnaTools/Tools/scripts` is in your PATH:
 ```
 getStopCfg.sh -t PostProcess_StopNtuple_v1.0.3
 ```
-
-You may see all StopCfg releases/tags with release notes at https://github.com/susy2015/StopCfg/releases. 
 
 ## Setup Tools Environment
 Go to your working area, then do below
