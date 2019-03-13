@@ -26,7 +26,7 @@ cd TopTagger/TopTagger/test/
 make -j 8 
 ```
 
-<details> <summary> OpenCV on cmslpc (not longer needed) </summary>
+<details> <summary> OpenCV on cmslpc (no longer needed) </summary>
 
 Most users should no longer use OpenCV. Do this instead only if you need OpenCV. If you are not on the LPC and you need OpenCV, you will have to follow the instructions below to install OpenCV on your system.
 
@@ -38,7 +38,7 @@ make -j 8
 
 </details>
 
-<details> <summary> Checkout OpenCV </summary>
+<details> <summary> Checkout OpenCV (no longer needed) </summary>
 
 ```bash
 cd $CMSSW_BASE/src
@@ -65,7 +65,7 @@ autoconf
 make -j 8 
 ```
 
-<details> <summary> OpenCV on cmslpc (not longer needed) </summary>
+<details> <summary> OpenCV on cmslpc (no longer needed) </summary>
 
 Most users should no longer use OpenCV. Do this instead only if you need OpenCV. If you are not on the LPC and you need OpenCV, you will have to follow the instructions below to install OpenCV on your system.
 
@@ -77,7 +77,7 @@ make -j 8
 
 </details>
 
-<details> <summary> Checkout OpenCV </summary>
+<details> <summary> Checkout OpenCV (no longer needed) </summary>
 
 ```bash
 cd $CMSSW_BASE/src
@@ -90,6 +90,30 @@ make -j 8
 
 </details>
 
+## Get Configuration Files
+
+### TopTaggerCfg Files
+
+Checkout the top tagger configuration files using the following tag.
+
+Current tag for NanoSUSY ntuples: DeepCombined_fromNanoAOD_RES_T_DeepAK8_T_v1.0.1
+
+Run this command from your working area, i.e. the directory where softlinks to the configuration and supplementary files will be placed. You can use "-d" to provide the directory where the folder containing the original files will be downloaded. You can use "-o" to overwrite existing softlinks and files. You can provide the full path to TopTagger/TopTagger/scripts/getTaggerCfg.sh, or you can add TopTagger/TopTagger/scripts to your PATH.
+
+```
+getTaggerCfg.sh -t DeepCombined_fromNanoAOD_RES_T_DeepAK8_T_v1.0.1
+```
+
+### StopCfg Files
+
+Checkout the stop search configuration files using the following tag.
+
+Current tag for NanoSUSY ntuples: PostProcess_StopNtuple_v1.0.3
+
+Run this command from your working area, i.e. the directory where softlinks to the configuration and supplementary files will be placed. You can use "-d" to provide the directory where the folder containing the original files will be downloaded. You can use "-o" to overwrite existing softlinks and files. You can provide the full path to SusyAnaTools/Tools/scripts/getStopCfg.sh, or you can add SusyAnaTools/Tools/scripts to your PATH.
+```
+getStopCfg.sh -t PostProcess_StopNtuple_v1.0.3
+```
 
 ## Setup Tools Environment
 Go to your working area, then do below
