@@ -104,6 +104,8 @@ Run this command from your working area, i.e. the directory where softlinks to t
 getTaggerCfg.sh -t DeepCombined_fromNanoAOD_RES_T_DeepAK8_T_v1.0.1
 ```
 
+You may see all TopTaggerCfg releases/tags with release notes at https://github.com/susy2015/TopTaggerCfg/releases. 
+
 ### StopCfg Files
 
 Checkout the stop search configuration files using the following tag.
@@ -114,6 +116,8 @@ Run this command from your working area, i.e. the directory where softlinks to t
 ```
 getStopCfg.sh -t PostProcess_StopNtuple_v1.0.3
 ```
+
+You may see all StopCfg releases/tags with release notes at https://github.com/susy2015/StopCfg/releases. 
 
 ## Setup Tools Environment
 Go to your working area, then do below
