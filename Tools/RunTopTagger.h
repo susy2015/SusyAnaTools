@@ -251,6 +251,8 @@ private:
     
 public:
 
+    bool verbose_ = false;
+
     RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string suffix = "", bool doLeptonCleaning = false, bool doPhotonCleaning = false) :
         taggerCfg_ (taggerCfg),
         suffix_ (suffix),
@@ -258,7 +260,7 @@ public:
         doPhotonCleaning_ (doPhotonCleaning),
         tt_ (new TopTagger())
     {
-        std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", suffix_ = " << suffix_ << ", doLeptonCleaning_ = " << doLeptonCleaning_ << ", doPhotonCleaning_ = " << doPhotonCleaning_ << std::endl;
+        if (verbose_) std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", suffix_ = " << suffix_ << ", doLeptonCleaning_ = " << doLeptonCleaning_ << ", doPhotonCleaning_ = " << doPhotonCleaning_ << std::endl;
         tt_->setCfgFile(taggerCfg_);
     }
     

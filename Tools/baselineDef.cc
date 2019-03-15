@@ -14,7 +14,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 {
   bToFake               = 1;
   debug                 = false;
-  printConfig           = true;
+  printConfig           = false;
   incZEROtop            = false;
   UseLeptonCleanJet     = false;
   UseDRLeptonCleanJet   = false;
