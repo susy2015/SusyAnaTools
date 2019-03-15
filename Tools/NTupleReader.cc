@@ -1,6 +1,7 @@
 #include "NTupleReader.h"
 
 #include "TFile.h"
+#include "TChain.h"
 #include "TObjArray.h"
 
 NTupleReaderIterator::NTupleReaderIterator(NTupleReader& tr, int begin) : tr_(tr), current_(begin)
@@ -103,9 +104,15 @@ void NTupleReader::init()
     isUpdateDisabled_ = false;
     reThrow_ = true;
     convertHackActive_ = false;
+    chainCurrentTree_ = -999;
 
     if(tree_)
     {
+        if(tree_->InheritsFrom(TChain::Class())) 
+        {
+            chainCurrentTree_ = reinterpret_cast<TChain*>(tree_)->GetTreeNumber();
+        }
+
         tree_->SetBranchStatus("*", 0);
 
         // Add desired branches to branchMap_/branchVecMap_
@@ -293,13 +300,46 @@ void NTupleReader::registerBranch(TBranch * const branch, bool activate) const
 
 void NTupleReader::createVectorsForArrayReads(int evt)
 {
+    bool updateBranches = false;
+    int iEvtLocal = evt;
+    //if this tree is defined this is a TChain
+    if(chainCurrentTree_ >= -1)
+    {
+        //Loaf next file in chain if needed and get local event number for file 
+        iEvtLocal = tree_->LoadTree(evt);
+
+        //check if we have moved to a new file in the chain
+        int treeNum = tree_->GetTreeNumber();
+        if(chainCurrentTree_ != treeNum)
+        {
+            printf("Updating branches\n");
+            fflush(stdout);
+            chainCurrentTree_ = treeNum;
+            //update branch references 
+            updateBranches = true;
+        }
+    }
+
     for(auto& handlePair : branchVecMap_)
     {
         //If the size branch is set, this is an array read
         if(handlePair.second.branch)
         {
+            if(updateBranches)
+            {
+                handlePair.second.branchVec = tree_->GetBranch(handlePair.first.c_str());
+                TLeaf *l = (TLeaf*)handlePair.second.branchVec->GetListOfLeaves()->At(0); 
+                if(l->GetLeafCount())
+                { 
+                    handlePair.second.branch = l->GetLeafCount()->GetBranch();
+                }
+                else
+                {
+                    THROW_SATEXCEPTION("Branch \"" + handlePair.first + "\" appears to be an array, but there is no size branch");
+                }
+            }
             //Prep the vector which will hold the data
-            handlePair.second.create(*this, evt);
+            handlePair.second.create(*this, iEvtLocal);
         }
     }
 }

@@ -132,7 +132,7 @@ private:
             //Get the array length
             if(branch->GetReadEntry() != evt) branch->GetEntry(evt);
             const N& ArrayLen = tr.getVar<N>(std::string(branch->GetName()));
-            
+          
             //Delete vector if one already exists
             T* vecptr = static_cast<T*>(ptr);
             if(*vecptr != nullptr) delete *vecptr;
@@ -472,14 +472,13 @@ public:
             //create vector<TLorentzVector> with number of elements necessary
             auto& tlv = createDerivedVec<TLorentzVector>(tlvName, pt.size());
 
-            for(unsigned int i = 0; i < tlv.size(); ++i)
+            for(unsigned int i = 0; i < pt.size(); ++i)
             {
                 tlv[i].SetPtEtaPhiM(pt[i], eta[i], phi[i], mass[i]);
             }
 
             //return resultant vector
             return tlv;
-            
         }
         catch(const SATException& e)
         {
@@ -514,7 +513,7 @@ public:
 private:
     // private variables for internal use
     TTree *tree_;
-    int nevt_, evtProcessed_;
+    int nevt_, evtProcessed_, chainCurrentTree_;
     bool isUpdateDisabled_, reThrow_, convertHackActive_;
     
     // stl collections to hold branch list and associated info
@@ -586,7 +585,6 @@ private:
                 THROW_SATEXCEPTION("Branch \"" + name + "\" appears to be an array, but there is no size branch");
             }
         
-
             branchVecMap_[name] = createArrayHandle(new std::vector<T>*(), countBranch, branch);
 
             tree_->SetBranchStatus(name.c_str(), 1);
