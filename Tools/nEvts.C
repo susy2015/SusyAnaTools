@@ -112,11 +112,13 @@ int main(int argc, char *argv[])
         
         file.second.addFilesToChain(t);
         
-        // check that branches exist
+        // check that branches exist after addFilesToChain()
         TObjArray* objArray = t->GetListOfBranches();
         if (! objArray)
         {
             printf("ERROR for %s: Unable to get list of branches from tree \"%s\". Skipping %s.\n", file.first.c_str(), file.second.treePath.c_str(), file.first.c_str());
+            // delete dynamic memory to avoid memory leaks / save memory / not crash / be safe
+            if (t)  delete t;
             continue;
         }
     
@@ -142,15 +144,18 @@ int main(int argc, char *argv[])
         }
         else
         {
-            printf("ERROR for %s: No weight variable found tree \"%s\". Skipping %s.\n", file.first.c_str(), file.second.treePath.c_str(), file.first.c_str());
+            printf("ERROR for %s: No weight variable found in tree \"%s\". Skipping %s.\n", file.first.c_str(), file.second.treePath.c_str(), file.first.c_str());
+            // delete dynamic memory to avoid memory leaks / save memory / not crash / be safe
+            if (h3) delete h3;
+            if (t)  delete t;
             continue;
         }
         
         std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << "Neg weigths = " << int(h3->GetBinContent(1)) << ", Pos weights = " << int(h3->GetBinContent(2)) << std::endl;
         
-        // delete TH1* and TChain* to avoid memory leaks / save memory / not crash / be safe
-        delete h3;
-        delete t;
+        // delete dynamic memory to avoid memory leaks / save memory / not crash / be safe
+        if (h3) delete h3;
+        if (t)  delete t;
     }   
 }
 
