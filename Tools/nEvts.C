@@ -22,48 +22,44 @@ int main(int argc, char *argv[])
     int option_index = 0;
     static struct option long_options[] = {
         {"skipData",                no_argument, 0, 's'},
-        {"legacy",                  no_argument, 0, 'l'},
-        {"sampleCollectionsFile",   required_argument, 0, 'C'},
-        {"sampleSetsFile",          required_argument, 0, 'S'}
+        {"sampleSetsFile",          required_argument, 0, 'S'},
+        {"sampleCollectionsFile",   required_argument, 0, 'C'}
     };
 
     bool skipData = false;
-    bool legacy = false;
-    std::string sampleCollectionsFile = "";
     std::string sampleSetsFile = "";
-    while((opt=getopt_long(argc, argv, "slC:S:", long_options, &option_index)) != -1)
+    std::string sampleCollectionsFile = "";
+    // SSC = Superconducting Super Collider (Desertron)
+    while((opt=getopt_long(argc, argv, "sS:C:", long_options, &option_index)) != -1)
     {
         switch(opt)
         {
         case 's':
             skipData = true;
             break;
-        case 'l':
-            legacy = true;
+        case 'S':
+            sampleSetsFile = optarg;
             break;
         case 'C':
             sampleCollectionsFile = optarg;
             break;
-        case 'S':
-            sampleSetsFile = optarg;
-            break;
         }
     }
    
-    // check for sample collections and sample sets files
-    if ( sampleCollectionsFile.empty() )
-    {
-        printf("Please provide the name of the sample collections file using the -C option.\n");
-        return 1;
-    }
+    // check for sample config files
     if ( sampleSetsFile.empty() )
     {
         printf("Please provide the name of the sample sets file using the -S option.\n");
         return 1;
     }
+    if ( sampleCollectionsFile.empty() )
+    {
+        printf("Please provide the name of the sample collections file using the -C option.\n");
+        return 1;
+    }
     
-    printf("sample collections file: %s\n", sampleCollectionsFile.c_str());
     printf("sample sets file: %s\n", sampleSetsFile.c_str());
+    printf("sample collections file: %s\n", sampleCollectionsFile.c_str());
   
     AnaSamples::SampleSet        ss(sampleSetsFile);
     AnaSamples::SampleCollection sc(sampleCollectionsFile, ss);
