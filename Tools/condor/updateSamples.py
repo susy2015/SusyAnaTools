@@ -213,6 +213,7 @@ def main():
     outputSamples.close()
     if neventsFile: 
         neventsFile.close()
+    print TextColor.green + "Config file updates are finished!" + TextColor.end
 
 
 if __name__ == "__main__":

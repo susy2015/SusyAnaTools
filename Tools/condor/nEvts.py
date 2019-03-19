@@ -50,7 +50,7 @@ except ImportError:
         else:
             tree = f.Get("Events")
         if not tree:
-            print "tree is empty"
+            print "ERROR: tree is empty"
         h = ROOT.TH1D("h", "h", 2, -100, 100)
         if legacy:
             tree.Draw("stored_weight>>h", "1", "goff")
