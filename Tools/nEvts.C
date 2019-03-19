@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
             continue;
         }
         
-        std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << "Neg weigths = " << int(h3->GetBinContent(1)) << ", Pos weights = " << int(h3->GetBinContent(2)) << std::endl;
+        std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << "Pos weigths = " << int(h3->GetBinContent(2)) << ", Neg weights = " << int(h3->GetBinContent(1)) << std::endl;
         
         // delete dynamic memory to avoid memory leaks / save memory / not crash / be safe
         if (h3) delete h3;

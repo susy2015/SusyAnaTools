@@ -18,6 +18,7 @@ from nEvts import getNEvts
 class TextColor:
     red = "\033[91m"
     green = "\033[92m"
+    yellow = "\033[93m"
     blue = "\033[94m"
     end = "\033[0m"
 
@@ -45,7 +46,7 @@ class TextColor:
 # ------------- #
 
 def getNewSample(sample, weight_dict, neventsFile, file_pattern):
-    regex = re.compile('(.*): (.*)\t' + file_pattern + '.*Neg weigths = (.*), Pos weights = (.*)')
+    regex = re.compile('(.*): (.*)\t' + file_pattern + '.*Pos weigths = (.*), Neg weights = (.*)')
     # be careful: strip() removes spaces and endlines
     sample_list = list(x.strip() for x in sample.split(','))
     name = sample_list[0] 
@@ -57,13 +58,13 @@ def getNewSample(sample, weight_dict, neventsFile, file_pattern):
     try:
         old_neg_weights = int(float(sample_list[-2]))
     except:
-        print "ERROR: sample_list format is not correct; {0} is not a number".format(sample_list[-2])
+        print TextColor.red + "ERROR: sample_list format is not correct; {0} is not a number".format(sample_list[-2]) + TextColor.end
         print "       Skipping sample_list = {0}".format(sample_list)
         return newSample
     try:
         old_pos_weights = int(float(sample_list[-3]))
     except:
-        print "ERROR: sample_list format is not correct; {0} is not a number".format(sample_list[-3])
+        print TextColor.red + "ERROR: sample_list format is not correct; {0} is not a number".format(sample_list[-3]) + TextColor.end
         print "       Skipping sample_list = {0}".format(sample_list)
         return newSample
     # only use nevents_file if it is provided (not empty string)
@@ -79,8 +80,8 @@ def getNewSample(sample, weight_dict, neventsFile, file_pattern):
             if name == match.group(2):
                 num_matches += 1
                 # values are floats, but we want integers
-                new_neg_weights = int(float(match.group(3)))
-                new_pos_weights = int(float(match.group(4)))
+                new_pos_weights = int(float(match.group(3)))
+                new_neg_weights = int(float(match.group(4)))
                 message = ""
                 # compare integers, not strings!
                 if old_neg_weights == new_neg_weights and old_pos_weights == new_pos_weights:
@@ -93,9 +94,9 @@ def getNewSample(sample, weight_dict, neventsFile, file_pattern):
                 message = "old weights: ({0}, {1}) new weights: ({2}, {3}) --- {4}".format(old_pos_weights, old_neg_weights, new_pos_weights, new_neg_weights, message)
         print "{0} has {1} match(es) in nevents file: {2}".format(name, num_matches, message)
         if num_matches == 0:
-            print "WARNING: no matches found; {0} has {1} matches".format(name, num_matches)
+            print TextColor.yellow + "WARNING: no matches found; {0} has {1} matches".format(name, num_matches) + TextColor.end
         elif num_matches > 1:
-            print "WARNING: more than one match found; {0} has {1} matches".format(name, num_matches)
+            print TextColor.yellow + "WARNING: more than one match found; {0} has {1} matches".format(name, num_matches) + TextColor.end
         # replace commas and a space removed by split()
         # replace endline that was removed by strip()
         newSample = ", ".join(sample_list) + "\n"
