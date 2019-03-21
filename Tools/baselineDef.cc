@@ -21,7 +21,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   UseDRPhotonCleanJet   = false;
   UseDeepTagger         = true;
   UseDeepCSV            = true;
-  year_                 = "2016";
+  year_                 = "2018";
   eraLabel              = "2016MC";
   jetVecLabel           = "JetTLV";
   CSVVecLabel           = "Jet_btagCSVV2";
@@ -48,6 +48,10 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
     //toptaggerCfgFile      = "TopTagger_DeepCombined.cfg";
 
   if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
+  if (year_.compare("2016") != 0 && year_.compare("2017") != 0 && year_.compare("2018") != 0)
+  {
+    std::cout << "ERROR: Please use 2016, 2017, or 2018 for the year in baselineDef.cc." << std::endl;
+  }
 
   //Check if simplified tagger is called for
   std::string taggerLabel = "";
@@ -1422,6 +1426,7 @@ void BaselineVessel::PassTrigger()
     // ---------------------- //
     // 2016, HLT_Photon175 (not pre-scaled): photon turn on at 200 GeV
     // 2017, HLT_Photon200 (not pre-scaled): photon turn on at 220 GeV
+    // 2018, HLT_Photon200 (not pre-scaled): photon turn on at 220 GeV
     // HLT_Photon75 is pre-scaled
     // HLT_Photon90 is pre-scaled
     // HLT_Photon90_CaloIdL_PFHT500 is not present for all of 2016 data (e.g. run 278820)
@@ -1433,7 +1438,14 @@ void BaselineVessel::PassTrigger()
             passPhotonTrigger = true;
         }
     }
-    if (year_.compare("2017") == 0)
+    else if (year_.compare("2017") == 0)
+    {
+        if( tr->getVar<bool>("HLT_Photon200") )
+        {
+            passPhotonTrigger = true;
+        }
+    }
+    else if (year_.compare("2018") == 0)
     {
         if( tr->getVar<bool>("HLT_Photon200") )
         {

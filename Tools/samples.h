@@ -76,10 +76,20 @@ namespace AnaSamples
   //static const double luminosity_2016 = 35917.149; // in pb-1
   //static const double luminosity_2017 = 41525.250; // in pb-1
   // --------------------------------------------------------------- //
-  
-  static const double luminosity_2016 = 35922.0; // in pb-1
-  //static const double luminosity_2017 = 37620.0; // in pb-1 for Data_SingleMuon_2017
-  static const double luminosity_2017 = 41179.0; // in pb-1 for Data_SinglePhoton_2017 
+
+  // Run 2 Dataset Luminosities
+  // Data_SinglePhoton_2016: 35922.0 pb^(-1)
+  // Data_SingleMuon_2016:   35922.0 pb^(-1)
+  // Data_SinglePhoton_2017: 41179.0 pb^(-1)
+  // Data_SingleMuon_2017:   37620.0 pb^(-1)
+  // Data_EGamma_2018:       57812.0 pb^(-1)
+  // Data_SingleMuon_2018:   58364.0 pb^(-1) 
+ 
+  static const double luminosity_2016         = 35922.0; // in pb-1 (all datasets)
+  static const double luminosity_photon_2017  = 41179.0; // in pb-1 for Data_SinglePhoton_2017 
+  static const double luminosity_muon_2017    = 37620.0; // in pb-1 for Data_SingleMuon_2017
+  static const double luminosity_photon_2018  = 57812.0; // in pb-1 for Data_EGamma_2018
+  static const double luminosity_muon_2018    = 58364.0; // in pb-1 for Data_SingleMuon_2018
   
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Mar14_2014_v2/";
