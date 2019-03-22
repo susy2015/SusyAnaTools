@@ -132,10 +132,10 @@ def main():
     parser.add_argument("--nevents_file",    "-e", default="",                     help="file containing number of events with weights")
     parser.add_argument("--input_file",      "-i", default="../sampleSets.cfg",    help="Existing SampleSets.cfg file")
     parser.add_argument("--output_file",     "-o", default="../sampleSets_v1.cfg", help="New SampleSets.cfg file to create")
-    parser.add_argument("--threads",         "-t", default=4,                      help="Number of threads to use (default: 0)")
-    parser.add_argument("--dataset_pattern", "-d", default = ".*",                 help="Regexp defining sampleSets to check (Defaults to all)")
-    parser.add_argument("--file_pattern",    "-p", default = "/eos",               help="Pattern at beginning of file path for regex matching (default: /eos)")
-    parser.add_argument("--legacy",          "-l", default = False, action = "store_true", help="Use legacy ntuples instead of Nano AOD ntuples (default: False)")
+    parser.add_argument("--threads",         "-t", default=4,                      help="Number of threads to use")
+    parser.add_argument("--dataset_pattern", "-d", default = ".*",                 help="Regexp defining sampleSets to check")
+    parser.add_argument("--file_pattern",    "-p", default = "/eos",               help="Pattern at beginning of file path for regex matching")
+    parser.add_argument("--legacy",          "-l", default = False, action = "store_true", help="Use legacy ntuples instead of Nano AOD ntuples")
     
     options          = parser.parse_args()
     input_file       = options.input_file
