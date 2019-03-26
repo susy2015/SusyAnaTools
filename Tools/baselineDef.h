@@ -93,8 +93,8 @@ public:
     bool passBaselineHighDM;
 
 
-    BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");
-    BaselineVessel(const std::string specialization = "", const std::string filterString = "");
+    BaselineVessel(NTupleReader &tr_, const std::string year, const std::string specialization = "", const std::string filterString = "");
+    BaselineVessel(const std::string year, const std::string specialization = "", const std::string filterString = "");
     ~BaselineVessel();
 
     inline std::string UseCleanedJetsVar(std::string varname) const;

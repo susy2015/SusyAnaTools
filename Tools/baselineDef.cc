@@ -9,19 +9,19 @@
 //                              BaselineVessel                              //
 //**************************************************************************//
 
-BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specialization, const std::string filterString) : 
-  tr(&tr_), spec(specialization), ttPtr(NULL), WMassCorFile(NULL)
+BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const std::string specialization, const std::string filterString) : 
+  tr(&tr_), year_(year), spec(specialization), ttPtr(NULL), WMassCorFile(NULL)
 {
   bToFake               = 1;
   debug                 = false;
-  printConfig           = false;
+  printConfig           = true;
   incZEROtop            = false;
   UseLeptonCleanJet     = false;
   UseDRLeptonCleanJet   = false;
   UseDRPhotonCleanJet   = false;
   UseDeepTagger         = true;
   UseDeepCSV            = true;
-  year_                 = "2018";
+  //year_                 = "2018"; // DO NOT HARDCODE, SENOR
   eraLabel              = "2016MC";
   jetVecLabel           = "JetTLV";
   CSVVecLabel           = "Jet_btagCSVV2";
@@ -84,7 +84,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 }
 
 // constructor without nullptr as argument
-BaselineVessel::BaselineVessel(const std::string specialization, const std::string filterString) : BaselineVessel(*static_cast<NTupleReader*>(nullptr), specialization, filterString) {}
+BaselineVessel::BaselineVessel(const std::string year, const std::string specialization, const std::string filterString) : BaselineVessel(*static_cast<NTupleReader*>(nullptr), year, specialization, filterString) {}
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::UseCleanedJets
@@ -521,9 +521,10 @@ bool BaselineVessel::PrintoutConfig() const
 {
   if (!tr->isFirstEvent()) return false;
   
-  std::cout << "=== Current Config ===" << std::endl;
-  std::cout << "    Specialization : " << spec             << std::endl;
+  std::cout << "=== Config for BaselineVessel ===" << std::endl;
+  std::cout << "    Year           : " << year_            << std::endl;
   std::cout << "    Era Label      : " << eraLabel         << std::endl;
+  std::cout << "    Specialization : " << spec             << std::endl;
   std::cout << "    AK4Jet Label   : " << jetVecLabel      << std::endl;
   std::cout << "    b-tag Label    : " << CSVVecLabel      << std::endl;
   std::cout << "    top-tag config : " << toptaggerCfgFile << std::endl;
