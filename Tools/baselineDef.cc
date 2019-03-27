@@ -86,6 +86,17 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
 // constructor without nullptr as argument
 BaselineVessel::BaselineVessel(const std::string year, const std::string specialization, const std::string filterString) : BaselineVessel(*static_cast<NTupleReader*>(nullptr), year, specialization, filterString) {}
 
+
+bool BaselineVessel::getBool(const std::string& var)
+{
+  bool val = false;
+  if (tr->checkBranch(var))
+  {
+    val = tr->getVar<bool>(var);
+  }
+  return val;
+}
+
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::UseCleanedJets
 //  Description:  By default no Lep clean in Jets. Call this function to
@@ -1415,8 +1426,68 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 //       Make each trigger exists for the specific year
 void BaselineVessel::PassTrigger()
 {
-    bool passMuTrigger     = false;
-    bool passPhotonTrigger = false;
+    bool passElectronTrigger    = false;
+    bool passMuonTrigger        = false;
+    bool passMuonTrigger1       = false;
+    bool passMuonTrigger2       = false;
+    bool passPhotonTrigger      = false;
+    
+    // ------------------------ //
+    // --- Electron Trigger --- //
+    // ------------------------ //
+    
+    passElectronTrigger = ( getBool("Ele105_CaloIdVT_GsfTrkIdT") || 
+                            getBool("Ele115_CaloIdVT_GsfTrkIdT") ||
+                            getBool("Ele135_CaloIdVT_GsfTrkIdT") ||
+                            getBool("Ele145_CaloIdVT_GsfTrkIdT") ||
+                            getBool("Ele25_eta2p1_WPTight_Gsf") ||
+                            getBool("Ele20_eta2p1_WPLoose_Gsf") ||
+                            getBool("Ele27_eta2p1_WPLoose_Gsf") ||
+                            getBool("Ele27_WPTight_Gsf") ||
+                            getBool("Ele35_WPTight_Gsf") ||
+                            getBool("Ele20_WPLoose_Gsf") ||
+                            getBool("Ele45_WPLoose_Gsf") ||
+                            getBool("Ele23_Ele12_CaloIdL_TrackIdL_IsoVL") ||
+                            getBool("Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ") ||
+                            getBool("DoubleEle33_CaloIdL_GsfTrkIdVL") ||
+                            getBool("DoubleEle33_CaloIdL_GsfTrkIdVL_MW") ||
+                            getBool("DoubleEle25_CaloIdL_MW") ||
+                            getBool("DoubleEle33_CaloIdL_MW")
+                          );
+    
+    // -------------------- //
+    // --- Muon Trigger --- //
+    // -------------------- //
+    // HLT_IsoMu24
+    // HLT_IsoTkMu24 does not exist in 2017 data
+    // HLT_Mu50
+    // HLT_Mu55 does not exist in 2017 data
+
+    if( getBool("HLT_IsoMu24") ||
+        getBool("HLT_Mu50")
+      )
+    {
+        passMuonTrigger1 = true;
+    }
+    
+    passMuonTrigger2 = ( getBool("HLT_IsoMu20") || 
+                         getBool("HLT_IsoMu22") ||
+                         getBool("HLT_IsoMu24") ||
+                         getBool("HLT_IsoMu27") ||
+                         getBool("HLT_IsoMu22_eta2p1") ||
+                         getBool("HLT_IsoMu24_eta2p1") ||
+                         getBool("HLT_IsoTkMu22") ||
+                         getBool("HLT_IsoTkMu24") ||
+                         getBool("HLT_Mu50") ||
+                         getBool("HLT_Mu55")
+                       );
+    
+    //std::string message = "";
+    //if (passMuonTrigger1) message += "passMuonTrigger1 ";
+    //if (passMuonTrigger2) message += "passMuonTrigger2 ";
+    //if (!message.empty()) std::cout << message << std::endl;
+    
+    passMuonTrigger = passMuonTrigger2;
     
     // ---------------------- //
     // --- Photon Trigger --- //
@@ -1428,43 +1499,34 @@ void BaselineVessel::PassTrigger()
     // HLT_Photon90 is pre-scaled
     // HLT_Photon90_CaloIdL_PFHT500 is not present for all of 2016 data (e.g. run 278820)
     
-    if (year_.compare("2016") == 0)
-    {
-        if( tr->getVar<bool>("HLT_Photon175") )
-        {
-            passPhotonTrigger = true;
-        }
-    }
-    else if (year_.compare("2017") == 0)
-    {
-        if( tr->getVar<bool>("HLT_Photon200") )
-        {
-            passPhotonTrigger = true;
-        }
-    }
-    else if (year_.compare("2018") == 0)
-    {
-        if( tr->getVar<bool>("HLT_Photon200") )
-        {
-            passPhotonTrigger = true;
-        }
-    }
+    // photon trigger per year
+    // if (year_.compare("2016") == 0)
+    // {
+    //     if( getBool("HLT_Photon175") )
+    //     {
+    //         passPhotonTrigger = true;
+    //     }
+    // }
+    // else if (year_.compare("2017") == 0)
+    // {
+    //     if( getBool("HLT_Photon200") )
+    //     {
+    //         passPhotonTrigger = true;
+    //     }
+    // }
+    // else if (year_.compare("2018") == 0)
+    // {
+    //     if( getBool("HLT_Photon200") )
+    //     {
+    //         passPhotonTrigger = true;
+    //     }
+    // }
     
-    // -------------------- //
-    // --- Muon Trigger --- //
-    // -------------------- //
-    // HLT_IsoTkMu24 does not exist in 2017 data
-    // HLT_Mu55 does not exist in 2017 data
-
-    if( tr->getVar<bool>("HLT_IsoMu24") ||
-        tr->getVar<bool>("HLT_Mu50")
-      )
-    {
-        passMuTrigger = true;
-    }
+    passPhotonTrigger = (getBool("HLT_Photon175") || getBool("HLT_Photon200"));
     
-    tr->registerDerivedVar("passMuTrigger",     passMuTrigger);
-    tr->registerDerivedVar("passPhotonTrigger", passPhotonTrigger);
+    tr->registerDerivedVar("passElectronTrigger",   passElectronTrigger);
+    tr->registerDerivedVar("passMuonTrigger",       passMuonTrigger);
+    tr->registerDerivedVar("passPhotonTrigger",     passPhotonTrigger);
 }
 
 

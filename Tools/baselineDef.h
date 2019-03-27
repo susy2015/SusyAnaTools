@@ -98,6 +98,7 @@ public:
     ~BaselineVessel();
 
     inline std::string UseCleanedJetsVar(std::string varname) const;
+    bool getBool(const std::string& var);
     void PassBaseline();
     void PassTrigger();
     bool PrintoutConfig() const;
