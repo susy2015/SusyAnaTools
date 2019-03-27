@@ -15,8 +15,8 @@ namespace AnaFunctions
 
   int countJets(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr){
     int cntNJets =0;
-    for(unsigned int ij=0; ij<inputJets.size(); ij++){
-      if(jetPassCuts(inputJets[ij], jetCutsArr)) cntNJets ++;
+    for(unsigned int i=0; i<inputJets.size(); i++){
+      if(jetPassCuts(inputJets[i], jetCutsArr)) cntNJets ++;
     }
     return cntNJets;
   }
@@ -25,26 +25,27 @@ namespace AnaFunctions
       std::vector<unsigned int> *outputIdxs){
     const float minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
     int cntNJets =0;
-    for(unsigned int ij=0; ij<inputJets.size(); ij++){
-      if( !jetPassCuts(inputJets[ij], jetCutsArr) ) continue;
-      if( std::isnan(inputCSVS[ij]) ) continue;
-      if( inputCSVS[ij] > cutCSVS ) 
+    for(unsigned int i=0; i<inputJets.size(); i++){
+      if( !jetPassCuts(inputJets[i], jetCutsArr) ) continue;
+      if( std::isnan(inputCSVS[i]) ) continue;
+      if( inputCSVS[i] > cutCSVS ) 
       {
         cntNJets ++;
-        outputIdxs->push_back(ij);
+        outputIdxs->push_back(i);
       }
     }
     return cntNJets;
   }
 
-  std::vector<float> calcDPhi(const std::vector<TLorentzVector> &inputJets, const double metphi, const int nDPhi, const AnaConsts::AccRec& jetCutsArr){
+  std::vector<float> calcDPhi(const std::vector<TLorentzVector> &inputJets, const TLorentzVector &metLVec, const int nDPhi, const AnaConsts::AccRec& jetCutsArr){
     const float minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
     int cntNJets =0;
     std::vector<float> outDPhiVec(nDPhi, 999);
-    for(unsigned int ij=0; ij<inputJets.size(); ij++){
-      if( !jetPassCuts(inputJets[ij], jetCutsArr) ) continue;
+    for(unsigned int i=0; i<inputJets.size(); i++){
+      if( !jetPassCuts(inputJets[i], jetCutsArr) ) continue;
       if( cntNJets < nDPhi ){
-        float perDPhi = fabs(TVector2::Phi_mpi_pi( inputJets[ij].Phi() - metphi ));
+        //float perDPhi = fabs(TVector2::Phi_mpi_pi( inputJets[i].Phi() - metphi ));   // using metphi
+        float perDPhi = fabs(ROOT::Math::VectorUtil::DeltaPhi(inputJets[i], metLVec)); // using metLVec
         outDPhiVec[cntNJets] = perDPhi;
       }
       cntNJets ++;
@@ -56,10 +57,10 @@ namespace AnaFunctions
     float deltaT = 0;
     float jres = 0.1;
     float sum = 0.0;
-    for(unsigned int ij=0; ij<inputJets.size(); ij++){
-      if( ij == pickedJetIdx ) continue;
-      if( !jetPassCuts(inputJets.at(ij), jetCutsArr) ) continue;
-      sum = sum + ( inputJets.at(pickedJetIdx).Px()*inputJets.at(ij).Py() - inputJets.at(ij).Px()*inputJets.at(pickedJetIdx).Py() ) * ( inputJets.at(pickedJetIdx).Px()*inputJets.at(ij).Py() - inputJets.at(ij).Px()*inputJets.at(pickedJetIdx).Py() );
+    for(unsigned int i=0; i<inputJets.size(); i++){
+      if( i == pickedJetIdx ) continue;
+      if( !jetPassCuts(inputJets.at(i), jetCutsArr) ) continue;
+      sum = sum + ( inputJets.at(pickedJetIdx).Px()*inputJets.at(i).Py() - inputJets.at(i).Px()*inputJets.at(pickedJetIdx).Py() ) * ( inputJets.at(pickedJetIdx).Px()*inputJets.at(i).Py() - inputJets.at(i).Px()*inputJets.at(pickedJetIdx).Py() );
     }
     deltaT = jres*sqrt(sum)/inputJets.at(pickedJetIdx).Pt();
 
@@ -69,11 +70,11 @@ namespace AnaFunctions
   std::vector<float> calcDPhiN(const std::vector<TLorentzVector> &inputJets, const TLorentzVector &metLVec, const int nDPhi, const AnaConsts::AccRec& jetCutsArr){
     int cntNJets =0;
     std::vector<float> outDPhiVec(nDPhi, 999);
-    for(unsigned int ij=0; ij<inputJets.size(); ij++){
-      if( !jetPassCuts(inputJets.at(ij), jetCutsArr) ) continue;
+    for(unsigned int i=0; i<inputJets.size(); i++){
+      if( !jetPassCuts(inputJets.at(i), jetCutsArr) ) continue;
       if( cntNJets < nDPhi ){
-        float perDphi = std::abs(TVector2::Phi_mpi_pi( inputJets.at(ij).Phi() - metLVec.Phi() ));
-        float dT = calcDeltaT(ij, inputJets, jetCutsArr);
+        float perDphi = std::abs(TVector2::Phi_mpi_pi( inputJets.at(i).Phi() - metLVec.Phi() ));
+        float dT = calcDeltaT(i, inputJets, jetCutsArr);
         if( dT/metLVec.Pt()>=1.0 ) outDPhiVec[cntNJets] = perDphi/(TMath::Pi()/2.0);
         else outDPhiVec[cntNJets] = perDphi/std::asin(dT/metLVec.Pt());
       }
@@ -264,9 +265,9 @@ namespace AnaFunctions
     cntNbJetsVec.push_back(cntCSVS);
   }
 
-  void preparecalcDPhi(const std::vector<TLorentzVector> &inijetsLVec, const double metphi, std::vector<float> &outDPhiVec){
+  void preparecalcDPhi(const std::vector<TLorentzVector> &inijetsLVec, const TLorentzVector &metLVec, std::vector<float> &outDPhiVec){
     outDPhiVec.clear();
-    outDPhiVec = calcDPhi(inijetsLVec, metphi, 3, AnaConsts::dphiArr);
+    outDPhiVec = calcDPhi(inijetsLVec, metLVec, 5, AnaConsts::dphiArr);
   }
 
   void prepareForNtupleReader(){
@@ -279,8 +280,8 @@ namespace AnaFunctions
     const float minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
 
     float ht = 0;
-    for(unsigned int ij=0; ij<inputJets.size(); ij++){
-      float perjetpt = inputJets[ij].Pt(), perjeteta = inputJets[ij].Eta();
+    for(unsigned int i=0; i<inputJets.size(); i++){
+      float perjetpt = inputJets[i].Pt(), perjeteta = inputJets[i].Eta();
       if(   ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
           && ( maxAbsEta == -1 || fabs(perjeteta) < maxAbsEta )
           && (     minPt == -1 || perjetpt >= minPt )
@@ -297,15 +298,15 @@ namespace AnaFunctions
     const float minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
 
     TLorentzVector mhtLVec;
-    for(unsigned int ij=0; ij<inputJets.size(); ij++){
-      float perjetpt = inputJets[ij].Pt(), perjeteta = inputJets[ij].Eta();
+    for(unsigned int i=0; i<inputJets.size(); i++){
+      float perjetpt = inputJets[i].Pt(), perjeteta = inputJets[i].Eta();
       if(   ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
           && ( maxAbsEta == -1 || fabs(perjeteta) < maxAbsEta )
           && (     minPt == -1 || perjetpt >= minPt )
           && (     maxPt == -1 || perjetpt < maxPt ) ){
 
         TLorentzVector tmpLVec;
-        tmpLVec.SetPtEtaPhiM( inputJets[ij].Pt(), 0, inputJets[ij].Phi(), 0 );
+        tmpLVec.SetPtEtaPhiM( inputJets[i].Pt(), 0, inputJets[i].Phi(), 0 );
         mhtLVec -= tmpLVec;
       }
     }

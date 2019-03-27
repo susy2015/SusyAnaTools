@@ -544,11 +544,13 @@ void BaselineVessel::PassBaseline()
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
   float met = metLVec.Pt();
   float metphi = metLVec.Phi();
+  // Calculate deltaPhi
+  std::vector<float> * dPhiVec = new std::vector<float>();
+  (*dPhiVec) = AnaFunctions::calcDPhi(jet_vec, metLVec, 5, AnaConsts::dphiArr);
 
   // Calculate number of leptons
   // const auto& elesFlagIDVec  = elesFlagIDLabel.empty()  ? std::vector<unsigned char>(tr->getVec<float>("elesMiniIso").size(), 1):  tr->getVec<unsigned char>(elesFlagIDLabel.c_str());  // Fake electrons since we don't have different ID for electrons now, but maybe later
   // const auto& muonsFlagIDVec = muonsFlagIDLabel.empty() ? std::vector<unsigned char>(tr->getVec<float>("muonsMiniIso").size(), 1): tr->getVec<unsigned char>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
-  
 
   // Pass_LeptonVeto
   int Pass_LeptonVeto = tr->getVar<bool>("Pass_LeptonVeto");
@@ -585,7 +587,6 @@ void BaselineVessel::PassBaseline()
     cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
         AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
   
-  
   // Getting the b-jets. Sorted by pt by default
   for(auto idx : *vBidxs)
     vBjs->push_back(jet_vec.at(idx));
@@ -594,11 +595,6 @@ void BaselineVessel::PassBaseline()
   int cntNJetsPt30Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Eta24Arr);
   int cntNJetsPt20Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt20Eta24Arr);
   int cntNJetsPt30      = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Arr);
-
-  // Calculate deltaPhi
-  std::vector<float> * dPhiVec = new std::vector<float>();
-  (*dPhiVec) = AnaFunctions::calcDPhi(jet_vec, metphi, 3, AnaConsts::dphiArr);
-
 
   // Pass lepton veto?
   bool passMuonVeto = (nMuons == AnaConsts::nMuonsSel), passEleVeto = (nElectrons == AnaConsts::nElectronsSel), passIsoTrkVeto = (nIsoTrks == AnaConsts::nIsoTrksSel);
@@ -686,16 +682,16 @@ void BaselineVessel::PassBaseline()
 
   //SUS-16-049, low dm, dphi(met, j1) > 0.5, dphi(met, j23) > 0.15
   bool passdphi_lowdm = ( 
-                             (nJets == 2 && fabs(jet_vec.at(0).Phi() - metphi) > 0.5 && fabs(jet_vec.at(1).Phi() - metphi) > 0.15)
-                          || (nJets  > 2 && fabs(jet_vec.at(0).Phi() - metphi) > 0.5 && fabs(jet_vec.at(1).Phi() - metphi) > 0.15 && fabs(jet_vec.at(2).Phi() - metphi) > 0.15)
+                             (nJets == 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15)
+                          || (nJets  > 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15 && dPhiVec->at(2) > 0.15)
                         );
   //SUS-16-049, high dm, dphi(met, jet1234) > 0.5
   bool passdphi_highdm = (
                               nJets >= 4 
-                           && fabs(jet_vec.at(0).Phi() - metphi) > 0.5 
-                           && fabs(jet_vec.at(1).Phi() - metphi) > 0.5 
-                           && fabs(jet_vec.at(2).Phi() - metphi) > 0.5 
-                           && fabs(jet_vec.at(3).Phi() - metphi) > 0.5
+                           && dPhiVec->at(0) > 0.5 
+                           && dPhiVec->at(1) > 0.5 
+                           && dPhiVec->at(2) > 0.5 
+                           && dPhiVec->at(3) > 0.5
                          );
   
   //baseline for SUS-16-049 low dm
@@ -1261,10 +1257,10 @@ bool BaselineVessel::passQCDHighMETFilterFunc()
 {
   std::vector<TLorentzVector> jetsLVec = tr->getVec<TLorentzVector>(jetVecLabel);
   std::vector<float> recoJetsmuonEnergyFraction = tr->getVec<float>("recoJetsmuonEnergyFraction");
-  float metphi = tr->getVar<float>("metphi");
+  metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
 
   int nJetsLoop = recoJetsmuonEnergyFraction.size();
-  std::vector<float> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metphi, nJetsLoop, AnaConsts::dphiArr);
+  std::vector<float> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metLVec, nJetsLoop, AnaConsts::dphiArr);
 
   for(int i=0; i<nJetsLoop ; i++)
   {
