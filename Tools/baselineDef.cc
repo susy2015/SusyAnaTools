@@ -1428,8 +1428,6 @@ void BaselineVessel::PassTrigger()
 {
     bool passElectronTrigger    = false;
     bool passMuonTrigger        = false;
-    bool passMuonTrigger1       = false;
-    bool passMuonTrigger2       = false;
     bool passPhotonTrigger      = false;
     
     // ------------------------ //
@@ -1463,31 +1461,17 @@ void BaselineVessel::PassTrigger()
     // HLT_Mu50
     // HLT_Mu55 does not exist in 2017 data
 
-    if( getBool("HLT_IsoMu24") ||
-        getBool("HLT_Mu50")
-      )
-    {
-        passMuonTrigger1 = true;
-    }
-    
-    passMuonTrigger2 = ( getBool("HLT_IsoMu20") || 
-                         getBool("HLT_IsoMu22") ||
-                         getBool("HLT_IsoMu24") ||
-                         getBool("HLT_IsoMu27") ||
-                         getBool("HLT_IsoMu22_eta2p1") ||
-                         getBool("HLT_IsoMu24_eta2p1") ||
-                         getBool("HLT_IsoTkMu22") ||
-                         getBool("HLT_IsoTkMu24") ||
-                         getBool("HLT_Mu50") ||
-                         getBool("HLT_Mu55")
-                       );
-    
-    //std::string message = "";
-    //if (passMuonTrigger1) message += "passMuonTrigger1 ";
-    //if (passMuonTrigger2) message += "passMuonTrigger2 ";
-    //if (!message.empty()) std::cout << message << std::endl;
-    
-    passMuonTrigger = passMuonTrigger2;
+    passMuonTrigger = ( getBool("HLT_IsoMu20") || 
+                        getBool("HLT_IsoMu22") ||
+                        getBool("HLT_IsoMu24") ||
+                        getBool("HLT_IsoMu27") ||
+                        getBool("HLT_IsoMu22_eta2p1") ||
+                        getBool("HLT_IsoMu24_eta2p1") ||
+                        getBool("HLT_IsoTkMu22") ||
+                        getBool("HLT_IsoTkMu24") ||
+                        getBool("HLT_Mu50") ||
+                        getBool("HLT_Mu55")
+                      );
     
     // ---------------------- //
     // --- Photon Trigger --- //
