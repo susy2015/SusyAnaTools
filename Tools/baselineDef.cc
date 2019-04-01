@@ -1434,24 +1434,26 @@ void BaselineVessel::PassTrigger()
     // --- Electron Trigger --- //
     // ------------------------ //
     
-    passElectronTrigger = ( getBool("Ele105_CaloIdVT_GsfTrkIdT") || 
-                            getBool("Ele115_CaloIdVT_GsfTrkIdT") ||
-                            getBool("Ele135_CaloIdVT_GsfTrkIdT") ||
-                            getBool("Ele145_CaloIdVT_GsfTrkIdT") ||
-                            getBool("Ele25_eta2p1_WPTight_Gsf") ||
-                            getBool("Ele20_eta2p1_WPLoose_Gsf") ||
-                            getBool("Ele27_eta2p1_WPLoose_Gsf") ||
-                            getBool("Ele27_WPTight_Gsf") ||
-                            getBool("Ele35_WPTight_Gsf") ||
-                            getBool("Ele20_WPLoose_Gsf") ||
-                            getBool("Ele45_WPLoose_Gsf") ||
-                            getBool("Ele23_Ele12_CaloIdL_TrackIdL_IsoVL") ||
-                            getBool("Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ") ||
-                            getBool("DoubleEle33_CaloIdL_GsfTrkIdVL") ||
-                            getBool("DoubleEle33_CaloIdL_GsfTrkIdVL_MW") ||
-                            getBool("DoubleEle25_CaloIdL_MW") ||
-                            getBool("DoubleEle33_CaloIdL_MW")
+    passElectronTrigger = ( getBool("HLT_Ele105_CaloIdVT_GsfTrkIdT") || 
+                            getBool("HLT_Ele115_CaloIdVT_GsfTrkIdT") ||
+                            getBool("HLT_Ele135_CaloIdVT_GsfTrkIdT") ||
+                            getBool("HLT_Ele145_CaloIdVT_GsfTrkIdT") ||
+                            getBool("HLT_Ele25_eta2p1_WPTight_Gsf") ||
+                            getBool("HLT_Ele20_eta2p1_WPLoose_Gsf") ||
+                            getBool("HLT_Ele27_eta2p1_WPLoose_Gsf") ||
+                            getBool("HLT_Ele27_WPTight_Gsf") ||
+                            getBool("HLT_Ele35_WPTight_Gsf") ||
+                            getBool("HLT_Ele20_WPLoose_Gsf") ||
+                            getBool("HLT_Ele45_WPLoose_Gsf") ||
+                            getBool("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL") ||
+                            getBool("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ") ||
+                            getBool("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL") ||
+                            getBool("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW") ||
+                            getBool("HLT_DoubleEle25_CaloIdL_MW") ||
+                            getBool("HLT_DoubleEle33_CaloIdL_MW")
                           );
+    // print for testing
+    //printf("passElectronTrigger: %d\n", passElectronTrigger);
     
     // -------------------- //
     // --- Muon Trigger --- //
