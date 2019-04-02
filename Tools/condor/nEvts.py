@@ -1,7 +1,7 @@
 import numpy as np
-from multiprocessing import Pool
 from pyxrootd import client
 from functools import partial
+import concurrent.futures
 
 def getFiles(fileList):
     #If multiprocessing is used this must also be run in a seperate thread from the master thread
@@ -16,6 +16,8 @@ def getFiles(fileList):
     else:
         return files
 
+executor = concurrent.futures.ThreadPoolExecutor(4)
+
 try:
     import uproot
 
@@ -23,9 +25,9 @@ try:
         try:
             with uproot.open(fileURL) as f:
                 if legacy:
-                    array = f["stopTreeMaker"]["AUX"]["stored_weight"].array()
+                    array = f["stopTreeMaker"]["AUX"]["stored_weight"].array(executor=executor)
                 else:
-                    array = f["Events"]["genWeight"].array()
+                    array = f["Events"]["genWeight"].array(executor=executor)
         except:
             print "ERROR: unable to open fileURL"
             return None
@@ -63,17 +65,10 @@ except ImportError:
 
 
 def getNEvts(fileList, threads=4, legacy=False):
-    if threads > 0:
-        p = Pool(threads)
-        files = p.map(getFiles, [fileList])[0]
-    else:
-        files = getFiles(fileList)
+    files = getFiles(fileList)
 
     if files:
-        if threads > 0:
-            results = p.map(partial(getNEvtsProcess, legacy=legacy), files)
-        else:
-            results = list(getNEvtsProcess(f, legacy) for f in files)
+        results = list(getNEvtsProcess(f, legacy) for f in files)
         return sum(results)
     else:
         print "files do not exist: getNEvts() returning None"
