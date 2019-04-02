@@ -89,8 +89,8 @@ public:
     bool doIsoTrkVeto;
     bool doMET;
     bool dodPhis;
-    bool passBaselineLowDM;
-    bool passBaselineHighDM;
+    bool SAT_Pass_lowDM;
+    bool SAT_Pass_highDM;
 
 
     BaselineVessel(NTupleReader &tr_, const std::string year, const std::string specialization = "", const std::string filterString = "");

@@ -21,7 +21,6 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
   UseDRPhotonCleanJet   = false;
   UseDeepTagger         = true;
   UseDeepCSV            = true;
-  //year_                 = "2018"; // DO NOT HARDCODE, SENOR
   eraLabel              = "2016MC";
   jetVecLabel           = "JetTLV";
   CSVVecLabel           = "Jet_btagCSVV2";
@@ -38,8 +37,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
   doIsoTrkVeto          = true;
   doMET                 = true;
   dodPhis               = true;
-  passBaselineLowDM     = false;
-  passBaselineHighDM    = false;
+  SAT_Pass_lowDM        = false;
+  SAT_Pass_highDM       = false;
   metLVec.SetPtEtaPhiM(0, 0, 0, 0);
   if (UseDeepCSV)
     CSVVecLabel           = "Jet_btagDeepB";
@@ -563,8 +562,6 @@ void BaselineVessel::PassBaseline()
   // const auto& elesFlagIDVec  = elesFlagIDLabel.empty()  ? std::vector<unsigned char>(tr->getVec<float>("elesMiniIso").size(), 1):  tr->getVec<unsigned char>(elesFlagIDLabel.c_str());  // Fake electrons since we don't have different ID for electrons now, but maybe later
   // const auto& muonsFlagIDVec = muonsFlagIDLabel.empty() ? std::vector<unsigned char>(tr->getVec<float>("muonsMiniIso").size(), 1): tr->getVec<unsigned char>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
 
-  // Pass_LeptonVeto
-  int Pass_LeptonVeto = tr->getVar<bool>("Pass_LeptonVeto");
   
   // TODO: this is wrong... you need to count number of leptons passing veto selection (Electron_Stop0l, Muon_Stop0l, and IsoTrack_Stop0l bool flags)
   int nElectrons = tr->getVar<unsigned int>("nElectron");
@@ -580,6 +577,7 @@ void BaselineVessel::PassBaseline()
   int cntCSVS = 0;
   vBidxs = new std::vector<unsigned int>();
   vBjs = new std::vector<TLorentzVector>();
+  
   // TODO: Move the cut value to map
   // 2016 MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco#Data_MC_Scale_Factors_period_dep
   // 2017 MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation94X
@@ -607,27 +605,6 @@ void BaselineVessel::PassBaseline()
   int cntNJetsPt20Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt20Eta24Arr);
   int cntNJetsPt30      = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Arr);
 
-  // Pass lepton veto?
-  bool passMuonVeto = (nMuons == AnaConsts::nMuonsSel), passEleVeto = (nElectrons == AnaConsts::nElectronsSel), passIsoTrkVeto = (nIsoTrks == AnaConsts::nIsoTrksSel);
-  //bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTrksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTrksSel);
-  //bool passLeptVeto = passMuonVeto && passEleVeto && passIsoTrkVeto;
-  bool passLeptVeto = Pass_LeptonVeto;
-  
-  // Pass number of jets?
-  bool passnJets = true;
-  // Pass deltaPhi?
-  bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
-
-  // Pass number of b-tagged jets? 
-  // No b-tag in baseline
-  bool passBJets = true;
-
-  // Pass the baseline MET requirement?
-  bool passMET = (met >= AnaConsts::defaultMETcut);
-
-  // Pass the HT cut for trigger?
-  float HT = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
-  bool passHT = (HT >= AnaConsts::defaultHTcut);
 
   // Calculate top tagger related variables. 
   // Note that to save speed, only do the calculation after previous base line requirements.
@@ -638,9 +615,6 @@ void BaselineVessel::PassBaseline()
   //  prepareTopTagger();
   //bool passTagger = PassTopTagger();
 
-  bool passNoiseEventFilter = passNoiseEventFilterFunc();
-  bool passQCDHighMETFilter = true;
-  bool passFastsimEventFilter = true;
 
   // Call CompCommonVar() after vBidxs is filled.
   //CompCommonVar();
@@ -658,28 +632,38 @@ void BaselineVessel::PassBaseline()
   // https://github.com/susy2015/SusyAnaTools/blob/hui_new_tagger/Tools/tupleRead.C#L629-L639
   // https://github.com/susy2015/SusyAnaTools/blob/5e4f54e1aa985daff90f1ad7a220b8d17e4b7290/Tools/tupleRead.C#L629-L639
   
-  // variables for passBaselineLowDM and passBaselineHighDM
+  // variables for SAT_Pass_lowDM and SAT_Pass_highDM
   // get ISR jet
   TLorentzVector ISRJet;
   const auto& FatJets = tr->getVec<TLorentzVector>(jetVecLabelAK8);
   const auto& Stop0l_ISRJetIdx = tr->getVar<int>("Stop0l_ISRJetIdx");
   if (Stop0l_ISRJetIdx < FatJets.size()) ISRJet = FatJets[Stop0l_ISRJetIdx];
-
-  //const auto& ISRJet   = tr->getVec<TLorentzVector>("vISRJet");
-  const auto& nMergedTops   = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
-  const auto& nResolvedTops = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
-  const auto& nWs          = tr->getVar<int>(UseCleanedJetsVar("nWs"));
-  const auto& ISRpt        = tr->getVar<float>("Stop0l_ISRJetPt");
-  const auto& mtb          = tr->getVar<float>("Stop0l_Mtb");
-  const auto& ptb          = tr->getVar<float>("Stop0l_Ptb");
-  const auto& nBottoms     = cntCSVS;
-  const auto& nSoftBottoms = tr->getVar<int>("Stop0l_nSoftb");;
-  const auto& nJets        = cntNJetsPt20Eta24;
-  float S_met              = met / sqrt(HT);
-  
-  bool passTagger = (incZEROtop || nMergedTops >= AnaConsts::low_nTopCandSortedSel); 
   //if(ISRJet.size() == 1) ISRpt = ISRJet.at(0).Pt();
 
+  const auto& nMergedTops   = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
+  const auto& nResolvedTops = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
+  const auto& nWs           = tr->getVar<int>(UseCleanedJetsVar("nWs"));
+  const auto& ISRpt         = tr->getVar<float>("Stop0l_ISRJetPt");
+  const auto& mtb           = tr->getVar<float>("Stop0l_Mtb");
+  const auto& ptb           = tr->getVar<float>("Stop0l_Ptb");
+  const auto& nBottoms      = cntCSVS;
+  const auto& nSoftBottoms  = tr->getVar<int>("Stop0l_nSoftb");;
+  const auto& nJets         = cntNJetsPt20Eta24;
+  float HT                  = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
+  float S_met               = met / sqrt(HT);
+  
+  bool SAT_Pass_NJets20 = nJets >= 2;
+  bool passTagger = (incZEROtop || nMergedTops >= AnaConsts::low_nTopCandSortedSel); 
+  bool SAT_Pass_EventFilter = passNoiseEventFilterFunc();
+  bool passQCDHighMETFilter = true;
+  bool passFastsimEventFilter = true;
+  bool passMuonVeto = (nMuons == AnaConsts::nMuonsSel), passEleVeto = (nElectrons == AnaConsts::nElectronsSel), passIsoTrkVeto = (nIsoTrks == AnaConsts::nIsoTrksSel);
+  bool Pass_LeptonVeto = tr->getVar<bool>("Pass_LeptonVeto");
+  //bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTrksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTrksSel);
+  //bool Pass_LeptonVeto = passMuonVeto && passEleVeto && passIsoTrkVeto;
+  bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
+  bool SAT_Pass_MET = (met >= AnaConsts::defaultMETcut);
+  bool SAT_Pass_HT = (HT >= AnaConsts::defaultHTcut);
 
   //SUS-16-049, low dm, ISR cut
   bool pass_ISR = (
@@ -688,45 +672,46 @@ void BaselineVessel::PassBaseline()
                     && fabs(ISRJet.Phi() - metphi) > 2
                   );
   
+  
   //SUS-16-049, low dm, mtb cut
   bool pass_mtb_lowdm = (nBottoms == 0 || (nBottoms > 0 && mtb < 175));  
 
   //SUS-16-049, low dm, dphi(met, j1) > 0.5, dphi(met, j23) > 0.15
-  bool passdphi_lowdm = ( 
-                             (nJets == 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15)
-                          || (nJets  > 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15 && dPhiVec->at(2) > 0.15)
-                        );
+  bool SAT_Pass_dPhiMETLowDM = ( 
+                                    (nJets == 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15)
+                                 || (nJets  > 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15 && dPhiVec->at(2) > 0.15)
+                               );
   //SUS-16-049, high dm, dphi(met, jet1234) > 0.5
-  bool passdphi_highdm = (
-                              nJets >= 4 
-                           && dPhiVec->at(0) > 0.5 
-                           && dPhiVec->at(1) > 0.5 
-                           && dPhiVec->at(2) > 0.5 
-                           && dPhiVec->at(3) > 0.5
-                         );
+  bool SAT_Pass_dPhiMETHighDM = (
+                                     nJets >= 4 
+                                  && dPhiVec->at(0) > 0.5 
+                                  && dPhiVec->at(1) > 0.5 
+                                  && dPhiVec->at(2) > 0.5 
+                                  && dPhiVec->at(3) > 0.5
+                                );
   
   //baseline for SUS-16-049 low dm
-  passBaselineLowDM = (
-                           nMergedTops == 0
-                        && nWs == 0
-                        && pass_ISR
-                        && S_met > 10
-                        && passdphi_lowdm
-                        && pass_mtb_lowdm
-                        && passMET
-                        && passNoiseEventFilter
-                        && nJets >= 2
-                      );      
+  SAT_Pass_lowDM = (
+                        nMergedTops == 0
+                     && nWs == 0
+                     && pass_ISR
+                     && S_met > 10
+                     && SAT_Pass_dPhiMETLowDM
+                     && pass_mtb_lowdm
+                     && SAT_Pass_MET
+                     && SAT_Pass_EventFilter
+                     && nJets >= 2
+                   );      
   
   //baseline for SUS-16-049 high dm plus HT cut
-  passBaselineHighDM = (
-                            passMET
-                         && passNoiseEventFilter
-                         && nJets >= 5
-                         && passdphi_highdm
-                         && nBottoms >= 1
-                         && passHT
-                       );      
+  SAT_Pass_highDM = (
+                         SAT_Pass_MET
+                      && SAT_Pass_EventFilter
+                      && nJets >= 5
+                      && SAT_Pass_dPhiMETHighDM
+                      && nBottoms >= 1
+                      && SAT_Pass_HT
+                    );      
   
   // ------------------------------------ // 
   // --- Apply Lepton Vetos if needed --- //
@@ -734,24 +719,24 @@ void BaselineVessel::PassBaseline()
 
   // if (doEleVeto)
   // {
-  //     passBaselineLowDM  = passBaselineLowDM  && passEleVeto;
-  //     passBaselineHighDM = passBaselineHighDM && passEleVeto;
+  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && passEleVeto;
+  //     SAT_Pass_highDM = SAT_Pass_highDM && passEleVeto;
   // }
   // if (doMuonVeto)
   // {
-  //     passBaselineLowDM  = passBaselineLowDM  && passMuonVeto;
-  //     passBaselineHighDM = passBaselineHighDM && passMuonVeto;
+  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && passMuonVeto;
+  //     SAT_Pass_highDM = SAT_Pass_highDM && passMuonVeto;
   // }
   // if (doIsoTrkVeto)
   // {
-  //     passBaselineLowDM  = passBaselineLowDM  && passIsoTrkVeto;
-  //     passBaselineHighDM = passBaselineHighDM && passIsoTrkVeto;
+  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && passIsoTrkVeto;
+  //     SAT_Pass_highDM = SAT_Pass_highDM && passIsoTrkVeto;
   // }
   
   if (doLeptonVeto)
   {
-      passBaselineLowDM  = passBaselineLowDM  && passLeptVeto;
-      passBaselineHighDM = passBaselineHighDM && passLeptVeto;
+      SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_LeptonVeto;
+      SAT_Pass_highDM = SAT_Pass_highDM && Pass_LeptonVeto;
   }
 
 
@@ -771,26 +756,24 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("ptb" + firstSpec, ptb);
   tr->registerDerivedVar("mtb" + firstSpec, mtb);
   tr->registerDerivedVar("cntNJetsPt30" + firstSpec, cntNJetsPt30);
-  tr->registerDerivedVar("passLeptVeto" + firstSpec, passLeptVeto);
   tr->registerDerivedVar("passMuonVeto" + firstSpec, passMuonVeto);
   tr->registerDerivedVar("passEleVeto" + firstSpec, passEleVeto);
   tr->registerDerivedVar("passIsoTrkVeto" + firstSpec, passIsoTrkVeto);
   //tr->registerDerivedVar("passIsoLepTrkVeto" + firstSpec, passIsoLepTrkVeto);
   //tr->registerDerivedVar("passIsoPionTrkVeto" + firstSpec, passIsoPionTrkVeto);
-  tr->registerDerivedVar("passnJets" + firstSpec, passnJets);
-  tr->registerDerivedVar("passdPhis" + firstSpec, passdPhis);
-  tr->registerDerivedVar("passBJets" + firstSpec, passBJets);
-  tr->registerDerivedVar("passMET" + firstSpec, passMET);
-  //tr->registerDerivedVar("passMT2" + firstSpec, passMT2);
-  tr->registerDerivedVar("passHT" + firstSpec, passHT);
+  tr->registerDerivedVar("SAT_Pass_NJets20" + firstSpec, SAT_Pass_NJets20);
+  //tr->registerDerivedVar("passdPhis" + firstSpec, passdPhis);
+  tr->registerDerivedVar("SAT_Pass_dPhiMETLowDM" + firstSpec, SAT_Pass_dPhiMETLowDM);
+  tr->registerDerivedVar("SAT_Pass_dPhiMETHighDM" + firstSpec, SAT_Pass_dPhiMETHighDM);
+  tr->registerDerivedVar("SAT_Pass_MET" + firstSpec, SAT_Pass_MET);
+  tr->registerDerivedVar("SAT_Pass_HT" + firstSpec, SAT_Pass_HT);
   tr->registerDerivedVar("passTagger" + firstSpec, passTagger);
-  tr->registerDerivedVar("passNoiseEventFilter" + firstSpec, passNoiseEventFilter);
+  tr->registerDerivedVar("SAT_Pass_EventFilter" + firstSpec, SAT_Pass_EventFilter);
   tr->registerDerivedVar("passQCDHighMETFilter" + firstSpec, passQCDHighMETFilter);
   tr->registerDerivedVar("passFastsimEventFilter" + firstSpec, passFastsimEventFilter);
-  //tr->registerDerivedVar("best_had_brJet_MT2" + firstSpec,    MT2);
   tr->registerDerivedVar("HT" + firstSpec, HT);
-  tr->registerDerivedVar("passBaselineLowDM"  + firstSpec, passBaselineLowDM);
-  tr->registerDerivedVar("passBaselineHighDM" + firstSpec, passBaselineHighDM);
+  tr->registerDerivedVar("SAT_Pass_lowDM"  + firstSpec, SAT_Pass_lowDM);
+  tr->registerDerivedVar("SAT_Pass_highDM" + firstSpec, SAT_Pass_highDM);
 } 
 
 
