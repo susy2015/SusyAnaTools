@@ -43,8 +43,8 @@ int main(int argc, char* argv[])
     const char *maxevent = argv[2];
     
     // Change string arg to int
-    int  maxEvent =  std::atoi(maxevent);
-    int numFiles =  std::atoi(argv[3]);
+    int maxEvent  =  std::atoi(maxevent);
+    int numFiles  =  std::atoi(argv[3]);
     int startFile =  std::atoi(argv[4]);
 
     // Prepare file list and finalize it
@@ -134,20 +134,19 @@ int main(int argc, char* argv[])
         const auto& recoJetsBtag = tr->getVec<float>(BJetsVec);
         const auto& recoJetsFlavor = tr->getVec<int>(JetsFlavor);          
          
-        float iniWeight = tr->getVar<float>("evtWeight");
+        float stored_weight = tr->getVar<float>("genWeight");
 
-        float stored_weight = subSampleNameT.Contains("Data") ? 1 : tr->getVar<float>("stored_weight");
-        int sign_of_stored_weight = (stored_weight > 0) ? 1 : ((stored_weight < 0) ? -1 : 0);
-
-        float evtWeight = iniWeight >=0 ? iniWeight * sign_of_stored_weight : iniWeight;
+        float evtWeight = stored_weight / fabs(stored_weight);
      
         for(unsigned int ij=0; ij<inputJets.size(); ij++)
         {
             float pt = inputJets[ij].Pt();
             float eta = fabs(inputJets[ij].Eta());
-            if( ! AnaFunctions::jetPassCuts(inputJets[ij], AnaConsts::bTagArr) ) continue;
-            float csv = recoJetsBtag.at(ij);
-            int flav =  abs(recoJetsFlavor.at(ij));
+
+            if( ! pt > 20 && eta < 2.4 ) continue;
+
+            float csv = recoJetsBtag[ij];
+            int flav =  abs(recoJetsFlavor[ij]);
 	      
             if(flav==5) //b Jets
             {
