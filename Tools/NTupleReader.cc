@@ -313,8 +313,6 @@ void NTupleReader::createVectorsForArrayReads(int evt)
         int treeNum = tree_->GetTreeNumber();
         if(chainCurrentTree_ != treeNum)
         {
-            printf("Updating branches\n");
-            fflush(stdout);
             chainCurrentTree_ = treeNum;
             //update branch references 
             updateBranches = true;
