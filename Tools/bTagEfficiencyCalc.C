@@ -4,7 +4,6 @@
 #include "SusyAnaTools/Tools/SATException.h"
 #include "SusyAnaTools/Tools/NTupleReader.h"
 #include "SusyAnaTools/Tools/samples.h"
-#include "SusyAnaTools/Tools/customize.h"
 
 //ROOT headers
 #include "TFile.h"
@@ -22,8 +21,6 @@ const int nPtBins = sizeof(ptBins)/sizeof(ptBins[0]) - 1;
 
 const float etaBins[] = {0.0,0.8,1.6,2.4};
 const int nEtaBins = sizeof(etaBins)/sizeof(etaBins[0]) - 1;
-
-const float csv_btag = AnaConsts::cutCSVS;
 
 const std::string spec = "bTagEff";
 
@@ -67,6 +64,8 @@ int main(int argc, char* argv[])
 
     TH1::AddDirectory(kFALSE);
 
+    const float csv_btag = 0.8484;
+
     TH2* n_eff_b =    new TH2D("n_eff_b_"+subSampleNameT, "bTag_Efficiency"+subSampleNameT, nPtBins, ptBins, nEtaBins, etaBins);
     TH2* n_eff_c =    new TH2D("n_eff_c_"+subSampleNameT, "cTag_Efficiency"+subSampleNameT, nPtBins, ptBins, nEtaBins, etaBins);
     TH2* n_eff_udsg = new TH2D("n_eff_udsg_"+subSampleNameT, "udsgTag_Efficiency"+subSampleNameT, nPtBins, ptBins, nEtaBins, etaBins);
@@ -84,7 +83,7 @@ int main(int argc, char* argv[])
     n_eff_udsg->GetYaxis()->SetTitle("#eta");
  
 
-    AnaSamples::SampleSet        ss("sampleSets.txt", (argc == 6), AnaSamples::luminosity);
+    AnaSamples::SampleSet ss("sampleSets.cfg", (argc == 6), AnaSamples::luminosity);
                                    
     float ScaleMC = 1.;                                                                              
     if(ss[subSampleName] != ss.null())                                                                             
@@ -100,7 +99,6 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    AnaFunctions::prepareForNtupleReader();
     NTupleReader *tr = new NTupleReader(fChain);
 
     // --- Analyse events --------------------------------------------
@@ -120,11 +118,11 @@ int main(int argc, char* argv[])
         }
 
         std::string JetsVec, BJetsVec, JetsFlavor;          
-        if(tr->checkBranch("met"))
+        if(tr->checkBranch("MET_pt"))
         {
-            JetsVec = "jetsLVec";
-            BJetsVec = "recoJetsCSVv2";
-            JetsFlavor = "recoJetsFlavor";
+            JetsVec = "Jet";
+            BJetsVec = "Jet_btagDeepB";
+            JetsFlavor = "Jet_hadronFlavour";
         }
         else if(tr->checkBranch("MET"))
         {

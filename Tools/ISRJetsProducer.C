@@ -3,7 +3,6 @@
 #include "SusyAnaTools/Tools/SATException.h"
 #include "SusyAnaTools/Tools/NTupleReader.h"
 #include "SusyAnaTools/Tools/samples.h"
-#include "SusyAnaTools/Tools/baselineDef.h"
 #include "TH1.h"
 #include "TFile.h"
 #include "TString.h"
@@ -64,16 +63,8 @@ TChain *fChain = 0;
 	  ScaleMC = ss[subSampleName].getWeight();
 	} 
 
-      AnaFunctions::prepareForNtupleReader();
       NTupleReader *tr =0;
       tr = new NTupleReader(fChain);
-
-/*
-      BaselineVessel *CSBaseline = 0;
-      CSBaseline = new BaselineVessel(*tr, spec);
-      tr->registerFunction((*CSBaseline));
-      CSBaseline->SetupTopTagger(true,"TopTagger.cfg");
-*/
 
       // --- Analyse events --------------------------------------------
       std::cout<<"First loop begin: "<<std::endl;
@@ -95,11 +86,6 @@ TChain *fChain = 0;
            int sign_of_stored_weight = (stored_weight > 0) ? 1 : ((stored_weight < 0) ? -1 : 0);
 
            double evtWeight = iniWeight >=0 ? iniWeight * sign_of_stored_weight : iniWeight;
-
-	  /*
-	  const bool passBaseline = tr->getVar<bool>("passBaseline" + spec);
-	  if(!passBaseline) continue;
-	  */
 	  
 	  const int nJetsISR = tr->getVar<int>("NJetsISR");
 	  hISR->Fill(nJetsISR, evtWeight);

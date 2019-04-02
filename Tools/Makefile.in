@@ -43,7 +43,7 @@ LDFLAGS    =
 # top tagger includes
 INCLUDESDIRS  += -I. -I$(TAGGERDIR)/..
 # top tagger libraries
-LIBS += -L$(TAGGERDIR)/TopTagger/test -lTopTagger
+TTLIBS += -L$(TAGGERDIR)/TopTagger/test -lTopTagger
 
 ## Include ROOT
 INCLUDESDIRS += $(shell root-config --cflags)
@@ -135,39 +135,39 @@ $(ODIR)/%.o : $(SDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS) -o $@ -c $<
 
 tupleTest: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o $(ODIR)/tupleReadTest.o $(ODIR)/customize.o
-	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
+	$(LD) $^ $(TTLIBS) $(LIBS) $(LHAPDFLIB) -o $@
 
 nEvts: $(ODIR)/nEvts.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o
 	$(LD) $^ $(LIBS) -o $@
 
 deepTrim: $(ODIR)/DeepTrim.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/customize.o $(ODIR)/baselineDef.o $(ODIR)/SATException.o
-	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
+	$(LD) $^ $(TTLIBS) $(LIBS) $(LHAPDFLIB) -o $@
 
 basicCheck: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/samples.o $(ODIR)/basicCheck.o $(ODIR)/PDFUncertainty.o $(ODIR)/searchBins.o $(ODIR)/customize.o
-	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
+	$(LD) $^ $(TTLIBS) $(LIBS) $(LHAPDFLIB) -o $@
 
 makeCombPlots: $(ODIR)/samples.o $(ODIR)/SATException.o $(ODIR)/makeCombPlots.o $(ODIR)/searchBins.o
-	$(LD) $^ $(LIBS) -o $@
+	$(LD) $^ $(TTLIBS) $(LIBS) -o $@
 
 signalScan: $(ODIR)/baselineDef.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/signalScan.o $(ODIR)/PDFUncertainty.o $(ODIR)/BTagCalibrationStandalone.o $(ODIR)/searchBins.o $(ODIR)/ISRCorrector.o $(ODIR)/customize.o
-	$(LD) $^ $(LIBS) $(LHAPDFLIB) -o $@
+	$(LD) $^ $(TTLIBS) $(LIBS) $(LHAPDFLIB) -o $@
 
 makeSignalCards: $(ODIR)/samples.o $(ODIR)/SATException.o $(ODIR)/makeSignalCards.o $(ODIR)/searchBins.o
-	$(LD) $^ $(LIBS) -o $@
+	$(LD) $^ $(TTLIBS) $(LIBS) -o $@
 
 batchSignalPlots: $(ODIR)/samples.o $(ODIR)/batchSignalPlots.o
-	$(LD) $^ $(LIBS) -o $@
+	$(LD) $^ $(TTLIBS) $(LIBS) -o $@
 
 makeSignalHistograms: $(ODIR)/baselineDef.o $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/makeSignalHistograms.o $(ODIR)/searchBins.o $(ODIR)/customize.o
-	$(LD) $^ $(LIBS) -o $@
+	$(LD) $^ $(TTLIBS) $(LIBS) -o $@
 
 makeUnblindPlots: $(ODIR)/SATException.o $(ODIR)/makeUnblindPlots.o $(ODIR)/searchBins.o
+	$(LD) $^ $(TTLIBS) $(LIBS) -o $@
+
+bTagEfficiencyCalc:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/bTagEfficiencyCalc.o $(ODIR)/SATException.o
 	$(LD) $^ $(LIBS) -o $@
 
-bTagEfficiencyCalc:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/bTagEfficiencyCalc.o $(ODIR)/SATException.o $(ODIR)/baselineDef.o $(ODIR)/customize.o
-	$(LD) $^ $(LIBS) -o $@
-
-ISRJetsProducer:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/ISRJetsProducer.o $(ODIR)/SATException.o $(ODIR)/baselineDef.o $(ODIR)/customize.o
+ISRJetsProducer:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/ISRJetsProducer.o $(ODIR)/SATException.o
 	$(LD) $^ $(LIBS) -o $@
 
 #DataMC: $(ODIR)/baselineDef.o $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/samples.o $(ODIR)/customize.o $(ODIR)/customize.o $(ODIR)/searchBins.o $(ODIR)/DataMC.o
