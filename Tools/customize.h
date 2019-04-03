@@ -68,6 +68,7 @@ namespace AnaConsts{
 // According to https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80X, the CSVv2M cut is 0.800
    const float cutCSVS = 0.8484, cutCSVL = 0.5426, cutCSVT = 0.9535, cutCSVSold = 0.800; // old is for ICHEP working point
    //2016 Data and  8_0_X MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco#Data_MC_Scale_Factors_period_dep
+   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation2016Legacy
    //2017 Data and  9_4_X MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation94X
    //2018 Data and 10_2_X MC: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
    const std::map<std::string, std::map<std::string, float > > CSVv2 = {

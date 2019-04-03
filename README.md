@@ -124,12 +124,12 @@ Run this command from your working area, i.e. the directory where softlinks to t
 
 Command using full path:
 ```
-$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t PostProcess_StopNtuple_v1.0.3
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t PostProcess_StopTuple_V1.2.1
 ```
 
 Command if `SusyAnaTools/Tools/scripts` is in your PATH:
 ```
-getStopCfg.sh -t PostProcess_StopNtuple_v1.0.3
+getStopCfg.sh -t PostProcess_StopTuple_V1.2.1
 ```
 
 ## Setup Tools Environment
