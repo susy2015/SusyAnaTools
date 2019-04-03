@@ -133,7 +133,12 @@ getStopCfg.sh -t PostProcess_StopTuple_V1.2.1
 ```
 
 ## Setup Tools Environment
-Go to your working area, then do below
+Go to your working area, then do this:
+```
+source $CMSSW_BASE/src/TopTagger/TopTagger/test/taggerSetup.sh
+```
+
+No longer used:
 ```
 source $CMSSW_BASE/src/SusyAnaTools/Tools/setup.csh
 ```
