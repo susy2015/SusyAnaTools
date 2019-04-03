@@ -138,11 +138,6 @@ Go to your working area, then do this:
 source $CMSSW_BASE/src/TopTagger/TopTagger/test/taggerSetup.sh
 ```
 
-No longer used:
-```
-source $CMSSW_BASE/src/SusyAnaTools/Tools/setup.csh
-```
-
 Please note that this script will download the desired tagger configuration information in a seperate folder and softlink the necessary files into your corrent directory.
 If you have multiple configuration files you work with in the same working directory use the "-f name" option to specify the name of the softlink to the tagger file (the default is TopTagger.cfg).
 If you do not want this directory in your working directory you may add the "-d PATH_TO_DOWNLOAD_TO" option to specify where it should download these files.
