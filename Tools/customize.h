@@ -45,7 +45,7 @@ namespace AnaConsts{
     };
 
     
-   const int nMuonsSel = 0, nElectronsSel = 0, nTausSel = 0, nIsoTrksSel = 0;
+   const int nMuonsSel = 0, nElectronsSel = 0, nTausSel = 0, nIsoTracksSel = 0;
 
    const int nJetsSel = 4, nJetsSelPt30Eta24 = 4, nJetsSelPt50Eta24 = 2, nJetsSelPt70Eta24 = 2, nJetsSelPt20Eta24 = 2;
 // [low_nJetsSelBtagged, high_nJetsSelBtagged)
