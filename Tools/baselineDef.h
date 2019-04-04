@@ -89,6 +89,7 @@ public:
     bool doIsoTrkVeto;
     bool doMET;
     bool dodPhis;
+    bool SAT_Pass_Baseline;
     bool SAT_Pass_lowDM;
     bool SAT_Pass_highDM;
 

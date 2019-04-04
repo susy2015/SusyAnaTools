@@ -654,11 +654,10 @@ void BaselineVessel::PassBaseline()
   
   bool SAT_Pass_NJets20 = nJets >= 2;
   bool passTagger = (incZEROtop || nMergedTops >= AnaConsts::low_nTopCandSortedSel); 
-  bool SAT_Pass_EventFilter = passNoiseEventFilterFunc();
-  bool passQCDHighMETFilter = true;
-  bool passFastsimEventFilter = true;
   bool passMuonVeto = (nMuons == AnaConsts::nMuonsSel), passEleVeto = (nElectrons == AnaConsts::nElectronsSel), passIsoTrkVeto = (nIsoTrks == AnaConsts::nIsoTrksSel);
   bool Pass_LeptonVeto = tr->getVar<bool>("Pass_LeptonVeto");
+  bool Pass_EventFilter = tr->getVar<bool>("Pass_EventFilter");
+  bool Pass_JetID = tr->getVar<bool>("Pass_JetID");
   //bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTrksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTrksSel);
   //bool Pass_LeptonVeto = passMuonVeto && passEleVeto && passIsoTrkVeto;
   bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
@@ -671,7 +670,6 @@ void BaselineVessel::PassBaseline()
                     && fabs(ISRJet.Eta()) < 2.4
                     && fabs(ISRJet.Phi() - metphi) > 2
                   );
-  
   
   //SUS-16-049, low dm, mtb cut
   bool pass_mtb_lowdm = (nBottoms == 0 || (nBottoms > 0 && mtb < 175));  
@@ -690,27 +688,31 @@ void BaselineVessel::PassBaseline()
                                   && dPhiVec->at(3) > 0.5
                                 );
   
-  //baseline for SUS-16-049 low dm
+  // baseline
+  SAT_Pass_Baseline = (
+                            Pass_EventFilter
+                         && Pass_JetID 
+                         && SAT_Pass_MET 
+                         && SAT_Pass_HT
+                         && SAT_Pass_NJets20
+                      );
+  //baseline for SUS-16-049 low dm plus HT cut
   SAT_Pass_lowDM = (
-                        nMergedTops == 0
+                        SAT_Pass_Baseline
+                     && SAT_Pass_dPhiMETLowDM
+                     && nMergedTops == 0
                      && nWs == 0
                      && pass_ISR
                      && S_met > 10
-                     && SAT_Pass_dPhiMETLowDM
                      && pass_mtb_lowdm
-                     && SAT_Pass_MET
-                     && SAT_Pass_EventFilter
-                     && nJets >= 2
                    );      
   
   //baseline for SUS-16-049 high dm plus HT cut
   SAT_Pass_highDM = (
-                         SAT_Pass_MET
-                      && SAT_Pass_EventFilter
-                      && nJets >= 5
+                         SAT_Pass_Baseline
                       && SAT_Pass_dPhiMETHighDM
                       && nBottoms >= 1
-                      && SAT_Pass_HT
+                      && nJets >= 5
                     );      
   
   // ------------------------------------ // 
@@ -739,7 +741,6 @@ void BaselineVessel::PassBaseline()
       SAT_Pass_highDM = SAT_Pass_highDM && Pass_LeptonVeto;
   }
 
-
   // Register all the calculated variables
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
@@ -755,23 +756,21 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
   tr->registerDerivedVar("ptb" + firstSpec, ptb);
   tr->registerDerivedVar("mtb" + firstSpec, mtb);
+  tr->registerDerivedVar("HT" + firstSpec, HT);
   tr->registerDerivedVar("cntNJetsPt30" + firstSpec, cntNJetsPt30);
+  //tr->registerDerivedVar("passIsoLepTrkVeto" + firstSpec, passIsoLepTrkVeto);
+  //tr->registerDerivedVar("passIsoPionTrkVeto" + firstSpec, passIsoPionTrkVeto);
+  //tr->registerDerivedVar("passdPhis" + firstSpec, passdPhis);
   tr->registerDerivedVar("passMuonVeto" + firstSpec, passMuonVeto);
   tr->registerDerivedVar("passEleVeto" + firstSpec, passEleVeto);
   tr->registerDerivedVar("passIsoTrkVeto" + firstSpec, passIsoTrkVeto);
-  //tr->registerDerivedVar("passIsoLepTrkVeto" + firstSpec, passIsoLepTrkVeto);
-  //tr->registerDerivedVar("passIsoPionTrkVeto" + firstSpec, passIsoPionTrkVeto);
-  tr->registerDerivedVar("SAT_Pass_NJets20" + firstSpec, SAT_Pass_NJets20);
-  //tr->registerDerivedVar("passdPhis" + firstSpec, passdPhis);
-  tr->registerDerivedVar("SAT_Pass_dPhiMETLowDM" + firstSpec, SAT_Pass_dPhiMETLowDM);
-  tr->registerDerivedVar("SAT_Pass_dPhiMETHighDM" + firstSpec, SAT_Pass_dPhiMETHighDM);
+  tr->registerDerivedVar("passTagger" + firstSpec, passTagger);
   tr->registerDerivedVar("SAT_Pass_MET" + firstSpec, SAT_Pass_MET);
   tr->registerDerivedVar("SAT_Pass_HT" + firstSpec, SAT_Pass_HT);
-  tr->registerDerivedVar("passTagger" + firstSpec, passTagger);
-  tr->registerDerivedVar("SAT_Pass_EventFilter" + firstSpec, SAT_Pass_EventFilter);
-  tr->registerDerivedVar("passQCDHighMETFilter" + firstSpec, passQCDHighMETFilter);
-  tr->registerDerivedVar("passFastsimEventFilter" + firstSpec, passFastsimEventFilter);
-  tr->registerDerivedVar("HT" + firstSpec, HT);
+  tr->registerDerivedVar("SAT_Pass_NJets20" + firstSpec, SAT_Pass_NJets20);
+  tr->registerDerivedVar("SAT_Pass_Baseline"  + firstSpec, SAT_Pass_Baseline);
+  tr->registerDerivedVar("SAT_Pass_dPhiMETLowDM" + firstSpec, SAT_Pass_dPhiMETLowDM);
+  tr->registerDerivedVar("SAT_Pass_dPhiMETHighDM" + firstSpec, SAT_Pass_dPhiMETHighDM);
   tr->registerDerivedVar("SAT_Pass_lowDM"  + firstSpec, SAT_Pass_lowDM);
   tr->registerDerivedVar("SAT_Pass_highDM" + firstSpec, SAT_Pass_highDM);
 } 
