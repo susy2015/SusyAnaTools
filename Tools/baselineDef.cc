@@ -568,18 +568,24 @@ void BaselineVessel::PassBaseline()
   // IsoTrack_Stop0l 
   
   // lepton vetos
-  int nElectrons = 0;
-  int nMuons     = 0;
-  int nIsoTracks = 0;
+  int nElectrons_Stop0l = 0;
+  int nMuons_Stop0l     = 0;
+  int nIsoTracks_Stop0l = 0;
+  int nElectrons = tr->getVar<unsigned int>("nElectron");
+  int nMuons     = tr->getVar<unsigned int>("nMuon");
+  int nIsoTracks = tr->getVar<unsigned int>("nIsoTrack");
   const auto& Electron_Stop0l   = tr->getVec<unsigned char>("Electron_Stop0l");
   const auto& Muon_Stop0l       = tr->getVec<unsigned char>("Muon_Stop0l");
   const auto& IsoTrack_Stop0l   = tr->getVec<unsigned char>("IsoTrack_Stop0l");
-  for (const auto& pass : Electron_Stop0l)  if(pass) ++nElectrons;
-  for (const auto& pass : Muon_Stop0l)      if(pass) ++nMuons;
-  for (const auto& pass : IsoTrack_Stop0l)  if(pass) ++nIsoTracks;
-  bool Pass_EletronVeto     = (nElectrons == AnaConsts::nElectronsSel);
-  bool Pass_MuonVeto        = (nMuons == AnaConsts::nMuonsSel);
-  bool Pass_IsoTrackVeto    = (nIsoTracks == AnaConsts::nIsoTracksSel);
+  for (const auto& pass : Electron_Stop0l)  if(pass) ++nElectrons_Stop0l;
+  for (const auto& pass : Muon_Stop0l)      if(pass) ++nMuons_Stop0l;
+  for (const auto& pass : IsoTrack_Stop0l)  if(pass) ++nIsoTracks_Stop0l;
+  bool Pass_EletronVeto  = (nElectrons_Stop0l == 0);
+  bool Pass_MuonVeto     = (nMuons_Stop0l     == 0);
+  bool Pass_IsoTrackVeto = (nIsoTracks_Stop0l == 0);
+
+  // test lepton veto
+  //printf("(Total, Stop0l, veto); electrons (%d, %d, %d), muons (%d, %d, %d), isotracks (%d, %d, %d)\n", nElectrons, nElectrons_Stop0l, Pass_EletronVeto, nMuons, nMuons_Stop0l, Pass_MuonVeto, nIsoTracks, nIsoTracks_Stop0l, Pass_IsoTrackVeto);
 
   // --- Don't Use --- //
   //int nElectrons = tr->getVar<unsigned int>("nElectron");
