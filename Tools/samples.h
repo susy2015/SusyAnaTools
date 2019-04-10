@@ -45,6 +45,7 @@ namespace AnaSamples
       if(filerun<0)filerun=filelist_.size();
       for(int fn = startfile; fn < startfile+filerun && fn<filelist_.size(); fn++)
       {
+        //printf("fn = %d, filelist_[fn]=%s\n", fn, filelist_[fn].c_str()); // testing
         chain->Add(filelist_[fn].c_str());
       }
     }

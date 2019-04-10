@@ -117,40 +117,58 @@ int main(int argc, char *argv[])
             if (t)  delete t;
             continue;
         }
-    
-        TH1* h3 = new TH1D("h3", "h3", 2, -100000, 100000);
+
+        int pos_weights = -1;
+        int neg_weights = -1;
         
-        // --- Calculate weights --- //
-        //
-        // weight name for prod2016MCv2_NANO_Skim ntuples: genWeight 
-        // weight name for CMSSW8028_2016 ntuples: stored_weight           
-        // weight name for Stealth SUSY ntuples: Weight
-        
-        if(checkBranch(t, "genWeight"))
+        if(file.first.find("Data") != std::string::npos)
         {
-            t->Draw("genWeight>>h3", "1", "goff");
-        }
-        else if(checkBranch(t, "stored_weight"))
-        {
-            t->Draw("stored_weight>>h3", "1", "goff");
-        }
-        else if(checkBranch(t, "Weight"))
-        {
-            t->Draw("Weight>>h3", "1", "goff");
+            // --- Use t->GetEntries() for Data --- //
+            pos_weights = t->GetEntries(); 
+            neg_weights = 0; 
         }
         else
         {
-            printf("ERROR for %s: No weight variable found in tree \"%s\". Skipping %s.\n", file.first.c_str(), file.second.treePath.c_str(), file.first.c_str());
+            // --- Use histogram to store positive/negative weights for MC --- //
+            TH1* h3 = new TH1D("h3", "h3", 2, -100000, 100000);
+            
+            // --- weights --- //
+            // weight name for prod2016MCv2_NANO_Skim ntuples: genWeight 
+            // weight name for CMSSW8028_2016 ntuples: stored_weight           
+            // weight name for Stealth SUSY ntuples: Weight
+            
+            if(checkBranch(t, "genWeight"))
+            {
+                t->Draw("genWeight>>h3", "1", "goff");
+            }
+            else if(checkBranch(t, "stored_weight"))
+            {
+                t->Draw("stored_weight>>h3", "1", "goff");
+            }
+            else if(checkBranch(t, "Weight"))
+            {
+                t->Draw("Weight>>h3", "1", "goff");
+            }
+            else
+            {
+                printf("ERROR for %s: No weight variable found in tree \"%s\". Skipping %s.\n", file.first.c_str(), file.second.treePath.c_str(), file.first.c_str());
+                // delete dynamic memory to avoid memory leaks / save memory / not crash / be safe
+                if (h3) delete h3;
+                if (t)  delete t;
+                continue;
+            }
+            // weights
+            pos_weights = int(h3->GetBinContent(2)); 
+            neg_weights = int(h3->GetBinContent(1)); 
             // delete dynamic memory to avoid memory leaks / save memory / not crash / be safe
             if (h3) delete h3;
-            if (t)  delete t;
-            continue;
         }
-        
-        std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + file.second.fileName << "\t" << "Pos weigths = " << int(h3->GetBinContent(2)) << ", Neg weights = " << int(h3->GetBinContent(1)) << std::endl;
+
+        std::string slash = "";
+        if (file.second.filePath.back() != '/') slash = "/";
+        std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + slash + file.second.fileName << "\t" << "Pos weigths = " << pos_weights << ", Neg weights = " << neg_weights << std::endl;
         
         // delete dynamic memory to avoid memory leaks / save memory / not crash / be safe
-        if (h3) delete h3;
         if (t)  delete t;
     }   
 }
