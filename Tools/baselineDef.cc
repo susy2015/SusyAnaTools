@@ -770,6 +770,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
   tr->registerDerivedVar("cntNJetsPt20Eta24" + firstSpec, cntNJetsPt20Eta24);
+  tr->registerDerivedVar("cntNJetsPt30" + firstSpec, cntNJetsPt30);
   tr->registerDerivedVec("dPhiVec" + firstSpec, dPhiVec);
   tr->registerDerivedVec("vBjs" + firstSpec, vBjs);
   tr->registerDerivedVar("ISRJet" + firstSpec, ISRJet);
@@ -779,10 +780,11 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("nBottoms" + firstSpec, nBottoms);
   tr->registerDerivedVar("nWs" + firstSpec, nWs);
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
+  tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
+  tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
   tr->registerDerivedVar("ptb" + firstSpec, ptb);
   tr->registerDerivedVar("mtb" + firstSpec, mtb);
   tr->registerDerivedVar("HT" + firstSpec, HT);
-  tr->registerDerivedVar("cntNJetsPt30" + firstSpec, cntNJetsPt30);
   //tr->registerDerivedVar("passIsoLepTrkVeto" + firstSpec, passIsoLepTrkVeto);
   //tr->registerDerivedVar("passIsoPionTrkVeto" + firstSpec, passIsoPionTrkVeto);
   //tr->registerDerivedVar("passdPhis" + firstSpec, passdPhis);
