@@ -1417,6 +1417,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   //CombDeepCSV(); //temparory fix for DeepCSV
   // --- Do within PassBaseline();
   //CompCommonVar(); // registers mtb; used by PassBaseline(); now put in PassBaseline().
+  CalcBottomVars();
   PassBaseline();
   PassTrigger();
   // --- Do within PassBaseline();
@@ -1730,6 +1731,26 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
   return true;
 }       // -----  end of function BaselineVessel::GetRecoZ  -----
 
+// calculate bottom quark variables
+// n_bottoms, mtb, ptb
+bool BaselineVessel::CalcBottomVars()
+{
+  float mtb = 99999;
+  float ptb = 0;
+  int nBottoms = 0;
+  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
+  int i = 0;
+  for (const auto& jet : jets)
+  {
+    const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
+    const auto& Jet_btagDeepB  = tr->getVec<float>(CSVVecLabel);
+    if (Jet_btagStop0l[i])
+    {
+      printf("jet %d: b_disc = %f, Jet_btagStop0l = %s\n", i, Jet_btagDeepB[i], Jet_btagStop0l[i] ? "true" : "false");
+    }
+    ++i;
+  }
+}
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::CompCommonVar
@@ -1737,30 +1758,42 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
 // ===========================================================================
 bool BaselineVessel::CompCommonVar()
 {
-  const std::vector<float>  &bdisc = tr->getVec<float>(CSVVecLabel);
-  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
-  std::map<float, unsigned> discmap;
-  for(auto idx : *vBidxs)
-  {
-    discmap[bdisc[idx]] = idx;
-  }
   float mtb = 99999;
   float ptb = 0;
   unsigned cnt = 0;
-
-  for (auto iter = discmap.rbegin(); iter != discmap.rend(); ++iter)
+  
+  const std::vector<float>  &bdisc = tr->getVec<float>(CSVVecLabel);
+  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
+  std::map<float, unsigned> discmap;
+ 
+  // check that vBidxs is not nullptr 
+  if (vBidxs && vBjs)
   {
-    float temp = sqrt(2*jets.at(iter->second).Pt()*tr->getVar<float>(METLabel)
-        *(1-cos(jets.at(iter->second).Phi() - tr->getVar<float>(METPhiLabel))));
-    mtb = std::min(mtb, temp);
-    cnt ++;
-    if (cnt == 2) break;
+    printf("vBidxs->size() = %d vBjs->size() = %d \n", vBidxs->size(), vBjs->size());
+    for(auto idx : *vBidxs)
+    {
+      discmap[bdisc[idx]] = idx;
+    }
+
+    for (auto iter = discmap.rbegin(); iter != discmap.rend(); ++iter)
+    {
+      float temp = sqrt(2*jets.at(iter->second).Pt()*tr->getVar<float>(METLabel)
+          *(1-cos(jets.at(iter->second).Phi() - tr->getVar<float>(METPhiLabel))));
+      mtb = std::min(mtb, temp);
+      cnt ++;
+      if (cnt == 2) break;
+    }
+    if (mtb == 99999) mtb=0;
+
+    for (unsigned i = 0; i < vBjs->size() && i < 2; ++i)
+    {
+      ptb += vBjs->at(i).Pt();
+    }
   }
-  if (mtb == 99999) mtb=0;
-
-  for (unsigned i = 0; i < vBjs->size() && i < 2; ++i)
+  // vBidxs is nullptr
+  else
   {
-    ptb += vBjs->at(i).Pt();
+    std::cout << "WARNING: vBidxs and/or vBjs is nullptr" << std::endl;
   }
 
   tr->registerDerivedVar("mtb"+firstSpec, mtb);

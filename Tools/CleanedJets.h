@@ -168,7 +168,7 @@ private:
             // get type
             std::string type;
             tr_->getType(jetVariable, type);
-            //std::cout << jetVariable << " : " << type << std::endl; 
+            //std::cout << jetVariable << " : " << type << std::endl; // testing
             // check for vector
             if (type.find("std::vector<std::vector") != std::string::npos)
             {
@@ -205,6 +205,7 @@ public:
         AK4JetVariables_ = {
                              "JetTLV",              
                              "Jet_btagDeepB",              
+                             "Jet_btagStop0l",
                              //"recoJetsCSVv2",
                              //"qgLikelihood",
                              //"qgPtD",                               
