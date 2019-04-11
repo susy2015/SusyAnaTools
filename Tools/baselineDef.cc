@@ -670,7 +670,7 @@ void BaselineVessel::PassBaseline()
   const auto& ISRpt         = tr->getVar<float>("Stop0l_ISRJetPt");
   const auto& mtb           = tr->getVar<float>("Stop0l_Mtb");
   const auto& ptb           = tr->getVar<float>("Stop0l_Ptb");
-  const auto& nBottoms      = cntCSVS;
+  const auto& nBottoms      = tr->getVar<int>("nBottoms");
   const auto& nSoftBottoms  = tr->getVar<int>("Stop0l_nSoftb");;
   const auto& nJets         = cntNJetsPt20Eta24;
   float HT                  = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
@@ -766,6 +766,10 @@ void BaselineVessel::PassBaseline()
       SAT_Pass_highDM = SAT_Pass_highDM && Pass_LeptonVeto;
   }
 
+  // testing
+  //printf("cntCSVS = %d, nBottoms = %d\n", cntCSVS, nBottoms);
+
+
   // Register all the calculated variables
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
@@ -777,13 +781,13 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("nSoftBottoms" + firstSpec, nSoftBottoms);
   tr->registerDerivedVar("nMergedTops" + firstSpec, nMergedTops);
   tr->registerDerivedVar("nResolvedTops" + firstSpec, nResolvedTops);
-  tr->registerDerivedVar("nBottoms" + firstSpec, nBottoms);
+  //tr->registerDerivedVar("nBottoms" + firstSpec, nBottoms);
   tr->registerDerivedVar("nWs" + firstSpec, nWs);
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
   tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
-  tr->registerDerivedVar("ptb" + firstSpec, ptb);
-  tr->registerDerivedVar("mtb" + firstSpec, mtb);
+  //tr->registerDerivedVar("ptb" + firstSpec, ptb);
+  //tr->registerDerivedVar("mtb" + firstSpec, mtb);
   tr->registerDerivedVar("HT" + firstSpec, HT);
   //tr->registerDerivedVar("passIsoLepTrkVeto" + firstSpec, passIsoLepTrkVeto);
   //tr->registerDerivedVar("passIsoPionTrkVeto" + firstSpec, passIsoPionTrkVeto);
@@ -1735,21 +1739,53 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
 // n_bottoms, mtb, ptb
 bool BaselineVessel::CalcBottomVars()
 {
+  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
   float mtb = 99999;
   float ptb = 0;
   int nBottoms = 0;
-  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
   int i = 0;
+  
+  // map sorted from greatest b discriminator to least
+  std::map<float, unsigned, std::greater<float>> disc_map;
+  
+  i = 0;
   for (const auto& jet : jets)
   {
-    const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
-    const auto& Jet_btagDeepB  = tr->getVec<float>(CSVVecLabel);
-    if (Jet_btagStop0l[i])
+    const auto& b_disc = tr->getVec<float>(CSVVecLabel);
+    if (disc_map.find(b_disc[i]) != disc_map.end())
     {
-      printf("jet %d: b_disc = %f, Jet_btagStop0l = %s\n", i, Jet_btagDeepB[i], Jet_btagStop0l[i] ? "true" : "false");
+      printf("WARNING: disc_map[%f] = %d is already stored in disc_map; skipping %d\n", b_disc[i], disc_map[b_disc[i]], i);
+    }
+    else
+    {
+      disc_map[b_disc[i]] = i; 
     }
     ++i;
   }
+  
+  printf("jets.size() = %d, disc_map.size() = %d\n", jets.size(), disc_map.size());
+  for (const auto& d : disc_map)
+  {
+    printf("d = %f, index = %d\n", d.first, d.second);
+  }
+  
+  i = 0;
+  for (const auto& jet : jets)
+  {
+    const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
+    const auto& b_disc         = tr->getVec<float>(CSVVecLabel);
+    if (Jet_btagStop0l[i])
+    {
+      //printf("jet %d: b_disc = %f, Jet_btagStop0l = %s\n", i, b_disc[i], Jet_btagStop0l[i] ? "true" : "false");
+      ++nBottoms;
+    }
+    ++i;
+  }
+ 
+  // register variables
+  tr->registerDerivedVar("mtb"+firstSpec, mtb);
+  tr->registerDerivedVar("ptb"+firstSpec, ptb);
+  tr->registerDerivedVar("nBottoms"+firstSpec, nBottoms);
 }
 
 // ===  FUNCTION  ============================================================
