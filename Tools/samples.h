@@ -89,7 +89,8 @@ namespace AnaSamples
   // Data_SingleMuon_2018:      58364.0 pb^(-1) 
  
   static const double luminosity_2016           = 35922.0; // in pb-1 (all datasets except Data_SingleElectron_2016)
-  static const double luminosity_electron_2016  = 35860.0; // in pb-1 for Data_SingleElectron_2016
+  //static const double luminosity_electron_2016  = 35860.0; // in pb-1 for Data_SingleElectron_2016: incorrect
+  static const double luminosity_electron_2016  = 18075.2; // in pb-1 for Data_SingleElectron_2016; compare to Stealth n_events, (35922.0 * 474181858.0 / 942371523.0) = 18075.207375590446
   static const double luminosity_muon_2016      = 35922.0; // in pb-1 for Data_SingleMuon_2016
   static const double luminosity_photon_2016    = 35922.0; // in pb-1 for Data_SinglePhoton_2016 
   static const double luminosity_electron_2017  = 1.0;     // in pb-1 for Data_SingleElectron_2017
