@@ -546,6 +546,7 @@ bool BaselineVessel::PrintoutConfig() const
 void BaselineVessel::PassBaseline()
 {
   if (printConfig) PrintoutConfig();
+  bool verbose = false;
   
   // Get jet collection
   const auto& jet_vec = tr->getVec<TLorentzVector>(jetVecLabel);
@@ -770,9 +771,12 @@ void BaselineVessel::PassBaseline()
   }
 
   // testing
-  printf("cntCSVS = %d, nBottoms = %d\n", cntCSVS, nBottoms);
-  printf("mtb = %f, Stop0l_Mtb = %f\n", mtb, Stop0l_Mtb);
-  printf("ptb = %f, Stop0l_Ptb = %f\n", ptb, Stop0l_Ptb);
+  if (verbose)
+  {
+    printf("cntCSVS = %d, nBottoms = %d\n", cntCSVS, nBottoms);
+    printf("mtb = %f, Stop0l_Mtb = %f\n", mtb, Stop0l_Mtb);
+    printf("ptb = %f, Stop0l_Ptb = %f\n", ptb, Stop0l_Ptb);
+  }
 
 
   // Register all the calculated variables
@@ -1750,6 +1754,7 @@ bool BaselineVessel::CalcBottomVars()
   const auto& met     = tr->getVar<float>(METLabel); 
   const auto& metphi  = tr->getVar<float>(METPhiLabel); 
   
+  bool verbose = false;
   float mtb = 999999;
   float ptb = 0;
   int nBottoms = 0;
@@ -1764,7 +1769,7 @@ bool BaselineVessel::CalcBottomVars()
     // check if it pass b requirement
     if (Jet_btagStop0l[i])
     {
-      printf("jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jet.Pt());
+      if (verbose) printf("jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jet.Pt());
       ++nBottoms;
       // only 
       // only use first two b-jets (ordered by p_t) for mtb
@@ -1786,17 +1791,14 @@ bool BaselineVessel::CalcBottomVars()
     ++i;
   }
   
-  
   // calculate mtb
-  printf("jets.size() = %d, disc_map.size() = %d\n", jets.size(), disc_map.size());
+  if (verbose) printf("jets.size() = %d, disc_map.size() = %d\n", jets.size(), disc_map.size());
   i = 0;
   for (const auto& d : disc_map)
   {
     // only use first two b-jets (ordered by discriminator) for mtb
     if (i > 1) break;
-    printf("d = %f, index = %d\n", d.first, d.second);
-    //float perDPhi = fabs(TVector2::Phi_mpi_pi( inputJets[i].Phi() - metphi ));   // using metphi
-    //float perDPhi = fabs(ROOT::Math::VectorUtil::DeltaPhi(inputJets[i], metLVec)); // using metLVec
+    if (verbose) printf("d = %f, index = %d\n", d.first, d.second);
     const TLorentzVector& b_jet = jets.at(d.second); 
     float dPhi = fabs(TVector2::Phi_mpi_pi(b_jet.Phi() - metphi));
     float temp = sqrt( 2 * b_jet.Pt() * met * (1 - cos(dPhi)) );
@@ -1806,23 +1808,6 @@ bool BaselineVessel::CalcBottomVars()
 
   // set mtb to 0 if mtb was not changed
   if (mtb == 999999) mtb = 0;
-  
-  // calculate ptb; now done in different loop
-  //i = 0;
-  //for (const auto& jet : jets)
-  //{
-  //  // check if it pass b requirement
-  //  if (Jet_btagStop0l[i])
-  //  {
-  //    //printf("jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s\n", i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false");
-  //    ++nBottoms;
-  //    if (i < 2)
-  //    {
-  //      ptb += jet.Pt();
-  //    }
-  //  }
-  //  ++i;
-  //}
  
   // register variables
   tr->registerDerivedVar("mtb"+firstSpec, mtb);
