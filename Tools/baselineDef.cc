@@ -1753,15 +1753,18 @@ bool BaselineVessel::CalcBottomVars()
   const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
   const auto& met     = tr->getVar<float>(METLabel); 
   const auto& metphi  = tr->getVar<float>(METPhiLabel); 
-  
+
   bool verbose = false;
-  float mtb = 999999;
+  float mtb = INFINITY;
   float ptb = 0;
   int nBottoms = 0;
   int i = 0;
   
   // map of b quarks sorted from greatest b discriminator to least
   std::map<float, unsigned, std::greater<float>> disc_map;
+  
+  // use a pair and sort it, as float is not a unique key for b discriminators 
+  //std::pair<float, unsigned>;
   
   i = 0;
   for (const auto& jet : jets)
@@ -1771,7 +1774,6 @@ bool BaselineVessel::CalcBottomVars()
     {
       if (verbose) printf("jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jet.Pt());
       ++nBottoms;
-      // only 
       // only use first two b-jets (ordered by p_t) for mtb
       if (nBottoms < 3)
       {
@@ -1807,7 +1809,7 @@ bool BaselineVessel::CalcBottomVars()
   }
 
   // set mtb to 0 if mtb was not changed
-  if (mtb == 999999) mtb = 0;
+  if (mtb == INFINITY) mtb = 0;
  
   // register variables
   tr->registerDerivedVar("mtb"+firstSpec, mtb);
