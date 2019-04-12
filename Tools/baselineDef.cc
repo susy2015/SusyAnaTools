@@ -549,11 +549,12 @@ void BaselineVessel::PassBaseline()
   
   // Get jet collection
   const auto& jet_vec = tr->getVec<TLorentzVector>(jetVecLabel);
+  const auto& met     = tr->getVar<float>(METLabel); 
+  const auto& metphi  = tr->getVar<float>(METPhiLabel); 
 
-  // Create TLorentzVector for MET
+  // Set TLorentzVector for MET
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
-  float met = metLVec.Pt();
-  float metphi = metLVec.Phi();
+  
   // Calculate deltaPhi
   std::vector<float> * dPhiVec = new std::vector<float>();
   (*dPhiVec) = AnaFunctions::calcDPhi(jet_vec, metLVec, 5, AnaConsts::dphiArr);
@@ -668,9 +669,11 @@ void BaselineVessel::PassBaseline()
   const auto& nResolvedTops = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
   const auto& nWs           = tr->getVar<int>(UseCleanedJetsVar("nWs"));
   const auto& ISRpt         = tr->getVar<float>("Stop0l_ISRJetPt");
-  const auto& mtb           = tr->getVar<float>("Stop0l_Mtb");
-  const auto& ptb           = tr->getVar<float>("Stop0l_Ptb");
-  const auto& nBottoms      = tr->getVar<int>("nBottoms");
+  const auto& Stop0l_Mtb    = tr->getVar<float>("Stop0l_Mtb");
+  const auto& Stop0l_Ptb    = tr->getVar<float>("Stop0l_Ptb");
+  const auto& mtb           = tr->getVar<float>("mtb"+firstSpec);
+  const auto& ptb           = tr->getVar<float>("ptb"+firstSpec);
+  const auto& nBottoms      = tr->getVar<int>("nBottoms"+firstSpec);
   const auto& nSoftBottoms  = tr->getVar<int>("Stop0l_nSoftb");;
   const auto& nJets         = cntNJetsPt20Eta24;
   float HT                  = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
@@ -767,7 +770,9 @@ void BaselineVessel::PassBaseline()
   }
 
   // testing
-  //printf("cntCSVS = %d, nBottoms = %d\n", cntCSVS, nBottoms);
+  printf("cntCSVS = %d, nBottoms = %d\n", cntCSVS, nBottoms);
+  printf("mtb = %f, Stop0l_Mtb = %f\n", mtb, Stop0l_Mtb);
+  printf("ptb = %f, Stop0l_Ptb = %f\n", ptb, Stop0l_Ptb);
 
 
   // Register all the calculated variables
@@ -1740,47 +1745,84 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
 bool BaselineVessel::CalcBottomVars()
 {
   const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
-  float mtb = 99999;
+  const auto& Jet_btagDisc   = tr->getVec<float>(CSVVecLabel);
+  const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
+  const auto& met     = tr->getVar<float>(METLabel); 
+  const auto& metphi  = tr->getVar<float>(METPhiLabel); 
+  
+  float mtb = 999999;
   float ptb = 0;
   int nBottoms = 0;
   int i = 0;
   
-  // map sorted from greatest b discriminator to least
+  // map of b quarks sorted from greatest b discriminator to least
   std::map<float, unsigned, std::greater<float>> disc_map;
   
   i = 0;
   for (const auto& jet : jets)
   {
-    const auto& b_disc = tr->getVec<float>(CSVVecLabel);
-    if (disc_map.find(b_disc[i]) != disc_map.end())
-    {
-      printf("WARNING: disc_map[%f] = %d is already stored in disc_map; skipping %d\n", b_disc[i], disc_map[b_disc[i]], i);
-    }
-    else
-    {
-      disc_map[b_disc[i]] = i; 
-    }
-    ++i;
-  }
-  
-  printf("jets.size() = %d, disc_map.size() = %d\n", jets.size(), disc_map.size());
-  for (const auto& d : disc_map)
-  {
-    printf("d = %f, index = %d\n", d.first, d.second);
-  }
-  
-  i = 0;
-  for (const auto& jet : jets)
-  {
-    const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
-    const auto& b_disc         = tr->getVec<float>(CSVVecLabel);
+    // check if it pass b requirement
     if (Jet_btagStop0l[i])
     {
-      //printf("jet %d: b_disc = %f, Jet_btagStop0l = %s\n", i, b_disc[i], Jet_btagStop0l[i] ? "true" : "false");
+      printf("jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jet.Pt());
       ++nBottoms;
+      // only 
+      // only use first two b-jets (ordered by p_t) for mtb
+      if (nBottoms < 3)
+      {
+        ptb += jet.Pt();
+      }
+      if (disc_map.find(Jet_btagDisc[i]) == disc_map.end())
+      {
+        // not in map yet; add to map
+        disc_map[Jet_btagDisc[i]] = i; 
+      }
+      else
+      {
+        // already in map
+        printf("WARNING: disc_map[%f] = %d is already stored in disc_map; skipping %d\n", Jet_btagDisc[i], disc_map[Jet_btagDisc[i]], i);
+      }
     }
     ++i;
   }
+  
+  
+  // calculate mtb
+  printf("jets.size() = %d, disc_map.size() = %d\n", jets.size(), disc_map.size());
+  i = 0;
+  for (const auto& d : disc_map)
+  {
+    // only use first two b-jets (ordered by discriminator) for mtb
+    if (i > 1) break;
+    printf("d = %f, index = %d\n", d.first, d.second);
+    //float perDPhi = fabs(TVector2::Phi_mpi_pi( inputJets[i].Phi() - metphi ));   // using metphi
+    //float perDPhi = fabs(ROOT::Math::VectorUtil::DeltaPhi(inputJets[i], metLVec)); // using metLVec
+    const TLorentzVector& b_jet = jets.at(d.second); 
+    float dPhi = fabs(TVector2::Phi_mpi_pi(b_jet.Phi() - metphi));
+    float temp = sqrt( 2 * b_jet.Pt() * met * (1 - cos(dPhi)) );
+    mtb = std::min(mtb, temp);
+    ++i;
+  }
+
+  // set mtb to 0 if mtb was not changed
+  if (mtb == 999999) mtb = 0;
+  
+  // calculate ptb; now done in different loop
+  //i = 0;
+  //for (const auto& jet : jets)
+  //{
+  //  // check if it pass b requirement
+  //  if (Jet_btagStop0l[i])
+  //  {
+  //    //printf("jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s\n", i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false");
+  //    ++nBottoms;
+  //    if (i < 2)
+  //    {
+  //      ptb += jet.Pt();
+  //    }
+  //  }
+  //  ++i;
+  //}
  
   // register variables
   tr->registerDerivedVar("mtb"+firstSpec, mtb);
@@ -1794,7 +1836,7 @@ bool BaselineVessel::CalcBottomVars()
 // ===========================================================================
 bool BaselineVessel::CompCommonVar()
 {
-  float mtb = 99999;
+  float mtb = 999999;
   float ptb = 0;
   unsigned cnt = 0;
   
@@ -1819,7 +1861,7 @@ bool BaselineVessel::CompCommonVar()
       cnt ++;
       if (cnt == 2) break;
     }
-    if (mtb == 99999) mtb=0;
+    if (mtb == 999999) mtb=0;
 
     for (unsigned i = 0; i < vBjs->size() && i < 2; ++i)
     {
