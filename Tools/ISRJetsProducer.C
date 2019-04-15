@@ -88,19 +88,52 @@ int main(int argc, char* argv[]) {
         int mother_idx = -1;
         int nisr(0); 
 
+        const auto& ElectronIDBitmap = tr->getVec<Int_t>("Electron_vidNestedWPBitmap");
+        const auto& elecVec = tr->getVec_LVFromNano<Float_t>("Electron");
+        const auto& Electron_miniPFRelIso = tr->getVec<float>("Electron_miniPFRelIso_all");
+        const auto& muonVec = tr->getVec_LVFromNano<Float_t>("
+
+        for( int j=0; j<JetVec.size(); j++){
+        if( elecVec.size() >= 0 && elecVec[j].Pt() > 10.0)
+            {
+                bool isLep = false;
+                //MAsk relIso from the ID so we can apply miniIso
+                const int NCUTS = 10;
+                const int BITSTRIDE = 3;
+                const int BITMASK = 0x7;
+                const int ISOBITMASK = 070000000;  //note to the curious, 0 before an integer is octal, so 070000000 = 0xE00000 = 14680064, so this corrosponds to the three pfRelIso bits 
+                
+                int cutBits = ElectronIDBitmap.at(j) | ISOBITMASK; // the | masks the iso cut
+                int elecID = 07; // start with the largest 3 bit number
+                for(int i = 0; i < NCUTS; ++i)
+                {
+                    elecID = std::min(elecID, cutBits & BITMASK);
+                    cutBits = cutBits >> BITSTRIDE;
+                }
+
+                double dR = JetVec[j].DeltaR(elecVec[j]);
+
+                isLep = isLep || (elecID >= 1 && Electron_miniPFRelIso.at(j) < 0.10 && dR < 0.2);
+            }            
+            }
+
             for(unsigned int i=0; i<nGenPart; i++) {
                 mother_idx = mother.at(i);
                 //std::cout<<mother_idx<<","<<std::flush;
                 if(mother_idx==-1) continue;
                 daughters.at(mother_idx).push_back(i);
             }
-
+         
          for( int j=0; j<JetVec.size(); j++){
              bool matched=false;
+             if (JetVec[j].Pt() > 20 && abs(JetVec[j].Eta()) < 2.4){
              for(unsigned int i=0; i<nGenPart; i++) {
-             if (StatusFlag.at(i)!=23 || abs(pdgId.at(i))>5) continue;
+                 //std::cout<<"genPart.pdgId "<< pdgId.at(i)<<std::endl;
+                 //std::cout<<"mother Idx:"<<pdgId.at(mother_idx)<<std::endl;
+             
+                 if (StatusFlag.at(i)!=23 || abs(pdgId.at(i))>5) continue;
              Int_t mommy_pdgId = pdgId.at(mother_idx);
-             if(!(mommy_pdgId==6 || mommy_pdgId==23 || mommy_pdgId==24 || mommy_pdgId==25 || mommy_pdgId>1e6)) continue;  
+             if(!(mommy_pdgId==6 || mommy_pdgId==23 || mommy_pdgId==24 || mommy_pdgId==25 || mommy_pdgId>1e6)) continue; 
              for(unsigned int d=0; d<daughters.at(i).size(); d++) { 
                     float dR = JetVec[j].DeltaR(GenPartVec[d]);
                     //std::cout << dR << std::endl;
@@ -110,17 +143,23 @@ int main(int argc, char* argv[]) {
                     } 
                 }
             }
+            }
             if(!matched) {
                 nisr++;
             }
         }
         //std::cout << std::endl << std::endl;
-        //std::cout << "nisr "<<nisr<<std::endl;
+        std::cout << "nisr "<<nisr<<std::endl;
+        
 
         for(unsigned int i=0; i<nGenPart; i++) {
             //std::cout << "(" << std::flush;
+                  //std::cout<<"genPart.pdgId "<< pdgId.at(i)<<std::endl;
+                  //std::cout<<"mother Idx:"<<mother.at(i)<<std::endl;
             for(unsigned int j=0; j<daughters.at(i).size(); j++) {
-                //std::cout << daughters.at(i).at(j) << std::flush;
+                 //std::cout<<"genPart.pdgId "<< pdgId.at(i)<<std::endl;
+                 //std::cout<<"mother Idx:"<<pdgId.at(mother.at(i))<<std::endl;
+                //std::cout << " daughters "<< daughters.at(i).at(j) << std::flush;
                 if(j!=daughters.at(i).size()-1); //std::cout << "," << std::flush;
             }
             //std::cout << ")," <<std::flush;
