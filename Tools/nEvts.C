@@ -166,7 +166,10 @@ int main(int argc, char *argv[])
 
         std::string slash = "";
         if (file.second.filePath.back() != '/') slash = "/";
-        std::cout << "Processing file(s): " << file.second.tag << "\t" << file.second.filePath + slash + file.second.fileName << "\t" << "Pos weigths = " << pos_weights << ", Neg weights = " << neg_weights << std::endl;
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        // WARNING: Do not change print statement unless you also update nEvts.py and updateSamples.py!!! //
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        printf("%s, %s, Positive weights: %i, Negative weights: %i\n", file.second.tag.c_str(), file.second.filePath.c_str(), pos_weights, neg_weights);
         
         // delete dynamic memory to avoid memory leaks / save memory / not crash / be safe
         if (t)  delete t;

@@ -97,6 +97,9 @@ if __name__ == "__main__":
             print "name: {0} file: {1}".format(name, file)
             try:
                 nPos, nNeg = getNEvts(file, options.threads, options.legacy)
+                #################################################################################################
+                # WARNING: Do not change print statement unless you also update nEvts.C and updateSamples.py!!! #
+                #################################################################################################
                 print "%s, %s, Positive weights: %i, Negative weights: %i"%(name, file, nPos, nNeg)
             except TypeError:
                 pass
