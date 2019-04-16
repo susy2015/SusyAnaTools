@@ -44,7 +44,12 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   if (UseDeepTagger)
     toptaggerCfgFile      = "TopTagger_Deep.cfg";
 
-  if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
+  if(filterString.compare("fastsim") ==0)
+  {
+    isfastsim = true;
+    std::cout << "sample is fastsim, noise filter disabled" << std::endl;
+  }
+  else isfastsim = false; 
 
   //Check if simplified tagger is called for
   std::string taggerLabel = "";
@@ -538,7 +543,7 @@ void BaselineVessel::PassBaseline()
   // Register all the calculated variables
   //tr->registerDerivedVar("nMuons_CUT" + firstSpec, nMuons);           // error: do not redefine  
   //tr->registerDerivedVar("nElectrons_CUT" + firstSpec, nElectrons);   // error: do not redefine
-  //tr->registerDerivedVar("nIsoTrks_CUT" + firstSpec, nIsoTrks);       // error: do not redefine
+  tr->registerDerivedVar("nIsoTrks" + firstSpec, nIsoTrks);       // error: do not redefine
 
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);

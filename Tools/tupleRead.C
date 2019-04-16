@@ -87,8 +87,18 @@ int main(int argc, char* argv[]){
 
 	if(debug) std::cout << __LINE__ << std::endl;
 
-	//BaselineVessel blv(tr);
-	BaselineVessel blv(tr, "", "fastsim");
+	bool find_fastsim = false;
+	std::string filterString = "";
+
+	if(sample_name.find("Signal_fastsim") != std::string::npos)
+	{
+		std::cout << "find fastsim signal" << std::endl;
+		find_fastsim = true;
+		filterString = "fastsim";
+	}
+
+	BaselineVessel blv(tr, "", filterString);
+	//BaselineVessel blv(tr, "", "fastsim");
 	if(!use_deepCSV) blv.UseDeepCSV = false;
 	if(use_new_tagger)
 	{
@@ -110,10 +120,6 @@ int main(int argc, char* argv[]){
 
 	bool find_B_SF = true;
 	bool find_ISR_SF = true;
-	bool find_fastsim = false;
-
-	if(sample_name.find("Signal_fastsim") != std::string::npos)
-	{std::cout << "find fastsim signal" << std::endl; find_fastsim = true;}
 
 	std::cout << "======================================= ISR and B_SF start ==============================================" << std::endl;
 	std::cout << "sample name is " << sample_name << std::endl; 
@@ -296,8 +302,15 @@ int main(int argc, char* argv[]){
 	auto ISRpt_lowdm_h=new TH1F("ISRpt_lowdm_h","ISR pt, low dm",80,0.0,1600.0);
 	auto bottompt_scalar_sum_lowdm_h=new TH1F("bottompt_scalar_sum_lowdm_h","bottom pt sclar sum, low dm",80,0.0,1600.0);
 
-	auto nMuons_uc_h=new TH1F("nMuons_uc_h","number of muons, no cut",10,0.0,10.0);
-	auto nElectrons_uc_h=new TH1F("nElectrons_uc_h","number of electrons, no cut",10,0.0,10.0);
+	auto ISR_SF_uc_h=new TH1F("ISR_SF_uc_h","ISR SF, no evtWeight, no cuts",100,0.0,2.0);
+	auto B_SF_uc_h=new TH1F("B_SF_uc_h","B tagging SF, no, evtWeight, no cuts",100,0.0,2.0);
+	auto ISR_SF_h=new TH1F("ISR_SF_h","ISR SF, no evtWeight, loose baseline",100,0.0,2.0);
+	auto B_SF_h=new TH1F("B_SF_h","B tagging SF, no, evtWeight, loose baseline",100,0.0,2.0);
+
+	auto nMuons_uc_h=new TH1F("nMuons_uc_h","number of muons, no cuts",10,0.0,10.0);
+	auto nElectrons_uc_h=new TH1F("nElectrons_uc_h","number of electrons, no cuts",10,0.0,10.0);
+
+	auto loose_baseline_cutflow_h=new TH1F("loose_baseline_cutflow_h","0: all 1: PassEventFilter 2: PassLeptonVeto 3: PassNjets 4: PassMET 5: PassHT 6: PassdPhiLowDM",7,0.0,7.0);
 
 	auto eff_h=new TH1F("eff_h","0: all. 1: loose baseline. 2: low dm. 3: high dm",4,0.0,4.0);
 
@@ -648,6 +661,14 @@ int main(int argc, char* argv[]){
 		if(debug) std::cout << __LINE__ << std::endl;
 
 		// ---------- Fill Histograms ----------
+		// cutflow
+		loose_baseline_cutflow_h->Fill(0);
+		if(tr.getVar<bool>("passNoiseEventFilter"))loose_baseline_cutflow_h->Fill(1);
+		if(tr.getVar<bool>("passNoiseEventFilter") && tr.getVar<bool>("passLeptVeto"))loose_baseline_cutflow_h->Fill(2);
+		if(tr.getVar<bool>("passNoiseEventFilter") && tr.getVar<bool>("passLeptVeto") && njetspt20 >=2)loose_baseline_cutflow_h->Fill(3);
+		if(tr.getVar<bool>("passNoiseEventFilter") && tr.getVar<bool>("passLeptVeto") && njetspt20 >=2 && tr.getVar<bool>("passMET"))loose_baseline_cutflow_h->Fill(4);
+		if(tr.getVar<bool>("passNoiseEventFilter") && tr.getVar<bool>("passLeptVeto") && njetspt20 >=2 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT"))loose_baseline_cutflow_h->Fill(5);
+		if(tr.getVar<bool>("passNoiseEventFilter") && tr.getVar<bool>("passLeptVeto") && njetspt20 >=2 && tr.getVar<bool>("passMET") && tr.getVar<bool>("passHT") && passdphi_lowdm)loose_baseline_cutflow_h->Fill(6);
 
 		// no cut
 		HT_uc_h->Fill(HT,evtWeight);
@@ -662,6 +683,8 @@ int main(int argc, char* argv[]){
 		mtb_uc_h->Fill(mtb,evtWeight);
 		nMuons_uc_h->Fill(nMuons,evtWeight);
 		nElectrons_uc_h->Fill(nElectrons,evtWeight);
+		ISR_SF_uc_h->Fill(ISR_SF);
+		B_SF_uc_h->Fill(B_SF);
 		if(tr.getVar<bool>("passLeptVeto")) njetspt20_lept_veto_h->Fill(njetspt20,evtWeight);
 		//MT2 calculation is currently wrong in baseline. Hope can be fixed
 		//if (ntop == 0 && mt2 != 0) std::cout << "MT2 = " << mt2 << std::endl;
@@ -888,6 +911,9 @@ int main(int argc, char* argv[]){
 			genmet_h->Fill(genmet,evtWeight);
 			if(jpt_eta_2p5_3p0.size() == 0) jpt_eta_2p5_3p0_h->Fill(0.0,evtWeight);
 			else jpt_eta_2p5_3p0_h->Fill(jpt_eta_2p5_3p0.at(0),evtWeight);
+
+			ISR_SF_h->Fill(ISR_SF);
+			B_SF_h->Fill(B_SF);
 
 			eff_h->Fill(1.0,evtWeight);
 		}
@@ -1179,7 +1205,7 @@ int main(int argc, char* argv[]){
 	njetspt20_140_MT2_h->Write();
 	njetspt20_175_h->Write();
 	njetspt20_175_MT2_h->Write();
-	njetspt20_lowdm_h->Write();;
+	njetspt20_lowdm_h->Write();
 	njetspt30_h->Write();
 	njetspt30_no_HT_h->Write();
 	njetspt30_140_h->Write();
@@ -1195,13 +1221,13 @@ int main(int argc, char* argv[]){
 	nbottompt20_140_MT2_h->Write();
 	nbottompt20_175_h->Write();
 	nbottompt20_175_MT2_h->Write();
-	nbottompt20_lowdm_h->Write();;
+	nbottompt20_lowdm_h->Write();
 	nbottompt30_no_HT_h->Write();
 	nbottompt30_140_h->Write();
 	nbottompt30_140_MT2_h->Write();
 	nbottompt30_175_h->Write();
 	nbottompt30_175_MT2_h->Write();
-	nSV_lowdm_h->Write();;
+	nSV_lowdm_h->Write();
 
 	// top
 	ntop_h->Write();
@@ -1247,10 +1273,16 @@ int main(int argc, char* argv[]){
 	genHT_h->Write();
 
 	// Other
-	ISRpt_lowdm_h->Write();;
-	bottompt_scalar_sum_lowdm_h->Write();;
+	loose_baseline_cutflow_h->Write();
+	ISRpt_lowdm_h->Write();
+	bottompt_scalar_sum_lowdm_h->Write();
 	nMuons_uc_h->Write();
 	nElectrons_uc_h->Write();
+
+	ISR_SF_uc_h->Write();
+	B_SF_uc_h->Write();
+	ISR_SF_h->Write();
+	B_SF_h->Write();
 
 	// search bin
 	search_bin_h->Write();
@@ -1310,7 +1342,7 @@ int main(int argc, char* argv[]){
 	mtb_mt2_uc_h->Write();
 	mtb_mt2_h->Write();
 	ntop_nw_h->Write();
-	ISRpt_MET_lowdm_h->Write();;
+	ISRpt_MET_lowdm_h->Write();
 
 	out_file.mkdir("Baseline_Only");
 	out_file.cd("Baseline_Only");
