@@ -91,19 +91,34 @@ int main(int argc, char* argv[]) {
         const auto& ElectronIDBitmap = tr->getVec<Int_t>("Electron_vidNestedWPBitmap");
         const auto& elecVec = tr->getVec_LVFromNano<Float_t>("Electron");
         const auto& Electron_miniPFRelIso = tr->getVec<float>("Electron_miniPFRelIso_all");
-        const auto& muonVec = tr->getVec_LVFromNano<Float_t>("
+        const auto& Jet_electronIdx1 = tr->getVec<Int_t>("Jet_electronIdx1");
+        const auto& muonVec = tr->getVec_LVFromNano<Float_t>("Muon");
+        const auto& Mudxy = tr->getVec<float> ("Muon_dxy");
+        const auto& Mudz = tr->getVec<float> ("Muon_dz");
+        const auto& Muon_mediumId = tr->getVec<UChar_t>("Muon_mediumId"); 
+        const auto& Jet_muonIdx1 = tr->getVec<Int_t>("Jet_muonIdx1");
+        const auto& Muon_miniPFRelIso = tr->getVec<float>("Muon_miniPFRelIso_all");
+
+       for(unsigned int i=0; i<nGenPart; i++) {
+           mother_idx = mother.at(i);
+           //std::cout<<mother_idx<<","<<std::flush;
+           if(mother_idx==-1) continue;
+           daughters.at(mother_idx).push_back(i);
+           }
 
         for( int j=0; j<JetVec.size(); j++){
-        if( elecVec.size() >= 0 && elecVec[j].Pt() > 10.0)
+            bool matched=false;
+            bool isLep = false;
+            if( Jet_electronIdx1[j] >= 0 && elecVec[Jet_electronIdx1[j]].Pt() > 10.0)
             {
-                bool isLep = false;
+                
                 //MAsk relIso from the ID so we can apply miniIso
                 const int NCUTS = 10;
                 const int BITSTRIDE = 3;
                 const int BITMASK = 0x7;
                 const int ISOBITMASK = 070000000;  //note to the curious, 0 before an integer is octal, so 070000000 = 0xE00000 = 14680064, so this corrosponds to the three pfRelIso bits 
                 
-                int cutBits = ElectronIDBitmap.at(j) | ISOBITMASK; // the | masks the iso cut
+                int cutBits = ElectronIDBitmap[j] | ISOBITMASK; // the | masks the iso cut
                 int elecID = 07; // start with the largest 3 bit number
                 for(int i = 0; i < NCUTS; ++i)
                 {
@@ -111,54 +126,53 @@ int main(int argc, char* argv[]) {
                     cutBits = cutBits >> BITSTRIDE;
                 }
 
-                double dR = JetVec[j].DeltaR(elecVec[j]);
+                double dR = JetVec[j].DeltaR(elecVec[Jet_electronIdx1[j]]);
 
-                isLep = isLep || (elecID >= 1 && Electron_miniPFRelIso.at(j) < 0.10 && dR < 0.2);
-            }            
+                isLep = isLep || (elecID >= 1 && Electron_miniPFRelIso[Jet_electronIdx1[j]] < 0.10 && dR < 0.2);
             }
+            if(Jet_muonIdx1[j] >= 0 && muonVec[Jet_muonIdx1[j]].Pt() > 10.0)
+            {
+                double dR = JetVec[j].DeltaR(muonVec[Jet_muonIdx1[j]]);
+            
+            //pMuon_id == Py_None is a hack because moun loose ID is not a variable, but instead only loose muons are saved 
+            isLep = isLep || (Muon_mediumId[Jet_muonIdx1[j]] && Muon_miniPFRelIso[Jet_muonIdx1[j]] < 0.2 && dR < 0.2);
 
-            for(unsigned int i=0; i<nGenPart; i++) {
-                mother_idx = mother.at(i);
-                //std::cout<<mother_idx<<","<<std::flush;
-                if(mother_idx==-1) continue;
-                daughters.at(mother_idx).push_back(i);
-            }
-         
-         for( int j=0; j<JetVec.size(); j++){
-             bool matched=false;
-             if (JetVec[j].Pt() > 20 && abs(JetVec[j].Eta()) < 2.4){
-             for(unsigned int i=0; i<nGenPart; i++) {
-                 //std::cout<<"genPart.pdgId "<< pdgId.at(i)<<std::endl;
-                 //std::cout<<"mother Idx:"<<pdgId.at(mother_idx)<<std::endl;
-             
-                 if (StatusFlag.at(i)!=23 || abs(pdgId.at(i))>5) continue;
-             Int_t mommy_pdgId = pdgId.at(mother_idx);
-             if(!(mommy_pdgId==6 || mommy_pdgId==23 || mommy_pdgId==24 || mommy_pdgId==25 || mommy_pdgId>1e6)) continue; 
-             for(unsigned int d=0; d<daughters.at(i).size(); d++) { 
-                    float dR = JetVec[j].DeltaR(GenPartVec[d]);
-                    //std::cout << dR << std::endl;
-                    if(dR<0.3){
-                        matched = true;
-                        break;
-                    } 
+        }
+            if (isLep) continue;
+            //std::cout<<"isLep "<<isLep<<std::endl;
+            if (JetVec[j].Pt() < 10 || abs(JetVec[j].Eta()) > 2.4) continue;
+                for(unsigned int i=0; i<nGenPart; i++) {
+                    //std::cout<<"genPart.pdgId "<< pdgId.at(i)<<std::endl;
+                    //std::cout<<"mother Idx:"<<pdgId.at(mother_idx)<<std::endl;
+                    
+                    if (StatusFlag.at(i)!=23 || abs(pdgId.at(i))>5) continue;
+                    Int_t mommy_pdgId = pdgId.at(mother_idx);
+                    if(!(mommy_pdgId==6 || mommy_pdgId==23 || mommy_pdgId==24 || mommy_pdgId==25 || mommy_pdgId>1e6)) continue; 
+                    for(unsigned int d=0; d<daughters.at(i).size(); d++) { 
+                        float dR = JetVec[j].DeltaR(GenPartVec[d]);
+                        //std::cout << dR << std::endl;
+                        if(dR<0.3){
+                            matched = true;
+                            break;
+                        } 
+                    }
                 }
-            }
-            }
+            
             if(!matched) {
                 nisr++;
             }
         }
         //std::cout << std::endl << std::endl;
-        std::cout << "nisr "<<nisr<<std::endl;
+        //std::cout << "nisr "<<nisr<<std::endl;
         
 
         for(unsigned int i=0; i<nGenPart; i++) {
             //std::cout << "(" << std::flush;
-                  //std::cout<<"genPart.pdgId "<< pdgId.at(i)<<std::endl;
-                  //std::cout<<"mother Idx:"<<mother.at(i)<<std::endl;
+            //std::cout<<"genPart.pdgId "<< pdgId.at(i)<<std::endl;
+            //std::cout<<"mother Idx:"<<mother.at(i)<<std::endl;
             for(unsigned int j=0; j<daughters.at(i).size(); j++) {
-                 //std::cout<<"genPart.pdgId "<< pdgId.at(i)<<std::endl;
-                 //std::cout<<"mother Idx:"<<pdgId.at(mother.at(i))<<std::endl;
+                //std::cout<<"genPart.pdgId "<< pdgId.at(i)<<std::endl;
+                //std::cout<<"mother Idx:"<<pdgId.at(mother.at(i))<<std::endl;
                 //std::cout << " daughters "<< daughters.at(i).at(j) << std::flush;
                 if(j!=daughters.at(i).size()-1); //std::cout << "," << std::flush;
             }
