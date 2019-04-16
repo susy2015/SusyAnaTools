@@ -129,6 +129,7 @@ int main(int argc, char* argv[]) {
                 double dR = JetVec[j].DeltaR(elecVec[Jet_electronIdx1[j]]);
 
                 isLep = isLep || (elecID >= 1 && Electron_miniPFRelIso[Jet_electronIdx1[j]] < 0.10 && dR < 0.2);
+                //std::cout<<elecID<<std::endl;
             }
             if(Jet_muonIdx1[j] >= 0 && muonVec[Jet_muonIdx1[j]].Pt() > 10.0)
             {
@@ -140,7 +141,7 @@ int main(int argc, char* argv[]) {
         }
             if (isLep) continue;
             //std::cout<<"isLep "<<isLep<<std::endl;
-            if (JetVec[j].Pt() < 10 || abs(JetVec[j].Eta()) > 2.4) continue;
+            if (JetVec[j].Pt() < 30 || abs(JetVec[j].Eta()) > 2.4) continue;
                 for(unsigned int i=0; i<nGenPart; i++) {
                     //std::cout<<"genPart.pdgId "<< pdgId.at(i)<<std::endl;
                     //std::cout<<"mother Idx:"<<pdgId.at(mother_idx)<<std::endl;
@@ -165,7 +166,7 @@ int main(int argc, char* argv[]) {
         //std::cout << std::endl << std::endl;
         //std::cout << "nisr "<<nisr<<std::endl;
         
-
+        /*
         for(unsigned int i=0; i<nGenPart; i++) {
             //std::cout << "(" << std::flush;
             //std::cout<<"genPart.pdgId "<< pdgId.at(i)<<std::endl;
@@ -179,7 +180,7 @@ int main(int argc, char* argv[]) {
             //std::cout << ")," <<std::flush;
         }
         //std::cout << std::endl << std::endl;
-        
+        */
         hISR->Fill(nisr, evtWeight);
         
     }
