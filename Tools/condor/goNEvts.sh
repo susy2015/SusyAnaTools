@@ -42,14 +42,9 @@ mv samplesModule.so ../obj
 pwd
 ls -lhrt
 
-#python nEvts.py -s $3 -d "^$1$" > output_$1.txt
 python nEvts.py -s $3 -d $1 > output_$1.txt
 ls -lhrt
 
 mv output_$1.txt ${_CONDOR_SCRATCH_DIR}
 
-# what is $6 for this script?
-echo "arg 6 = $6"
-
-rm $(echo $6 | sed 's|.*/||')
 rm -r ${_CONDOR_SCRATCH_DIR}/$2
