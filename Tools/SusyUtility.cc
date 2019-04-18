@@ -21,16 +21,6 @@ namespace SusyUtility
         }
     }
     
-    template<typename T1, typename T2> bool greaterThan(const std::pair<T1,T2>& p1, const std::pair<T1,T2>& p2)
-    {
-        return p1.first > p2.first;
-    }
-    
-    template<typename T1, typename T2> bool lessThan(const std::pair<T1,T2>& p1, const std::pair<T1,T2>& p2)
-    {
-        return p1.first < p2.first;
-    }
-    
     // return vector of strings given names separated by deliminator, e.g. "electron;muon" ---> {"electron", "muon"} 
     std::vector<std::string> getVecFromString(const std::string &s, const char& delim) {
         std::vector<std::string> splitString;
