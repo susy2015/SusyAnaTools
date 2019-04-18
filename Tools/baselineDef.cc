@@ -1761,23 +1761,14 @@ bool BaselineVessel::CalcBottomVars()
   const auto& metphi  = tr->getVar<float>(METPhiLabel); 
   const auto& event   = tr->getVar<unsigned long long>("event");
 
-  bool verbose = true;
+  bool verbose = false;
   float mtb = INFINITY;
   float ptb = 0;
   int nBottoms = 0;
   int i = 0;
   
-  // map of b quarks sorted from greatest b discriminator to least
-  //std::map<float, unsigned, std::greater<float>> disc_map;
+  // using vector of pairs
   std::vector<std::pair<float, unsigned>> disc_vec;
-  
-  // use a pair and sort it, as float is not a unique key for b discriminators 
-  //std::pair<float, unsigned>;
-  // std::sort(
-  //           vec.begin(),
-  //           vec.end(), 
-  //           greaterThan<float, unsigned>
-  //          );
   
   i = 0;
   for (const auto& jet : jets)
@@ -1792,18 +1783,6 @@ bool BaselineVessel::CalcBottomVars()
       {
         ptb += jet.Pt();
       }
-      // using map
-      //if (disc_map.find(Jet_btagDisc[i]) == disc_map.end())
-      //{
-      //  // not in map yet; add to map
-      //  disc_map[Jet_btagDisc[i]] = i; 
-      //}
-      //else
-      //{
-      //  // already in map
-      //  printf("WARNING: disc_map[%f] = %d is already stored in disc_map; skipping %d\n", Jet_btagDisc[i], disc_map[Jet_btagDisc[i]], i);
-      //}
-      // using vector of pairs
       disc_vec.push_back({Jet_btagDisc[i], i});
     }
     ++i;
