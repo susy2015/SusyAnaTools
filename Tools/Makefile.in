@@ -109,9 +109,10 @@ all: mkobj SusyAnaTools sampPyWrap $(PROGRAMS)
 mkobj:
 	@mkdir -p obj
 
-SusyAnaTools : $(OBJS)
-	ar rcs $(ODIR)/lib$@.a $^
-	gcc -shared -o $(ODIR)/lib$@.$(LIBSUFFIX) $^
+SusyAnaTools : $(ODIR)/libSusyAnaTools.$(LIBSUFFIX)
+
+$(ODIR)/libSusyAnaTools.$(LIBSUFFIX) : $(OBJS)
+	gcc -shared -o $@ $^
 
 #code to compile shared library to link samples to python
 sampPyWrap: $(ODIR)/samplesModule.$(LIBSUFFIX)

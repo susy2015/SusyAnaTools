@@ -22,34 +22,15 @@ class TextColor:
     blue = "\033[94m"
     end = "\033[0m"
 
-# --- regex --- #
-# regular expression to get sample name and positive/negative weights
-#
-# Processing file(s): SMS-T2tt_fastsim_mStop-150to250 /eos/uscms/store/user/lpcsusyhad/Stop_production/Summer16_80X_Jan_2017_Ntp_v12X/SMS-T2tt_mStop-150to250_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt  Neg weigths = 0, Pos weights = 32283695
-# (.*): (.*)\t/eos.*Neg weigths = (.*), Pos weights = (.*)
-# Groups:
-#  1: 'Processing file(s)'                  - beginning
-#  2: 'SMS-T2tt_fastsim_mStop-150to250'     - dataset name   
-#  3: '0'                                   - number of negative weights
-#  4: '32283695'                            - number of positive weights
-#
-#regex = re.compile('(.*): (.*)\t/eos.*Neg weigths = (.*), Pos weights = (.*)')
-#
-# from samples.cc
-#                                                       dataset, path,   file,   tree,   cross section, nevents+, nevents-, kfactor 
-# int nMatches = sscanf(buf, "%s %s %s %s %f %f %f %f", cDSname, cFPath, cfName, cTPath, &f1,           &f2,      &f3,      &f4);
-#
-# string,  string, string, string, float,         float,    float,    float
-# dataset, path,   file,   tree,   cross section, nevents+, nevents-, kfactor 
-# cDSname, cFPath, cfName, cTPath, &f1,           &f2,      &f3,      &f4
-#
-# ------------- #
-
-def getNewSample(sample, weight_dict, neventsFile, file_pattern):
-    regex = re.compile('(.*): (.*)\t' + file_pattern + '.*Pos weigths = (.*), Neg weights = (.*)')
+def getNewSample(sample, weight_dict, neventsFile):
     # be careful: strip() removes spaces and endlines
     sample_list = list(x.strip() for x in sample.split(','))
     name = sample_list[0] 
+    
+    ###############################################################################
+    # WARNING: Do not change regex unless you also update nEvts.C and nEvts.py!!! #
+    ###############################################################################
+    regex = re.compile(name+'.*Positive weights: (.*), Negative weights: (.*)')
     # values are floats, but we want integers
     newSample = ", ".join(sample_list) + "\n"
     if "Data" in sample:
@@ -77,26 +58,26 @@ def getNewSample(sample, weight_dict, neventsFile, file_pattern):
             match = regex.match(nevent)
             if not match:
                 continue
-            if name == match.group(2):
-                num_matches += 1
-                # values are floats, but we want integers
-                new_pos_weights = int(float(match.group(3)))
-                new_neg_weights = int(float(match.group(4)))
-                message = ""
-                # compare integers, not strings!
-                if old_neg_weights == new_neg_weights and old_pos_weights == new_pos_weights:
-                    message += " old and new weights are the same"
-                else:
-                    message += " old and new weights are different"
-                sample_list[-2] = str(new_neg_weights)
-                sample_list[-3] = str(new_pos_weights)
-                # print at the end
-                message = "old weights: ({0}, {1}) new weights: ({2}, {3}) --- {4}".format(old_pos_weights, old_neg_weights, new_pos_weights, new_neg_weights, message)
-        print "{0} has {1} match(es) in nevents file: {2}".format(name, num_matches, message)
+            num_matches += 1
+            # values are floats, but we want integers
+            new_pos_weights = int(float(match.group(1)))
+            new_neg_weights = int(float(match.group(2)))
+            message = ""
+            # compare integers, not strings!
+            if old_neg_weights == new_neg_weights and old_pos_weights == new_pos_weights:
+                message += " old and new weights are the same"
+            else:
+                message += " old and new weights are different"
+            sample_list[-2] = str(new_neg_weights)
+            sample_list[-3] = str(new_pos_weights)
+            # print at the end
+            message = "old weights: ({0}, {1}) new weights: ({2}, {3}) --- {4}".format(old_pos_weights, old_neg_weights, new_pos_weights, new_neg_weights, message)
         if num_matches == 0:
-            print TextColor.yellow + "WARNING: no matches found; {0} has {1} matches".format(name, num_matches) + TextColor.end
+            print TextColor.yellow + "WARNING: no matches found in nEvents file; {0} has {1} matches".format(name, num_matches) + TextColor.end
         elif num_matches > 1:
-            print TextColor.yellow + "WARNING: more than one match found; {0} has {1} matches".format(name, num_matches) + TextColor.end
+            print TextColor.yellow + "WARNING: more than one match found in nEvents file; {0} has {1} matches".format(name, num_matches) + TextColor.end
+        else:
+            print "{0} has {1} match(es) in nEvents file: {2}".format(name, num_matches, message)
         # replace commas and a space removed by split()
         # replace endline that was removed by strip()
         newSample = ", ".join(sample_list) + "\n"
@@ -134,7 +115,6 @@ def main():
     parser.add_argument("--output_file",     "-o", default="../sampleSets_v1.cfg", help="New SampleSets.cfg file to create")
     parser.add_argument("--threads",         "-t", default=4,                      help="Number of threads to use")
     parser.add_argument("--dataset_pattern", "-d", default = ".*",                 help="Regexp defining sampleSets to check")
-    parser.add_argument("--file_pattern",    "-p", default = "/eos",               help="Pattern at beginning of file path for regex matching")
     parser.add_argument("--legacy",          "-l", default = False, action = "store_true", help="Use legacy ntuples instead of Nano AOD ntuples")
     
     options          = parser.parse_args()
@@ -143,7 +123,6 @@ def main():
     output_file      = options.output_file
     threads          = int(options.threads)
     dataset_pattern  = options.dataset_pattern
-    file_pattern     = options.file_pattern
     legacy           = options.legacy
 
     print "  samples file: {0}".format(input_file)
@@ -206,7 +185,7 @@ def main():
             continue
         # if sample matches pattern, assume that it is a sample and get new sample to write to file
         if re.search(dataset_pattern, sample):
-            newSample = getNewSample(sample, weight_dict, neventsFile, file_pattern)
+            newSample = getNewSample(sample, weight_dict, neventsFile)
             #print "newSample: {0}".format(newSample)
         outputSamples.write(newSample)
 

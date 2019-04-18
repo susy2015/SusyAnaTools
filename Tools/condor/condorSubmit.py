@@ -1,91 +1,96 @@
 #!/cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_8/external/slc6_amd64_gcc491/bin/python
 ####!${SRT_CMSSW_RELEASE_BASE_SCRAMRTDEL}/external/${SCRAM_ARCH}/bin/python
 
-from samples import SampleCollection
+import sys
+import os
 from os import system, environ
-import re
-import optparse 
+sys.path = [environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/",] + sys.path
 
-submitFile = """universe = vanilla
-Executable = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goMakePlots.sh
+from samples import SampleSet
+import optparse 
+import subprocess
+import datetime
+
+# options
+parser = optparse.OptionParser("usage: %prog [options]\n")
+
+parser.add_option ('-c',  dest='noSubmit',         action='store_true', default = False,               help="Do not submit jobs. Only create condor_submit.txt.")
+parser.add_option ('-s',  dest='sampleSetsFile',   type='string',       default = "sampleSets.cfg",    help="Sample sets config file")
+
+options, args = parser.parse_args()
+sampleSetsFile = options.sampleSetsFile
+
+submitFile = ""
+exeName = ""
+
+#Here is the configuration for the Data/MC validation of the TopTagger 
+filestoTransferTT  = [
+                      environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/samples.py",
+                      environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/../obj/samplesModule.so",
+                      environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/nEvts.py",
+                     ]
+
+if sampleSetsFile: filestoTransferTT += [environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/" + sampleSetsFile]
+
+#go make TTopTagger plots!
+submitFileTT = """universe = vanilla
+Executable = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goNEvts.sh
 Requirements = OpSys == "LINUX"&& (Arch != "DUMMY" )
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/basicCheck, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goMakePlots.sh, $ENV(CMSSW_BASE)/lib/$ENV(SCRAM_ARCH)/librecipeAUXOxbridgeMT2.so, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/TopTagger.cfg, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/TrainingOutput_dR20_pt30_depth12_500tree_2017_Feb16.model, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/Legacy_TopTagger.cfg, $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/data/puppiCorr.root, TRANS_TAR_BALL_CMSSW
+Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goNEvts.sh,TT.tar.gz,$ENV(CMSSW_VERSION).tar.gz
 notify_user = ${LOGNAME}@FNAL.GOV
 x509userproxy = $ENV(X509_USER_PROXY)
 
 """
 
-parser = optparse.OptionParser("usage: %prog [options]\n")
+def makeExeAndFriendsTarrball(filestoTransfer, fname):
+    if True:
+        #WORLDSWORSESOLUTIONTOAPROBLEM
+        system("mkdir -p WORLDSWORSESOLUTIONTOAPROBLEM")
+        for fn in filestoTransfer:
+            system("cd WORLDSWORSESOLUTIONTOAPROBLEM; ln -s %s" % fn)
+        
+        print "Create tarball {0}.tag.gz".format(fname)
+        tarallinputs = "tar czvf %s.tar.gz WORLDSWORSESOLUTIONTOAPROBLEM --dereference" % fname
+        print tarallinputs
+        system(tarallinputs)
+        system("rm -r WORLDSWORSESOLUTIONTOAPROBLEM")
 
-parser.add_option ('-n', dest='numfile', type='int', default = 5, help="number of files per job")
-parser.add_option ('-d', dest='datasets', type='string', default = '', help="List of datasets 'ZJetsToNuNu,DYJetsToLL'")
-parser.add_option ('-l', dest='dataCollections', action='store_true', default = False, help="List all datacollections")
-parser.add_option ('-r', dest='refLumi', type='string', default = None, help="Data collection to define lumi (uses default lumi if no reference data collection is defined)")
-parser.add_option ('-c', dest='noSubmit', action='store_true', default = False, help="Do not submit jobs.  Only create condor_submit.txt.")
-
-rel_base = environ['CMSSW_BASE']
-rel_name = rel_base.split('/')[-1]
-tar_file_name = rel_name+'.tar.gz'
-
-cache_all_dir = rel_base+'/src/SusyAnaTools/Tools/cache_all.sh'
-system('sh '+cache_all_dir)
-
-tar_command = 'tar --exclude-caches-all -czf '+tar_file_name + ' -C '+rel_base+'/.. ' + rel_name
-system(tar_command)
-system('mv '+rel_name+'.tar.gz '+rel_base+'/src/SusyAnaTools/Tools/condor/')
-
-submitFile = re.sub(r'TRANS_TAR_BALL_CMSSW', '$ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/'+tar_file_name, submitFile)
-
-options, args = parser.parse_args()
-
-nFilesPerJob = options.numfile
-
+submitFile = submitFileTT
 fileParts = [submitFile]
-sc = SampleCollection()
-datasets = []
+sc = SampleSet(sampleSetsFile)
 
-if options.dataCollections:
-    print sc.sampleCollectionList()
-    exit(0)
+now = datetime.datetime.now()
 
-if options.datasets:
-    datasets = options.datasets.split(',')
-else:
-    print "No dataset pecified"
-    exit(0)
+dirName = "submission_%s"%now.strftime("%Y-%m-%d_%H-%M-%S")
+os.system("mkdir %s"%dirName)
+os.chdir(dirName)
 
-lumis = sc.sampleCollectionLumiList()
-lumi = sc.getFixedLumi()
-if options.refLumi != None:
-    lumi = lumis[options.refLumi]
-    print "Normalizing to %s pb-1" % (lumi)
+if True:
+    print "Create tarball ${CMSSW_VERSION}.tar.gz"
+    system("tar --exclude-caches-all --exclude-vcs -zcf ${CMSSW_VERSION}.tar.gz -C ${CMSSW_BASE}/.. ${CMSSW_VERSION} --exclude=src --exclude=tmp")
 
-for ds in datasets:
-    ds = ds.strip()
+# makeExeAndFriendsTarball() is necessary now to apply WORLDSWORSESOLUTIONTOAPROBLEM 
 
-    for s, n in sc.sampleList(ds):
-        print n
-        f = open(s)
-        if not f == None:
-            count = 0
-            for l in f:
-                if '.root' in l and not 'failed' in l:
-                    count = count + 1
-            for startFileNum in xrange(0, count, nFilesPerJob):
-                fileParts.append("Arguments = %s %s %i %i %f %s %s\n"%(n, rel_name, nFilesPerJob, startFileNum, lumi, s, ds))
-                fileParts.append("Output = logs/basicCheck_%s_%i.stdout\n"%(n, startFileNum/nFilesPerJob))
-                fileParts.append("Error = logs/basicCheck_%s_%i.stderr\n"%(n, startFileNum/nFilesPerJob))
-                fileParts.append("Log = logs/basicCheck_%s_%i.log\n"%(n, startFileNum/nFilesPerJob))
-                fileParts.append("Queue\n\n")
+exeName = "nEvts"
+makeExeAndFriendsTarrball(filestoTransferTT, "TT")
 
-            f.close()
+for ds in sc.sampleSetList():
+    dsn = ds[0]
+
+    fileParts.append("Arguments = %s $ENV(CMSSW_VERSION) %s\n"%(dsn, sampleSetsFile))
+    fileParts.append("Output = logs/%s.stdout\n"%(dsn))
+    fileParts.append("Error = logs/%s.stderr\n"%(dsn))
+    fileParts.append("Log = logs/%s.log\n"%(dsn))
+    fileParts.append("Queue\n\n")
 
 fout = open("condor_submit.txt", "w")
 fout.write(''.join(fileParts))
 fout.close()
 
-system('mkdir -p logs')
-system("echo 'condor_submit condor_submit.txt'")
-system('condor_submit condor_submit.txt')
+if not options.noSubmit: 
+    system('mkdir -p logs')
+    system("echo 'condor_submit condor_submit.txt'")
+    system('condor_submit condor_submit.txt')
+
