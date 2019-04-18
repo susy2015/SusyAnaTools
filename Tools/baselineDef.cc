@@ -550,8 +550,10 @@ void BaselineVessel::PassBaseline()
   
   // Get jet collection
   const auto& jet_vec = tr->getVec<TLorentzVector>(jetVecLabel);
+  const auto& JetTLV  = tr->getVec<TLorentzVector>("JetTLV"); // nominal jets for comparison
   const auto& met     = tr->getVar<float>(METLabel); 
   const auto& metphi  = tr->getVar<float>(METPhiLabel); 
+  const auto& MET_pt  = tr->getVar<float>("MET_pt"); // nominal met for comparison
 
   // Set TLorentzVector for MET
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
@@ -600,7 +602,8 @@ void BaselineVessel::PassBaseline()
   //int nIsoPionTrks = AnaFunctions::countIsoPionTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
 
   // Calculate number of jets and b-tagged jets
-  int cntCSVS = 0;
+  int cntCSVS        = 0;
+  //int cntCSVS_JetTLV = 0;
   vBidxs = new std::vector<unsigned int>();
   vBjs = new std::vector<TLorentzVector>();
   
@@ -616,20 +619,25 @@ void BaselineVessel::PassBaseline()
   
   // calculate cntCSVS from jet collection
   if (UseDeepCSV) 
-    cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
-        AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  {
+    cntCSVS        = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+    //cntCSVS_JetTLV = AnaFunctions::countCSVS(JetTLV,  tr->getVec<float>(CSVVecLabel), AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  }
   else
-    cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
-        AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  {
+    cntCSVS        = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+    //cntCSVS_JetTLV = AnaFunctions::countCSVS(JetTLV,  tr->getVec<float>(CSVVecLabel), AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  }
   
   // Getting the b-jets. Sorted by pt by default
   for(auto idx : *vBidxs)
     vBjs->push_back(jet_vec.at(idx));
 
-  int cntNJetsPt50Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt50Eta24Arr);
-  int cntNJetsPt30Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Eta24Arr);
-  int cntNJetsPt20Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt20Eta24Arr);
-  int cntNJetsPt30      = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Arr);
+  int cntNJetsPt50Eta24        = AnaFunctions::countJets(jet_vec, AnaConsts::pt50Eta24Arr);
+  int cntNJetsPt30Eta24        = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Eta24Arr);
+  int cntNJetsPt20Eta24        = AnaFunctions::countJets(jet_vec, AnaConsts::pt20Eta24Arr);
+  int cntNJetsPt20Eta24_JetTLV = AnaFunctions::countJets(JetTLV,  AnaConsts::pt20Eta24Arr);
+  int cntNJetsPt30             = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Arr);
 
 
   // Calculate top tagger related variables. 
@@ -770,12 +778,14 @@ void BaselineVessel::PassBaseline()
       SAT_Pass_highDM = SAT_Pass_highDM && Pass_LeptonVeto;
   }
 
-  // testing
+  // compare original variables to those with cleaned jets
   if (verbose)
   {
-    printf("cntCSVS = %d, nBottoms = %d\n", cntCSVS, nBottoms);
-    printf("mtb = %f, Stop0l_Mtb = %f\n", mtb, Stop0l_Mtb);
-    printf("ptb = %f, Stop0l_Ptb = %f\n", ptb, Stop0l_Ptb);
+    printf("cntNJetsPt20Eta24_JetTLV = %d, nJets = %d\n", cntNJetsPt20Eta24_JetTLV, nJets);
+    printf("cntCSVS = %d, nBottoms = %d\n",               cntCSVS,                  nBottoms);
+    printf("MET_pt = %f, met = %f\n",                     MET_pt,     met);
+    printf("Stop0l_Mtb = %f, mtb = %f\n",                 Stop0l_Mtb, mtb);
+    printf("Stop0l_Ptb = %f, ptb = %f\n",                 Stop0l_Ptb, ptb);
   }
 
   // Register all the calculated variables
@@ -1749,8 +1759,9 @@ bool BaselineVessel::CalcBottomVars()
   const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
   const auto& met     = tr->getVar<float>(METLabel); 
   const auto& metphi  = tr->getVar<float>(METPhiLabel); 
+  const auto& event   = tr->getVar<unsigned long long>("event");
 
-  bool verbose = false;
+  bool verbose = true;
   float mtb = INFINITY;
   float ptb = 0;
   int nBottoms = 0;
@@ -1774,7 +1785,7 @@ bool BaselineVessel::CalcBottomVars()
     // check if it pass b requirement
     if (Jet_btagStop0l[i])
     {
-      if (verbose) printf("jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jet.Pt());
+      if (verbose) printf("event %d, jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", event, i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jet.Pt());
       ++nBottoms;
       // only use first two b-jets (ordered by p_t) for mtb
       if (nBottoms < 3)
@@ -1799,16 +1810,22 @@ bool BaselineVessel::CalcBottomVars()
   }
   // sort
   std::sort(disc_vec.begin(), disc_vec.end(), SusyUtility::greaterThan<float, unsigned>);
-  //std::sort(disc_vec.begin(), disc_vec.end(), SusyUtility::greaterThan);
   
   // calculate mtb
-  if (verbose) printf("jets.size() = %d, disc_vec.size() = %d\n", jets.size(), disc_vec.size());
+  if (verbose && disc_vec.size() > 0) 
+  {
+    printf("jets.size() = %d, disc_vec.size() = %d\n", jets.size(), disc_vec.size());
+    for (const auto& d : disc_vec)
+    {
+      printf("d = %f, index = %d\n", d.first, d.second);
+    }
+  }
+  
   i = 0;
   for (const auto& d : disc_vec)
   {
     // only use first two b-jets (ordered by discriminator) for mtb
     if (i > 1) break;
-    if (verbose) printf("d = %f, index = %d\n", d.first, d.second);
     const TLorentzVector& b_jet = jets.at(d.second); 
     float dPhi = fabs(TVector2::Phi_mpi_pi(b_jet.Phi() - metphi));
     float temp = sqrt( 2 * b_jet.Pt() * met * (1 - cos(dPhi)) );
