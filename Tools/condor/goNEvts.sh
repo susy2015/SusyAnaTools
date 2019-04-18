@@ -42,7 +42,7 @@ mv samplesModule.so ../obj
 pwd
 ls -lhrt
 
-python nEvts.py -s $3 -d $1 > output_$1.txt
+python nEvts.py -s $3 -d "^$1$" > output_$1.txt
 ls -lhrt
 
 mv output_$1.txt ${_CONDOR_SCRATCH_DIR}
