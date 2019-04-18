@@ -1,5 +1,5 @@
 #include "baselineDef.h"
-
+#include "SusyUtility.h"
 #include "TFile.h"
 #include "TF1.h"
 
@@ -778,7 +778,6 @@ void BaselineVessel::PassBaseline()
     printf("ptb = %f, Stop0l_Ptb = %f\n", ptb, Stop0l_Ptb);
   }
 
-
   // Register all the calculated variables
   tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
   tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
@@ -790,13 +789,10 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("nSoftBottoms" + firstSpec, nSoftBottoms);
   tr->registerDerivedVar("nMergedTops" + firstSpec, nMergedTops);
   tr->registerDerivedVar("nResolvedTops" + firstSpec, nResolvedTops);
-  //tr->registerDerivedVar("nBottoms" + firstSpec, nBottoms);
   tr->registerDerivedVar("nWs" + firstSpec, nWs);
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
   tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
-  //tr->registerDerivedVar("ptb" + firstSpec, ptb);
-  //tr->registerDerivedVar("mtb" + firstSpec, mtb);
   tr->registerDerivedVar("HT" + firstSpec, HT);
   //tr->registerDerivedVar("passIsoLepTrkVeto" + firstSpec, passIsoLepTrkVeto);
   //tr->registerDerivedVar("passIsoPionTrkVeto" + firstSpec, passIsoPionTrkVeto);
@@ -1761,10 +1757,16 @@ bool BaselineVessel::CalcBottomVars()
   int i = 0;
   
   // map of b quarks sorted from greatest b discriminator to least
-  std::map<float, unsigned, std::greater<float>> disc_map;
+  //std::map<float, unsigned, std::greater<float>> disc_map;
+  std::vector<std::pair<float, unsigned>> disc_vec;
   
   // use a pair and sort it, as float is not a unique key for b discriminators 
   //std::pair<float, unsigned>;
+  // std::sort(
+  //           vec.begin(),
+  //           vec.end(), 
+  //           greaterThan<float, unsigned>
+  //          );
   
   i = 0;
   for (const auto& jet : jets)
@@ -1779,24 +1781,30 @@ bool BaselineVessel::CalcBottomVars()
       {
         ptb += jet.Pt();
       }
-      if (disc_map.find(Jet_btagDisc[i]) == disc_map.end())
-      {
-        // not in map yet; add to map
-        disc_map[Jet_btagDisc[i]] = i; 
-      }
-      else
-      {
-        // already in map
-        printf("WARNING: disc_map[%f] = %d is already stored in disc_map; skipping %d\n", Jet_btagDisc[i], disc_map[Jet_btagDisc[i]], i);
-      }
+      // using map
+      //if (disc_map.find(Jet_btagDisc[i]) == disc_map.end())
+      //{
+      //  // not in map yet; add to map
+      //  disc_map[Jet_btagDisc[i]] = i; 
+      //}
+      //else
+      //{
+      //  // already in map
+      //  printf("WARNING: disc_map[%f] = %d is already stored in disc_map; skipping %d\n", Jet_btagDisc[i], disc_map[Jet_btagDisc[i]], i);
+      //}
+      // using vector of pairs
+      disc_vec.push_back({Jet_btagDisc[i], i});
     }
     ++i;
   }
+  // sort
+  std::sort(disc_vec.begin(), disc_vec.end(), SusyUtility::greaterThan<float, unsigned>);
+  //std::sort(disc_vec.begin(), disc_vec.end(), SusyUtility::greaterThan);
   
   // calculate mtb
-  if (verbose) printf("jets.size() = %d, disc_map.size() = %d\n", jets.size(), disc_map.size());
+  if (verbose) printf("jets.size() = %d, disc_vec.size() = %d\n", jets.size(), disc_vec.size());
   i = 0;
-  for (const auto& d : disc_map)
+  for (const auto& d : disc_vec)
   {
     // only use first two b-jets (ordered by discriminator) for mtb
     if (i > 1) break;
