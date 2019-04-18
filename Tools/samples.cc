@@ -72,8 +72,8 @@ namespace AnaSamples
     bool SampleSet::parseCfgLine(const char* buf)
     {
         char cDSname[256], cFPath[256], cfName[256], cTPath[256];
-        float f1, f2, f3, f4;
-        int nMatches = sscanf(buf, "%s %s %s %s %f %f %f %f", cDSname, cFPath, cfName, cTPath, &f1, &f2, &f3, &f4);
+        double f1, f2, f3, f4;
+        int nMatches = sscanf(buf, "%s %s %s %s %lf %lf %lf %lf", cDSname, cFPath, cfName, cTPath, &f1, &f2, &f3, &f4);
         if(nMatches == 8) //this is MC 
         {
             //                                                        xsec        NEvts+ NEvts-  kfactor

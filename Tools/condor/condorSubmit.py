@@ -11,12 +11,26 @@ import optparse
 import subprocess
 import datetime
 
+# options
+parser = optparse.OptionParser("usage: %prog [options]\n")
+
+parser.add_option ('-c',  dest='noSubmit',         action='store_true', default = False,               help="Do not submit jobs. Only create condor_submit.txt.")
+parser.add_option ('-s',  dest='sampleSetsFile',   type='string',       default = "sampleSets.cfg",    help="Sample sets config file")
+
+options, args = parser.parse_args()
+sampleSetsFile = options.sampleSetsFile
+
+submitFile = ""
+exeName = ""
+
 #Here is the configuration for the Data/MC validation of the TopTagger 
-filestoTransferTT  = [environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/sampleSets.cfg",
+filestoTransferTT  = [
                       environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/samples.py",
                       environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/../obj/samplesModule.so",
                       environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/nEvts.py",
-                      ]
+                     ]
+
+if sampleSetsFile: filestoTransferTT += [environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/" + sampleSetsFile]
 
 #go make TTopTagger plots!
 submitFileTT = """universe = vanilla
@@ -29,15 +43,6 @@ notify_user = ${LOGNAME}@FNAL.GOV
 x509userproxy = $ENV(X509_USER_PROXY)
 
 """
-
-parser = optparse.OptionParser("usage: %prog [options]\n")
-
-parser.add_option ('-c',  dest='noSubmit',              action='store_true', default = False, help="Do not submit jobs.  Only create condor_submit.txt.")
-
-options, args = parser.parse_args()
-
-submitFile = ""
-exeName = ""
 
 def makeExeAndFriendsTarrball(filestoTransfer, fname):
     if True:
@@ -54,7 +59,7 @@ def makeExeAndFriendsTarrball(filestoTransfer, fname):
 
 submitFile = submitFileTT
 fileParts = [submitFile]
-sc = SampleSet("sampleSets.cfg")
+sc = SampleSet(sampleSetsFile)
 
 now = datetime.datetime.now()
 
@@ -74,7 +79,7 @@ makeExeAndFriendsTarrball(filestoTransferTT, "TT")
 for ds in sc.sampleSetList():
     dsn = ds[0]
 
-    fileParts.append("Arguments = %s $ENV(CMSSW_VERSION) \n"%(dsn))
+    fileParts.append("Arguments = %s $ENV(CMSSW_VERSION) %s\n"%(dsn, sampleSetsFile))
     fileParts.append("Output = logs/%s.stdout\n"%(dsn))
     fileParts.append("Error = logs/%s.stderr\n"%(dsn))
     fileParts.append("Log = logs/%s.log\n"%(dsn))
