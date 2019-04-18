@@ -581,15 +581,18 @@ void BaselineVessel::PassBaseline()
   const auto& Electron_Stop0l   = tr->getVec<unsigned char>("Electron_Stop0l");
   const auto& Muon_Stop0l       = tr->getVec<unsigned char>("Muon_Stop0l");
   const auto& IsoTrack_Stop0l   = tr->getVec<unsigned char>("IsoTrack_Stop0l");
+  bool Pass_ElecVeto   = tr->getVar<bool>("Pass_ElecVeto");
+  bool Pass_MuonVeto   = tr->getVar<bool>("Pass_MuonVeto");
+  bool Pass_IsoTrkVeto = tr->getVar<bool>("Pass_IsoTrkVeto");
   for (const auto& pass : Electron_Stop0l)  if(pass) ++nElectrons_Stop0l;
   for (const auto& pass : Muon_Stop0l)      if(pass) ++nMuons_Stop0l;
   for (const auto& pass : IsoTrack_Stop0l)  if(pass) ++nIsoTracks_Stop0l;
-  bool Pass_ElectronVeto  = (nElectrons_Stop0l == 0);
-  bool Pass_MuonVeto     = (nMuons_Stop0l     == 0);
-  bool Pass_IsoTrackVeto = (nIsoTracks_Stop0l == 0);
+  //bool Pass_ElecVeto   = (nElectrons_Stop0l == 0);
+  //bool Pass_MuonVeto   = (nMuons_Stop0l     == 0);
+  //bool Pass_IsoTrkVeto = (nIsoTracks_Stop0l == 0);
 
   // test lepton veto
-  //printf("(Total, Stop0l, veto); electrons (%d, %d, %d), muons (%d, %d, %d), isotracks (%d, %d, %d)\n", nElectrons, nElectrons_Stop0l, Pass_ElectronVeto, nMuons, nMuons_Stop0l, Pass_MuonVeto, nIsoTracks, nIsoTracks_Stop0l, Pass_IsoTrackVeto);
+  //printf("(Total, Stop0l, veto); electrons (%d, %d, %d), muons (%d, %d, %d), isotracks (%d, %d, %d)\n", nElectrons, nElectrons_Stop0l, Pass_ElecVeto, nMuons, nMuons_Stop0l, Pass_MuonVeto, nIsoTracks, nIsoTracks_Stop0l, Pass_IsoTrkVeto);
 
   // --- Don't Use --- //
   //int nElectrons = tr->getVar<unsigned int>("nElectron");
@@ -692,13 +695,13 @@ void BaselineVessel::PassBaseline()
   bool SAT_Pass_MET = (met >= AnaConsts::defaultMETcut);
   bool SAT_Pass_HT = (HT >= AnaConsts::defaultHTcut);
   bool SAT_Pass_NJets20 = nJets >= 2;
-  bool SAT_Pass_LeptonVeto = (Pass_ElectronVeto && Pass_MuonVeto && Pass_IsoTrackVeto);
+  bool SAT_Pass_LeptonVeto = (Pass_ElecVeto && Pass_MuonVeto && Pass_IsoTrkVeto);
   bool Pass_EventFilter = tr->getVar<bool>("Pass_EventFilter");
   bool Pass_JetID = tr->getVar<bool>("Pass_JetID");
   bool Pass_LeptonVeto = tr->getVar<bool>("Pass_LeptonVeto");
   if (Pass_LeptonVeto != SAT_Pass_LeptonVeto) std::cout << "ERROR: Lepton vetos do not agree. Pass_LeptonVeto=" << Pass_LeptonVeto << " and SAT_Pass_LeptonVeto=" << SAT_Pass_LeptonVeto << std::endl;
   //bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTracksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTracksSel);
-  //bool Pass_LeptonVeto = Pass_MuonVeto && Pass_ElectronVeto && Pass_IsoTrackVeto;
+  //bool Pass_LeptonVeto = Pass_MuonVeto && Pass_ElecVeto && Pass_IsoTrkVeto;
   bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
 
   //SUS-16-049, low dm, ISR cut
@@ -758,8 +761,8 @@ void BaselineVessel::PassBaseline()
 
   // if (doEleVeto)
   // {
-  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_ElectronVeto;
-  //     SAT_Pass_highDM = SAT_Pass_highDM && Pass_ElectronVeto;
+  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_ElecVeto;
+  //     SAT_Pass_highDM = SAT_Pass_highDM && Pass_ElecVeto;
   // }
   // if (doMuonVeto)
   // {
@@ -768,8 +771,8 @@ void BaselineVessel::PassBaseline()
   // }
   // if (doIsoTrkVeto)
   // {
-  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_IsoTrackVeto;
-  //     SAT_Pass_highDM = SAT_Pass_highDM && Pass_IsoTrackVeto;
+  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_IsoTrkVeto;
+  //     SAT_Pass_highDM = SAT_Pass_highDM && Pass_IsoTrkVeto;
   // }
   
   if (doLeptonVeto)
@@ -803,14 +806,15 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
   tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
+  tr->registerDerivedVar("nIsoTracks_Stop0l" + firstSpec, nIsoTracks_Stop0l);
   tr->registerDerivedVar("HT" + firstSpec, HT);
   //tr->registerDerivedVar("passIsoLepTrkVeto" + firstSpec, passIsoLepTrkVeto);
   //tr->registerDerivedVar("passIsoPionTrkVeto" + firstSpec, passIsoPionTrkVeto);
   //tr->registerDerivedVar("passdPhis" + firstSpec, passdPhis);
+  //tr->registerDerivedVar("Pass_MuonVeto" + firstSpec, Pass_MuonVeto);
+  //tr->registerDerivedVar("Pass_ElecVeto" + firstSpec, Pass_ElecVeto);
+  //tr->registerDerivedVar("Pass_IsoTrkVeto" + firstSpec, Pass_IsoTrkVeto);
   tr->registerDerivedVar("passTagger" + firstSpec, passTagger);
-  tr->registerDerivedVar("Pass_MuonVeto" + firstSpec, Pass_MuonVeto);
-  tr->registerDerivedVar("Pass_ElectronVeto" + firstSpec, Pass_ElectronVeto);
-  tr->registerDerivedVar("Pass_IsoTrackVeto" + firstSpec, Pass_IsoTrackVeto);
   tr->registerDerivedVar("SAT_Pass_MET" + firstSpec, SAT_Pass_MET);
   tr->registerDerivedVar("SAT_Pass_HT" + firstSpec, SAT_Pass_HT);
   tr->registerDerivedVar("SAT_Pass_NJets20" + firstSpec, SAT_Pass_NJets20);
