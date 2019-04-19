@@ -26,7 +26,7 @@ def eoscp(filename, path, force = False, eosurl = "root://cmseos.fnal.gov"):
 def eosls(path, option = "", eosurl = "root://cmseos.fnal.gov"):
     return os.popen("xrdfs %s ls %s %s"%(eosurl, option, path))
 
-def recSearch(path, outDict = None, eosurl = "root://cmseos.fnal.gov", match=".*\.root", reject=".*failed.*", crab = True):
+def recSearch(path, outDict = None, eosurl = "root://cmseos.fnal.gov", match=".*\.root$", reject=".*failed.*", crab = True):
     with eosls(path, "-l", eosurl = options.eosurl) as stdout:
         for l in stdout:
             #if this is a directory dive in to continue searching
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     parser.add_option ('-d',      dest='directory',  type='string',    default = "",                           help="File path to begin")
     parser.add_option ('-f',      dest='file',       type='string',    default = "",                           help="File name to transfer")
     parser.add_option ('-e',      dest='eosurl',     type='string',    default = "root://cmseos.fnal.gov",     help="Eos url (Defaults to root://cmseos.fnal.gov)")
-    parser.add_option ('-m',      dest='match',      type='string',    default = ".*stopFlatNtuples.*\.root$", help="File paths must match this regular expression")
+    parser.add_option ('-m',      dest='match',      type='string',    default = ".*\.root$",                  help="File paths must match this regular expression")
     parser.add_option ('-r',      dest='reject',     type='string',    default = ".*failed.*",                 help="File paths must NOT match this regular expression")
     parser.add_option ('-t',      dest='startDirs',  type='string',    default = ".*",                         help="Start directory paths must match this regular expression")
     parser.add_option ('-l',      dest='list',   action="store_true",  default = False,                        help="Create file lists")

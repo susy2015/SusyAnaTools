@@ -103,6 +103,7 @@ public:
     void PassBaseline();
     void PassTrigger();
     bool PrintoutConfig() const;
+    bool CalcBottomVars();
     bool CompCommonVar();
     bool passNoiseEventFilterFunc();
     bool passQCDHighMETFilterFunc();

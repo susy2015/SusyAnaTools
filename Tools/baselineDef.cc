@@ -1,5 +1,5 @@
 #include "baselineDef.h"
-
+#include "SusyUtility.h"
 #include "TFile.h"
 #include "TF1.h"
 
@@ -546,14 +546,18 @@ bool BaselineVessel::PrintoutConfig() const
 void BaselineVessel::PassBaseline()
 {
   if (printConfig) PrintoutConfig();
+  bool verbose = false;
   
   // Get jet collection
   const auto& jet_vec = tr->getVec<TLorentzVector>(jetVecLabel);
+  const auto& JetTLV  = tr->getVec<TLorentzVector>("JetTLV"); // nominal jets for comparison
+  const auto& met     = tr->getVar<float>(METLabel); 
+  const auto& metphi  = tr->getVar<float>(METPhiLabel); 
+  const auto& MET_pt  = tr->getVar<float>("MET_pt"); // nominal met for comparison
 
-  // Create TLorentzVector for MET
+  // Set TLorentzVector for MET
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
-  float met = metLVec.Pt();
-  float metphi = metLVec.Phi();
+  
   // Calculate deltaPhi
   std::vector<float> * dPhiVec = new std::vector<float>();
   (*dPhiVec) = AnaFunctions::calcDPhi(jet_vec, metLVec, 5, AnaConsts::dphiArr);
@@ -577,15 +581,18 @@ void BaselineVessel::PassBaseline()
   const auto& Electron_Stop0l   = tr->getVec<unsigned char>("Electron_Stop0l");
   const auto& Muon_Stop0l       = tr->getVec<unsigned char>("Muon_Stop0l");
   const auto& IsoTrack_Stop0l   = tr->getVec<unsigned char>("IsoTrack_Stop0l");
+  bool Pass_ElecVeto   = tr->getVar<bool>("Pass_ElecVeto");
+  bool Pass_MuonVeto   = tr->getVar<bool>("Pass_MuonVeto");
+  bool Pass_IsoTrkVeto = tr->getVar<bool>("Pass_IsoTrkVeto");
   for (const auto& pass : Electron_Stop0l)  if(pass) ++nElectrons_Stop0l;
   for (const auto& pass : Muon_Stop0l)      if(pass) ++nMuons_Stop0l;
   for (const auto& pass : IsoTrack_Stop0l)  if(pass) ++nIsoTracks_Stop0l;
-  bool Pass_ElectronVeto  = (nElectrons_Stop0l == 0);
-  bool Pass_MuonVeto     = (nMuons_Stop0l     == 0);
-  bool Pass_IsoTrackVeto = (nIsoTracks_Stop0l == 0);
+  //bool Pass_ElecVeto   = (nElectrons_Stop0l == 0);
+  //bool Pass_MuonVeto   = (nMuons_Stop0l     == 0);
+  //bool Pass_IsoTrkVeto = (nIsoTracks_Stop0l == 0);
 
   // test lepton veto
-  //printf("(Total, Stop0l, veto); electrons (%d, %d, %d), muons (%d, %d, %d), isotracks (%d, %d, %d)\n", nElectrons, nElectrons_Stop0l, Pass_ElectronVeto, nMuons, nMuons_Stop0l, Pass_MuonVeto, nIsoTracks, nIsoTracks_Stop0l, Pass_IsoTrackVeto);
+  //printf("(Total, Stop0l, veto); electrons (%d, %d, %d), muons (%d, %d, %d), isotracks (%d, %d, %d)\n", nElectrons, nElectrons_Stop0l, Pass_ElecVeto, nMuons, nMuons_Stop0l, Pass_MuonVeto, nIsoTracks, nIsoTracks_Stop0l, Pass_IsoTrkVeto);
 
   // --- Don't Use --- //
   //int nElectrons = tr->getVar<unsigned int>("nElectron");
@@ -598,7 +605,8 @@ void BaselineVessel::PassBaseline()
   //int nIsoPionTrks = AnaFunctions::countIsoPionTrks(tr->getVec<TLorentzVector>("Tauloose_isoTrksLVec"), tr->getVec<float>("loose_isoTrks_iso"), tr->getVec<float>("loose_isoTrks_mtw"), tr->getVec<int>("loose_isoTrks_pdgId"));
 
   // Calculate number of jets and b-tagged jets
-  int cntCSVS = 0;
+  int cntCSVS        = 0;
+  //int cntCSVS_JetTLV = 0;
   vBidxs = new std::vector<unsigned int>();
   vBjs = new std::vector<TLorentzVector>();
   
@@ -614,20 +622,25 @@ void BaselineVessel::PassBaseline()
   
   // calculate cntCSVS from jet collection
   if (UseDeepCSV) 
-    cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
-        AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  {
+    cntCSVS        = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+    //cntCSVS_JetTLV = AnaFunctions::countCSVS(JetTLV,  tr->getVec<float>(CSVVecLabel), AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  }
   else
-    cntCSVS = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), 
-        AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  {
+    cntCSVS        = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+    //cntCSVS_JetTLV = AnaFunctions::countCSVS(JetTLV,  tr->getVec<float>(CSVVecLabel), AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+  }
   
   // Getting the b-jets. Sorted by pt by default
   for(auto idx : *vBidxs)
     vBjs->push_back(jet_vec.at(idx));
 
-  int cntNJetsPt50Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt50Eta24Arr);
-  int cntNJetsPt30Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Eta24Arr);
-  int cntNJetsPt20Eta24 = AnaFunctions::countJets(jet_vec, AnaConsts::pt20Eta24Arr);
-  int cntNJetsPt30      = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Arr);
+  int cntNJetsPt50Eta24        = AnaFunctions::countJets(jet_vec, AnaConsts::pt50Eta24Arr);
+  int cntNJetsPt30Eta24        = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Eta24Arr);
+  int cntNJetsPt20Eta24        = AnaFunctions::countJets(jet_vec, AnaConsts::pt20Eta24Arr);
+  int cntNJetsPt20Eta24_JetTLV = AnaFunctions::countJets(JetTLV,  AnaConsts::pt20Eta24Arr);
+  int cntNJetsPt30             = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Arr);
 
 
   // Calculate top tagger related variables. 
@@ -668,9 +681,11 @@ void BaselineVessel::PassBaseline()
   const auto& nResolvedTops = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
   const auto& nWs           = tr->getVar<int>(UseCleanedJetsVar("nWs"));
   const auto& ISRpt         = tr->getVar<float>("Stop0l_ISRJetPt");
-  const auto& mtb           = tr->getVar<float>("Stop0l_Mtb");
-  const auto& ptb           = tr->getVar<float>("Stop0l_Ptb");
-  const auto& nBottoms      = cntCSVS;
+  const auto& Stop0l_Mtb    = tr->getVar<float>("Stop0l_Mtb");
+  const auto& Stop0l_Ptb    = tr->getVar<float>("Stop0l_Ptb");
+  const auto& mtb           = tr->getVar<float>("mtb"+firstSpec);
+  const auto& ptb           = tr->getVar<float>("ptb"+firstSpec);
+  const auto& nBottoms      = tr->getVar<int>("nBottoms"+firstSpec);
   const auto& nSoftBottoms  = tr->getVar<int>("Stop0l_nSoftb");;
   const auto& nJets         = cntNJetsPt20Eta24;
   float HT                  = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
@@ -680,13 +695,13 @@ void BaselineVessel::PassBaseline()
   bool SAT_Pass_MET = (met >= AnaConsts::defaultMETcut);
   bool SAT_Pass_HT = (HT >= AnaConsts::defaultHTcut);
   bool SAT_Pass_NJets20 = nJets >= 2;
-  bool SAT_Pass_LeptonVeto = (Pass_ElectronVeto && Pass_MuonVeto && Pass_IsoTrackVeto);
+  bool SAT_Pass_LeptonVeto = (Pass_ElecVeto && Pass_MuonVeto && Pass_IsoTrkVeto);
   bool Pass_EventFilter = tr->getVar<bool>("Pass_EventFilter");
   bool Pass_JetID = tr->getVar<bool>("Pass_JetID");
   bool Pass_LeptonVeto = tr->getVar<bool>("Pass_LeptonVeto");
   if (Pass_LeptonVeto != SAT_Pass_LeptonVeto) std::cout << "ERROR: Lepton vetos do not agree. Pass_LeptonVeto=" << Pass_LeptonVeto << " and SAT_Pass_LeptonVeto=" << SAT_Pass_LeptonVeto << std::endl;
   //bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTracksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTracksSel);
-  //bool Pass_LeptonVeto = Pass_MuonVeto && Pass_ElectronVeto && Pass_IsoTrackVeto;
+  //bool Pass_LeptonVeto = Pass_MuonVeto && Pass_ElecVeto && Pass_IsoTrkVeto;
   bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
 
   //SUS-16-049, low dm, ISR cut
@@ -746,8 +761,8 @@ void BaselineVessel::PassBaseline()
 
   // if (doEleVeto)
   // {
-  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_ElectronVeto;
-  //     SAT_Pass_highDM = SAT_Pass_highDM && Pass_ElectronVeto;
+  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_ElecVeto;
+  //     SAT_Pass_highDM = SAT_Pass_highDM && Pass_ElecVeto;
   // }
   // if (doMuonVeto)
   // {
@@ -756,14 +771,24 @@ void BaselineVessel::PassBaseline()
   // }
   // if (doIsoTrkVeto)
   // {
-  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_IsoTrackVeto;
-  //     SAT_Pass_highDM = SAT_Pass_highDM && Pass_IsoTrackVeto;
+  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_IsoTrkVeto;
+  //     SAT_Pass_highDM = SAT_Pass_highDM && Pass_IsoTrkVeto;
   // }
   
   if (doLeptonVeto)
   {
       SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_LeptonVeto;
       SAT_Pass_highDM = SAT_Pass_highDM && Pass_LeptonVeto;
+  }
+
+  // compare original variables to those with cleaned jets
+  if (verbose)
+  {
+    printf("cntNJetsPt20Eta24_JetTLV = %d, nJets = %d\n", cntNJetsPt20Eta24_JetTLV, nJets);
+    printf("cntCSVS = %d, nBottoms = %d\n",               cntCSVS,                  nBottoms);
+    printf("MET_pt = %f, met = %f\n",                     MET_pt,     met);
+    printf("Stop0l_Mtb = %f, mtb = %f\n",                 Stop0l_Mtb, mtb);
+    printf("Stop0l_Ptb = %f, ptb = %f\n",                 Stop0l_Ptb, ptb);
   }
 
   // Register all the calculated variables
@@ -777,21 +802,19 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("nSoftBottoms" + firstSpec, nSoftBottoms);
   tr->registerDerivedVar("nMergedTops" + firstSpec, nMergedTops);
   tr->registerDerivedVar("nResolvedTops" + firstSpec, nResolvedTops);
-  tr->registerDerivedVar("nBottoms" + firstSpec, nBottoms);
   tr->registerDerivedVar("nWs" + firstSpec, nWs);
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
   tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
-  tr->registerDerivedVar("ptb" + firstSpec, ptb);
-  tr->registerDerivedVar("mtb" + firstSpec, mtb);
+  tr->registerDerivedVar("nIsoTracks_Stop0l" + firstSpec, nIsoTracks_Stop0l);
   tr->registerDerivedVar("HT" + firstSpec, HT);
   //tr->registerDerivedVar("passIsoLepTrkVeto" + firstSpec, passIsoLepTrkVeto);
   //tr->registerDerivedVar("passIsoPionTrkVeto" + firstSpec, passIsoPionTrkVeto);
   //tr->registerDerivedVar("passdPhis" + firstSpec, passdPhis);
+  //tr->registerDerivedVar("Pass_MuonVeto" + firstSpec, Pass_MuonVeto);
+  //tr->registerDerivedVar("Pass_ElecVeto" + firstSpec, Pass_ElecVeto);
+  //tr->registerDerivedVar("Pass_IsoTrkVeto" + firstSpec, Pass_IsoTrkVeto);
   tr->registerDerivedVar("passTagger" + firstSpec, passTagger);
-  tr->registerDerivedVar("Pass_MuonVeto" + firstSpec, Pass_MuonVeto);
-  tr->registerDerivedVar("Pass_ElectronVeto" + firstSpec, Pass_ElectronVeto);
-  tr->registerDerivedVar("Pass_IsoTrackVeto" + firstSpec, Pass_IsoTrackVeto);
   tr->registerDerivedVar("SAT_Pass_MET" + firstSpec, SAT_Pass_MET);
   tr->registerDerivedVar("SAT_Pass_HT" + firstSpec, SAT_Pass_HT);
   tr->registerDerivedVar("SAT_Pass_NJets20" + firstSpec, SAT_Pass_NJets20);
@@ -1417,6 +1440,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   //CombDeepCSV(); //temparory fix for DeepCSV
   // --- Do within PassBaseline();
   //CompCommonVar(); // registers mtb; used by PassBaseline(); now put in PassBaseline().
+  CalcBottomVars();
   PassBaseline();
   PassTrigger();
   // --- Do within PassBaseline();
@@ -1730,6 +1754,76 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
   return true;
 }       // -----  end of function BaselineVessel::GetRecoZ  -----
 
+// calculate bottom quark variables
+// n_bottoms, mtb, ptb
+bool BaselineVessel::CalcBottomVars()
+{
+  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
+  const auto& Jet_btagDisc   = tr->getVec<float>(CSVVecLabel);
+  const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
+  const auto& met     = tr->getVar<float>(METLabel); 
+  const auto& metphi  = tr->getVar<float>(METPhiLabel); 
+  const auto& event   = tr->getVar<unsigned long long>("event");
+
+  bool verbose = false;
+  float mtb = INFINITY;
+  float ptb = 0;
+  int nBottoms = 0;
+  int i = 0;
+  
+  // using vector of pairs
+  std::vector<std::pair<float, unsigned>> disc_vec;
+  
+  i = 0;
+  for (const auto& jet : jets)
+  {
+    // check if it pass b requirement
+    if (Jet_btagStop0l[i])
+    {
+      if (verbose) printf("event %d, jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", event, i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jet.Pt());
+      ++nBottoms;
+      // only use first two b-jets (ordered by p_t) for mtb
+      if (nBottoms < 3)
+      {
+        ptb += jet.Pt();
+      }
+      disc_vec.push_back({Jet_btagDisc[i], i});
+    }
+    ++i;
+  }
+  // sort
+  std::sort(disc_vec.begin(), disc_vec.end(), SusyUtility::greaterThan<float, unsigned>);
+  
+  // calculate mtb
+  if (verbose && disc_vec.size() > 0) 
+  {
+    printf("jets.size() = %d, disc_vec.size() = %d\n", jets.size(), disc_vec.size());
+    for (const auto& d : disc_vec)
+    {
+      printf("d = %f, index = %d\n", d.first, d.second);
+    }
+  }
+  
+  i = 0;
+  for (const auto& d : disc_vec)
+  {
+    // only use first two b-jets (ordered by discriminator) for mtb
+    if (i > 1) break;
+    const TLorentzVector& b_jet = jets.at(d.second); 
+    float dPhi = fabs(TVector2::Phi_mpi_pi(b_jet.Phi() - metphi));
+    float temp = sqrt( 2 * b_jet.Pt() * met * (1 - cos(dPhi)) );
+    mtb = std::min(mtb, temp);
+    ++i;
+  }
+
+  // set mtb to 0 if mtb was not changed
+  if (mtb == INFINITY) mtb = 0;
+ 
+  // register variables
+  tr->registerDerivedVar("mtb"+firstSpec, mtb);
+  tr->registerDerivedVar("ptb"+firstSpec, ptb);
+  tr->registerDerivedVar("nBottoms"+firstSpec, nBottoms);
+}
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::CompCommonVar
@@ -1737,30 +1831,42 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
 // ===========================================================================
 bool BaselineVessel::CompCommonVar()
 {
+  float mtb = 999999;
+  float ptb = 0;
+  unsigned cnt = 0;
+  
   const std::vector<float>  &bdisc = tr->getVec<float>(CSVVecLabel);
   const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
   std::map<float, unsigned> discmap;
-  for(auto idx : *vBidxs)
+ 
+  // check that vBidxs is not nullptr 
+  if (vBidxs && vBjs)
   {
-    discmap[bdisc[idx]] = idx;
-  }
-  float mtb = 99999;
-  float ptb = 0;
-  unsigned cnt = 0;
+    printf("vBidxs->size() = %d vBjs->size() = %d \n", vBidxs->size(), vBjs->size());
+    for(auto idx : *vBidxs)
+    {
+      discmap[bdisc[idx]] = idx;
+    }
 
-  for (auto iter = discmap.rbegin(); iter != discmap.rend(); ++iter)
-  {
-    float temp = sqrt(2*jets.at(iter->second).Pt()*tr->getVar<float>(METLabel)
-        *(1-cos(jets.at(iter->second).Phi() - tr->getVar<float>(METPhiLabel))));
-    mtb = std::min(mtb, temp);
-    cnt ++;
-    if (cnt == 2) break;
-  }
-  if (mtb == 99999) mtb=0;
+    for (auto iter = discmap.rbegin(); iter != discmap.rend(); ++iter)
+    {
+      float temp = sqrt(2*jets.at(iter->second).Pt()*tr->getVar<float>(METLabel)
+          *(1-cos(jets.at(iter->second).Phi() - tr->getVar<float>(METPhiLabel))));
+      mtb = std::min(mtb, temp);
+      cnt ++;
+      if (cnt == 2) break;
+    }
+    if (mtb == 999999) mtb=0;
 
-  for (unsigned i = 0; i < vBjs->size() && i < 2; ++i)
+    for (unsigned i = 0; i < vBjs->size() && i < 2; ++i)
+    {
+      ptb += vBjs->at(i).Pt();
+    }
+  }
+  // vBidxs is nullptr
+  else
   {
-    ptb += vBjs->at(i).Pt();
+    std::cout << "WARNING: vBidxs and/or vBjs is nullptr" << std::endl;
   }
 
   tr->registerDerivedVar("mtb"+firstSpec, mtb);
