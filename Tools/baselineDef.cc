@@ -677,28 +677,28 @@ void BaselineVessel::PassBaseline()
   if (Stop0l_ISRJetIdx < FatJets.size()) ISRJet = FatJets[Stop0l_ISRJetIdx];
   //if(ISRJet.size() == 1) ISRpt = ISRJet.at(0).Pt();
 
-  const auto& nMergedTops   = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
-  const auto& nResolvedTops = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
-  const auto& nWs           = tr->getVar<int>(UseCleanedJetsVar("nWs"));
-  const auto& ISRpt         = tr->getVar<float>("Stop0l_ISRJetPt");
-  const auto& Stop0l_Mtb    = tr->getVar<float>("Stop0l_Mtb");
-  const auto& Stop0l_Ptb    = tr->getVar<float>("Stop0l_Ptb");
-  const auto& mtb           = tr->getVar<float>("mtb"+firstSpec);
-  const auto& ptb           = tr->getVar<float>("ptb"+firstSpec);
-  const auto& nBottoms      = tr->getVar<int>("nBottoms"+firstSpec);
-  const auto& nSoftBottoms  = tr->getVar<int>("Stop0l_nSoftb");;
-  const auto& nJets         = cntNJetsPt20Eta24;
-  float HT                  = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
-  float S_met               = met / sqrt(HT);
+  const auto& nMergedTops     = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
+  const auto& nResolvedTops   = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
+  const auto& nWs             = tr->getVar<int>(UseCleanedJetsVar("nWs"));
+  const auto& Stop0l_ISRJetPt = tr->getVar<float>("Stop0l_ISRJetPt");
+  const auto& Stop0l_Mtb      = tr->getVar<float>("Stop0l_Mtb");
+  const auto& Stop0l_Ptb      = tr->getVar<float>("Stop0l_Ptb");
+  const auto& mtb             = tr->getVar<float>("mtb"+firstSpec);
+  const auto& ptb             = tr->getVar<float>("ptb"+firstSpec);
+  const auto& nBottoms        = tr->getVar<int>("nBottoms"+firstSpec);
+  const auto& nSoftBottoms    = tr->getVar<int>("Stop0l_nSoftb");;
+  const auto& nJets           = cntNJetsPt20Eta24;
+  float HT                    = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
+  float S_met                 = met / sqrt(HT);
   
-  bool passTagger = (incZEROtop || nMergedTops >= AnaConsts::low_nTopCandSortedSel); 
-  bool SAT_Pass_MET = (met >= AnaConsts::defaultMETcut);
-  bool SAT_Pass_HT = (HT >= AnaConsts::defaultHTcut);
-  bool SAT_Pass_NJets20 = nJets >= 2;
+  bool passTagger          = (incZEROtop || nMergedTops >= AnaConsts::low_nTopCandSortedSel); 
+  bool SAT_Pass_MET        = (met >= AnaConsts::defaultMETcut);
+  bool SAT_Pass_HT         = (HT >= AnaConsts::defaultHTcut);
+  bool SAT_Pass_NJets20    = nJets >= 2;
   bool SAT_Pass_LeptonVeto = (Pass_ElecVeto && Pass_MuonVeto && Pass_IsoTrkVeto);
-  bool Pass_EventFilter = tr->getVar<bool>("Pass_EventFilter");
-  bool Pass_JetID = tr->getVar<bool>("Pass_JetID");
-  bool Pass_LeptonVeto = tr->getVar<bool>("Pass_LeptonVeto");
+  bool Pass_EventFilter    = tr->getVar<bool>("Pass_EventFilter");
+  bool Pass_JetID          = tr->getVar<bool>("Pass_JetID");
+  bool Pass_LeptonVeto     = tr->getVar<bool>("Pass_LeptonVeto");
   if (Pass_LeptonVeto != SAT_Pass_LeptonVeto) std::cout << "ERROR: Lepton vetos do not agree. Pass_LeptonVeto=" << Pass_LeptonVeto << " and SAT_Pass_LeptonVeto=" << SAT_Pass_LeptonVeto << std::endl;
   //bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTracksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTracksSel);
   //bool Pass_LeptonVeto = Pass_MuonVeto && Pass_ElecVeto && Pass_IsoTrkVeto;
@@ -706,7 +706,7 @@ void BaselineVessel::PassBaseline()
 
   //SUS-16-049, low dm, ISR cut
   bool pass_ISR = (
-                       ISRpt > 200
+                       Stop0l_ISRJetPt > 200
                     && fabs(ISRJet.Eta()) < 2.4
                     && fabs(ISRJet.Phi() - metphi) > 2
                   );
