@@ -44,7 +44,7 @@ except ImportError:
 
     # uproot is not found, fall back to using ROOT
     import ROOT
-    # make sure ROOT does not seg fault when $ is in sys.argv (e.g. $ passed in as argument)
+    # make sure ROOT.TFile.Open(fileURL) does not seg fault when $ is in sys.argv (e.g. $ passed in as argument)
     ROOT.PyConfig.IgnoreCommandLineOptions = True 
 
     def getNEvtsProcess(fileURL, legacy=False):
