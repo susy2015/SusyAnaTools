@@ -23,10 +23,10 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
   UseDeepCSV            = true;
   eraLabel              = "2016MC";
   jetVecLabel           = "JetTLV";
+  jetVecLabelAK8        = "FatJetTLV";
   CSVVecLabel           = "Jet_btagCSVV2";
   METLabel              = "MET_pt";
   METPhiLabel           = "MET_phi";
-  jetVecLabelAK8        = "FatJetTLV";
   qgLikehoodLabel       = "qgLikelihood";
   muonsFlagIDLabel      = "Muon_Stop0l"; 
   elesFlagIDLabel       = "Electron_Stop0l";
@@ -109,9 +109,9 @@ bool BaselineVessel::UseCleanedJets()
   if      (UseDRPhotonCleanJet) suffix = "_drPhotonCleaned";
   else if (UseDRLeptonCleanJet) suffix = "_drLeptonCleaned";
   jetVecLabel     = prefix + "JetTLV"        + suffix;
+  jetVecLabelAK8  = prefix + "FatJetTLV"     + suffix;
   CSVVecLabel     = prefix + "Jet_btagCSVV2" + suffix;
   qgLikehoodLabel = prefix + "qgLikelihood"  + suffix;
-  jetVecLabelAK8  = prefix + "FatJetTLV"     + suffix;
   if (UseDeepCSV)
   {
     // Note that DeepCSVcomb is a derived variable... but it is derived with cleaned variables 
@@ -1441,6 +1441,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   // --- Do within PassBaseline();
   //CompCommonVar(); // registers mtb; used by PassBaseline(); now put in PassBaseline().
   CalcBottomVars();
+  CalcISRJetVars();
   PassBaseline();
   PassTrigger();
   // --- Do within PassBaseline();
@@ -1758,16 +1759,16 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
 // n_bottoms, mtb, ptb
 bool BaselineVessel::CalcBottomVars()
 {
-  const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
+  const auto& jets           = tr->getVec<TLorentzVector>(jetVecLabel);
   const auto& Jet_btagDisc   = tr->getVec<float>(CSVVecLabel);
   const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
-  const auto& met     = tr->getVar<float>(METLabel); 
-  const auto& metphi  = tr->getVar<float>(METPhiLabel); 
-  const auto& event   = tr->getVar<unsigned long long>("event");
+  const auto& met            = tr->getVar<float>(METLabel); 
+  const auto& metphi         = tr->getVar<float>(METPhiLabel); 
+  const auto& event          = tr->getVar<unsigned long long>("event");
 
   bool verbose = false;
   float mtb = INFINITY;
-  float ptb = 0;
+  float ptb = 0.0;
   int nBottoms = 0;
   int i = 0;
   
@@ -1824,6 +1825,19 @@ bool BaselineVessel::CalcBottomVars()
   tr->registerDerivedVar("ptb"+firstSpec, ptb);
   tr->registerDerivedVar("nBottoms"+firstSpec, nBottoms);
 }
+
+
+
+bool BaselineVessel::CalcISRJetVars()
+{
+  const auto& fat_jets           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const auto& sub_jets           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const auto& FatJet_subJetIdx1  = tr->getVec<float>(UseCleanedJetsVar("FatJet_subJetIdx1"));
+  const auto& FatJet_subJetIdx2  = tr->getVec<float>(UseCleanedJetsVar("FatJet_subJetIdx2"));
+  float ISRJetPt = 0.0;
+  tr->registerDerivedVar("ISRJetPt"+firstSpec, ISRJetPt);
+}
+
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::CompCommonVar
