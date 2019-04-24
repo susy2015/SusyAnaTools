@@ -14,13 +14,14 @@ cmsenv
 ```
 
 
-## TopTagger Repo
+## TopTagger Repos
 
-Checkout and compile the TopTagger repository.
+Checkout and compile the TopTagger and TopTaggerTools repositories.
 
 ```
 cd $CMSSW_BASE/src
 git clone git@github.com:susy2015/TopTagger.git
+git clone git@github.com:susy2015/TopTaggerTools.git
 cd TopTagger/TopTagger/test/
 ./configure
 make -j 8 
@@ -132,10 +133,23 @@ Command if `SusyAnaTools/Tools/scripts` is in your PATH:
 getStopCfg.sh -t PostProcess_StopTuple_V1.2.1
 ```
 
-## Setup Tools Environment
-Go to your working area, then do this:
+## Setup Environment
+
+Go to your working area and then setup the TopTagger environment. This will need to be run after running `cmsenv` in every new terminal session. Use the command for your shell (bash or tcsh). Type "echo $SHELL" to check your shell if you don't know it.
+
+Go to working area (replace myWorkingArea with your working area path):
+```
+cd $CMSSW_BASE/src/myWorkingArea
+```
+
+For bash users:
 ```
 source $CMSSW_BASE/src/TopTagger/TopTagger/test/taggerSetup.sh
+```
+
+For tcsh users:
+```
+source $CMSSW_BASE/src/TopTagger/TopTagger/test/taggerSetup.csh
 ```
 
 Please note that this script will download the desired tagger configuration information in a seperate folder and softlink the necessary files into your corrent directory.

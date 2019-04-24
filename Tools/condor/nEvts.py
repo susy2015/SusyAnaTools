@@ -4,10 +4,10 @@ from functools import partial
 import concurrent.futures
 
 def getFiles(fileList):
-    #If multiprocessing is used this must also be run in a seperate thread from the master thread
+    # If multiprocessing is used this must also be run in a seperate thread from the master thread
     try:
         with client.File() as fl:
-            #Why is the client written like this????
+            # Why is the client written like this????
             fl.open(fileList)
             files = [f.strip("\n") for f in fl]
     except ValueError:
@@ -20,7 +20,7 @@ executor = concurrent.futures.ThreadPoolExecutor(1)
 
 try:
     raise ImportError
-#Uproot implementation is currently rather slow, disable it for now
+# Uproot implementation is currently rather slow, disable it for now
 #    import uproot
 #    print "using uproot"
 #
@@ -42,8 +42,10 @@ try:
 
 except ImportError:
 
-    #uproot is not found, fall back to using ROOT
+    # uproot is not found, fall back to using ROOT
     import ROOT
+    # make sure ROOT.TFile.Open(fileURL) does not seg fault when $ is in sys.argv (e.g. $ passed in as argument)
+    ROOT.PyConfig.IgnoreCommandLineOptions = True 
 
     def getNEvtsProcess(fileURL, legacy=False):
         try:
