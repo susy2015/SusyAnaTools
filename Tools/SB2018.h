@@ -1,5 +1,5 @@
 //================================SUS-16-049 (team_A) search bin low dm=================================================
-int SB_team_A_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met)
+int SBv2_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met)
 {
 	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets <= 5 && met > 450 && met < 550) return 0;
 	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets <= 5 && met > 550 && met < 650) return 1;
