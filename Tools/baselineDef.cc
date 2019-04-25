@@ -680,14 +680,15 @@ void BaselineVessel::PassBaseline()
   const auto& nMergedTops     = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
   const auto& nResolvedTops   = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
   const auto& nWs             = tr->getVar<int>(UseCleanedJetsVar("nWs"));
+  const auto& nBottoms        = tr->getVar<int>(UseCleanedJetsVar("nBottoms"));
+  const auto& mtb             = tr->getVar<float>(UseCleanedJetsVar("mtb"));
+  const auto& ptb             = tr->getVar<float>(UseCleanedJetsVar("ptb"));
+  const auto& ISRJetPt        = tr->getVar<float>(UseCleanedJetsVar("ISRJetPt"));
+  const auto& nJets           = cntNJetsPt20Eta24;
+  const auto& nSoftBottoms    = tr->getVar<int>("Stop0l_nSoftb");;
   const auto& Stop0l_ISRJetPt = tr->getVar<float>("Stop0l_ISRJetPt");
   const auto& Stop0l_Mtb      = tr->getVar<float>("Stop0l_Mtb");
   const auto& Stop0l_Ptb      = tr->getVar<float>("Stop0l_Ptb");
-  const auto& mtb             = tr->getVar<float>("mtb"+firstSpec);
-  const auto& ptb             = tr->getVar<float>("ptb"+firstSpec);
-  const auto& nBottoms        = tr->getVar<int>("nBottoms"+firstSpec);
-  const auto& nSoftBottoms    = tr->getVar<int>("Stop0l_nSoftb");;
-  const auto& nJets           = cntNJetsPt20Eta24;
   float HT                    = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
   float S_met                 = met / sqrt(HT);
   
@@ -706,7 +707,7 @@ void BaselineVessel::PassBaseline()
 
   //SUS-16-049, low dm, ISR cut
   bool pass_ISR = (
-                       Stop0l_ISRJetPt > 200
+                       ISRJetPt > 200
                     && fabs(ISRJet.Eta()) < 2.4
                     && fabs(ISRJet.Phi() - metphi) > 2
                   );
@@ -800,9 +801,10 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVec("vBjs" + firstSpec, vBjs);
   tr->registerDerivedVar("ISRJet" + firstSpec, ISRJet);
   tr->registerDerivedVar("nSoftBottoms" + firstSpec, nSoftBottoms);
-  tr->registerDerivedVar("nMergedTops" + firstSpec, nMergedTops);
-  tr->registerDerivedVar("nResolvedTops" + firstSpec, nResolvedTops);
-  tr->registerDerivedVar("nWs" + firstSpec, nWs);
+  // already registered in RunTopTagger.h
+  //tr->registerDerivedVar("nMergedTops" + firstSpec, nMergedTops);
+  //tr->registerDerivedVar("nResolvedTops" + firstSpec, nResolvedTops);
+  //tr->registerDerivedVar("nWs" + firstSpec, nWs);
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
   tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
@@ -1831,11 +1833,42 @@ bool BaselineVessel::CalcBottomVars()
 bool BaselineVessel::CalcISRJetVars()
 {
   const auto& fat_jets           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
-  const auto& sub_jets           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
-  const auto& FatJet_subJetIdx1  = tr->getVec<float>(UseCleanedJetsVar("FatJet_subJetIdx1"));
-  const auto& FatJet_subJetIdx2  = tr->getVec<float>(UseCleanedJetsVar("FatJet_subJetIdx2"));
+  const auto& FatJet_btagDeepB   = tr->getVec<float>(UseCleanedJetsVar("FatJet_btagDeepB"));
+  const auto& FatJet_subJetIdx1  = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx1"));
+  const auto& FatJet_subJetIdx2  = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx2"));
+  const auto& SubJet_btagDeepB   = tr->getVec<float>("SubJet_btagDeepB");
+  const auto& metphi             = tr->getVar<float>(METPhiLabel); 
+  const auto& nMergedTops        = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
+  const auto& nResolvedTops      = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
+  const auto& nWs                = tr->getVar<int>(UseCleanedJetsVar("nWs"));
   float ISRJetPt = 0.0;
-  tr->registerDerivedVar("ISRJetPt"+firstSpec, ISRJetPt);
+  int ISRJetIdx  = -1;
+  int nSubJets = SubJet_btagDeepB.size();
+  for (int i = 0; i < fat_jets.size(); ++i)
+  {
+    // require that there are no merged or resolved tops and no Ws
+    if (nMergedTops + nResolvedTops + nWs != 0)   continue;
+    // pt > 200, |eta| < 2.4
+    if (fat_jets[i].Pt() < 200.0)     continue;
+    if (abs(fat_jets[i].Eta()) > 2.4) continue;
+    // require that ISR jet is not a a b-jet
+    if (FatJet_btagDeepB[i] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) continue;
+    // require that sub-jets are not b-jets
+    int subJetIdx1 = FatJet_subJetIdx1[i];
+    int subJetIdx2 = FatJet_subJetIdx2[i];
+    if (subJetIdx1 >= 0 && subJetIdx1 < nSubJets && SubJet_btagDeepB[subJetIdx1] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) continue;
+    if (subJetIdx2 >= 0 && subJetIdx2 < nSubJets && SubJet_btagDeepB[subJetIdx2] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) continue;
+    
+    // require dPhi(fat_jet, met) > 2
+    float dPhi = fabs(TVector2::Phi_mpi_pi(fat_jets[i].Phi() - metphi));
+    if (dPhi < 2.0) continue;
+    
+    ISRJetPt = fat_jets[i].Pt();
+    ISRJetIdx = i;
+    break;
+  }
+  tr->registerDerivedVar("ISRJetPt"+firstSpec,  ISRJetPt);
+  tr->registerDerivedVar("ISRJetIdx"+firstSpec, ISRJetIdx);
 }
 
 
