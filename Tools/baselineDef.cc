@@ -546,21 +546,23 @@ bool BaselineVessel::PrintoutConfig() const
 void BaselineVessel::PassBaseline()
 {
   if (printConfig) PrintoutConfig();
-  bool verbose = false;
+  bool verbose = true;
   
   // Get jet collection
-  const auto& jet_vec = tr->getVec<TLorentzVector>(jetVecLabel);
-  const auto& JetTLV  = tr->getVec<TLorentzVector>("JetTLV"); // nominal jets for comparison
-  const auto& met     = tr->getVar<float>(METLabel); 
-  const auto& metphi  = tr->getVar<float>(METPhiLabel); 
-  const auto& MET_pt  = tr->getVar<float>("MET_pt"); // nominal met for comparison
+  const auto& Jets        = tr->getVec<TLorentzVector>(jetVecLabel);
+  const auto& FatJets     = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const auto& Jets_All    = tr->getVec<TLorentzVector>("JetTLV");    // nominal jets for comparison
+  const auto& FatJets_All = tr->getVec<TLorentzVector>("FatJetTLV"); // nominal jets for comparison
+  const auto& met         = tr->getVar<float>(METLabel); 
+  const auto& metphi      = tr->getVar<float>(METPhiLabel); 
+  const auto& MET_pt      = tr->getVar<float>("MET_pt"); // nominal met for comparison
 
   // Set TLorentzVector for MET
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
   
   // Calculate deltaPhi
   std::vector<float> * dPhiVec = new std::vector<float>();
-  (*dPhiVec) = AnaFunctions::calcDPhi(jet_vec, metLVec, 5, AnaConsts::dphiArr);
+  (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, AnaConsts::dphiArr);
 
   // Calculate number of leptons
   // const auto& elesFlagIDVec  = elesFlagIDLabel.empty()  ? std::vector<unsigned char>(tr->getVec<float>("elesMiniIso").size(), 1):  tr->getVec<unsigned char>(elesFlagIDLabel.c_str());  // Fake electrons since we don't have different ID for electrons now, but maybe later
@@ -606,7 +608,7 @@ void BaselineVessel::PassBaseline()
 
   // Calculate number of jets and b-tagged jets
   int cntCSVS        = 0;
-  //int cntCSVS_JetTLV = 0;
+  //int cntCSVS_Jets_All = 0;
   vBidxs = new std::vector<unsigned int>();
   vBjs = new std::vector<TLorentzVector>();
   
@@ -623,25 +625,22 @@ void BaselineVessel::PassBaseline()
   // calculate cntCSVS from jet collection
   if (UseDeepCSV) 
   {
-    cntCSVS        = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
-    //cntCSVS_JetTLV = AnaFunctions::countCSVS(JetTLV,  tr->getVec<float>(CSVVecLabel), AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+    cntCSVS        = AnaFunctions::countCSVS(Jets, tr->getVec<float>(CSVVecLabel), AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+    //cntCSVS_Jets_All = AnaFunctions::countCSVS(Jets_All,  tr->getVec<float>(CSVVecLabel), AnaConsts::DeepCSV.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
   }
   else
   {
-    cntCSVS        = AnaFunctions::countCSVS(jet_vec, tr->getVec<float>(CSVVecLabel), AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
-    //cntCSVS_JetTLV = AnaFunctions::countCSVS(JetTLV,  tr->getVec<float>(CSVVecLabel), AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+    cntCSVS        = AnaFunctions::countCSVS(Jets, tr->getVec<float>(CSVVecLabel), AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
+    //cntCSVS_Jets_All = AnaFunctions::countCSVS(Jets_All,  tr->getVec<float>(CSVVecLabel), AnaConsts::CSVv2.at(eraLabel).at("cutM"), AnaConsts::bTagArr, vBidxs); 
   }
   
   // Getting the b-jets. Sorted by pt by default
-  for(auto idx : *vBidxs)
-    vBjs->push_back(jet_vec.at(idx));
+  for(auto idx : *vBidxs) vBjs->push_back(Jets.at(idx));
 
-  int cntNJetsPt50Eta24        = AnaFunctions::countJets(jet_vec, AnaConsts::pt50Eta24Arr);
-  int cntNJetsPt30Eta24        = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Eta24Arr);
-  int cntNJetsPt20Eta24        = AnaFunctions::countJets(jet_vec, AnaConsts::pt20Eta24Arr);
-  int cntNJetsPt20Eta24_JetTLV = AnaFunctions::countJets(JetTLV,  AnaConsts::pt20Eta24Arr);
-  int cntNJetsPt30             = AnaFunctions::countJets(jet_vec, AnaConsts::pt30Arr);
-
+  int nJets        = AnaFunctions::countJets(Jets,         AnaConsts::pt20Eta24Arr);
+  int nFatJets     = AnaFunctions::countJets(FatJets,      AnaConsts::pt200Eta24Arr);
+  int nJets_All    = AnaFunctions::countJets(Jets_All,     AnaConsts::pt20Eta24Arr);  // using all jets for comparison to cleaned jets
+  int nFatJets_All = AnaFunctions::countJets(FatJets_All,  AnaConsts::pt200Eta24Arr); // using all jets for comparison to cleaned jets
 
   // Calculate top tagger related variables. 
   // Note that to save speed, only do the calculation after previous base line requirements.
@@ -670,27 +669,22 @@ void BaselineVessel::PassBaseline()
   // https://github.com/susy2015/SusyAnaTools/blob/5e4f54e1aa985daff90f1ad7a220b8d17e4b7290/Tools/tupleRead.C#L629-L639
   
   // variables for SAT_Pass_lowDM and SAT_Pass_highDM
-  // get ISR jet
-  TLorentzVector ISRJet;
-  const auto& FatJets = tr->getVec<TLorentzVector>(jetVecLabelAK8);
-  const auto& Stop0l_ISRJetIdx = tr->getVar<int>("Stop0l_ISRJetIdx");
-  if (Stop0l_ISRJetIdx < FatJets.size()) ISRJet = FatJets[Stop0l_ISRJetIdx];
-  //if(ISRJet.size() == 1) ISRpt = ISRJet.at(0).Pt();
-
-  const auto& nMergedTops     = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
-  const auto& nResolvedTops   = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
-  const auto& nWs             = tr->getVar<int>(UseCleanedJetsVar("nWs"));
-  const auto& nBottoms        = tr->getVar<int>(UseCleanedJetsVar("nBottoms"));
-  const auto& mtb             = tr->getVar<float>(UseCleanedJetsVar("mtb"));
-  const auto& ptb             = tr->getVar<float>(UseCleanedJetsVar("ptb"));
-  const auto& ISRJetPt        = tr->getVar<float>(UseCleanedJetsVar("ISRJetPt"));
-  const auto& nJets           = cntNJetsPt20Eta24;
-  const auto& nSoftBottoms    = tr->getVar<int>("Stop0l_nSoftb");;
-  const auto& Stop0l_ISRJetPt = tr->getVar<float>("Stop0l_ISRJetPt");
-  const auto& Stop0l_Mtb      = tr->getVar<float>("Stop0l_Mtb");
-  const auto& Stop0l_Ptb      = tr->getVar<float>("Stop0l_Ptb");
-  float HT                    = AnaFunctions::calcHT(jet_vec, AnaConsts::pt20Eta24Arr);
-  float S_met                 = met / sqrt(HT);
+  
+  const auto& nMergedTops       = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
+  const auto& nResolvedTops     = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
+  const auto& nWs               = tr->getVar<int>(UseCleanedJetsVar("nWs"));
+  const auto& nBottoms          = tr->getVar<int>(UseCleanedJetsVar("nBottoms"));
+  const auto& mtb               = tr->getVar<float>(UseCleanedJetsVar("mtb"));
+  const auto& ptb               = tr->getVar<float>(UseCleanedJetsVar("ptb"));
+  const auto& ISRJetPt          = tr->getVar<float>(UseCleanedJetsVar("ISRJetPt"));
+  const auto& ISRJetIdx         = tr->getVar<int>(UseCleanedJetsVar("ISRJetIdx"));
+  const auto& nSoftBottoms      = tr->getVar<int>("Stop0l_nSoftb");;
+  const auto& Stop0l_ISRJetPt   = tr->getVar<float>("Stop0l_ISRJetPt");
+  const auto& Stop0l_ISRJetIdx  = tr->getVar<int>("Stop0l_ISRJetIdx");
+  const auto& Stop0l_Mtb        = tr->getVar<float>("Stop0l_Mtb");
+  const auto& Stop0l_Ptb        = tr->getVar<float>("Stop0l_Ptb");
+  float HT                      = AnaFunctions::calcHT(Jets, AnaConsts::pt20Eta24Arr);
+  float S_met                   = met / sqrt(HT);
   
   bool passTagger          = (incZEROtop || nMergedTops >= AnaConsts::low_nTopCandSortedSel); 
   bool SAT_Pass_MET        = (met >= AnaConsts::defaultMETcut);
@@ -703,6 +697,11 @@ void BaselineVessel::PassBaseline()
   if (Pass_LeptonVeto != SAT_Pass_LeptonVeto) std::cout << "ERROR: Lepton vetos do not agree. Pass_LeptonVeto=" << Pass_LeptonVeto << " and SAT_Pass_LeptonVeto=" << SAT_Pass_LeptonVeto << std::endl;
   //bool passIsoLepTrkVeto = (nIsoLepTrks == AnaConsts::nIsoTracksSel), passIsoPionTrkVeto = (nIsoPionTrks == AnaConsts::nIsoTracksSel);
   //bool Pass_LeptonVeto = Pass_MuonVeto && Pass_ElecVeto && Pass_IsoTrkVeto;
+ 
+  // get ISR jet
+  TLorentzVector ISRJet;
+  if (ISRJetIdx >= 0 && ISRJetIdx < FatJets.size()) ISRJet = FatJets[ISRJetIdx];
+  
   bool passdPhis = (dPhiVec->at(0) >= AnaConsts::dPhi0_CUT && dPhiVec->at(1) >= AnaConsts::dPhi1_CUT && dPhiVec->at(2) >= AnaConsts::dPhi2_CUT);
 
   //SUS-16-049, low dm, ISR cut
@@ -785,18 +784,24 @@ void BaselineVessel::PassBaseline()
   // compare original variables to those with cleaned jets
   if (verbose)
   {
-    printf("cntNJetsPt20Eta24_JetTLV = %d, nJets = %d\n", cntNJetsPt20Eta24_JetTLV, nJets);
-    printf("cntCSVS = %d, nBottoms = %d\n",               cntCSVS,                  nBottoms);
-    printf("MET_pt = %f, met = %f\n",                     MET_pt,     met);
-    printf("Stop0l_Mtb = %f, mtb = %f\n",                 Stop0l_Mtb, mtb);
-    printf("Stop0l_Ptb = %f, ptb = %f\n",                 Stop0l_Ptb, ptb);
+    // ISR jet variables
+    printf("nFatJets_All: %d ",     nFatJets_All);
+    printf("nFatJets: %d ",         nFatJets);
+    printf("Stop0l_ISRJetPt: %f ",  Stop0l_ISRJetPt);
+    printf("ISRJetPt: %f ",         ISRJetPt);
+    printf("Stop0l_ISRJetIdx: %d ", Stop0l_ISRJetIdx);
+    printf("ISRJetIdx: %d ",        ISRJetIdx);
+    printf("pass_ISR: %d ",         pass_ISR);
+    printf("\n");
+    // mtb and ptb variables
+    //printf("cntNJetsPt20Eta24_Jets_All = %d, nJets = %d\n", cntNJetsPt20Eta24_Jets_All, nJets);
+    //printf("cntCSVS = %d, nBottoms = %d\n",               cntCSVS,                  nBottoms);
+    //printf("MET_pt = %f, met = %f\n",                     MET_pt,     met);
+    //printf("Stop0l_Mtb = %f, mtb = %f\n",                 Stop0l_Mtb, mtb);
+    //printf("Stop0l_Ptb = %f, ptb = %f\n",                 Stop0l_Ptb, ptb);
   }
 
   // Register all the calculated variables
-  tr->registerDerivedVar("cntNJetsPt50Eta24" + firstSpec, cntNJetsPt50Eta24);
-  tr->registerDerivedVar("cntNJetsPt30Eta24" + firstSpec, cntNJetsPt30Eta24);
-  tr->registerDerivedVar("cntNJetsPt20Eta24" + firstSpec, cntNJetsPt20Eta24);
-  tr->registerDerivedVar("cntNJetsPt30" + firstSpec, cntNJetsPt30);
   tr->registerDerivedVec("dPhiVec" + firstSpec, dPhiVec);
   tr->registerDerivedVec("vBjs" + firstSpec, vBjs);
   tr->registerDerivedVar("ISRJet" + firstSpec, ISRJet);
@@ -806,6 +811,7 @@ void BaselineVessel::PassBaseline()
   //tr->registerDerivedVar("nResolvedTops" + firstSpec, nResolvedTops);
   //tr->registerDerivedVar("nWs" + firstSpec, nWs);
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
+  tr->registerDerivedVar("nFatJets" + firstSpec, nFatJets);
   tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
   tr->registerDerivedVar("nIsoTracks_Stop0l" + firstSpec, nIsoTracks_Stop0l);
@@ -1830,7 +1836,7 @@ bool BaselineVessel::CalcBottomVars()
 
 
 
-bool BaselineVessel::CalcISRJetVars()
+int BaselineVessel::GetISRJetIdx()
 {
   const auto& fat_jets           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
   const auto& FatJet_btagDeepB   = tr->getVec<float>(UseCleanedJetsVar("FatJet_btagDeepB"));
@@ -1843,30 +1849,42 @@ bool BaselineVessel::CalcISRJetVars()
   const auto& nWs                = tr->getVar<int>(UseCleanedJetsVar("nWs"));
   float ISRJetPt = 0.0;
   int ISRJetIdx  = -1;
+  int nFatJets = fat_jets.size();
   int nSubJets = SubJet_btagDeepB.size();
   for (int i = 0; i < fat_jets.size(); ++i)
   {
     // require that there are no merged or resolved tops and no Ws
-    if (nMergedTops + nResolvedTops + nWs != 0)   continue;
+    if (nMergedTops + nResolvedTops + nWs != 0) return -1;
+    // require that there is at least one fat jet 
+    if (nFatJets == 0) return -1;
     // pt > 200, |eta| < 2.4
-    if (fat_jets[i].Pt() < 200.0)     continue;
-    if (abs(fat_jets[i].Eta()) > 2.4) continue;
+    if (fat_jets[i].Pt() < 200.0)     return -1;
+    if (abs(fat_jets[i].Eta()) > 2.4) return -1;
     // require that ISR jet is not a a b-jet
-    if (FatJet_btagDeepB[i] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) continue;
+    if (FatJet_btagDeepB[i] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) return -1;
     // require that sub-jets are not b-jets
     int subJetIdx1 = FatJet_subJetIdx1[i];
     int subJetIdx2 = FatJet_subJetIdx2[i];
-    if (subJetIdx1 >= 0 && subJetIdx1 < nSubJets && SubJet_btagDeepB[subJetIdx1] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) continue;
-    if (subJetIdx2 >= 0 && subJetIdx2 < nSubJets && SubJet_btagDeepB[subJetIdx2] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) continue;
+    if (subJetIdx1 >= 0 && subJetIdx1 < nSubJets && SubJet_btagDeepB[subJetIdx1] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) return -1;
+    if (subJetIdx2 >= 0 && subJetIdx2 < nSubJets && SubJet_btagDeepB[subJetIdx2] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) return -1;
     
     // require dPhi(fat_jet, met) > 2
     float dPhi = fabs(TVector2::Phi_mpi_pi(fat_jets[i].Phi() - metphi));
-    if (dPhi < 2.0) continue;
+    if (dPhi < 2.0) return -1;
     
     ISRJetPt = fat_jets[i].Pt();
     ISRJetIdx = i;
     break;
   }
+}
+
+bool BaselineVessel::CalcISRJetVars()
+{
+  const auto& fat_jets = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  int ISRJetIdx = GetISRJetIdx();
+  int nFatJets  = fat_jets.size();
+  float ISRJetPt = 0.0;
+  if (ISRJetIdx >= 0 && ISRJetIdx < nFatJets) ISRJetPt = fat_jets[ISRJetIdx].Pt();
   tr->registerDerivedVar("ISRJetPt"+firstSpec,  ISRJetPt);
   tr->registerDerivedVar("ISRJetIdx"+firstSpec, ISRJetIdx);
 }

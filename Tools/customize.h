@@ -54,23 +54,29 @@ namespace AnaConsts{
    const int low_nTopCandSortedSel = 1, high_nTopCandSortedSel = -1;
    const float minJetPt = 30;
 //                               minAbsEta, maxAbsEta, minPt, maxPt
-   const AccRec      pt30Arr = {   -1,        -1,      30,    -1  };
-   const AccRec pt30Eta24Arr = {   -1,       2.4,      30,    -1  };
-   const AccRec pt20Eta24Arr = {   -1,       2.4,      20,    -1  };
-   const AccRec pt50Eta24Arr = {   -1,       2.4,      50,    -1  };
-   const AccRec      dphiArr = {   -1,       4.7,      20,    -1  };
-   const AccRec     dphiNArr = {   -1,       2.4,      30,    -1  };
-   const AccRec      bTagArr = {   -1,       2.4,      20,    -1  };
-   const AccRec pt20Eta25Arr = {   -1,       2.5,      20,    -1  };
+   const AccRec pt30Arr       = {   -1,        -1,      30,    -1  };
+   const AccRec pt30Eta24Arr  = {   -1,       2.4,      30,    -1  };
+   const AccRec pt20Eta24Arr  = {   -1,       2.4,      20,    -1  };
+   const AccRec pt50Eta24Arr  = {   -1,       2.4,      50,    -1  };
+   const AccRec pt200Eta24Arr = {   -1,       2.4,     200,    -1  };
+   const AccRec dphiArr       = {   -1,       4.7,      20,    -1  };
+   const AccRec dphiNArr      = {   -1,       2.4,      30,    -1  };
+   const AccRec bTagArr       = {   -1,       2.4,      20,    -1  };
+   const AccRec pt20Eta25Arr  = {   -1,       2.5,      20,    -1  };
 
 //   const float cutCSVS = 0.814, cutCSVSold = 0.679; // for T5tttt signals, currently old b-tagging was used
 // Note the new working points are for Spring15 samples & data: cutCSVS is the medium working point
 // According to https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80X, the CSVv2M cut is 0.800
    const float cutCSVS = 0.8484, cutCSVL = 0.5426, cutCSVT = 0.9535, cutCSVSold = 0.800; // old is for ICHEP working point
+   
+   // Used For Post-Production v2.7:
    //2016 Data and  8_0_X MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco#Data_MC_Scale_Factors_period_dep
-   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation2016Legacy
    //2017 Data and  9_4_X MC: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation94X
    //2018 Data and 10_2_X MC: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
+
+   // Updated 2016 for next production:
+   //2016 Legacy: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation2016Legacy
+
    const std::map<std::string, std::map<std::string, float > > CSVv2 = {
      { "2016MC", {
                    {"cutL", 0.5426},
@@ -79,6 +85,13 @@ namespace AnaConsts{
  
      }},
      { "2017MC", {
+                   {"cutL", 0.5803},
+                   {"cutM", 0.8838},
+                   {"cutT", 0.9693}
+ 
+     }},
+     // not from recommendation; use 2017 for now
+     { "2018MC", {
                    {"cutL", 0.5803},
                    {"cutM", 0.8838},
                    {"cutT", 0.9693}

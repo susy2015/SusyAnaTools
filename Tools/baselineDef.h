@@ -104,6 +104,7 @@ public:
     void PassTrigger();
     bool PrintoutConfig() const;
     bool CalcBottomVars();
+    int  GetISRJetIdx(); 
     bool CalcISRJetVars();
     bool CompCommonVar();
     bool passNoiseEventFilterFunc();
