@@ -243,7 +243,6 @@ def main():
             continue
         # if sample matches pattern, assume that it is a sample and get new sample to write to file
         if re.search(dataset_pattern, sample):
-            print "getNewSample() TIME"
             newSample = getNewSample(sample, weight_dict, neventsFile)
             #print "newSample: {0}".format(newSample)
         outputSamples.write(newSample)
