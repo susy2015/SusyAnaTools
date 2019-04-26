@@ -22,6 +22,9 @@ VERBOSE=
 OPTIND=1    # Reset in case getopts has been used previously in the shell.
 
 SUPP_CFG=supplementaryFiles.cfg
+#SETS_CFG_2016=sampleSets_PreProcessed_2016.cfg
+#SETS_CFG_2017=sampleSets_PreProcessed_2017.cfg
+#SETS_CFG_2018=sampleSets_PreProcessed_2018.cfg
 SETS_CFG_2016=sampleSets_PostProcessed_2016.cfg
 SETS_CFG_2017=sampleSets_PostProcessed_2017.cfg
 SETS_CFG_2018=sampleSets_PostProcessed_2018.cfg
