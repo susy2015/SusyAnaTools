@@ -14,7 +14,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
 {
   bToFake               = 1;
   debug                 = false;
-  printConfig           = true;
+  printConfig           = false;
   incZEROtop            = false;
   UseLeptonCleanJet     = false;
   UseDRLeptonCleanJet   = false;
@@ -546,7 +546,7 @@ bool BaselineVessel::PrintoutConfig() const
 void BaselineVessel::PassBaseline()
 {
   if (printConfig) PrintoutConfig();
-  bool verbose = true;
+  bool verbose = false;
   
   // Get jet collection
   const auto& Jets        = tr->getVec<TLorentzVector>(jetVecLabel);
@@ -555,7 +555,8 @@ void BaselineVessel::PassBaseline()
   const auto& FatJets_All = tr->getVec<TLorentzVector>("FatJetTLV"); // nominal jets for comparison
   const auto& met         = tr->getVar<float>(METLabel); 
   const auto& metphi      = tr->getVar<float>(METPhiLabel); 
-  const auto& MET_pt      = tr->getVar<float>("MET_pt"); // nominal met for comparison
+  const auto& MET_pt      = tr->getVar<float>("MET_pt");  // nominal met for comparison
+  const auto& MET_phi     = tr->getVar<float>("MET_phi"); // nominal metphi for comparison
 
   // Set TLorentzVector for MET
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
@@ -683,6 +684,9 @@ void BaselineVessel::PassBaseline()
   const auto& Stop0l_ISRJetIdx  = tr->getVar<int>("Stop0l_ISRJetIdx");
   const auto& Stop0l_Mtb        = tr->getVar<float>("Stop0l_Mtb");
   const auto& Stop0l_Ptb        = tr->getVar<float>("Stop0l_Ptb");
+  const auto& Stop0l_nTop       = tr->getVar<int>("Stop0l_nTop");
+  const auto& Stop0l_nResolved  = tr->getVar<int>("Stop0l_nResolved");
+  const auto& Stop0l_nW         = tr->getVar<int>("Stop0l_nW");
   float HT                      = AnaFunctions::calcHT(Jets, AnaConsts::pt20Eta24Arr);
   float S_met                   = met / sqrt(HT);
   
@@ -787,6 +791,14 @@ void BaselineVessel::PassBaseline()
     // ISR jet variables
     printf("nFatJets_All: %d ",     nFatJets_All);
     printf("nFatJets: %d ",         nFatJets);
+    printf("Stop0l_nTop: %d ",      Stop0l_nTop);
+    printf("nMergedTops: %d ",      nMergedTops);
+    printf("Stop0l_nResolved: %d ", Stop0l_nResolved);
+    printf("nResolvedTops: %d ",    nResolvedTops);
+    printf("Stop0l_nW: %d ",        Stop0l_nW);
+    printf("nWs: %d ",              nWs);
+    printf("metphi: %f ",           metphi);
+    printf("MET_phi: %f ",          MET_phi);
     printf("Stop0l_ISRJetPt: %f ",  Stop0l_ISRJetPt);
     printf("ISRJetPt: %f ",         ISRJetPt);
     printf("Stop0l_ISRJetIdx: %d ", Stop0l_ISRJetIdx);
@@ -1838,6 +1850,7 @@ bool BaselineVessel::CalcBottomVars()
 
 int BaselineVessel::GetISRJetIdx()
 {
+  bool verbose = false;
   const auto& fat_jets           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
   const auto& FatJet_btagDeepB   = tr->getVec<float>(UseCleanedJetsVar("FatJet_btagDeepB"));
   const auto& FatJet_subJetIdx1  = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx1"));
@@ -1851,31 +1864,64 @@ int BaselineVessel::GetISRJetIdx()
   int ISRJetIdx  = -1;
   int nFatJets = fat_jets.size();
   int nSubJets = SubJet_btagDeepB.size();
-  for (int i = 0; i < fat_jets.size(); ++i)
+  //for (int i = 0; i < fat_jets.size(); ++i)
+  int i = 0; // only use leading fat jet (ordered by pt, index 0)
+  if (verbose) printf("FatJet %d: p_t = %f, eta = %f, phi = %f, mass = %f, btag_disc = %f\n", i, fat_jets[i].Pt(), fat_jets[i].Eta(), fat_jets[i].Phi(), fat_jets[i].M(), FatJet_btagDeepB[i]);
+  // require that there are no merged or resolved tops and no Ws
+  if (nMergedTops + nResolvedTops + nWs != 0) 
   {
-    // require that there are no merged or resolved tops and no Ws
-    if (nMergedTops + nResolvedTops + nWs != 0) return -1;
-    // require that there is at least one fat jet 
-    if (nFatJets == 0) return -1;
-    // pt > 200, |eta| < 2.4
-    if (fat_jets[i].Pt() < 200.0)     return -1;
-    if (abs(fat_jets[i].Eta()) > 2.4) return -1;
-    // require that ISR jet is not a a b-jet
-    if (FatJet_btagDeepB[i] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) return -1;
-    // require that sub-jets are not b-jets
-    int subJetIdx1 = FatJet_subJetIdx1[i];
-    int subJetIdx2 = FatJet_subJetIdx2[i];
-    if (subJetIdx1 >= 0 && subJetIdx1 < nSubJets && SubJet_btagDeepB[subJetIdx1] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) return -1;
-    if (subJetIdx2 >= 0 && subJetIdx2 < nSubJets && SubJet_btagDeepB[subJetIdx2] > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) return -1;
-    
-    // require dPhi(fat_jet, met) > 2
-    float dPhi = fabs(TVector2::Phi_mpi_pi(fat_jets[i].Phi() - metphi));
-    if (dPhi < 2.0) return -1;
-    
-    ISRJetPt = fat_jets[i].Pt();
-    ISRJetIdx = i;
-    break;
+    if (verbose) printf("FAIL number of tops and Ws requirement\n");
+    return -1;
   }
+  // require that there is at least one fat jet 
+  if (nFatJets == 0)
+  {
+    if (verbose) printf("FAIL number of fat jets requirement\n");
+    return -1;
+  }
+  // pt > 200
+  if (fat_jets[i].Pt() < 200.0)
+  {
+    if (verbose) printf("FAIL fat jet pt requirement\n");
+    return -1;
+  }
+  // |eta| < 2.4
+  if (abs(fat_jets[i].Eta()) > 2.4)
+  {
+    if (verbose) printf("FAIL fat jet eta requirement\n");
+    return -1;
+  }
+  // require that ISR jet is not a a b-jet
+  if (FatJet_btagDeepB[i] > AnaConsts::DeepCSV.at(eraLabel).at("cutM"))
+  {
+    if (verbose) printf("FAIL fat jet btag requirement\n");
+    return -1;
+  }
+  // require that sub-jets are not b-jets
+  int subJetIdx1 = FatJet_subJetIdx1[i];
+  int subJetIdx2 = FatJet_subJetIdx2[i];
+  if (subJetIdx1 >= 0 && subJetIdx1 < nSubJets && SubJet_btagDeepB[subJetIdx1] > AnaConsts::DeepCSV.at(eraLabel).at("cutM"))
+  {
+    if (verbose) printf("FAIL subjet 1 btag requirement\n"); 
+    return -1; 
+  }  
+  if (subJetIdx2 >= 0 && subJetIdx2 < nSubJets && SubJet_btagDeepB[subJetIdx2] > AnaConsts::DeepCSV.at(eraLabel).at("cutM"))
+  {
+    if (verbose) printf("FAIL subjet 2 btag requirement\n"); 
+    return -1; 
+  }  
+  
+  // require dPhi(fat_jet, met) > 2
+  float dPhi = fabs(TVector2::Phi_mpi_pi(fat_jets[i].Phi() - metphi));
+  if (dPhi < 2.0)
+  {
+    if (verbose) printf("FAIL dPhi requirement: fat_jet_phi = %f, metphi = %f, dPhi = %f\n", fat_jets[i].Phi(), metphi, dPhi);
+    return -1;
+  }
+  
+  ISRJetPt = fat_jets[i].Pt();
+  ISRJetIdx = i;
+  //break;
 }
 
 bool BaselineVessel::CalcISRJetVars()

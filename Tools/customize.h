@@ -77,6 +77,7 @@ namespace AnaConsts{
    // Updated 2016 for next production:
    //2016 Legacy: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation2016Legacy
 
+   // CSVv2 btag working points
    const std::map<std::string, std::map<std::string, float > > CSVv2 = {
      { "2016MC", {
                    {"cutL", 0.5426},
@@ -98,6 +99,7 @@ namespace AnaConsts{
  
      }},
    };
+   // DeepCSV btag working points
    const std::map<std::string, std::map<std::string, float > > DeepCSV = {
      { "2016MC", {
                    {"cutL", 0.2219},
