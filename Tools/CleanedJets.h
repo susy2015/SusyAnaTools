@@ -167,8 +167,11 @@ private:
         {
             // get type
             std::string type;
+            // check if branch exists; skip it if it does not (important for data, which does not have generator levels variables)
+            if (! tr_->checkBranch(jetVariable) ) continue;
             tr_->getType(jetVariable, type);
-            //std::cout << jetVariable << " : " << type << std::endl; // testing
+            // for testing
+            //std::cout << jetVariable << " : " << type << std::endl;
             // check for vector
             if (type.find("std::vector<std::vector") != std::string::npos)
             {
