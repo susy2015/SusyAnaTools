@@ -62,14 +62,12 @@ private:
         //Corrrolate AK8 jets and their subjets
         unsigned int nFatJets = FatJet_TLV.size();
         unsigned int nSubJets = SubJet_TLV.size();
-        //std::vector<std::vector<TLorentzVector>> subjets(nFatJets);
         auto& subjets = tr_->createDerivedVec<std::vector<TLorentzVector>>("SubJetTLV" + tag, nFatJets);
         for(int i = 0; i < nFatJets; ++i)
         {
-            if(FatJet_subJetIdx1[i] >= 0 && FatJet_subJetIdx1[i] < nSubJets) subjets[i].push_back(SubJet_TLV[i]);
-            if(FatJet_subJetIdx2[i] >= 0 && FatJet_subJetIdx2[i] < nSubJets) subjets[i].push_back(SubJet_TLV[i]);
+            if(FatJet_subJetIdx1[i] >= 0 && FatJet_subJetIdx1[i] < nSubJets) subjets[i].push_back(SubJet_TLV[FatJet_subJetIdx1[i]]);
+            if(FatJet_subJetIdx2[i] >= 0 && FatJet_subJetIdx2[i] < nSubJets) subjets[i].push_back(SubJet_TLV[FatJet_subJetIdx2[i]]);
         }
-        //tr_->registerDerivedVec("SubJetTLV" + tag, subjets);
     }
 
     void registerTLV(const std::string& objectName)

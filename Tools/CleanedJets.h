@@ -167,8 +167,11 @@ private:
         {
             // get type
             std::string type;
+            // check if branch exists; skip it if it does not (important for data, which does not have generator levels variables)
+            if (! tr_->checkBranch(jetVariable) ) continue;
             tr_->getType(jetVariable, type);
-            //std::cout << jetVariable << " : " << type << std::endl; // testing
+            // for testing
+            //std::cout << jetVariable << " : " << type << std::endl;
             // check for vector
             if (type.find("std::vector<std::vector") != std::string::npos)
             {
@@ -199,50 +202,97 @@ private:
 
 public:
 
+    // ------------------------------------------------------------------------------------------- //
+    // --- see Nano AOD documentation for Jet and FatJet variables: ------------------------------ //
+    // --- https://cms-nanoaod-integration.web.cern.ch/integration/master-102X/mc102X_doc.html --- //
+    // ------------------------------------------------------------------------------------------- //
     CleanedJets()
     {
         // AK4 jet variables
         AK4JetVariables_ = {
+                             // custom
                              "JetTLV",              
-                             "Jet_btagDeepB",              
                              "Jet_btagStop0l",
-                             //"recoJetsCSVv2",
-                             //"qgLikelihood",
-                             //"qgPtD",                               
-                             //"qgAxis1",                             
-                             //"qgAxis2",                             
-                             //"qgMult",                              
-                             //"recoJetschargedHadronEnergyFraction", 
-                             //"recoJetschargedEmEnergyFraction",     
-                             //"recoJetsneutralEmEnergyFraction",     
-                             //"recoJetsmuonEnergyFraction",          
-                             //"recoJetsHFHadronEnergyFraction",     
-                             //"recoJetsHFEMEnergyFraction",          
-                             //"recoJetsneutralEnergyFraction",       
-                             //"PhotonEnergyFraction",                
-                             //"ElectronEnergyFraction",             
-                             //"ChargedHadronMultiplicity",          
-                             //"NeutralHadronMultiplicity",          
-                             //"PhotonMultiplicity",                
-                             //"ElectronMultiplicity",               
-                             //"MuonMultiplicity",                    
-                             //"DeepCSVb",                            
-                             //"DeepCSVc",                            
-                             //"DeepCSVl",                            
-                             //"DeepCSVbb",                           
-                             //"DeepCSVcc"
+                             // from Nano AOD 
+                             "Jet_area",
+                             "Jet_bRegCorr",
+                             "Jet_bRegRes",
+                             // not a vector... cannot clean
+                             //"Jet_btagCMVA",
+                             "Jet_btagCSVV2",
+                             "Jet_btagDeepB",
+                             "Jet_btagDeepC",
+                             "Jet_btagDeepFlavB",
+                             "Jet_chEmEF",
+                             "Jet_chHEF",
+                             "Jet_cleanmask",
+                             "Jet_electronIdx1",
+                             "Jet_electronIdx2",
+                             "Jet_eta",
+                             "Jet_genJetIdx",
+                             "Jet_hadronFlavour",
+                             "Jet_jetId",
+                             "Jet_mass",
+                             "Jet_muEF",
+                             "Jet_muonIdx1",
+                             "Jet_muonIdx2",
+                             "Jet_nConstituents",
+                             "Jet_nElectrons",
+                             "Jet_nMuons",
+                             "Jet_neEmEF",
+                             "Jet_neHEF",
+                             "Jet_partonFlavour",
+                             "Jet_phi",
+                             "Jet_pt",
+                             "Jet_puId",
+                             "Jet_qgl",
+                             "Jet_rawFactor",
                            };
         
         // AK8 jet variables
         AK8JetVariables_ = {
+                             // custom
                              "FatJetTLV",              
                              "SubJetTLV_AK8Matched",              
-                             //"puppisoftDropMass",              
-                             //"puppitau1",
-                             //"puppitau2",
-                             //"puppitau3",
-                             //"deepAK8btop",              
-                             //"deepAK8bW"
+                             // from Nano AOD 
+                             "FatJet_area",
+                             // not a vector... cannot clean
+                             //"FatJet_btagCMVA",
+                             "FatJet_btagCSVV2",
+                             "FatJet_btagDeepB",
+                             "FatJet_btagHbb",
+                             // not a vector... cannot clean
+                             //"FatJet_deepTagMD_H4qvsQCD",
+                             //"FatJet_deepTagMD_HbbvsQCD",
+                             //"FatJet_deepTagMD_TvsQCD",
+                             //"FatJet_deepTagMD_WvsQCD",
+                             //"FatJet_deepTagMD_ZHbbvsQCD",
+                             //"FatJet_deepTagMD_ZHccvsQCD",
+                             //"FatJet_deepTagMD_ZbbvsQCD",
+                             //"FatJet_deepTagMD_ZvsQCD",
+                             //"FatJet_deepTagMD_bbvsLight",
+                             //"FatJet_deepTagMD_ccvsLight",
+                             //"FatJet_deepTag_H",
+                             //"FatJet_deepTag_QCD",
+                             //"FatJet_deepTag_QCDothers",
+                             "FatJet_deepTag_TvsQCD",
+                             "FatJet_deepTag_WvsQCD",
+                             "FatJet_deepTag_ZvsQCD",
+                             "FatJet_eta",
+                             "FatJet_jetId",
+                             "FatJet_mass",
+                             "FatJet_msoftdrop",
+                             "FatJet_n2b1",
+                             "FatJet_n3b1",
+                             "FatJet_phi",
+                             "FatJet_pt",
+                             "FatJet_rawFactor",
+                             "FatJet_subJetIdx1",
+                             "FatJet_subJetIdx2",
+                             "FatJet_tau1",
+                             "FatJet_tau2",
+                             "FatJet_tau3",
+                             "FatJet_tau4",
                            };
     }
 

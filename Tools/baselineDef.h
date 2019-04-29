@@ -74,10 +74,10 @@ public:
     std::string year_;
     std::string eraLabel;
     std::string jetVecLabel;
+    std::string jetVecLabelAK8;
     std::string CSVVecLabel;
     std::string METLabel;
     std::string METPhiLabel;
-    std::string jetVecLabelAK8;
     std::string muonsFlagIDLabel;
     std::string elesFlagIDLabel;
     std::string qgLikehoodLabel;
@@ -104,6 +104,8 @@ public:
     void PassTrigger();
     bool PrintoutConfig() const;
     bool CalcBottomVars();
+    int  GetISRJetIdx(); 
+    bool CalcISRJetVars();
     bool CompCommonVar();
     bool passNoiseEventFilterFunc();
     bool passQCDHighMETFilterFunc();
