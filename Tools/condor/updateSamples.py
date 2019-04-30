@@ -138,6 +138,7 @@ def main():
     parser.add_argument("--threads",         "-t", default=4,                              help="Number of threads to use")
     parser.add_argument("--dataset_pattern", "-d", default = ".*",                         help="Regexp defining sampleSets to check")
     parser.add_argument("--legacy",          "-l", default = False, action = "store_true", help="Use legacy ntuples instead of Nano AOD ntuples")
+    parser.add_argument("--verbose",         "-v", default = False, action = "store_true", help="verbose flag to print more things")
     
     options          = parser.parse_args()
     nevents_file     = options.nevents_file
@@ -147,13 +148,15 @@ def main():
     threads          = int(options.threads)
     dataset_pattern  = options.dataset_pattern
     legacy           = options.legacy
+    verbose          = options.verbose
 
-    print "Settings:"
-    print "  nevents file: {0}".format(nevents_file)
-    print "  xsection file: {0}".format(xsection_file)
-    print "  input file: {0}".format(input_file)
-    print "  output file: {0}".format(output_file)
-    print "  use legacy ntuples: {0}".format(legacy)
+    if verbose:
+        print "Settings:"
+        print "  nevents file: {0}".format(nevents_file)
+        print "  xsection file: {0}".format(xsection_file)
+        print "  input file: {0}".format(input_file)
+        print "  output file: {0}".format(output_file)
+        print "  use legacy ntuples: {0}".format(legacy)
 
     try:
         inputSamples  = open(input_file, 'r')
@@ -215,7 +218,8 @@ def main():
                     weight_dict[name] = {}
                     weight_dict[name]["pos"] = int(nPos)
                     weight_dict[name]["neg"] = int(nNeg)
-                    #print "{0}, {1}, Positive weights: {2}, Negative weights: {3}".format(name, s_file, weight_dict[name]["pos"], weight_dict[name]["neg"])
+                    if verbose:
+                        print "{0}, {1}, Positive weights: {2}, Negative weights: {3}".format(name, s_file, weight_dict[name]["pos"], weight_dict[name]["neg"])
                 except TypeError:
                     print "TypeError: name = {0}, s_file = {1}".format(name, s_file)
                     pass
@@ -244,7 +248,8 @@ def main():
         # if sample matches pattern, assume that it is a sample and get new sample to write to file
         if re.search(dataset_pattern, sample):
             newSample = getNewSample(sample, weight_dict, neventsFile)
-            #print "newSample: {0}".format(newSample)
+            if verbose:
+                print "newSample: {0}".format(newSample)
         outputSamples.write(newSample)
 
     inputSamples.close()
