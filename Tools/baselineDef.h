@@ -65,7 +65,6 @@ public:
     bool debug;
     bool printConfig;
     bool incZEROtop;
-    bool UseLeptonCleanJet;
     bool UseDRLeptonCleanJet;
     bool UseDRPhotonCleanJet;
     bool UseDeepTagger;

@@ -9,14 +9,12 @@
 //                              BaselineVessel                              //
 //**************************************************************************//
 
-BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specialization, const std::string filterString) : 
-  tr(&tr_), spec(specialization), ttPtr(NULL), WMassCorFile(NULL)
+BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specialization, const std::string filterString) : tr(&tr_), spec(specialization), ttPtr(NULL), WMassCorFile(NULL)
 {
   bToFake               = 1;
   debug                 = false;
   printConfig           = false;
   incZEROtop            = false;
-  UseLeptonCleanJet     = false;
   UseDRLeptonCleanJet   = false;
   UseDRPhotonCleanJet   = false;
   UseDeepTagger         = true;
@@ -44,7 +42,6 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
     CSVVecLabel           = "Jet_btagDeepB";
   if (UseDeepTagger)
     toptaggerCfgFile      = "TopTagger.cfg";
-    //toptaggerCfgFile      = "TopTagger_DeepCombined.cfg";
 
   if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
 
@@ -101,7 +98,6 @@ bool BaselineVessel::UseCleanedJets()
 {
   std::string prefix = "";
   std::string suffix = "";
-  if      (UseLeptonCleanJet)   prefix = "prodJetsNoLep_";
   if      (UseDRPhotonCleanJet) suffix = "_drPhotonCleaned";
   else if (UseDRLeptonCleanJet) suffix = "_drLeptonCleaned";
   jetVecLabel     = prefix + "JetTLV"        + suffix;
@@ -142,7 +138,6 @@ std::string BaselineVessel::UseCleanedJetsVar(std::string varname) const
 {
   std::string prefix = "";
   std::string suffix = "";
-  if      (UseLeptonCleanJet)   prefix = "prodJetsNoLep_";
   if      (UseDRPhotonCleanJet) suffix = "_drPhotonCleaned";
   else if (UseDRLeptonCleanJet) suffix = "_drLeptonCleaned";
   return prefix + varname + suffix;
@@ -308,68 +303,13 @@ BaselineVessel::~BaselineVessel()
 bool BaselineVessel::PredefineSpec()
 {
 
-  if( spec.compare("noIsoTrksVeto") == 0)
-  {
-    doIsoTrkVeto = false;
-  }
-  else if( spec.compare("incZEROtop") == 0)
-  {
-    incZEROtop = true;
-  }
-  else if( spec.compare("hadtau") == 0)
-  {
-    doMuonVeto = false;
-    doIsoTrkVeto = false;
-    METLabel = "met_hadtau";
-    METPhiLabel = "metphi_hadtau";
-    jetVecLabel = "jetsLVec_hadtau";
-    CSVVecLabel = "recoJetsCSVv2_hadtau";
-  }
-  else if( spec.compare("lostlept") == 0)
-  {
-    doLeptonVeto = false;
-    doEleVeto    = false;
-    doMuonVeto   = false;
-    doIsoTrkVeto = false;
-  }
-  else if (spec.compare("NoVeto") == 0)
-  {
-    METLabel    = "metWithLL";
-    METPhiLabel = "metphiWithLL";
-    
-    UseDeepCSV          = false; // broken in CMSSW8028_2016 ntuples 
-    UseLeptonCleanJet   = false;
-    UseDRPhotonCleanJet = false;
-    UseDRLeptonCleanJet = false;
-    doLeptonVeto = false;
-    doEleVeto    = false;
-    doMuonVeto   = false;
-    doIsoTrkVeto = false;
-    dodPhis = false;
-  }
-  else if (spec.compare("PFLeptonCleaned") == 0)
-  {
-    METLabel    = "metWithLL";
-    METPhiLabel = "metphiWithLL";
-    
-    UseDeepCSV          = true; // broken in CMSSW8028_2016 ntuples 
-    UseLeptonCleanJet   = true;
-    UseDRPhotonCleanJet = false;
-    UseDRLeptonCleanJet = false;
-    doLeptonVeto = false;
-    doEleVeto    = false;
-    doMuonVeto   = false;
-    doIsoTrkVeto = false;
-    dodPhis = false;
-  }
   // Z invisible Z to LL control region
-  else if (spec.compare("_drLeptonCleaned") == 0)
+  if (spec.compare("_drLeptonCleaned") == 0)
   {
     METLabel    = "metWithLL";
     METPhiLabel = "metphiWithLL";
     
     UseDeepCSV          = true;  // broken in CMSSW8028_2016 ntuples 
-    UseLeptonCleanJet   = false;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = true;
     doLeptonVeto = false;
@@ -384,8 +324,7 @@ bool BaselineVessel::PredefineSpec()
     METLabel    = "metWithPhoton";
     METPhiLabel = "metphiWithPhoton";
     
-    UseDeepCSV          = true; // broken in CMSSW8028_2016 ntuples 
-    UseLeptonCleanJet   = false;
+    UseDeepCSV          = true; 
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
     doLeptonVeto = true;
@@ -394,46 +333,18 @@ bool BaselineVessel::PredefineSpec()
     doIsoTrkVeto = true;
     dodPhis = true;
   }
-  else if(spec.compare("Zinv") == 0 || spec.compare("Zinv1b") == 0 || spec.compare("Zinv2b") == 0 || spec.compare("Zinv3b") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
+  else if(spec.compare("Zinv") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
-    //jetVecLabel = "jetsLVec_drPhotonCleaned";
-    //CSVVecLabel = "recoJetsCSVv2_drPhotonCleaned";
-    //METLabel    = "metWithPhoton";
-    //METPhiLabel = "metphiWithPhoton";
-    
-    //jetVecLabel = "prodJetsNoLep_jetsLVec";
-    //CSVVecLabel = "prodJetsNoLep_recoJetsCSVv2";
-   
-    // fix LepInfo.h before using metWithLL and metphiWithLL
-    //METLabel    = "metWithLL";
-    //METPhiLabel = "metphiWithLL";
-    
-    UseDeepCSV          = true;  // broken in CMSSW8028_2016 ntuples 
-    UseLeptonCleanJet   = false;
+    UseDeepCSV          = true;
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
-    doLeptonVeto = false;
-    doEleVeto    = false;
-    doMuonVeto   = false;
-    doIsoTrkVeto = false;
+    doLeptonVeto        = false;
+    doEleVeto           = false;
+    doMuonVeto          = false;
+    doIsoTrkVeto        = false;
     dodPhis             = true;
     
-    if(spec.compare("Zinv1b") == 0)
-    {
-      CSVVecLabel = "cleanJetpt30ArrBTag1fake";
-      bToFake = 1;
-    }
-    else if(spec.compare("Zinv2b") == 0)
-    {
-      CSVVecLabel = "cleanJetpt30ArrBTag2fake";
-      bToFake = 1; // This is not a typo
-    }
-    else if(spec.compare("Zinv3b") == 0)
-    {
-      CSVVecLabel = "cleanJetpt30ArrBTag3fake";
-      bToFake = 1; // This is not a typo
-    }
-    else if(spec.compare("ZinvJEUUp") == 0)
+    if(spec.compare("ZinvJEUUp") == 0)
     {
       jetVecLabel = "jetLVecUp";
     }
@@ -450,11 +361,7 @@ bool BaselineVessel::PredefineSpec()
       METLabel    = "metMEUDn";
     }
   }
-  else if(spec.compare("QCD") == 0)
-  {
-    doMET = false;
-    dodPhis = false;
-  }else if( spec.find("jecUp") != std::string::npos || spec.find("jecDn") != std::string::npos || spec.find("metMagUp") != std::string::npos || spec.find("metMagDn") != std::string::npos || spec.find("metPhiUp") != std::string::npos || spec.find("metPhiDn") != std::string::npos ){
+  else if( spec.find("jecUp") != std::string::npos || spec.find("jecDn") != std::string::npos || spec.find("metMagUp") != std::string::npos || spec.find("metMagDn") != std::string::npos || spec.find("metPhiUp") != std::string::npos || spec.find("metPhiDn") != std::string::npos ){
     if( spec.find("jecUp") != std::string::npos ){
       jetVecLabel = "jetLVec_jecUp";
       CSVVecLabel = "recoJetsBtag_jecUp";
@@ -474,11 +381,7 @@ bool BaselineVessel::PredefineSpec()
       METLabel = "genmet";
       METPhiLabel = "genmetphi";
     } 
-  }else if( spec.compare("usegenmet") == 0 ){
-    METLabel = "genmet";
-    METPhiLabel = "genmetphi";
   }
-
   if( !printOnce ){
     printOnce = true;
     //std::cout<<"spec : "<<spec.c_str()<<"  jetVecLabel : "<<jetVecLabel.c_str() <<"  CSVVecLabel : "<<CSVVecLabel.c_str() <<"  METLabel : "<<METLabel.c_str()<< std::endl;
@@ -560,15 +463,6 @@ void BaselineVessel::PassBaseline()
   std::vector<float> * dPhiVec = new std::vector<float>();
   (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, AnaConsts::dphiArr);
 
-  // Calculate number of leptons
-  // const auto& elesFlagIDVec  = elesFlagIDLabel.empty()  ? std::vector<unsigned char>(tr->getVec<float>("elesMiniIso").size(), 1):  tr->getVec<unsigned char>(elesFlagIDLabel.c_str());  // Fake electrons since we don't have different ID for electrons now, but maybe later
-  // const auto& muonsFlagIDVec = muonsFlagIDLabel.empty() ? std::vector<unsigned char>(tr->getVec<float>("muonsMiniIso").size(), 1): tr->getVec<unsigned char>(muonsFlagIDLabel.c_str()); // We have muonsFlagTight as well, but currently use medium ID
-
-  // TODO: count number of leptons passing veto selection (Electron_Stop0l, Muon_Stop0l, and IsoTrack_Stop0l bool flags)
-  // Electron_Stop0l
-  // Muon_Stop0l
-  // IsoTrack_Stop0l 
-  
   // lepton vetos
   int nElectrons_Stop0l = 0;
   int nMuons_Stop0l     = 0;
