@@ -9,8 +9,8 @@
 //                              BaselineVessel                              //
 //**************************************************************************//
 
-BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const std::string specialization, const std::string filterString) : 
-  tr(&tr_), year_(year), spec(specialization), ttPtr(NULL), WMassCorFile(NULL)
+BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specialization, const std::string filterString) : 
+  tr(&tr_), spec(specialization), ttPtr(NULL), WMassCorFile(NULL)
 {
   bToFake               = 1;
   debug                 = false;
@@ -47,10 +47,6 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
     //toptaggerCfgFile      = "TopTagger_DeepCombined.cfg";
 
   if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
-  if (year_.compare("2016") != 0 && year_.compare("2017") != 0 && year_.compare("2018") != 0)
-  {
-    std::cout << "ERROR: Please use 2016, 2017, or 2018 for the year in baselineDef.cc." << std::endl;
-  }
 
   //Check if simplified tagger is called for
   std::string taggerLabel = "";
@@ -83,7 +79,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
 }
 
 // constructor without nullptr as argument
-BaselineVessel::BaselineVessel(const std::string year, const std::string specialization, const std::string filterString) : BaselineVessel(*static_cast<NTupleReader*>(nullptr), year, specialization, filterString) {}
+BaselineVessel::BaselineVessel(const std::string specialization, const std::string filterString) : BaselineVessel(*static_cast<NTupleReader*>(nullptr), specialization, filterString) {}
 
 
 bool BaselineVessel::getBool(const std::string& var)
@@ -532,7 +528,6 @@ bool BaselineVessel::PrintoutConfig() const
   if (!tr->isFirstEvent()) return false;
   
   std::cout << "=== Config for BaselineVessel ===" << std::endl;
-  std::cout << "    Year           : " << year_            << std::endl;
   std::cout << "    Era Label      : " << eraLabel         << std::endl;
   std::cout << "    Specialization : " << spec             << std::endl;
   std::cout << "    AK4Jet Label   : " << jetVecLabel      << std::endl;
@@ -1457,27 +1452,14 @@ void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
   UseCleanedJets();
-  //CombDeepCSV(); //temparory fix for DeepCSV
-  // --- Do within PassBaseline();
-  //CompCommonVar(); // registers mtb; used by PassBaseline(); now put in PassBaseline().
   CalcBottomVars();
   CalcISRJetVars();
   PassBaseline();
   PassTrigger();
-  // --- Do within PassBaseline();
-  //if (UseDeepTagger)
-  //  FlagDeepAK8Jets();
-  //else
-  //  FlagAK8Jets();
   GetSoftbJets();
   GetMHT();
-  //GetLeptons();
-  //GetRecoZ(81, 101);
-  //GetTopCombs();
 }
 
-// TODO: Use triggers that are not pre-scaled per year
-//       Make each trigger exists for the specific year
 void BaselineVessel::PassTrigger()
 {
     bool passElectronTrigger    = false;
@@ -1506,8 +1488,6 @@ void BaselineVessel::PassTrigger()
                             getBool("HLT_DoubleEle25_CaloIdL_MW") ||
                             getBool("HLT_DoubleEle33_CaloIdL_MW")
                           );
-    // print for testing
-    //printf("passElectronTrigger: %d\n", passElectronTrigger);
     
     // -------------------- //
     // --- Muon Trigger --- //
@@ -1538,29 +1518,6 @@ void BaselineVessel::PassTrigger()
     // HLT_Photon75 is pre-scaled
     // HLT_Photon90 is pre-scaled
     // HLT_Photon90_CaloIdL_PFHT500 is not present for all of 2016 data (e.g. run 278820)
-    
-    // photon trigger per year
-    // if (year_.compare("2016") == 0)
-    // {
-    //     if( getBool("HLT_Photon175") )
-    //     {
-    //         passPhotonTrigger = true;
-    //     }
-    // }
-    // else if (year_.compare("2017") == 0)
-    // {
-    //     if( getBool("HLT_Photon200") )
-    //     {
-    //         passPhotonTrigger = true;
-    //     }
-    // }
-    // else if (year_.compare("2018") == 0)
-    // {
-    //     if( getBool("HLT_Photon200") )
-    //     {
-    //         passPhotonTrigger = true;
-    //     }
-    // }
     
     passPhotonTrigger = (getBool("HLT_Photon175") || getBool("HLT_Photon200"));
     

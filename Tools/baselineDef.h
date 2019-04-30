@@ -71,7 +71,6 @@ public:
     bool UseDeepTagger;
     bool UseDeepCSV;
 
-    std::string year_;
     std::string eraLabel;
     std::string jetVecLabel;
     std::string jetVecLabelAK8;
@@ -94,8 +93,8 @@ public:
     bool SAT_Pass_highDM;
 
 
-    BaselineVessel(NTupleReader &tr_, const std::string year, const std::string specialization = "", const std::string filterString = "");
-    BaselineVessel(const std::string year, const std::string specialization = "", const std::string filterString = "");
+    BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");
+    BaselineVessel(const std::string specialization = "", const std::string filterString = "");
     ~BaselineVessel();
 
     inline std::string UseCleanedJetsVar(std::string varname) const;
