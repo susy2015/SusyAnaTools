@@ -46,7 +46,6 @@ private:
         registerTLV("Electron");    // electrons
         registerTLV("Muon");        // muons
         registerTLV("Photon");      // photons
-        //registerTLV("IsoTrack");    // isolated tracks
         // you need to register IsoTrack by hand because IsoTrack_mass does not exist
     }
 
@@ -65,8 +64,10 @@ private:
         auto& subjets = tr_->createDerivedVec<std::vector<TLorentzVector>>("SubJetTLV" + tag, nFatJets);
         for(int i = 0; i < nFatJets; ++i)
         {
-            if(FatJet_subJetIdx1[i] >= 0 && FatJet_subJetIdx1[i] < nSubJets) subjets[i].push_back(SubJet_TLV[FatJet_subJetIdx1[i]]);
-            if(FatJet_subJetIdx2[i] >= 0 && FatJet_subJetIdx2[i] < nSubJets) subjets[i].push_back(SubJet_TLV[FatJet_subJetIdx2[i]]);
+            int subJetIdx1 = FatJet_subJetIdx1[i];
+            int subJetIdx2 = FatJet_subJetIdx2[i];
+            if(subJetIdx1 >= 0 && subJetIdx1 < nSubJets) subjets[i].push_back(SubJet_TLV[subJetIdx1]);
+            if(subJetIdx2 >= 0 && subJetIdx2 < nSubJets) subjets[i].push_back(SubJet_TLV[subJetIdx2]);
         }
     }
 

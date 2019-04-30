@@ -42,13 +42,6 @@ private:
         cleanJetCollection("Jet",      AK4JetVariables_, "", "_drPhotonCleaned", false, true,  false);
         cleanJetCollection("FatJet",   AK8JetVariables_, "", "_drLeptonCleaned", true,  false, false);
         cleanJetCollection("FatJet",   AK8JetVariables_, "", "_drPhotonCleaned", false, true,  false);
-        
-        //cleanJetCollection("JetTLV",      "",                     AK4JetVariables_, "",               "_pt20eta24",                 false, true);
-        //cleanJetCollection("JetTLV",      "",                     AK4JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
-        //cleanJetCollection("JetTLV",      "cutMuVec;cutElecVec",  AK4JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
-        //cleanJetCollection("FatJetTLV",   "",                     AK8JetVariables_, "",               "_pt20eta24",                 false, true);
-        //cleanJetCollection("FatJetTLV",   "",                     AK8JetVariables_, "prodJetsNoLep_", "_pt20eta24",                 false, true);
-        //cleanJetCollection("FatJetTLV",   "cutMuVec;cutElecVec",  AK8JetVariables_, "",               "_drLeptonCleaned_pt20eta24", true, true);
     
     }
 
@@ -57,13 +50,6 @@ private:
         //TODO: use photon and leptons passing cuts and ID for jet cleaning (instead of all photons and leptons)
         const auto& Jet_TLV            = tr_->getVec<TLorentzVector>("JetTLV");
         const auto& FatJet_TLV         = tr_->getVec<TLorentzVector>("FatJetTLV");
-        // use all objects for cleaning
-        // const auto& Photon_TLV         = tr_->getVec<TLorentzVector>("PhotonTLV");
-        // const auto& Electron_TLV       = tr_->getVec<TLorentzVector>("ElectronTLV");
-        // const auto& Muon_TLV           = tr_->getVec<TLorentzVector>("MuonTLV");
-        // const auto& Photon_jetIdx      = tr_->getVec<int>("Photon_jetIdx");
-        // const auto& Electron_jetIdx    = tr_->getVec<int>("Electron_jetIdx");
-        // const auto& Muon_jetIdx        = tr_->getVec<int>("Muon_jetIdx");
         // use objects passing cuts for cleaning
         const auto& Photon_TLV         = tr_->getVec<TLorentzVector>("gammaLVecPassLooseID");
         const auto& Electron_TLV       = tr_->getVec<TLorentzVector>("cutElecVec");
