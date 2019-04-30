@@ -49,7 +49,7 @@ outputFile="$outputName"_variables.txt
 outputFileClean="$outputName"_variables_clean.txt
 
 # output tree variables to file
-python GetTreeVariables.py -i $rootFile > $outputFile
+python $CMSSW_BASE/src/SusyAnaTools/Tools/scripts/GetTreeVariables.py -i $rootFile > $outputFile
 # cleaned output (one line per variable) to file
 grep Br $outputFile > $outputFileClean
 
