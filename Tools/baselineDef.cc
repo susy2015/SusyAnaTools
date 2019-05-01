@@ -30,11 +30,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   elesFlagIDLabel       = "Electron_Stop0l";
   toptaggerCfgFile      = "TopTagger.cfg";
   doLeptonVeto          = true;
-  doEleVeto             = true;
-  doMuonVeto            = true;
-  doIsoTrkVeto          = true;
   doMET                 = true;
-  dodPhis               = true;
   SAT_Pass_lowDM        = false;
   SAT_Pass_highDM       = false;
   metLVec.SetPtEtaPhiM(0, 0, 0, 0);
@@ -309,14 +305,10 @@ bool BaselineVessel::PredefineSpec()
     METLabel    = "metWithLL";
     METPhiLabel = "metphiWithLL";
     
-    UseDeepCSV          = true;  // broken in CMSSW8028_2016 ntuples 
+    UseDeepCSV          = true; 
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = true;
     doLeptonVeto = false;
-    doEleVeto    = false;
-    doMuonVeto   = false;
-    doIsoTrkVeto = false;
-    dodPhis = true;
   }
   // Z invisible photon control region
   else if (spec.compare("_drPhotonCleaned") == 0)
@@ -328,21 +320,13 @@ bool BaselineVessel::PredefineSpec()
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
     doLeptonVeto = true;
-    doEleVeto    = true;
-    doMuonVeto   = true;
-    doIsoTrkVeto = true;
-    dodPhis = true;
   }
   else if(spec.compare("Zinv") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
     UseDeepCSV          = true;
-    UseDRPhotonCleanJet = true;
-    UseDRLeptonCleanJet = false;
+    UseDRPhotonCleanJet = false;
+    UseDRLeptonCleanJet = true;
     doLeptonVeto        = false;
-    doEleVeto           = false;
-    doMuonVeto          = false;
-    doIsoTrkVeto        = false;
-    dodPhis             = true;
     
     if(spec.compare("ZinvJEUUp") == 0)
     {
@@ -473,9 +457,6 @@ void BaselineVessel::PassBaseline()
   for (const auto& pass : Muon_Stop0l)      if(pass) ++nMuons_Stop0l;
   for (const auto& pass : IsoTrack_Stop0l)  if(pass) ++nIsoTracks_Stop0l;
 
-  // test lepton veto
-  //printf("(Total, Stop0l, veto); electrons (%d, %d, %d), muons (%d, %d, %d), isotracks (%d, %d, %d)\n", nElectrons, nElectrons_Stop0l, Pass_ElecVeto, nMuons, nMuons_Stop0l, Pass_MuonVeto, nIsoTracks, nIsoTracks_Stop0l, Pass_IsoTrkVeto);
-
   int nJets        = AnaFunctions::countJets(Jets,         AnaConsts::pt20Eta24Arr);
   int nFatJets     = AnaFunctions::countJets(FatJets,      AnaConsts::pt200Eta24Arr);
 
@@ -572,25 +553,9 @@ void BaselineVessel::PassBaseline()
                       && nJets >= 5
                     );      
   
-  // ------------------------------------ // 
-  // --- Apply Lepton Vetos if needed --- //
-  // ------------------------------------ // 
-
-  // if (doEleVeto)
-  // {
-  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_ElecVeto;
-  //     SAT_Pass_highDM = SAT_Pass_highDM && Pass_ElecVeto;
-  // }
-  // if (doMuonVeto)
-  // {
-  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_MuonVeto;
-  //     SAT_Pass_highDM = SAT_Pass_highDM && Pass_MuonVeto;
-  // }
-  // if (doIsoTrkVeto)
-  // {
-  //     SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_IsoTrkVeto;
-  //     SAT_Pass_highDM = SAT_Pass_highDM && Pass_IsoTrkVeto;
-  // }
+  // ----------------------------------- // 
+  // --- Apply Lepton Veto if needed --- //
+  // ----------------------------------- // 
   
   if (doLeptonVeto)
   {

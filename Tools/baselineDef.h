@@ -82,11 +82,7 @@ public:
     std::string toptaggerCfgFile;
     
     bool doLeptonVeto; 
-    bool doEleVeto;
-    bool doMuonVeto;
-    bool doIsoTrkVeto;
     bool doMET;
-    bool dodPhis;
     bool SAT_Pass_Baseline;
     bool SAT_Pass_lowDM;
     bool SAT_Pass_highDM;
