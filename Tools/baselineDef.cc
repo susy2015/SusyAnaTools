@@ -457,8 +457,16 @@ void BaselineVessel::PassBaseline()
   for (const auto& pass : Muon_Stop0l)      if(pass) ++nMuons_Stop0l;
   for (const auto& pass : IsoTrack_Stop0l)  if(pass) ++nIsoTracks_Stop0l;
 
-  int nJets        = AnaFunctions::countJets(Jets,         AnaConsts::pt20Eta24Arr);
-  int nFatJets     = AnaFunctions::countJets(FatJets,      AnaConsts::pt200Eta24Arr);
+  int nJets = 0;
+  int nFatJets = 0;
+  for (const auto& Jet : Jets)
+  {
+      if (Jet.Pt() > 20 && abs(Jet.Eta()) < 2.4) ++nJets;
+  }
+  for (const auto& FatJet : FatJets)
+  {
+      if (FatJet.Pt() > 200 && abs(FatJet.Eta()) < 2.4) ++nFatJets;
+  }
 
   //---------------------------------------//
   //--- Updated Baseline (January 2019) ---//
