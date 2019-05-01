@@ -574,38 +574,28 @@ void BaselineVessel::PassBaseline()
     printf("nResolvedTops: %d ",    nResolvedTops);
     printf("Stop0l_nW: %d ",        Stop0l_nW);
     printf("nWs: %d ",              nWs);
-    printf("metphi: %f ",           metphi);
     printf("Stop0l_ISRJetPt: %f ",  Stop0l_ISRJetPt);
     printf("ISRJetPt: %f ",         ISRJetPt);
     printf("Stop0l_ISRJetIdx: %d ", Stop0l_ISRJetIdx);
     printf("ISRJetIdx: %d ",        ISRJetIdx);
     printf("pass_ISR: %d ",         pass_ISR);
-    printf("\n");
     // mtb and ptb variables
-    //printf("MET_pt = %f, met = %f\n",                     MET_pt,     met);
-    //printf("Stop0l_Mtb = %f, mtb = %f\n",                 Stop0l_Mtb, mtb);
-    //printf("Stop0l_Ptb = %f, ptb = %f\n",                 Stop0l_Ptb, ptb);
+    printf("met = %f, metphi = %f\n",     met,        metphi);
+    printf("Stop0l_Mtb = %f, mtb = %f\n", Stop0l_Mtb, mtb);
+    printf("Stop0l_Ptb = %f, ptb = %f\n", Stop0l_Ptb, ptb);
+    printf("\n");
   }
 
   // Register all the calculated variables
   tr->registerDerivedVec("dPhiVec" + firstSpec, dPhiVec);
   tr->registerDerivedVar("ISRJet" + firstSpec, ISRJet);
   tr->registerDerivedVar("nSoftBottoms" + firstSpec, nSoftBottoms);
-  // already registered in RunTopTagger.h
-  //tr->registerDerivedVar("nMergedTops" + firstSpec, nMergedTops);
-  //tr->registerDerivedVar("nResolvedTops" + firstSpec, nResolvedTops);
-  //tr->registerDerivedVar("nWs" + firstSpec, nWs);
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
   tr->registerDerivedVar("nFatJets" + firstSpec, nFatJets);
   tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
   tr->registerDerivedVar("nIsoTracks_Stop0l" + firstSpec, nIsoTracks_Stop0l);
   tr->registerDerivedVar("HT" + firstSpec, HT);
-  //tr->registerDerivedVar("passIsoLepTrkVeto" + firstSpec, passIsoLepTrkVeto);
-  //tr->registerDerivedVar("passIsoPionTrkVeto" + firstSpec, passIsoPionTrkVeto);
-  //tr->registerDerivedVar("Pass_MuonVeto" + firstSpec, Pass_MuonVeto);
-  //tr->registerDerivedVar("Pass_ElecVeto" + firstSpec, Pass_ElecVeto);
-  //tr->registerDerivedVar("Pass_IsoTrkVeto" + firstSpec, Pass_IsoTrkVeto);
   tr->registerDerivedVar("SAT_Pass_MET" + firstSpec, SAT_Pass_MET);
   tr->registerDerivedVar("SAT_Pass_HT" + firstSpec, SAT_Pass_HT);
   tr->registerDerivedVar("SAT_Pass_NJets20" + firstSpec, SAT_Pass_NJets20);
