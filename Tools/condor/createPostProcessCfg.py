@@ -27,12 +27,20 @@ def my_process(args):
                entry = line.split(",")
                stripped_entry = [ i.strip() for i in entry ]
                for i, num_entries in enumerate(stripped_entry):
-                   if i == 1:
+                   if i == 1: #Update directory location
                        replaced_outdir = stripped_entry[1].replace("Pre","Post")
+                       #update from Joe's addition to SubmitLPC.py. Cut off any subdirectories:
+                       replaced_outdir = replaced_outdir.split("/")
+                       nCut = 0
+                       for n, s in enumerate(replaced_outdir):
+                           if "PostProcessed" in s:
+                               nCut = n
+                               break
+                       replaced_outdir = "/".join(replaced_outdir[:nCut + 1])
                        post_entry.append(replaced_outdir + "_v" + args.version)
-                   elif i == 2:
+                   elif i == 2: #Update text file name
                        post_entry.append(stripped_entry[0] + ".txt")
-                   else:
+                   else: #Keep everything else the same
                        post_entry.append(stripped_entry[i])
                it = 0
                #When creating the new line, want to treat the last entry differently; it gets a newline rather than ", "
