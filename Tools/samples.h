@@ -88,17 +88,22 @@ namespace AnaSamples
   // Data_EGamma_2018:          57812.0 pb^(-1)
   // Data_SingleMuon_2018:      58364.0 pb^(-1) 
  
-  static const double luminosity_2016           = 35922.0; // in pb-1 (all datasets except Data_SingleElectron_2016)
-  static const double luminosity_electron_2016  = 35860.0; // in pb-1 for Data_SingleElectron_2016
+  //May 5, 2019: Updated Luminosities from PostProcessed_StopTuple_V2.7.2
+  //Question: Should Data_SingleElectron_2016 be 35860.0 (see PostProcess_StopTuple_V1.2.1)
+  static const double luminosity_2016           = 35922.0; // in pb-1 (Data_SingleElectron_2016 is 35860.0)
+  static const double luminosity_2017           = 41856.0; // in pb-1 (Data_SinglePhoton_2017 is 41666.0)
+  static const double luminosity_2018           = 58905.0; // in pb-1 (Data_SingleMuon_2018 is 59477.0)
+  // lumi per sample when datasets had different lumis
   //static const double luminosity_electron_2016  = 18075.2; // in pb-1 for Data_SingleElectron_2016; compare to Stealth n_events, (35922.0 * 474181858.0 / 942371523.0) = 18075.207375590446
+  static const double luminosity_electron_2016  = 35860.0; // in pb-1 for Data_SingleElectron_2016
   static const double luminosity_muon_2016      = 35922.0; // in pb-1 for Data_SingleMuon_2016
   static const double luminosity_photon_2016    = 35922.0; // in pb-1 for Data_SinglePhoton_2016 
-  static const double luminosity_electron_2017  = 1.0;     // in pb-1 for Data_SingleElectron_2017
-  static const double luminosity_muon_2017      = 37620.0; // in pb-1 for Data_SingleMuon_2017
-  static const double luminosity_photon_2017    = 41179.0; // in pb-1 for Data_SinglePhoton_2017 
-  static const double luminosity_electron_2018  = 57812.0; // in pb-1 for Data_SingleElectron_2018
-  static const double luminosity_muon_2018      = 58364.0; // in pb-1 for Data_SingleMuon_2018
-  static const double luminosity_photon_2018    = 57812.0; // in pb-1 for Data_EGamma_2018
+  static const double luminosity_electron_2017  = 41856.0; // in pb-1 for Data_SingleElectron_2017
+  static const double luminosity_muon_2017      = 41856.0; // in pb-1 for Data_SingleMuon_2017
+  static const double luminosity_photon_2017    = 41666.0; // in pb-1 for Data_SinglePhoton_2017 
+  static const double luminosity_electron_2018  = 58905.0; // in pb-1 for Data_SingleElectron_2018
+  static const double luminosity_muon_2018      = 59477.0; // in pb-1 for Data_SingleMuon_2018
+  static const double luminosity_photon_2018    = 58905.0; // in pb-1 for Data_EGamma_2018
   
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Mar14_2014_v2/";

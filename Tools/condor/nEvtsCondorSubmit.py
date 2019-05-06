@@ -61,8 +61,8 @@ submitFile = submitFileTT
 fileParts = [submitFile]
 sc = SampleSet(sampleSetsFile)
 
+# make directory for condor submission
 now = datetime.datetime.now()
-
 dirName = "submission_%s"%now.strftime("%Y-%m-%d_%H-%M-%S")
 os.system("mkdir %s"%dirName)
 os.chdir(dirName)
