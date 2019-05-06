@@ -82,7 +82,7 @@ namespace AnaSamples
   // Data_SingleElectron_2016:  35860.0 pb^(-1) 
   // Data_SingleMuon_2016:      35922.0 pb^(-1)
   // Data_SinglePhoton_2016:    35922.0 pb^(-1)
-  // Data_SingleElectron_2016:  TBD
+  // Data_SingleElectron_2017:  TBD
   // Data_SingleMuon_2017:      37620.0 pb^(-1)
   // Data_SinglePhoton_2017:    41179.0 pb^(-1)
   // Data_EGamma_2018:          57812.0 pb^(-1)
@@ -101,7 +101,7 @@ namespace AnaSamples
   static const double luminosity_electron_2017  = 41856.0; // in pb-1 for Data_SingleElectron_2017
   static const double luminosity_muon_2017      = 41856.0; // in pb-1 for Data_SingleMuon_2017
   static const double luminosity_photon_2017    = 41666.0; // in pb-1 for Data_SinglePhoton_2017 
-  static const double luminosity_electron_2018  = 58905.0; // in pb-1 for Data_SingleElectron_2018
+  static const double luminosity_electron_2018  = 58905.0; // in pb-1 for Data_EGamma_2018
   static const double luminosity_muon_2018      = 59477.0; // in pb-1 for Data_SingleMuon_2018
   static const double luminosity_photon_2018    = 58905.0; // in pb-1 for Data_EGamma_2018
   
