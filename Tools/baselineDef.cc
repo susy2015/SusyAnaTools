@@ -534,11 +534,18 @@ void BaselineVessel::PassBaseline()
                                   && dPhiVec->at(3) > 0.5
                                 );
   
-  // baseline
+  // standard baseline
+  //SAT_Pass_Baseline = (
+  //                          Pass_EventFilter
+  //                       && Pass_JetID 
+  //                       && SAT_Pass_MET 
+  //                       && SAT_Pass_HT
+  //                       && SAT_Pass_NJets20
+  //                       && SAT_Pass_dPhiMETLowDM
+  //                    );
+  // baseline for testing: remove Pass_EventFilter and Pass_JetID (they are cutting out too many events in 2018)
   SAT_Pass_Baseline = (
-                            Pass_EventFilter
-                         && Pass_JetID 
-                         && SAT_Pass_MET 
+                            SAT_Pass_MET 
                          && SAT_Pass_HT
                          && SAT_Pass_NJets20
                          && SAT_Pass_dPhiMETLowDM
