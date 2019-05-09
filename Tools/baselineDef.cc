@@ -541,11 +541,11 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_MET 
                          && SAT_Pass_HT
                          && SAT_Pass_NJets20
+                         && SAT_Pass_dPhiMETLowDM
                       );
   //baseline for SUS-16-049 low dm plus HT cut
   SAT_Pass_lowDM = (
                         SAT_Pass_Baseline
-                     && SAT_Pass_dPhiMETLowDM
                      && nMergedTops == 0
                      && nWs == 0
                      && pass_ISR

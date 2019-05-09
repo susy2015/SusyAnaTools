@@ -27,7 +27,7 @@ namespace SusyUtility
     
     // return vector of strings given names separated by deliminator, e.g. "electron;muon" ---> {"electron", "muon"} 
     std::vector<std::string> getVecFromString(const std::string &s, const char& delim);
-    // get cut levels, e.g. {"cut1", "cut2"} ---> {"cut1", "cut1;cut2"}
+    // get cut levels, e.g. {"", "cut1", "cut2", "cut3"} ---> {"", "cut1", "cut1;cut2", "cut1;cut2;cut3"}
     std::vector<std::string> getCutLevels(const std::vector<std::string> cuts);
 }
 
