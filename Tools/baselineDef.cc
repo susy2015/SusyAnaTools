@@ -1237,6 +1237,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   CalcISRJetVars();
   PassBaseline();
   PassTrigger();
+  PassHEMVeto();
   GetSoftbJets();
   GetMHT();
 }
@@ -1297,6 +1298,58 @@ void BaselineVessel::PassTrigger()
     tr->registerDerivedVar("passPhotonTrigger",     passPhotonTrigger);
 }
 
+bool BaselineVessel::PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low)
+{
+    for (const auto& object : objects)
+    {
+        if ( 
+                object.Eta() >= eta_low
+             && object.Eta() <= eta_high
+             && object.Phi() >= phi_low
+             && object.Phi() <= phi_high
+             && object.Pt()  >  pt_low
+           )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void BaselineVessel::PassHEMVeto()
+{
+    // PassHEMVeto eta, phi, and pt cuts
+    // https://github.com/susy2015/NanoSUSY-tools/blob/master/python/modules/Stop0lBaselineProducer.py#L236-L239
+    const auto& Jets        = tr->getVec<TLorentzVector>(jetVecLabel);
+    const auto& Electrons   = tr->getVec<TLorentzVector>("cutElecVec");
+    const auto& Photons     = tr->getVec<TLorentzVector>("gammaLVecPassLooseID");
+    // use exact (narrow) window for electrons and photons: eta_low, eta_high, phi_low, phi_high = -3.0, -1.4, -1.57, -0.87
+    // use extended (wide) window for jets:                 eta_low, eta_high, phi_low, phi_high = -3.2, -1.2, -1.77, -0.67
+    float narrow_eta_low  = -3.0;
+    float narrow_eta_high = -1.4;
+    float narrow_phi_low  = -1.57;
+    float narrow_phi_high = -0.87;
+    float wide_eta_low    = -3.2;
+    float wide_eta_high   = -1.2;
+    float wide_phi_low    = -1.77;
+    float wide_phi_high   = -0.67;
+    float pt_20  =  20.0;
+    float pt_30  =  30.0;
+    float pt_220 = 220.0;
+    // bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low) 
+    // use jet pt > 20 for veto
+    bool SAT_Pass_HEMVeto20 = true;
+    SAT_Pass_HEMVeto20 = SAT_Pass_HEMVeto20 && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_20);
+    SAT_Pass_HEMVeto20 = SAT_Pass_HEMVeto20 && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_220);
+    SAT_Pass_HEMVeto20 = SAT_Pass_HEMVeto20 && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_eta_low,   wide_eta_high,   pt_20);
+    // use jet pt > 30 for veto
+    bool SAT_Pass_HEMVeto30 = true;
+    SAT_Pass_HEMVeto30 = SAT_Pass_HEMVeto30 && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_20);
+    SAT_Pass_HEMVeto30 = SAT_Pass_HEMVeto30 && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_220);
+    SAT_Pass_HEMVeto30 = SAT_Pass_HEMVeto30 && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_eta_low,   wide_eta_high,   pt_30);
+    tr->registerDerivedVar("SAT_Pass_HEMVeto20"+firstSpec,   SAT_Pass_HEMVeto20);
+    tr->registerDerivedVar("SAT_Pass_HEMVeto30"+firstSpec,   SAT_Pass_HEMVeto30);
+}
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::CombDeepCSV

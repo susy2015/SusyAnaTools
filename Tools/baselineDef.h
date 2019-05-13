@@ -96,6 +96,8 @@ public:
     bool getBool(const std::string& var);
     void PassBaseline();
     void PassTrigger();
+    bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low);
+    void PassHEMVeto();
     bool PrintoutConfig() const;
     bool CalcBottomVars();
     int  GetISRJetIdx(); 
