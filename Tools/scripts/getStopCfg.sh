@@ -14,6 +14,7 @@ RELEASE_URL="$GITHUB_SUSY2015_URL/$REPO_NAME/releases"
 STARTING_DIR=$PWD
 CFG_DIRECTORY=$PWD
 TAG=
+USE_PRE=
 NO_SOFTLINK=
 OVERWRITE=
 VERBOSE=
@@ -22,9 +23,6 @@ VERBOSE=
 OPTIND=1    # Reset in case getopts has been used previously in the shell.
 
 SUPP_CFG=supplementaryFiles.cfg
-#SETS_CFG_2016=sampleSets_PreProcessed_2016.cfg
-#SETS_CFG_2017=sampleSets_PreProcessed_2017.cfg
-#SETS_CFG_2018=sampleSets_PreProcessed_2018.cfg
 SETS_CFG_2016=sampleSets_PostProcessed_2016.cfg
 SETS_CFG_2017=sampleSets_PostProcessed_2017.cfg
 SETS_CFG_2018=sampleSets_PostProcessed_2018.cfg
@@ -54,8 +52,9 @@ function print_help {
     echo "    -x COLL_LINK_NAME_2016 : Specify this option to name the softlink to \"$COLL_CFG_2016\" something other than \"$COLL_LINK_NAME_2016\""
     echo "    -y COLL_LINK_NAME_2017 : Specify this option to name the softlink to \"$COLL_CFG_2017\" something other than \"$COLL_LINK_NAME_2017\""
     echo "    -z COLL_LINK_NAME_2018 : Specify this option to name the softlink to \"$COLL_CFG_2018\" something other than \"$COLL_LINK_NAME_2018\""
-    echo "    -o :                     Overwrite the softlinks if they already exist"
+    echo "    -e :                     Softlink pre-processed config files."
     echo "    -n :                     Download files without producing softlinks"
+    echo "    -o :                     Overwrite the softlinks if they already exist"
     echo "    -v :                     increase verbosity: print more stuff... for those who like stuff"
     echo ""
     echo "Description:"
@@ -69,7 +68,7 @@ function print_help {
 
 # Initialize our own variables:
 
-while getopts "h?t:d:a:b:x:y:onv" opt; do
+while getopts "h?t:d:a:b:x:y:enov" opt; do
     case "$opt" in
     h|\?)
         print_help
@@ -91,9 +90,11 @@ while getopts "h?t:d:a:b:x:y:onv" opt; do
         ;;
     z)  COLL_LINK_NAME_2018=$OPTARG
         ;;
-    o) OVERWRITE="-f"
+    e) USE_PRE=1
         ;;
     n) NO_SOFTLINK=1
+        ;;
+    o) OVERWRITE="-f"
         ;;
     v) VERBOSE=1
         ;;
@@ -111,6 +112,17 @@ then
 fi
 
 echo " - Running getStopCfg.sh"
+
+# if USE_PRE is set, softlink pre-processed configs
+if [[ ! -z $USE_PRE ]]
+then
+    SETS_CFG_2016=sampleSets_PreProcessed_2016.cfg
+    SETS_CFG_2017=sampleSets_PreProcessed_2017.cfg
+    SETS_CFG_2018=sampleSets_PreProcessed_2018.cfg
+    SETS_LINK_NAME_2016=$SETS_CFG_2016
+    SETS_LINK_NAME_2017=$SETS_CFG_2017
+    SETS_LINK_NAME_2018=$SETS_CFG_2018
+fi
 
 # get source directory of bash script
 # used for "Easter Egg"...
