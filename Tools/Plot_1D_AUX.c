@@ -1,6 +1,6 @@
-int Plot_1D_AUX_sg (double signal_scale, TString result_path, TString sp, TString var, TString folder, TLegend* leg, Color_t color, int rebin, bool sig_scale_to_BG)
+int Plot_1D_AUX_sg (double signal_scale, TString result_path, TString sp, TString full_or_fast, TString year, TString var, TString folder, TLegend* leg, Color_t color, int rebin, bool sig_scale_to_BG)
 {
-	TFile *f1 = new TFile(result_path + sp + ".root");
+	TFile *f1 = new TFile(result_path + sp + full_or_fast + year + ".root");
 	TH1D *h1 = (TH1D*)f1->Get(folder + var);
 	//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 	TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -28,9 +28,9 @@ int Plot_1D_AUX_sg (double signal_scale, TString result_path, TString sp, TStrin
 	return 0;
 }
 
-int Plot_1D_AUX_bg (double lumi, TString sp, TString var, TString folder, TLegend* leg, Color_t color, TH1D *bg, int rebin)
+int Plot_1D_AUX_bg (double lumi, TString sp, TString year, TString var, TString folder, TLegend* leg, Color_t color, TH1D *bg, int rebin)
 {
-	TFile *f1 = new TFile("results/" + sp + ".root");
+	TFile *f1 = new TFile("results/" + sp + year + ".root");
 	TH1D *h1 = (TH1D*)f1->Get(folder + var);
 	//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 	TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -47,7 +47,8 @@ int Plot_1D_AUX_bg (double lumi, TString sp, TString var, TString folder, TLegen
 	std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
 	std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
 
-	h1->Scale(lumi * 1000);
+	h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+	//h1->Scale(lumi * 1000);
 
 	std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 	std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -62,9 +63,9 @@ int Plot_1D_AUX_bg (double lumi, TString sp, TString var, TString folder, TLegen
 	return 0;
 }
 
-int Plot_1D_AUX_sig (double lumi, TString result_path, TString sp, TString var, TString folder, TLegend *leg, Color_t color, THStack *hs, int rebin, bool use_low_stat_sig)
+int Plot_1D_AUX_sig (double lumi, TString result_path, TString sp, TString full_or_fast, TString year, TString var, TString folder, TLegend *leg, Color_t color, THStack *hs, int rebin, bool use_low_stat_sig)
 {
-	TFile *f1 = new TFile(result_path + sp + ".root");
+	TFile *f1 = new TFile(result_path + sp + full_or_fast + year + ".root");
 	TH1D *h1 = (TH1D*)f1->Get(folder + var);
 	//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 	TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -77,7 +78,8 @@ int Plot_1D_AUX_sig (double lumi, TString result_path, TString sp, TString var, 
 	h1->Sumw2();
 	h1->Rebin(rebin);
 
-	h1->Scale(lumi * 1000);
+	h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+	//h1->Scale(lumi * 1000);
 
 	TH1D *significance = (TH1D*)h1->Clone("significance");;
 	int n_bins = significance-> GetSize() - 2;

@@ -1,21 +1,23 @@
 int Plot_compare()
 {
 	const bool scale_no_weight = true;
-	const bool plot_log = true;
-	//std::vector<TString> hist_list = {"eff_h"};
-	std::vector<TString> hist_list = {"loose_baseline_cutflow_h"};
+	const bool plot_log = false;
+	std::vector<TString> hist_list = {"ISRpt_lowdm_h"};
+	//std::vector<TString> hist_list = {"loose_baseline_cutflow_h"};
 	//std::vector<TString> hist_list = {"met_uc_h","HT_uc_h", "mtb_uc_h", "ntop_merge_h", "ntop_res_uc_h", "nw_h", "njetspt20_uc_h", "nbottompt20_uc_h"};
 	//std::vector<TString> hist_list = {"met_h","HT_h", "mtb_h", "ntop_merge_h", "ntop_res_h", "nw_h", "njetspt20_h", "nbottompt20_h"};
 	//std::vector<TString> hist_list = {"loose_baseline_cutflow_h", "ISR_SF_h", "B_SF_h"};
 
-	//TString f1_name = "SMS_T2tt_mStop850_mLSP100_fullsim_2016_v2p6"; 
+	//TString f1_name = "SMS_T2tt_mStop850_mLSP100_fullsim_2016_v2p7_noSF"; 
 	//TString f2_name = "SMS-T2tt_mStop-850_mLSP-100_JEC"; 
 	//TString f2_name = "SMS-T2tt_mStop-850_mLSP-100_wrong_JEC"; 
-	TString f1_name = "TTbarSingleLepT_2016_v2p6"; 
-	TString f2_name = "TTbarSingleLepT_2016_old"; 
+	TString f1_name = "SMS_T2tt_mStop_325_mLSP_150_fullsim_2016"; 
+	TString f1_lag = "fullsim"; 
+	TString f2_name = "SMS_T2tt_mStop_325_mLSP_150_fastsim_2016"; 
+	TString f2_lag = "fastsim"; 
 
-	TFile *f1 = new TFile("results_test/" + f1_name + ".root");
-	TFile *f2 = new TFile("results_test/" + f2_name + ".root");
+	TFile *f1 = new TFile("results/" + f1_name + ".root");
+	TFile *f2 = new TFile("results/" + f2_name + ".root");
 
 	TString hist_weight = "Baseline_Only/eff_h";
 	TH1F *h1_weight = (TH1F*)f1->Get(hist_weight);
@@ -49,21 +51,20 @@ int Plot_compare()
 		if(plot_log) gPad-> SetLogy();
 
 		TH1F *h1 = (TH1F*)f1->Get(hist);
+		h1->Rebin(2);
 		h1->SetLineColor(kRed);
 		h1->Draw("hist");
 
 		TH1F *h2 = (TH1F*)f2->Get(hist);
+		h2->Rebin(2);
 
-		TString leg_new = "new (" + std::to_string(f1_tot_no_weight) + ")";
-		TString leg_old = "old (" + std::to_string(f2_tot_no_weight) + ")";
+		TString leg_new = f1_lag + " (" + std::to_string(f1_tot_no_weight) + ")";
+		TString leg_old = f2_lag + " (" + std::to_string(f2_tot_no_weight) + ")";
 
 		h2->Scale(tot_scale);
 
 		h2->SetLineColor(kBlue);
 		h2->Draw("histsame");
-
-		//float y_max = max(h1->GetMaximum(), h2->GetMaximum()) * 1.2;
-		//h1->SetMaximum(y_max);
 
 		TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
 		leg->AddEntry(h1,leg_new,"l");
@@ -88,6 +89,9 @@ int Plot_compare()
 		ratio->GetYaxis()->SetLabelSize(0.08);
 
 		//mycanvas->SetLogy();
+
+		float y_max = max(h1->GetMaximum(), h2->GetMaximum()) * 1.2;
+		h1->SetMaximum(y_max);
 
 		mycanvas->SaveAs("plots_test/" + f1_name + "_" + hist_name + ".png");
 	}

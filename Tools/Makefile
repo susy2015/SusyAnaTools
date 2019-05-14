@@ -179,6 +179,13 @@ ISRJetsProducer:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/ISRJetsProduc
 AliasTest: $(ODIR)/NTupleReader.o $(ODIR)/SATException.o $(ODIR)/StopleAlias.o  $(ODIR)/AliasTest.o  
 	$(LD) $^ $(LIBS) -o $@
 
+stopNTuple_skim: $(ODIR)/stopNTuple_skim.o
+	$(LD) $^ $(LIBS_base) -o $@
+
+make_signalcards: $(ODIR)/make_signalcards.o
+	$(LD) $^ $(LIBS_base) -o $@
+
+
 clean:
 	rm -f $(ODIR)/*.a $(ODIR)/*.so $(ODIR)/*.o $(ODIR)/*.d $(PROGRAMS) core 
 

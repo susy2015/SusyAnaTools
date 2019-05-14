@@ -1,10 +1,11 @@
-//#include "CrossSection.C"
+#include "CrossSection.C"
 #include "Plot_1D_AUX.c"
 int Plot_1D_test()
 {
 	//gROOT->ForceStyle();
 
-	const double lumi = 36;
+	double lumi = 36;
+	lumi = 137;
 	TString year = "_2016";
 	bool plot_log = false;
 	plot_log = true;
@@ -15,9 +16,11 @@ int Plot_1D_test()
 	bool sig_scale_to_BG = true;
 	bool use_original_title = false;
 
-	TString result_path = "results/Signal_";        //for full sim signals
-	//result_path = "results/Signal_fastsim_";        //for fast sim singals
+	TString result_path = "results/SMS_";
+	TString full_or_fast = "_fullsim"; 
+	full_or_fast = "_fastsim"; 
 
+	//TString signal_name = "T2fbd_test";
 	TString signal_name = "T2tt_test";
 	//TString signal_name = "T2tt_and_T1tttt_high";
 	//TString signal_name = "T2tt_only";
@@ -26,12 +29,9 @@ int Plot_1D_test()
 	//TString signal_name = "T2fbd_and_T2bwC";
 	//TString signal_name = "T2cc_and_T2tt";
 
-	bool plot_MT2 = false;
-	bool plot_MT2_baseline_no_mt2 = false;
 	bool plot_MTb = false;
 	bool plot_MTb_highdm = false;
-	bool plot_MT2_b = false;
-	bool plot_SB_v2 = true;
+	bool plot_SB_v2 = false;
 	bool plot_SB_team_A_highdm = false;
 	bool plot_SB_team_A_lowdm = false;
 	bool plot_nbottompt20 = false;
@@ -56,10 +56,20 @@ int Plot_1D_test()
 	bool plot_HT = false;
 	bool plot_MET = false;
 	bool plot_MET_lowdm = false;
+	bool plot_MET_lowdm_mid_dPhi = false;
+	bool plot_MET_lowdm_ISR_veto = false;
+	bool plot_MET_highdm = false;
+	bool plot_MET_highdm_mid_dPhi = true;
 	bool plot_MET_binning_study = false;
 	bool plot_ISR_pt_lowdm = false;
 	bool plot_bottom_pt_lowdm = false;
-	bool plot_MT2_different_MTb = false;
+	bool plot_min_jet_dPhi_highdm = false;
+	bool plot_min_jet_dPhi_highdm_zoom = false;
+	bool plot_min_jet_dPhi_lowdm = false;
+	bool plot_min_jet_dPhi_lowdm_zoom = false;
+	bool plot_J1dPhi_lowdm = false;
+	bool plot_J2dPhi_lowdm = false;
+	bool plot_J3dPhi_lowdm = false;
 	bool plot_jpt_eta_2p5_3p0 = false;
 	bool plot_jpt_eta_2p5_3p0_no_HT = false;
 
@@ -69,15 +79,14 @@ int Plot_1D_test()
 	if(!plot_sig_pad) {padup_height = 0; padup_margin = 0.1, leg_height = 0.6;}
 	if(plot_log) ymin = 0.1;
 
-	TString title = "MT2";
-	TString var = "mt2_h";
-	TString folder = "Baseline_Only/";
+	TString title = "MET";
+	TString var = "met_h";
+	TString folder = "";
 
 	int rebin = 1;
 
 	if (plot_MET_binning_study)
 	{	
-		//title = "MT2";
 		//var = "mt2_h";
 		title = "";
 		var = "met_1b_011_h";
@@ -88,29 +97,6 @@ int Plot_1D_test()
 		ymax = -1;
 	}
 
-	if (plot_MT2)
-	{	
-		//title = "MT2";
-		//var = "mt2_h";
-		title = "MT2 when MTb > 175";
-		var = "mt2_high_h";
-		folder = "Baseline_MTb>175/";
-		rebin = 5;
-		xmin = 50;
-		ymax = 10000;
-	}
-
-	if (plot_MT2_baseline_no_mt2)
-	{	
-		title = "";
-		var = "mt2_baseline_no_mt2_h";
-		folder = "";
-		rebin = 5;
-		//xmin = 100;
-		//xmax = 500;
-		//ymax = 250;
-		ymax = 4000;
-	}
 
 	if (plot_MTb)
 	{
@@ -132,15 +118,6 @@ int Plot_1D_test()
 		rebin = 2;
 		xmax = 400;
 		ymax = 3000;
-	}
-
-	if (plot_MT2_b)
-	{
-		title = "MT2 with b";
-		var = "mt2_b_h";
-		rebin = 1;
-		xmax = 100;
-		ymax = 25000;
 	}
 
 	if (plot_SB_v2)
@@ -407,6 +384,97 @@ int Plot_1D_test()
 		sig_ymax = 0.5;
 	}
 
+	if (plot_min_jet_dPhi_highdm)
+	{
+		title = "min jet dPhi, high dm";
+		var = "min_jet_dPhi_highdm_h";
+		folder = "";
+		rebin = 4;
+		xmin = 0;
+		xmax = 3.2;
+		ymax = 100000000000;
+		ymin = 1;
+		sig_ymax = 0.05;
+	}
+
+	if (plot_min_jet_dPhi_highdm_zoom)
+	{
+		title = "min jet dPhi, high dm";
+		var = "min_jet_dPhi_highdm_h";
+		folder = "";
+		rebin = 1;
+		xmin = 0;
+		xmax = 1;
+		ymax = 100000000000;
+		ymin = 1;
+		sig_ymax = 0.05;
+	}
+
+	if (plot_min_jet_dPhi_lowdm)
+	{
+		title = "min jet dPhi, low dm";
+		var = "min_jet_dPhi_lowdm_h";
+		folder = "";
+		rebin = 4;
+		xmin = 0;
+		xmax = 3.2;
+		ymax = 100000000000;
+		ymin = 1;
+		sig_ymax = 0.05;
+	}
+
+	if (plot_min_jet_dPhi_lowdm_zoom)
+	{
+		title = "min jet dPhi, low dm";
+		var = "min_jet_dPhi_lowdm_h";
+		folder = "";
+		rebin = 1;
+		xmin = 0;
+		xmax = 1;
+		ymax = 100000000000;
+		ymin = 1;
+		sig_ymax = 0.05;
+	}
+
+	if (plot_J1dPhi_lowdm)
+	{
+		title = "Jet 1 dPhi, low dm";
+		var = "J1dPhi_lowdm_h";
+		folder = "";
+		rebin = 4;
+		xmin = 0;
+		xmax = 3.2;
+		ymax = 100000000000;
+		ymin = 1;
+		sig_ymax = 0.05;
+	}
+
+	if (plot_J2dPhi_lowdm)
+	{
+		title = "Jet 2 dPhi, low dm";
+		var = "J2dPhi_lowdm_h";
+		folder = "";
+		rebin = 4;
+		xmin = 0;
+		xmax = 3.2;
+		ymax = 100000000000;
+		ymin = 1;
+		sig_ymax = 0.05;
+	}
+
+	if (plot_J3dPhi_lowdm)
+	{
+		title = "Jet 3 dPhi, low dm";
+		var = "J3dPhi_lowdm_h";
+		folder = "";
+		rebin = 4;
+		xmin = 0;
+		xmax = 3.2;
+		ymax = 100000000000;
+		ymin = 1;
+		sig_ymax = 0.05;
+	}
+
 	if (plot_MET_lowdm)
 	{
 		title = "MET [GeV] low dm";
@@ -415,7 +483,60 @@ int Plot_1D_test()
 		rebin = 2;
 		xmin = 250;
 		xmax = 800;
-		ymax = 250000;
+		ymax = 100000000;
+		ymin = 10;
+		sig_ymax = 0.1;
+	}
+
+	if (plot_MET_lowdm_mid_dPhi)
+	{
+		title = "MET [GeV] low dm, mid dPhi";
+		var = "met_lowdm_mid_dPhi_h";
+		folder = "";
+		rebin = 2;
+		xmin = 250;
+		xmax = 800;
+		ymax = 100000000;
+		ymin = 10;
+		sig_ymax = 0.1;
+	}
+
+	if (plot_MET_lowdm_ISR_veto)
+	{
+		title = "MET [GeV] low dm, ISR veto";
+		var = "met_lowdm_ISR_veto_h";
+		folder = "";
+		rebin = 2;
+		xmin = 250;
+		xmax = 800;
+		ymax = 100000000;
+		ymin = 10;
+		sig_ymax = 0.1;
+	}
+
+	if (plot_MET_highdm)
+	{
+		title = "MET [GeV] high dm";
+		var = "met_highdm_h";
+		folder = "";
+		rebin = 2;
+		xmin = 250;
+		xmax = 800;
+		ymax = 100000000;
+		ymin = 1;
+		sig_ymax = 1;
+	}
+
+	if (plot_MET_highdm_mid_dPhi)
+	{
+		title = "MET [GeV] high dm, mid dPhi";
+		var = "met_highdm_mid_dPhi_h";
+		folder = "";
+		rebin = 2;
+		xmin = 250;
+		xmax = 800;
+		ymax = 100000000;
+		ymin = 1;
 		sig_ymax = 1;
 	}
 
@@ -440,16 +561,6 @@ int Plot_1D_test()
 		xmax = 200;
 		ymax = 20000;
 		sig_ymax = 0.5;
-	}
-
-	if (plot_MT2_different_MTb)
-	{
-		title = "MT2 (50 - 800) when MTb > 175";
-		var = "mt2_175_h";
-		folder = "";
-		rebin = 5;
-		xmin = 50;
-		ymax = 10000;
 	}
 
 	if (plot_jpt_eta_2p5_3p0)
@@ -495,9 +606,9 @@ int Plot_1D_test()
 
 		if (true)
 		{
-			TString sp = "QCD_HT2000toInf" + year;
+			TString sp = "QCD_HT_2000toInf";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1D *h1 = (TH1D*)f1->Get(folder + var);
 			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -516,8 +627,8 @@ int Plot_1D_test()
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
 
-			//h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-			h1->Scale(lumi * 1000);
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -529,38 +640,38 @@ int Plot_1D_test()
 
 		if (false)
 		{
-			TString sp = "QCD_HT200to300" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
-		}
-
-		if (false)
-		{
-			TString sp = "QCD_HT300to500" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
-		}
-
-		if (false)
-		{
-			TString sp = "QCD_HT500to700" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
-		}
-
-		if (false)
-		{
-			TString sp = "QCD_HT700to1000" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
-		}
-
-		if (false)
-		{
-			TString sp = "QCD_HT1000to1500" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "QCD_HT_200to300";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "QCD_HT1500to2000" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "QCD_HT_300to500";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+		}
+
+		if (true)
+		{
+			TString sp = "QCD_HT_500to700";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+		}
+
+		if (true)
+		{
+			TString sp = "QCD_HT_700to1000";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+		}
+
+		if (true)
+		{
+			TString sp = "QCD_HT_1000to1500";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+		}
+
+		if (true)
+		{
+			TString sp = "QCD_HT_1500to2000";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		pro->SetLineColor(kBlack);
@@ -578,9 +689,9 @@ int Plot_1D_test()
 
 		if (true)
 		{
-			TString sp = "ZJetsToNuNu_HT_100to200" + year;
+			TString sp = "ZJetsToNuNu_HT_100to200";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1D *h1 = (TH1D*)f1->Get(folder + var);
 			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -597,8 +708,8 @@ int Plot_1D_test()
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
 
-			//h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-			h1->Scale(lumi * 1000);
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -610,38 +721,38 @@ int Plot_1D_test()
 
 		if (true)
 		{
-			TString sp = "ZJetsToNuNu_HT_200to400" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
-		}
-
-		if (false)
-		{
-			TString sp = "ZJetsToNuNu_HT_400to600" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "ZJetsToNuNu_HT_200to400";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "ZJetsToNuNu_HT_600to800" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "ZJetsToNuNu_HT_400to600";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "ZJetsToNuNu_HT_800to1200" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
-		}
-
-		if (false)
-		{
-			TString sp = "ZJetsToNuNu_HT_1200to2500" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "ZJetsToNuNu_HT_600to800";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "ZJetsToNuNu_HT_2500toInf" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "ZJetsToNuNu_HT_800to1200";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+		}
+
+		if (true)
+		{
+			TString sp = "ZJetsToNuNu_HT_1200to2500";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+		}
+
+		if (true)
+		{
+			TString sp = "ZJetsToNuNu_HT_2500toInf";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		pro->SetLineColor(kBlack);
@@ -660,9 +771,9 @@ int Plot_1D_test()
 
 		if (true)
 		{
-			TString sp = "WJetsToLNu_HT_70to100" + year;
+			TString sp = "WJetsToLNu_HT_70to100";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1D *h1 = (TH1D*)f1->Get(folder + var);
 			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -679,8 +790,8 @@ int Plot_1D_test()
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
 
-			//h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-			h1->Scale(lumi * 1000);
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -692,44 +803,44 @@ int Plot_1D_test()
 
 		if (true)
 		{
-			TString sp = "WJetsToLNu_HT_100to200" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "WJetsToLNu_HT_100to200";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "WJetsToLNu_HT_200to400" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "WJetsToLNu_HT_200to400";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "WJetsToLNu_HT_400to600" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "WJetsToLNu_HT_400to600";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "WJetsToLNu_HT_600to800" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "WJetsToLNu_HT_600to800";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "WJetsToLNu_HT_800to1200" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "WJetsToLNu_HT_800to1200";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "WJetsToLNu_HT_1200to2500" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "WJetsToLNu_HT_1200to2500";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "WJetsToLNu_HT_2500toInf" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "WJetsToLNu_HT_2500toInf";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		pro->SetLineColor(kBlack);
@@ -747,9 +858,9 @@ int Plot_1D_test()
 
 		if (true)
 		{
-			TString sp = "TTbarSingleLepT" + year;
+			TString sp = "TTbarSingleLepT";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1D *h1 = (TH1D*)f1->Get(folder + var);
 			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -766,8 +877,8 @@ int Plot_1D_test()
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
 
-			//h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-			h1->Scale(lumi * 1000);
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -779,56 +890,56 @@ int Plot_1D_test()
 
 		if (true)
 		{
-			TString sp = "TTbarSingleLepTbar" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "TTbarSingleLepTbar";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "TTbarDiLep" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "TTbarDiLep";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "ST_s" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
-		}
-
-		if (false)
-		{
-			TString sp = "ST_t_antitop" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "ST_s_lep";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "ST_t_top" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "ST_t_antitop";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "ST_tW_antitop_incl" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "ST_t_top";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "ST_tW_top_incl" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "ST_tW_antitop_incl";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "TTZToLLNuNu" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "ST_tW_top_incl";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
-			TString sp = "TTZToQQ" + year;
-			Plot_1D_AUX_bg (lumi, sp, var, folder, leg, kGreen, pro, rebin);
+			TString sp = "TTZToLLNuNu";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+		}
+
+		if (true)
+		{
+			TString sp = "TTZToQQ";
+			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		pro->SetLineColor(kBlack);
@@ -876,7 +987,8 @@ int Plot_1D_test()
 
 	if (true)
 	{
-		if(signal_name == "T2tt_test") sp = "T2tt_mStop850_mLSP100_fullsim" + year;
+		if(signal_name == "T2fbd_test") sp = "T2fbd_mStop600_mLSP520";
+		if(signal_name == "T2tt_test") sp = "T2tt_mStop1000_mLSP50";
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1200_mLSP800";
 		if(signal_name == "T2tt_and_T1tttt_high") sp = "T2tt_mStop1000_mLSP500";
 		if(signal_name == "T2tt_only") sp = "T2tt_mStop425_mLSP325";
@@ -884,7 +996,7 @@ int Plot_1D_test()
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop500_mLSP490";
 		if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP490";
 
-		TFile *f1 = new TFile(result_path + sp + ".root");
+		TFile *f1 = new TFile(result_path + sp + full_or_fast + year + ".root");
 		TH1D *h1 = (TH1D*)f1->Get(folder + var);
 		//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 		TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -927,15 +1039,17 @@ int Plot_1D_test()
 		leg->AddEntry(h1,sp,"l");
 	}
 
-	if (false)
+	if (true)
 	{
+		if(signal_name == "T2fbd_test") sp = "T2fbd_mStop600_mLSP590";
+		if(signal_name == "T2tt_test") sp = "T2tt_mStop1000_mLSP500";
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1500_mLSP100";
 		if(signal_name == "T2tt_and_T1tttt_high") sp = "T2tt_mStop1000_mLSP1";
 		if(signal_name == "T2tt_only") sp = "T2tt_mStop500_mLSP325";
 		if(signal_name == "T2bt_and_T2bw") sp = "T2bt_mStop800_mLSP100";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop600_mLSP520";
 		if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP420";
-		Plot_1D_AUX_sg (signal_scale, result_path, sp, var, folder, leg, kGreen, rebin, sig_scale_to_BG);
+		Plot_1D_AUX_sg (signal_scale, result_path, sp, full_or_fast, year, var, folder, leg, kGreen, rebin, sig_scale_to_BG);
 	}
 
 	if (false)
@@ -946,7 +1060,7 @@ int Plot_1D_test()
 		if(signal_name == "T2bt_and_T2bw") sp = "T2bw_mStop500_mLSP325";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop500_mLSP490";
 		if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop250_mLSP150";
-		Plot_1D_AUX_sg (signal_scale, result_path, sp, var, folder, leg, kYellow, rebin, sig_scale_to_BG);
+		Plot_1D_AUX_sg (signal_scale, result_path, sp, full_or_fast, year, var, folder, leg, kGreen, rebin, sig_scale_to_BG);
 	}
 
 	if (false)
@@ -957,7 +1071,7 @@ int Plot_1D_test()
 		if(signal_name == "T2bt_and_T2bw") sp = "T2bw_mStop800_mLSP100";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop600_mLSP520";
 		if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop425_mLSP325";
-		Plot_1D_AUX_sg (signal_scale, result_path, sp, var, folder, leg, kBlue, rebin, sig_scale_to_BG);
+		Plot_1D_AUX_sg (signal_scale, result_path, sp, full_or_fast, year, var, folder, leg, kGreen, rebin, sig_scale_to_BG);
 	}
 
 	TLatex latex;
@@ -992,7 +1106,8 @@ int Plot_1D_test()
 
 		if (true)
 		{
-			if(signal_name == "T2tt_test") sp = "T2tt_mStop850_mLSP100_fullsim" + year;
+			if(signal_name == "T2fbd_test") sp = "T2fbd_mStop600_mLSP520";
+			if(signal_name == "T2tt_test") sp = "T2tt_mStop1000_mLSP50";
 			if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1200_mLSP800";
 			if(signal_name == "T2tt_and_T1tttt_high") sp = "T2tt_mStop1000_mLSP500";
 			if(signal_name == "T2tt_only") sp = "T2tt_mStop425_mLSP325";
@@ -1000,7 +1115,7 @@ int Plot_1D_test()
 			if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop500_mLSP490";
 			if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP490";
 
-			TFile *f1 = new TFile(result_path + sp + ".root");
+			TFile *f1 = new TFile(result_path + sp + full_or_fast + year + ".root");
 			TH1D *h1 = (TH1D*)f1->Get(folder + var);
 			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -1014,8 +1129,8 @@ int Plot_1D_test()
 			h1->Rebin(rebin);
 
 			//h1->Scale(lumi / h1->Integral() );
-			//h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-			h1->Scale(lumi * 1000);
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			TH1D *significance = (TH1D*)h1->Clone("significance");;
 			int n_bins = significance-> GetSize() - 2;
@@ -1044,7 +1159,6 @@ int Plot_1D_test()
 			significance->GetYaxis()->SetTitle("significance");
 			significance->GetXaxis()->SetRangeUser(xmin,xmax);
 			if(plot_SB_team_A_highdm || plot_SB_team_A_lowdm) significance->GetXaxis()->SetNdivisions(30);
-			//significance->GetXaxis()->SetTitle("MT2 [GeV]");
 			significance->GetXaxis()->SetTitle(title);
 			significance->GetXaxis()->SetTitleSize(0.1);
 			significance->GetXaxis()->SetLabelSize(0.08);
@@ -1059,15 +1173,17 @@ int Plot_1D_test()
 			//leg->AddEntry(h1,sp,"l");
 		}
 
-		if (false)
+		if (true)
 		{
+			if(signal_name == "T2fbd_test") sp = "T2fbd_mStop600_mLSP590";
+			if(signal_name == "T2tt_test") sp = "T2tt_mStop1000_mLSP500";
 			if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1500_mLSP100";
 			if(signal_name == "T2tt_and_T1tttt_high") sp = "T2tt_mStop1000_mLSP1";
 			if(signal_name == "T2tt_only") sp = "T2tt_mStop500_mLSP325";
 			if(signal_name == "T2bt_and_T2bw") sp = "T2bt_mStop800_mLSP100";
 			if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop600_mLSP520";
 			if(signal_name == "T2cc_and_T2tt") sp = "T2cc_mStop500_mLSP420";
-			Plot_1D_AUX_sig (lumi, result_path, sp, var, folder, leg, kGreen, hs, rebin, use_low_stat_sig);
+			Plot_1D_AUX_sig (lumi, result_path, sp, full_or_fast, year, var, folder, leg, kGreen, hs, rebin, use_low_stat_sig);
 			//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kGreen, rebin);
 		}
 
@@ -1079,7 +1195,7 @@ int Plot_1D_test()
 			if(signal_name == "T2bt_and_T2bw") sp = "T2bw_mStop500_mLSP325";
 			if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop500_mLSP490";
 			if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop250_mLSP150";
-			Plot_1D_AUX_sig (lumi, result_path, sp, var, folder, leg, kYellow, hs, rebin, use_low_stat_sig);
+			Plot_1D_AUX_sig (lumi, result_path, sp, full_or_fast, year, var, folder, leg, kGreen, hs, rebin, use_low_stat_sig);
 			//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kYellow, rebin);
 		}
 
@@ -1091,7 +1207,7 @@ int Plot_1D_test()
 			if(signal_name == "T2bt_and_T2bw") sp = "T2bw_mStop800_mLSP100";
 			if(signal_name == "T2fbd_and_T2bwC") sp = "T2bwC_mStop600_mLSP520";
 			if(signal_name == "T2cc_and_T2tt") sp = "T2tt_mStop425_mLSP325";
-			Plot_1D_AUX_sig (lumi, result_path, sp, var, folder, leg, kBlue, hs, rebin, use_low_stat_sig);
+			Plot_1D_AUX_sig (lumi, result_path, sp, full_or_fast, year, var, folder, leg, kGreen, hs, rebin, use_low_stat_sig);
 			//Plot_1D_AUX_sg (1.0, sp, var, folder, leg, kBlue, rebin);
 		}
 	}

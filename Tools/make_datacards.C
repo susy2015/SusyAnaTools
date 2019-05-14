@@ -1,12 +1,14 @@
 #include "CrossSection.C"
-#include "Plot_1D_AUX.c"
 int make_datacards()
 {
 	gROOT->ForceStyle();
 
-	const double lumi = 36;
-	//const double lumi = 120;
+	double lumi = 36;
+	lumi = 137;
+	TString year = "_2016";
+	//year = "_2017";
 
+	bool compare_TF = true;
 	bool round_data = false;
 
 	bool make_QCD_datacard = true;
@@ -20,10 +22,11 @@ int make_datacards()
 	bool team_A = false;
 	bool team_A_high_dm_MT2 = false;
 	bool team_A_high_dm_merge = false;
-	bool low_dm = false;
-	bool high_dm = false;
-	bool low_and_high_dm = false;
-	bool SBv2 = true;
+	bool SBv2 = false;
+	bool SBv2_highdm = true;
+	bool SBv2_lowdm = false;
+	bool SBv2_lowdm_more_MET = false;
+	bool SBv2_lowdm_high_ISRpt = false;
 	bool more_HT_bins = false;
 	bool more_HT_bins_merge = false;
 	bool high_dm_merge_HT = false;
@@ -31,12 +34,14 @@ int make_datacards()
 	bool old_bins = false; 
 	bool old_bins_MTb = false;
 
-	TString result_path = "results/Signal_";	//for full sim signals
-	//result_path = "results/Signal_fastsim_";	//for fast sim singals
+	TString full_or_fast = "_fullsim";
+	full_or_fast = "_fastsim";
 
 	//TString signal_name = "T2tt_mStop550_mLSP400";
-	TString signal_name = "T2tt_mStop850_mLSP100";
+	//TString signal_name = "T2tt_mStop600_mLSP514";
+	//TString signal_name = "T2tt_mStop850_mLSP100";
 	//TString signal_name = "T2tt_mStop1000_mLSP1";
+	TString signal_name = "T2tt_mStop1000_mLSP50";
 	//TString signal_name = "T2tt_mStop1000_mLSP500";
 	//TString signal_name = "T1tttt_mGluino1200_mLSP800";
 	//TString signal_name = "T1tttt_mGluino2000_mLSP100";
@@ -45,97 +50,115 @@ int make_datacards()
 	//TString signal_name = "T2bw_mStop500_mLSP325";
 	//TString signal_name = "T2bt_mStop800_mLSP100";
 	//TString signal_name = "T2bt_mStop500_mLSP300";
+	//TString signal_name = "T2fbd_mStop500_mLSP490";
+	//TString signal_name = "T2fbd_mStop600_mLSP520";
+	//TString signal_name = "T2fbd_mStop600_mLSP590";
 
 	TString folder = "";
-	TString var;
-	TString SingleMuCR;
-	TString SingleElCR;
+	TString SR = "", SR_loose_bin = "";
+	TString SingleMuCR = "", SingleMuCR_loose_bin = "";
+	TString SingleElCR = "", SingleElCR_loose_bin = "";
 
-	int NSB, first_bin;
-	int mid_bin = 53;
+ 	int first_bin;
+	int NSB = 999;
+	int mid_bin = 53;	//53 for SBv2
 	double zinv_sf = 666.8 / 851.6;		//ratio of 050 data card / MC with B_SF
 	double ll_sf = 2957.6 / 3378.4;		//ratio of 050 data card / MC with ISR and B_SF
 
 	if (team_A)
 	{
-		var = "search_bin_team_A_h";
+		SR = "search_bin_team_A_h";
 		SingleMuCR = "search_bin_team_A_singleMuCR_h";
 		SingleElCR = "search_bin_team_A_singleElCR_h";
 	}
 
 	if (team_A_high_dm_MT2)
 	{
-		var = "search_bin_team_A_highdm_MTb175_MT2_h";
+		SR = "search_bin_team_A_highdm_MTb175_MT2_h";
 		SingleMuCR = "search_bin_team_A_highdm_MTb175_MT2_singleMuCR_h";
 		SingleElCR = "search_bin_team_A_highdm_MTb175_MT2_singleElCR_h";
 	}
 
 	if (team_A_high_dm_merge)
 	{
-		var = "search_bin_team_A_highdm_merge_h";
+		SR = "search_bin_team_A_highdm_merge_h";
 		SingleMuCR = "search_bin_team_A_highdm_singleMuCR_merge_h";
 		SingleElCR = "search_bin_team_A_highdm_singleElCR_merge_h";
 	}
 
-	if (low_dm)
-	{
-		var = "search_bin_team_A_lowdm_h";
-		SingleMuCR = "search_bin_team_A_lowdm_singleMuCR_h";
-		SingleElCR = "search_bin_team_A_lowdm_singleElCR_h";
-	}
-
-	if (high_dm)
-	{
-		var = "search_bin_highdm_h";
-		SingleMuCR = "search_bin_highdm_singleMuCR_h";
-		SingleElCR = "search_bin_highdm_singleElCR_h";
-	}
-
-	if (low_and_high_dm)
-	{
-		var = "search_bin_low_and_highdm_h";
-		SingleMuCR = "search_bin_low_and_highdm_singleMuCR_h";
-		SingleElCR = "search_bin_low_and_highdm_singleElCR_h";
-	}
-
 	if (SBv2)
 	{
-		var = "search_bin_v2_h";
+		SR = "search_bin_v2_h";
 		SingleMuCR = "search_bin_v2_singleMuCR_h";
 		SingleElCR = "search_bin_v2_singleElCR_h";
 	}
 
+	if (SBv2_highdm)
+	{
+		SR = "search_bin_v2_highdm_h";
+		SR_loose_bin = "search_bin_v2_highdm_loose_bin_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_highdm_h";
+		SingleMuCR_loose_bin = "search_bin_v2_singleMuCR_highdm_loose_bin_h";
+		SingleElCR = "search_bin_v2_singleElCR_highdm_h";
+		SingleElCR_loose_bin = "search_bin_v2_singleElCR_highdm_loose_bin_h";
+		mid_bin = -1;
+	}
+
+	if (SBv2_lowdm)
+	{
+		SR = "search_bin_v2_lowdm_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_lowdm_h";
+		SingleElCR = "search_bin_v2_singleElCR_lowdm_h";
+		mid_bin = 999;
+	}
+
+	if (SBv2_lowdm_more_MET)
+	{
+		SR = "search_bin_v2_lowdm_more_MET_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_lowdm_more_MET_h";
+		SingleElCR = "search_bin_v2_singleElCR_lowdm_more_MET_h";
+		mid_bin = 999;
+	}
+
+	if (SBv2_lowdm_high_ISRpt)
+	{
+		SR = "search_bin_v2_lowdm_high_ISRpt_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_lowdm_high_ISRpt_h";
+		SingleElCR = "search_bin_v2_singleElCR_lowdm_high_ISRpt_h";
+		mid_bin = 999;
+	}
+
 	if (more_HT_bins)
 	{
-		var = "search_bin_more_HT_bins_h";
+		SR = "search_bin_more_HT_bins_h";
 		SingleMuCR = "search_bin_more_HT_bins_singleMuCR_h";
 		SingleElCR = "search_bin_more_HT_bins_singleElCR_h";
 	}
 
 	if (more_HT_bins_merge)
 	{
-		var = "search_bin_more_HT_bins_merge_h";
+		SR = "search_bin_more_HT_bins_merge_h";
 		SingleMuCR = "search_bin_more_HT_bins_singleMuCR_merge_h";
 		SingleElCR = "search_bin_more_HT_bins_singleElCR_merge_h";
 	}
 
 	if(high_dm_merge_HT)
 	{
-		var = "search_bin_highdm_merge_HT_h";
+		SR = "search_bin_highdm_merge_HT_h";
 		SingleMuCR = "search_bin_highdm_singleMuCR_merge_HT_h";
 		SingleElCR = "search_bin_highdm_singleElCR_merge_HT_h";
 	}
 
 	if (high_dm_MT2)
 	{
-		var = "search_bin_highdm_MT2_h";
+		SR = "search_bin_highdm_MT2_h";
 		SingleMuCR = "search_bin_highdm_singleMuCR_MT2_h";
 		SingleElCR = "search_bin_highdm_singleElCR_MT2_h";
 	}
 
 	if (old_bins)
 	{
-		var = "search_bin_h";
+		SR = "search_bin_h";
 		SingleMuCR = "search_bin_singleMuCR_h";
 		SingleElCR = "search_bin_singleElCR_h";
 
@@ -143,7 +166,7 @@ int make_datacards()
 
 	if (old_bins_MTb)
 	{
-		var = "search_bin_MTb_h";
+		SR = "search_bin_MTb_h";
 		SingleMuCR = "search_bin_singleMuCR_MTb_h";
 		SingleElCR = "search_bin_singleElCR_MTb_h";
 	}
@@ -152,24 +175,23 @@ int make_datacards()
 
 	if (make_QCD_datacard)
 	{
-		TH1D * pro = NULL;
-		TH1D * avg_weight_sq = new TH1D("avg_weight_sq","avg_weight_sq",NSB,0,NSB);
-		TH1D * avg_weight = new TH1D("avg_weight","avg_weight",NSB,0,NSB);
+		TH1F * pro = NULL;
+		TH1F * avg_weight_sq = new TH1F("avg_weight_sq","avg_weight_sq",NSB,0,NSB);
+		TH1F * avg_weight = new TH1F("avg_weight","avg_weight",NSB,0,NSB);
 
 		if (true)
 		{
-			TString sp = "QCD_HT300to500";
+			TString sp = "QCD_HT_300to500";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			NSB = h1->GetSize() - 2;
 			first_bin = int(h1->GetXaxis()->GetBinCenter(1));
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -187,26 +209,26 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 
-			pro = (TH1D*)h1->Clone("QCD");
+			pro = (TH1F*)h1->Clone("QCD");
 		}
 
 		if (false)
 		{
-			TString sp = "QCD_HT200to300";
+			TString sp = "QCD_HT_200to300";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -224,6 +246,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -235,15 +258,14 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_HT500to700";
+			TString sp = "QCD_HT_500to700";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -261,6 +283,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -272,15 +295,14 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_HT700to1000";
+			TString sp = "QCD_HT_700to1000";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -298,6 +320,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -309,15 +332,14 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_HT1000to1500";
+			TString sp = "QCD_HT_1000to1500";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -335,6 +357,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -346,15 +369,14 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_HT1500to2000";
+			TString sp = "QCD_HT_1500to2000";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -372,6 +394,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -383,15 +406,14 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_HT2000toInf";
+			TString sp = "QCD_HT_2000toInf";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -409,6 +431,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -430,14 +453,21 @@ int make_datacards()
 			QCDfile << "channel = "; for(int i=first_bin;i<first_bin + NSB;i++){ QCDfile << "bin" << i+1 << " "; } QCDfile << "\n";
 
 			QCDfile << "\n# Predicted central numbers (need from all backgrounds)\n";
-			QCDfile << "rate = "; for(int i=0;i<NSB;i++){ QCDfile << pro->GetBinContent(i+1) << " "; } QCDfile << "\n";
+			QCDfile << "rate = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(pro->GetBinContent(i+1) > 0) QCDfile << pro->GetBinContent(i+1) << " ";
+				else QCDfile << "0.0000" << " ";
+			}
+			QCDfile << "\n";
 
 			QCDfile << "cs_event = ";
 			std::vector<int> cs_event(NSB,0);
 			for(int i=0;i<NSB;i++)
 			{ 
 				if(avg_weight_sq->GetBinContent(i+1) > 0) cs_event[i] = round(pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1));
-				QCDfile << cs_event[i] << " ";
+				if(cs_event[i] > 0) QCDfile << cs_event[i] << " ";
+				else QCDfile << "0.0000" << " ";
 			}
 			QCDfile << "\n";
 
@@ -476,21 +506,20 @@ int make_datacards()
 
 	if (make_Zinv_datacard)
 	{
-		TH1D * pro = NULL;
-		TH1D * avg_weight_sq = new TH1D("avg_weight_sq","avg_weight_sq",NSB,0,NSB);
-		TH1D * avg_weight = new TH1D("avg_weight","avg_weight",NSB,0,NSB);
+		TH1F * pro = NULL;
+		TH1F * avg_weight_sq = new TH1F("avg_weight_sq","avg_weight_sq",NSB,0,NSB);
+		TH1F * avg_weight = new TH1F("avg_weight","avg_weight",NSB,0,NSB);
 
 		if (true)
 		{
 			TString sp = "ZJetsToNuNu_HT_100to200";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -508,26 +537,26 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 
-			pro = (TH1D*)h1->Clone("zjets");
+			pro = (TH1F*)h1->Clone("zjets");
 		}
 
 		if (true)
 		{
 			TString sp = "ZJetsToNuNu_HT_200to400";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -545,6 +574,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -558,13 +588,12 @@ int make_datacards()
 		{
 			TString sp = "ZJetsToNuNu_HT_400to600";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -582,6 +611,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -595,13 +625,12 @@ int make_datacards()
 		{
 			TString sp = "ZJetsToNuNu_HT_600to800";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -619,6 +648,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -632,13 +662,12 @@ int make_datacards()
 		{
 			TString sp = "ZJetsToNuNu_HT_800to1200";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -656,6 +685,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -669,13 +699,12 @@ int make_datacards()
 		{
 			TString sp = "ZJetsToNuNu_HT_1200to2500";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -693,6 +722,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -706,13 +736,12 @@ int make_datacards()
 		{
 			TString sp = "ZJetsToNuNu_HT_2500toInf";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			double scale = lumi * CrossSection.at(sp) * 1000 / all_events;
 			for(int i = 0; i < NSB; i++)
@@ -730,6 +759,7 @@ int make_datacards()
 			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -886,22 +916,27 @@ int make_datacards()
 
 	if (make_LL_datacard)
 	{
-		TH1D * pro = NULL;
-		TH1D * pro_singleMuCR = NULL;
-		TH1D * pro_singleElCR = NULL;
+		TH1F * pro = NULL;
+		TH1F * pro_loose_bin = NULL;
+		TH1F * pro_singleMuCR = NULL;
+		TH1F * pro_singleMuCR_loose_bin = NULL;
+		TH1F * pro_singleElCR = NULL;
+		TH1F * pro_singleElCR_loose_bin = NULL;
 
 		if (true)
 		{
-			TString sp = "WJetsToLNu_HT_70to100";
+			TString sp = "WJetsToLNu_HT_100to200";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -916,29 +951,37 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 
-			pro = (TH1D*)h1->Clone("LL_SR");
-			pro_singleMuCR = (TH1D*)h1_singleMuCR->Clone("LL_singleMuCR");
-			pro_singleElCR = (TH1D*)h1_singleElCR->Clone("LL_singleElCR");
+			pro = (TH1F*)h1->Clone("LL_SR");
+			pro_loose_bin = (TH1F*)h1_loose_bin->Clone("LL_SR_loose_bin");
+			pro_singleMuCR = (TH1F*)h1_singleMuCR->Clone("LL_singleMuCR");
+			pro_singleMuCR_loose_bin = (TH1F*)h1_singleMuCR_loose_bin->Clone("LL_singleMuCR_loose_bin");
+			pro_singleElCR = (TH1F*)h1_singleElCR->Clone("LL_singleElCR");
+			pro_singleElCR_loose_bin = (TH1F*)h1_singleElCR_loose_bin->Clone("LL_singleElCR_loose_bin");
 		}
 
-		if (true)
+		if (false)
 		{
-			TString sp = "WJetsToLNu_HT_100to200";
+			TString sp = "WJetsToLNu_HT_70to100";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -953,28 +996,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
 			TString sp = "WJetsToLNu_HT_200to400";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -989,28 +1040,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
 			TString sp = "WJetsToLNu_HT_400to600";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1025,28 +1084,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
 			TString sp = "WJetsToLNu_HT_600to800";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1061,28 +1128,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
 			TString sp = "WJetsToLNu_HT_800to1200";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1097,28 +1172,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
 			TString sp = "WJetsToLNu_HT_1200to2500";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1133,28 +1216,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
 			TString sp = "WJetsToLNu_HT_2500toInf";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1169,14 +1260,20 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 
@@ -1184,14 +1281,16 @@ int make_datacards()
 		{
 			TString sp = "TTbarSingleLepT";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1214,6 +1313,9 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -1228,22 +1330,27 @@ int make_datacards()
 			std::cout << "scaled el bin 1 error " << h1_singleElCR->GetBinError(1) << std::endl;
 			std::cout << "scaled el bin 2 error " << h1_singleElCR->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
 			TString sp = "TTbarSingleLepTbar";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1258,28 +1365,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
 			TString sp = "TTbarDiLep";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1294,28 +1409,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
-			TString sp = "ST_s";
+			TString sp = "ST_s_lep";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1330,28 +1453,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
 			TString sp = "ST_t_antitop";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1366,28 +1497,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
 			TString sp = "ST_t_top";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1402,28 +1541,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
-			TString sp = "tW_antitop_incl";
+			TString sp = "ST_tW_antitop_incl";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1438,28 +1585,36 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
 		if (true)
 		{
-			TString sp = "tW_top_incl";
+			TString sp = "ST_tW_top_incl";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			TH1D *h1_singleMuCR = (TH1D*)f1->Get(folder + SingleMuCR);
-			TH1D *h1_singleElCR = (TH1D*)f1->Get(folder + SingleElCR);
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(folder + SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(folder + SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(folder + SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(folder + SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(folder + SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 			h1_singleMuCR->Sumw2();
@@ -1474,31 +1629,82 @@ int make_datacards()
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
+			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
+			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
 		}
 
-		pro->Scale(ll_sf);
+		if(!compare_TF)pro->Scale(ll_sf);
 		hs->Add(pro);
 		pro->SetBinErrorOption(TH1::kPoisson);
+		pro_loose_bin->SetBinErrorOption(TH1::kPoisson);
 		pro_singleMuCR->SetBinErrorOption(TH1::kPoisson);
+		pro_singleMuCR_loose_bin->SetBinErrorOption(TH1::kPoisson);
 		pro_singleElCR->SetBinErrorOption(TH1::kPoisson);
+		pro_singleElCR_loose_bin->SetBinErrorOption(TH1::kPoisson);
 
-		TH1D * pro_combCR = (TH1D*)pro_singleMuCR->Clone("pro_combCR");
+		//========= Direct TF ===========
+		TH1F * pro_combCR = (TH1F*)pro_singleMuCR->Clone("pro_combCR");
 		pro_combCR->Add(pro_singleElCR);
 		pro_combCR->Scale(0.5);
-		TH1D * TF_singleMuCR = (TH1D*)pro->Clone("TF_singleMuCR");
+		TH1F * TF_singleMuCR = (TH1F*)pro->Clone("TF_singleMuCR");
 		TF_singleMuCR->Divide(pro_singleMuCR);
-		TH1D * TF_singleElCR = (TH1D*)pro->Clone("TF_singleElCR");
+		TH1F * TF_singleElCR = (TH1F*)pro->Clone("TF_singleElCR");
 		TF_singleElCR->Divide(pro_singleElCR);
-		TH1D * TF_combCR = (TH1D*)pro->Clone("TF_combCR");
+		TH1F * TF_combCR = (TH1F*)pro->Clone("TF_combCR");
 		TF_combCR->Divide(pro_combCR);
+		TH1F * Pred_direct_singleMu = (TH1F*)TF_singleMuCR->Clone("Pred_direct_singleMu");
+		Pred_direct_singleMu->Multiply(pro_singleMuCR);
+		TH1F * Pred_direct_singleEl = (TH1F*)TF_singleElCR->Clone("Pred_direct_singleEl");
+		Pred_direct_singleEl->Multiply(pro_singleElCR);
+
+		//========= TF CR to SR, loose bin ==============
+		TH1F * TF_singleMuCR_loose_bin = (TH1F*)pro_loose_bin->Clone("TF_singleMuCR_loose_bin");
+		TF_singleMuCR_loose_bin->Divide(pro_singleMuCR_loose_bin);
+		TH1F * TF_singleElCR_loose_bin = (TH1F*)pro_loose_bin->Clone("TF_singleElCR_loose_bin");
+		TF_singleElCR_loose_bin->Divide(pro_singleElCR_loose_bin);
+
+		//========= TF SR extrapolation ==============
+		TH1F * TF_SR_extrap = (TH1F*)pro->Clone("TF_SR_extrap");
+		TF_SR_extrap->Divide(pro_loose_bin);
+
+		//========= TF (CRtoSR) * (SR extrap)==============
+		TH1F * TF_singleMu = (TH1F*)TF_singleMuCR_loose_bin->Clone("TF_singleMu");
+		TF_singleMu->Multiply(TF_SR_extrap);
+		TH1F * TF_singleEl = (TH1F*)TF_singleElCR_loose_bin->Clone("TF_singleEl");
+		TF_singleEl->Multiply(TF_SR_extrap);
+		TH1F * Pred_extrap_singleMu = (TH1F*)TF_singleMu->Clone("Pred_extrap_singleMu");
+		Pred_extrap_singleMu->Multiply(pro_singleMuCR_loose_bin);
+		TH1F * Pred_extrap_singleEl = (TH1F*)TF_singleEl->Clone("Pred_extrap_singleEl");
+		Pred_extrap_singleEl->Multiply(pro_singleElCR_loose_bin);
+
+		if(compare_TF)
+		{
+			TFile out_file("TF_compare.root","RECREATE");
+			TF_singleMuCR->Write();
+			TF_singleElCR->Write();
+			TF_singleMuCR_loose_bin->Write();
+			TF_singleElCR_loose_bin->Write();
+			TF_SR_extrap->Write();
+			TF_singleMu->Write();
+			TF_singleEl->Write();
+			Pred_direct_singleMu->Write();
+			Pred_direct_singleEl->Write();
+			Pred_extrap_singleMu->Write();
+			Pred_extrap_singleEl->Write();
+			out_file.Close();
+		}
 
 		std::ofstream LL_mu_file (("datacards/temp/comb_mu.txt"));
 		if (LL_mu_file.is_open())
@@ -1915,21 +2121,20 @@ int make_datacards()
 
 	if (make_TTZ_datacard)
 	{
-		TH1D * pro = NULL;
-		TH1D * avg_weight_sq = new TH1D("avg_weight_sq","avg_weight_sq",NSB,0,NSB);
-		TH1D * avg_weight = new TH1D("avg_weight","avg_weight",NSB,0,NSB);
+		TH1F * pro = NULL;
+		TH1F * avg_weight_sq = new TH1F("avg_weight_sq","avg_weight_sq",NSB,0,NSB);
+		TH1F * avg_weight = new TH1F("avg_weight","avg_weight",NSB,0,NSB);
 
 		if (true)
 		{
 			TString sp = "TTZToLLNuNu";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -1949,26 +2154,26 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 
-			pro = (TH1D*)h1->Clone("TTZ");
+			pro = (TH1F*)h1->Clone("TTZ");
 		}
 
 		if (true)
 		{
 			TString sp = "TTZToQQ";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -1988,6 +2193,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -2041,21 +2247,20 @@ int make_datacards()
 
 	if (make_Rare_datacard)
 	{
-		TH1D * pro = NULL;
-		TH1D * avg_weight_sq = new TH1D("avg_weight_sq","avg_weight_sq",NSB,0,NSB);
-		TH1D * avg_weight = new TH1D("avg_weight","avg_weight",NSB,0,NSB);
+		TH1F * pro = NULL;
+		TH1F * avg_weight_sq = new TH1F("avg_weight_sq","avg_weight_sq",NSB,0,NSB);
+		TH1F * avg_weight = new TH1F("avg_weight","avg_weight",NSB,0,NSB);
 
 		if (true)
 		{
 			TString sp = "ZZTo2L2Nu";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -2075,26 +2280,26 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 
-			pro = (TH1D*)h1->Clone("rare");
+			pro = (TH1F*)h1->Clone("rare");
 		}
 
 		if (true)
 		{
 			TString sp = "ZZTo2Q2Nu";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -2114,6 +2319,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -2127,13 +2333,12 @@ int make_datacards()
 		{
 			TString sp = "WZ";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -2153,6 +2358,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -2166,13 +2372,12 @@ int make_datacards()
 		{
 			TString sp = "WWTo2L2Nu";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -2192,6 +2397,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -2205,13 +2411,12 @@ int make_datacards()
 		{
 			TString sp = "WWToLNuQQ";
 
-			TFile *f1 = new TFile("results/" + sp + ".root");
-			TH1D *h1 = (TH1D*)f1->Get(folder + var);
-			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+			//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			double all_events = h2->GetBinContent(1);
-			double left_events = h2->GetBinContent(2);
 
 			h1->Sumw2();
 
@@ -2231,6 +2436,7 @@ int make_datacards()
 			}
 
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -2296,10 +2502,10 @@ int make_datacards()
 			Datafile << "\n# Predicted central numbers (need from all backgrounds)\n";
 			Datafile << "rate = ";
 			if(round_data) {
-				for(int i=0;i<NSB;i++){ Datafile << round( ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(i+1) ) << " "; } Datafile << "\n";
+				for(int i=0;i<NSB;i++){ Datafile << round( ((TH1F*)(hs -> GetStack() -> Last())) -> GetBinContent(i+1) ) << " "; } Datafile << "\n";
 			}
 			else {
-				for(int i=0;i<NSB;i++){ Datafile << ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(i+1) << " "; } Datafile << "\n";
+				for(int i=0;i<NSB;i++){ Datafile << ((TH1F*)(hs -> GetStack() -> Last())) -> GetBinContent(i+1) << " "; } Datafile << "\n";
 			}
 			Datafile.close();
 		}
@@ -2310,13 +2516,12 @@ int make_datacards()
 	{
 		TString sp = signal_name;
 
-		TFile *f1 = new TFile(result_path + sp + ".root");
-		TH1D *h1 = (TH1D*)f1->Get(folder + var);
-		//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
-		TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+		TFile *f1 = new TFile("results/SMS_" + sp + full_or_fast + year + ".root");
+		TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+		//TH1F *h2 = (TH1F*)f1->Get(folder + "/eff_h");
+		TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 		double all_events = h2->GetBinContent(1);
-		double left_events = h2->GetBinContent(2);
 
 		h1->Sumw2();
 		h1->SetBinErrorOption(TH1::kPoisson);
@@ -2327,12 +2532,12 @@ int make_datacards()
 		std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
 		std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
 
-		TH1D * raw_sig = (TH1D*)h1->Clone("raw_sig");
+		TH1F * raw_sig = (TH1F*)h1->Clone("raw_sig");
 
-		//h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-		h1->Scale(lumi * 1000);
+		h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+		//h1->Scale(lumi * 1000);
 
-		TH1D * TF_sig = (TH1D*)h1->Clone("TF_sig");
+		TH1F * TF_sig = (TH1F*)h1->Clone("TF_sig");
 		TF_sig->Divide(raw_sig);
 
 		std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
