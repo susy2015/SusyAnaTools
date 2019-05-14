@@ -90,9 +90,11 @@ namespace AnaSamples
  
   //May 5, 2019: Updated Luminosities from PostProcessed_StopTuple_V2.7.2
   //Question: Should Data_SingleElectron_2016 be 35860.0 (see PostProcess_StopTuple_V1.2.1)
-  static const double luminosity_2016           = 35922.0; // in pb-1 (Data_SingleElectron_2016 is 35860.0)
-  static const double luminosity_2017           = 41856.0; // in pb-1 (Data_SinglePhoton_2017 is 41666.0)
-  static const double luminosity_2018           = 58905.0; // in pb-1 (Data_SingleMuon_2018 is 59477.0)
+  static const double luminosity_2016           = 35922.0; // in pb-1 (Data_SingleMuon_2016)
+  static const double luminosity_2017           = 41856.0; // in pb-1 (Data_SingleElectron_2017)
+  static const double luminosity_2018           = 58905.0; // in pb-1 (Data_EGamma_2018)
+  static const double luminosity_2018_AB        = 20757.0; // in pb-1 (Data_EGamma_2018 Periods A + B)
+  static const double luminosity_2018_CD        = 38148.0; // in pb-1 (Data_EGamma_2018 Periods C + D)
   // lumi per sample when datasets had different lumis
   //static const double luminosity_electron_2016  = 18075.2; // in pb-1 for Data_SingleElectron_2016; compare to Stealth n_events, (35922.0 * 474181858.0 / 942371523.0) = 18075.207375590446
   static const double luminosity_electron_2016  = 35860.0; // in pb-1 for Data_SingleElectron_2016
