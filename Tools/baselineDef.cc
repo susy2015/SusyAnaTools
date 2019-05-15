@@ -535,21 +535,21 @@ void BaselineVessel::PassBaseline()
                                 );
   
   // standard baseline
-  //SAT_Pass_Baseline = (
-  //                          Pass_EventFilter
-  //                       && Pass_JetID 
-  //                       && SAT_Pass_MET 
-  //                       && SAT_Pass_HT
-  //                       && SAT_Pass_NJets20
-  //                       && SAT_Pass_dPhiMETLowDM
-  //                    );
-  // baseline for testing: remove Pass_EventFilter and Pass_JetID (they are cutting out too many events in 2018)
   SAT_Pass_Baseline = (
-                            SAT_Pass_MET 
+                            Pass_EventFilter
+                         && Pass_JetID 
+                         && SAT_Pass_MET 
                          && SAT_Pass_HT
                          && SAT_Pass_NJets20
                          && SAT_Pass_dPhiMETLowDM
                       );
+  // baseline for testing: remove Pass_EventFilter and Pass_JetID (they are cutting out too many events in 2018 for PostProcessed_StopTuple_V2.7.2)
+  //SAT_Pass_Baseline = (
+  //                          SAT_Pass_MET 
+  //                       && SAT_Pass_HT
+  //                       && SAT_Pass_NJets20
+  //                       && SAT_Pass_dPhiMETLowDM
+  //                    );
   //baseline for SUS-16-049 low dm plus HT cut
   SAT_Pass_lowDM = (
                         SAT_Pass_Baseline
