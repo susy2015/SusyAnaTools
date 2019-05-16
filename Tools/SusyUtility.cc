@@ -33,13 +33,16 @@ namespace SusyUtility
         return splitString;
     }
     
+    // get cut levels
+    // example: {"", "cut1", "cut2", "cut3"} ---> {"", "cut1", "cut1;cut2", "cut1;cut2;cut3"}
+    // example: {"cut1", "cut2", "", "cut3"} ---> {"cut1", "cut1;cut2", "cut1;cut2", "cut1;cut2;cut3"}
     std::vector<std::string> getCutLevels(const std::vector<std::string> cuts)
     {
         std::vector<std::string> cutLevels;
         std::string cutLevel;
         for (int i = 0; i < cuts.size(); ++i)
         {
-            if (i > 0 && ! cutLevel.empty())
+            if (i > 0 && ! cutLevel.empty() && ! cuts[i].empty())
             {
                 cutLevel += ";";
             }

@@ -543,7 +543,7 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_NJets20
                          && SAT_Pass_dPhiMETLowDM
                       );
-  // baseline for testing: remove Pass_EventFilter and Pass_JetID (they are cutting out too many events in 2018 for PostProcessed_StopTuple_V2.7.2)
+  // baseline for testing: remove Pass_EventFilter and Pass_JetID (they cut out too many events in 2018 for PostProcessed_StopTuple_V2.7.2 due to bug where JetID includes lepton veto)
   //SAT_Pass_Baseline = (
   //                          SAT_Pass_MET 
   //                       && SAT_Pass_HT
