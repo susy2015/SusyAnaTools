@@ -61,6 +61,7 @@ Checkout and compile the SusyAnaTools repository.
 cd $CMSSW_BASE/src
 git clone git@github.com:susy2015/SusyAnaTools.git
 cd SusyAnaTools/Tools/
+git checkout NanoAOD
 autoconf
 ./configure
 make -j 8 
@@ -113,11 +114,17 @@ Command if `TopTagger/TopTagger/scripts` is in your PATH:
 getTaggerCfg.sh -t DeepCombined_fromNanoAOD_RES_T_DeepAK8_T_v1.0.1
 ```
 
+Please note that this script will download the desired configuration information in a seperate folder and softlink the necessary files into your corrent directory.
+If you do not want this directory in your working directory you may add the "-d PATH_TO_DOWNLOAD_TO" option to specify where it should download these files.
+This is particularly useful if you have several working directories as the script will then only check out each working point once and place softlinks as needed.
+The model files are rather large so this may save some space if you have many downloaded.
+However, "-d" can be omitted and the files will be downloaded in your working directory.
+
 ### StopCfg Files
 
 Checkout the stop search configuration files using the following tag.
 
-Current tag for NanoSUSY ntuples: PostProcess_StopNtuple_v1.0.3
+Current tag for NanoSUSY ntuples: PostProcessed_StopTuple_V2.9.0PostProcessed_StopTuple_V2.9.0
 
 You may see all StopCfg releases/tags with release notes at https://github.com/susy2015/StopCfg/releases. 
 
@@ -125,17 +132,22 @@ Run this command from your working area, i.e. the directory where softlinks to t
 
 Command using full path:
 ```
-$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t PostProcess_StopTuple_V1.2.1
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t PostProcessed_StopTuple_V2.9.0
 ```
 
 Command if `SusyAnaTools/Tools/scripts` is in your PATH:
 ```
-getStopCfg.sh -t PostProcess_StopTuple_V1.2.1
+getStopCfg.sh -t PostProcessed_StopTuple_V2.9.0
 ```
+
+Please note that this script will download the desired configuration information in a seperate folder and softlink the necessary files into your corrent directory.
+If you do not want this directory in your working directory you may add the "-d PATH_TO_DOWNLOAD_TO" option to specify where it should download these files.
+This is particularly useful if you have several working directories as the script will then only check out each working point once and place softlinks as needed.
+However, "-d" can be omitted and the files will be downloaded in your working directory.
 
 ## Setup Environment
 
-Go to your working area and then setup the TopTagger environment. This will need to be run after running `cmsenv` in every new terminal session. Use the command for your shell (bash or tcsh). Type "echo $SHELL" to check your shell if you don't know it.
+Go to your working area and then setup the TopTagger environment. This will need to be run after running `cmsenv` in every new terminal session. Use the command for your shell (bash or tcsh). Use `echo $SHELL` to check your shell if you don't know it.
 
 Go to working area (replace myWorkingArea with your working area path):
 ```
@@ -152,12 +164,6 @@ For tcsh users:
 source $CMSSW_BASE/src/TopTagger/TopTagger/test/taggerSetup.csh
 ```
 
-Please note that this script will download the desired tagger configuration information in a seperate folder and softlink the necessary files into your corrent directory.
-If you have multiple configuration files you work with in the same working directory use the "-f name" option to specify the name of the softlink to the tagger file (the default is TopTagger.cfg).
-If you do not want this directory in your working directory you may add the "-d PATH_TO_DOWNLOAD_TO" option to specify where it should download these files.
-This is particularly useful if you have several working directories as the script will then only check out each working point once and place softlinks as needed (the model files are rather large so this may save some space if you have many downloaded).
-However, "-d" can be omitted and the files will be downloaded in your working directory.
-Other configuration file releases can be found here https://github.com/susy2015/TopTaggerCfg/releases
 
 ## Check out stop config files
 
