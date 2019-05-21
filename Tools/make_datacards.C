@@ -4,11 +4,11 @@ int make_datacards()
 	gROOT->ForceStyle();
 
 	double lumi = 36;
-	lumi = 137;
+	//lumi = 137;
 	TString year = "_2016";
 	//year = "_2017";
 
-	bool compare_TF = true;
+	bool compare_TF = false;
 	bool round_data = false;
 
 	bool make_QCD_datacard = true;
@@ -22,8 +22,8 @@ int make_datacards()
 	bool team_A = false;
 	bool team_A_high_dm_MT2 = false;
 	bool team_A_high_dm_merge = false;
-	bool SBv2 = false;
-	bool SBv2_highdm = true;
+	bool SBv2 = true;
+	bool SBv2_highdm = false;
 	bool SBv2_lowdm = false;
 	bool SBv2_lowdm_more_MET = false;
 	bool SBv2_lowdm_high_ISRpt = false;
@@ -961,11 +961,14 @@ int make_datacards()
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 
 			pro = (TH1F*)h1->Clone("LL_SR");
-			pro_loose_bin = (TH1F*)h1_loose_bin->Clone("LL_SR_loose_bin");
 			pro_singleMuCR = (TH1F*)h1_singleMuCR->Clone("LL_singleMuCR");
-			pro_singleMuCR_loose_bin = (TH1F*)h1_singleMuCR_loose_bin->Clone("LL_singleMuCR_loose_bin");
 			pro_singleElCR = (TH1F*)h1_singleElCR->Clone("LL_singleElCR");
-			pro_singleElCR_loose_bin = (TH1F*)h1_singleElCR_loose_bin->Clone("LL_singleElCR_loose_bin");
+			if(compare_TF)
+			{
+				pro_loose_bin = (TH1F*)h1_loose_bin->Clone("LL_SR_loose_bin");
+				pro_singleMuCR_loose_bin = (TH1F*)h1_singleMuCR_loose_bin->Clone("LL_singleMuCR_loose_bin");
+				pro_singleElCR_loose_bin = (TH1F*)h1_singleElCR_loose_bin->Clone("LL_singleElCR_loose_bin");
+			}
 		}
 
 		if (false)
@@ -1005,11 +1008,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1049,11 +1055,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1093,11 +1102,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1137,11 +1149,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1181,11 +1196,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1225,11 +1243,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1269,11 +1290,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 
@@ -1330,11 +1354,14 @@ int make_datacards()
 			std::cout << "scaled el bin 1 error " << h1_singleElCR->GetBinError(1) << std::endl;
 			std::cout << "scaled el bin 2 error " << h1_singleElCR->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1374,11 +1401,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1418,11 +1448,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1462,11 +1495,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1506,11 +1542,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1550,11 +1589,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1594,11 +1636,14 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if (true)
@@ -1638,21 +1683,27 @@ int make_datacards()
 			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 			pro->Add(h1);
-			pro_loose_bin->Add(h1_loose_bin);
 			pro_singleMuCR->Add(h1_singleMuCR);
-			pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
 			pro_singleElCR->Add(h1_singleElCR);
-			pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
 		}
 
 		if(!compare_TF)pro->Scale(ll_sf);
 		hs->Add(pro);
 		pro->SetBinErrorOption(TH1::kPoisson);
-		pro_loose_bin->SetBinErrorOption(TH1::kPoisson);
 		pro_singleMuCR->SetBinErrorOption(TH1::kPoisson);
-		pro_singleMuCR_loose_bin->SetBinErrorOption(TH1::kPoisson);
 		pro_singleElCR->SetBinErrorOption(TH1::kPoisson);
-		pro_singleElCR_loose_bin->SetBinErrorOption(TH1::kPoisson);
+		if(compare_TF)
+		{
+			pro_loose_bin->SetBinErrorOption(TH1::kPoisson);
+			pro_singleMuCR_loose_bin->SetBinErrorOption(TH1::kPoisson);
+			pro_singleElCR_loose_bin->SetBinErrorOption(TH1::kPoisson);
+		}
 
 		//========= Direct TF ===========
 		TH1F * pro_combCR = (TH1F*)pro_singleMuCR->Clone("pro_combCR");
@@ -1670,27 +1721,40 @@ int make_datacards()
 		Pred_direct_singleEl->Multiply(pro_singleElCR);
 
 		//========= TF CR to SR, loose bin ==============
-		TH1F * TF_singleMuCR_loose_bin = (TH1F*)pro_loose_bin->Clone("TF_singleMuCR_loose_bin");
-		TF_singleMuCR_loose_bin->Divide(pro_singleMuCR_loose_bin);
-		TH1F * TF_singleElCR_loose_bin = (TH1F*)pro_loose_bin->Clone("TF_singleElCR_loose_bin");
-		TF_singleElCR_loose_bin->Divide(pro_singleElCR_loose_bin);
-
-		//========= TF SR extrapolation ==============
-		TH1F * TF_SR_extrap = (TH1F*)pro->Clone("TF_SR_extrap");
-		TF_SR_extrap->Divide(pro_loose_bin);
-
-		//========= TF (CRtoSR) * (SR extrap)==============
-		TH1F * TF_singleMu = (TH1F*)TF_singleMuCR_loose_bin->Clone("TF_singleMu");
-		TF_singleMu->Multiply(TF_SR_extrap);
-		TH1F * TF_singleEl = (TH1F*)TF_singleElCR_loose_bin->Clone("TF_singleEl");
-		TF_singleEl->Multiply(TF_SR_extrap);
-		TH1F * Pred_extrap_singleMu = (TH1F*)TF_singleMu->Clone("Pred_extrap_singleMu");
-		Pred_extrap_singleMu->Multiply(pro_singleMuCR_loose_bin);
-		TH1F * Pred_extrap_singleEl = (TH1F*)TF_singleEl->Clone("Pred_extrap_singleEl");
-		Pred_extrap_singleEl->Multiply(pro_singleElCR_loose_bin);
-
+		TH1F * TF_singleMuCR_loose_bin = NULL;
+		TH1F * TF_singleElCR_loose_bin = NULL;
 		if(compare_TF)
 		{
+			TF_singleMuCR_loose_bin = (TH1F*)pro_loose_bin->Clone("TF_singleMuCR_loose_bin");
+			TF_singleMuCR_loose_bin->Divide(pro_singleMuCR_loose_bin);
+			TF_singleElCR_loose_bin = (TH1F*)pro_loose_bin->Clone("TF_singleElCR_loose_bin");
+			TF_singleElCR_loose_bin->Divide(pro_singleElCR_loose_bin);
+		}
+
+		//========= TF SR extrapolation ==============
+		TH1F * TF_SR_extrap = NULL;
+		if(compare_TF)
+		{
+			TF_SR_extrap = (TH1F*)pro->Clone("TF_SR_extrap");
+			TF_SR_extrap->Divide(pro_loose_bin);
+		}
+
+		//========= TF (CRtoSR) * (SR extrap)==============
+		TH1F * TF_singleMu = NULL;
+		TH1F * TF_singleEl = NULL;
+		TH1F * Pred_extrap_singleMu = NULL;
+		TH1F * Pred_extrap_singleEl = NULL;
+		if(compare_TF)
+		{
+			TF_singleMu = (TH1F*)TF_singleMuCR_loose_bin->Clone("TF_singleMu");
+			TF_singleMu->Multiply(TF_SR_extrap);
+			TF_singleEl = (TH1F*)TF_singleElCR_loose_bin->Clone("TF_singleEl");
+			TF_singleEl->Multiply(TF_SR_extrap);
+			Pred_extrap_singleMu = (TH1F*)TF_singleMu->Clone("Pred_extrap_singleMu");
+			Pred_extrap_singleMu->Multiply(pro_singleMuCR_loose_bin);
+			Pred_extrap_singleEl = (TH1F*)TF_singleEl->Clone("Pred_extrap_singleEl");
+			Pred_extrap_singleEl->Multiply(pro_singleElCR_loose_bin);
+
 			TFile out_file("TF_compare.root","RECREATE");
 			TF_singleMuCR->Write();
 			TF_singleElCR->Write();

@@ -49,6 +49,7 @@ LIBS += -L$(TAGGERDIR)/TopTagger/test -lTopTagger
 INCLUDESDIRS += $(shell root-config --cflags)
 # ROOT libraries
 LIBS         += $(shell root-config --glibs)
+LIBS_base  = $(shell root-config --glibs)
 
 # TMVA library
 ifdef TMVALIB

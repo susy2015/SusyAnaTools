@@ -15,21 +15,25 @@ from collections import defaultdict
 DelExe    = '../tupleRead'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
-ProjectName = 'PostProcessed_test'
+ProjectName = 'PostProcessed_v2p7'
 argument = "%s.$(Process).list %s_$(Process).root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
-defaultLperFile = 10
+defaultLperFile = 5
+run_everything = False
+if run_everything: defaultLperFile = 100
 
 year = "_2016"
+#year = "_2017"
 
 process_dict = {
-	"test" : ["SMS_T2tt_mStop850_mLSP100_fullsim"],
+#	"test" : ["TTZToLLNuNu"]
+#	"Signal" : ["SMS_T2tt_mStop850_mLSP100_fullsim", "SMS_T1tttt_mGluino2000_mLSP100_fullsim"],
 	"TTbar" : ["TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"],
 	"WJets" : ["WJetsToLNu_HT_70to100", "WJetsToLNu_HT_100to200", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_2500toInf"],
 	"Zinv" : ["ZJetsToNuNu_HT_100to200", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_600to800", "ZJetsToNuNu_HT_800to1200", "ZJetsToNuNu_HT_1200to2500", "ZJetsToNuNu_HT_2500toInf"],
-	"QCD" : ["QCD_HT200to300", "QCD_HT300to500", "QCD_HT500to700", "QCD_HT700to1000", "QCD_HT1000to1500", "QCD_HT1500to2000", "QCD_HT2000toInf"],
-	"TopAss" : ["ST_tW_top_incl", "ST_tW_antitop_incl", "ST_s", "ST_t_top", "ST_t_antitop", "TTZToLLNuNu", "TTZToQQ"],
-	"Rare" : ["ZZTo2Q2Nu", "ZZTo2L2Nu", "WZ", "WWTo2L2Nu", "WWToLNuQQ"]
+	"QCD" : ["QCD_HT_200to300", "QCD_HT_300to500", "QCD_HT_500to700", "QCD_HT_700to1000", "QCD_HT_1000to1500", "QCD_HT_1500to2000", "QCD_HT_2000toInf"],
+	"TopAss" : ["ST_tW_top_incl", "ST_tW_antitop_incl", "ST_s_lep", "ST_t_top", "ST_t_antitop", "TTZToLLNuNu", "TTZToQQ"],
+	"Rare" : ["ZZTo2Q2Nu", "ZZTo2L2Nu", "WZ", "WWTo2L2Nu", "WWToLNuQQ"],
 	}
 
 process_list = []
@@ -54,7 +58,7 @@ def tar_cmssw():
         if tarinfo.size > 100*1024*1024:
             tarinfo = None
             return tarinfo
-        exclude_patterns = ['/.git/', '/tmp/', '/jobs.*/', '/logs/', '/.SCRAM/', '.pyc']
+        exclude_patterns = ['/.git/', '/tmp/', '/jobs.*/', '/logs/', '/.SCRAM/', '.pyc', '/datacards/', '/results.*/', '/plots.*/']
         for pattern in exclude_patterns:
             if re.search(pattern, tarinfo.name):
                 # print('ignoring %s in the tarball', tarinfo.name)
@@ -146,7 +150,7 @@ def my_process(args):
     if args.config != "":
         Process = ConfigList(os.path.abspath(args.config))
     for key, value in Process.items():
-	if key not in process_list:
+	if (not run_everything) and (key not in process_list):
 	    del Process[key]
 	    continue
         if value[0] == "":

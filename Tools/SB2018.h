@@ -33,9 +33,9 @@ int SBv2_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_su
 	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 550 && met < 650) return 29;
 	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 650 && met < 750) return 30;
 	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 750) return 31;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 300 && met < 400) return 32;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 400 && met < 500) return 33;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 500) return 34;
+	if (nb == 1 && nSV >= 1 && ISRpt > 300 && bottompt_scalar_sum < 40 && met > 300 && met < 400) return 32;
+	if (nb == 1 && nSV >= 1 && ISRpt > 300 && bottompt_scalar_sum < 40 && met > 400 && met < 500) return 33;
+	if (nb == 1 && nSV >= 1 && ISRpt > 300 && bottompt_scalar_sum < 40 && met > 500) return 34;
 	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 80 && met > 300 && met < 400) return 35;
 	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 80 && met > 400 && met < 500) return 36;
 	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 80 && met > 500) return 37;
@@ -415,10 +415,10 @@ int SBv2_lowdm_more_MET(int njets, int nb, int nSV, float ISRpt, float bottompt_
 	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 650 && met < 750) return 37;
 	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 750 && met < 850) return 38;
 	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 850) return 39;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 300 && met < 400) return 40;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 400 && met < 500) return 41;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 500 && met < 600) return 42;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 600) return 43;
+	if (nb == 1 && nSV >= 1 && ISRpt > 300 && bottompt_scalar_sum < 40 && met > 300 && met < 400) return 40;
+	if (nb == 1 && nSV >= 1 && ISRpt > 300 && bottompt_scalar_sum < 40 && met > 400 && met < 500) return 41;
+	if (nb == 1 && nSV >= 1 && ISRpt > 300 && bottompt_scalar_sum < 40 && met > 500 && met < 600) return 42;
+	if (nb == 1 && nSV >= 1 && ISRpt > 300 && bottompt_scalar_sum < 40 && met > 600) return 43;
 	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 80 && met > 300 && met < 400) return 44;
 	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 80 && met > 400 && met < 500) return 45;
 	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 80 && met > 500 && met < 600) return 46;
@@ -481,9 +481,9 @@ int SBv2_lowdm_high_ISRpt(int njets, int nb, int nSV, float ISRpt, float bottomp
 	if (nb == 1 && nSV == 0 && ISRpt > 600 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 550 && met < 650) return 29;
 	if (nb == 1 && nSV == 0 && ISRpt > 600 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 650 && met < 750) return 30;
 	if (nb == 1 && nSV == 0 && ISRpt > 600 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 750) return 31;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 300 && met < 400) return 32;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 400 && met < 500) return 33;
-	if (nb == 1 && nSV >= 1 && bottompt_scalar_sum < 40 && met > 500) return 34;
+	if (nb == 1 && nSV >= 1 && ISRpt > 400 && bottompt_scalar_sum < 40 && met > 300 && met < 400) return 32;
+	if (nb == 1 && nSV >= 1 && ISRpt > 400 && bottompt_scalar_sum < 40 && met > 400 && met < 500) return 33;
+	if (nb == 1 && nSV >= 1 && ISRpt > 400 && bottompt_scalar_sum < 40 && met > 500) return 34;
 	if (nb >= 2 && ISRpt > 400 && ISRpt < 600 && bottompt_scalar_sum < 80 && met > 300 && met < 400) return 35;
 	if (nb >= 2 && ISRpt > 400 && ISRpt < 600 && bottompt_scalar_sum < 80 && met > 400 && met < 500) return 36;
 	if (nb >= 2 && ISRpt > 400 && ISRpt < 600 && bottompt_scalar_sum < 80 && met > 500) return 37;
@@ -502,6 +502,94 @@ int SBv2_lowdm_high_ISRpt(int njets, int nb, int nSV, float ISRpt, float bottomp
 	if (nb >= 2 && ISRpt > 600 && bottompt_scalar_sum > 140 && njets >= 7 && met > 450 && met < 550) return 50;
 	if (nb >= 2 && ISRpt > 600 && bottompt_scalar_sum > 140 && njets >= 7 && met > 550 && met < 650) return 51;
 	if (nb >= 2 && ISRpt > 600 && bottompt_scalar_sum > 140 && njets >= 7 && met > 650) return 52;
+	return -1;
+}
+
+//================================SBv2 low dm validation, mid dPhi=================================================
+int SBv2_lowdm_validation_mid_dPhi(int njets, int nb, int nSV, float ISRpt, float met)
+{
+	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets <= 5 && met > 250 && met < 400) return 0;
+	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets <= 5 && met > 400) return 1;
+	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets >= 6 && met > 250 && met < 400) return 2;
+	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets >= 6 && met > 400) return 3;
+	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets <= 5 && met > 250 && met < 400) return 4;
+	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets <= 5 && met > 400) return 5;
+	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets >= 6 && met > 250) return 6;
+	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && met > 250 && met < 350) return 7;
+	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && met > 350) return 8;
+	if (nb == 1 && nSV == 0 && ISRpt > 500 && met > 250 && met < 400) return 9;
+	if (nb == 1 && nSV == 0 && ISRpt > 500 && met > 400) return 10;
+	if (nb == 1 && nSV >= 1 && ISRpt > 300 && met > 250 && met < 350) return 11;
+	if (nb == 1 && nSV >= 1 && ISRpt > 300 && met > 350) return 12;
+	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && njets <= 5 && met > 250 && met < 350) return 13;
+	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && njets <= 5 && met > 350) return 14;
+	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && njets >= 6 && met > 250 && met < 350) return 15;
+	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && njets >= 6 && met > 350) return 16;
+	if (nb >= 2 && ISRpt > 500 && njets <= 5 && met > 250 && met < 400) return 17;
+	if (nb >= 2 && ISRpt > 500 && njets <= 5 && met > 400) return 18;
+	if (nb >= 2 && ISRpt > 500 && njets >= 6 && met > 250 && met < 400) return 19;
+	if (nb >= 2 && ISRpt > 500 && njets >= 6 && met > 400) return 20;
+	return -1;
+}
+
+//================================SUS-16-049 (team_A) low dm validation=================================================
+int SBv2_lowdm_validation(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met)
+{
+	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets <= 5 && met > 250 && met < 400) return 0;
+	if (nb == 0 && nSV == 0 && ISRpt > 500 && njets >= 6 && met > 250 && met < 400) return 1;
+	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets <= 5 && met > 250 && met < 400) return 2;
+	if (nb == 0 && nSV >= 1 && ISRpt > 500 && njets >= 6 && met > 250 && met < 400) return 3;
+	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 40 && met > 250 && met < 300) return 4;
+	if (nb == 1 && nSV == 0 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 250 && met < 300) return 5;
+	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum < 40 && met > 250 && met < 400) return 6;
+	if (nb == 1 && nSV == 0 && ISRpt > 500 && bottompt_scalar_sum > 40 && bottompt_scalar_sum < 70 && met > 250 && met < 400) return 7;
+	if (nb == 1 && nSV >= 1 && ISRpt > 300 && bottompt_scalar_sum < 40 && met > 250 && met < 300) return 8;
+	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum < 80 && met > 250 && met < 300) return 9;
+	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 80 && bottompt_scalar_sum < 140 && met > 250 && met < 300) return 10;
+	if (nb >= 2 && ISRpt > 300 && ISRpt < 500 && bottompt_scalar_sum > 140 && njets >= 7 && met > 250 && met < 300) return 11;
+	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum < 80 && met > 250 && met < 400) return 12;
+	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum > 80 && bottompt_scalar_sum < 140 && met > 250 && met < 400) return 13;
+	if (nb >= 2 && ISRpt > 500 && bottompt_scalar_sum > 140 && njets >= 7 && met > 250 && met < 400) return 14;
+	return -1;
+}
+
+//================================low dm validation high MET=================================================
+int SBv2_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met)
+{
+	if (nb == 0 && nSV == 0 && ISRpt > 500 && met > 400) return 15;
+	if (nb == 0 && nSV >= 1 && ISRpt > 500 && met > 400) return 16;
+	if (nb >= 1 && nSV == 0 && ISRpt > 300 && met > 300) return 17;
+	if (nb >= 1 && nSV >= 1 && ISRpt > 300 && met > 300) return 18;
+	return -1;
+}
+
+//================================SBv2 high dm validation=================================================
+int SBv2_highdm_validation(float mtb, int njets, int ntop, int nw, int nres, int nb, float met)
+{
+	if (nb ==1 && mtb < 175 && njets >=7 && nres >=1 && met > 250 && met < 400) return 22;
+	if (nb ==1 && mtb < 175 && njets >=7 && nres >=1 && met > 400) return 23;
+	if (nb >=2 && mtb < 175 && njets >=7 && nres >=1 && met > 250 && met < 400) return 24;
+	if (nb >=2 && mtb < 175 && njets >=7 && nres >=1 && met > 400) return 25;
+	if (nb ==1 && mtb > 175 && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 250 && met < 400) return 26;
+	if (nb ==1 && mtb > 175 && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 400) return 27;
+	if (nb >=2 && mtb > 175 && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 250 && met < 400) return 28;
+	if (nb >=2 && mtb > 175 && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met > 400) return 29;
+	if (nb ==1 && mtb > 175 && ntop ==1 && nres ==0 && nw ==0 && met > 250 && met < 400) return 30;
+	if (nb ==1 && mtb > 175 && ntop ==1 && nres ==0 && nw ==0 && met > 400) return 31;
+	if (nb ==1 && mtb > 175 && ntop ==0 && nres ==0 && nw ==1 && met > 250 && met < 400) return 32;
+	if (nb ==1 && mtb > 175 && ntop ==0 && nres ==0 && nw ==1 && met > 400) return 33;
+	if (nb ==1 && mtb > 175 && ntop ==0 && nres ==1 && nw ==0 && met > 250 && met < 400) return 34;
+	if (nb ==1 && mtb > 175 && ntop ==0 && nres ==1 && nw ==0 && met > 400) return 35;
+	if (nb ==1 && mtb > 175 && ntop + nres + nw >=2 && met > 250 && met < 400) return 36;
+	if (nb ==1 && mtb > 175 && ntop + nres + nw >=2 && met > 400) return 37;
+	if (nb >=2 && mtb > 175 && ntop ==1 && nres ==0 && nw ==0 && met > 250 && met < 400) return 38;
+	if (nb >=2 && mtb > 175 && ntop ==1 && nres ==0 && nw ==0 && met > 400) return 39;
+	if (nb >=2 && mtb > 175 && ntop ==0 && nres ==0 && nw ==1 && met > 250 && met < 400) return 40;
+	if (nb >=2 && mtb > 175 && ntop ==0 && nres ==0 && nw ==1 && met > 400) return 41;
+	if (nb >=2 && mtb > 175 && ntop ==0 && nres ==1 && nw ==0 && met > 250 && met < 400) return 42;
+	if (nb >=2 && mtb > 175 && ntop ==0 && nres ==1 && nw ==0 && met > 400) return 43;
+	if (nb >=2 && mtb > 175 && ntop + nres + nw >=2 && met > 250 && met < 400) return 44;
+	if (nb >=2 && mtb > 175 && ntop + nres + nw >=2 && met > 400) return 45;
 	return -1;
 }
 

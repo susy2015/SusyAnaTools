@@ -20,8 +20,8 @@ int Plot_1D_test()
 	TString full_or_fast = "_fullsim"; 
 	full_or_fast = "_fastsim"; 
 
-	//TString signal_name = "T2fbd_test";
-	TString signal_name = "T2tt_test";
+	TString signal_name = "T2fbd_test";
+	//TString signal_name = "T2tt_test";
 	//TString signal_name = "T2tt_and_T1tttt_high";
 	//TString signal_name = "T2tt_only";
 	//TString signal_name = "T2bt_and_T2bw";
@@ -34,6 +34,10 @@ int Plot_1D_test()
 	bool plot_SB_v2 = false;
 	bool plot_SB_team_A_highdm = false;
 	bool plot_SB_team_A_lowdm = false;
+	bool plot_SB_v2_highdm_validation = false;
+	bool plot_SB_v2_lowdm_validation = true;
+	bool plot_SB_v2_lowdm_validation_0p1 = false;
+	bool plot_SB_v2_lowdm_validation_0p15 = false;
 	bool plot_nbottompt20 = false;
 	bool plot_nbottompt20_lowdm = false;
 	bool plot_nbottompt30 = false;
@@ -42,13 +46,6 @@ int Plot_1D_test()
 	bool plot_ntop_w = false;
 	bool plot_ntop_res = false;
 	bool plot_nw = false;
-	bool plot_gen_w_pt = false;
-	bool plot_gen_b_pt = false;
-	bool plot_gen_w_b_mass = false;
-	bool plot_gen_w_b_delta_r = false;
-	bool plot_n_res_b_gen_match = false;
-	bool plot_n_res_w_gen_match = false;
-	bool plot_n_res_gen_match = false;
 	bool plot_njetspt20 = false;
 	bool plot_njetspt20_lowdm = false;
 	bool plot_njetspt30 = false;
@@ -59,7 +56,7 @@ int Plot_1D_test()
 	bool plot_MET_lowdm_mid_dPhi = false;
 	bool plot_MET_lowdm_ISR_veto = false;
 	bool plot_MET_highdm = false;
-	bool plot_MET_highdm_mid_dPhi = true;
+	bool plot_MET_highdm_mid_dPhi = false;
 	bool plot_MET_binning_study = false;
 	bool plot_ISR_pt_lowdm = false;
 	bool plot_bottom_pt_lowdm = false;
@@ -129,6 +126,50 @@ int Plot_1D_test()
 		xmax = 205;
 		ymax = 1000000;
 		sig_ymax = 2;
+	}
+
+	if (plot_SB_v2_highdm_validation)
+	{
+		title = "SB v2 highdm validation";
+		var = "search_bin_v2_highdm_validation_h";
+		folder = "";
+		rebin = 1;
+		xmax = 46;
+		ymax = 1000000000;
+		sig_ymax = 1;
+	}
+
+	if (plot_SB_v2_lowdm_validation)
+	{
+		title = "SB v2 lowdm validation";
+		var = "search_bin_v2_lowdm_validation_h";
+		folder = "";
+		rebin = 1;
+		xmax = 20;
+		ymax = 1000000000;
+		sig_ymax = 1;
+	}
+
+	if (plot_SB_v2_lowdm_validation_0p1)
+	{
+		title = "SB v2 lowdm validation, dPhi 0.1";
+		var = "search_bin_v2_lowdm_validation_0p1_h";
+		folder = "";
+		rebin = 1;
+		xmax = 22;
+		ymax = 8000;
+		sig_ymax = 1;
+	}
+
+	if (plot_SB_v2_lowdm_validation_0p15)
+	{
+		title = "SB v2 lowdm validation, dPhi 0.15";
+		var = "search_bin_v2_lowdm_validation_0p15_h";
+		folder = "";
+		rebin = 1;
+		xmax = 22;
+		ymax = 800;
+		sig_ymax = 1;
 	}
 
 	if (plot_SB_team_A_highdm)
@@ -246,76 +287,6 @@ int Plot_1D_test()
 		xmax = 8;
 		ymax = 1000000;
 		sig_ymax = 0.3;
-	}
-
-	if (plot_gen_w_pt)
-	{
-		title = "gen w pt when MTb > 175";
-		var = "gen_w_pt_175_h";
-		folder = "";
-		rebin = 8;
-		xmax = 400;
-		ymax = 0.4;
-	}
-
-	if (plot_gen_b_pt)
-	{
-		title = "gen b pt when MTb > 175";
-		var = "gen_b_pt_175_h";
-		folder = "";
-		rebin = 8;
-		xmax = 400;
-		ymax = 0.4;
-	}
-
-	if (plot_gen_w_b_mass)
-	{
-		title = "gen w and b mass when MTb > 175";
-		var = "gen_w_b_mass_175_h";
-		folder = "";
-		rebin = 1;
-		xmax = 400;
-		ymax = 0.7;
-	}
-
-	if (plot_gen_w_b_delta_r)
-	{
-		title = "gen w and b delta R when MTb > 175";
-		var = "gen_w_b_delta_r_175_h";
-		folder = "";
-		rebin = 8;
-		xmax = 400;
-		ymax = 0.6;
-	}
-
-	if (plot_n_res_gen_match)
-	{
-		title = "number of gen matched resolved jets when ntop = 1 and MTb > 175";
-		var = "n_res_gen_match_h";
-		folder = "";
-		rebin = 1;
-		xmax = 400;
-		ymax = 0.7;
-	}
-
-	if (plot_n_res_b_gen_match)
-	{
-		title = "number of gen matched b in resolved jets when ntop = 1 and MTb > 175";
-		var = "n_res_b_gen_match_h";
-		folder = "";
-		rebin = 1;
-		xmax = 400;
-		ymax = 0.9;
-	}
-
-	if (plot_n_res_w_gen_match)
-	{
-		title = "number of gen matched w in resolved jets when ntop = 1 and MTb > 175";
-		var = "n_res_w_gen_match_h";
-		folder = "";
-		rebin = 1;
-		xmax = 400;
-		ymax = 0.9;
 	}
 
 	if (plot_njetspt20)
@@ -583,7 +554,7 @@ int Plot_1D_test()
 		ymax = 0.2;
 	}
 
-	TCanvas* mycanvas = new TCanvas("mycanvas", "mycanvas", 700, 700);
+	TCanvas* mycanvas = new TCanvas("mycanvas", "mycanvas", 600, 600);
 	//TCanvas* mycanvas = new TCanvas();
 	gStyle->SetOptStat(kFALSE);
 
