@@ -7,7 +7,6 @@
 # - input file that is output of nEvts script with updated positive and negative weights
 # - output new samples config file with updated weights
 import argparse
-import optparse 
 import re
 from shutil import copyfile
 
