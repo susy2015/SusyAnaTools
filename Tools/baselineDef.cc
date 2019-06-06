@@ -2,7 +2,6 @@
 #include "SusyUtility.h"
 #include "TFile.h"
 #include "TF1.h"
-
 #include "lester_mt2_bisect.h"
 
 //**************************************************************************//
@@ -517,6 +516,10 @@ void BaselineVessel::PassBaseline()
                     && fabs(ISRJet.Phi() - metphi) > 2
                   );
   
+  // ----------------------- // 
+  // --- For Search Bins --- //
+  // ----------------------- // 
+  
   //SUS-16-049, low dm, mtb cut
   bool pass_mtb_lowdm = (nBottoms == 0 || (nBottoms > 0 && mtb < 175));  
 
@@ -533,6 +536,32 @@ void BaselineVessel::PassBaseline()
                                   && dPhiVec->at(2) > 0.5 
                                   && dPhiVec->at(3) > 0.5
                                 );
+  
+  // --------------------------- // 
+  // --- For Validation Bins --- //
+  // --------------------------- // 
+  // Low dm validation bins
+  // use normal low dm selection
+  
+  // Low dm high met validation bins
+  // use low dm selection but replace the dPhi cut in low dm by mid dPhi cut:
+  // !(min( dPhi[jet12(3),MET] ) < 0.15) && (!tr.getVar<bool>("Pass_dPhiMET"))
+  
+  // High dm validation bins
+  // Cut: replace the dPhi cut in high dm by mid dPhi cut:
+  // tr.getVar<bool>("Pass_dPhiMET") && (!tr.getVar<bool>("Pass_dPhiMETHighDM"))
+  
+  bool SAT_Pass_mid_dPhiMETLowDM = (
+                                        (nJets == 2 && (dPhiVec->at(0) < 0.15 || dPhiVec->at(1) < 0.15))
+                                     || (nJets  > 2 && (dPhiVec->at(0) < 0.15 || dPhiVec->at(1) < 0.15 || dPhiVec->at(2) < 0.15))
+                                   );
+  
+  SAT_Pass_mid_dPhiMETLowDM  = ! SAT_Pass_mid_dPhiMETLowDM && ! SAT_Pass_dPhiMETLowDM;
+  bool SAT_Pass_mid_dPhiMETHighDM = SAT_Pass_dPhiMETLowDM && ! SAT_Pass_dPhiMETHighDM;
+  
+  // ----------------------- // 
+  // --- For Search Bins --- //
+  // ----------------------- // 
   
   // standard baseline
   //SAT_Pass_Baseline = (
@@ -575,11 +604,46 @@ void BaselineVessel::PassBaseline()
   // ----------------------------------- // 
   // --- Apply Lepton Veto if needed --- //
   // ----------------------------------- // 
-  
   if (doLeptonVeto)
   {
       SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_LeptonVeto;
       SAT_Pass_highDM = SAT_Pass_highDM && Pass_LeptonVeto;
+  }
+  
+  // --------------------------- // 
+  // --- For Validation Bins --- //
+  // --------------------------- // 
+  // without dPhi
+  bool SAT_Pass_Baseline_no_dPhi = (
+                            SAT_Pass_MET 
+                         && SAT_Pass_HT
+                         && SAT_Pass_NJets20
+                      );
+  //baseline for SUS-16-049 low dm plus HT cut
+  bool SAT_Pass_lowDM_mid_dPhi = (
+                        SAT_Pass_Baseline_no_dPhi
+                     && SAT_Pass_mid_dPhiMETLowDM 
+                     && nMergedTops == 0
+                     && nWs == 0
+                     && pass_ISR
+                     && S_met > 10
+                     && pass_mtb_lowdm
+                   );      
+  
+  //baseline for SUS-16-049 high dm plus HT cut
+  bool SAT_Pass_highDM_mid_dPhi = (
+                         SAT_Pass_Baseline_no_dPhi
+                      && SAT_Pass_mid_dPhiMETHighDM 
+                      && nBottoms >= 1
+                      && nJets >= 5
+                    );      
+  // ----------------------------------- // 
+  // --- Apply Lepton Veto if needed --- //
+  // ----------------------------------- // 
+  if (doLeptonVeto)
+  {
+      SAT_Pass_lowDM_mid_dPhi  = SAT_Pass_lowDM_mid_dPhi  && Pass_LeptonVeto;
+      SAT_Pass_highDM_mid_dPhi = SAT_Pass_highDM_mid_dPhi && Pass_LeptonVeto;
   }
 
   // compare original variables to those with cleaned jets
@@ -619,8 +683,10 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("SAT_Pass_HT" + firstSpec, SAT_Pass_HT);
   tr->registerDerivedVar("SAT_Pass_NJets20" + firstSpec, SAT_Pass_NJets20);
   tr->registerDerivedVar("SAT_Pass_Baseline"  + firstSpec, SAT_Pass_Baseline);
-  tr->registerDerivedVar("SAT_Pass_dPhiMETLowDM" + firstSpec, SAT_Pass_dPhiMETLowDM);
+  tr->registerDerivedVar("SAT_Pass_dPhiMETLowDM" + firstSpec,  SAT_Pass_dPhiMETLowDM);
   tr->registerDerivedVar("SAT_Pass_dPhiMETHighDM" + firstSpec, SAT_Pass_dPhiMETHighDM);
+  tr->registerDerivedVar("SAT_Pass_mid_dPhiMETLowDM" + firstSpec,  SAT_Pass_mid_dPhiMETLowDM);
+  tr->registerDerivedVar("SAT_Pass_mid_dPhiMETHighDM" + firstSpec, SAT_Pass_mid_dPhiMETHighDM);
   tr->registerDerivedVar("SAT_Pass_lowDM"  + firstSpec, SAT_Pass_lowDM);
   tr->registerDerivedVar("SAT_Pass_highDM" + firstSpec, SAT_Pass_highDM);
 } 

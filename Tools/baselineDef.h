@@ -4,9 +4,7 @@
 #include "NTupleReader.h"
 #include "customize.h"
 #include "EventListFilter.h"
-
 #include "Math/VectorUtil.h"
-
 #include <memory>
 #include <iostream>
 
