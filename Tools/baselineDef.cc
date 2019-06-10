@@ -510,10 +510,9 @@ void BaselineVessel::PassBaseline()
   if (ISRJetIdx >= 0 && ISRJetIdx < FatJets.size()) ISRJet = FatJets[ISRJetIdx];
   
   //SUS-16-049, low dm, ISR cut
+  // see GetISRJetIdx() and CalcISRJetVars() for details
   bool pass_ISR = (
                        ISRJetPt > 200
-                    && fabs(ISRJet.Eta()) < 2.4
-                    && fabs(ISRJet.Phi() - metphi) > 2
                   );
   
   // ----------------------- // 
@@ -1713,11 +1712,8 @@ int BaselineVessel::GetISRJetIdx()
   const auto& nMergedTops        = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
   const auto& nResolvedTops      = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
   const auto& nWs                = tr->getVar<int>(UseCleanedJetsVar("nWs"));
-  float ISRJetPt = 0.0;
-  int ISRJetIdx  = -1;
   int nFatJets = fat_jets.size();
   int nSubJets = SubJet_btagDeepB.size();
-  //for (int i = 0; i < fat_jets.size(); ++i)
   int i = 0; // only use leading fat jet (ordered by pt, index 0)
   if (verbose) printf("FatJet %d: p_t = %f, eta = %f, phi = %f, mass = %f, btag_disc = %f\n", i, fat_jets[i].Pt(), fat_jets[i].Eta(), fat_jets[i].Phi(), fat_jets[i].M(), FatJet_btagDeepB[i]);
   // require that there are no merged or resolved tops and no Ws
@@ -1763,7 +1759,6 @@ int BaselineVessel::GetISRJetIdx()
     if (verbose) printf("FAIL subjet 2 btag requirement\n"); 
     return -1; 
   }  
-  
   // require dPhi(fat_jet, met) > 2
   float dPhi = fabs(TVector2::Phi_mpi_pi(fat_jets[i].Phi() - metphi));
   if (dPhi < 2.0)
@@ -1771,10 +1766,8 @@ int BaselineVessel::GetISRJetIdx()
     if (verbose) printf("FAIL dPhi requirement: fat_jet_phi = %f, metphi = %f, dPhi = %f\n", fat_jets[i].Phi(), metphi, dPhi);
     return -1;
   }
-  
-  ISRJetPt = fat_jets[i].Pt();
-  ISRJetIdx = i;
-  //break;
+  // return index 
+  return i;
 }
 
 bool BaselineVessel::CalcISRJetVars()
@@ -1787,4 +1780,3 @@ bool BaselineVessel::CalcISRJetVars()
   tr->registerDerivedVar("ISRJetPt"+firstSpec,  ISRJetPt);
   tr->registerDerivedVar("ISRJetIdx"+firstSpec, ISRJetIdx);
 }
-
