@@ -460,11 +460,11 @@ void BaselineVessel::PassBaseline()
   int nFatJets = 0;
   for (const auto& Jet : Jets)
   {
-      if (Jet.Pt() > 20 && abs(Jet.Eta()) < 2.4) ++nJets;
+      if (Jet.Pt() > 20 && fabs(Jet.Eta()) < 2.4) ++nJets;
   }
   for (const auto& FatJet : FatJets)
   {
-      if (FatJet.Pt() > 200 && abs(FatJet.Eta()) < 2.4) ++nFatJets;
+      if (FatJet.Pt() > 200 && fabs(FatJet.Eta()) < 2.4) ++nFatJets;
   }
 
   //---------------------------------------//
@@ -477,6 +477,7 @@ void BaselineVessel::PassBaseline()
   
   // variables for SAT_Pass_lowDM and SAT_Pass_highDM
   
+  const auto& event             = tr->getVar<unsigned long long>("event");
   const auto& nMergedTops       = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
   const auto& nResolvedTops     = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
   const auto& nWs               = tr->getVar<int>(UseCleanedJetsVar("nWs"));
@@ -524,12 +525,12 @@ void BaselineVessel::PassBaseline()
 
   //SUS-16-049, low dm, dphi(met, j1) > 0.5, dphi(met, j23) > 0.15
   bool SAT_Pass_dPhiMETLowDM = ( 
-                                    (nJets == 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15)
-                                 || (nJets  > 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15 && dPhiVec->at(2) > 0.15)
+                                    (dPhiVec->size() == 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15)
+                                 || (dPhiVec->size()  > 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15 && dPhiVec->at(2) > 0.15)
                                );
   //SUS-16-049, high dm, dphi(met, jet1234) > 0.5
   bool SAT_Pass_dPhiMETHighDM = (
-                                     nJets >= 4 
+                                     dPhiVec->size() >= 4 
                                   && dPhiVec->at(0) > 0.5 
                                   && dPhiVec->at(1) > 0.5 
                                   && dPhiVec->at(2) > 0.5 
@@ -551,8 +552,8 @@ void BaselineVessel::PassBaseline()
   // tr.getVar<bool>("Pass_dPhiMET") && (!tr.getVar<bool>("Pass_dPhiMETHighDM"))
   
   bool SAT_Pass_mid_dPhiMETLowDM = (
-                                        (nJets == 2 && (dPhiVec->at(0) < 0.15 || dPhiVec->at(1) < 0.15))
-                                     || (nJets  > 2 && (dPhiVec->at(0) < 0.15 || dPhiVec->at(1) < 0.15 || dPhiVec->at(2) < 0.15))
+                                        (dPhiVec->size() == 2 && (dPhiVec->at(0) < 0.15 || dPhiVec->at(1) < 0.15))
+                                     || (dPhiVec->size()  > 2 && (dPhiVec->at(0) < 0.15 || dPhiVec->at(1) < 0.15 || dPhiVec->at(2) < 0.15))
                                    );
   
   SAT_Pass_mid_dPhiMETLowDM  = ! SAT_Pass_mid_dPhiMETLowDM && ! SAT_Pass_dPhiMETLowDM;
@@ -643,6 +644,42 @@ void BaselineVessel::PassBaseline()
   {
       SAT_Pass_lowDM_mid_dPhi  = SAT_Pass_lowDM_mid_dPhi  && Pass_LeptonVeto;
       SAT_Pass_highDM_mid_dPhi = SAT_Pass_highDM_mid_dPhi && Pass_LeptonVeto;
+  }
+  
+  if (SAT_Pass_lowDM_mid_dPhi)
+  {
+      printf("event: %d; %d passes SAT_Pass_lowDM_mid_dPhi\n", event, tr->getEvtNum());
+  }
+
+  // event 7217 passes Hui's selection but Caleb's
+  // Caleb uses |eta| < 4.7 for dPhi calculation 
+  // Hui   uses |eta| < 2.4 for dPhi calculation 
+  //if (tr->getEvtNum() == 7217)
+  if (true)
+  {
+    printf("event: %d; %d\n", event, tr->getEvtNum());
+    // dPhi
+    printf("dPhi_0: %f ",           dPhiVec->at(0));
+    printf("dPhi_1: %f ",           dPhiVec->at(1));
+    printf("dPhi_2: %f ",           dPhiVec->at(2));
+    printf("met = %f ",             met);
+    printf("metphi = %f ",          metphi);
+    printf("HT = %f ",              HT);
+    printf("mtb = %f ",             mtb);
+    printf("ptb = %f ",             ptb);
+    printf("ISRJetPt = %f ",        ISRJetPt);
+    printf("S_met = %f ",           S_met);
+    printf("nJets = %d ",           nJets);
+    printf("nMergedTops = %d ",     nMergedTops);
+    printf("nBottoms = %d ",        nBottoms);
+    printf("nWs = %d ",             nWs);
+    printf("\n");
+    int i = 0;
+    for (const auto& Jet : Jets)
+    {
+      printf("Jet %d: pt=%f, eta=%f, phi=%f, mass=%f\n", i, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
+      ++i;
+    }
   }
 
   // compare original variables to those with cleaned jets
@@ -1644,27 +1681,37 @@ bool BaselineVessel::CalcBottomVars()
   int nBottoms = 0;
   int i = 0;
   
-  // using vector of pairs
+  std::vector<std::pair<float, unsigned>> sorted_jets;
   std::vector<std::pair<float, unsigned>> disc_vec;
-  
   i = 0;
   for (const auto& jet : jets)
   {
+    sorted_jets.push_back({jet.Pt(), i});
+    ++i;
+  }
+  
+  // sort jets by pt (since JEC change jet pt)
+  std::sort(sorted_jets.begin(), sorted_jets.end(), SusyUtility::greaterThan<float, unsigned>);
+  
+  for (const auto& p : sorted_jets)
+  {
+    // jet index sorted by pt
+    i = p.second; 
     // check if it pass b requirement
     if (Jet_btagStop0l[i])
     {
-      if (verbose) printf("event %d, jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", event, i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jet.Pt());
+      if (verbose) printf("event %d, jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", event, i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jets[i].Pt());
       ++nBottoms;
-      // only use first two b-jets (ordered by p_t) for mtb
+      // only use first two b-jets (ordered by p_t) for ptb
       if (nBottoms < 3)
       {
-        ptb += jet.Pt();
+        ptb += jets[i].Pt();
       }
       disc_vec.push_back({Jet_btagDisc[i], i});
     }
-    ++i;
   }
-  // sort
+
+  // sort by btag discriminator
   std::sort(disc_vec.begin(), disc_vec.end(), SusyUtility::greaterThan<float, unsigned>);
   
   // calculate mtb
@@ -1735,7 +1782,7 @@ int BaselineVessel::GetISRJetIdx()
     return -1;
   }
   // |eta| < 2.4
-  if (abs(fat_jets[i].Eta()) > 2.4)
+  if (fabs(fat_jets[i].Eta()) > 2.4)
   {
     if (verbose) printf("FAIL fat jet eta requirement\n");
     return -1;
