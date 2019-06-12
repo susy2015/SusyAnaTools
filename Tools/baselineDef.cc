@@ -646,16 +646,23 @@ void BaselineVessel::PassBaseline()
       SAT_Pass_highDM_mid_dPhi = SAT_Pass_highDM_mid_dPhi && Pass_LeptonVeto;
   }
   
-  if (SAT_Pass_lowDM_mid_dPhi)
-  {
-      printf("event: %d; %d passes SAT_Pass_lowDM_mid_dPhi\n", event, tr->getEvtNum());
-  }
+  // ------------------------------ //
+  // --- print info for testing --- //
+  // ------------------------------ //
+  
+  //std::string mySpec = "_normal";
+  //if (!firstSpec.empty())
+  //{
+  //  mySpec = firstSpec;
+  //}
+  //if (Pass_EventFilter && Pass_JetID && SAT_Pass_lowDM_mid_dPhi)
+  //{
+  //    printf("%d: event %d passes (Pass_EventFilter && Pass_JetID && SAT_Pass_lowDM_mid_dPh)i; baseline%s\n", tr->getEvtNum(), event, mySpec.c_str());
+  //}
 
-  // event 7217 passes Hui's selection but Caleb's
-  // Caleb uses |eta| < 4.7 for dPhi calculation 
-  // Hui   uses |eta| < 2.4 for dPhi calculation 
   //if (tr->getEvtNum() == 7217)
-  if (true)
+  //if (tr->getEvtNum() == 29144)
+  if (false)
   {
     printf("event: %d; %d\n", event, tr->getEvtNum());
     // dPhi
