@@ -12,11 +12,12 @@
 #include <iomanip>
 #include <cmath>
 #include "SB2018.h"
+#include "my_Aux.h"
 
 int main(int argc, char* argv[]){
 
 	const bool debug = false;
-	const bool do_ISR_BSF = true;
+	const bool do_ISR_BSF = false;		//turn off when running on data!!
 
 	int max_events = -1;
 	//max_events = 50000;
@@ -97,9 +98,6 @@ int main(int argc, char* argv[]){
 	auto bottompt_scalar_sum_lowdm_h=new TH1F("bottompt_scalar_sum_lowdm_h","bottom pt sclar sum, low dm",80,0.0,1600.0);
 	auto min_jet_dPhi_lowdm_h=new TH1F("min_jet_dPhi_lowdm_h","min jet dPhi, low dm",80,0.0,3.2);
 	auto min_jet_dPhi_highdm_h=new TH1F("min_jet_dPhi_highdm_h","min jet dPhi, high dm",80,0.0,3.2);
-	auto J1dPhi_lowdm_h=new TH1F("J1dPhi_lowdm_h","Jet 1 dPhi, low dm",80,0.0,3.2);
-	auto J2dPhi_lowdm_h=new TH1F("J2dPhi_lowdm_h","Jet 2 dPhi, low dm",80,0.0,3.2);
-	auto J3dPhi_lowdm_h=new TH1F("J3dPhi_lowdm_h","Jet 3 dPhi, low dm",80,0.0,3.2);
 
 	auto search_bin_v2_h=new TH1F("search_bin_v2_h","search bin v2, MTb = 175",204,0.0,204.0);
 	auto search_bin_v2_singleMuCR_h=new TH1F("search_bin_v2_singleMuCR_h","search bin v2, single muon control region, MTb = 175",204,0.0,204.0);
@@ -128,8 +126,10 @@ int main(int argc, char* argv[]){
 	auto search_bin_v2_lowdm_validation_0p1_h=new TH1F("search_bin_v2_lowdm_validation_0p1_h","search bin v2 low dm validation, dPhi 0.1",22,0.0,22.0);
 	auto search_bin_v2_lowdm_validation_0p15_h=new TH1F("search_bin_v2_lowdm_validation_0p15_h","search bin v2 low dm validation, dPhi 0.15",22,0.0,22.0);
 	auto search_bin_v2_lowdm_validation_0p2_h=new TH1F("search_bin_v2_lowdm_validation_0p2_h","search bin v2 low dm validation, dPhi 0.2",22,0.0,22.0);
-	auto search_bin_v2_lowdm_validation_h=new TH1F("search_bin_v2_lowdm_validation_h","search bin v2 low dm validation",20,0.0,20.0);
+	auto search_bin_v2_lowdm_validation_h=new TH1F("search_bin_v2_lowdm_validation_h","search bin v2 low dm validation",19,0.0,19.0);
 	auto search_bin_v2_highdm_validation_h=new TH1F("search_bin_v2_highdm_validation_h","search bin v2 high dm validation, MTb = 175",24,22.0,46.0);
+	auto search_bin_v2_lowdm_validation_pass_trigger_h=new TH1F("search_bin_v2_lowdm_validation_pass_trigger_h","search bin v2 low dm validation, pass trigger",19,0.0,19.0);
+	auto search_bin_v2_highdm_validation_pass_trigger_h=new TH1F("search_bin_v2_highdm_validation_pass_trigger_h","search bin v2 high dm validation, MTb = 175, pass trigger",24,22.0,46.0);
 
 	auto nMuons_uc_h=new TH1F("nMuons_uc_h","number of muons, no cuts",10,0.0,10.0);
 	auto nElectrons_uc_h=new TH1F("nElectrons_uc_h","number of electrons, no cuts",10,0.0,10.0);
@@ -147,10 +147,15 @@ int main(int argc, char* argv[]){
 		float evtWeight = 1.0;
 		if (tr.getVar<float>("Stop0l_evtWeight") < 0) evtWeight = -1.0;
 
-		float B_SF = tr.getVar<float>("BTagWeight");
-		float ISR_SF = tr.getVar<float>("ISRWeight");
+		float B_SF = 1.0;
+		float ISR_SF = 1.0;
 		
-		if(do_ISR_BSF) evtWeight = evtWeight * B_SF * ISR_SF;
+		if(do_ISR_BSF)
+		{
+			B_SF = tr.getVar<float>("BTagWeight");
+			ISR_SF = tr.getVar<float>("ISRWeight");
+			evtWeight = evtWeight * B_SF * ISR_SF;
+		}
 
 		float met = tr.getVar<float>("MET_pt"); 
 		float HT = tr.getVar<float>("Stop0l_HT"); 
@@ -165,16 +170,28 @@ int main(int argc, char* argv[]){
 		float bottompt_scalar_sum = tr.getVar<float>("Stop0l_Ptb");
 		float S_met = tr.getVar<float>("Stop0l_METSig");
 		bool Pass_EventFilter = tr.getVar<bool>("Pass_EventFilter");
-		Pass_EventFilter = true; 
+		//Pass_EventFilter = true; 
+		bool Pass_trigger_MET = tr.getVar<bool>("Pass_trigger_MET");
 
 		std::vector<unsigned char> Jet_Stop0l = tr.getVec<unsigned char>("Jet_Stop0l");
+		std::vector<float> Jet_pt = tr.getVec<float>("Jet_pt");
+		std::vector<float> Jet_eta = tr.getVec<float>("Jet_eta");
 		std::vector<float> Jet_dPhiMET = tr.getVec<float>("Jet_dPhiMET");
-		std::vector<float> jet_dPhi;
+		std::vector<my_jet_struct> jet_struct_vec;
+
 		for (int i=0; i < Jet_dPhiMET.size(); i++)
-		{if (Jet_Stop0l.at(i)) jet_dPhi.push_back(Jet_dPhiMET.at(i));}
+		{
+			if (Jet_pt.at(i) > 20 && Jet_eta.at(i) < 4.7)
+			{
+				my_jet_struct jet_struct_temp = {Jet_pt.at(i), Jet_dPhiMET.at(i)};
+				jet_struct_vec.push_back(jet_struct_temp);
+			}
+		}
+		if (jet_struct_vec.size() >=2) std::sort (jet_struct_vec.begin(), jet_struct_vec.end(), pt_descending_sort);
+
 		float min_jet_dPhi = 0;
-		if(jet_dPhi.size() == 2) min_jet_dPhi = std::min(jet_dPhi.at(0), jet_dPhi.at(1));
-		if(jet_dPhi.size() >= 3) min_jet_dPhi = std::min(std::min(jet_dPhi.at(0), jet_dPhi.at(1)), jet_dPhi.at(2));
+		if(jet_struct_vec.size() == 2) min_jet_dPhi = std::min(jet_struct_vec.at(0).jet_dPhi, jet_struct_vec.at(1).jet_dPhi);
+		if(jet_struct_vec.size() >= 3) min_jet_dPhi = std::min(std::min(jet_struct_vec.at(0).jet_dPhi, jet_struct_vec.at(1).jet_dPhi), jet_struct_vec.at(2).jet_dPhi);
 
 		int nElectrons = 0, nMuons = 0;
 		std::vector<unsigned char> Electron_Stop0l = tr.getVec<unsigned char>("Electron_Stop0l");
@@ -183,6 +200,16 @@ int main(int argc, char* argv[]){
 		std::vector<unsigned char> Muon_Stop0l = tr.getVec<unsigned char>("Muon_Stop0l");
 		for (int i = 0; i < Muon_Stop0l.size(); i++)
 		{if (Muon_Stop0l.at(i)) nMuons++;}
+
+		/*if (tr.getEvtNum() == 29144)
+		{
+			std::cout << "met " << met << std::endl;
+			std::cout << "HT " << HT << std::endl;
+			std::cout << "ISRpt " << ISRpt << std::endl;
+			if(jet_struct_vec.size() >= 2) std::cout << "jet_struct_vec.at(0).jet_dPhi " << jet_struct_vec.at(0).jet_dPhi << std::endl;
+			if(jet_struct_vec.size() >= 2) std::cout << "jet_struct_vec.at(1).jet_dPhi " << jet_struct_vec.at(1).jet_dPhi << std::endl;
+			if(jet_struct_vec.size() >= 3) std::cout << "jet_struct_vec.at(2).jet_dPhi " << jet_struct_vec.at(2).jet_dPhi << std::endl;
+		}*/
 
 		bool Pass_lowDM_ISR_veto = (tr.getVar<bool>("Pass_Baseline") && ntop_merge == 0 && ntop_res == 0 && nw == 0 && mtb < 175 && S_met > 10 && ISRpt < 300);
 		bool Pass_dPhi_QCD = (min_jet_dPhi < 0.1);
@@ -266,9 +293,13 @@ int main(int argc, char* argv[]){
 		
 			if(SBv2_lowdm_index != -1) search_bin_v2_h->Fill(SBv2_lowdm_index,evtWeight);
 			if(SBv2_lowdm_index != -1) search_bin_v2_lowdm_h->Fill(SBv2_lowdm_index,evtWeight);
-			if(SBv2_lowdm_validation_index != -1) search_bin_v2_lowdm_validation_h->Fill(SBv2_lowdm_validation_index,evtWeight);
 			if(SBv2_lowdm_more_MET_index != -1) search_bin_v2_lowdm_more_MET_h->Fill(SBv2_lowdm_more_MET_index,evtWeight);
 			if(SBv2_lowdm_high_ISRpt_index != -1) search_bin_v2_lowdm_high_ISRpt_h->Fill(SBv2_lowdm_high_ISRpt_index,evtWeight);
+			if(SBv2_lowdm_validation_index != -1) 
+			{
+				search_bin_v2_lowdm_validation_h->Fill(SBv2_lowdm_validation_index,evtWeight);
+				if(Pass_trigger_MET) search_bin_v2_lowdm_validation_pass_trigger_h->Fill(SBv2_lowdm_validation_index,evtWeight);
+			}
 		}
 
 		if(tr.getVar<bool>("Pass_highDM"))
@@ -318,9 +349,6 @@ int main(int argc, char* argv[]){
 		if(Pass_lowDM_no_dPhi) 
 		{
 			min_jet_dPhi_lowdm_h->Fill(min_jet_dPhi,evtWeight);
-			J1dPhi_lowdm_h->Fill(jet_dPhi.at(0),evtWeight); 
-			J2dPhi_lowdm_h->Fill(jet_dPhi.at(1),evtWeight); 
-			if(jet_dPhi.size() >= 3) J3dPhi_lowdm_h->Fill(jet_dPhi.at(2),evtWeight);
 		}
 		if(Pass_lowDM_mid_dPhi)
 		{
@@ -329,8 +357,13 @@ int main(int argc, char* argv[]){
 		}
 		if(Pass_lowDM_mid_dPhi_0p15)
 		{
+			//std::cout << tr.getEvtNum() << std::endl;
 			if(SBv2_lowdm_validation_mid_dPhi_index != -1) search_bin_v2_lowdm_validation_0p15_h->Fill(SBv2_lowdm_validation_mid_dPhi_index,evtWeight);
-			if(SBv2_lowdm_validation_high_MET_index != -1) search_bin_v2_lowdm_validation_h->Fill(SBv2_lowdm_validation_high_MET_index,evtWeight);
+			if(SBv2_lowdm_validation_high_MET_index != -1)
+			{
+				search_bin_v2_lowdm_validation_h->Fill(SBv2_lowdm_validation_high_MET_index,evtWeight);
+				if(Pass_trigger_MET) search_bin_v2_lowdm_validation_pass_trigger_h->Fill(SBv2_lowdm_validation_high_MET_index,evtWeight);
+			}
 		}
 		if(Pass_lowDM_mid_dPhi_0p2)
 		{
@@ -341,7 +374,11 @@ int main(int argc, char* argv[]){
 		if(Pass_highDM_mid_dPhi)
 		{
 			met_highdm_mid_dPhi_h->Fill(met,evtWeight); 
-			if(SBv2_highdm_validation_index != -1) search_bin_v2_highdm_validation_h->Fill(SBv2_highdm_validation_index,evtWeight);
+			if(SBv2_highdm_validation_index != -1)
+			{
+				search_bin_v2_highdm_validation_h->Fill(SBv2_highdm_validation_index,evtWeight);
+				if(Pass_trigger_MET) search_bin_v2_highdm_validation_pass_trigger_h->Fill(SBv2_highdm_validation_index,evtWeight);
+			}
 		}
 
 	}// End event loop
@@ -380,9 +417,6 @@ int main(int argc, char* argv[]){
 	nElectrons_uc_h->Write();
 	ISRpt_lowdm_h->Write();
 	bottompt_scalar_sum_lowdm_h->Write();
-	J1dPhi_lowdm_h->Write();
-	J2dPhi_lowdm_h->Write();
-	J3dPhi_lowdm_h->Write();
 	min_jet_dPhi_lowdm_h->Write();
 	min_jet_dPhi_highdm_h->Write();
 
@@ -409,6 +443,8 @@ int main(int argc, char* argv[]){
 	search_bin_v2_lowdm_validation_0p2_h->Write();
 	search_bin_v2_lowdm_validation_h->Write();
 	search_bin_v2_highdm_validation_h->Write();
+	search_bin_v2_lowdm_validation_pass_trigger_h->Write();
+	search_bin_v2_highdm_validation_pass_trigger_h->Write();
 
 	out_file.mkdir("Baseline_Only");
 	out_file.cd("Baseline_Only");

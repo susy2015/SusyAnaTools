@@ -4,10 +4,11 @@ int make_datacards()
 	gROOT->ForceStyle();
 
 	double lumi = 36;
-	//lumi = 137;
+	lumi = 137;
 	TString year = "_2016";
 	//year = "_2017";
 
+	bool do_validation = false;
 	bool compare_TF = false;
 	bool round_data = false;
 
@@ -24,25 +25,24 @@ int make_datacards()
 	bool team_A_high_dm_merge = false;
 	bool SBv2 = true;
 	bool SBv2_highdm = false;
+	bool SBv2_highdm_validation = false;
 	bool SBv2_lowdm = false;
+	bool SBv2_lowdm_validation = false;
 	bool SBv2_lowdm_more_MET = false;
 	bool SBv2_lowdm_high_ISRpt = false;
 	bool more_HT_bins = false;
-	bool more_HT_bins_merge = false;
-	bool high_dm_merge_HT = false;
-	bool high_dm_MT2 = false;
-	bool old_bins = false; 
-	bool old_bins_MTb = false;
 
 	TString full_or_fast = "_fullsim";
 	full_or_fast = "_fastsim";
 
+	//TString signal_name = "T2tt_mStop500_mLSP413";
 	//TString signal_name = "T2tt_mStop550_mLSP400";
 	//TString signal_name = "T2tt_mStop600_mLSP514";
 	//TString signal_name = "T2tt_mStop850_mLSP100";
 	//TString signal_name = "T2tt_mStop1000_mLSP1";
-	TString signal_name = "T2tt_mStop1000_mLSP50";
+	//TString signal_name = "T2tt_mStop1000_mLSP50";
 	//TString signal_name = "T2tt_mStop1000_mLSP500";
+	TString signal_name = "T1tttt_mGluino950_mLSP650";
 	//TString signal_name = "T1tttt_mGluino1200_mLSP800";
 	//TString signal_name = "T1tttt_mGluino2000_mLSP100";
 	//TString signal_name = "T1tttt_mGluino2000_mLSP1000";
@@ -55,14 +55,16 @@ int make_datacards()
 	//TString signal_name = "T2fbd_mStop600_mLSP590";
 
 	TString folder = "";
-	TString SR = "", SR_loose_bin = "";
+	TString SR = "", SR_loose_bin = "", SR_pass_trigger = "";
 	TString SingleMuCR = "", SingleMuCR_loose_bin = "";
 	TString SingleElCR = "", SingleElCR_loose_bin = "";
+	TString low_or_high = "_lowdm";
 
  	int first_bin;
 	int NSB = 999;
 	int mid_bin = 53;	//53 for SBv2
 	double zinv_sf = 666.8 / 851.6;		//ratio of 050 data card / MC with B_SF
+	zinv_sf = 1;				//Caleb's 2016 Rz scale factor: low dm 1.038, high dm 0.955
 	double ll_sf = 2957.6 / 3378.4;		//ratio of 050 data card / MC with ISR and B_SF
 
 	if (team_A)
@@ -104,11 +106,31 @@ int make_datacards()
 		mid_bin = -1;
 	}
 
+	if (SBv2_highdm_validation)
+	{
+		SR = "search_bin_v2_highdm_validation_h";
+		SR_pass_trigger = "search_bin_v2_highdm_validation_pass_trigger_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_highdm_h";
+		SingleElCR = "search_bin_v2_singleElCR_highdm_h";
+		low_or_high = "_highdm";
+		mid_bin = -1;
+	}
+
 	if (SBv2_lowdm)
 	{
 		SR = "search_bin_v2_lowdm_h";
 		SingleMuCR = "search_bin_v2_singleMuCR_lowdm_h";
 		SingleElCR = "search_bin_v2_singleElCR_lowdm_h";
+		mid_bin = 999;
+	}
+
+	if (SBv2_lowdm_validation)
+	{
+		SR = "search_bin_v2_lowdm_validation_h";
+		SR_pass_trigger = "search_bin_v2_lowdm_validation_pass_trigger_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_lowdm_h";
+		SingleElCR = "search_bin_v2_singleElCR_lowdm_h";
+		low_or_high = "_lowdm";
 		mid_bin = 999;
 	}
 
@@ -133,42 +155,6 @@ int make_datacards()
 		SR = "search_bin_more_HT_bins_h";
 		SingleMuCR = "search_bin_more_HT_bins_singleMuCR_h";
 		SingleElCR = "search_bin_more_HT_bins_singleElCR_h";
-	}
-
-	if (more_HT_bins_merge)
-	{
-		SR = "search_bin_more_HT_bins_merge_h";
-		SingleMuCR = "search_bin_more_HT_bins_singleMuCR_merge_h";
-		SingleElCR = "search_bin_more_HT_bins_singleElCR_merge_h";
-	}
-
-	if(high_dm_merge_HT)
-	{
-		SR = "search_bin_highdm_merge_HT_h";
-		SingleMuCR = "search_bin_highdm_singleMuCR_merge_HT_h";
-		SingleElCR = "search_bin_highdm_singleElCR_merge_HT_h";
-	}
-
-	if (high_dm_MT2)
-	{
-		SR = "search_bin_highdm_MT2_h";
-		SingleMuCR = "search_bin_highdm_singleMuCR_MT2_h";
-		SingleElCR = "search_bin_highdm_singleElCR_MT2_h";
-	}
-
-	if (old_bins)
-	{
-		SR = "search_bin_h";
-		SingleMuCR = "search_bin_singleMuCR_h";
-		SingleElCR = "search_bin_singleElCR_h";
-
-	}
-
-	if (old_bins_MTb)
-	{
-		SR = "search_bin_MTb_h";
-		SingleMuCR = "search_bin_singleMuCR_MTb_h";
-		SingleElCR = "search_bin_singleElCR_MTb_h";
 	}
 
 	THStack *hs = new THStack();
@@ -443,6 +429,13 @@ int make_datacards()
 
 		hs->Add(pro);
 		pro->SetBinErrorOption(TH1::kPoisson);
+
+		if(do_validation)
+		{
+			TFile out_file("validation/QCD_validation" + low_or_high + year + ".root","RECREATE");
+			pro->Write();
+			out_file.Close();
+		}
 
 		std::ofstream QCDfile (("datacards/temp/qcd.txt"));
 		if (QCDfile.is_open())
@@ -772,6 +765,13 @@ int make_datacards()
 		pro->Scale(zinv_sf);
 		hs->Add(pro);
 		pro->SetBinErrorOption(TH1::kPoisson);
+
+		if(do_validation)
+		{
+			TFile out_file("validation/Zinv_validation" + low_or_high + year + ".root","RECREATE");
+			pro->Write();
+			out_file.Close();
+		}
 
 		std::ofstream Zinvfile (("datacards/temp/zinv.txt"));
 		if (Zinvfile.is_open())
@@ -1698,6 +1698,12 @@ int make_datacards()
 		pro->SetBinErrorOption(TH1::kPoisson);
 		pro_singleMuCR->SetBinErrorOption(TH1::kPoisson);
 		pro_singleElCR->SetBinErrorOption(TH1::kPoisson);
+		if(do_validation)
+		{
+			TFile out_file("validation/LL_validation" + low_or_high + year + ".root","RECREATE");
+			pro->Write();
+			out_file.Close();
+		}
 		if(compare_TF)
 		{
 			pro_loose_bin->SetBinErrorOption(TH1::kPoisson);
@@ -2270,6 +2276,13 @@ int make_datacards()
 		hs->Add(pro);
 		pro->SetBinErrorOption(TH1::kPoisson);
 
+		if(do_validation)
+		{
+			TFile out_file("validation/TTZ_validation" + low_or_high + year + ".root","RECREATE");
+			pro->Write();
+			out_file.Close();
+		}
+
 		std::ofstream TTZfile (("datacards/temp/ttz.txt"));
 		if (TTZfile.is_open())
 		{
@@ -2513,6 +2526,13 @@ int make_datacards()
 		hs->Add(pro);
 		pro->SetBinErrorOption(TH1::kPoisson);
 
+		if(do_validation)
+		{
+			TFile out_file("validation/Rare_validation" + low_or_high + year + ".root","RECREATE");
+			pro->Write();
+			out_file.Close();
+		}
+
 		std::ofstream Rarefile (("datacards/temp/rare.txt"));
 		if (Rarefile.is_open())
 		{
@@ -2662,5 +2682,18 @@ int make_datacards()
 		}
 		else std::cout << "Unable to open signalfile";
 	}
+
+	if (do_validation)
+	{
+		TFile *f1 = new TFile("results/Data_MET" + year + ".root");
+		TH1F *h1 = (TH1F*)f1->Get(folder + SR);
+		TH1F *h2 = (TH1F*)f1->Get(folder + SR_pass_trigger);
+		TFile out_file("validation/Data_validation" + low_or_high + year + ".root","RECREATE");
+		h1->Write();
+		h2->Write();
+		out_file.Close();
+	}
+
+
 	return 0;
 }

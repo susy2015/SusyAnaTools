@@ -7,10 +7,10 @@
 
 int main(int argc, char* argv[])
 {
-	if (argc != 5)
+	if (argc != 6)
 	{
-		std::cerr << "please give 4 arguments" << std::endl;
-		std::cerr << "mother mass, daughter mass, signal name and histo name" << std::endl;
+		std::cerr << "please give 5 arguments" << std::endl;
+		std::cerr << "mother mass, daughter mass, signal name, histo name, mid bin" << std::endl;
 		return -1;
 	}
 
@@ -18,7 +18,8 @@ int main(int argc, char* argv[])
 	const int  daughter = atoi(argv[2]);
 	TString sp = argv[3];
 	TString var = argv[4];
-	const double lumi = 36;
+	int mid_bin = atoi(argv[5]);
+	const double lumi = 137;
 	//const double lumi = 120;
 
 	TFile *f3 = new TFile("xSec.root");
@@ -41,6 +42,14 @@ int main(int argc, char* argv[])
 		h3 = (TH1D*)f3->Get("gluino_xsection");
 	}
 
+	else if (sp.Contains("T2fbd"))
+	{
+		std::cout << "=============== find T2fbd =================" << std::endl;
+		result_path = "results/T2fbd_signal_scan/";
+		h3 = (TH1D*)f3->Get("stop_xsection");
+		h3->Scale(0.355096816688248);		//T2fbd_mStop600_mLSP590 gen filter eff
+	}
+
 	else
 	{
 		std::cout << "only support T2tt and T1tttt, exit now" << std::endl;
@@ -55,7 +64,6 @@ int main(int argc, char* argv[])
 	double CrossSection = h3->GetBinContent(h3->FindBin(mother));
 	int NSB = h1->GetSize() - 2;
 	int first_bin = int(h1->GetXaxis()->GetBinCenter(1));
-	int mid_bin = -1;
 
 	double all_events = h2->GetBinContent(1);
 	double left_events = h2->GetBinContent(2);

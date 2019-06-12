@@ -24,6 +24,7 @@ std::map<TString, double> CrossSection = {
   { "ST_tWnunu", 0.02134 },
   { "ST_t_antitop", 80.95 },
   { "ST_t_top", 136.02 },
+  { "T1tttt_mGluino950_mLSP650", 0.466352 },
   { "T5ttcc_mGluino1000_mLSP800", 0.325388 },
   { "T1tttt_mGluino1200_mLSP800", 0.0856418 },
   { "T5ttcc_mGluino1200_mLSP800", 0.0856418 },
