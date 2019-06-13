@@ -301,11 +301,11 @@ namespace AnaFunctions
     float ht = 0;
     for(unsigned int i=0; i<inputJets.size(); i++){
       float perjetpt = inputJets[i].Pt(), perjeteta = inputJets[i].Eta();
-      if(   ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
+      if(    ( minAbsEta == -1 || fabs(perjeteta) >= minAbsEta )
           && ( maxAbsEta == -1 || fabs(perjeteta) < maxAbsEta )
           && (     minPt == -1 || perjetpt >= minPt )
-          && (     maxPt == -1 || perjetpt < maxPt ) ){
-
+          && (     maxPt == -1 || perjetpt < maxPt ) )
+      {
         ht += perjetpt;
       }
     }
