@@ -1,5 +1,5 @@
 #include "CrossSection.C"
-#include "Plot_1D_AUX.c"
+#include "Plot_1D_AUX.C"
 int Plot_1D_test()
 {
 	//gROOT->ForceStyle();

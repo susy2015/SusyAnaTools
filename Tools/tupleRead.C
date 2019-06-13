@@ -181,7 +181,7 @@ int main(int argc, char* argv[]){
 
 		for (int i=0; i < Jet_dPhiMET.size(); i++)
 		{
-			if (Jet_pt.at(i) > 20 && Jet_eta.at(i) < 4.7)
+			if (Jet_pt.at(i) > 20 && fabs(Jet_eta.at(i)) < 4.7)
 			{
 				my_jet_struct jet_struct_temp = {Jet_pt.at(i), Jet_dPhiMET.at(i)};
 				jet_struct_vec.push_back(jet_struct_temp);

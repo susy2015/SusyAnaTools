@@ -4,11 +4,11 @@ int make_datacards()
 	gROOT->ForceStyle();
 
 	double lumi = 36;
-	lumi = 137;
+	//lumi = 137;
 	TString year = "_2016";
 	//year = "_2017";
 
-	bool do_validation = false;
+	bool do_validation = true;
 	bool compare_TF = false;
 	bool round_data = false;
 
@@ -23,11 +23,11 @@ int make_datacards()
 	bool team_A = false;
 	bool team_A_high_dm_MT2 = false;
 	bool team_A_high_dm_merge = false;
-	bool SBv2 = true;
+	bool SBv2 = false;
 	bool SBv2_highdm = false;
 	bool SBv2_highdm_validation = false;
 	bool SBv2_lowdm = false;
-	bool SBv2_lowdm_validation = false;
+	bool SBv2_lowdm_validation = true;
 	bool SBv2_lowdm_more_MET = false;
 	bool SBv2_lowdm_high_ISRpt = false;
 	bool more_HT_bins = false;
