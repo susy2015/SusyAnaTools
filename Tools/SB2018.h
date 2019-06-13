@@ -556,10 +556,10 @@ int SBv2_lowdm_validation(int njets, int nb, int nSV, float ISRpt, float bottomp
 //================================low dm validation high MET=================================================
 int SBv2_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met)
 {
-	if (nb == 0 && nSV == 0 && ISRpt > 500 && met > 400) return 15;
-	if (nb == 0 && nSV >= 1 && ISRpt > 500 && met > 400) return 16;
-	if (nb >= 1 && nSV == 0 && ISRpt > 300 && met > 300) return 17;
-	if (nb >= 1 && nSV >= 1 && ISRpt > 300 && met > 300) return 18;
+	if (nb == 0 && nSV == 0 && ISRpt > 200 && met > 250) return 15;
+	if (nb == 0 && nSV >= 1 && ISRpt > 200 && met > 250) return 16;
+	if (nb >= 1 && nSV == 0 && ISRpt > 200 && met > 250) return 17;
+	if (nb >= 1 && nSV >= 1 && ISRpt > 200 && met > 250) return 18;
 	return -1;
 }
 
