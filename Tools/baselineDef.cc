@@ -587,6 +587,7 @@ void BaselineVessel::PassBaseline()
   SAT_Pass_lowDM = (
                         SAT_Pass_Baseline
                      && nMergedTops == 0
+                     && nResolvedTops == 0
                      && nWs == 0
                      && pass_ISR
                      && S_met > 10
@@ -624,6 +625,7 @@ void BaselineVessel::PassBaseline()
                         SAT_Pass_Baseline_no_dPhi
                      && SAT_Pass_mid_dPhiMETLowDM 
                      && nMergedTops == 0
+                     && nResolvedTops == 0
                      && nWs == 0
                      && pass_ISR
                      && S_met > 10
