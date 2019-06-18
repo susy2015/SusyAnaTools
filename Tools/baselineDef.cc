@@ -1415,6 +1415,11 @@ void BaselineVessel::PassTrigger()
     tr->registerDerivedVar("passPhotonTrigger",     passPhotonTrigger);
 }
 
+
+void PassJetID()
+{
+}
+
 bool BaselineVessel::PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low)
 {
     for (const auto& object : objects)
