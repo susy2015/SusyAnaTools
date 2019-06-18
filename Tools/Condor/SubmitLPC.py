@@ -15,7 +15,7 @@ from collections import defaultdict
 DelExe    = '../tupleRead'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
-ProjectName = 'PostProcessed_v2p7_BG'
+ProjectName = 'PostProcessed_v2p7_BG_2016'
 argument = "%s.$(Process).list %s_$(Process).root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
 defaultLperFile = 5

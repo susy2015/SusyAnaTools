@@ -38,10 +38,11 @@ int Plot_validation()
 
 		pro->SetLineColor(kBlack);
 		//pro->SetLineWidth(3);
-		//pro->Draw("bsame");
+		pro->Sumw2();
 		pro->SetFillColor(kYellow);
 		leg->AddEntry(pro,"Rare","f");
-		std::cout << "\n Rare total " << pro->Integral() << std::endl;
+		std::cout << "Rare total " << pro->Integral() << std::endl;
+		std::cout << "Rare bin1 " << pro->GetBinContent(1) << " +- " << pro->GetBinError(1) << "\n" << std::endl;
 
 		hs->Add(pro);
 	}
@@ -53,10 +54,11 @@ int Plot_validation()
 
 		pro->SetLineColor(kBlack);
 		//pro->SetLineWidth(3);
-		//pro->Draw("bsame");
+		pro->Sumw2();
 		pro->SetFillColor(kViolet);
 		leg->AddEntry(pro,"TTZ","f");
-		std::cout << "\n TTZ total " << pro->Integral() << std::endl;
+		std::cout << "TTZ total " << pro->Integral() << std::endl;
+		std::cout << "TTZ bin1 " << pro->GetBinContent(1) << " +- " << pro->GetBinError(1) << "\n" << std::endl;
 
 		hs->Add(pro);
 	}
@@ -68,10 +70,11 @@ int Plot_validation()
 
 		pro->SetLineColor(kBlack);
 		//pro->SetLineWidth(3);
-		//pro->Draw("bsame");
+		pro->Sumw2();
 		pro->SetFillColor(kGreen);
 		leg->AddEntry(pro,"QCD","f");
-		std::cout << "\n QCD total " << pro->Integral() << std::endl;
+		std::cout << "QCD total " << pro->Integral() << std::endl;
+		std::cout << "QCD bin1 " << pro->GetBinContent(1) << " +- " << pro->GetBinError(1) << "\n" << std::endl;
 
 		hs->Add(pro);
 	}
@@ -85,10 +88,11 @@ int Plot_validation()
 
 		pro->SetLineColor(kBlack);
 		//pro->SetLineWidth(3);
-		//pro->Draw("bsame");
+		pro->Sumw2();
 		pro->SetFillColor(kRed);
 		leg->AddEntry(pro,"Zinv","f");
-		std::cout << "\n Zinv total " << pro->Integral() << std::endl;
+		std::cout << "Zinv total " << pro->Integral() << std::endl;
+		std::cout << "Zinv bin1 " << pro->GetBinContent(1) << " +- " << pro->GetBinError(1) << "\n" << std::endl;
 
 		hs->Add(pro);
 	}
@@ -100,10 +104,11 @@ int Plot_validation()
 
 		pro->SetLineColor(kBlack);
 		//pro->SetLineWidth(3);
-		//pro->Draw("bsame");
+		pro->Sumw2();
 		pro->SetFillColor(kBlue);
 		leg->AddEntry(pro,"LL","f");
-		std::cout << "\n LL total " << pro->Integral() << std::endl;
+		std::cout << "LL total " << pro->Integral() << std::endl;
+		std::cout << "LL bin1 " << pro->GetBinContent(1) << " +- " << pro->GetBinError(1) << "\n" << std::endl;
 
 		hs->Add(pro);
 	}
@@ -120,12 +125,19 @@ int Plot_validation()
 	TFile *f_data = new TFile("validation/Data_validation" + low_or_high + year + ".root");
 	TH1D *h_data = (TH1D*)f_data->Get("search_bin_v2" + low_or_high + "_validation_h");
 
+	h_data->Sumw2();
+	h_data->SetBinErrorOption(TH1::kPoisson);
 	h_data->SetLineColor(kBlack);
 	h_data->SetMarkerStyle(20);
 	h_data->SetMarkerColor(kBlack);
 	//h_data->SetLineWidth(2);
 	h_data->Draw("psame");
 	leg->AddEntry(h_data,"Data","lp");
+
+	std::cout << "BG total " << ((TH1D*)(hs->GetStack()->Last()))->Integral() << std::endl;
+	std::cout << "BG bin1 " << ((TH1D*)(hs->GetStack()->Last()))->GetBinContent(1) << " +- " << ((TH1D*)(hs->GetStack()->Last()))->GetBinError(1) << "\n" << std::endl;
+	std::cout << "Data total " << h_data->Integral() << std::endl;
+	std::cout << "Data bin1 " << h_data->GetBinContent(1) << " +- " << h_data->GetBinError(1) << "\n" << std::endl;
 
 	TLatex latex;
 	latex.SetTextSize(0.04);
@@ -152,8 +164,10 @@ int Plot_validation()
 
 		TH1D *ratio = (TH1D*)h_data->Clone();
 		ratio->Sumw2();
-		ratio->Divide((TH1D*)(hs -> GetStack() -> Last()));
+		ratio->Divide((TH1D*)(hs->GetStack()->Last()));
 		ratio->Draw("pe");
+
+		std::cout << "Ratio bin1 " << ratio->GetBinContent(1) << " +- " << ratio->GetBinError(1) << "\n" << std::endl;
 
 		ratio->SetTitle("");
 		ratio->GetXaxis()->SetTitle("validation bins");

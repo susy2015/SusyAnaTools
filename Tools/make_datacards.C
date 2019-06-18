@@ -25,9 +25,9 @@ int make_datacards()
 	bool team_A_high_dm_merge = false;
 	bool SBv2 = false;
 	bool SBv2_highdm = false;
-	bool SBv2_highdm_validation = false;
+	bool SBv2_highdm_validation = true;
 	bool SBv2_lowdm = false;
-	bool SBv2_lowdm_validation = true;
+	bool SBv2_lowdm_validation = false;
 	bool SBv2_lowdm_more_MET = false;
 	bool SBv2_lowdm_high_ISRpt = false;
 	bool more_HT_bins = false;
