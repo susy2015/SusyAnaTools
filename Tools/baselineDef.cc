@@ -464,11 +464,11 @@ void BaselineVessel::PassBaseline()
   int nFatJets = 0;
   for (const auto& Jet : Jets)
   {
-      if (Jet.Pt() > 20 && abs(Jet.Eta()) < 2.4) ++nJets;
+      if (Jet.Pt() > 20 && fabs(Jet.Eta()) < 2.4) ++nJets;
   }
   for (const auto& FatJet : FatJets)
   {
-      if (FatJet.Pt() > 200 && abs(FatJet.Eta()) < 2.4) ++nFatJets;
+      if (FatJet.Pt() > 200 && fabs(FatJet.Eta()) < 2.4) ++nFatJets;
   }
 
   //---------------------------------------//
@@ -481,6 +481,7 @@ void BaselineVessel::PassBaseline()
   
   // variables for SAT_Pass_lowDM and SAT_Pass_highDM
   
+  const auto& event             = tr->getVar<unsigned long long>("event");
   const auto& nMergedTops       = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
   const auto& nResolvedTops     = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
   const auto& nWs               = tr->getVar<int>(UseCleanedJetsVar("nWs"));
@@ -516,10 +517,9 @@ void BaselineVessel::PassBaseline()
   if (ISRJetIdx >= 0 && ISRJetIdx < FatJets.size()) ISRJet = FatJets[ISRJetIdx];
   
   //SUS-16-049, low dm, ISR cut
+  // see GetISRJetIdx() and CalcISRJetVars() for details
   bool pass_ISR = (
                        ISRJetPt > 200
-                    && fabs(ISRJet.Eta()) < 2.4
-                    && fabs(ISRJet.Phi() - metphi) > 2
                   );
   
   // ----------------------- // 
@@ -531,12 +531,12 @@ void BaselineVessel::PassBaseline()
 
   //SUS-16-049, low dm, dphi(met, j1) > 0.5, dphi(met, j23) > 0.15
   bool SAT_Pass_dPhiMETLowDM = ( 
-                                    (nJets == 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15)
-                                 || (nJets  > 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15 && dPhiVec->at(2) > 0.15)
+                                    (dPhiVec->size() == 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15)
+                                 || (dPhiVec->size()  > 2 && dPhiVec->at(0) > 0.5 && dPhiVec->at(1) > 0.15 && dPhiVec->at(2) > 0.15)
                                );
   //SUS-16-049, high dm, dphi(met, jet1234) > 0.5
   bool SAT_Pass_dPhiMETHighDM = (
-                                     nJets >= 4 
+                                     dPhiVec->size() >= 4 
                                   && dPhiVec->at(0) > 0.5 
                                   && dPhiVec->at(1) > 0.5 
                                   && dPhiVec->at(2) > 0.5 
@@ -558,8 +558,8 @@ void BaselineVessel::PassBaseline()
   // tr.getVar<bool>("Pass_dPhiMET") && (!tr.getVar<bool>("Pass_dPhiMETHighDM"))
   
   bool SAT_Pass_mid_dPhiMETLowDM = (
-                                        (nJets == 2 && (dPhiVec->at(0) < 0.15 || dPhiVec->at(1) < 0.15))
-                                     || (nJets  > 2 && (dPhiVec->at(0) < 0.15 || dPhiVec->at(1) < 0.15 || dPhiVec->at(2) < 0.15))
+                                        (dPhiVec->size() == 2 && (dPhiVec->at(0) < 0.15 || dPhiVec->at(1) < 0.15))
+                                     || (dPhiVec->size()  > 2 && (dPhiVec->at(0) < 0.15 || dPhiVec->at(1) < 0.15 || dPhiVec->at(2) < 0.15))
                                    );
   
   SAT_Pass_mid_dPhiMETLowDM  = ! SAT_Pass_mid_dPhiMETLowDM && ! SAT_Pass_dPhiMETLowDM;
@@ -594,6 +594,7 @@ void BaselineVessel::PassBaseline()
   SAT_Pass_lowDM = (
                         SAT_Pass_Baseline
                      && nMergedTops == 0
+                     && nResolvedTops == 0
                      && nWs == 0
                      && pass_ISR
                      && S_met > 10
@@ -687,6 +688,7 @@ void BaselineVessel::PassBaseline()
                         SAT_Pass_Baseline_no_dPhi
                      && SAT_Pass_mid_dPhiMETLowDM 
                      && nMergedTops == 0
+                     && nResolvedTops == 0
                      && nWs == 0
                      && pass_ISR
                      && S_met > 10
@@ -761,6 +763,49 @@ void BaselineVessel::PassBaseline()
       SAT_Pass_lowDM_mid_dPhi_Mid  = SAT_Pass_lowDM_mid_dPhi_Mid  && Pass_LeptonVeto;
       SAT_Pass_highDM_mid_dPhi_Mid = SAT_Pass_highDM_mid_dPhi_Mid && Pass_LeptonVeto;
   }
+  
+  // ------------------------------ //
+  // --- print info for testing --- //
+  // ------------------------------ //
+  
+  //std::string mySpec = "_normal";
+  //if (!firstSpec.empty())
+  //{
+  //  mySpec = firstSpec;
+  //}
+  //if (Pass_EventFilter && Pass_JetID && SAT_Pass_lowDM_mid_dPhi)
+  //{
+  //    printf("%d: event %d passes (Pass_EventFilter && Pass_JetID && SAT_Pass_lowDM_mid_dPh)i; baseline%s\n", tr->getEvtNum(), event, mySpec.c_str());
+  //}
+
+  //if (tr->getEvtNum() == 7217)
+  //if (tr->getEvtNum() == 29144)
+  if (false)
+  {
+    printf("event: %d; %d\n", event, tr->getEvtNum());
+    // dPhi
+    printf("dPhi_0: %f ",           dPhiVec->at(0));
+    printf("dPhi_1: %f ",           dPhiVec->at(1));
+    printf("dPhi_2: %f ",           dPhiVec->at(2));
+    printf("met = %f ",             met);
+    printf("metphi = %f ",          metphi);
+    printf("HT = %f ",              HT);
+    printf("mtb = %f ",             mtb);
+    printf("ptb = %f ",             ptb);
+    printf("ISRJetPt = %f ",        ISRJetPt);
+    printf("S_met = %f ",           S_met);
+    printf("nJets = %d ",           nJets);
+    printf("nMergedTops = %d ",     nMergedTops);
+    printf("nBottoms = %d ",        nBottoms);
+    printf("nWs = %d ",             nWs);
+    printf("\n");
+    int i = 0;
+    for (const auto& Jet : Jets)
+    {
+      printf("Jet %d: pt=%f, eta=%f, phi=%f, mass=%f\n", i, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
+      ++i;
+    }
+  }
 
   // compare original variables to those with cleaned jets
   if (verbose)
@@ -809,6 +854,8 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("SAT_Pass_highDM_Loose" + firstSpec, SAT_Pass_highDM_Loose);
   tr->registerDerivedVar("SAT_Pass_lowDM_Mid"  + firstSpec, SAT_Pass_lowDM_Mid);
   tr->registerDerivedVar("SAT_Pass_highDM_Mid" + firstSpec, SAT_Pass_highDM_Mid);
+  tr->registerDerivedVar("SAT_Pass_lowDM_mid_dPhi"  + firstSpec, SAT_Pass_lowDM_mid_dPhi);
+  tr->registerDerivedVar("SAT_Pass_highDM_mid_dPhi"  + firstSpec, SAT_Pass_highDM_mid_dPhi);
 } 
 
 
@@ -1763,27 +1810,37 @@ bool BaselineVessel::CalcBottomVars()
   int nBottoms = 0;
   int i = 0;
   
-  // using vector of pairs
+  std::vector<std::pair<float, unsigned>> sorted_jets;
   std::vector<std::pair<float, unsigned>> disc_vec;
-  
   i = 0;
   for (const auto& jet : jets)
   {
+    sorted_jets.push_back({jet.Pt(), i});
+    ++i;
+  }
+  
+  // sort jets by pt (since JEC change jet pt)
+  std::sort(sorted_jets.begin(), sorted_jets.end(), SusyUtility::greaterThan<float, unsigned>);
+  
+  for (const auto& p : sorted_jets)
+  {
+    // jet index sorted by pt
+    i = p.second; 
     // check if it pass b requirement
     if (Jet_btagStop0l[i])
     {
-      if (verbose) printf("event %d, jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", event, i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jet.Pt());
+      if (verbose) printf("event %d, jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", event, i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jets[i].Pt());
       ++nBottoms;
-      // only use first two b-jets (ordered by p_t) for mtb
+      // only use first two b-jets (ordered by p_t) for ptb
       if (nBottoms < 3)
       {
-        ptb += jet.Pt();
+        ptb += jets[i].Pt();
       }
       disc_vec.push_back({Jet_btagDisc[i], i});
     }
-    ++i;
   }
-  // sort
+
+  // sort by btag discriminator
   std::sort(disc_vec.begin(), disc_vec.end(), SusyUtility::greaterThan<float, unsigned>);
   
   // calculate mtb
@@ -1831,11 +1888,8 @@ int BaselineVessel::GetISRJetIdx()
   const auto& nMergedTops        = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
   const auto& nResolvedTops      = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
   const auto& nWs                = tr->getVar<int>(UseCleanedJetsVar("nWs"));
-  float ISRJetPt = 0.0;
-  int ISRJetIdx  = -1;
   int nFatJets = fat_jets.size();
   int nSubJets = SubJet_btagDeepB.size();
-  //for (int i = 0; i < fat_jets.size(); ++i)
   int i = 0; // only use leading fat jet (ordered by pt, index 0)
   if (verbose) printf("FatJet %d: p_t = %f, eta = %f, phi = %f, mass = %f, btag_disc = %f\n", i, fat_jets[i].Pt(), fat_jets[i].Eta(), fat_jets[i].Phi(), fat_jets[i].M(), FatJet_btagDeepB[i]);
   // require that there are no merged or resolved tops and no Ws
@@ -1857,7 +1911,7 @@ int BaselineVessel::GetISRJetIdx()
     return -1;
   }
   // |eta| < 2.4
-  if (abs(fat_jets[i].Eta()) > 2.4)
+  if (fabs(fat_jets[i].Eta()) > 2.4)
   {
     if (verbose) printf("FAIL fat jet eta requirement\n");
     return -1;
@@ -1881,7 +1935,6 @@ int BaselineVessel::GetISRJetIdx()
     if (verbose) printf("FAIL subjet 2 btag requirement\n"); 
     return -1; 
   }  
-  
   // require dPhi(fat_jet, met) > 2
   float dPhi = fabs(TVector2::Phi_mpi_pi(fat_jets[i].Phi() - metphi));
   if (dPhi < 2.0)
@@ -1889,10 +1942,8 @@ int BaselineVessel::GetISRJetIdx()
     if (verbose) printf("FAIL dPhi requirement: fat_jet_phi = %f, metphi = %f, dPhi = %f\n", fat_jets[i].Phi(), metphi, dPhi);
     return -1;
   }
-  
-  ISRJetPt = fat_jets[i].Pt();
-  ISRJetIdx = i;
-  //break;
+  // return index 
+  return i;
 }
 
 bool BaselineVessel::CalcISRJetVars()
@@ -1905,4 +1956,3 @@ bool BaselineVessel::CalcISRJetVars()
   tr->registerDerivedVar("ISRJetPt"+firstSpec,  ISRJetPt);
   tr->registerDerivedVar("ISRJetIdx"+firstSpec, ISRJetIdx);
 }
-
