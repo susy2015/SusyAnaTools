@@ -95,6 +95,7 @@ public:
     void PassBaseline();
     void PassTrigger();
     void PassJetID();
+    void PassEventFilter();
     bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low);
     void PassHEMVeto();
     bool PrintoutConfig() const;
