@@ -856,6 +856,10 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("SAT_Pass_highDM_Mid" + firstSpec, SAT_Pass_highDM_Mid);
   tr->registerDerivedVar("SAT_Pass_lowDM_mid_dPhi"  + firstSpec, SAT_Pass_lowDM_mid_dPhi);
   tr->registerDerivedVar("SAT_Pass_highDM_mid_dPhi"  + firstSpec, SAT_Pass_highDM_mid_dPhi);
+  tr->registerDerivedVar("SAT_Pass_lowDM_mid_dPhi_Loose"  + firstSpec, SAT_Pass_lowDM_mid_dPhi_Loose);
+  tr->registerDerivedVar("SAT_Pass_highDM_mid_dPhi_Loose"  + firstSpec, SAT_Pass_highDM_mid_dPhi_Loose);
+  tr->registerDerivedVar("SAT_Pass_lowDM_mid_dPhi_Mid"  + firstSpec, SAT_Pass_lowDM_mid_dPhi_Mid);
+  tr->registerDerivedVar("SAT_Pass_highDM_mid_dPhi_Mid"  + firstSpec, SAT_Pass_highDM_mid_dPhi_Mid);
 } 
 
 
