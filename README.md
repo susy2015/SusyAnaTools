@@ -124,7 +124,7 @@ However, "-d" can be omitted and the files will be downloaded in your working di
 
 Checkout the stop search configuration files using the following tag.
 
-Current tag for NanoSUSY ntuples: PostProcessed_StopTuple_V2.9.0PostProcessed_StopTuple_V2.9.0
+Current tag for NanoSUSY ntuples: PostProcessed_StopTuple_V2.9.1PostProcessed_StopTuple_V2.9.1
 
 You may see all StopCfg releases/tags with release notes at https://github.com/susy2015/StopCfg/releases. 
 
@@ -132,12 +132,12 @@ Run this command from your working area, i.e. the directory where softlinks to t
 
 Command using full path:
 ```
-$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t PostProcessed_StopTuple_V2.9.0
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t PostProcessed_StopTuple_V2.9.1
 ```
 
 Command if `SusyAnaTools/Tools/scripts` is in your PATH:
 ```
-getStopCfg.sh -t PostProcessed_StopTuple_V2.9.0
+getStopCfg.sh -t PostProcessed_StopTuple_V2.9.1
 ```
 
 Please note that this script will download the desired configuration information in a seperate folder and softlink the necessary files into your corrent directory.

@@ -520,9 +520,7 @@ void BaselineVessel::PassBaseline()
   
   //SUS-16-049, low dm, ISR cut
   // see GetISRJetIdx() and CalcISRJetVars() for details
-  bool pass_ISR = (
-                       ISRJetPt > 200
-                  );
+  bool pass_ISR = (ISRJetPt >= 200);
   
   // ----------------------- // 
   // --- For Search Bins --- //
@@ -572,25 +570,25 @@ void BaselineVessel::PassBaseline()
   // ----------------------- // 
   
   // standard baseline
-  //SAT_Pass_Baseline = (
-  //                          Pass_EventFilter
-  //                       && Pass_JetID 
-  //                       && SAT_Pass_MET 
-  //                       && SAT_Pass_HT
-  //                       && SAT_Pass_NJets20
-  //                       && SAT_Pass_dPhiMETLowDM
-  //                    );
+  SAT_Pass_Baseline = (
+                            SAT_Pass_JetID 
+                         && SAT_Pass_EventFilter
+                         && SAT_Pass_MET 
+                         && SAT_Pass_HT
+                         && SAT_Pass_NJets20
+                         && SAT_Pass_dPhiMETLowDM
+                      );
   
   // remove Pass_EventFilter and Pass_JetID from baseline
   // JetID issues
   // - Lepton veto issue for 2018 (fixed)
   // - Photon veto issue for 2016, 2017, and 2018 (not fixed)
-  SAT_Pass_Baseline = (
-                            SAT_Pass_MET 
-                         && SAT_Pass_HT
-                         && SAT_Pass_NJets20
-                         && SAT_Pass_dPhiMETLowDM
-                      );
+  //SAT_Pass_Baseline = (
+  //                          SAT_Pass_MET 
+  //                       && SAT_Pass_HT
+  //                       && SAT_Pass_NJets20
+  //                       && SAT_Pass_dPhiMETLowDM
+  //                    );
 
   //baseline for SUS-16-049 low dm plus HT cut
   SAT_Pass_lowDM = (
@@ -613,7 +611,9 @@ void BaselineVessel::PassBaseline()
 
   //baseline for shapeFactor calculation (loose)
   SAT_Pass_Baseline_Loose = (
-                            SAT_Pass_MET_Loose 
+                            SAT_Pass_JetID 
+                         && SAT_Pass_EventFilter
+                         && SAT_Pass_MET_Loose 
                          && SAT_Pass_HT
                          && SAT_Pass_NJets20
                          && SAT_Pass_dPhiMETLowDM
@@ -637,15 +637,17 @@ void BaselineVessel::PassBaseline()
                       && nJets >= 5
                   );      
 
-  //baseline for shapeFactor calculation (Mid)
+  //baseline for shapeFactor calculation (mid)
   SAT_Pass_Baseline_Mid = (
-                            SAT_Pass_MET_Mid 
+                            SAT_Pass_JetID 
+                         && SAT_Pass_EventFilter
+                         && SAT_Pass_MET_Mid 
                          && SAT_Pass_HT
                          && SAT_Pass_NJets20
                          && SAT_Pass_dPhiMETLowDM
                     );
 
-  //baseline for shapeFactor calculation (loose)
+  //baseline for shapeFactor calculation (mid)
   SAT_Pass_lowDM_Mid = (
                         SAT_Pass_Baseline_Mid
                      && nMergedTops == 0
@@ -655,7 +657,7 @@ void BaselineVessel::PassBaseline()
                      && pass_mtb_lowdm
                   );      
   
-  //baselinefor shapeFactor calculation (loose)
+  //baselinefor shapeFactor calculation (mid)
   SAT_Pass_highDM_Mid = (
                          SAT_Pass_Baseline_Mid
                       && SAT_Pass_dPhiMETHighDM
@@ -668,12 +670,12 @@ void BaselineVessel::PassBaseline()
   // ----------------------------------- // 
   if (doLeptonVeto)
   {
-      SAT_Pass_lowDM  = SAT_Pass_lowDM  && Pass_LeptonVeto;
-      SAT_Pass_highDM = SAT_Pass_highDM && Pass_LeptonVeto;
+      SAT_Pass_lowDM        = SAT_Pass_lowDM        && Pass_LeptonVeto;
+      SAT_Pass_highDM       = SAT_Pass_highDM       && Pass_LeptonVeto;
       SAT_Pass_lowDM_Loose  = SAT_Pass_lowDM_Loose  && Pass_LeptonVeto;
       SAT_Pass_highDM_Loose = SAT_Pass_highDM_Loose && Pass_LeptonVeto;
-      SAT_Pass_lowDM_Mid  = SAT_Pass_lowDM_Mid  && Pass_LeptonVeto;
-      SAT_Pass_highDM_Mid = SAT_Pass_highDM_Mid && Pass_LeptonVeto;
+      SAT_Pass_lowDM_Mid    = SAT_Pass_lowDM_Mid    && Pass_LeptonVeto;
+      SAT_Pass_highDM_Mid   = SAT_Pass_highDM_Mid   && Pass_LeptonVeto;
   }
   
   // --------------------------- // 
@@ -681,7 +683,9 @@ void BaselineVessel::PassBaseline()
   // --------------------------- // 
   // without dPhi
   bool SAT_Pass_Baseline_no_dPhi = (
-                            SAT_Pass_MET 
+                            SAT_Pass_JetID 
+                         && SAT_Pass_EventFilter
+                         && SAT_Pass_MET 
                          && SAT_Pass_HT
                          && SAT_Pass_NJets20
                       );
@@ -707,7 +711,9 @@ void BaselineVessel::PassBaseline()
 
   //Loose version
   bool SAT_Pass_Baseline_no_dPhi_Loose = (
-                            SAT_Pass_MET_Loose 
+                            SAT_Pass_JetID 
+                         && SAT_Pass_EventFilter
+                         && SAT_Pass_MET_Loose 
                          && SAT_Pass_HT
                          && SAT_Pass_NJets20
                       );
@@ -731,7 +737,9 @@ void BaselineVessel::PassBaseline()
 
   //Mid version
   bool SAT_Pass_Baseline_no_dPhi_Mid = (
-                            SAT_Pass_MET_Mid 
+                            SAT_Pass_JetID 
+                         && SAT_Pass_EventFilter
+                         && SAT_Pass_MET_Mid 
                          && SAT_Pass_HT
                          && SAT_Pass_NJets20
                       );
