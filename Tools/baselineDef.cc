@@ -507,8 +507,8 @@ void BaselineVessel::PassBaseline()
   bool SAT_Pass_HT          = (HT  >= 300);
   bool SAT_Pass_NJets20     = nJets >= 2;
   bool SAT_Pass_LeptonVeto  = (Pass_ElecVeto && Pass_MuonVeto && Pass_IsoTrkVeto);
-  bool SAT_Pass_JetID       = tr->getVar<bool>("SAT_Pass_JetID");
-  bool SAT_Pass_EventFilter = tr->getVar<bool>("SAT_Pass_EventFilter");
+  bool SAT_Pass_JetID       = tr->getVar<bool>(UseCleanedJetsVar("SAT_Pass_JetID"));
+  bool SAT_Pass_EventFilter = tr->getVar<bool>(UseCleanedJetsVar("SAT_Pass_EventFilter"));
   bool Pass_JetID           = tr->getVar<bool>("Pass_JetID");
   bool Pass_EventFilter     = tr->getVar<bool>("Pass_EventFilter");
   bool Pass_LeptonVeto      = tr->getVar<bool>("Pass_LeptonVeto");
@@ -1565,8 +1565,11 @@ void BaselineVessel::PassEventFilter()
     const auto& Flag_ecalBadCalibFilter                     = tr->getVar<bool>("Flag_ecalBadCalibFilter");
     const auto& Flag_globalSuperTightHalo2016Filter         = tr->getVar<bool>("Flag_globalSuperTightHalo2016Filter");
     const auto& Flag_eeBadScFilter                          = tr->getVar<bool>("Flag_eeBadScFilter");
+    // Note: Don't apply Flag_globalSuperTightHalo2016Filter to fastsim samples if you use fastsim
+    // Note: Apply Flag_eeBadScFilter to Data but not MC
+    // Note: Don't apply Flag_ecalBadCalibFilter to 2016, but apply it to 2017 and 2018
     SAT_Pass_EventFilter =   Flag_goodVertices && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter
-                          && Flag_BadPFMuonFilter && Flag_BadChargedCandidateFilter;
+                          && Flag_BadPFMuonFilter && Flag_BadChargedCandidateFilter && Flag_globalSuperTightHalo2016Filter;
     tr->registerDerivedVar("SAT_Pass_EventFilter"+firstSpec, SAT_Pass_EventFilter);
 }
 
