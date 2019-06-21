@@ -122,7 +122,7 @@ namespace AnaConsts{
    };
    const float defaultMETcut = 250;
    const float defaultMT2cut = 200;
-   const float defaultHTcut = 300;
+   const float defaultHTcut  = 300;
 
 //                                    minAbsEta, maxAbsEta, minPt, maxPt,   maxIso,  maxMtw
    const IsoAccRec muonsArr        = {   -1,       2.4,      10,     -1,       0.2,     -1  };
