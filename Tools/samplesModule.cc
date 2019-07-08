@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 extern "C" {
-    double SC_fixed_lumi(){ return AnaSamples::luminosity; }
+    double SC_fixed_lumi(){ return AnaSamples::luminosity_2016; }
     AnaSamples::SampleSet* SS_new(char *ssfile)
     {
         return new AnaSamples::SampleSet(ssfile);

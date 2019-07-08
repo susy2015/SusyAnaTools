@@ -1,13 +1,13 @@
 import numpy as np
-from multiprocessing import Pool
 from pyxrootd import client
 from functools import partial
+import concurrent.futures
 
 def getFiles(fileList):
-    #If multiprocessing is used this must also be run in a seperate thread from the master thread
+    # If multiprocessing is used this must also be run in a seperate thread from the master thread
     try:
         with client.File() as fl:
-            #Why is the client written like this????
+            # Why is the client written like this????
             fl.open(fileList)
             files = [f.strip("\n") for f in fl]
     except ValueError:
@@ -16,28 +16,36 @@ def getFiles(fileList):
     else:
         return files
 
-try:
-    import uproot
+executor = concurrent.futures.ThreadPoolExecutor(1)
 
-    def getNEvtsProcess(fileURL, legacy=False):
-        try:
-            with uproot.open(fileURL) as f:
-                if legacy:
-                    array = f["stopTreeMaker"]["AUX"]["stored_weight"].array()
-                else:
-                    array = f["Events"]["genWeight"].array()
-        except:
-            print "ERROR: unable to open fileURL"
-            return None
-        totalEvents = array.shape[0]
-        totalNeg = (array[:] < 0).sum()
-        totalPos = totalEvents - totalNeg
-        return np.array((totalPos, totalNeg))
+try:
+    raise ImportError
+# Uproot implementation is currently rather slow, disable it for now
+#    import uproot
+#    print "using uproot"
+#
+#    def getNEvtsProcess(fileURL, legacy=False):
+#        try:
+#            with uproot.open(fileURL) as f:
+#                if legacy:
+#                    array = f["stopTreeMaker"]["AUX"]["stored_weight"].array(executor=executor)
+#                else:
+#                    array = f["Events"]["genWeight"].array(executor=executor)
+#        except:
+#            print "ERROR: unable to open fileURL"
+#            return None
+#        total = array.shape[0]
+#        diff = array.sum()
+#        totalNeg = (total - diff)/2
+#        totalPos = (total + diff)/2
+#        return np.array((totalPos, totalNeg))
 
 except ImportError:
 
-    #uproot is not found, fall back to using ROOT
+    # uproot is not found, fall back to using ROOT
     import ROOT
+    # make sure ROOT.TFile.Open(fileURL) does not seg fault when $ is in sys.argv (e.g. $ passed in as argument)
+    ROOT.PyConfig.IgnoreCommandLineOptions = True 
 
     def getNEvtsProcess(fileURL, legacy=False):
         try:
@@ -47,10 +55,17 @@ except ImportError:
             return None
         if legacy:
             tree = f.Get("stopTreeMaker/AUX")
+            isData = not bool(tree.GetBranch("genLVec"))
         else:
             tree = f.Get("Events")
+            isData = not bool(tree.GetBranch("GenPart_pt"))
         if not tree:
-            print "tree is empty"
+            print "ERROR: tree is empty"
+
+        if isData:
+            #this is data, just gen entries
+            return np.array((tree.GetEntries(), 0))
+
         h = ROOT.TH1D("h", "h", 2, -100, 100)
         if legacy:
             tree.Draw("stored_weight>>h", "1", "goff")
@@ -63,17 +78,10 @@ except ImportError:
 
 
 def getNEvts(fileList, threads=4, legacy=False):
-    if threads > 0:
-        p = Pool(threads)
-        files = p.map(getFiles, [fileList])[0]
-    else:
-        files = getFiles(fileList)
+    files = getFiles(fileList)
 
     if files:
-        if threads > 0:
-            results = p.map(partial(getNEvtsProcess, legacy=legacy), files)
-        else:
-            results = list(getNEvtsProcess(f, legacy) for f in files)
+        results = list(getNEvtsProcess(f, legacy) for f in files)
         return sum(results)
     else:
         print "files do not exist: getNEvts() returning None"
@@ -95,14 +103,17 @@ if __name__ == "__main__":
     options, args = parser.parse_args()
 
     ss = SampleSet(options.sampleSetCfg)
-    samples = [(name, file.replace("/eos/uscms", "root://cmseos.fnal.gov/")) for name, file in ss.sampleSetList()]
+    samples = [(name, f.replace("/eos/uscms", "root://cmseos.fnal.gov/")) for name, f in ss.sampleSetList()]
 
-    for name, file in samples:
+    for name, f in samples:
         if re.search(options.dataSetPattern, name):
-            print "name: {0} file: {1}".format(name, file)
             try:
-                nPos, nNeg = getNEvts(file, options.threads, options.legacy)
-                print "%s, %s, Positive weights: %i, Negative weights: %i"%(name, file, nPos, nNeg)
+                nPos, nNeg = getNEvts(f, options.threads, options.legacy)
+                #################################################################################################
+                # WARNING: Do not change print statement unless you also update nEvts.C and updateSamples.py!!! #
+                #################################################################################################
+                print "%s, %s, Positive weights: %i, Negative weights: %i"%(name, f, nPos, nNeg)
             except TypeError:
+                print "ERROR: TypeError in getNEvts()"
                 pass
                 

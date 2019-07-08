@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
     n_eff_udsg->GetYaxis()->SetTitle("#eta");
  
 
-    AnaSamples::SampleSet        ss("sampleSets.txt", (argc == 6), AnaSamples::luminosity);
+    AnaSamples::SampleSet        ss("sampleSets.txt", (argc == 6), AnaSamples::luminosity_2016);
                                    
     float ScaleMC = 1.;                                                                              
     if(ss[subSampleName] != ss.null())                                                                             

@@ -45,6 +45,7 @@ namespace AnaSamples
       if(filerun<0)filerun=filelist_.size();
       for(int fn = startfile; fn < startfile+filerun && fn<filelist_.size(); fn++)
       {
+        //printf("fn = %d, filelist_[fn]=%s\n", fn, filelist_[fn].c_str()); // testing
         chain->Add(filelist_[fn].c_str());
       }
     }
@@ -65,13 +66,54 @@ namespace AnaSamples
   bool operator== (const FileSummary& lhs, const FileSummary& rhs);
   bool operator!= (const FileSummary& lhs, const FileSummary& rhs);
 
-  static const double luminosity = 35866.210733056; // in pb-1
+  // previously used luminosity (2016)
+  //static const double luminosity = 35866.210733056; // in pb-1
+
+  // --- Luminosities from Stealth Stop group (Kelvin and Nadja) --- //
+  // Single Electron Luminosity
+  //static const double luminosity_2016 = 35908.886; // in pb-1
+  //static const double luminosity_2017 = 41525.529; // in pb-1
+  // Single Muon Luminosity
+  //static const double luminosity_2016 = 35917.149; // in pb-1
+  //static const double luminosity_2017 = 41525.250; // in pb-1
+  // --------------------------------------------------------------- //
+
+  // Run 2 Dataset Luminosities
+  // Data_SingleElectron_2016:  35860.0 pb^(-1) 
+  // Data_SingleMuon_2016:      35922.0 pb^(-1)
+  // Data_SinglePhoton_2016:    35922.0 pb^(-1)
+  // Data_SingleElectron_2017:  TBD
+  // Data_SingleMuon_2017:      37620.0 pb^(-1)
+  // Data_SinglePhoton_2017:    41179.0 pb^(-1)
+  // Data_EGamma_2018:          57812.0 pb^(-1)
+  // Data_SingleMuon_2018:      58364.0 pb^(-1) 
+ 
+  //May 5, 2019: Updated Luminosities from PostProcessed_StopTuple_V2.7.2
+  //Question: Should Data_SingleElectron_2016 be 35860.0 (see PostProcess_StopTuple_V1.2.1)
+  static const double luminosity_2016           = 35922.0; // in pb-1 (Data_SingleMuon_2016)
+  static const double luminosity_2017           = 41856.0; // in pb-1 (Data_SingleElectron_2017)
+  static const double luminosity_2018           = 58905.0; // in pb-1 (Data_EGamma_2018)
+  static const double luminosity_2018_AB        = 20757.0; // in pb-1 (Data_EGamma_2018 Periods A + B)
+  static const double luminosity_2018_CD        = 38148.0; // in pb-1 (Data_EGamma_2018 Periods C + D)
+  // lumi per sample when datasets had different lumis
+  //static const double luminosity_electron_2016  = 18075.2; // in pb-1 for Data_SingleElectron_2016; compare to Stealth n_events, (35922.0 * 474181858.0 / 942371523.0) = 18075.207375590446
+  static const double luminosity_electron_2016  = 35860.0; // in pb-1 for Data_SingleElectron_2016
+  static const double luminosity_muon_2016      = 35922.0; // in pb-1 for Data_SingleMuon_2016
+  static const double luminosity_photon_2016    = 35922.0; // in pb-1 for Data_SinglePhoton_2016 
+  static const double luminosity_electron_2017  = 41856.0; // in pb-1 for Data_SingleElectron_2017
+  static const double luminosity_muon_2017      = 41856.0; // in pb-1 for Data_SingleMuon_2017
+  static const double luminosity_photon_2017    = 41666.0; // in pb-1 for Data_SinglePhoton_2017 
+  static const double luminosity_electron_2018  = 58905.0; // in pb-1 for Data_EGamma_2018
+  static const double luminosity_muon_2018      = 59477.0; // in pb-1 for Data_SingleMuon_2018
+  static const double luminosity_photon_2018    = 58905.0; // in pb-1 for Data_EGamma_2018
+  
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Mar14_2014_v2/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_72X_July_2015_v1.1/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/Spring15_74X_July_2015_v1.1/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/Spring15_74X_Oct_2015_Ntp_v2X/";
   //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/";
+  
   static const std::string fileDir = "/cms/data/store/user/lpcsusyhad/";
 
   template<class T>
@@ -155,7 +197,7 @@ namespace AnaSamples
     friend class SampleCollection;
    
    public:
-    SampleSet(std::string fDir = fileDir, bool isCondor = false, double lumi = luminosity);
+    SampleSet(std::string fDir = fileDir, bool isCondor = false, double lumi = luminosity_2016);
     void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) 
     {
         sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, xsec, lumi, nEvts, kfactor, color);

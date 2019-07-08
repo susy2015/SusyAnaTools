@@ -52,8 +52,8 @@ TChain *fChain = 0;
       TFile *f = new TFile(FileName+".root", "RECREATE");
       TH1D *hISR = new TH1D("NJetsISR", "NJetsISR", nisrJetBins, isrJetBins );
 
-      AnaSamples::SampleSet        ss("sampleSets.txt", (argc == 6), AnaSamples::luminosity);
-      AnaSamples::SampleCollection sc("sampleCollections.txt", ss);
+      AnaSamples::SampleSet        ss("sampleSets.cfg", (argc == 6), AnaSamples::luminosity_2016);
+      AnaSamples::SampleCollection sc("sampleCollections.cfg", ss);
                                    
       double ScaleMC = 1.;                                                                              
       if(ss[subSampleName] != ss.null())                                                                             

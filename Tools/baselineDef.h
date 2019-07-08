@@ -4,9 +4,7 @@
 #include "NTupleReader.h"
 #include "customize.h"
 #include "EventListFilter.h"
-
 #include "Math/VectorUtil.h"
-
 #include <memory>
 #include <iostream>
 
@@ -65,7 +63,6 @@ public:
     bool debug;
     bool printConfig;
     bool incZEROtop;
-    bool UseLeptonCleanJet;
     bool UseDRLeptonCleanJet;
     bool UseDRPhotonCleanJet;
     bool UseDeepTagger;
@@ -73,27 +70,26 @@ public:
 
     std::string eraLabel;
     std::string jetVecLabel;
+    std::string jetVecLabelAK8;
     std::string CSVVecLabel;
     std::string METLabel;
     std::string METPhiLabel;
-    std::string jetVecLabelAK8;
     std::string muonsFlagIDLabel;
     std::string elesFlagIDLabel;
     std::string qgLikehoodLabel;
     std::string toptaggerCfgFile;
     
-    
-    bool doIsoTrksVeto;
-    bool doMuonVeto;
-    bool doEleVeto;
+    bool doLeptonVeto; 
     bool doMET;
-    bool dodPhis;
-    bool passBaseline;
-    bool passBaselineLowDM;
-    bool passBaselineHighDM;
-    bool passBaselineNoTagMT2;
-    bool passBaselineNoTag;
-    bool passBaselineNoLepVeto;
+    bool SAT_Pass_Baseline;
+    bool SAT_Pass_lowDM;
+    bool SAT_Pass_highDM;
+    bool SAT_Pass_Baseline_Loose;
+    bool SAT_Pass_lowDM_Loose;
+    bool SAT_Pass_highDM_Loose;
+    bool SAT_Pass_Baseline_Mid;
+    bool SAT_Pass_lowDM_Mid;
+    bool SAT_Pass_highDM_Mid;
 
 
     BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");
@@ -101,9 +97,17 @@ public:
     ~BaselineVessel();
 
     inline std::string UseCleanedJetsVar(std::string varname) const;
+    bool getBool(const std::string& var);
     void PassBaseline();
+    void PassTrigger();
+    void PassJetID();
+    void PassEventFilter();
+    bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low);
+    void PassHEMVeto();
     bool PrintoutConfig() const;
-    bool CompCommonVar();
+    bool CalcBottomVars();
+    int  GetISRJetIdx(); 
+    bool CalcISRJetVars();
     bool passNoiseEventFilterFunc();
     bool passQCDHighMETFilterFunc();
     bool passFastsimEventFilterFunc();
@@ -146,79 +150,6 @@ inline void passBaselineFunc(NTupleReader &tr, std::string filterstring)
   BaselineVessel blv(tr, "", filterstring);
   blv.PassBaseline();
   blv.GetMHT();
-}
-
-namespace stopFunctions
-{
-    class CleanJets
-    {
-    public:        
-        void operator()(NTupleReader& tr) 
-        {
-            internalCleanJets(tr);
-        }
-
-        void setMuonIso(const std::string muIsoFlag);
-        void setElecIso(const std::string elecIsoFlag);
-        void setJetCollection(std::string jetVecLabel);
-        void setBTagCollection(std::string bTagLabel);
-        void setMuonsFlagID(std::string muonsFlagIDLabel);
-        void setElesFlagID(std::string elesFlagIDLabel);
-        void setEnergyFractionCollections(std::string chargedEMfrac, std::string neutralEMfrac, std::string chargedHadfrac);
-        void setForceDr(bool forceDr);
-        void setDisable(bool disable);
-        void setRemove(bool remove);
-        void setElecPtThresh(float minPt);
-        void setMuonPtThresh(float minPt);
-        void setDisableElec(bool disable);
-        void setDisableMuon(bool disable);
-        //This option is used to clean up to 1 jet in the minDr cone around the muon if the jet is lower pt than the muon
-        //It is designed only for use with the z->inv background to remove muon related radiation from the event
-        void setJecScaleRawToFull(std::string jecScaleRawToFullLabel);
-        void setPhotoCleanThresh(float photoCleanThresh);
-
-        //NOTE!!! Must add Hadron and EM fraction vectors here
-
-        CleanJets()
-        {
-            setMuonIso("mini");
-            setElecIso("mini");
-            setJetCollection("jetsLVec");
-            setBTagCollection("recoJetsCSVv2");
-            setMuonsFlagID("muonsFlagMedium");
-            setElesFlagID("elesFlagVeto");
-            setEnergyFractionCollections("recoJetschargedHadronEnergyFraction", "recoJetsneutralEmEnergyFraction", "recoJetschargedEmEnergyFraction");    
-            setForceDr(false);
-            setRemove(false);
-            setDisable(false);
-            setElecPtThresh(0.0);
-            setMuonPtThresh(0.0);
-            setPhotoCleanThresh(-999.9);
-            setJecScaleRawToFull("recoJetsJecScaleRawToFull");
-        }
-        
-    private:
-        std::string muIsoStr_, elecIsoStr_, jetVecLabel_, bTagLabel_, chargedEMFracLabel_, neutralEMFracLabel_, chargedHadFracLabel_;
-        std::string muonsFlagIDLabel_, elesFlagIDLabel_;
-        std::string recoJetsJecScaleRawToFullLabel_;
-        AnaConsts::IsoAccRec muIsoReq_;
-        AnaConsts::ElecIsoAccRec elecIsoReq_;
-        float elecPtThresh_;
-        float muonPtThresh_;
-        float photoCleanThresh_;
-        bool remove_;
-        bool disableMuon_, disableElec_;
-        bool forceDr_;
-
-        int cleanLeptonFromJet(const TLorentzVector& lep, const int& lepMatchedJetIdx, const std::vector<TLorentzVector>& jetsLVec, const std::vector<float>& jecScaleRawToFull, std::vector<bool>& keepJet, const std::vector<float>& neutralEmEnergyFrac, std::vector<TLorentzVector>* cleanJetVec, const float& jldRMax, std::vector<float>* dRvec = nullptr, const float photoCleanThresh = -999.9);
-        void internalCleanJets(NTupleReader& tr);
-    };
-
-    inline void cleanJets(NTupleReader& tr)
-    {
-      CleanJets cjh;
-      cjh(tr);
-    }
 }
 
 #endif
