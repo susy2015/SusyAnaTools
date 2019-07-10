@@ -788,7 +788,10 @@ void BaselineVessel::PassBaseline()
   //{
   //    printf("%d: event %d passes (Pass_EventFilter && Pass_JetID && SAT_Pass_lowDM_mid_dPh)i; baseline%s\n", tr->getEvtNum(), event, mySpec.c_str());
   //}
-
+  
+  //unsigned long long CMS_event = tr->getVar<unsigned long long>("event");
+  //printf("CMS event: %d ntuple event: %d\n", CMS_event, tr->getEvtNum());
+  
   //if (tr->getEvtNum() == 7217)
   //if (tr->getEvtNum() == 29144)
   if (false)
