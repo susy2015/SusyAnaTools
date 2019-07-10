@@ -520,14 +520,15 @@ void BaselineVessel::PassBaseline()
   
   //SUS-16-049, low dm, ISR cut
   // see GetISRJetIdx() and CalcISRJetVars() for details
-  bool pass_ISR = (ISRJetPt >= 200);
+  bool SAT_Pass_ISR   = (ISRJetPt > 200);
+  bool SAT_Pass_S_MET = (S_met > 10);
   
   // ----------------------- // 
   // --- For Search Bins --- //
   // ----------------------- // 
   
   //SUS-16-049, low dm, mtb cut
-  bool pass_mtb_lowdm = (nBottoms == 0 || (nBottoms > 0 && mtb < 175));  
+  bool SAT_Pass_MTB_LowDM = (nBottoms == 0 || (nBottoms > 0 && mtb < 175));  
 
   //SUS-16-049, low dm, dphi(met, j1) > 0.5, dphi(met, j23) > 0.15
   bool SAT_Pass_dPhiMETLowDM = ( 
@@ -596,9 +597,9 @@ void BaselineVessel::PassBaseline()
                      && nMergedTops == 0
                      && nResolvedTops == 0
                      && nWs == 0
-                     && pass_ISR
-                     && S_met > 10
-                     && pass_mtb_lowdm
+                     && SAT_Pass_ISR
+                     && SAT_Pass_S_MET
+                     && SAT_Pass_MTB_LowDM
                    );      
   
   //baseline for SUS-16-049 high dm plus HT cut
@@ -624,9 +625,9 @@ void BaselineVessel::PassBaseline()
                         SAT_Pass_Baseline_Loose
                      && nMergedTops == 0
                      && nWs == 0
-                     && pass_ISR
-                     && S_met > 10
-                     && pass_mtb_lowdm
+                     && SAT_Pass_ISR
+                     && SAT_Pass_S_MET
+                     && SAT_Pass_MTB_LowDM
                   );      
   
   //baselinefor shapeFactor calculation (loose)
@@ -652,9 +653,9 @@ void BaselineVessel::PassBaseline()
                         SAT_Pass_Baseline_Mid
                      && nMergedTops == 0
                      && nWs == 0
-                     && pass_ISR
-                     && S_met > 10
-                     && pass_mtb_lowdm
+                     && SAT_Pass_ISR
+                     && SAT_Pass_S_MET
+                     && SAT_Pass_MTB_LowDM
                   );      
   
   //baselinefor shapeFactor calculation (mid)
@@ -696,9 +697,9 @@ void BaselineVessel::PassBaseline()
                      && nMergedTops == 0
                      && nResolvedTops == 0
                      && nWs == 0
-                     && pass_ISR
-                     && S_met > 10
-                     && pass_mtb_lowdm
+                     && SAT_Pass_ISR
+                     && SAT_Pass_S_MET
+                     && SAT_Pass_MTB_LowDM
                    );      
   
   //baseline for SUS-16-049 high dm plus HT cut
@@ -723,9 +724,9 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_mid_dPhiMETLowDM 
                      && nMergedTops == 0
                      && nWs == 0
-                     && pass_ISR
-                     && S_met > 10
-                     && pass_mtb_lowdm
+                     && SAT_Pass_ISR
+                     && SAT_Pass_S_MET
+                     && SAT_Pass_MTB_LowDM
                    );      
   //baseline for SUS-16-049 high dm plus HT cut
   bool SAT_Pass_highDM_mid_dPhi_Loose = (
@@ -749,9 +750,9 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_mid_dPhiMETLowDM 
                      && nMergedTops == 0
                      && nWs == 0
-                     && pass_ISR
-                     && S_met > 10
-                     && pass_mtb_lowdm
+                     && SAT_Pass_ISR
+                     && SAT_Pass_S_MET
+                     && SAT_Pass_MTB_LowDM
                    );      
   //baseline for SUS-16-049 high dm plus HT cut
   bool SAT_Pass_highDM_mid_dPhi_Mid = (
@@ -832,7 +833,7 @@ void BaselineVessel::PassBaseline()
     printf("ISRJetPt: %f ",         ISRJetPt);
     printf("Stop0l_ISRJetIdx: %d ", Stop0l_ISRJetIdx);
     printf("ISRJetIdx: %d ",        ISRJetIdx);
-    printf("pass_ISR: %d ",         pass_ISR);
+    printf("SAT_Pass_ISR: %d ",     SAT_Pass_ISR);
     // mtb and ptb variables
     printf("met = %f, metphi = %f\n",     met,        metphi);
     printf("Stop0l_Mtb = %f, mtb = %f\n", Stop0l_Mtb, mtb);
@@ -850,9 +851,13 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
   tr->registerDerivedVar("nIsoTracks_Stop0l" + firstSpec, nIsoTracks_Stop0l);
   tr->registerDerivedVar("HT" + firstSpec, HT);
+  tr->registerDerivedVar("S_met" + firstSpec, S_met);
   tr->registerDerivedVar("SAT_Pass_MET" + firstSpec, SAT_Pass_MET);
   tr->registerDerivedVar("SAT_Pass_HT" + firstSpec, SAT_Pass_HT);
   tr->registerDerivedVar("SAT_Pass_NJets20" + firstSpec, SAT_Pass_NJets20);
+  tr->registerDerivedVar("SAT_Pass_ISR" + firstSpec, SAT_Pass_ISR);
+  tr->registerDerivedVar("SAT_Pass_S_MET" + firstSpec, SAT_Pass_S_MET);
+  tr->registerDerivedVar("SAT_Pass_MTB_LowDM" + firstSpec, SAT_Pass_MTB_LowDM);
   tr->registerDerivedVar("SAT_Pass_Baseline"  + firstSpec, SAT_Pass_Baseline);
   tr->registerDerivedVar("SAT_Pass_dPhiMETLowDM" + firstSpec,  SAT_Pass_dPhiMETLowDM);
   tr->registerDerivedVar("SAT_Pass_dPhiMETHighDM" + firstSpec, SAT_Pass_dPhiMETHighDM);
