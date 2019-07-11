@@ -789,18 +789,21 @@ void BaselineVessel::PassBaseline()
   //    printf("%d: event %d passes (Pass_EventFilter && Pass_JetID && SAT_Pass_lowDM_mid_dPh)i; baseline%s\n", tr->getEvtNum(), event, mySpec.c_str());
   //}
   
-  //unsigned long long CMS_event = tr->getVar<unsigned long long>("event");
+  unsigned long long CMS_event = tr->getVar<unsigned long long>("event");
   //printf("CMS event: %d ntuple event: %d\n", CMS_event, tr->getEvtNum());
   
   //if (tr->getEvtNum() == 7217)
-  //if (tr->getEvtNum() == 29144)
+  //if (CMS_event == 519215141)
   if (false)
   {
-    printf("event: %d; %d\n", event, tr->getEvtNum());
+    printf("CMS event: ntuple event: %d; %d\n", event, tr->getEvtNum());
+    printf("SAT_Pass_dPhiMETLowDM: %d\n", SAT_Pass_dPhiMETLowDM);
+    printf("SAT_Pass_dPhiMETHighDM: %d\n", SAT_Pass_dPhiMETHighDM);
     // dPhi
     printf("dPhi_0: %f ",           dPhiVec->at(0));
     printf("dPhi_1: %f ",           dPhiVec->at(1));
     printf("dPhi_2: %f ",           dPhiVec->at(2));
+    printf("dPhi_3: %f ",           dPhiVec->at(3));
     printf("met = %f ",             met);
     printf("metphi = %f ",          metphi);
     printf("HT = %f ",              HT);
