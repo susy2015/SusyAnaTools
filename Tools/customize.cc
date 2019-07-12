@@ -286,7 +286,7 @@ namespace AnaFunctions
 
   void preparecalcDPhi(const std::vector<TLorentzVector> &inijetsLVec, const TLorentzVector &metLVec, std::vector<float> &outDPhiVec){
     outDPhiVec.clear();
-    outDPhiVec = calcDPhi(inijetsLVec, metLVec, 5, AnaConsts::dphiArr);
+    outDPhiVec = calcDPhi(inijetsLVec, metLVec, 5, AnaConsts::pt20Eta47Arr);
   }
 
   void prepareForNtupleReader(){

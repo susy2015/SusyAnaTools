@@ -439,12 +439,6 @@ void BaselineVessel::PassBaseline()
   const auto& met         = tr->getVar<float>(METLabel); 
   const auto& metphi      = tr->getVar<float>(METPhiLabel); 
 
-  // Set TLorentzVector for MET
-  metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
-  
-  // Calculate deltaPhi
-  std::vector<float> * dPhiVec = new std::vector<float>();
-  (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, AnaConsts::dphiArr);
 
   // lepton vetos
   int nElectrons_Stop0l = 0;
@@ -460,16 +454,28 @@ void BaselineVessel::PassBaseline()
   for (const auto& pass : Muon_Stop0l)      if(pass) ++nMuons_Stop0l;
   for (const auto& pass : IsoTrack_Stop0l)  if(pass) ++nIsoTracks_Stop0l;
 
-  int nJets = 0;
-  int nFatJets = 0;
-  for (const auto& Jet : Jets)
-  {
-      if (Jet.Pt() > 20 && fabs(Jet.Eta()) < 2.4) ++nJets;
-  }
-  for (const auto& FatJet : FatJets)
-  {
-      if (FatJet.Pt() > 200 && fabs(FatJet.Eta()) < 2.4) ++nFatJets;
-  }
+  // alternate n_jets calculation
+  //int nJets = 0;
+  //int nFatJets = 0;
+  //for (const auto& Jet : Jets)
+  //{
+  //    if (Jet.Pt() > 20 && fabs(Jet.Eta()) < 2.4) ++nJets;
+  //}
+  //for (const auto& FatJet : FatJets)
+  //{
+  //    if (FatJet.Pt() > 200 && fabs(FatJet.Eta()) < 2.4) ++nFatJets;
+  //}
+  
+  // Set TLorentzVector for MET
+  metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
+  // Calculate deltaPhi
+  std::vector<float> * dPhiVec = new std::vector<float>();
+  (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, AnaConsts::pt30Eta47Arr);
+  // more vars
+  int nJets     = AnaFunctions::countJets(Jets,               AnaConsts::pt30Eta24Arr);  
+  int nFatJets  = AnaFunctions::countJets(FatJets,            AnaConsts::pt200Eta24Arr);  
+  float HT      = AnaFunctions::calcHT(Jets,    AnaConsts::pt30Eta24Arr);
+  float S_met   = met / sqrt(HT);
 
   //---------------------------------------//
   //--- Updated Baseline (January 2019) ---//
@@ -498,8 +504,6 @@ void BaselineVessel::PassBaseline()
   const auto& Stop0l_nTop       = tr->getVar<int>("Stop0l_nTop");
   const auto& Stop0l_nResolved  = tr->getVar<int>("Stop0l_nResolved");
   const auto& Stop0l_nW         = tr->getVar<int>("Stop0l_nW");
-  float HT                      = AnaFunctions::calcHT(Jets, AnaConsts::pt20Eta24Arr);
-  float S_met                   = met / sqrt(HT);
   
   bool SAT_Pass_MET_Loose   = (met >= 100);
   bool SAT_Pass_MET_Mid     = (met >= 160);
@@ -1361,7 +1365,7 @@ bool BaselineVessel::passQCDHighMETFilterFunc()
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
 
   int nJetsLoop = recoJetsmuonEnergyFraction.size();
-  std::vector<float> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metLVec, nJetsLoop, AnaConsts::dphiArr);
+  std::vector<float> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metLVec, nJetsLoop, AnaConsts::pt20Eta47Arr);
 
   for(int i=0; i<nJetsLoop ; i++)
   {
@@ -1875,6 +1879,8 @@ bool BaselineVessel::CalcBottomVars()
   const auto& event          = tr->getVar<unsigned long long>("event");
 
   bool verbose = false;
+  float pt_cut = 30.0;
+  float eta_cut = 2.4;
   float mtb = INFINITY;
   float ptb = 0.0;
   int nBottoms = 0;
@@ -1889,15 +1895,15 @@ bool BaselineVessel::CalcBottomVars()
     ++i;
   }
   
-  // sort jets by pt (since JEC change jet pt)
+  // sort jets by pt (since JECs change jet pt)
   std::sort(sorted_jets.begin(), sorted_jets.end(), SusyUtility::greaterThan<float, unsigned>);
   
   for (const auto& p : sorted_jets)
   {
     // jet index sorted by pt
     i = p.second; 
-    // check if it pass b requirement
-    if (Jet_btagStop0l[i])
+    // check if it passes pt, eta, and b requirement
+    if (jets[i].Pt() > pt_cut && fabs(jets[i].Eta()) < eta_cut && Jet_btagStop0l[i])
     {
       if (verbose) printf("event %d, jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", event, i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jets[i].Pt());
       ++nBottoms;
@@ -1917,15 +1923,12 @@ bool BaselineVessel::CalcBottomVars()
   if (verbose && disc_vec.size() > 0) 
   {
     printf("jets.size() = %d, disc_vec.size() = %d\n", jets.size(), disc_vec.size());
-    for (const auto& d : disc_vec)
-    {
-      printf("d = %f, index = %d\n", d.first, d.second);
-    }
   }
   
   i = 0;
   for (const auto& d : disc_vec)
   {
+    if (verbose) printf("d = %f, index = %d\n", d.first, d.second);
     // only use first two b-jets (ordered by discriminator) for mtb
     if (i > 1) break;
     const TLorentzVector& b_jet = jets.at(d.second); 
