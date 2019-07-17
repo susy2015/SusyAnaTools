@@ -782,20 +782,8 @@ void BaselineVessel::PassBaseline()
   // ------------------------------ //
   // --- print info for testing --- //
   // ------------------------------ //
-  
-  //std::string mySpec = "_normal";
-  //if (!firstSpec.empty())
-  //{
-  //  mySpec = firstSpec;
-  //}
-  //if (Pass_EventFilter && Pass_JetID && SAT_Pass_lowDM_mid_dPhi)
-  //{
-  //    printf("%d: event %d passes (Pass_EventFilter && Pass_JetID && SAT_Pass_lowDM_mid_dPh)i; baseline%s\n", tr->getEvtNum(), event, mySpec.c_str());
-  //}
-  
-  unsigned long long CMS_event = tr->getVar<unsigned long long>("event");
+  //unsigned long long CMS_event = tr->getVar<unsigned long long>("event");
   //printf("CMS event: %d ntuple event: %d\n", CMS_event, tr->getEvtNum());
-  
   //if (tr->getEvtNum() == 7217)
   //if (CMS_event == 519215141)
   if (false)
@@ -1879,7 +1867,7 @@ bool BaselineVessel::CalcBottomVars()
   const auto& event          = tr->getVar<unsigned long long>("event");
 
   bool verbose = false;
-  float pt_cut = 30.0;
+  float pt_cut = 20.0;
   float eta_cut = 2.4;
   float mtb = INFINITY;
   float ptb = 0.0;
