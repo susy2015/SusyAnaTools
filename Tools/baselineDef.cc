@@ -1621,7 +1621,7 @@ void BaselineVessel::PassHEMVeto()
     // https://github.com/susy2015/NanoSUSY-tools/blob/master/python/modules/Stop0lBaselineProducer.py#L236-L239
     const auto& Jets        = tr->getVec<TLorentzVector>(jetVecLabel);
     const auto& Electrons   = tr->getVec<TLorentzVector>("cutElecVec");
-    const auto& Photons     = tr->getVec<TLorentzVector>("gammaLVecPassLooseID");
+    const auto& Photons     = tr->getVec<TLorentzVector>("cutPhotonTLV");
     // use exact (narrow) window for electrons and photons: eta_low, eta_high, phi_low, phi_high = -3.0, -1.4, -1.57, -0.87
     // use extended (wide) window for jets:                 eta_low, eta_high, phi_low, phi_high = -3.2, -1.2, -1.77, -0.67
     float narrow_eta_low  = -3.0;
