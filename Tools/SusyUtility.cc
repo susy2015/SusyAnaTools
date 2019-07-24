@@ -3,6 +3,7 @@
 // December 13, 2018
 
 // utility functions
+#include "SusyAnaTools/Tools/SusyUtility.h"
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -20,6 +21,33 @@ namespace SusyUtility
             result.push_back(item);
         }
     }
+    
+    template<> 
+    bool greaterThan(const std::pair<TLorentzVector,unsigned int>& p1, const std::pair<TLorentzVector,unsigned int>& p2)
+    {
+        if (p1.first.Pt() == p2.first.Pt())
+        {
+            return abs(p1.first.Eta()) < abs(p2.first.Eta());
+        }
+        else
+        {
+            return p1.first.Pt() > p2.first.Pt();
+        }
+    }
+    
+    template<> 
+    bool lessThan(const std::pair<TLorentzVector,unsigned int>& p1, const std::pair<TLorentzVector,unsigned int>& p2)
+    {
+        if (p1.first.Pt() == p2.first.Pt())
+        {
+            return abs(p1.first.Eta()) > abs(p2.first.Eta());
+        }
+        else
+        {
+            return p1.first.Pt() < p2.first.Pt();
+        }
+    }
+    
     
     // return vector of strings given names separated by deliminator, e.g. "electron;muon" ---> {"electron", "muon"} 
     std::vector<std::string> getVecFromString(const std::string &s, const char& delim) {

@@ -1874,17 +1874,17 @@ bool BaselineVessel::CalcBottomVars()
   int nBottoms = 0;
   int i = 0;
   
-  std::vector<std::pair<float, unsigned>> sorted_jets;
+  std::vector<std::pair<TLorentzVector, unsigned>> sorted_jets;
   std::vector<std::pair<float, unsigned>> disc_vec;
   i = 0;
   for (const auto& jet : jets)
   {
-    sorted_jets.push_back({jet.Pt(), i});
+    sorted_jets.push_back({jet, i});
     ++i;
   }
   
   // sort jets by pt (since JECs change jet pt)
-  std::sort(sorted_jets.begin(), sorted_jets.end(), SusyUtility::greaterThan<float, unsigned>);
+  std::sort(sorted_jets.begin(), sorted_jets.end(), SusyUtility::greaterThan<TLorentzVector, unsigned>);
   
   for (const auto& p : sorted_jets)
   {

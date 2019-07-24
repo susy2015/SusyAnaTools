@@ -44,15 +44,15 @@ namespace AnaFunctions
     int cntNJets =0;
     int i = 0;
     
-    std::vector<std::pair<float, unsigned>> sorted_jets;
+    std::vector<std::pair<TLorentzVector, unsigned>> sorted_jets;
     for (const auto& jet : inputJets)
     {
-      sorted_jets.push_back({jet.Pt(), i});
+      sorted_jets.push_back({jet, i});
       ++i;
     }
     
     // sort jets by pt (since JEC change jet pt)
-    std::sort(sorted_jets.begin(), sorted_jets.end(), SusyUtility::greaterThan<float, unsigned>);
+    std::sort(sorted_jets.begin(), sorted_jets.end(), SusyUtility::greaterThan<TLorentzVector, unsigned>);
     
     std::vector<float> outDPhiVec(nDPhi, 999);
     //for(unsigned int i=0; i<inputJets.size(); i++){
