@@ -232,16 +232,14 @@ def main():
         except IOError:
             print TextColor.red + "ERROR opening nevents file {0}".format(nevents_file) + TextColor.end
             return
-    
-    # get nevents from file
-    if nevents_file_2:
-        # open nevents file if it is provided
-        try:
-            neventsFile2 = open(nevents_file_2, 'r')
-        except IOError:
-            print TextColor.red + "ERROR opening nevents file {0}".format(nevents_file_2) + TextColor.end
-            return
-    
+        # get nevents from file
+        if nevents_file_2:
+            # open nevents file if it is provided
+            try:
+                neventsFile2 = open(nevents_file_2, 'r')
+            except IOError:
+                print TextColor.red + "ERROR opening nevents file {0}".format(nevents_file_2) + TextColor.end
+                return
     # get xsections from file
     elif xsection_file:
         # open xsection file if it is provided
@@ -261,7 +259,6 @@ def main():
         except IOError:
             print TextColor.red + "ERROR opening xsection file {0}".format(xsection_file) + TextColor.end
             return
-
     # calculate nevents
     else:
         # only get weights using getNEvts() if nevents_file is not provided by user
@@ -280,6 +277,8 @@ def main():
 
     # for each sample, find the correct weights
     for sample in inputSamples:
+        # do this before stripping sample
+        newSample = sample
         # be careful: strip() removes spaces and endlines
         # we remove these for our conditions, but not for our new file
         sample = sample.strip()
@@ -294,7 +293,6 @@ def main():
         
         # update config file with n_events
         else:
-            newSample = sample
             # if line is empty (after being stripped), write original line (with endline) to file
             if not sample:
                 outputSamples.write(newSample)
