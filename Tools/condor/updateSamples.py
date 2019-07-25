@@ -21,6 +21,7 @@ class TextColor:
     blue = "\033[94m"
     end = "\033[0m"
 
+# update cross sections (input config with correct cross sections, update in another config)
 def updateXSection(sample, xsection_dict):
     # be careful: strip() removes spaces and endlines
     sample_list = list(x.strip() for x in sample.split(','))
@@ -42,6 +43,47 @@ def updateXSection(sample, xsection_dict):
     return newSample
 
 
+# compare n_events in two nEvents files (for example pre and post)
+def compareNEventsFiles(sample, neventsFile1, neventsFile2):
+    verbose = False
+    # return to the beginning of the files
+    neventsFile1.seek(0)
+    neventsFile2.seek(0)
+    # be careful: strip() removes spaces and endlines
+    sample_list = list(x.strip() for x in sample.split(','))
+    name = sample_list[0] 
+    regex = re.compile(name+'.*Positive weights: (.*), Negative weights: (.*)')
+    files = [neventsFile1, neventsFile2]
+    matches = []
+    pos_weights = []
+    neg_weights = []
+    for f in files:
+        for line in f:
+            match = regex.match(line)
+            if match:
+                matches.append(match)
+                break
+    num_matches = len(matches) 
+    if num_matches == 2:
+        pos_weights = list(int(float(match.group(1))) for match in matches)
+        neg_weights = list(int(float(match.group(2))) for match in matches)
+        pos_diff = pos_weights[0] - pos_weights[1] 
+        neg_diff = neg_weights[0] - neg_weights[1] 
+        if verbose:
+            print "{0} pos_weights: {1} diff: {2}".format(name, pos_weights, pos_diff)  
+            print "{0} neg_weights: {1} diff: {2}".format(name, neg_weights, neg_diff)
+        if pos_diff or neg_diff:
+            if verbose:
+                print TextColor.yellow + "WARNING: nonzero difference for {0}".format(name) + TextColor.end
+            else:
+                print "{0} pos_weights: {1} diff: {2}".format(name, pos_weights, pos_diff)  
+                print "{0} neg_weights: {1} diff: {2}".format(name, neg_weights, neg_diff)
+                print TextColor.yellow + "WARNING: nonzero difference for {0}".format(name) + TextColor.end
+    else:
+        print "ERROR for {0}: {1} matches found (should be exactly 2)".format(name, num_matches)
+        
+
+# update n_events in config
 def getNewSample(sample, weight_dict, neventsFile):
     # be careful: strip() removes spaces and endlines
     sample_list = list(x.strip() for x in sample.split(','))
@@ -98,6 +140,7 @@ def getNewSample(sample, weight_dict, neventsFile):
             print TextColor.yellow + "WARNING: more than one match found in nEvents file; {0} has {1} matches".format(name, num_matches) + TextColor.end
         else:
             print "{0} has {1} match(es) in nEvents file: {2}".format(name, num_matches, message)
+        
         # replace commas and a space removed by split()
         # replace endline that was removed by strip()
         newSample = ", ".join(sample_list) + "\n"
@@ -131,6 +174,7 @@ def main():
     # options
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--nevents_file",    "-e", default="",                             help="file containing number of events that will be put into output file")
+    parser.add_argument("--nevents_file_2",  "-g", default="",                             help="a second file containing number of events for comparing to the first")
     parser.add_argument("--xsection_file",   "-x", default="",                             help="config file with cross sections that will be put into output file")
     parser.add_argument("--input_file",      "-i", default="../sampleSets.cfg",            help="Existing SampleSets.cfg file")
     parser.add_argument("--output_file",     "-o", default="../sampleSets_v1.cfg",         help="New SampleSets.cfg file to create")
@@ -141,6 +185,7 @@ def main():
     
     options          = parser.parse_args()
     nevents_file     = options.nevents_file
+    nevents_file_2   = options.nevents_file_2
     xsection_file    = options.xsection_file
     input_file       = options.input_file
     output_file      = options.output_file
@@ -152,6 +197,7 @@ def main():
     if verbose:
         print "Settings:"
         print "  nevents file: {0}".format(nevents_file)
+        print "  nevents 2 file: {0}".format(nevents_file_2)
         print "  xsection file: {0}".format(xsection_file)
         print "  input file: {0}".format(input_file)
         print "  output file: {0}".format(output_file)
@@ -185,6 +231,15 @@ def main():
             neventsFile = open(nevents_file, 'r')
         except IOError:
             print TextColor.red + "ERROR opening nevents file {0}".format(nevents_file) + TextColor.end
+            return
+    
+    # get nevents from file
+    if nevents_file_2:
+        # open nevents file if it is provided
+        try:
+            neventsFile2 = open(nevents_file_2, 'r')
+        except IOError:
+            print TextColor.red + "ERROR opening nevents file {0}".format(nevents_file_2) + TextColor.end
             return
     
     # get xsections from file
@@ -225,31 +280,42 @@ def main():
 
     # for each sample, find the correct weights
     for sample in inputSamples:
-        newSample = sample
         # be careful: strip() removes spaces and endlines
         # we remove these for our conditions, but not for our new file
         sample = sample.strip()
-        #print "sample: {0}".format(sample)
-        # if line is empty (after being stripped), write original line (with endline) to file
-        if not sample:
-            outputSamples.write(newSample)
-            continue
-        # if xsection_file is provided, replace cross sections
-        if xsection_file:
-            newSample = updateXSection(sample, xsection_dict)
-            outputSamples.write(newSample)
-            continue
+        # compare n_events files
+        if nevents_file and nevents_file_2:
+            # skip these samples
+            if not sample:
+                continue
+            if sample[0] == "#":
+                continue
+            compareNEventsFiles(sample, neventsFile, neventsFile2)
+        
+        # update config file with n_events
+        else:
+            newSample = sample
+            # if line is empty (after being stripped), write original line (with endline) to file
+            if not sample:
+                outputSamples.write(newSample)
+                continue
+            # if xsection_file is provided, replace cross sections
+            if xsection_file:
+                newSample = updateXSection(sample, xsection_dict)
+                outputSamples.write(newSample)
+                continue
 
-        # if first non-space character is # (comment), write original line (with endline) to file
-        if sample[0] == "#":
+            # if first non-space character is # (comment), write original line (with endline) to file
+            if sample[0] == "#":
+                outputSamples.write(newSample)
+                continue
+            # if sample matches pattern, assume that it is a sample and get new sample to write to file
+            if re.search(dataset_pattern, sample):
+                newSample = getNewSample(sample, weight_dict, neventsFile)
+                if verbose:
+                    print "newSample: {0}".format(newSample)
             outputSamples.write(newSample)
-            continue
-        # if sample matches pattern, assume that it is a sample and get new sample to write to file
-        if re.search(dataset_pattern, sample):
-            newSample = getNewSample(sample, weight_dict, neventsFile)
-            if verbose:
-                print "newSample: {0}".format(newSample)
-        outputSamples.write(newSample)
+        
 
     inputSamples.close()
     outputSamples.close()
