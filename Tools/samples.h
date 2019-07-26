@@ -66,37 +66,13 @@ namespace AnaSamples
   bool operator== (const FileSummary& lhs, const FileSummary& rhs);
   bool operator!= (const FileSummary& lhs, const FileSummary& rhs);
 
-  // previously used luminosity (2016)
-  //static const double luminosity = 35866.210733056; // in pb-1
-
-  // --- Luminosities from Stealth Stop group (Kelvin and Nadja) --- //
-  // Single Electron Luminosity
-  //static const double luminosity_2016 = 35908.886; // in pb-1
-  //static const double luminosity_2017 = 41525.529; // in pb-1
-  // Single Muon Luminosity
-  //static const double luminosity_2016 = 35917.149; // in pb-1
-  //static const double luminosity_2017 = 41525.250; // in pb-1
-  // --------------------------------------------------------------- //
-
-  // Run 2 Dataset Luminosities
-  // Data_SingleElectron_2016:  35860.0 pb^(-1) 
-  // Data_SingleMuon_2016:      35922.0 pb^(-1)
-  // Data_SinglePhoton_2016:    35922.0 pb^(-1)
-  // Data_SingleElectron_2017:  TBD
-  // Data_SingleMuon_2017:      37620.0 pb^(-1)
-  // Data_SinglePhoton_2017:    41179.0 pb^(-1)
-  // Data_EGamma_2018:          57812.0 pb^(-1)
-  // Data_SingleMuon_2018:      58364.0 pb^(-1) 
- 
   //May 5, 2019: Updated Luminosities from PostProcessed_StopTuple_V2.7.2
-  //Question: Should Data_SingleElectron_2016 be 35860.0 (see PostProcess_StopTuple_V1.2.1)
   static const double luminosity_2016           = 35922.0; // in pb-1 (Data_SingleMuon_2016)
   static const double luminosity_2017           = 41856.0; // in pb-1 (Data_SingleElectron_2017)
   static const double luminosity_2018           = 58905.0; // in pb-1 (Data_EGamma_2018)
   static const double luminosity_2018_AB        = 20757.0; // in pb-1 (Data_EGamma_2018 Periods A + B)
   static const double luminosity_2018_CD        = 38148.0; // in pb-1 (Data_EGamma_2018 Periods C + D)
   // lumi per sample when datasets had different lumis
-  //static const double luminosity_electron_2016  = 18075.2; // in pb-1 for Data_SingleElectron_2016; compare to Stealth n_events, (35922.0 * 474181858.0 / 942371523.0) = 18075.207375590446
   static const double luminosity_electron_2016  = 35860.0; // in pb-1 for Data_SingleElectron_2016
   static const double luminosity_muon_2016      = 35922.0; // in pb-1 for Data_SingleMuon_2016
   static const double luminosity_photon_2016    = 35922.0; // in pb-1 for Data_SinglePhoton_2016 
