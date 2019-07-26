@@ -470,11 +470,11 @@ void BaselineVessel::PassBaseline()
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
   // Calculate deltaPhi
   std::vector<float> * dPhiVec = new std::vector<float>();
-  (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, AnaConsts::pt30Eta47Arr);
+  (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, AnaConsts::pt20Eta47Arr);
   // more vars
-  int nJets     = AnaFunctions::countJets(Jets,               AnaConsts::pt30Eta24Arr);  
-  int nFatJets  = AnaFunctions::countJets(FatJets,            AnaConsts::pt200Eta24Arr);  
-  float HT      = AnaFunctions::calcHT(Jets,    AnaConsts::pt30Eta24Arr);
+  int nJets     = AnaFunctions::countJets(Jets,     AnaConsts::pt20Eta24Arr);  
+  int nFatJets  = AnaFunctions::countJets(FatJets,  AnaConsts::pt200Eta24Arr);  
+  float HT      = AnaFunctions::calcHT(Jets,        AnaConsts::pt20Eta24Arr);
   float S_met   = met / sqrt(HT);
 
   //---------------------------------------//
