@@ -84,12 +84,9 @@ public:
     bool SAT_Pass_Baseline;
     bool SAT_Pass_lowDM;
     bool SAT_Pass_highDM;
-    bool SAT_Pass_Baseline_Loose;
-    bool SAT_Pass_lowDM_Loose;
-    bool SAT_Pass_highDM_Loose;
-    bool SAT_Pass_Baseline_Mid;
     bool SAT_Pass_lowDM_Mid;
     bool SAT_Pass_highDM_Mid;
+    bool SAT_Pass_highDM_MidHT;
 
 
     BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");
