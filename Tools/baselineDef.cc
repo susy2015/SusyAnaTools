@@ -582,7 +582,7 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_HT
                          && SAT_Pass_NJets20
                          && SAT_Pass_dPhiMETLowDM
-                         && Pass_CaloMETRatio
+              //           && Pass_CaloMETRatio
                       );
   
   // remove Pass_EventFilter and Pass_JetID from baseline
@@ -628,7 +628,7 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_ISR
                      && S_met > 10
                      && SAT_Pass_MTB_LowDM
-                     && Pass_CaloMETRatio
+            //         && Pass_CaloMETRatio
                   );
   //baselinefor shapeFactor calculation (mid)
   SAT_Pass_highDM_Mid = (
@@ -640,7 +640,7 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_dPhiMETHighDM
                      && nBottoms >= 1
                      && nJets >= 5
-                     && Pass_CaloMETRatio
+            //         && Pass_CaloMETRatio
                   );      
 
   //baselinefor shapeFactor calculation (MidHighHT)
@@ -653,7 +653,7 @@ void BaselineVessel::PassBaseline()
                       && SAT_Pass_dPhiMETHighDM
                       && nBottoms >= 1
                       && nJets >= 2
-                      && Pass_CaloMETRatio                   
+            //          && Pass_CaloMETRatio                   
                   );      
   
   // ----------------------------------- // 
