@@ -458,10 +458,12 @@ void BaselineVessel::PassBaseline()
   for (const auto& pass : IsoTrack_Stop0l)  if(pass) ++nIsoTracks_Stop0l;
 
   int nJets = 0;
+  int nJets30 = 0;
   int nFatJets = 0;
   for (const auto& Jet : Jets)
   {
-      if (Jet.Pt() > 20 && abs(Jet.Eta()) < 2.4) ++nJets;
+      if (Jet.Pt() >= 20 && abs(Jet.Eta()) <= 2.4) ++nJets;
+      if (Jet.Pt() >= 30 && abs(Jet.Eta()) <= 2.4) ++nJets30;
   }
   for (const auto& FatJet : FatJets)
   {
@@ -606,6 +608,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("ISRJet" + firstSpec, ISRJet);
   tr->registerDerivedVar("nSoftBottoms" + firstSpec, nSoftBottoms);
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
+  tr->registerDerivedVar("nJets30" + firstSpec, nJets30);
   tr->registerDerivedVar("nFatJets" + firstSpec, nFatJets);
   tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
