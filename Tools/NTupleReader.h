@@ -405,8 +405,33 @@ public:
 
     void addAlias(const std::string& name, const std::string& alias);
 
-    const void* getPtr(const std::string& var) const;
-    const void* getVecPtr(const std::string& var) const;
+    template<typename T = void> const void* getPtr(const std::string& var) const
+    {
+        try
+        {
+            return &getTupleObj<T>(var, branchMap_);
+        }
+        catch(const SATException& e)
+        {
+            if(isFirstEvent()) e.print();
+            if(reThrow_) throw;
+            return static_cast<T*>(nullptr);
+        }
+    }
+
+    template<typename T = void> const void* getVecPtr(const std::string& var) const
+    {
+        try
+        {
+            return &getTupleObj<std::vector<T>*>(var, branchVecMap_);
+        }
+        catch(const SATException& e)
+        {
+            if(isFirstEvent()) e.print();
+            if(reThrow_) throw;
+            return static_cast<std::vector<T>*>(nullptr);
+        }
+    }
 
     template<typename T> const T& getVar(const std::string& var) const
     {
@@ -698,5 +723,10 @@ private:
         return s;
     }
 };
+
+//template specializations
+template<> const void* NTupleReader::getPtr<void>(const std::string& var) const;
+template<> const void* NTupleReader::getVecPtr<void>(const std::string& var) const;
+
 
 #endif

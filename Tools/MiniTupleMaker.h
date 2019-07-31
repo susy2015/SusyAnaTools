@@ -39,15 +39,15 @@ private:
     template<typename T> void prepVar(const NTupleReader& tr, const std::string& name)
     {
         TBranch *tb = tree_->GetBranch(name.c_str());
-        if(!tb) tree_->Branch(name.c_str(), static_cast<T*>(const_cast<void*>(tr.getPtr(name))));
-        else       tb->SetAddress(const_cast<void*>(tr.getPtr(name)));
+        if(!tb) tree_->Branch(name.c_str(), static_cast<T*>(const_cast<void*>(tr.getPtr<T>(name))));
+        else       tb->SetAddress(const_cast<void*>(tr.getPtr<T>(name)));
     }
 
     template<typename T> void prepVec(const NTupleReader& tr, const std::string& name)
     {
         TBranch *tb = tree_->GetBranch(name.c_str());
-        if(!tb) tree_->Branch(name.c_str(), static_cast<std::vector<T>**>(const_cast<void*>(tr.getVecPtr(name))));
-        else       tb->SetAddress(const_cast<void*>(tr.getVecPtr(name)));
+        if(!tb) tree_->Branch(name.c_str(), static_cast<std::vector<T>**>(const_cast<void*>(tr.getVecPtr<T>(name))));
+        else       tb->SetAddress(const_cast<void*>(tr.getVecPtr<T>(name)));
     }
 };
 

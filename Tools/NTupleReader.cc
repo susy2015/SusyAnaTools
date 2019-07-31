@@ -508,12 +508,12 @@ void* NTupleReader::getVarPtr(const std::string& var) const
     }
 }
 
-const void* NTupleReader::getPtr(const std::string& var) const
+template<> const void* NTupleReader::getPtr<void>(const std::string& var) const
 {
     return getVarPtr(var);
 }
 
-const void* NTupleReader::getVecPtr(const std::string& var) const
+template<> const void* NTupleReader::getVecPtr<void>(const std::string& var) const
 {
     //This function can be used to return the variable pointer
     try
