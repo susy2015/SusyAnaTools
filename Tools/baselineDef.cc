@@ -1684,22 +1684,14 @@ void BaselineVessel::PassHEMVeto()
     float wide_eta_high   = -1.2;
     float wide_phi_low    = -1.77;
     float wide_phi_high   = -0.67;
-    float pt_20  =  20.0;
-    float pt_30  =  30.0;
-    float pt_220 = 220.0;
+    float min_electron_pt =  20.0;
+    float min_photon_pt   = 220.0;
     // bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low) 
-    // use jet pt > 20 for veto
-    bool SAT_Pass_HEMVeto20 = true;
-    SAT_Pass_HEMVeto20 = SAT_Pass_HEMVeto20 && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_20);
-    SAT_Pass_HEMVeto20 = SAT_Pass_HEMVeto20 && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_220);
-    SAT_Pass_HEMVeto20 = SAT_Pass_HEMVeto20 && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_eta_low,   wide_eta_high,   pt_20);
-    // use jet pt > 30 for veto
-    bool SAT_Pass_HEMVeto30 = true;
-    SAT_Pass_HEMVeto30 = SAT_Pass_HEMVeto30 && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_20);
-    SAT_Pass_HEMVeto30 = SAT_Pass_HEMVeto30 && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_220);
-    SAT_Pass_HEMVeto30 = SAT_Pass_HEMVeto30 && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_eta_low,   wide_eta_high,   pt_30);
-    tr->registerDerivedVar("SAT_Pass_HEMVeto20"+firstSpec,   SAT_Pass_HEMVeto20);
-    tr->registerDerivedVar("SAT_Pass_HEMVeto30"+firstSpec,   SAT_Pass_HEMVeto30);
+    bool SAT_Pass_HEMVeto = true;
+    SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, min_electron_pt);
+    SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, min_photon_pt);
+    SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_eta_low,   wide_eta_high,   min_jet_pt);
+    tr->registerDerivedVar("SAT_Pass_HEMVeto"+firstSpec,   SAT_Pass_HEMVeto);
 }
 
 // ===  FUNCTION  ============================================================
