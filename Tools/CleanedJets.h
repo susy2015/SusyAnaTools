@@ -51,10 +51,10 @@ private:
         const auto& Jet_TLV            = tr_->getVec<TLorentzVector>("JetTLV");
         const auto& FatJet_TLV         = tr_->getVec<TLorentzVector>("FatJetTLV");
         // use objects passing cuts for cleaning
-        const auto& Photon_TLV         = tr_->getVec<TLorentzVector>("gammaLVecPassLooseID");
+        const auto& Photon_TLV         = tr_->getVec<TLorentzVector>("cutPhotonTLV");
         const auto& Electron_TLV       = tr_->getVec<TLorentzVector>("cutElecVec");
         const auto& Muon_TLV           = tr_->getVec<TLorentzVector>("cutMuVec");
-        const auto& Photon_jetIdx      = tr_->getVec<int>("gammaJetIndexPassLooseID");
+        const auto& Photon_jetIdx      = tr_->getVec<int>("cutPhotonJetIndex");
         const auto& Electron_jetIdx    = tr_->getVec<int>("cutElecJetIndex");
         const auto& Muon_jetIdx        = tr_->getVec<int>("cutMuJetIndex");
         // jet matches object variables that we derive here
