@@ -579,6 +579,7 @@ private:
             if(l->GetLeafCount())
             { 
                 countBranch = l->GetLeafCount()->GetBranch();
+				registerBranch(countBranch);
             }
             else
             {
