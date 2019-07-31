@@ -39,7 +39,6 @@ private:
 
 //~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~~~~~~~~~~~~~~
     std::shared_ptr<TopTagger> ttPtr;
-
     //  container
     TLorentzVector metLVec; 
     std::vector<TLorentzVector> *jetsLVec_forTagger;
@@ -52,7 +51,6 @@ private:
     std::vector<TLorentzVector> *vResolvedTops;
     std::map<int, std::vector<TLorentzVector> > *mTopJets;
     std::vector<unsigned> * vAK8Flag;
-
     std::vector<TLorentzVector> GetAK4NoSubjet(Constituent &ak8, 
     std::vector<TLorentzVector> &ak4jets) const;
 
@@ -90,6 +88,9 @@ public:
     bool SAT_Pass_Baseline_Mid;
     bool SAT_Pass_lowDM_Mid;
     bool SAT_Pass_highDM_Mid;
+    float min_jet_pt;
+    AnaConsts::AccRec JetCutArrary;
+    AnaConsts::AccRec dPhiCutArrary;
 
 
     BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");

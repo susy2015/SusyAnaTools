@@ -37,6 +37,9 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   SAT_Pass_lowDM_Mid      = false;
   SAT_Pass_highDM_Mid     = false;
   metLVec.SetPtEtaPhiM(0, 0, 0, 0);
+  min_jet_pt = 20.0;
+  JetCutArrary  = AnaConsts::pt20Eta24Arr;
+  dPhiCutArrary = AnaConsts::pt20Eta47Arr;
   if (UseDeepCSV)
     CSVVecLabel           = "Jet_btagDeepB";
   if (UseDeepTagger)
@@ -301,36 +304,87 @@ BaselineVessel::~BaselineVessel()
 // ===========================================================================
 bool BaselineVessel::PredefineSpec()
 {
-
   // Z invisible Z to LL control region
-  if (spec.compare("_drLeptonCleaned") == 0)
+  if (spec.compare("_drLeptonCleaned") == 0 || spec.compare("_drLeptonCleaned_jetpt20") == 0)
   {
-    METLabel    = "metWithLL";
-    METPhiLabel = "metphiWithLL";
-    
+    METLabel            = "metWithLL";
+    METPhiLabel         = "metphiWithLL";
     UseDeepCSV          = true; 
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = true;
-    doLeptonVeto = false;
+    doLeptonVeto        = false;
+    min_jet_pt          = 20.0;
+    JetCutArrary        = AnaConsts::pt20Eta24Arr;
+    dPhiCutArrary       = AnaConsts::pt20Eta47Arr;
+  }
+  else if (spec.compare("_drLeptonCleaned_jetpt30") == 0)
+  {
+    METLabel            = "metWithLL";
+    METPhiLabel         = "metphiWithLL";
+    UseDeepCSV          = true; 
+    UseDRPhotonCleanJet = false;
+    UseDRLeptonCleanJet = true;
+    doLeptonVeto        = false;
+    min_jet_pt          = 30.0;
+    JetCutArrary        = AnaConsts::pt30Eta24Arr;
+    dPhiCutArrary       = AnaConsts::pt30Eta47Arr;
+  }
+  else if (spec.compare("_drLeptonCleaned_jetpt40") == 0)
+  {
+    METLabel            = "metWithLL";
+    METPhiLabel         = "metphiWithLL";
+    UseDeepCSV          = true; 
+    UseDRPhotonCleanJet = false;
+    UseDRLeptonCleanJet = true;
+    doLeptonVeto        = false;
+    min_jet_pt          = 40.0;
+    JetCutArrary        = AnaConsts::pt40Eta24Arr;
+    dPhiCutArrary       = AnaConsts::pt40Eta47Arr;
   }
   // Z invisible photon control region
-  else if (spec.compare("_drPhotonCleaned") == 0)
+  else if (spec.compare("_drPhotonCleaned") == 0 || spec.compare("_drPhotonCleaned_jetpt20") == 0)
   {
-    METLabel    = "metWithPhoton";
-    METPhiLabel = "metphiWithPhoton";
-    
+    METLabel            = "metWithPhoton";
+    METPhiLabel         = "metphiWithPhoton";
     UseDeepCSV          = true; 
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
-    doLeptonVeto = true;
+    doLeptonVeto        = true;
+    min_jet_pt          = 20.0;
+    JetCutArrary        = AnaConsts::pt20Eta24Arr;
+    dPhiCutArrary       = AnaConsts::pt20Eta47Arr;
   }
+  else if (spec.compare("_drPhotonCleaned_jetpt30") == 0)
+  {
+    METLabel            = "metWithPhoton";
+    METPhiLabel         = "metphiWithPhoton";
+    UseDeepCSV          = true; 
+    UseDRPhotonCleanJet = true;
+    UseDRLeptonCleanJet = false;
+    doLeptonVeto        = true;
+    min_jet_pt          = 30.0;
+    JetCutArrary        = AnaConsts::pt30Eta24Arr;
+    dPhiCutArrary       = AnaConsts::pt30Eta47Arr;
+  }
+  else if (spec.compare("_drPhotonCleaned_jetpt40") == 0)
+  {
+    METLabel            = "metWithPhoton";
+    METPhiLabel         = "metphiWithPhoton";
+    UseDeepCSV          = true; 
+    UseDRPhotonCleanJet = true;
+    UseDRLeptonCleanJet = false;
+    doLeptonVeto        = true;
+    min_jet_pt          = 40.0;
+    JetCutArrary        = AnaConsts::pt40Eta24Arr;
+    dPhiCutArrary       = AnaConsts::pt40Eta47Arr;
+  }
+  // SUS-16-050 specialization for reference 
   else if(spec.compare("Zinv") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
     UseDeepCSV          = true;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = true;
     doLeptonVeto        = false;
-    
     if(spec.compare("ZinvJEUUp") == 0)
     {
       jetVecLabel = "jetLVecUp";
@@ -373,8 +427,6 @@ bool BaselineVessel::PredefineSpec()
     printOnce = true;
     //std::cout<<"spec : "<<spec.c_str()<<"  jetVecLabel : "<<jetVecLabel.c_str() <<"  CSVVecLabel : "<<CSVVecLabel.c_str() <<"  METLabel : "<<METLabel.c_str()<< std::endl;
   }  
-  
-
   return true;
 }       // -----  end of function BaselineVessel::PredefineSpec  -----
 
@@ -470,11 +522,11 @@ void BaselineVessel::PassBaseline()
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
   // Calculate deltaPhi
   std::vector<float> * dPhiVec = new std::vector<float>();
-  (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, AnaConsts::pt20Eta47Arr);
+  (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, dPhiCutArrary);
   // more vars
-  int nJets     = AnaFunctions::countJets(Jets,     AnaConsts::pt20Eta24Arr);  
+  int nJets     = AnaFunctions::countJets(Jets,     JetCutArrary);  
   int nFatJets  = AnaFunctions::countJets(FatJets,  AnaConsts::pt200Eta24Arr);  
-  float HT      = AnaFunctions::calcHT(Jets,        AnaConsts::pt20Eta24Arr);
+  float HT      = AnaFunctions::calcHT(Jets,        JetCutArrary);
   float S_met   = met / sqrt(HT);
 
   //---------------------------------------//
@@ -511,8 +563,8 @@ void BaselineVessel::PassBaseline()
   bool SAT_Pass_HT          = (HT  >= 300);
   bool SAT_Pass_NJets20     = nJets >= 2;
   bool SAT_Pass_LeptonVeto  = (Pass_ElecVeto && Pass_MuonVeto && Pass_IsoTrkVeto);
-  bool SAT_Pass_JetID       = tr->getVar<bool>(UseCleanedJetsVar("SAT_Pass_JetID"));
-  bool SAT_Pass_EventFilter = tr->getVar<bool>(UseCleanedJetsVar("SAT_Pass_EventFilter"));
+  bool SAT_Pass_JetID       = tr->getVar<bool>("SAT_Pass_JetID"+firstSpec);
+  bool SAT_Pass_EventFilter = tr->getVar<bool>("SAT_Pass_EventFilter"+firstSpec);
   bool Pass_JetID           = tr->getVar<bool>("Pass_JetID");
   bool Pass_EventFilter     = tr->getVar<bool>("Pass_EventFilter");
   bool Pass_LeptonVeto      = tr->getVar<bool>("Pass_LeptonVeto");
@@ -1353,7 +1405,7 @@ bool BaselineVessel::passQCDHighMETFilterFunc()
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
 
   int nJetsLoop = recoJetsmuonEnergyFraction.size();
-  std::vector<float> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metLVec, nJetsLoop, AnaConsts::pt20Eta47Arr);
+  std::vector<float> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metLVec, nJetsLoop, dPhiCutArrary);
 
   for(int i=0; i<nJetsLoop ; i++)
   {
@@ -1586,7 +1638,7 @@ void BaselineVessel::PassJetID()
     int i = 0;
     for (const auto& Jet : Jets)
     {
-        if (Jet.Pt() > 30)
+        if (Jet.Pt() > min_jet_pt)
         {
             // Jet_jetId : Int_t Jet ID flags bit1 is loose, bit2 is tight  
             jetId *= (Jet_jetId[i] & 2);

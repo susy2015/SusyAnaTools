@@ -57,10 +57,13 @@ namespace AnaConsts{
    const AccRec pt30Arr       = {   -1,        -1,      30,    -1  };
    const AccRec pt20Eta24Arr  = {   -1,       2.4,      20,    -1  };
    const AccRec pt30Eta24Arr  = {   -1,       2.4,      30,    -1  };
+   const AccRec pt40Eta24Arr  = {   -1,       2.4,      40,    -1  };
    const AccRec pt50Eta24Arr  = {   -1,       2.4,      50,    -1  };
    const AccRec pt200Eta24Arr = {   -1,       2.4,     200,    -1  };
    const AccRec pt20Eta47Arr  = {   -1,       4.7,      20,    -1  };
-   const AccRec pt30Eta47Arr  = {   -1,       4.7,      20,    -1  };
+   const AccRec pt30Eta47Arr  = {   -1,       4.7,      30,    -1  };
+   const AccRec pt40Eta47Arr  = {   -1,       4.7,      40,    -1  };
+   const AccRec pt50Eta47Arr  = {   -1,       4.7,      50,    -1  };
    const AccRec dphiNArr      = {   -1,       2.4,      30,    -1  };
    const AccRec bTagArr       = {   -1,       2.4,      20,    -1  };
    const AccRec pt20Eta25Arr  = {   -1,       2.5,      20,    -1  };
