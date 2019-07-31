@@ -4,9 +4,7 @@
 #include "NTupleReader.h"
 #include "customize.h"
 #include "EventListFilter.h"
-
 #include "Math/VectorUtil.h"
-
 #include <memory>
 #include <iostream>
 
@@ -86,6 +84,12 @@ public:
     bool SAT_Pass_Baseline;
     bool SAT_Pass_lowDM;
     bool SAT_Pass_highDM;
+    bool SAT_Pass_Baseline_Loose;
+    bool SAT_Pass_lowDM_Loose;
+    bool SAT_Pass_highDM_Loose;
+    bool SAT_Pass_Baseline_Mid;
+    bool SAT_Pass_lowDM_Mid;
+    bool SAT_Pass_highDM_Mid;
 
 
     BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");
@@ -96,6 +100,8 @@ public:
     bool getBool(const std::string& var);
     void PassBaseline();
     void PassTrigger();
+    void PassJetID();
+    void PassEventFilter();
     bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low);
     void PassHEMVeto();
     bool PrintoutConfig() const;
