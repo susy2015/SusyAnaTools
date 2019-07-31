@@ -5,6 +5,7 @@
 
 PDFUncertainty::PDFUncertainty()
 {
+        LHAPDF::setVerbosity(LHAPDF::SILENT);
 
         //Initialize all pdf sets
         for(int in = 0; in < 53; in++){
