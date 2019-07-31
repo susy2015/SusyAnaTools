@@ -31,6 +31,8 @@ public:
 
     void fill();
 
+	TTree *GetTree() { return tree_; }
+
 private:
     TFile* const file_;
     TTree* const tree_;
