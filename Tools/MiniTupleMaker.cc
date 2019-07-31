@@ -46,6 +46,7 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
                 else if(type.find("double")         != std::string::npos) prepVec<double>(tr, var);
                 else if(type.find("float")          != std::string::npos) prepVec<float>(tr, var);
                 else if(type.find("int")            != std::string::npos) prepVec<int>(tr, var);
+				else if(type.find("unsigned char")  != std::string::npos) prepVec<unsigned char>(tr, var);
                 else
                 {
                     throw "MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var + ", type: " + type;           
@@ -54,18 +55,20 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
         }
         else
         {
-            if     (type.find("unsigned int")   != std::string::npos) prepVar<unsigned int>(tr, var);
-            else if(type.find("int")            != std::string::npos) prepVar<int>(tr, var);
-            else if(type.find("double")         != std::string::npos) prepVar<double>(tr, var);
-            else if(type.find("float")          != std::string::npos) prepVar<float>(tr, var);
-            else if(type.find("unsigned short") != std::string::npos) prepVar<unsigned short>(tr, var);
-            else if(type.find("short")          != std::string::npos) prepVar<short>(tr, var);
-            else if(type.find("unsigned char")  != std::string::npos) prepVar<unsigned char>(tr, var);
-            else if(type.find("char")           != std::string::npos) prepVar<char>(tr, var);
-            else if(type.find("bool")           != std::string::npos) prepVar<bool>(tr, var);
-            else if(type.find("unsigned long")  != std::string::npos) prepVar<unsigned long>(tr, var);
-            else if(type.find("long")           != std::string::npos) prepVar<long>(tr, var);
-            else if(type.find("TLorentzVector") != std::string::npos) prepVar<TLorentzVector>(tr, var);
+            if     (type.find("unsigned int")        != std::string::npos) prepVar<unsigned int>(tr, var);
+            else if(type.find("int")                 != std::string::npos) prepVar<int>(tr, var);
+            else if(type.find("double")              != std::string::npos) prepVar<double>(tr, var);
+            else if(type.find("float")               != std::string::npos) prepVar<float>(tr, var);
+            else if(type.find("unsigned short")      != std::string::npos) prepVar<unsigned short>(tr, var);
+            else if(type.find("short")               != std::string::npos) prepVar<short>(tr, var);
+            else if(type.find("unsigned char")       != std::string::npos) prepVar<unsigned char>(tr, var);
+            else if(type.find("char")                != std::string::npos) prepVar<char>(tr, var);
+            else if(type.find("bool")                != std::string::npos) prepVar<bool>(tr, var);
+            else if(type.find("unsigned long long")  != std::string::npos) prepVar<unsigned long long>(tr, var);
+            else if(type.find("long long")           != std::string::npos) prepVar<long long>(tr, var);
+            else if(type.find("unsigned long")       != std::string::npos) prepVar<unsigned long>(tr, var);
+            else if(type.find("long")                != std::string::npos) prepVar<long>(tr, var);
+            else if(type.find("TLorentzVector")      != std::string::npos) prepVar<TLorentzVector>(tr, var);
             else
             {
                 throw "MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var + ", type: " + type;
