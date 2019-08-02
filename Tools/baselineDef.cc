@@ -1636,9 +1636,10 @@ void BaselineVessel::PassJetID()
     const auto& Jet_jetId = tr->getVec<int>(UseCleanedJetsVar("Jet_jetId"));
     int jetId = 1;
     int i = 0;
+    float jet_pt_cut = 30.0;
     for (const auto& Jet : Jets)
     {
-        if (Jet.Pt() > min_jet_pt)
+        if (Jet.Pt() > jet_pt_cut)
         {
             // Jet_jetId : Int_t Jet ID flags bit1 is loose, bit2 is tight  
             jetId *= (Jet_jetId[i] & 2);
@@ -1686,11 +1687,12 @@ void BaselineVessel::PassHEMVeto()
     float wide_phi_high   = -0.67;
     float min_electron_pt =  20.0;
     float min_photon_pt   = 220.0;
+    float jet_pt_cut      = 30.0;
     // bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low) 
     bool SAT_Pass_HEMVeto = true;
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, min_electron_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, min_photon_pt);
-    SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_eta_low,   wide_eta_high,   min_jet_pt);
+    SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_eta_low,   wide_eta_high,   jet_pt_cut);
     tr->registerDerivedVar("SAT_Pass_HEMVeto"+firstSpec,   SAT_Pass_HEMVeto);
 }
 
