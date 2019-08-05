@@ -105,11 +105,11 @@ private:
             //do some logic here to decide which jet was lepton/photon matched
             if (doLeptonCleaning_)
             {
-                if (Jet_matchesElectron[i] || Jet_matchesMuon[i]) ak8Filter[i] = false;
+                if (FatJet_matchesElectron[i] || FatJet_matchesMuon[i]) ak8Filter[i] = false;
             }
             if (doPhotonCleaning_)
             {
-                if (Jet_matchesPhoton[i]) ak8Filter[i] = false;
+                if (FatJet_matchesPhoton[i]) ak8Filter[i] = false;
             }
         }
 
