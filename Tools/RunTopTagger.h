@@ -35,9 +35,18 @@ private:
         //AK4 jets
         const auto& Jet_LV              = tr.getVec_LVFromNano<float>("Jet");
         const auto& Jet_csvv2           = tr.getVec<float>("Jet_btagCSVV2");
-        const auto& Jet_matchesPhoton   = tr.getVec<bool>("Jet_matchesPhoton");
-        const auto& Jet_matchesElectron = tr.getVec<bool>("Jet_matchesElectron");
-        const auto& Jet_matchesMuon     = tr.getVec<bool>("Jet_matchesMuon");
+        std::vector<bool> Jet_matchesPhoton;
+        std::vector<bool> Jet_matchesElectron;
+        std::vector<bool> Jet_matchesMuon;
+        if (doPhotonCleaning_)
+        {
+            Jet_matchesPhoton   = tr.getVec<bool>("Jet_matchesPhoton");
+        }
+        if (doLeptonCleaning_)
+        {
+            Jet_matchesElectron = tr.getVec<bool>("Jet_matchesElectron");
+            Jet_matchesMuon     = tr.getVec<bool>("Jet_matchesMuon");
+        }
 
         //AK8 jets
         const auto& FatJet_LV              = tr.getVec_LVFromNano<float>("FatJet");
@@ -46,9 +55,18 @@ private:
         const auto& FatJet_msoftdrop       = tr.getVec<float>("FatJet_msoftdrop");
         const auto& FatJet_subJetIdx1      = tr.getVec<int>("FatJet_subJetIdx1");
         const auto& FatJet_subJetIdx2      = tr.getVec<int>("FatJet_subJetIdx2");
-        const auto& FatJet_matchesPhoton   = tr.getVec<bool>("FatJet_matchesPhoton");
-        const auto& FatJet_matchesElectron = tr.getVec<bool>("FatJet_matchesElectron");
-        const auto& FatJet_matchesMuon     = tr.getVec<bool>("FatJet_matchesMuon");
+        std::vector<bool> FatJet_matchesPhoton;
+        std::vector<bool> FatJet_matchesElectron;
+        std::vector<bool> FatJet_matchesMuon;
+        if (doPhotonCleaning_)
+        {
+            FatJet_matchesPhoton   = tr.getVec<bool>("FatJet_matchesPhoton");
+        }
+        if (doLeptonCleaning_)
+        {
+            FatJet_matchesElectron = tr.getVec<bool>("FatJet_matchesElectron");
+            FatJet_matchesMuon     = tr.getVec<bool>("FatJet_matchesMuon");
+        }
 
         //AK8 subjets 
         const auto& SubJet_LV = tr.getVec_LVFromNano<float>("SubJet");
@@ -105,11 +123,11 @@ private:
             //do some logic here to decide which jet was lepton/photon matched
             if (doLeptonCleaning_)
             {
-                if (Jet_matchesElectron[i] || Jet_matchesMuon[i]) ak8Filter[i] = false;
+                if (FatJet_matchesElectron[i] || FatJet_matchesMuon[i]) ak8Filter[i] = false;
             }
             if (doPhotonCleaning_)
             {
-                if (Jet_matchesPhoton[i]) ak8Filter[i] = false;
+                if (FatJet_matchesPhoton[i]) ak8Filter[i] = false;
             }
         }
 
