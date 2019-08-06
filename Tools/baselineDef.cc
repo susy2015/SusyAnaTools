@@ -304,8 +304,8 @@ BaselineVessel::~BaselineVessel()
 // ===========================================================================
 bool BaselineVessel::PredefineSpec()
 {
-  // Z invisible Z to LL control region
-  if (spec.compare("_drLeptonCleaned") == 0 || spec.compare("_drLeptonCleaned_jetpt20") == 0)
+  // Specify lepton or photon jet cleaning
+  if (spec.find("drLeptonCleaned") != std::string::npos)
   {
     METLabel            = "metWithLL";
     METPhiLabel         = "metphiWithLL";
@@ -313,73 +313,37 @@ bool BaselineVessel::PredefineSpec()
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = true;
     doLeptonVeto        = false;
+  }
+  else if (spec.find("drPhotonCleaned") != std::string::npos)
+  {
+    METLabel            = "metWithPhoton";
+    METPhiLabel         = "metphiWithPhoton";
+    UseDeepCSV          = true; 
+    UseDRPhotonCleanJet = true;
+    UseDRLeptonCleanJet = false;
+    doLeptonVeto        = true;
+  }
+  // Specify Jet pt cut
+  if (spec.find("jetpt20") != std::string::npos)
+  {
     min_jet_pt          = 20.0;
     JetCutArrary        = AnaConsts::pt20Eta24Arr;
     dPhiCutArrary       = AnaConsts::pt20Eta47Arr;
   }
-  else if (spec.compare("_drLeptonCleaned_jetpt30") == 0)
+  else if (spec.find("jetpt30") != std::string::npos)
   {
-    METLabel            = "metWithLL";
-    METPhiLabel         = "metphiWithLL";
-    UseDeepCSV          = true; 
-    UseDRPhotonCleanJet = false;
-    UseDRLeptonCleanJet = true;
-    doLeptonVeto        = false;
     min_jet_pt          = 30.0;
     JetCutArrary        = AnaConsts::pt30Eta24Arr;
     dPhiCutArrary       = AnaConsts::pt30Eta47Arr;
   }
-  else if (spec.compare("_drLeptonCleaned_jetpt40") == 0)
+  else if (spec.find("jetpt40") != std::string::npos)
   {
-    METLabel            = "metWithLL";
-    METPhiLabel         = "metphiWithLL";
-    UseDeepCSV          = true; 
-    UseDRPhotonCleanJet = false;
-    UseDRLeptonCleanJet = true;
-    doLeptonVeto        = false;
-    min_jet_pt          = 40.0;
-    JetCutArrary        = AnaConsts::pt40Eta24Arr;
-    dPhiCutArrary       = AnaConsts::pt40Eta47Arr;
-  }
-  // Z invisible photon control region
-  else if (spec.compare("_drPhotonCleaned") == 0 || spec.compare("_drPhotonCleaned_jetpt20") == 0)
-  {
-    METLabel            = "metWithPhoton";
-    METPhiLabel         = "metphiWithPhoton";
-    UseDeepCSV          = true; 
-    UseDRPhotonCleanJet = true;
-    UseDRLeptonCleanJet = false;
-    doLeptonVeto        = true;
-    min_jet_pt          = 20.0;
-    JetCutArrary        = AnaConsts::pt20Eta24Arr;
-    dPhiCutArrary       = AnaConsts::pt20Eta47Arr;
-  }
-  else if (spec.compare("_drPhotonCleaned_jetpt30") == 0)
-  {
-    METLabel            = "metWithPhoton";
-    METPhiLabel         = "metphiWithPhoton";
-    UseDeepCSV          = true; 
-    UseDRPhotonCleanJet = true;
-    UseDRLeptonCleanJet = false;
-    doLeptonVeto        = true;
-    min_jet_pt          = 30.0;
-    JetCutArrary        = AnaConsts::pt30Eta24Arr;
-    dPhiCutArrary       = AnaConsts::pt30Eta47Arr;
-  }
-  else if (spec.compare("_drPhotonCleaned_jetpt40") == 0)
-  {
-    METLabel            = "metWithPhoton";
-    METPhiLabel         = "metphiWithPhoton";
-    UseDeepCSV          = true; 
-    UseDRPhotonCleanJet = true;
-    UseDRLeptonCleanJet = false;
-    doLeptonVeto        = true;
     min_jet_pt          = 40.0;
     JetCutArrary        = AnaConsts::pt40Eta24Arr;
     dPhiCutArrary       = AnaConsts::pt40Eta47Arr;
   }
   // SUS-16-050 specialization for reference 
-  else if(spec.compare("Zinv") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
+  if(spec.compare("Zinv") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
     UseDeepCSV          = true;
     UseDRPhotonCleanJet = false;
@@ -506,18 +470,6 @@ void BaselineVessel::PassBaseline()
   for (const auto& pass : Muon_Stop0l)      if(pass) ++nMuons_Stop0l;
   for (const auto& pass : IsoTrack_Stop0l)  if(pass) ++nIsoTracks_Stop0l;
 
-  // alternate n_jets calculation
-  //int nJets = 0;
-  //int nFatJets = 0;
-  //for (const auto& Jet : Jets)
-  //{
-  //    if (Jet.Pt() > 20 && fabs(Jet.Eta()) < 2.4) ++nJets;
-  //}
-  //for (const auto& FatJet : FatJets)
-  //{
-  //    if (FatJet.Pt() > 200 && fabs(FatJet.Eta()) < 2.4) ++nFatJets;
-  //}
-  
   // Set TLorentzVector for MET
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
   // Calculate deltaPhi
@@ -561,7 +513,7 @@ void BaselineVessel::PassBaseline()
   bool SAT_Pass_MET_Mid     = (met >= 160);
   bool SAT_Pass_MET         = (met >= 250);
   bool SAT_Pass_HT          = (HT  >= 300);
-  bool SAT_Pass_NJets20     = nJets >= 2;
+  bool SAT_Pass_NJets       = nJets >= 2;
   bool SAT_Pass_LeptonVeto  = (Pass_ElecVeto && Pass_MuonVeto && Pass_IsoTrkVeto);
   bool SAT_Pass_JetID       = tr->getVar<bool>("SAT_Pass_JetID"+firstSpec);
   bool SAT_Pass_EventFilter = tr->getVar<bool>("SAT_Pass_EventFilter"+firstSpec);
@@ -632,21 +584,10 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET 
                          && SAT_Pass_HT
-                         && SAT_Pass_NJets20
+                         && SAT_Pass_NJets
                          && SAT_Pass_dPhiMETLowDM
                       );
   
-  // remove Pass_EventFilter and Pass_JetID from baseline
-  // JetID issues
-  // - Lepton veto issue for 2018 (fixed)
-  // - Photon veto issue for 2016, 2017, and 2018 (not fixed)
-  //SAT_Pass_Baseline = (
-  //                          SAT_Pass_MET 
-  //                       && SAT_Pass_HT
-  //                       && SAT_Pass_NJets20
-  //                       && SAT_Pass_dPhiMETLowDM
-  //                    );
-
   //baseline for SUS-16-049 low dm plus HT cut
   SAT_Pass_lowDM = (
                         SAT_Pass_Baseline
@@ -672,7 +613,7 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET_Loose 
                          && SAT_Pass_HT
-                         && SAT_Pass_NJets20
+                         && SAT_Pass_NJets
                          && SAT_Pass_dPhiMETLowDM
                     );
 
@@ -700,7 +641,7 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET_Mid 
                          && SAT_Pass_HT
-                         && SAT_Pass_NJets20
+                         && SAT_Pass_NJets
                          && SAT_Pass_dPhiMETLowDM
                     );
 
@@ -744,7 +685,7 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET 
                          && SAT_Pass_HT
-                         && SAT_Pass_NJets20
+                         && SAT_Pass_NJets
                       );
   //baseline for SUS-16-049 low dm plus HT cut
   bool SAT_Pass_lowDM_mid_dPhi = (
@@ -772,7 +713,7 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET_Loose 
                          && SAT_Pass_HT
-                         && SAT_Pass_NJets20
+                         && SAT_Pass_NJets
                       );
   //baseline for SUS-16-049 low dm plus HT cut
   bool SAT_Pass_lowDM_mid_dPhi_Loose = (
@@ -798,7 +739,7 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET_Mid 
                          && SAT_Pass_HT
-                         && SAT_Pass_NJets20
+                         && SAT_Pass_NJets
                       );
   //baseline for SUS-16-049 low dm plus HT cut
   bool SAT_Pass_lowDM_mid_dPhi_Mid = (
@@ -904,7 +845,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("S_met" + firstSpec, S_met);
   tr->registerDerivedVar("SAT_Pass_MET" + firstSpec, SAT_Pass_MET);
   tr->registerDerivedVar("SAT_Pass_HT" + firstSpec, SAT_Pass_HT);
-  tr->registerDerivedVar("SAT_Pass_NJets20" + firstSpec, SAT_Pass_NJets20);
+  tr->registerDerivedVar("SAT_Pass_NJets" + firstSpec, SAT_Pass_NJets);
   tr->registerDerivedVar("SAT_Pass_ISR" + firstSpec, SAT_Pass_ISR);
   tr->registerDerivedVar("SAT_Pass_S_MET" + firstSpec, SAT_Pass_S_MET);
   tr->registerDerivedVar("SAT_Pass_MTB_LowDM" + firstSpec, SAT_Pass_MTB_LowDM);
