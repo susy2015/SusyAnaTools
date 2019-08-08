@@ -25,19 +25,21 @@ class BTagCorrectorTemplate
 {
 public:
     //constructor
-    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(NULL), h_eff_c(NULL), h_eff_udsg(NULL), MCBranch("genDecayPdgIdVec"), JetsVec("jetsLVec"), BJetsVec("recoJetsCSVv2"), JetsFlavor("recoJetsFlavor"), myVarSuffix_("")
+    BTagCorrectorTemplate(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : inFileName(file), debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(nullptr), h_eff_c(nullptr), h_eff_udsg(nullptr), MCBranch("genDecayPdgIdVec"), JetsVec("jetsLVec"), BJetsVec("recoJetsCSVv2"), JetsFlavor("recoJetsFlavor"), myVarSuffix_("")
     {
+        std::cout<<"Setting up BTagCorrector"<<std::endl;
+
         //Stops unwanted segfaults.
         TH1::AddDirectory(false);
-
         //Hard Coded here.
         // Replace "TTbarNoHad_bTagEff.root" in constuctor  with desirable efficiency file
         // Same "efficiency file and MC sample to run over must be same
         //Efficiency can be calculated using bTagEfficiencyCalc.C
 
-        inFile = new TFile(file.c_str());
+        TFile inFile(inFileName.c_str());
         SetEffs(inFile, suffix);
-        SetCalib(CSVFile.c_str());	  
+        inFile.Close();
+
         if(CSVFilePath.size())
         {
             SetCalib((CSVFilePath + "/" + CSVFile).c_str());
@@ -46,7 +48,7 @@ public:
         {
             SetCalib(CSVFile.c_str());
         }
-        
+
         if(isFastSim)
         {
             //FastSim
@@ -65,53 +67,50 @@ public:
     //accessors
     void SetDebug(bool d) { debug = d; }
     void SetFastSim(bool f) { fastsim = f; }
-    void SetEffs(TFile* file, std::string suffix = "")
+    void SetEffs(TFile& file, std::string suffix = "")
     {
         if(suffix.size())
         {
             std::string suffix2 = suffix;
-            h_eff_b = (TH2F*)file->Get(("n_eff_b_" + suffix2).c_str());
-            if(!h_eff_b)
+            h_eff_b.reset( (TH2F*)file.Get(("n_eff_b_" + suffix2).c_str()) );
+            if(!h_eff_b.get())
             {
                 std::cout << "Could not find n_eff_b_" << suffix2 << " in Btag file. Will use TTbarSingleLepT as default" << std::endl;
                 suffix2 = "TTbarSingleLepT"; // random default value, otherwise you get segfault
-                h_eff_b = (TH2F*)file->Get(("n_eff_b_" + suffix2).c_str());
+                h_eff_b.reset( (TH2F*)file.Get(("n_eff_b_" + suffix2).c_str()) );
             }
-            h_eff_c = (TH2F*)file->Get(("n_eff_c_" + suffix2).c_str());
-            h_eff_udsg = (TH2F*)file->Get(("n_eff_udsg_" + suffix2).c_str());
-            TH2F *d_eff_b = (TH2F*)file->Get(("d_eff_b_" + suffix2).c_str());
-            TH2F *d_eff_c = (TH2F*)file->Get(("d_eff_c_" + suffix2).c_str());
-            TH2F *d_eff_udsg = (TH2F*)file->Get(("d_eff_udsg_" + suffix2).c_str());
+            h_eff_c.reset( (TH2F*)file.Get(("n_eff_c_" + suffix2).c_str()) );
+            h_eff_udsg.reset( (TH2F*)file.Get(("n_eff_udsg_" + suffix2).c_str()) );
+            std::unique_ptr<TH2F> d_eff_b( (TH2F*)file.Get(("d_eff_b_" + suffix2).c_str()) );
+            std::unique_ptr<TH2F> d_eff_c( (TH2F*)file.Get(("d_eff_c_" + suffix2).c_str()) );
+            std::unique_ptr<TH2F> d_eff_udsg( (TH2F*)file.Get(("d_eff_udsg_" + suffix2).c_str()) );
             
-            h_eff_b->Divide(d_eff_b);
-            h_eff_c->Divide(d_eff_c);
-            h_eff_udsg->Divide(d_eff_udsg);
-            
+            h_eff_b->Divide(d_eff_b.get());
+            h_eff_c->Divide(d_eff_c.get());
+            h_eff_udsg->Divide(d_eff_udsg.get());            
         }
         else
         {
-            h_eff_b = (TH2F*)file->Get("n_eff_b");
-            h_eff_c = (TH2F*)file->Get("n_eff_c");
-            h_eff_udsg = (TH2F*)file->Get("n_eff_udsg");
-
-	    TH2F *d_eff_b = (TH2F*)file->Get("d_eff_b");
-	    TH2F *d_eff_c = (TH2F*)file->Get("d_eff_c");
-            TH2F *d_eff_udsg = (TH2F*)file->Get("d_eff_udsg");
+            h_eff_b.reset( (TH2F*)file.Get("n_eff_b") );
+            h_eff_c.reset( (TH2F*)file.Get("n_eff_c") );
+            h_eff_udsg.reset(  (TH2F*)file.Get("n_eff_udsg") );
+	    std::unique_ptr<TH2F> d_eff_b( (TH2F*)file.Get("d_eff_b") );
+            std::unique_ptr<TH2F> d_eff_c( (TH2F*)file.Get("d_eff_c") );
+            std::unique_ptr<TH2F> d_eff_udsg( (TH2F*)file.Get("d_eff_udsg") );
             
-            if(h_eff_b)
+            if(h_eff_b.get())
             {
-                h_eff_b->Divide(d_eff_b);
-                h_eff_c->Divide(d_eff_c);
-                h_eff_udsg->Divide(d_eff_udsg);
+                h_eff_b->Divide(d_eff_b.get());
+                h_eff_c->Divide(d_eff_c.get());
+                h_eff_udsg->Divide(d_eff_udsg.get());
             }
         }
     }
     void resetEffs(std::string suffix)
     {
-        if(h_eff_b) delete h_eff_b;
-        if(h_eff_c) delete h_eff_c;
-        if(h_eff_udsg) delete h_eff_udsg;
+        TFile inFile(inFileName.c_str());
         SetEffs(inFile, suffix);
+        inFile.Close();
     }
     void SetCalib(std::string cfile)
     {        
@@ -508,9 +507,8 @@ public:
     BTagCalibration calib, calibFast;
     BTagCalibrationReader reader, readerUp, readerDown;
     BTagCalibrationReader readerFast, readerFastUp, readerFastDown;
-    TH2F *h_eff_b, *h_eff_c, *h_eff_udsg;
-    TFile *inFile;
-    std::string MCBranch, JetsVec, BJetsVec, JetsFlavor, myVarSuffix_;
+    std::shared_ptr<TH2F> h_eff_b, h_eff_c, h_eff_udsg;
+    std::string inFileName, MCBranch, JetsVec, BJetsVec, JetsFlavor, myVarSuffix_;
 };
 
 //Team hack to keep name the same for people down stream

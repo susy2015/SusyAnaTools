@@ -244,6 +244,11 @@ private:
             return true;
         }
 
+        inline T& getFunc()
+        { 
+            return func_; 
+        }
+
         FuncWrapperImpl(T& f) : func_(std::move(f)) {}
         FuncWrapperImpl(T&& f) : func_(std::move(f)) {}
     };
@@ -315,6 +320,13 @@ public:
     {
         if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(f));
         else THROW_SATEXCEPTION("New functions cannot be registered after tuple reading begins!\n");
+    }
+
+    template<typename T, typename ...Args> T& emplaceModule(Args&&... args)
+    {
+        if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(std::move(T(args...))));
+        else THROW_SATEXCEPTION("New module cannot be registered after tuple reading begins!\n");        
+        return static_cast<FuncWrapperImpl<T>*>(functionVec_.back())->getFunc();
     }
 
     //Specialization for basic functions
