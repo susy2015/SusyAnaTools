@@ -524,6 +524,7 @@ void BaselineVessel::PassBaseline()
   bool SAT_Pass_MET_Loose   = (met >= 100);
   bool SAT_Pass_MET_Mid     = (met >= 160);
   bool SAT_Pass_MET         = (met >= 250);
+  bool SAT_Pass_MET_Tight   = (met >= 300);
   bool SAT_Pass_HT          = (HT  >= 300);
   bool SAT_Pass_NJets       = nJets >= 2;
   bool SAT_Pass_LeptonVeto  = (Pass_ElecVeto && Pass_MuonVeto && Pass_IsoTrkVeto);
@@ -540,8 +541,9 @@ void BaselineVessel::PassBaseline()
   
   //SUS-16-049, low dm, ISR cut
   // see GetISRJetIdx() and CalcISRJetVars() for details
-  bool SAT_Pass_ISR   = (ISRJetPt > 200);
-  bool SAT_Pass_S_MET = (S_met > 10);
+  bool SAT_Pass_ISR         = (ISRJetPt >= 200);
+  bool SAT_Pass_ISR_Tight   = (ISRJetPt >= 300);
+  bool SAT_Pass_S_MET       = (S_met >= 10);
   
   // ----------------------- // 
   // --- For Search Bins --- //
@@ -611,6 +613,7 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_MTB_LowDM
                    );      
   
+  
   //baseline for SUS-16-049 high dm plus HT cut
   SAT_Pass_highDM = (
                          SAT_Pass_Baseline
@@ -674,6 +677,27 @@ void BaselineVessel::PassBaseline()
                       && nBottoms >= 1
                       && nJets >= 5
                   );      
+  
+  // standard baseline
+  SAT_Pass_Baseline_Tight = (
+                            SAT_Pass_JetID 
+                         && SAT_Pass_EventFilter
+                         && SAT_Pass_MET_Tight
+                         && SAT_Pass_HT
+                         && SAT_Pass_NJets
+                         && SAT_Pass_dPhiMETLowDM
+                      );
+  
+  //low dm with tigher MET and ISR PT cuts
+  SAT_Pass_lowDM_Tight = (
+                        SAT_Pass_Baseline_Tight
+                     && nMergedTops == 0
+                     && nResolvedTops == 0
+                     && nWs == 0
+                     && SAT_Pass_ISR_Tight
+                     && SAT_Pass_S_MET
+                     && SAT_Pass_MTB_LowDM
+                   );      
   
   // ----------------------------------- // 
   // --- Apply Lepton Veto if needed --- //
@@ -872,6 +896,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("SAT_Pass_highDM_Loose" + firstSpec, SAT_Pass_highDM_Loose);
   tr->registerDerivedVar("SAT_Pass_lowDM_Mid"  + firstSpec, SAT_Pass_lowDM_Mid);
   tr->registerDerivedVar("SAT_Pass_highDM_Mid" + firstSpec, SAT_Pass_highDM_Mid);
+  tr->registerDerivedVar("SAT_Pass_lowDM_Tight"  + firstSpec, SAT_Pass_lowDM_Tight);
   tr->registerDerivedVar("SAT_Pass_lowDM_mid_dPhi"  + firstSpec, SAT_Pass_lowDM_mid_dPhi);
   tr->registerDerivedVar("SAT_Pass_highDM_mid_dPhi"  + firstSpec, SAT_Pass_highDM_mid_dPhi);
   tr->registerDerivedVar("SAT_Pass_lowDM_mid_dPhi_Loose"  + firstSpec, SAT_Pass_lowDM_mid_dPhi_Loose);
