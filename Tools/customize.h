@@ -213,6 +213,7 @@ namespace AnaFunctions{
   int jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax, std::vector<float>* dRvec);
   // true if jet matches object, false otherwise
   std::vector<bool> getJetMatchesObjectVec(const std::vector<TLorentzVector>& Jet_TLV, const std::vector<TLorentzVector>& Object_TLV, const std::vector<int>& Object_JetIndex, const float& DRMAX);
+  std::vector<bool> getJetMatchesObjectVec(const std::vector<TLorentzVector>& Jet_TLV, const std::vector<TLorentzVector>& Object_TLV, const float& DRMAX);
   bool passElectronAccOnly(const TLorentzVector& elec, const AnaConsts::IsoAccRec& elesArr);
   TLorentzVector calcMHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr);
   int countIsoLepTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<float> &isoTrksIso, const std::vector<float> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);

@@ -65,13 +65,14 @@ private:
         auto& FatJet_matchesElectron   = tr_->createDerivedVec<bool>("FatJet_matchesElectron");
         auto& FatJet_matchesMuon       = tr_->createDerivedVec<bool>("FatJet_matchesMuon");
         
-        const float DRMAX = 0.2;
-        Jet_matchesPhoton      = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Photon_TLV, Photon_jetIdx, DRMAX);
-        Jet_matchesElectron    = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Electron_TLV, Electron_jetIdx, DRMAX);
-        Jet_matchesMuon        = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Muon_TLV, Muon_jetIdx, DRMAX);
-        FatJet_matchesPhoton   = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Photon_TLV, Photon_jetIdx, DRMAX);
-        FatJet_matchesElectron = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Electron_TLV, Electron_jetIdx, DRMAX);
-        FatJet_matchesMuon     = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Muon_TLV, Muon_jetIdx, DRMAX);
+        const float DRMAX_AK4 = 0.2;
+        const float DRMAX_AK8 = 0.4;
+        Jet_matchesPhoton      = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Photon_TLV,   Photon_jetIdx,      DRMAX_AK4);
+        Jet_matchesElectron    = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Electron_TLV, Electron_jetIdx,    DRMAX_AK4);
+        Jet_matchesMuon        = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Muon_TLV,     Muon_jetIdx,        DRMAX_AK4);
+        FatJet_matchesPhoton   = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Photon_TLV,   DRMAX_AK8);
+        FatJet_matchesElectron = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Electron_TLV, DRMAX_AK8);
+        FatJet_matchesMuon     = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Muon_TLV,     DRMAX_AK8);
 
     }
 
