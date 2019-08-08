@@ -66,7 +66,7 @@ public:
     bool UseDeepTagger;
     bool UseDeepCSV;
 
-    std::string eraLabel;
+    std::string year;
     std::string jetVecLabel;
     std::string jetVecLabelAK8;
     std::string CSVVecLabel;
@@ -93,8 +93,8 @@ public:
     AnaConsts::AccRec dPhiCutArrary;
 
 
-    BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");
-    BaselineVessel(const std::string specialization = "", const std::string filterString = "");
+    BaselineVessel(NTupleReader &tr_, const std::string year, const std::string specialization = "", const std::string filterString = "");
+    BaselineVessel(const std::string year, const std::string specialization = "", const std::string filterString = "");
     ~BaselineVessel();
 
     inline std::string UseCleanedJetsVar(std::string varname) const;
@@ -146,9 +146,9 @@ public:
     bool GetSoftbJets();
 };
 
-inline void passBaselineFunc(NTupleReader &tr, std::string filterstring)
+inline void passBaselineFunc(NTupleReader &tr, std::string year, std::string filterstring)
 {
-  BaselineVessel blv(tr, "", filterstring);
+  BaselineVessel blv(tr, year, "", filterstring);
   blv.PassBaseline();
   blv.GetMHT();
 }

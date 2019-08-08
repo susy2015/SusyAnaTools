@@ -8,7 +8,7 @@
 //                              BaselineVessel                              //
 //**************************************************************************//
 
-BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specialization, const std::string filterString) : tr(&tr_), spec(specialization), ttPtr(NULL), WMassCorFile(NULL)
+BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const std::string specialization, const std::string filterString) : tr(&tr_), year(year), spec(specialization), ttPtr(NULL), WMassCorFile(NULL)
 {
   bToFake               = 1;
   debug                 = false;
@@ -18,7 +18,6 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   UseDRPhotonCleanJet   = false;
   UseDeepTagger         = true;
   UseDeepCSV            = true;
-  eraLabel              = "2016MC";
   jetVecLabel           = "JetTLV";
   jetVecLabelAK8        = "FatJetTLV";
   CSVVecLabel           = "Jet_btagCSVV2";
@@ -40,10 +39,21 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   min_jet_pt = 20.0;
   JetCutArrary  = AnaConsts::pt20Eta24Arr;
   dPhiCutArrary = AnaConsts::pt20Eta47Arr;
+  
+  // check year
+  if (year.compare("2016") != 0 && year.compare("2017") != 0 && year.compare("2018") != 0)
+  {
+    printf("ERROR: year is set to %s, but it should be 2016, 2017, or 2018.\n", year.c_str());
+  }
+  
   if (UseDeepCSV)
+  {
     CSVVecLabel           = "Jet_btagDeepB";
+  }
   if (UseDeepTagger)
+  {
     toptaggerCfgFile      = "TopTagger.cfg";
+  }
 
   if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
 
@@ -78,7 +88,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 }
 
 // constructor without nullptr as argument
-BaselineVessel::BaselineVessel(const std::string specialization, const std::string filterString) : BaselineVessel(*static_cast<NTupleReader*>(nullptr), specialization, filterString) {}
+BaselineVessel::BaselineVessel(const std::string year, const std::string specialization, const std::string filterString) : BaselineVessel(*static_cast<NTupleReader*>(nullptr), year, specialization, filterString) {}
 
 
 bool BaselineVessel::getBool(const std::string& var)
@@ -434,7 +444,7 @@ bool BaselineVessel::PrintoutConfig() const
   if (!tr->isFirstEvent()) return false;
   
   std::cout << "=== Config for BaselineVessel ===" << std::endl;
-  std::cout << "    Era Label      : " << eraLabel         << std::endl;
+  std::cout << "    Year           : " << year         << std::endl;
   std::cout << "    Specialization : " << spec             << std::endl;
   std::cout << "    AK4Jet Label   : " << jetVecLabel      << std::endl;
   std::cout << "    b-tag Label    : " << CSVVecLabel      << std::endl;
@@ -1046,12 +1056,12 @@ AK8Flag BaselineVessel::FlagAK8DeepFromCSV(unsigned int AK8index) const
         if (jets.at(ij).Pt() < 20 || fabs(jets.at(ij).Eta()) > 2.4) continue;
         if (UseDeepCSV)
         {
-          if (CSV.at(ij) > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) mediumbcnt ++;
-          if (CSV.at(ij) > AnaConsts::DeepCSV.at(eraLabel).at("cutL")) loosebcnt ++;
+          if (CSV.at(ij) > AnaConsts::DeepCSV.at(year).at("cutM")) mediumbcnt ++;
+          if (CSV.at(ij) > AnaConsts::DeepCSV.at(year).at("cutL")) loosebcnt ++;
         }
         else{
-          if (CSV.at(ij) > AnaConsts::CSVv2.at(eraLabel).at("cutM")) mediumbcnt ++;
-          if (CSV.at(ij) > AnaConsts::CSVv2.at(eraLabel).at("cutM")) loosebcnt ++;
+          if (CSV.at(ij) > AnaConsts::CSVv2.at(year).at("cutM")) mediumbcnt ++;
+          if (CSV.at(ij) > AnaConsts::CSVv2.at(year).at("cutM")) loosebcnt ++;
         }
       }
     }
@@ -1965,7 +1975,7 @@ int BaselineVessel::GetISRJetIdx()
     return -1;
   }
   // require that ISR jet is not a a b-jet
-  if (FatJet_btagDeepB[i] > AnaConsts::DeepCSV.at(eraLabel).at("cutM"))
+  if (FatJet_btagDeepB[i] > AnaConsts::DeepCSV.at(year).at("cutM"))
   {
     if (verbose) printf("FAIL fat jet btag requirement\n");
     return -1;
@@ -1973,12 +1983,12 @@ int BaselineVessel::GetISRJetIdx()
   // require that sub-jets are not b-jets
   int subJetIdx1 = FatJet_subJetIdx1[i];
   int subJetIdx2 = FatJet_subJetIdx2[i];
-  if (subJetIdx1 >= 0 && subJetIdx1 < nSubJets && SubJet_btagDeepB[subJetIdx1] > AnaConsts::DeepCSV.at(eraLabel).at("cutM"))
+  if (subJetIdx1 >= 0 && subJetIdx1 < nSubJets && SubJet_btagDeepB[subJetIdx1] > AnaConsts::DeepCSV.at(year).at("cutM"))
   {
     if (verbose) printf("FAIL subjet 1 btag requirement\n"); 
     return -1; 
   }  
-  if (subJetIdx2 >= 0 && subJetIdx2 < nSubJets && SubJet_btagDeepB[subJetIdx2] > AnaConsts::DeepCSV.at(eraLabel).at("cutM"))
+  if (subJetIdx2 >= 0 && subJetIdx2 < nSubJets && SubJet_btagDeepB[subJetIdx2] > AnaConsts::DeepCSV.at(year).at("cutM"))
   {
     if (verbose) printf("FAIL subjet 2 btag requirement\n"); 
     return -1; 

@@ -83,20 +83,20 @@ namespace AnaConsts{
 
    // CSVv2 btag working points
    const std::map<std::string, std::map<std::string, float > > CSVv2 = {
-     { "2016MC", {
+     { "2016", {
                    {"cutL", 0.5426},
                    {"cutM", 0.8484},
                    {"cutT", 0.9535}
  
      }},
-     { "2017MC", {
+     { "2017", {
                    {"cutL", 0.5803},
                    {"cutM", 0.8838},
                    {"cutT", 0.9693}
  
      }},
      // not from recommendation; use 2017 for now
-     { "2018MC", {
+     { "2018", {
                    {"cutL", 0.5803},
                    {"cutM", 0.8838},
                    {"cutT", 0.9693}
@@ -105,19 +105,19 @@ namespace AnaConsts{
    };
    // DeepCSV btag working points
    const std::map<std::string, std::map<std::string, float > > DeepCSV = {
-     { "2016MC", {
+     { "2016", {
                    {"cutL", 0.2219},
                    {"cutM", 0.6324},
                    {"cutT", 0.8958}
  
      }},
-     { "2017MC", {
+     { "2017", {
                    {"cutL", 0.1522},
                    {"cutM", 0.4941},
                    {"cutT", 0.8001}
  
      }},
-     { "2018MC", {
+     { "2018", {
                    {"cutL", 0.1241},
                    {"cutM", 0.4184},
                    {"cutT", 0.7527}
