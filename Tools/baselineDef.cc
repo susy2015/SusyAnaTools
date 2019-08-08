@@ -444,13 +444,15 @@ bool BaselineVessel::PrintoutConfig() const
   if (!tr->isFirstEvent()) return false;
   
   std::cout << "=== Config for BaselineVessel ===" << std::endl;
-  std::cout << "    Year           : " << year         << std::endl;
-  std::cout << "    Specialization : " << spec             << std::endl;
-  std::cout << "    AK4Jet Label   : " << jetVecLabel      << std::endl;
-  std::cout << "    b-tag Label    : " << CSVVecLabel      << std::endl;
-  std::cout << "    top-tag config : " << toptaggerCfgFile << std::endl;
-  std::cout << "    MET Label      : " << METLabel         << std::endl;
-  std::cout << "======================" << std::endl;
+  std::cout << "|   Year           : " << year                                      << std::endl;
+  std::cout << "|   Specialization : " << spec                                      << std::endl;
+  std::cout << "|   AK4Jet Label   : " << jetVecLabel                               << std::endl;
+  std::cout << "|   b-tag Label    : " << CSVVecLabel                               << std::endl;
+  std::cout << "|   b-tag WP       : " << AnaConsts::DeepCSV.at(year).at("cutM")    << std::endl;
+  std::cout << "|   top-tag config : " << toptaggerCfgFile                          << std::endl;
+  std::cout << "|   MET Label      : " << METLabel                                  << std::endl;
+  std::cout << "|   MET phi Label  : " << METPhiLabel                               << std::endl;
+  std::cout << "=================================" << std::endl;
   return true;
 }       // -----  end of function BaselineVessel::PrintoutConfig  -----
 
