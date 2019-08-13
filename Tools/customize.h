@@ -57,10 +57,13 @@ namespace AnaConsts{
    const AccRec pt30Arr       = {   -1,        -1,      30,    -1  };
    const AccRec pt20Eta24Arr  = {   -1,       2.4,      20,    -1  };
    const AccRec pt30Eta24Arr  = {   -1,       2.4,      30,    -1  };
+   const AccRec pt40Eta24Arr  = {   -1,       2.4,      40,    -1  };
    const AccRec pt50Eta24Arr  = {   -1,       2.4,      50,    -1  };
    const AccRec pt200Eta24Arr = {   -1,       2.4,     200,    -1  };
    const AccRec pt20Eta47Arr  = {   -1,       4.7,      20,    -1  };
-   const AccRec pt30Eta47Arr  = {   -1,       4.7,      20,    -1  };
+   const AccRec pt30Eta47Arr  = {   -1,       4.7,      30,    -1  };
+   const AccRec pt40Eta47Arr  = {   -1,       4.7,      40,    -1  };
+   const AccRec pt50Eta47Arr  = {   -1,       4.7,      50,    -1  };
    const AccRec dphiNArr      = {   -1,       2.4,      30,    -1  };
    const AccRec bTagArr       = {   -1,       2.4,      20,    -1  };
    const AccRec pt20Eta25Arr  = {   -1,       2.5,      20,    -1  };
@@ -80,20 +83,20 @@ namespace AnaConsts{
 
    // CSVv2 btag working points
    const std::map<std::string, std::map<std::string, float > > CSVv2 = {
-     { "2016MC", {
+     { "2016", {
                    {"cutL", 0.5426},
                    {"cutM", 0.8484},
                    {"cutT", 0.9535}
  
      }},
-     { "2017MC", {
+     { "2017", {
                    {"cutL", 0.5803},
                    {"cutM", 0.8838},
                    {"cutT", 0.9693}
  
      }},
      // not from recommendation; use 2017 for now
-     { "2018MC", {
+     { "2018", {
                    {"cutL", 0.5803},
                    {"cutM", 0.8838},
                    {"cutT", 0.9693}
@@ -102,19 +105,19 @@ namespace AnaConsts{
    };
    // DeepCSV btag working points
    const std::map<std::string, std::map<std::string, float > > DeepCSV = {
-     { "2016MC", {
+     { "2016", {
                    {"cutL", 0.2219},
                    {"cutM", 0.6324},
                    {"cutT", 0.8958}
  
      }},
-     { "2017MC", {
+     { "2017", {
                    {"cutL", 0.1522},
                    {"cutM", 0.4941},
                    {"cutT", 0.8001}
  
      }},
-     { "2018MC", {
+     { "2018", {
                    {"cutL", 0.1241},
                    {"cutM", 0.4184},
                    {"cutT", 0.7527}
@@ -210,6 +213,7 @@ namespace AnaFunctions{
   int jetObjectdRMatch(const TLorentzVector& object, const std::vector<TLorentzVector>& jetsLVec, const float jetObjectdRMax, std::vector<float>* dRvec);
   // true if jet matches object, false otherwise
   std::vector<bool> getJetMatchesObjectVec(const std::vector<TLorentzVector>& Jet_TLV, const std::vector<TLorentzVector>& Object_TLV, const std::vector<int>& Object_JetIndex, const float& DRMAX);
+  std::vector<bool> getJetMatchesObjectVec(const std::vector<TLorentzVector>& Jet_TLV, const std::vector<TLorentzVector>& Object_TLV, const float& DRMAX);
   bool passElectronAccOnly(const TLorentzVector& elec, const AnaConsts::IsoAccRec& elesArr);
   TLorentzVector calcMHT(const std::vector<TLorentzVector> &inputJets, const AnaConsts::AccRec& jetCutsArr);
   int countIsoLepTrks(const std::vector<TLorentzVector> &isoTrksLVec, const std::vector<float> &isoTrksIso, const std::vector<float> &isoTrksMtw, const std::vector<int> &isoTrkspdgId);

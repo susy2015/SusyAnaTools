@@ -359,6 +359,7 @@ namespace AnaFunctions
   }
   
   // true if jet matches object, false otherwise
+  // version using Object_JetIndex and dR < DRMAX
   std::vector<bool> getJetMatchesObjectVec(const std::vector<TLorentzVector>& Jet_TLV, const std::vector<TLorentzVector>& Object_TLV, const std::vector<int>& Object_JetIndex, const float& DRMAX)
   {
     int nJets    = Jet_TLV.size();
@@ -384,5 +385,29 @@ namespace AnaFunctions
     }
     return Jet_MatchesObject;
   }
+  
+  // true if jet matches object, false otherwise
+  // version using dR < DRMAX only
+  std::vector<bool> getJetMatchesObjectVec(const std::vector<TLorentzVector>& Jet_TLV, const std::vector<TLorentzVector>& Object_TLV, const float& DRMAX)
+  {
+    int nJets    = Jet_TLV.size();
+    int nObjects = Object_TLV.size();
+    std::vector<bool> Jet_MatchesObject(nJets, false);
+    for (int jet_i = 0; jet_i < nJets; ++jet_i)
+    {
+      for (int obj_i = 0; obj_i < nObjects; ++obj_i)
+      {
+        float dR = ROOT::Math::VectorUtil::DeltaR(Object_TLV[obj_i], Jet_TLV[jet_i]);
+        if (dR < DRMAX)
+        {
+          Jet_MatchesObject[jet_i] = true;
+          break; 
+        }
+      }
+    }
+    return Jet_MatchesObject;
+  }
 
 }
+
+
