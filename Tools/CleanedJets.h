@@ -65,13 +65,14 @@ private:
         auto& FatJet_matchesElectron   = tr_->createDerivedVec<bool>("FatJet_matchesElectron");
         auto& FatJet_matchesMuon       = tr_->createDerivedVec<bool>("FatJet_matchesMuon");
         
-        const float DRMAX = 0.2;
-        Jet_matchesPhoton      = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Photon_TLV, Photon_jetIdx, DRMAX);
-        Jet_matchesElectron    = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Electron_TLV, Electron_jetIdx, DRMAX);
-        Jet_matchesMuon        = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Muon_TLV, Muon_jetIdx, DRMAX);
-        FatJet_matchesPhoton   = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Photon_TLV, Photon_jetIdx, DRMAX);
-        FatJet_matchesElectron = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Electron_TLV, Electron_jetIdx, DRMAX);
-        FatJet_matchesMuon     = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Muon_TLV, Muon_jetIdx, DRMAX);
+        const float DRMAX_AK4 = 0.2;
+        const float DRMAX_AK8 = 0.4;
+        Jet_matchesPhoton      = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Photon_TLV,   Photon_jetIdx,      DRMAX_AK4);
+        Jet_matchesElectron    = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Electron_TLV, Electron_jetIdx,    DRMAX_AK4);
+        Jet_matchesMuon        = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Muon_TLV,     Muon_jetIdx,        DRMAX_AK4);
+        FatJet_matchesPhoton   = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Photon_TLV,   DRMAX_AK8);
+        FatJet_matchesElectron = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Electron_TLV, DRMAX_AK8);
+        FatJet_matchesMuon     = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Muon_TLV,     DRMAX_AK8);
 
     }
 
@@ -96,8 +97,6 @@ private:
 
         const auto& Jet_TLV  = tr_->getVec<TLorentzVector>(prefix + jetCollectionName + "TLV");  // jet lorentz vector
         const int& nJets = Jet_TLV.size();
-        std::vector<float>* dRvec = new std::vector<float>();
-        const float dRMax = 0.20; // dR cut between jets and object
 
         // vector determining which jets to keep 
         std::vector<bool> keepJet(nJets, true);
@@ -182,8 +181,6 @@ private:
                 std::cout << "The variable " << jetVariable << " with type " << type << " is not a vector. Jet cleaning will not be applied to it." << std::endl;
             }
         }
-        // dR between jets and object
-        tr_->registerDerivedVec("dR_" + prefix + jetCollectionName + suffix, dRvec);
     }
 
 public:

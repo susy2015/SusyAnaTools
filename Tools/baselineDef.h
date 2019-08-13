@@ -39,7 +39,6 @@ private:
 
 //~~~~~~~~~~~~~~~~~~ TopTagger ~~~~~~~~~~~~~~~~~~
     std::shared_ptr<TopTagger> ttPtr;
-
     //  container
     TLorentzVector metLVec; 
     std::vector<TLorentzVector> *jetsLVec_forTagger;
@@ -52,7 +51,6 @@ private:
     std::vector<TLorentzVector> *vResolvedTops;
     std::map<int, std::vector<TLorentzVector> > *mTopJets;
     std::vector<unsigned> * vAK8Flag;
-
     std::vector<TLorentzVector> GetAK4NoSubjet(Constituent &ak8, 
     std::vector<TLorentzVector> &ak4jets) const;
 
@@ -68,7 +66,7 @@ public:
     bool UseDeepTagger;
     bool UseDeepCSV;
 
-    std::string eraLabel;
+    std::string year;
     std::string jetVecLabel;
     std::string jetVecLabelAK8;
     std::string CSVVecLabel;
@@ -82,16 +80,21 @@ public:
     bool doLeptonVeto; 
     bool doMET;
     bool SAT_Pass_Baseline;
+    bool SAT_Pass_Baseline_Tight;
     bool SAT_Pass_lowDM;
-    bool SAT_Pass_highDM;
-    bool SAT_Pass_lowDM_Mid;
-    bool SAT_Pass_highDM_Mid;
     bool SAT_Pass_lowDM_Loose;
+    bool SAT_Pass_lowDM_Mid;
+    bool SAT_Pass_lowDM_Tight;
+    bool SAT_Pass_highDM;
     bool SAT_Pass_highDM_Loose;
+    bool SAT_Pass_highDM_Mid;
+    float min_jet_pt;
+    AnaConsts::AccRec JetCutArrary;
+    AnaConsts::AccRec dPhiCutArrary;
 
 
-    BaselineVessel(NTupleReader &tr_, const std::string specialization = "", const std::string filterString = "");
-    BaselineVessel(const std::string specialization = "", const std::string filterString = "");
+    BaselineVessel(NTupleReader &tr_, const std::string year, const std::string specialization = "", const std::string filterString = "");
+    BaselineVessel(const std::string year, const std::string specialization = "", const std::string filterString = "");
     ~BaselineVessel();
 
     inline std::string UseCleanedJetsVar(std::string varname) const;
@@ -143,9 +146,9 @@ public:
     bool GetSoftbJets();
 };
 
-inline void passBaselineFunc(NTupleReader &tr, std::string filterstring)
+inline void passBaselineFunc(NTupleReader &tr, std::string year, std::string filterstring)
 {
-  BaselineVessel blv(tr, "", filterstring);
+  BaselineVessel blv(tr, year, "", filterstring);
   blv.PassBaseline();
   blv.GetMHT();
 }

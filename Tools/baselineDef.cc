@@ -8,7 +8,7 @@
 //                              BaselineVessel                              //
 //**************************************************************************//
 
-BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specialization, const std::string filterString) : tr(&tr_), spec(specialization), ttPtr(NULL), WMassCorFile(NULL)
+BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const std::string specialization, const std::string filterString) : tr(&tr_), year(year), spec(specialization), ttPtr(NULL), WMassCorFile(NULL)
 {
   bToFake               = 1;
   debug                 = false;
@@ -18,7 +18,6 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   UseDRPhotonCleanJet   = false;
   UseDeepTagger         = true;
   UseDeepCSV            = true;
-  eraLabel              = "2016MC";
   jetVecLabel           = "JetTLV";
   jetVecLabelAK8        = "FatJetTLV";
   CSVVecLabel           = "Jet_btagCSVV2";
@@ -37,10 +36,24 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   SAT_Pass_lowDM_Loose  = false;
   SAT_Pass_highDM_Loose  = false;
   metLVec.SetPtEtaPhiM(0, 0, 0, 0);
+  min_jet_pt = 20.0;
+  JetCutArrary  = AnaConsts::pt20Eta24Arr;
+  dPhiCutArrary = AnaConsts::pt20Eta47Arr;
+  
+  // check year
+  if (year.compare("2016") != 0 && year.compare("2017") != 0 && year.compare("2018") != 0)
+  {
+    printf("ERROR: year is set to %s, but it should be 2016, 2017, or 2018.\n", year.c_str());
+  }
+  
   if (UseDeepCSV)
+  {
     CSVVecLabel           = "Jet_btagDeepB";
+  }
   if (UseDeepTagger)
+  {
     toptaggerCfgFile      = "TopTagger.cfg";
+  }
 
   if(filterString.compare("fastsim") ==0) isfastsim = true; else isfastsim = false; 
 
@@ -75,7 +88,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
 }
 
 // constructor without nullptr as argument
-BaselineVessel::BaselineVessel(const std::string specialization, const std::string filterString) : BaselineVessel(*static_cast<NTupleReader*>(nullptr), specialization, filterString) {}
+BaselineVessel::BaselineVessel(const std::string year, const std::string specialization, const std::string filterString) : BaselineVessel(*static_cast<NTupleReader*>(nullptr), year, specialization, filterString) {}
 
 
 bool BaselineVessel::getBool(const std::string& var)
@@ -301,36 +314,51 @@ BaselineVessel::~BaselineVessel()
 // ===========================================================================
 bool BaselineVessel::PredefineSpec()
 {
-
-  // Z invisible Z to LL control region
-  if (spec.compare("_drLeptonCleaned") == 0)
+  // Specify lepton or photon jet cleaning
+  if (spec.find("drLeptonCleaned") != std::string::npos)
   {
-    METLabel    = "metWithLL";
-    METPhiLabel = "metphiWithLL";
-    
+    METLabel            = "metWithLL";
+    METPhiLabel         = "metphiWithLL";
     UseDeepCSV          = true; 
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = true;
-    doLeptonVeto = false;
+    doLeptonVeto        = false;
   }
-  // Z invisible photon control region
-  else if (spec.compare("_drPhotonCleaned") == 0)
+  else if (spec.find("drPhotonCleaned") != std::string::npos)
   {
-    METLabel    = "metWithPhoton";
-    METPhiLabel = "metphiWithPhoton";
-    
+    METLabel            = "metWithPhoton";
+    METPhiLabel         = "metphiWithPhoton";
     UseDeepCSV          = true; 
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
-    doLeptonVeto = true;
+    doLeptonVeto        = true;
   }
-  else if(spec.compare("Zinv") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
+  // Specify Jet pt cut
+  if (spec.find("jetpt20") != std::string::npos)
+  {
+    min_jet_pt          = 20.0;
+    JetCutArrary        = AnaConsts::pt20Eta24Arr;
+    dPhiCutArrary       = AnaConsts::pt20Eta47Arr;
+  }
+  else if (spec.find("jetpt30") != std::string::npos)
+  {
+    min_jet_pt          = 30.0;
+    JetCutArrary        = AnaConsts::pt30Eta24Arr;
+    dPhiCutArrary       = AnaConsts::pt30Eta47Arr;
+  }
+  else if (spec.find("jetpt40") != std::string::npos)
+  {
+    min_jet_pt          = 40.0;
+    JetCutArrary        = AnaConsts::pt40Eta24Arr;
+    dPhiCutArrary       = AnaConsts::pt40Eta47Arr;
+  }
+  // SUS-16-050 specialization for reference 
+  if(spec.compare("Zinv") == 0 || spec.compare("ZinvJEUUp") == 0 || spec.compare("ZinvJEUDn") == 0 || spec.compare("ZinvMEUUp") == 0 || spec.compare("ZinvMEUDn") == 0) 
   {
     UseDeepCSV          = true;
     UseDRPhotonCleanJet = false;
     UseDRLeptonCleanJet = true;
     doLeptonVeto        = false;
-    
     if(spec.compare("ZinvJEUUp") == 0)
     {
       jetVecLabel = "jetLVecUp";
@@ -373,8 +401,6 @@ bool BaselineVessel::PredefineSpec()
     printOnce = true;
     //std::cout<<"spec : "<<spec.c_str()<<"  jetVecLabel : "<<jetVecLabel.c_str() <<"  CSVVecLabel : "<<CSVVecLabel.c_str() <<"  METLabel : "<<METLabel.c_str()<< std::endl;
   }  
-  
-
   return true;
 }       // -----  end of function BaselineVessel::PredefineSpec  -----
 
@@ -418,13 +444,15 @@ bool BaselineVessel::PrintoutConfig() const
   if (!tr->isFirstEvent()) return false;
   
   std::cout << "=== Config for BaselineVessel ===" << std::endl;
-  std::cout << "    Era Label      : " << eraLabel         << std::endl;
-  std::cout << "    Specialization : " << spec             << std::endl;
-  std::cout << "    AK4Jet Label   : " << jetVecLabel      << std::endl;
-  std::cout << "    b-tag Label    : " << CSVVecLabel      << std::endl;
-  std::cout << "    top-tag config : " << toptaggerCfgFile << std::endl;
-  std::cout << "    MET Label      : " << METLabel         << std::endl;
-  std::cout << "======================" << std::endl;
+  std::cout << "|   Year           : " << year                                      << std::endl;
+  std::cout << "|   Specialization : " << spec                                      << std::endl;
+  std::cout << "|   AK4Jet Label   : " << jetVecLabel                               << std::endl;
+  std::cout << "|   b-tag Label    : " << CSVVecLabel                               << std::endl;
+  std::cout << "|   b-tag WP       : " << AnaConsts::DeepCSV.at(year).at("cutM")    << std::endl;
+  std::cout << "|   top-tag config : " << toptaggerCfgFile                          << std::endl;
+  std::cout << "|   MET Label      : " << METLabel                                  << std::endl;
+  std::cout << "|   MET phi Label  : " << METPhiLabel                               << std::endl;
+  std::cout << "=================================" << std::endl;
   return true;
 }       // -----  end of function BaselineVessel::PrintoutConfig  -----
 
@@ -454,27 +482,15 @@ void BaselineVessel::PassBaseline()
   for (const auto& pass : Muon_Stop0l)      if(pass) ++nMuons_Stop0l;
   for (const auto& pass : IsoTrack_Stop0l)  if(pass) ++nIsoTracks_Stop0l;
 
-  // alternate n_jets calculation
-  //int nJets = 0;
-  //int nFatJets = 0;
-  //for (const auto& Jet : Jets)
-  //{
-  //    if (Jet.Pt() > 20 && fabs(Jet.Eta()) < 2.4) ++nJets;
-  //}
-  //for (const auto& FatJet : FatJets)
-  //{
-  //    if (FatJet.Pt() > 200 && fabs(FatJet.Eta()) < 2.4) ++nFatJets;
-  //}
-  
   // Set TLorentzVector for MET
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
   // Calculate deltaPhi
   std::vector<float> * dPhiVec = new std::vector<float>();
-  (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, AnaConsts::pt20Eta47Arr);
+  (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, dPhiCutArrary);
   // more vars
-  int nJets     = AnaFunctions::countJets(Jets,     AnaConsts::pt20Eta24Arr);  
+  int nJets     = AnaFunctions::countJets(Jets,     JetCutArrary);  
   int nFatJets  = AnaFunctions::countJets(FatJets,  AnaConsts::pt200Eta24Arr);  
-  float HT      = AnaFunctions::calcHT(Jets,        AnaConsts::pt20Eta24Arr);
+  float HT      = AnaFunctions::calcHT(Jets,        JetCutArrary);
   float S_met   = met / sqrt(HT);
 
   //---------------------------------------//
@@ -508,13 +524,14 @@ void BaselineVessel::PassBaseline()
   bool SAT_Pass_MET         = (met >= 250);
   bool SAT_Pass_MET_Mid     = (met >= 160);
   bool SAT_Pass_MET_Loose   = (met >= 110);
+  bool SAT_Pass_MET_Tight   = (met >= 300);
   bool SAT_Pass_HT          = (HT  >= 300);
   bool SAT_Pass_HT_Mid      = (HT  >= 200);
   bool SAT_Pass_HT_Loose    = (HT  >= 100);
-  bool SAT_Pass_NJets20     = nJets >= 2;
+  bool SAT_Pass_NJets     = nJets >= 2;
   bool SAT_Pass_LeptonVeto  = (Pass_ElecVeto && Pass_MuonVeto && Pass_IsoTrkVeto);
-  bool SAT_Pass_JetID       = tr->getVar<bool>(UseCleanedJetsVar("SAT_Pass_JetID"));
-  bool SAT_Pass_EventFilter = tr->getVar<bool>(UseCleanedJetsVar("SAT_Pass_EventFilter"));
+  bool SAT_Pass_JetID       = tr->getVar<bool>("SAT_Pass_JetID"+firstSpec);
+  bool SAT_Pass_EventFilter = tr->getVar<bool>("SAT_Pass_EventFilter"+firstSpec);
   bool Pass_JetID           = tr->getVar<bool>("Pass_JetID");
   bool Pass_EventFilter     = tr->getVar<bool>("Pass_EventFilter");
   bool Pass_LeptonVeto      = tr->getVar<bool>("Pass_LeptonVeto");
@@ -527,8 +544,9 @@ void BaselineVessel::PassBaseline()
   
   //SUS-16-049, low dm, ISR cut
   // see GetISRJetIdx() and CalcISRJetVars() for details
-  bool SAT_Pass_ISR   = (ISRJetPt > 200);
-  bool SAT_Pass_S_MET = (S_met > 10);
+  bool SAT_Pass_ISR         = (ISRJetPt >= 200);
+  bool SAT_Pass_ISR_Tight   = (ISRJetPt >= 300);
+  bool SAT_Pass_S_MET       = (S_met >= 10);
   
   // ----------------------- // 
   // --- For Search Bins --- //
@@ -583,22 +601,11 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET 
                          && SAT_Pass_HT
-                         && SAT_Pass_NJets20
+                         && SAT_Pass_NJets
                          && SAT_Pass_dPhiMETLowDM
               //           && Pass_CaloMETRatio
                       );
   
-  // remove Pass_EventFilter and Pass_JetID from baseline
-  // JetID issues
-  // - Lepton veto issue for 2018 (fixed)
-  // - Photon veto issue for 2016, 2017, and 2018 (not fixed)
-  //SAT_Pass_Baseline = (
-  //                          SAT_Pass_MET 
-  //                       && SAT_Pass_HT
-  //                       && SAT_Pass_NJets20
-  //                       && SAT_Pass_dPhiMETLowDM
-  //                    );
-
   //baseline for SUS-16-049 low dm plus HT cut
   SAT_Pass_lowDM = (
                         SAT_Pass_Baseline
@@ -609,6 +616,7 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_S_MET
                      && SAT_Pass_MTB_LowDM
                    );      
+  
   
   //baseline for SUS-16-049 high dm plus HT cut
   SAT_Pass_highDM = (
@@ -624,7 +632,7 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_EventFilter
                      && SAT_Pass_MET_Mid
                      && SAT_Pass_HT_Mid
-                     && SAT_Pass_NJets20
+                     && SAT_Pass_NJets
                      && SAT_Pass_dPhiMETLowDM
                      && nMergedTops == 0
                      && nWs == 0
@@ -633,25 +641,27 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_MTB_LowDM
             //         && Pass_CaloMETRatio
                   );
+
   //baseline for shapeFactor calculation (Mid)
   SAT_Pass_highDM_Mid = (
                         SAT_Pass_JetID
                      && SAT_Pass_EventFilter
                      && SAT_Pass_MET_Mid
                      && SAT_Pass_HT_Mid
-                     && SAT_Pass_NJets20
+                     && SAT_Pass_NJets
                      && SAT_Pass_dPhiMETHighDM
                      && nBottoms >= 1
                      && nJets >= 5
             //         && Pass_CaloMETRatio
                   );      
+
   //baseline for shapeFactor calculation (Loose)
   SAT_Pass_lowDM_Loose = (
                         SAT_Pass_JetID
                      && SAT_Pass_EventFilter
                      && SAT_Pass_MET_Loose
                      && SAT_Pass_HT_Loose
-                     && SAT_Pass_NJets20
+                     && SAT_Pass_NJets
                      && SAT_Pass_dPhiMETLowDM
                      && nMergedTops == 0
                      && nWs == 0
@@ -660,18 +670,41 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_MTB_LowDM
             //         && Pass_CaloMETRatio
                   );
+
   //baseline for shapeFactor calculation (Loose)
   SAT_Pass_highDM_Loose = (
                          SAT_Pass_JetID 
                       && SAT_Pass_EventFilter
                       && SAT_Pass_MET_Loose
                       && SAT_Pass_HT_Loose
-                      && SAT_Pass_NJets20
+                      && SAT_Pass_NJets
                       && SAT_Pass_dPhiMETHighDM
                       && nBottoms >= 1
                       && nJets >= 5
             //          && Pass_CaloMETRatio                   
                   );      
+
+  // standard baseline
+  SAT_Pass_Baseline_Tight = (
+                            SAT_Pass_JetID 
+                         && SAT_Pass_EventFilter
+                         && SAT_Pass_MET_Tight
+                         && SAT_Pass_HT
+                         && SAT_Pass_NJets
+                         && SAT_Pass_dPhiMETLowDM
+                      );
+  
+  //low dm with tigher MET and ISR PT cuts
+  SAT_Pass_lowDM_Tight = (
+                        SAT_Pass_Baseline_Tight
+                     && nMergedTops == 0
+                     && nResolvedTops == 0
+                     && nWs == 0
+                     && SAT_Pass_ISR_Tight
+                     && SAT_Pass_S_MET
+                     && SAT_Pass_MTB_LowDM
+                   );      
+  
   // ----------------------------------- // 
   // --- Apply Lepton Veto if needed --- //
   // ----------------------------------- // 
@@ -694,7 +727,7 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET 
                          && SAT_Pass_HT
-                         && SAT_Pass_NJets20
+                         && SAT_Pass_NJets
                       );
   //baseline for SUS-16-049 low dm plus HT cut
   bool SAT_Pass_lowDM_mid_dPhi = (
@@ -715,13 +748,23 @@ void BaselineVessel::PassBaseline()
                       && nBottoms >= 1
                       && nJets >= 5
                     );      
+
+  //Loose version
+  bool SAT_Pass_Baseline_no_dPhi_Loose = (
+                            SAT_Pass_JetID 
+                         && SAT_Pass_EventFilter
+                         && SAT_Pass_MET_Loose 
+                         && SAT_Pass_HT
+                         && SAT_Pass_NJets
+                      );
+
   //baseline for SUS-16-049 low dm plus HT cut
   bool SAT_Pass_lowDM_mid_dPhi_Mid = (
                         SAT_Pass_JetID 
                      && SAT_Pass_EventFilter
                      && SAT_Pass_MET_Mid
                      && SAT_Pass_HT_Mid
-                     && SAT_Pass_NJets20
+                     && SAT_Pass_NJets
                      && SAT_Pass_mid_dPhiMETLowDM 
                      && nMergedTops == 0
                      && nWs == 0
@@ -735,18 +778,27 @@ void BaselineVessel::PassBaseline()
                       && SAT_Pass_EventFilter
                       && SAT_Pass_MET_Mid
                       && SAT_Pass_HT_Mid
-                      && SAT_Pass_NJets20
+                      && SAT_Pass_NJets
                       && SAT_Pass_mid_dPhiMETHighDM 
                       && nBottoms >= 1
                       && nJets >= 5
                     );      
+
+  //Mid version
+  bool SAT_Pass_Baseline_no_dPhi_Mid = (
+                            SAT_Pass_JetID 
+                         && SAT_Pass_EventFilter
+                         && SAT_Pass_MET_Mid 
+                         && SAT_Pass_HT
+                         && SAT_Pass_NJets
+                      );
   //baseline for SUS-16-049 low dm plus HT cut
   bool SAT_Pass_lowDM_mid_dPhi_Loose = (
                         SAT_Pass_JetID 
                      && SAT_Pass_EventFilter
                      && SAT_Pass_MET_Loose
                      && SAT_Pass_HT_Loose
-                     && SAT_Pass_NJets20
+                     && SAT_Pass_NJets
                      && SAT_Pass_mid_dPhiMETLowDM 
                      && nMergedTops == 0
                      && nWs == 0
@@ -760,7 +812,7 @@ void BaselineVessel::PassBaseline()
                       && SAT_Pass_EventFilter
                       && SAT_Pass_MET_Loose
                       && SAT_Pass_HT_Loose
-                      && SAT_Pass_NJets20
+                      && SAT_Pass_NJets
                       && SAT_Pass_mid_dPhiMETHighDM 
                       && nBottoms >= 1
                       && nJets >= 5
@@ -852,7 +904,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("S_met" + firstSpec, S_met);
   tr->registerDerivedVar("SAT_Pass_MET" + firstSpec, SAT_Pass_MET);
   tr->registerDerivedVar("SAT_Pass_HT" + firstSpec, SAT_Pass_HT);
-  tr->registerDerivedVar("SAT_Pass_NJets20" + firstSpec, SAT_Pass_NJets20);
+  tr->registerDerivedVar("SAT_Pass_NJets" + firstSpec, SAT_Pass_NJets);
   tr->registerDerivedVar("SAT_Pass_ISR" + firstSpec, SAT_Pass_ISR);
   tr->registerDerivedVar("SAT_Pass_S_MET" + firstSpec, SAT_Pass_S_MET);
   tr->registerDerivedVar("SAT_Pass_MTB_LowDM" + firstSpec, SAT_Pass_MTB_LowDM);
@@ -867,6 +919,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("SAT_Pass_highDM_Mid" + firstSpec, SAT_Pass_highDM_Mid);
   tr->registerDerivedVar("SAT_Pass_lowDM_Loose"  + firstSpec, SAT_Pass_lowDM_Loose);
   tr->registerDerivedVar("SAT_Pass_highDM_Loose" + firstSpec, SAT_Pass_highDM_Loose);
+  tr->registerDerivedVar("SAT_Pass_lowDM_Tight"  + firstSpec, SAT_Pass_lowDM_Tight);
   tr->registerDerivedVar("SAT_Pass_lowDM_mid_dPhi"  + firstSpec, SAT_Pass_lowDM_mid_dPhi);
   tr->registerDerivedVar("SAT_Pass_highDM_mid_dPhi"  + firstSpec, SAT_Pass_highDM_mid_dPhi);
   tr->registerDerivedVar("SAT_Pass_lowDM_mid_dPhi_Mid"  + firstSpec, SAT_Pass_lowDM_mid_dPhi_Mid);
@@ -1053,12 +1106,12 @@ AK8Flag BaselineVessel::FlagAK8DeepFromCSV(unsigned int AK8index) const
         if (jets.at(ij).Pt() < 20 || fabs(jets.at(ij).Eta()) > 2.4) continue;
         if (UseDeepCSV)
         {
-          if (CSV.at(ij) > AnaConsts::DeepCSV.at(eraLabel).at("cutM")) mediumbcnt ++;
-          if (CSV.at(ij) > AnaConsts::DeepCSV.at(eraLabel).at("cutL")) loosebcnt ++;
+          if (CSV.at(ij) > AnaConsts::DeepCSV.at(year).at("cutM")) mediumbcnt ++;
+          if (CSV.at(ij) > AnaConsts::DeepCSV.at(year).at("cutL")) loosebcnt ++;
         }
         else{
-          if (CSV.at(ij) > AnaConsts::CSVv2.at(eraLabel).at("cutM")) mediumbcnt ++;
-          if (CSV.at(ij) > AnaConsts::CSVv2.at(eraLabel).at("cutM")) loosebcnt ++;
+          if (CSV.at(ij) > AnaConsts::CSVv2.at(year).at("cutM")) mediumbcnt ++;
+          if (CSV.at(ij) > AnaConsts::CSVv2.at(year).at("cutM")) loosebcnt ++;
         }
       }
     }
@@ -1353,7 +1406,7 @@ bool BaselineVessel::passQCDHighMETFilterFunc()
   metLVec.SetPtEtaPhiM(tr->getVar<float>(METLabel), 0, tr->getVar<float>(METPhiLabel), 0);
 
   int nJetsLoop = recoJetsmuonEnergyFraction.size();
-  std::vector<float> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metLVec, nJetsLoop, AnaConsts::pt20Eta47Arr);
+  std::vector<float> dPhisVec = AnaFunctions::calcDPhi( jetsLVec, metLVec, nJetsLoop, dPhiCutArrary);
 
   for(int i=0; i<nJetsLoop ; i++)
   {
@@ -1584,9 +1637,10 @@ void BaselineVessel::PassJetID()
     const auto& Jet_jetId = tr->getVec<int>(UseCleanedJetsVar("Jet_jetId"));
     int jetId = 1;
     int i = 0;
+    float jet_pt_cut = 30.0;
     for (const auto& Jet : Jets)
     {
-        if (Jet.Pt() > 30)
+        if (Jet.Pt() > jet_pt_cut)
         {
             // Jet_jetId : Int_t Jet ID flags bit1 is loose, bit2 is tight  
             jetId *= (Jet_jetId[i] & 2);
@@ -1632,22 +1686,15 @@ void BaselineVessel::PassHEMVeto()
     float wide_eta_high   = -1.2;
     float wide_phi_low    = -1.77;
     float wide_phi_high   = -0.67;
-    float pt_20  =  20.0;
-    float pt_30  =  30.0;
-    float pt_220 = 220.0;
+    float min_electron_pt =  20.0;
+    float min_photon_pt   = 220.0;
+    float jet_pt_cut      = 30.0;
     // bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low) 
-    // use jet pt > 20 for veto
-    bool SAT_Pass_HEMVeto20 = true;
-    SAT_Pass_HEMVeto20 = SAT_Pass_HEMVeto20 && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_20);
-    SAT_Pass_HEMVeto20 = SAT_Pass_HEMVeto20 && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_220);
-    SAT_Pass_HEMVeto20 = SAT_Pass_HEMVeto20 && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_eta_low,   wide_eta_high,   pt_20);
-    // use jet pt > 30 for veto
-    bool SAT_Pass_HEMVeto30 = true;
-    SAT_Pass_HEMVeto30 = SAT_Pass_HEMVeto30 && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_20);
-    SAT_Pass_HEMVeto30 = SAT_Pass_HEMVeto30 && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, pt_220);
-    SAT_Pass_HEMVeto30 = SAT_Pass_HEMVeto30 && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_eta_low,   wide_eta_high,   pt_30);
-    tr->registerDerivedVar("SAT_Pass_HEMVeto20"+firstSpec,   SAT_Pass_HEMVeto20);
-    tr->registerDerivedVar("SAT_Pass_HEMVeto30"+firstSpec,   SAT_Pass_HEMVeto30);
+    bool SAT_Pass_HEMVeto = true;
+    SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, min_electron_pt);
+    SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_eta_low, narrow_eta_high, min_photon_pt);
+    SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_eta_low,   wide_eta_high,   jet_pt_cut);
+    tr->registerDerivedVar("SAT_Pass_HEMVeto"+firstSpec,   SAT_Pass_HEMVeto);
 }
 
 // ===  FUNCTION  ============================================================
@@ -1978,7 +2025,7 @@ int BaselineVessel::GetISRJetIdx()
     return -1;
   }
   // require that ISR jet is not a a b-jet
-  if (FatJet_btagDeepB[i] > AnaConsts::DeepCSV.at(eraLabel).at("cutM"))
+  if (FatJet_btagDeepB[i] > AnaConsts::DeepCSV.at(year).at("cutM"))
   {
     if (verbose) printf("FAIL fat jet btag requirement\n");
     return -1;
@@ -1986,12 +2033,12 @@ int BaselineVessel::GetISRJetIdx()
   // require that sub-jets are not b-jets
   int subJetIdx1 = FatJet_subJetIdx1[i];
   int subJetIdx2 = FatJet_subJetIdx2[i];
-  if (subJetIdx1 >= 0 && subJetIdx1 < nSubJets && SubJet_btagDeepB[subJetIdx1] > AnaConsts::DeepCSV.at(eraLabel).at("cutM"))
+  if (subJetIdx1 >= 0 && subJetIdx1 < nSubJets && SubJet_btagDeepB[subJetIdx1] > AnaConsts::DeepCSV.at(year).at("cutM"))
   {
     if (verbose) printf("FAIL subjet 1 btag requirement\n"); 
     return -1; 
   }  
-  if (subJetIdx2 >= 0 && subJetIdx2 < nSubJets && SubJet_btagDeepB[subJetIdx2] > AnaConsts::DeepCSV.at(eraLabel).at("cutM"))
+  if (subJetIdx2 >= 0 && subJetIdx2 < nSubJets && SubJet_btagDeepB[subJetIdx2] > AnaConsts::DeepCSV.at(year).at("cutM"))
   {
     if (verbose) printf("FAIL subjet 2 btag requirement\n"); 
     return -1; 
