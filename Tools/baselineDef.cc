@@ -34,7 +34,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string specializati
   SAT_Pass_highDM       = false;
   SAT_Pass_lowDM_Mid    = false;
   SAT_Pass_highDM_Mid   = false;
-  SAT_Pass_highDM_MidHT  = false;
+  SAT_Pass_lowDM_Loose  = false;
+  SAT_Pass_highDM_Loose  = false;
   metLVec.SetPtEtaPhiM(0, 0, 0, 0);
   if (UseDeepCSV)
     CSVVecLabel           = "Jet_btagDeepB";
@@ -506,8 +507,10 @@ void BaselineVessel::PassBaseline()
   
   bool SAT_Pass_MET         = (met >= 250);
   bool SAT_Pass_MET_Mid     = (met >= 160);
+  bool SAT_Pass_MET_Loose   = (met >= 110);
   bool SAT_Pass_HT          = (HT  >= 300);
   bool SAT_Pass_HT_Mid      = (HT  >= 200);
+  bool SAT_Pass_HT_Loose    = (HT  >= 100);
   bool SAT_Pass_NJets20     = nJets >= 2;
   bool SAT_Pass_LeptonVeto  = (Pass_ElecVeto && Pass_MuonVeto && Pass_IsoTrkVeto);
   bool SAT_Pass_JetID       = tr->getVar<bool>(UseCleanedJetsVar("SAT_Pass_JetID"));
@@ -615,7 +618,7 @@ void BaselineVessel::PassBaseline()
                       && nJets >= 5
                     );      
 
-  //baseline for shapeFactor calculation (mid)
+  //baseline for shapeFactor calculation (Mid)
   SAT_Pass_lowDM_Mid = (
                         SAT_Pass_JetID
                      && SAT_Pass_EventFilter
@@ -630,7 +633,7 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_MTB_LowDM
             //         && Pass_CaloMETRatio
                   );
-  //baselinefor shapeFactor calculation (mid)
+  //baseline for shapeFactor calculation (Mid)
   SAT_Pass_highDM_Mid = (
                         SAT_Pass_JetID
                      && SAT_Pass_EventFilter
@@ -642,30 +645,44 @@ void BaselineVessel::PassBaseline()
                      && nJets >= 5
             //         && Pass_CaloMETRatio
                   );      
-
-  //baselinefor shapeFactor calculation (MidHighHT)
-  SAT_Pass_highDM_MidHT = (
+  //baseline for shapeFactor calculation (Loose)
+  SAT_Pass_lowDM_Loose = (
+                        SAT_Pass_JetID
+                     && SAT_Pass_EventFilter
+                     && SAT_Pass_MET_Loose
+                     && SAT_Pass_HT_Loose
+                     && SAT_Pass_NJets20
+                     && SAT_Pass_dPhiMETLowDM
+                     && nMergedTops == 0
+                     && nWs == 0
+                     && SAT_Pass_ISR
+                     && S_met > 10
+                     && SAT_Pass_MTB_LowDM
+            //         && Pass_CaloMETRatio
+                  );
+  //baseline for shapeFactor calculation (Loose)
+  SAT_Pass_highDM_Loose = (
                          SAT_Pass_JetID 
                       && SAT_Pass_EventFilter
-                      && SAT_Pass_MET_Mid
-                      && SAT_Pass_HT
+                      && SAT_Pass_MET_Loose
+                      && SAT_Pass_HT_Loose
                       && SAT_Pass_NJets20
                       && SAT_Pass_dPhiMETHighDM
                       && nBottoms >= 1
-                      && nJets >= 2
+                      && nJets >= 5
             //          && Pass_CaloMETRatio                   
                   );      
-  
   // ----------------------------------- // 
   // --- Apply Lepton Veto if needed --- //
   // ----------------------------------- // 
   if (doLeptonVeto)
   {
-      SAT_Pass_lowDM        = SAT_Pass_lowDM        && Pass_LeptonVeto;
-      SAT_Pass_highDM       = SAT_Pass_highDM       && Pass_LeptonVeto;
-      SAT_Pass_lowDM_Mid    = SAT_Pass_lowDM_Mid    && Pass_LeptonVeto;
-      SAT_Pass_highDM_Mid   = SAT_Pass_highDM_Mid   && Pass_LeptonVeto;
-      SAT_Pass_highDM_MidHT = SAT_Pass_highDM_MidHT && Pass_LeptonVeto;
+      SAT_Pass_lowDM        = SAT_Pass_lowDM         && Pass_LeptonVeto;
+      SAT_Pass_highDM       = SAT_Pass_highDM        && Pass_LeptonVeto;
+      SAT_Pass_lowDM_Mid    = SAT_Pass_lowDM_Mid     && Pass_LeptonVeto;
+      SAT_Pass_highDM_Mid   = SAT_Pass_highDM_Mid    && Pass_LeptonVeto;
+      SAT_Pass_lowDM_Loose  = SAT_Pass_lowDM_Loose   && Pass_LeptonVeto;
+      SAT_Pass_highDM_Loose = SAT_Pass_highDM_Loose  && Pass_LeptonVeto;
   }
   
   // --------------------------- // 
@@ -698,7 +715,6 @@ void BaselineVessel::PassBaseline()
                       && nBottoms >= 1
                       && nJets >= 5
                     );      
-
   //baseline for SUS-16-049 low dm plus HT cut
   bool SAT_Pass_lowDM_mid_dPhi_Mid = (
                         SAT_Pass_JetID 
@@ -724,28 +740,43 @@ void BaselineVessel::PassBaseline()
                       && nBottoms >= 1
                       && nJets >= 5
                     );      
-  bool SAT_Pass_highDM_mid_dPhi_MidHT = (
+  //baseline for SUS-16-049 low dm plus HT cut
+  bool SAT_Pass_lowDM_mid_dPhi_Loose = (
+                        SAT_Pass_JetID 
+                     && SAT_Pass_EventFilter
+                     && SAT_Pass_MET_Loose
+                     && SAT_Pass_HT_Loose
+                     && SAT_Pass_NJets20
+                     && SAT_Pass_mid_dPhiMETLowDM 
+                     && nMergedTops == 0
+                     && nWs == 0
+                     && SAT_Pass_ISR
+                     && SAT_Pass_S_MET
+                     && SAT_Pass_MTB_LowDM
+                   );      
+  //baseline for SUS-16-049 high dm plus HT cut
+  bool SAT_Pass_highDM_mid_dPhi_Loose = (
                          SAT_Pass_JetID 
                       && SAT_Pass_EventFilter
-                      && SAT_Pass_MET_Mid
-                      && SAT_Pass_HT
+                      && SAT_Pass_MET_Loose
+                      && SAT_Pass_HT_Loose
                       && SAT_Pass_NJets20
                       && SAT_Pass_mid_dPhiMETHighDM 
                       && nBottoms >= 1
-                      && nJets >= 2
+                      && nJets >= 5
                     );      
-
 
   // ----------------------------------- // 
   // --- Apply Lepton Veto if needed --- //
   // ----------------------------------- // 
   if (doLeptonVeto)
   {
-      SAT_Pass_lowDM_mid_dPhi  = SAT_Pass_lowDM_mid_dPhi  && Pass_LeptonVeto;
-      SAT_Pass_highDM_mid_dPhi = SAT_Pass_highDM_mid_dPhi && Pass_LeptonVeto;
-      SAT_Pass_lowDM_mid_dPhi_Mid  = SAT_Pass_lowDM_mid_dPhi_Mid  && Pass_LeptonVeto;
-      SAT_Pass_highDM_mid_dPhi_Mid = SAT_Pass_highDM_mid_dPhi_Mid && Pass_LeptonVeto;
-      SAT_Pass_highDM_mid_dPhi_MidHT = SAT_Pass_highDM_mid_dPhi_MidHT && Pass_LeptonVeto;
+      SAT_Pass_lowDM_mid_dPhi         =  SAT_Pass_lowDM_mid_dPhi  && Pass_LeptonVeto;
+      SAT_Pass_highDM_mid_dPhi        =  SAT_Pass_highDM_mid_dPhi && Pass_LeptonVeto;
+      SAT_Pass_lowDM_mid_dPhi_Mid     =  SAT_Pass_lowDM_mid_dPhi_Mid  && Pass_LeptonVeto;
+      SAT_Pass_highDM_mid_dPhi_Mid    =  SAT_Pass_highDM_mid_dPhi_Mid && Pass_LeptonVeto;
+      SAT_Pass_lowDM_mid_dPhi_Loose   =  SAT_Pass_lowDM_mid_dPhi_Loose  && Pass_LeptonVeto;
+      SAT_Pass_highDM_mid_dPhi_Loose  =  SAT_Pass_highDM_mid_dPhi_Loose && Pass_LeptonVeto;
   }
   
   // ------------------------------ //
@@ -834,12 +865,14 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("SAT_Pass_highDM" + firstSpec, SAT_Pass_highDM);
   tr->registerDerivedVar("SAT_Pass_lowDM_Mid"  + firstSpec, SAT_Pass_lowDM_Mid);
   tr->registerDerivedVar("SAT_Pass_highDM_Mid" + firstSpec, SAT_Pass_highDM_Mid);
-  tr->registerDerivedVar("SAT_Pass_highDM_MidHT" + firstSpec, SAT_Pass_highDM_MidHT);
+  tr->registerDerivedVar("SAT_Pass_lowDM_Loose"  + firstSpec, SAT_Pass_lowDM_Loose);
+  tr->registerDerivedVar("SAT_Pass_highDM_Loose" + firstSpec, SAT_Pass_highDM_Loose);
   tr->registerDerivedVar("SAT_Pass_lowDM_mid_dPhi"  + firstSpec, SAT_Pass_lowDM_mid_dPhi);
   tr->registerDerivedVar("SAT_Pass_highDM_mid_dPhi"  + firstSpec, SAT_Pass_highDM_mid_dPhi);
   tr->registerDerivedVar("SAT_Pass_lowDM_mid_dPhi_Mid"  + firstSpec, SAT_Pass_lowDM_mid_dPhi_Mid);
   tr->registerDerivedVar("SAT_Pass_highDM_mid_dPhi_Mid"  + firstSpec, SAT_Pass_highDM_mid_dPhi_Mid);
-  tr->registerDerivedVar("SAT_Pass_highDM_mid_dPhi_MidHT"  + firstSpec, SAT_Pass_highDM_mid_dPhi_MidHT);
+  tr->registerDerivedVar("SAT_Pass_lowDM_mid_dPhi_Loose"  + firstSpec, SAT_Pass_lowDM_mid_dPhi_Loose);
+  tr->registerDerivedVar("SAT_Pass_highDM_mid_dPhi_Loose"  + firstSpec, SAT_Pass_highDM_mid_dPhi_Loose);
 } 
 
 
