@@ -61,6 +61,7 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
             else if(type.find("unsigned short") != std::string::npos) prepVar<unsigned short>(tr, var);
             else if(type.find("short")          != std::string::npos) prepVar<short>(tr, var);
             else if(type.find("unsigned char")  != std::string::npos) prepVar<unsigned char>(tr, var);
+            else if(type.find("string")         != std::string::npos) prepVar<std::string>(tr, var);
             else if(type.find("char")           != std::string::npos) prepVar<char>(tr, var);
             else if(type.find("bool")           != std::string::npos) prepVar<bool>(tr, var);
             else if(type.find("unsigned long")  != std::string::npos) prepVar<unsigned long>(tr, var);
