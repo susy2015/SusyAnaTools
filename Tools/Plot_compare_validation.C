@@ -2,18 +2,18 @@ int Plot_compare_validation()
 {
 	const bool plot_log = true;
 
-	bool plot_zinv_highdm = false;
+	bool plot_zinv_highdm = true;
 	bool plot_LL_lowdm = false;
 	bool plot_LL_highdm = false;
-	bool plot_data_lowdm = true;
+	bool plot_data_lowdm = false;
 	bool plot_data_highdm = false;
 
 	TString f1_name = "Zinv_validation_lowdm_2016";
 	TString hist1 = "zjets"; 
 	TString f1_leg = "MC"; 
 	TString f2_name = "validationBinsZinv_2016"; 
-	TString hist2 = "validation_lowdm";
-	TString f2_leg = "Caleb"; 
+	TString hist2 = "validation_mc_lowdm";
+	TString f2_leg = "Caleb_MC"; 
 
 	if(plot_zinv_highdm)
 	{
@@ -21,8 +21,8 @@ int Plot_compare_validation()
 		hist1 = "zjets"; 
 		f1_leg = "MC"; 
 		f2_name = "validationBinsZinv_2016"; 
-		hist2 = "validation_highdm";
-		TString f2_leg = "Caleb"; 
+		hist2 = "validation_mc_highdm";
+		TString f2_leg = "Caleb_MC"; 
 	}
 
 	if(plot_LL_lowdm)

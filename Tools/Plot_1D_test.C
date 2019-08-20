@@ -8,7 +8,7 @@ int Plot_1D_test()
 	lumi = 137;
 	TString year = "_2016";
 	bool plot_log = false;
-	plot_log = true;
+	//plot_log = true;
 	bool plot_sig_pad = true;
 	bool plot_BG = true;
 	bool use_low_stat_sig = false;
@@ -35,7 +35,7 @@ int Plot_1D_test()
 	bool plot_SB_team_A_highdm = false;
 	bool plot_SB_team_A_lowdm = false;
 	bool plot_SB_v2_highdm_validation = false;
-	bool plot_SB_v2_lowdm_validation = true;
+	bool plot_SB_v2_lowdm_validation = false;
 	bool plot_SB_v2_lowdm_validation_0p1 = false;
 	bool plot_SB_v2_lowdm_validation_0p15 = false;
 	bool plot_nbottompt20 = false;
@@ -46,7 +46,7 @@ int Plot_1D_test()
 	bool plot_ntop_w = false;
 	bool plot_ntop_res = false;
 	bool plot_nw = false;
-	bool plot_njetspt20 = false;
+	bool plot_njetspt20 = true;
 	bool plot_njetspt20_lowdm = false;
 	bool plot_njetspt30 = false;
 	bool plot_nSV_lowdm = false;
@@ -291,12 +291,12 @@ int Plot_1D_test()
 
 	if (plot_njetspt20)
 	{
-		title = "number of jets (MTb > 175 GeV)";
-		var = "njetspt20_175_h";
+		title = "number of jets (pt20) loose baseline";
+		var = "njetspt20_h";
 		folder = "";
 		rebin = 1;
 		xmax = 20;
-		ymax = 40000;
+		ymax = 350000;
 		sig_ymax = 0.15;
 	}
 

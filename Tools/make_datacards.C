@@ -4,15 +4,18 @@ int make_datacards()
 	gROOT->ForceStyle();
 
 	double lumi = 36;
-	//lumi = 137;
+	lumi = 137;
 	TString year = "_2016";
 	//year = "_2017";
 
-	bool do_validation = true;
+	bool do_validation = false;
+	bool do_photon_unc = false;
 	bool compare_TF = false;
 	bool round_data = false;
+	//bool only_lowdm = true;
 
-	bool make_QCD_datacard = true;
+	bool make_QCD_datacard = false;
+	bool make_smear_QCD_datacard = true;
 	bool make_Zinv_datacard = true;
 	bool make_LL_datacard = true;
 	bool make_TTZ_datacard = true;
@@ -24,8 +27,10 @@ int make_datacards()
 	bool team_A_high_dm_MT2 = false;
 	bool team_A_high_dm_merge = false;
 	bool SBv2 = false;
+	bool SBv3 = true;
+	bool SBv2_jetpt30 = false;
 	bool SBv2_highdm = false;
-	bool SBv2_highdm_validation = true;
+	bool SBv2_highdm_validation = false;
 	bool SBv2_lowdm = false;
 	bool SBv2_lowdm_validation = false;
 	bool SBv2_lowdm_more_MET = false;
@@ -37,25 +42,36 @@ int make_datacards()
 
 	//TString signal_name = "T2tt_mStop500_mLSP413";
 	//TString signal_name = "T2tt_mStop550_mLSP400";
-	//TString signal_name = "T2tt_mStop600_mLSP514";
+	TString signal_name = "T2tt_mStop600_mLSP514";
 	//TString signal_name = "T2tt_mStop850_mLSP100";
 	//TString signal_name = "T2tt_mStop1000_mLSP1";
 	//TString signal_name = "T2tt_mStop1000_mLSP50";
 	//TString signal_name = "T2tt_mStop1000_mLSP500";
-	TString signal_name = "T1tttt_mGluino950_mLSP650";
+	//TString signal_name = "T2tt_mStop1200_mLSP50";
+	//TString signal_name = "T2tt_mStop1200_mLSP650";
+	//TString signal_name = "T1tttt_mGluino950_mLSP650";
 	//TString signal_name = "T1tttt_mGluino1200_mLSP800";
 	//TString signal_name = "T1tttt_mGluino2000_mLSP100";
 	//TString signal_name = "T1tttt_mGluino2000_mLSP1000";
+	//TString signal_name = "T1tttt_mGluino2200_mLSP100";
+	//TString signal_name = "T1tttt_mGluino2200_mLSP1300";
+	//TString signal_name = "T1ttbb_mGluino2000_mLSP1000";
+	//TString signal_name = "T1ttbb_mGluino2200_mLSP1300";
 	//TString signal_name = "T2bw_mStop800_mLSP100";
 	//TString signal_name = "T2bw_mStop500_mLSP325";
+	//TString signal_name = "T2bw_mStop700_mLSP526";
 	//TString signal_name = "T2bt_mStop800_mLSP100";
 	//TString signal_name = "T2bt_mStop500_mLSP300";
 	//TString signal_name = "T2fbd_mStop500_mLSP490";
+	//TString signal_name = "T2fbd_mStop500_mLSP450";
 	//TString signal_name = "T2fbd_mStop600_mLSP520";
 	//TString signal_name = "T2fbd_mStop600_mLSP590";
+	//TString signal_name = "T2cc_mStop550_mLSP540";
+	//TString signal_name = "T2cc_mStop600_mLSP520";
+	//TString signal_name = "T2cc_mStop650_mLSP570";
 
 	TString folder = "";
-	TString SR = "", SR_loose_bin = "", SR_pass_trigger = "";
+	TString SR = "", SR_loose_bin = "", SR_pass_trigger = "", SR_weight = "";
 	TString SingleMuCR = "", SingleMuCR_loose_bin = "";
 	TString SingleElCR = "", SingleElCR_loose_bin = "";
 	TString low_or_high = "_lowdm";
@@ -64,7 +80,7 @@ int make_datacards()
 	int NSB = 999;
 	int mid_bin = 53;	//53 for SBv2
 	double zinv_sf = 666.8 / 851.6;		//ratio of 050 data card / MC with B_SF
-	zinv_sf = 1;				//Caleb's 2016 Rz scale factor: low dm 1.038, high dm 0.955
+	//zinv_sf = 1;				//Caleb's 2016 Rz scale factor: low dm 1.038, high dm 0.955
 	double ll_sf = 2957.6 / 3378.4;		//ratio of 050 data card / MC with ISR and B_SF
 
 	if (team_A)
@@ -93,6 +109,23 @@ int make_datacards()
 		SR = "search_bin_v2_h";
 		SingleMuCR = "search_bin_v2_singleMuCR_h";
 		SingleElCR = "search_bin_v2_singleElCR_h";
+		SR_weight = "search_bin_v2_Stop0l_evtWeight_h";
+	}
+
+	if (SBv3)
+	{
+		SR = "search_bin_v3_h";
+		SingleMuCR = "search_bin_v3_singleMuCR_h";
+		SingleElCR = "search_bin_v3_singleElCR_h";
+		SR_weight = "search_bin_v3_Stop0l_evtWeight_h";
+	}
+
+	if (SBv2_jetpt30)
+	{
+		SR = "search_bin_v2_jetpt30_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_jetpt30_h";
+		SingleElCR = "search_bin_v2_singleElCR_jetpt30_h";
+		SR_weight = "search_bin_v2_Stop0l_evtWeight_jetpt30_h";
 	}
 
 	if (SBv2_highdm)
@@ -175,6 +208,7 @@ int make_datacards()
 			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
 
 			NSB = h1->GetSize() - 2;
+			//if(only_lowdm) NSB = mid_bin;
 			first_bin = int(h1->GetXaxis()->GetBinCenter(1));
 
 			double all_events = h2->GetBinContent(1);
@@ -458,6 +492,351 @@ int make_datacards()
 			std::vector<int> cs_event(NSB,0);
 			for(int i=0;i<NSB;i++)
 			{ 
+				if(avg_weight_sq->GetBinContent(i+1) > 0) cs_event[i] = round(pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1));
+				if(cs_event[i] > 0) QCDfile << cs_event[i] << " ";
+				else QCDfile << "0.0000" << " ";
+			}
+			QCDfile << "\n";
+
+			QCDfile << "avg_weight = ";
+			for(int i=0;i<NSB;i++)
+			{
+				//if(avg_weight->GetBinContent(i+1) > 0) QCDfile << avg_weight_sq->GetBinContent(i+1) / avg_weight->GetBinContent(i+1) << " ";
+				if(cs_event[i] > 0) QCDfile << pro->GetBinContent(i+1) / cs_event[i] << " ";
+				else QCDfile << "0.0000" << " ";
+			}
+			QCDfile << "\n";
+
+			//QCDfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ QCDfile << pro->GetBinErrorUp(i+1) / pro->GetBinContent(i+1) << " "; } QCDfile << "\n";
+			//QCDfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ QCDfile << pro->GetBinErrorLow(i+1) / pro->GetBinContent(i+1) << " "; } QCDfile << "\n";
+
+			QCDfile << "syst_unc_all_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) QCDfile << 0.84 << " ";
+				else QCDfile << 1.5 << " ";
+			}
+			QCDfile << "\n";
+
+			QCDfile << "syst_unc_all_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) QCDfile << 0.84 << " ";
+				else QCDfile << 0.998 << " ";
+			}
+			QCDfile << "\n";
+
+			QCDfile.close();
+		}
+		else std::cout << "Unable to open QCDfile";
+	}
+
+	if (make_smear_QCD_datacard)
+	{
+		TH1F * pro = NULL;
+		TH1F * avg_weight_sq = new TH1F("avg_weight_sq","avg_weight_sq",NSB,0,NSB);
+		TH1F * avg_weight = new TH1F("avg_weight","avg_weight",NSB,0,NSB);
+
+		if (true)
+		{
+			TString sp = "QCD_HT_300to500";
+
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
+			//TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get(folder + SR);
+
+			NSB = h1->GetSize() - 2;
+			first_bin = int(h1->GetXaxis()->GetBinCenter(1));
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			h1->Scale(lumi * 1000);
+
+			for(int i = 0; i < NSB; i++)
+			{
+				double scale = 0.0;
+				if(h2->GetBinContent(i+1) > 0) scale = h1->GetBinContent(i+1) / h2->GetBinContent(i+1);
+				//avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+scale*scale);
+				//avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+scale);
+				avg_weight_sq->SetBinContent(i+1,scale*scale);
+				avg_weight->SetBinContent(i+1,scale);
+			}
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro = (TH1F*)h1->Clone("QCD");
+		}
+
+		if (false)
+		{
+			TString sp = "QCD_HT_200to300";
+
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
+			//TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get(folder + SR);
+
+			NSB = h1->GetSize() - 2;
+			first_bin = int(h1->GetXaxis()->GetBinCenter(1));
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			h1->Scale(lumi * 1000);
+
+			for(int i = 0; i < NSB; i++)
+			{
+				double scale = 0.0;
+				if(h2->GetBinContent(i+1) > 0) scale = h1->GetBinContent(i+1) / h2->GetBinContent(i+1);
+				avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+scale*scale);
+				avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+scale);
+			}
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro->Add(h1);
+		}
+
+		if (true)
+		{
+			TString sp = "QCD_HT_500to700";
+
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
+			//TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get(folder + SR);
+
+			NSB = h1->GetSize() - 2;
+			first_bin = int(h1->GetXaxis()->GetBinCenter(1));
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			h1->Scale(lumi * 1000);
+
+			for(int i = 0; i < NSB; i++)
+			{
+				double scale = 0.0;
+				if(h2->GetBinContent(i+1) > 0) scale = h1->GetBinContent(i+1) / h2->GetBinContent(i+1);
+				avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+scale*scale);
+				avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+scale);
+			}
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro->Add(h1);
+		}
+
+		if (true)
+		{
+			TString sp = "QCD_HT_700to1000";
+
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
+			//TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get(folder + SR);
+
+			NSB = h1->GetSize() - 2;
+			first_bin = int(h1->GetXaxis()->GetBinCenter(1));
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			h1->Scale(lumi * 1000);
+
+			for(int i = 0; i < NSB; i++)
+			{
+				double scale = 0.0;
+				if(h2->GetBinContent(i+1) > 0) scale = h1->GetBinContent(i+1) / h2->GetBinContent(i+1);
+				avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+scale*scale);
+				avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+scale);
+			}
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro->Add(h1);
+		}
+
+		if (true)
+		{
+			TString sp = "QCD_HT_1000to1500";
+
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
+			//TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get(folder + SR);
+
+			NSB = h1->GetSize() - 2;
+			first_bin = int(h1->GetXaxis()->GetBinCenter(1));
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			h1->Scale(lumi * 1000);
+
+			for(int i = 0; i < NSB; i++)
+			{
+				double scale = 0.0;
+				if(h2->GetBinContent(i+1) > 0) scale = h1->GetBinContent(i+1) / h2->GetBinContent(i+1);
+				avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+scale*scale);
+				avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+scale);
+			}
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro->Add(h1);
+		}
+
+		if (true)
+		{
+			TString sp = "QCD_HT_1500to2000";
+
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
+			//TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get(folder + SR);
+
+			NSB = h1->GetSize() - 2;
+			first_bin = int(h1->GetXaxis()->GetBinCenter(1));
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			h1->Scale(lumi * 1000);
+
+			for(int i = 0; i < NSB; i++)
+			{
+				double scale = 0.0;
+				if(h2->GetBinContent(i+1) > 0) scale = h1->GetBinContent(i+1) / h2->GetBinContent(i+1);
+				avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+scale*scale);
+				avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+scale);
+			}
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro->Add(h1);
+		}
+
+		if (true)
+		{
+			TString sp = "QCD_HT_2000toInf";
+
+			TFile *f1 = new TFile("results/" + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
+			//TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
+			TH1F *h2 = (TH1F*)f1->Get(folder + SR);
+
+			NSB = h1->GetSize() - 2;
+			first_bin = int(h1->GetXaxis()->GetBinCenter(1));
+
+			h1->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			h1->Scale(lumi * 1000);
+
+			for(int i = 0; i < NSB; i++)
+			{
+				double scale = 0.0;
+				if(h2->GetBinContent(i+1) > 0) scale = h1->GetBinContent(i+1) / h2->GetBinContent(i+1);
+				avg_weight_sq->SetBinContent(i+1,avg_weight_sq->GetBinContent(i+1)+scale*scale);
+				avg_weight->SetBinContent(i+1,avg_weight->GetBinContent(i+1)+scale);
+			}
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+			pro->Add(h1);
+		}
+
+		hs->Add(pro);
+		pro->SetBinErrorOption(TH1::kPoisson);
+
+		if(do_validation)
+		{
+			TFile out_file("validation/QCD_validation" + low_or_high + year + ".root","RECREATE");
+			pro->Write();
+			out_file.Close();
+		}
+
+		std::ofstream QCDfile (("datacards/temp/qcd.txt"));
+		if (QCDfile.is_open())
+		{
+			QCDfile << "luminosity = " << lumi << "     # in pb-1 (FIXED)\n";
+			QCDfile << "channels = " << NSB << "     # total number of channels -> following our search bin definition (FIXED)\n";
+			QCDfile << "sample = qcd     # name of the background: hadtau, lostle, zinv, qcd, ttz\n";
+			QCDfile << "channel = "; for(int i=first_bin;i<first_bin + NSB;i++){ QCDfile << "bin" << i+1 << " "; } QCDfile << "\n";
+
+			QCDfile << "\n# Predicted central numbers (need from all backgrounds)\n";
+			QCDfile << "rate = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(pro->GetBinContent(i+1) > 0) QCDfile << pro->GetBinContent(i+1) << " ";
+				else QCDfile << "0.0000" << " ";
+			}
+			QCDfile << "\n";
+
+			QCDfile << "cs_event = ";
+			std::vector<int> cs_event(NSB,0);
+			for(int i=0;i<NSB;i++)
+			{
+				//std::cout << "avg_weight->GetBinContent(i+1) " << avg_weight->GetBinContent(i+1) << std::endl; 
 				if(avg_weight_sq->GetBinContent(i+1) > 0) cs_event[i] = round(pro->GetBinContent(i+1) / avg_weight_sq->GetBinContent(i+1) * avg_weight->GetBinContent(i+1));
 				if(cs_event[i] > 0) QCDfile << cs_event[i] << " ";
 				else QCDfile << "0.0000" << " ";
@@ -823,16 +1202,33 @@ int make_datacards()
 			Zinvfile << "syst_unc_shape_stat_up = ";
 			for(int i=0;i<NSB;i++)
 			{
-				if(i < mid_bin) Zinvfile << 0.00 << " ";
+				if(i < mid_bin) Zinvfile << 0.0 << " ";
 				else Zinvfile << 0.2 << " ";
 			}
 			Zinvfile << "\n";
 			Zinvfile << "syst_unc_shape_stat_dn = ";
 			for(int i=0;i<NSB;i++){
-				if(i < mid_bin) Zinvfile << 0.00 << " ";
+				if(i < mid_bin) Zinvfile << 0.0 << " ";
 				else Zinvfile << 0.2 << " ";
 			}
 			Zinvfile << "\n";
+
+			if(do_photon_unc)
+			{
+			Zinvfile << "syst_unc_photon_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) Zinvfile << 0.5 << " ";
+				else Zinvfile << 0.2 << " ";
+			}
+			Zinvfile << "\n";
+			Zinvfile << "syst_unc_photon_dn = ";
+			for(int i=0;i<NSB;i++){
+				if(i < mid_bin) Zinvfile << 0.5 << " ";
+				else Zinvfile << 0.2 << " ";
+			}
+			Zinvfile << "\n";
+			}
 
 			Zinvfile << "syst_unc_norm_up = ";
 			for(int i=0;i<NSB;i++)
@@ -2645,8 +3041,18 @@ int make_datacards()
 
 			signalfile << "avg_weight = "; for(int i=0;i<NSB;i++){ signalfile << TF_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
 
-			//signalfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinErrorUp(i+1) / raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
-			//signalfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinErrorLow(i+1) / raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
+			signalfile << "stat_unc_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if (raw_sig->GetBinContent(i+1) > 0) signalfile << raw_sig->GetBinErrorUp(i+1) / raw_sig->GetBinContent(i+1) << " ";
+				else signalfile << "0.00" << " ";
+			} signalfile << "\n";
+			signalfile << "stat_unc_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if (raw_sig->GetBinContent(i+1) > 0) signalfile << raw_sig->GetBinErrorLow(i+1) / raw_sig->GetBinContent(i+1) << " ";
+				else signalfile << "0.00" << " ";
+			} signalfile << "\n";
 
 			signalfile << "syst_lumi_unc_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.025 << " "; } signalfile << "\n";
 			signalfile << "syst_lumi_unc_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.025 << " "; } signalfile << "\n";
@@ -2658,20 +3064,40 @@ int make_datacards()
 			signalfile << "syst_trigUnc_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.01 << " "; } signalfile << "\n";
 			signalfile << "syst_scaleUnc_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.01 << " "; } signalfile << "\n";
 			signalfile << "syst_scaleUnc_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.01 << " "; } signalfile << "\n";
+
 			signalfile << "syst_isrUnc_up = ";
 			for(int i=0;i<NSB;i++)
 			{
-				if(i < mid_bin) signalfile << 0.00 << " ";
+				if(i < mid_bin) signalfile << 0.0 << " ";
 				else signalfile << 0.20 << " ";
 			}
 			signalfile << "\n";
 			signalfile << "syst_isrUnc_dn = ";
 			for(int i=0;i<NSB;i++)
 			{
-				if(i < mid_bin) signalfile << 0.00 << " ";
+				if(i < mid_bin) signalfile << 0.0 << " ";
 				else signalfile << 0.20 << " ";
 			}
 			signalfile << "\n";
+
+			if(do_photon_unc)
+			{
+			signalfile << "syst_photon_up = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) signalfile << 0.15 << " ";
+				else signalfile << 0.10 << " ";
+			}
+			signalfile << "\n";
+			signalfile << "syst_photon_dn = ";
+			for(int i=0;i<NSB;i++)
+			{
+				if(i < mid_bin) signalfile << 0.15 << " ";
+				else signalfile << 0.10 << " ";
+			}
+			signalfile << "\n";
+			}
+
 			signalfile << "syst_jetJEC_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.15 << " "; } signalfile << "\n";
 			signalfile << "syst_jetJEC_dn = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.15 << " "; } signalfile << "\n";
 			signalfile << "syst_TopReco_up = "         ; for(int i=0;i<NSB;i++){ signalfile << 0.05 << " "; } signalfile << "\n";

@@ -105,6 +105,19 @@ int main(int argc, char* argv[])
 
 		signalfile << "avg_weight = "; for(int i=0;i<NSB;i++){ signalfile << TF_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
 
+		signalfile << "stat_unc_up = ";
+		for(int i=0;i<NSB;i++)
+		{
+			if (raw_sig->GetBinContent(i+1) > 0) signalfile << raw_sig->GetBinErrorUp(i+1) / raw_sig->GetBinContent(i+1) << " ";
+			else signalfile << "0.00" << " ";
+		} signalfile << "\n";
+		signalfile << "stat_unc_dn = ";
+		for(int i=0;i<NSB;i++)
+		{
+			if (raw_sig->GetBinContent(i+1) > 0) signalfile << raw_sig->GetBinErrorLow(i+1) / raw_sig->GetBinContent(i+1) << " ";
+			else signalfile << "0.00" << " ";
+		} signalfile << "\n";
+
 		//signalfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinErrorUp(i+1) / raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
 		//signalfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinErrorLow(i+1) / raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
 
