@@ -92,29 +92,47 @@ if __name__ == "__main__":
                 #if this is a directory, begin recursive search for files
                 if l.startswith("d"):
                     endpath = l.split()[-1].split("/")[-1]
-                    #skip directorys not matching the required regexp
+                    #skip directories not matching the required regexp
                     if not re.match(options.startDirs, endpath):
                         continue
-                    print "".join([endpath, ".txt"])
+                    #print "".join([endpath, ".txt"])
+                    print endpath
                     fileName = "".join([endpath, ".txt"])
                     outDict = {}
                     recSearch("/".join([startPath, endpath]), outDict, eosurl = options.eosurl, match=options.match, reject=options.reject, crab=options.crab)
                     outList = []
-                    for key in outDict:
-                        if isinstance(key, tuple):
-                            outList.append("/".join([key[0], outDict[key], key[1]]).strip("\n"))
-                        else:
-                            outList.append("%s"%key)
-                    f = open(fileName, "w")
-                    outList = sorted(outList)
-                    f.write("\n".join(outList))
-                    f.close()
-            
-                    if options.copy:
-                        if useEoscp:
-                            eoscp(fileName, startPath, options.force, eosurl = options.eosurl)
-                        else:
-                            copy(fileName, copyPath, options.force)
+                    if re.match("SMS_\S*_fastsim_\S*",endpath): #Treat fastsim differently.
+                        for key in outDict:
+                            name = key[1].split("/")[1].split(".")[0]
+                            if not re.match("SMS_T\S*_m\S*_m\S*_fastsim_\d+",name): continue #Skip unsplit fastsim.
+                            fileName = "".join([name, ".txt"])
+                            f = open(fileName,"w")
+                            if isinstance(key,tuple):
+                                f.write("/".join([key[0], outDict[key], key[1]]).strip("\n"))
+                            else:
+                                f.write("%s" %key)
+                            f.close()
+                            if options.copy:
+                                if useEoscp:
+                                    eoscp(fileName, "/".join([startPath,endpath]), options.force, eosurl = options.eosurl)
+                                else:
+                                    copy(fileName, copyPath, options.force)
+
+                    else:
+                        for key in outDict:
+                            if isinstance(key, tuple):
+                                outList.append("/".join([key[0], outDict[key], key[1]]).strip("\n"))
+                            else:
+                                outList.append("%s"%key)
+                        f = open(fileName, "w")
+                        outList = sorted(outList)
+                        f.write("\n".join(outList))
+                        f.close()
+                        if options.copy:
+                            if useEoscp:
+                                eoscp(fileName, startPath, options.force, eosurl = options.eosurl)
+                            else:
+                                copy(fileName, copyPath, options.force)
 
     if options.copy and len(options.file) and not options.list:
         files = glob(options.file)
