@@ -91,7 +91,7 @@ namespace SusyUtility
     // https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
     std::string parseCuts(std::string& input, std::map<std::string, std::string> var_map)
     {
-        bool verbose = true;
+        bool verbose = false;
         std::string output = input;
         std::map<std::string, std::string> cut_map = {
             {"eq", "="},
