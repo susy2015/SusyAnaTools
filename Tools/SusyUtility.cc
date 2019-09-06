@@ -91,6 +91,7 @@ namespace SusyUtility
     // https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
     std::string parseCuts(std::string& input, std::map<std::string, std::string> var_map)
     {
+        bool verbose = true;
         std::string output = input;
         std::map<std::string, std::string> cut_map = {
             {"eq", "="},
@@ -110,6 +111,11 @@ namespace SusyUtility
         {
             output = std::regex_replace(output, std::regex(var.first), var.second);
         }
+        if (verbose)
+        {
+            printf("%s: %s\n", input.c_str(), output.c_str());
+        }
+
         return output;
     }
 }
