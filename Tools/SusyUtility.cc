@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <iterator>
+#include <regex>
 
 namespace SusyUtility
 {
@@ -84,5 +85,37 @@ namespace SusyUtility
             }
         }
         return cutLevels;
+    }
+
+    // functions to parse cuts, e.g. "NBeq0_NSVeq0" ---> ";nBottoms_drLeptonCleaned=0;nSoftBottoms_drLeptonCleaned=0"
+    // https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
+    std::string parseCuts(std::string& input, std::map<std::string, std::string> var_map)
+    {
+        bool verbose = false;
+        std::string output = input;
+        std::map<std::string, std::string> cut_map = {
+            {"eq", "="},
+            {"ge", ">="},
+            {"le", "<="},
+            {"gt", ">"},
+            {"lt", "<"},
+        };
+        // be careful with order of search and replace
+        // it matter if replace patterns (output) appear in search patterns (intput)
+        std::replace(output.begin(), output.end(), '_', ';');
+        for (const auto& cut : cut_map)
+        {
+            output = std::regex_replace(output, std::regex(cut.first), cut.second);
+        }
+        for (const auto& var : var_map)
+        {
+            output = std::regex_replace(output, std::regex(var.first), var.second);
+        }
+        if (verbose)
+        {
+            printf("%s: %s\n", input.c_str(), output.c_str());
+        }
+
+        return output;
     }
 }
