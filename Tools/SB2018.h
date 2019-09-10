@@ -694,7 +694,7 @@ int SBv2_lowdm_validation_mid_dPhi(int njets, int nb, int nSV, float ISRpt, floa
 }
 
 //================================SUS-16-049 (team_A) low dm validation=================================================
-int SBv2_lowdm_validation(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met)
+int SB_lowdm_validation(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met)
 {
 	if (nb == 0 && nSV == 0 && ISRpt >= 500 && njets <= 5 && met >= 250 && met < 400) return 0;
 	if (nb == 0 && nSV == 0 && ISRpt >= 500 && njets >= 6 && met >= 250 && met < 400) return 1;
@@ -714,8 +714,12 @@ int SBv2_lowdm_validation(int njets, int nb, int nSV, float ISRpt, float bottomp
 	return -1;
 }
 
+//================================copy of SB_lowdm_validation, just for name consistency=================================================
+int SBv2_lowdm_validation(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met) {return SB_lowdm_validation(njets, nb, nSV, ISRpt, bottompt_scalar_sum, met);}
+int SBv3_lowdm_validation(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met) {return SB_lowdm_validation(njets, nb, nSV, ISRpt, bottompt_scalar_sum, met);}
+
 //================================low dm validation high MET=================================================
-int SBv2_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met)
+int SB_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met)
 {
 	if (nb == 0 && nSV == 0 && ISRpt >= 200 && met >= 250) return 15;
 	if (nb == 0 && nSV >= 1 && ISRpt >= 200 && met >= 250) return 16;
@@ -723,6 +727,10 @@ int SBv2_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met)
 	if (nb >= 1 && nSV >= 1 && ISRpt >= 200 && met >= 250) return 18;
 	return -1;
 }
+
+//================================copy of SB_lowdm_validation_high_MET, just for name consistency=================================================
+int SBv2_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met) {return SB_lowdm_validation_high_MET(nb, nSV, ISRpt, met);}
+int SBv3_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met) {return SB_lowdm_validation_high_MET(nb, nSV, ISRpt, met);}
 
 //================================SBv2 high dm validation=================================================
 int SBv2_highdm_validation(float mtb, int njets, int ntop, int nw, int nres, int nb, float met)
@@ -735,6 +743,36 @@ int SBv2_highdm_validation(float mtb, int njets, int ntop, int nw, int nres, int
 	if (nb ==1 && mtb >= 175 && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met >= 400) return 24;
 	if (nb >=2 && mtb >= 175 && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met >= 250 && met < 400) return 25;
 	if (nb >=2 && mtb >= 175 && njets >=7 && ntop ==0 && nres ==0 && nw ==0 && met >= 400) return 26;
+	if (nb ==1 && mtb >= 175 && ntop ==1 && nres ==0 && nw ==0 && met >= 250 && met < 400) return 27;
+	if (nb ==1 && mtb >= 175 && ntop ==1 && nres ==0 && nw ==0 && met >= 400) return 28;
+	if (nb ==1 && mtb >= 175 && ntop ==0 && nres ==0 && nw ==1 && met >= 250 && met < 400) return 29;
+	if (nb ==1 && mtb >= 175 && ntop ==0 && nres ==0 && nw ==1 && met >= 400) return 30;
+	if (nb ==1 && mtb >= 175 && ntop ==0 && nres ==1 && nw ==0 && met >= 250 && met < 400) return 31;
+	if (nb ==1 && mtb >= 175 && ntop ==0 && nres ==1 && nw ==0 && met >= 400) return 32;
+	if (nb ==1 && mtb >= 175 && ntop + nres + nw >=2 && met >= 250 && met < 400) return 33;
+	if (nb ==1 && mtb >= 175 && ntop + nres + nw >=2 && met >= 400) return 34;
+	if (nb >=2 && mtb >= 175 && ntop ==1 && nres ==0 && nw ==0 && met >= 250 && met < 400) return 35;
+	if (nb >=2 && mtb >= 175 && ntop ==1 && nres ==0 && nw ==0 && met >= 400) return 36;
+	if (nb >=2 && mtb >= 175 && ntop ==0 && nres ==0 && nw ==1 && met >= 250 && met < 400) return 37;
+	if (nb >=2 && mtb >= 175 && ntop ==0 && nres ==0 && nw ==1 && met >= 400) return 38;
+	if (nb >=2 && mtb >= 175 && ntop ==0 && nres ==1 && nw ==0 && met >= 250 && met < 400) return 39;
+	if (nb >=2 && mtb >= 175 && ntop ==0 && nres ==1 && nw ==0 && met >= 400) return 40;
+	if (nb >=2 && mtb >= 175 && ntop + nres + nw >=2 && met >= 250 && met < 400) return 41;
+	if (nb >=2 && mtb >= 175 && ntop + nres + nw >=2 && met >= 400) return 42;
+	return -1;
+}
+
+//================================SBv3 high dm validation=================================================
+int SBv3_highdm_validation(float mtb, int njets, int ntop, int nw, int nres, int nb, float met)
+{
+	if (nb ==1 && mtb < 175 && njets >=7 && nres >=1 && met >= 250 && met < 400) return 19;
+	if (nb ==1 && mtb < 175 && njets >=7 && nres >=1 && met >= 400) return 20;
+	if (nb >=2 && mtb < 175 && njets >=7 && nres >=1 && met >= 250 && met < 400) return 21;
+	if (nb >=2 && mtb < 175 && njets >=7 && nres >=1 && met >= 400) return 22;
+	if (nb ==1 && mtb >= 175 && ntop ==0 && nres ==0 && nw ==0 && met >= 250 && met < 400) return 23;
+	if (nb ==1 && mtb >= 175 && ntop ==0 && nres ==0 && nw ==0 && met >= 400) return 24;
+	if (nb >=2 && mtb >= 175 && ntop ==0 && nres ==0 && nw ==0 && met >= 250 && met < 400) return 25;
+	if (nb >=2 && mtb >= 175 && ntop ==0 && nres ==0 && nw ==0 && met >= 400) return 26;
 	if (nb ==1 && mtb >= 175 && ntop ==1 && nres ==0 && nw ==0 && met >= 250 && met < 400) return 27;
 	if (nb ==1 && mtb >= 175 && ntop ==1 && nres ==0 && nw ==0 && met >= 400) return 28;
 	if (nb ==1 && mtb >= 175 && ntop ==0 && nres ==0 && nw ==1 && met >= 250 && met < 400) return 29;
