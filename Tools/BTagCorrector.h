@@ -4,6 +4,7 @@
 //custom headers
 #include "BTagCalibrationStandalone.h"
 #include "NTupleReader.h"
+#include "SATException.h"
 
 //ROOT headers
 #include <TROOT.h>
@@ -73,11 +74,10 @@ public:
         {
             std::string suffix2 = suffix;
             h_eff_b.reset( (TH2F*)file.Get(("n_eff_b_" + suffix2).c_str()) );
+            
             if(!h_eff_b.get())
             {
-                std::cout << "Could not find n_eff_b_" << suffix2 << " in Btag file. Will use TTbarSingleLepT as default" << std::endl;
-                suffix2 = "TTbarSingleLepT"; // random default value, otherwise you get segfault
-                h_eff_b.reset( (TH2F*)file.Get(("n_eff_b_" + suffix2).c_str()) );
+                THROW_SATEXCEPTION("\033[1;31mError: Could not find \"n_eff_b_"+suffix2+"\" histogram in the Btag scale factor root file\033[0m");
             }
             h_eff_c.reset( (TH2F*)file.Get(("n_eff_c_" + suffix2).c_str()) );
             h_eff_udsg.reset( (TH2F*)file.Get(("n_eff_udsg_" + suffix2).c_str()) );

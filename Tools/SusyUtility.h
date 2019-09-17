@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <iterator>
+#include <map>
 
 namespace SusyUtility
 {
@@ -40,6 +41,10 @@ namespace SusyUtility
     std::vector<std::string> getVecFromString(const std::string &s, const char& delim);
     // get cut levels, e.g. {"", "cut1", "cut2", "cut3"} ---> {"", "cut1", "cut1;cut2", "cut1;cut2;cut3"}
     std::vector<std::string> getCutLevels(const std::vector<std::string> cuts);
+    // functions to parse cuts, e.g. "NBeq0_NSVeq0" ---> ";nBottoms_drLeptonCleaned=0;nSoftBottoms_drLeptonCleaned=0"
+    // https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
+    std::string parseCuts(std::string& input, std::map<std::string, std::string> var_map);
+
 }
 
 #endif

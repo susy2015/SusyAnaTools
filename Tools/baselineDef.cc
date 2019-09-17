@@ -1546,7 +1546,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   UseCleanedJets();
   CalcBottomVars();
   CalcISRJetVars();
-  PassTrigger();
+  //PassTrigger(); // now done in post-processing as of v2.7
   PassJetID();
   PassEventFilter();
   PassHEMVeto();
