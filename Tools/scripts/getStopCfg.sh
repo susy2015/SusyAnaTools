@@ -225,7 +225,8 @@ then
             if [ ! -f $TARBALL ]
             then
                 echo "ERROR: Tarball $DOWNLOAD_DIR/$TARBALL not found after attempted download"
-                exit 1
+                # we don't use supplementary files now
+                #exit 1
             fi
         else
             echo "The tarball $DOWNLOAD_DIR/$TARBALL already exists"

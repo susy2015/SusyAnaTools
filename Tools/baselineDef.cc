@@ -471,15 +471,19 @@ void BaselineVessel::PassBaseline()
   // lepton vetos
   int nElectrons_Stop0l = 0;
   int nMuons_Stop0l     = 0;
+  int nTaus_Stop0l      = 0;
   int nIsoTracks_Stop0l = 0;
   const auto& Electron_Stop0l   = tr->getVec<unsigned char>("Electron_Stop0l");
   const auto& Muon_Stop0l       = tr->getVec<unsigned char>("Muon_Stop0l");
+  const auto& Tau_Stop0l        = tr->getVec<unsigned char>("Tau_Stop0l");
   const auto& IsoTrack_Stop0l   = tr->getVec<unsigned char>("IsoTrack_Stop0l");
   bool Pass_ElecVeto   = tr->getVar<bool>("Pass_ElecVeto");
   bool Pass_MuonVeto   = tr->getVar<bool>("Pass_MuonVeto");
+  bool Pass_TauVeto    = tr->getVar<bool>("Pass_TauVeto");
   bool Pass_IsoTrkVeto = tr->getVar<bool>("Pass_IsoTrkVeto");
   for (const auto& pass : Electron_Stop0l)  if(pass) ++nElectrons_Stop0l;
   for (const auto& pass : Muon_Stop0l)      if(pass) ++nMuons_Stop0l;
+  for (const auto& pass : Tau_Stop0l)       if(pass) ++nTaus_Stop0l;
   for (const auto& pass : IsoTrack_Stop0l)  if(pass) ++nIsoTracks_Stop0l;
 
   // Set TLorentzVector for MET
@@ -527,7 +531,7 @@ void BaselineVessel::PassBaseline()
   bool SAT_Pass_MET_Tight   = (met >= 300);
   bool SAT_Pass_HT          = (HT  >= 300);
   bool SAT_Pass_NJets       = nJets >= 2;
-  bool SAT_Pass_LeptonVeto  = (Pass_ElecVeto && Pass_MuonVeto && Pass_IsoTrkVeto);
+  bool SAT_Pass_LeptonVeto  = (Pass_ElecVeto && Pass_MuonVeto && Pass_TauVeto && Pass_IsoTrkVeto);
   bool SAT_Pass_JetID       = tr->getVar<bool>("SAT_Pass_JetID"+firstSpec);
   bool SAT_Pass_EventFilter = tr->getVar<bool>("SAT_Pass_EventFilter"+firstSpec);
   bool Pass_JetID           = tr->getVar<bool>("Pass_JetID");
@@ -876,6 +880,7 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("nFatJets" + firstSpec, nFatJets);
   tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
+  tr->registerDerivedVar("nTaus_Stop0l" + firstSpec, nTaus_Stop0l);
   tr->registerDerivedVar("nIsoTracks_Stop0l" + firstSpec, nIsoTracks_Stop0l);
   tr->registerDerivedVar("HT" + firstSpec, HT);
   tr->registerDerivedVar("S_met" + firstSpec, S_met);
