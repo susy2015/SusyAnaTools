@@ -16,7 +16,7 @@ cmsenv
 
 ## TopTagger Repos
 
-Checkout and compile the TopTagger and TopTaggerTools repositories.
+Checkout and compile the TopTagger and TopTaggerTools repositories. The configure and make commands are also required after merging new TopTagger changes.
 
 ```
 cd $CMSSW_BASE/src
@@ -24,73 +24,23 @@ git clone git@github.com:susy2015/TopTagger.git
 git clone git@github.com:susy2015/TopTaggerTools.git
 cd TopTagger/TopTagger/test/
 ./configure
+make clean
 make -j 8 
 ```
-
-<details> <summary> OpenCV on cmslpc (no longer needed) </summary>
-
-Most users should no longer use OpenCV. Do this instead only if you need OpenCV. If you are not on the LPC and you need OpenCV, you will have to follow the instructions below to install OpenCV on your system.
-
-```
-cd TopTagger/TopTagger/test/
-./configure OPENCVDIR=/uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/
-make -j 8 
-```
-
-</details>
-
-<details> <summary> Checkout OpenCV (no longer needed) </summary>
-
-```bash
-cd $CMSSW_BASE/src
-git clone git@github.com:susy2015/opencv.git
-cd opencv
-git checkout 3.1.0_StopBugFix
-cmake .
-make -j 8
-```
-
-</details>
-
 
 ## SusyAnaTools Repo
 
-Checkout and compile the SusyAnaTools repository.
+Checkout and compile the SusyAnaTools repository. The autoconf, configure, and make commands are also required after merging new SusyAnaTools changes.
 
 ```
 cd $CMSSW_BASE/src
 git clone git@github.com:susy2015/SusyAnaTools.git
 cd SusyAnaTools/Tools/
-git checkout NanoAOD
 autoconf
 ./configure
+make clean
 make -j 8 
 ```
-
-<details> <summary> OpenCV on cmslpc (no longer needed) </summary>
-
-Most users should no longer use OpenCV. Do this instead only if you need OpenCV. If you are not on the LPC and you need OpenCV, you will have to follow the instructions below to install OpenCV on your system.
-
-```
-cd SusyAnaTools/Tools/
-./configure OPENCVDIR=/uscms_data/d3/pastika/zinv/dev/CMSSW_7_4_8/src/opencv/
-make -j 8 
-```
-
-</details>
-
-<details> <summary> Checkout OpenCV (no longer needed) </summary>
-
-```bash
-cd $CMSSW_BASE/src
-git clone git@github.com:susy2015/opencv.git
-cd opencv
-git checkout 3.1.0_StopBugFix
-cmake .
-make -j 8
-```
-
-</details>
 
 ## Get Configuration Files
 
@@ -124,7 +74,7 @@ However, "-d" can be omitted and the files will be downloaded in your working di
 
 Checkout the stop search configuration files using the following tag.
 
-Current tag for NanoSUSY ntuples: PostProcessed_StopTuple_V2.9.1PostProcessed_StopTuple_V2.9.1
+Current tag for NanoSUSY ntuples: PostProcessed_StopNtuple_V2.9.3
 
 You may see all StopCfg releases/tags with release notes at https://github.com/susy2015/StopCfg/releases. 
 
@@ -132,12 +82,12 @@ Run this command from your working area, i.e. the directory where softlinks to t
 
 Command using full path:
 ```
-$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t PostProcessed_StopTuple_V2.9.1
+$CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t PostProcessed_StopNtuple_V2.9.3
 ```
 
 Command if `SusyAnaTools/Tools/scripts` is in your PATH:
 ```
-getStopCfg.sh -t PostProcessed_StopTuple_V2.9.1
+getStopCfg.sh -t PostProcessed_StopNtuple_V2.9.3
 ```
 
 Please note that this script will download the desired configuration information in a seperate folder and softlink the necessary files into your corrent directory.

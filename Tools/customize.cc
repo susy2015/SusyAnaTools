@@ -44,15 +44,15 @@ namespace AnaFunctions
     int cntNJets =0;
     int i = 0;
     
-    std::vector<std::pair<float, unsigned>> sorted_jets;
+    std::vector<std::pair<TLorentzVector, unsigned>> sorted_jets;
     for (const auto& jet : inputJets)
     {
-      sorted_jets.push_back({jet.Pt(), i});
+      sorted_jets.push_back({jet, i});
       ++i;
     }
     
     // sort jets by pt (since JEC change jet pt)
-    std::sort(sorted_jets.begin(), sorted_jets.end(), SusyUtility::greaterThan<float, unsigned>);
+    std::sort(sorted_jets.begin(), sorted_jets.end(), SusyUtility::greaterThan<TLorentzVector, unsigned>);
     
     std::vector<float> outDPhiVec(nDPhi, 999);
     //for(unsigned int i=0; i<inputJets.size(); i++){
@@ -286,7 +286,7 @@ namespace AnaFunctions
 
   void preparecalcDPhi(const std::vector<TLorentzVector> &inijetsLVec, const TLorentzVector &metLVec, std::vector<float> &outDPhiVec){
     outDPhiVec.clear();
-    outDPhiVec = calcDPhi(inijetsLVec, metLVec, 5, AnaConsts::dphiArr);
+    outDPhiVec = calcDPhi(inijetsLVec, metLVec, 5, AnaConsts::pt20Eta47Arr);
   }
 
   void prepareForNtupleReader(){
@@ -359,6 +359,7 @@ namespace AnaFunctions
   }
   
   // true if jet matches object, false otherwise
+  // version using Object_JetIndex and dR < DRMAX
   std::vector<bool> getJetMatchesObjectVec(const std::vector<TLorentzVector>& Jet_TLV, const std::vector<TLorentzVector>& Object_TLV, const std::vector<int>& Object_JetIndex, const float& DRMAX)
   {
     int nJets    = Jet_TLV.size();
@@ -385,4 +386,28 @@ namespace AnaFunctions
     return Jet_MatchesObject;
   }
 
+  // true if jet matches object, false otherwise
+  // version using dR < DRMAX only
+  std::vector<bool> getJetMatchesObjectVec(const std::vector<TLorentzVector>& Jet_TLV, const std::vector<TLorentzVector>& Object_TLV, const float& DRMAX)
+  {
+    int nJets    = Jet_TLV.size();
+    int nObjects = Object_TLV.size();
+    std::vector<bool> Jet_MatchesObject(nJets, false);
+    for (int jet_i = 0; jet_i < nJets; ++jet_i)
+    {
+      for (int obj_i = 0; obj_i < nObjects; ++obj_i)
+      {
+        float dR = ROOT::Math::VectorUtil::DeltaR(Object_TLV[obj_i], Jet_TLV[jet_i]);
+        if (dR < DRMAX)
+        {
+          Jet_MatchesObject[jet_i] = true;
+          break;
+        }
+      }
+    }
+    return Jet_MatchesObject;
+  }
+
 }
+
+

@@ -244,6 +244,11 @@ private:
             return true;
         }
 
+        inline T& getFunc()
+        {
+            return func_;
+        }
+
         FuncWrapperImpl(T& f) : func_(std::move(f)) {}
         FuncWrapperImpl(T&& f) : func_(std::move(f)) {}
     };
@@ -315,6 +320,13 @@ public:
     {
         if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(f));
         else THROW_SATEXCEPTION("New functions cannot be registered after tuple reading begins!\n");
+    }
+
+    template<typename T, typename ...Args> T& emplaceModule(Args&&... args)
+    {
+        if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(std::move(T(args...))));
+        else THROW_SATEXCEPTION("New module cannot be registered after tuple reading begins!\n");
+        return static_cast<FuncWrapperImpl<T>*>(functionVec_.back())->getFunc();
     }
 
     //Specialization for basic functions
@@ -405,8 +417,33 @@ public:
 
     void addAlias(const std::string& name, const std::string& alias);
 
-    const void* getPtr(const std::string& var) const;
-    const void* getVecPtr(const std::string& var) const;
+    template<typename T = void> const void* getPtr(const std::string& var) const
+    {
+        try
+        {
+            return &getTupleObj<T>(var, branchMap_);
+        }
+        catch(const SATException& e)
+        {
+            if(isFirstEvent()) e.print();
+            if(reThrow_) throw;
+            return static_cast<T*>(nullptr);
+        }
+    }
+
+    template<typename T = void> const void* getVecPtr(const std::string& var) const
+    {
+        try
+        {
+            return &getTupleObj<std::vector<T>*>(var, branchVecMap_);
+        }
+        catch(const SATException& e)
+        {
+            if(isFirstEvent()) e.print();
+            if(reThrow_) throw;
+            return static_cast<std::vector<T>*>(nullptr);
+        }
+    }
 
     template<typename T> const T& getVar(const std::string& var) const
     {
@@ -698,5 +735,10 @@ private:
         return s;
     }
 };
+
+//template specializations
+template<> const void* NTupleReader::getPtr<void>(const std::string& var) const;
+template<> const void* NTupleReader::getVecPtr<void>(const std::string& var) const;
+
 
 #endif
