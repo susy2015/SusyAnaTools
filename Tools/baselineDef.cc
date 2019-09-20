@@ -1502,6 +1502,9 @@ void BaselineVessel::PassTrigger()
     bool passElectronTrigger    = false;
     bool passMuonTrigger        = false;
     bool passPhotonTrigger      = false;
+    bool passDiMuTrigger        = false;
+    bool passDiEleTrigger       = false;
+    bool passMuElTrigger        = false;
     
     // ------------------------ //
     // --- Electron Trigger --- //
@@ -1547,10 +1550,58 @@ void BaselineVessel::PassTrigger()
     // ---------------------- //
     
     passPhotonTrigger = (getBool("HLT_Photon175") || getBool("HLT_Photon200"));
+
+
+    // ---------------------- //
+    // --- DiMuon Trigger --- //
+    // ---------------------- //
+
+    //Slide 12
+    passDiMuTrigger = ( getBool("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL") ||
+                        getBool("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ") ||
+                        getBool("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8") ||
+                        getBool("HLT_Mu27_TkMu8") ||
+                        //getBool("HLT_Mu27_TkMu11") ||
+                        //getBool("HLT_Mu30_TkMu8") ||
+                        getBool("HLT_Mu30_TkMu11") ||
+                        getBool("HLT_Mu37_TkMu27")
+                      );
+
+    // -------------------------- //
+    // --- DiElectron Trigger --- //
+    // -------------------------- //
+
+    passDiEleTrigger = (    getBool("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL") ||
+                            getBool("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ") ||
+                            getBool("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL") ||
+                            getBool("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW") ||
+                            getBool("HLT_DoubleEle33_CaloIdL_MW")
+                       );
+
+    // -------------------- //
+    // --- MuEl Trigger --- //
+    // -------------------- //
     
+    passMuElTrigger = ( getBool("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ") ||
+                        //getBool("HLT_Mu8_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ") ||
+                        //getBool("HLT_Mu23_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ") ||
+                        getBool("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ") ||
+                        getBool("HLT_Mu30_Ele30_CaloIdL_GsfTrkIdVL") ||
+                        //getBool("HLT_Mu30_Ele33_CaloIdL_GsfTrkIdVL") ||
+                        //getBool("HLT_Mu33_Ele30_CaloIdL_GsfTrkIdVL") ||
+                        getBool("HLT_Mu33_Ele33_CaloIdL_GsfTrkIdVL") ||
+                        getBool("HLT_Mu27_Ele37_CaloIdL_MW") ||
+                        //getBool("HLT_Mu27_Ele27_CaloIdL_MW") ||
+                        //getBool("HLT_Mu37_Ele37_CaloIdL_MW") ||
+                        getBool("HLT_Mu37_Ele27_CaloIdL_MW")
+                      );
+
     tr->registerDerivedVar("passElectronTrigger",   passElectronTrigger);
     tr->registerDerivedVar("passMuonTrigger",       passMuonTrigger);
     tr->registerDerivedVar("passPhotonTrigger",     passPhotonTrigger);
+    tr->registerDerivedVar("passDiMuTrigger",       passDiMuTrigger); //Turn on at pT ~12 GeV. 90-95% efficiency.
+    tr->registerDerivedVar("passDiEleTrigger",      passDiEleTrigger); //Turn on at pT ~20 GeV. 87-95% efficiency.
+    tr->registerDerivedVar("passMuElTrigger",       passMuElTrigger);
 }
 
 void BaselineVessel::PassEventFilter()
