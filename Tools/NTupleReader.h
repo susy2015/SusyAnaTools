@@ -196,7 +196,7 @@ private:
 
     //Helper to make array Handle
     template<typename T>
-    static inline Handle createArrayHandle(T* ptr, TBranch* branch, TBranch* branchVec)
+    static inline Handle createArrayHandle(T* ptr, TBranch* branch, TBranch* branchVec, const bool activeFromNTuple = false)
     {
         std::string type;
         TObjArray *lol = branch->GetListOfLeaves();
@@ -210,11 +210,11 @@ private:
 
         if(type.compare("int") == 0 || type.compare("Int_t") == 0)
         {
-            return Handle(ptr, new array_deleter<T, int>, typeid(typename std::remove_pointer<T>::type), branch, branchVec);
+            return Handle(ptr, new array_deleter<T, int>, typeid(typename std::remove_pointer<T>::type), branch, branchVec, activeFromNTuple);
         }
         else if(type.compare("unsigned int") == 0 || type.compare("UInt_t") == 0)
         {
-            return Handle(ptr, new array_deleter<T, unsigned int>, typeid(typename std::remove_pointer<T>::type), branch, branchVec);
+            return Handle(ptr, new array_deleter<T, unsigned int>, typeid(typename std::remove_pointer<T>::type), branch, branchVec, activeFromNTuple);
         }
         else
         {
@@ -624,7 +624,7 @@ private:
                 THROW_SATEXCEPTION("Branch \"" + name + "\" appears to be an array, but there is no size branch");
             }
         
-            branchVecMap_[name] = createArrayHandle(new std::vector<T>*(), countBranch, branch);
+            branchVecMap_[name] = createArrayHandle(new std::vector<T>*(), countBranch, branch, true);
 
             tree_->SetBranchStatus(name.c_str(), 1);
         }
