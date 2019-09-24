@@ -11,6 +11,8 @@ int Plot_validation()
 	bool plot_BG = true;
 	TString low_or_high = "_lowdm";
 	//low_or_high = "_highdm";
+	TString people = "";
+	//people = "_people";
 
 	float ymin = 0.1, ymax = 100000;
 
@@ -65,7 +67,7 @@ int Plot_validation()
 
 	if (plot_BG)
 	{
-		TFile *f1 = new TFile("validation/QCD_validation" + low_or_high + year + ".root");
+		TFile *f1 = new TFile("validation/QCD_validation" + low_or_high + year + people + ".root");
 		TH1D *pro = (TH1D*)f1->Get("QCD");
 
 		pro->SetLineColor(kBlack);
@@ -81,7 +83,7 @@ int Plot_validation()
 
 	if (plot_BG)
 	{
-		TFile *f1 = new TFile("validation/Zinv_validation" + low_or_high + year + ".root");
+		TFile *f1 = new TFile("validation/Zinv_validation" + low_or_high + year + people + ".root");
 		TH1D *pro = (TH1D*)f1->Get("zjets");
 		//TFile *f1 = new TFile("validation/validationBinsZinv_2016.root");
 		//TH1D *pro = (TH1D*)f1->Get("validation" + low_or_high);
@@ -99,7 +101,7 @@ int Plot_validation()
 
 	if (plot_BG)
 	{
-		TFile *f1 = new TFile("validation/LL_validation" + low_or_high + year + ".root");
+		TFile *f1 = new TFile("validation/LL_validation" + low_or_high + year + people + ".root");
 		TH1D *pro = (TH1D*)f1->Get("LL_SR");
 
 		pro->SetLineColor(kBlack);
@@ -123,7 +125,7 @@ int Plot_validation()
 	hs->SetMaximum(ymax);
 
 	TFile *f_data = new TFile("validation/Data_validation" + low_or_high + year + ".root");
-	TH1D *h_data = (TH1D*)f_data->Get("search_bin_v2" + low_or_high + "_validation_h");
+	TH1D *h_data = (TH1D*)f_data->Get("data");
 
 	h_data->Sumw2();
 	h_data->SetBinErrorOption(TH1::kPoisson);
@@ -178,9 +180,10 @@ int Plot_validation()
 		ratio->GetYaxis()->SetTitleOffset(0.4);
 		ratio->GetYaxis()->SetTitleSize(0.1);
 		ratio->GetYaxis()->SetLabelSize(0.08);
+		ratio->GetYaxis()->SetRangeUser(0,2);
 	}
 
-	mycanvas->SaveAs("plots/validation" + low_or_high + year + ".png");
+	mycanvas->SaveAs("plots/validation" + low_or_high + year + people + ".png");
 
 	return 0;
 }

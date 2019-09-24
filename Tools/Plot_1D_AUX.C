@@ -63,6 +63,41 @@ int Plot_1D_AUX_bg (double lumi, TString sp, TString year, TString var, TString 
 	return 0;
 }
 
+int Plot_1D_AUX_bg_with_weight (double lumi, TString sp, TString year, TString var, TString folder, TLegend* leg, Color_t color, TH1D *bg, int rebin)
+{
+	TFile *f1 = new TFile("results/" + sp + year + ".root");
+	TH1D *h1 = (TH1D*)f1->Get(folder + var);
+	//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
+	TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+
+	double all_events = h2->GetBinContent(1);
+	double left_events = h2->GetBinContent(2);
+
+	h1->Sumw2();
+	h1->Rebin(rebin);
+
+	std::cout << sp << std::endl;
+	std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+	std::cout << "unscale bin 2 content " << h1->GetBinContent(2) << std::endl;
+	std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+	std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
+
+	//h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+	h1->Scale(lumi * 1000);
+
+	std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+	std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
+	std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+	std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
+
+	bg->Add(h1);
+	//h1->SetLineColor(color);
+	//h1->SetLineWidth(3);
+	//h1->Draw("same");
+	//leg->AddEntry(h1,sp,"l");
+	return 0;
+}
+
 int Plot_1D_AUX_sig (double lumi, TString result_path, TString sp, TString full_or_fast, TString year, TString var, TString folder, TLegend *leg, Color_t color, THStack *hs, int rebin, bool use_low_stat_sig)
 {
 	TFile *f1 = new TFile(result_path + sp + full_or_fast + year + ".root");

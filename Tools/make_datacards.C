@@ -4,11 +4,11 @@ int make_datacards()
 	gROOT->ForceStyle();
 
 	double lumi = 36;
-	lumi = 137;
+	//lumi = 137;
 	TString year = "_2016";
 	//year = "_2017";
 
-	bool do_validation = false;
+	bool do_validation = true;
 	bool do_photon_unc = false;
 	bool compare_TF = false;
 	bool round_data = false;
@@ -21,18 +21,19 @@ int make_datacards()
 	bool make_TTZ_datacard = true;
 	bool make_Rare_datacard = true;
 	bool make_data_datacard = true;
-	bool make_signal_datacard = true;
+	bool make_signal_datacard = false;
 
 	bool team_A = false;
 	bool team_A_high_dm_MT2 = false;
 	bool team_A_high_dm_merge = false;
 	bool SBv2 = false;
-	bool SBv3 = true;
+	bool SBv3 = false;
 	bool SBv2_jetpt30 = false;
 	bool SBv2_highdm = false;
 	bool SBv2_highdm_validation = false;
+	bool SBv3_highdm_validation = false;
 	bool SBv2_lowdm = false;
-	bool SBv2_lowdm_validation = false;
+	bool SBv2_lowdm_validation = true;
 	bool SBv2_lowdm_more_MET = false;
 	bool SBv2_lowdm_high_ISRpt = false;
 	bool more_HT_bins = false;
@@ -71,7 +72,7 @@ int make_datacards()
 	//TString signal_name = "T2cc_mStop650_mLSP570";
 
 	TString folder = "";
-	TString SR = "", SR_loose_bin = "", SR_pass_trigger = "", SR_weight = "";
+	TString SR = "", SR_loose_bin = "", SR_weight = "";
 	TString SingleMuCR = "", SingleMuCR_loose_bin = "";
 	TString SingleElCR = "", SingleElCR_loose_bin = "";
 	TString low_or_high = "_lowdm";
@@ -142,9 +143,19 @@ int make_datacards()
 	if (SBv2_highdm_validation)
 	{
 		SR = "search_bin_v2_highdm_validation_h";
-		SR_pass_trigger = "search_bin_v2_highdm_validation_pass_trigger_h";
 		SingleMuCR = "search_bin_v2_singleMuCR_highdm_h";
 		SingleElCR = "search_bin_v2_singleElCR_highdm_h";
+		SR_weight = "search_bin_v2_highdm_validation_Stop0l_evtWeight_h";
+		low_or_high = "_highdm";
+		mid_bin = -1;
+	}
+
+	if (SBv3_highdm_validation)
+	{
+		SR = "search_bin_v3_highdm_validation_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_highdm_h";
+		SingleElCR = "search_bin_v2_singleElCR_highdm_h";
+		SR_weight = "search_bin_v3_highdm_validation_Stop0l_evtWeight_h";
 		low_or_high = "_highdm";
 		mid_bin = -1;
 	}
@@ -160,9 +171,9 @@ int make_datacards()
 	if (SBv2_lowdm_validation)
 	{
 		SR = "search_bin_v2_lowdm_validation_h";
-		SR_pass_trigger = "search_bin_v2_lowdm_validation_pass_trigger_h";
-		SingleMuCR = "search_bin_v2_singleMuCR_lowdm_h";
-		SingleElCR = "search_bin_v2_singleElCR_lowdm_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_highdm_h";
+		SingleElCR = "search_bin_v2_singleElCR_highdm_h";
+		SR_weight = "search_bin_v2_lowdm_validation_Stop0l_evtWeight_h";
 		low_or_high = "_lowdm";
 		mid_bin = 999;
 	}
@@ -539,7 +550,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_HT_300to500";
+			TString sp = "QCD_SMEAR_HT_300to500";
 
 			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
@@ -579,7 +590,7 @@ int make_datacards()
 
 		if (false)
 		{
-			TString sp = "QCD_HT_200to300";
+			TString sp = "QCD_SMEAR_HT_200to300";
 
 			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
@@ -617,7 +628,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_HT_500to700";
+			TString sp = "QCD_SMEAR_HT_500to700";
 
 			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
@@ -655,7 +666,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_HT_700to1000";
+			TString sp = "QCD_SMEAR_HT_700to1000";
 
 			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
@@ -693,7 +704,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_HT_1000to1500";
+			TString sp = "QCD_SMEAR_HT_1000to1500";
 
 			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
@@ -731,7 +742,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_HT_1500to2000";
+			TString sp = "QCD_SMEAR_HT_1500to2000";
 
 			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
@@ -769,7 +780,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_HT_2000toInf";
+			TString sp = "QCD_SMEAR_HT_2000toInf";
 
 			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(folder + SR_weight);
@@ -1141,7 +1152,7 @@ int make_datacards()
 			pro->Add(h1);
 		}
 
-		pro->Scale(zinv_sf);
+		if(!do_validation && !compare_TF)pro->Scale(zinv_sf);
 		hs->Add(pro);
 		pro->SetBinErrorOption(TH1::kPoisson);
 
@@ -1730,6 +1741,10 @@ int make_datacards()
 			std::cout << "unscale el bin 1 error " << h1_singleElCR->GetBinError(1) << std::endl;
 			std::cout << "unscale el bin 2 error " << h1_singleElCR->GetBinError(2) << std::endl;
 
+			std::cout << "=========================================================================" << std::endl;
+			std::cout << "lumi = " << lumi << " CrossSection.at(sp) " << CrossSection.at(sp) << " all_events " << all_events << std::endl;
+			std::cout << "=========================================================================" << std::endl;
+
 			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
 			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
@@ -2089,7 +2104,7 @@ int make_datacards()
 			}
 		}
 
-		if(!compare_TF)pro->Scale(ll_sf);
+		if(!do_validation && !compare_TF)pro->Scale(ll_sf);
 		hs->Add(pro);
 		pro->SetBinErrorOption(TH1::kPoisson);
 		pro_singleMuCR->SetBinErrorOption(TH1::kPoisson);
@@ -3113,10 +3128,9 @@ int make_datacards()
 	{
 		TFile *f1 = new TFile("results/Data_MET" + year + ".root");
 		TH1F *h1 = (TH1F*)f1->Get(folder + SR);
-		TH1F *h2 = (TH1F*)f1->Get(folder + SR_pass_trigger);
 		TFile out_file("validation/Data_validation" + low_or_high + year + ".root","RECREATE");
+		h1->SetName("data");
 		h1->Write();
-		h2->Write();
 		out_file.Close();
 	}
 

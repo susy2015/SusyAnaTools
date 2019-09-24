@@ -2,7 +2,8 @@ int Plot_compare_validation()
 {
 	const bool plot_log = true;
 
-	bool plot_zinv_highdm = true;
+	bool plot_SBv3 = true;
+	bool plot_zinv_highdm = false;
 	bool plot_LL_lowdm = false;
 	bool plot_LL_highdm = false;
 	bool plot_data_lowdm = false;
@@ -15,6 +16,16 @@ int Plot_compare_validation()
 	TString hist2 = "validation_mc_lowdm";
 	TString f2_leg = "Caleb_MC"; 
 
+	if(plot_SBv3)
+	{
+		f1_name = "T1tttt_2016";
+		hist1 = "search_bin_v3_h"; 
+		f1_leg = "Mine"; 
+		f2_name = "std_pred_SBv3"; 
+		hist2 = "T1tttt_2000_100";
+		f2_leg = "Matt"; 
+	}
+
 	if(plot_zinv_highdm)
 	{
 		f1_name = "Zinv_validation_highdm_2016";
@@ -22,7 +33,7 @@ int Plot_compare_validation()
 		f1_leg = "MC"; 
 		f2_name = "validationBinsZinv_2016"; 
 		hist2 = "validation_mc_highdm";
-		TString f2_leg = "Caleb_MC"; 
+		f2_leg = "Caleb_MC"; 
 	}
 
 	if(plot_LL_lowdm)
@@ -118,10 +129,16 @@ int Plot_compare_validation()
 	//ratio->SetMaximum(ratio->GetMaximum()*1.2);
 	ratio->GetXaxis()->SetLabelSize(0.12);
 	ratio->GetYaxis()->SetLabelSize(0.08);
+	for(int i = 1; i <= ratio->GetSize() - 2; i++)
+	{
+		if (ratio->GetBinContent(i) != 1) std::cout << i-1 << " " << ratio->GetBinContent(i) << " h1 " << h1->GetBinContent(i) << " h2 " << h2_clone->GetBinContent(i) << std::endl;
+	}
 
 	//mycanvas->SetLogy();
 
-	float y_max = max(h1->GetMaximum(), h2->GetMaximum()) * 1.2;
+	float y_max = max(h1->GetMaximum(),h2->GetMaximum());
+	if (plot_log) y_max = y_max * 100;
+	else y_max = y_max * 1.2;
 	h1->SetMaximum(y_max);
 
 	mycanvas->SaveAs("plots_test/" + f1_name + ".png");

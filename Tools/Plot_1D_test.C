@@ -8,21 +8,22 @@ int Plot_1D_test()
 	lumi = 137;
 	TString year = "_2016";
 	bool plot_log = false;
-	//plot_log = true;
-	bool plot_sig_pad = true;
+	plot_log = true;
+	bool plot_sig_pad = false;
 	bool plot_BG = true;
 	bool use_low_stat_sig = false;
 	//use_low_stat_sig = true;
-	bool sig_scale_to_BG = true;
+	bool sig_scale_to_BG = false;
 	bool use_original_title = false;
+	bool use_smear_QCD = true;
 
 	TString result_path = "results/SMS_";
 	TString full_or_fast = "_fullsim"; 
 	full_or_fast = "_fastsim"; 
 
-	TString signal_name = "T2fbd_test";
+	//TString signal_name = "T2fbd_test";
 	//TString signal_name = "T2tt_test";
-	//TString signal_name = "T2tt_and_T1tttt_high";
+	TString signal_name = "T2tt_and_T1tttt_high";
 	//TString signal_name = "T2tt_only";
 	//TString signal_name = "T2bt_and_T2bw";
 	//TString signal_name = "T1tttt_and_T5ttcc";
@@ -30,10 +31,9 @@ int Plot_1D_test()
 	//TString signal_name = "T2cc_and_T2tt";
 
 	bool plot_MTb = false;
-	bool plot_MTb_highdm = false;
 	bool plot_SB_v2 = false;
-	bool plot_SB_team_A_highdm = false;
-	bool plot_SB_team_A_lowdm = false;
+	bool plot_SB_v3 = false;
+	bool plot_SB_v4 = true;
 	bool plot_SB_v2_highdm_validation = false;
 	bool plot_SB_v2_lowdm_validation = false;
 	bool plot_SB_v2_lowdm_validation_0p1 = false;
@@ -46,7 +46,7 @@ int Plot_1D_test()
 	bool plot_ntop_w = false;
 	bool plot_ntop_res = false;
 	bool plot_nw = false;
-	bool plot_njetspt20 = true;
+	bool plot_njetspt20 = false;
 	bool plot_njetspt20_lowdm = false;
 	bool plot_njetspt30 = false;
 	bool plot_nSV_lowdm = false;
@@ -74,10 +74,11 @@ int Plot_1D_test()
 	int hs_tot = 1, hs_tot_plot = 1;
 	float padup_height = 0.3, padup_margin = 0, leg_height = 0.5;
 	if(!plot_sig_pad) {padup_height = 0; padup_margin = 0.1, leg_height = 0.6;}
-	if(plot_log) ymin = 0.1;
+	if(plot_log) ymin = 0.01;
 
 	TString title = "MET";
 	TString var = "met_h";
+	TString var_weight = "";
 	TString folder = "";
 
 	int rebin = 1;
@@ -107,24 +108,40 @@ int Plot_1D_test()
 		sig_ymax = 0.3;
 	}
 
-	if (plot_MTb_highdm)
-	{
-		title = "MTb [GeV]";
-		var = "mtb_highdm_h";
-		folder = "";
-		rebin = 2;
-		xmax = 400;
-		ymax = 3000;
-	}
-
 	if (plot_SB_v2)
 	{
 		title = "search bin v2";
 		var = "search_bin_v2_h";
 		folder = "";
 		rebin = 1;
-		xmax = 205;
+		xmax = 204;
 		ymax = 1000000;
+		sig_ymax = 2;
+	}
+
+	if (plot_SB_v3)
+	{
+		title = "search bin v3";
+		var = "search_bin_v3_h";
+		var_weight = "search_bin_v3_Stop0l_evtWeight_h";
+		folder = "";
+		rebin = 1;
+		xmax = 204;
+		ymax = 0.1;
+		ymin = -0.1;
+		sig_ymax = 2;
+	}
+
+	if (plot_SB_v4)
+	{
+		title = "search bin v4";
+		var = "search_bin_v4_h";
+		var_weight = "search_bin_v4_Stop0l_evtWeight_h";
+		folder = "";
+		rebin = 1;
+		xmax = 183;
+		ymax = 100000000;
+		ymin = 0.1;
 		sig_ymax = 2;
 	}
 
@@ -170,30 +187,6 @@ int Plot_1D_test()
 		xmax = 22;
 		ymax = 800;
 		sig_ymax = 1;
-	}
-
-	if (plot_SB_team_A_highdm)
-	{
-		title = "high dm search bin";
-		var = "search_bin_team_A_highdm_h";
-		folder = "";
-		rebin = 1;
-		xmin = 53;
-		xmax = 104;
-		ymax = 10000000;
-		sig_ymax = 2;
-	}
-
-	if (plot_SB_team_A_lowdm)
-	{
-		title = "low dm search bin";
-		var = "search_bin_team_A_lowdm_h";
-		folder = "";
-		rebin = 1;
-		xmin = 0;
-		xmax = 53;
-		ymax = 10000000;
-		sig_ymax = 2;
 	}
 
 	if (plot_nbottompt20)
@@ -578,9 +571,11 @@ int Plot_1D_test()
 		if (true)
 		{
 			TString sp = "QCD_HT_2000toInf";
+			if(use_smear_QCD) sp = "QCD_SMEAR_HT_2000toInf";
 
 			TFile *f1 = new TFile("results/" + sp + year + ".root");
 			TH1D *h1 = (TH1D*)f1->Get(folder + var);
+			if(use_smear_QCD) h1 = (TH1D*)f1->Get(folder + var_weight);
 			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
 			TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
 
@@ -598,8 +593,8 @@ int Plot_1D_test()
 			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
 			std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
 
-			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
-			//h1->Scale(lumi * 1000);
+			if(!use_smear_QCD)h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			else h1->Scale(lumi * 1000);
 
 			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 			std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -612,37 +607,49 @@ int Plot_1D_test()
 		if (false)
 		{
 			TString sp = "QCD_HT_200to300";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			if(use_smear_QCD) sp = "QCD_SMEAR_HT_200to300";
+			if(!use_smear_QCD)Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			else Plot_1D_AUX_bg_with_weight (lumi, sp, year, var_weight, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
 			TString sp = "QCD_HT_300to500";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			if(use_smear_QCD) sp = "QCD_SMEAR_HT_300to500";
+			if(!use_smear_QCD)Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			else Plot_1D_AUX_bg_with_weight (lumi, sp, year, var_weight, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
 			TString sp = "QCD_HT_500to700";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			if(use_smear_QCD) sp = "QCD_SMEAR_HT_500to700";
+			if(!use_smear_QCD)Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			else Plot_1D_AUX_bg_with_weight (lumi, sp, year, var_weight, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
 			TString sp = "QCD_HT_700to1000";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			if(use_smear_QCD) sp = "QCD_SMEAR_HT_700to1000";
+			if(!use_smear_QCD)Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			else Plot_1D_AUX_bg_with_weight (lumi, sp, year, var_weight, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
 			TString sp = "QCD_HT_1000to1500";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			if(use_smear_QCD) sp = "QCD_SMEAR_HT_1000to1500";
+			if(!use_smear_QCD)Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			else Plot_1D_AUX_bg_with_weight (lumi, sp, year, var_weight, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true)
 		{
 			TString sp = "QCD_HT_1500to2000";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			if(use_smear_QCD) sp = "QCD_SMEAR_HT_1500to2000";
+			if(!use_smear_QCD)Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			else Plot_1D_AUX_bg_with_weight (lumi, sp, year, var_weight, folder, leg, kGreen, pro, rebin);
 		}
 
 		pro->SetLineColor(kBlack);
@@ -941,12 +948,20 @@ int Plot_1D_test()
 		if(plot_BG)
 		{
 			hs_tot = ((TH1D*)(hs -> GetStack() -> Last())) -> Integral();
+			int NSB = ((TH1D*)(hs -> GetStack() -> Last())) -> GetSize() - 2;
 			int bin_xmin = ((TH1D*)(hs -> GetStack() -> Last())) -> FindBin(xmin);
 			int bin_xmax = ((TH1D*)(hs -> GetStack() -> Last())) -> FindBin(xmax);
 			hs_tot_plot = ((TH1D*)(hs -> GetStack() -> Last())) -> Integral(bin_xmin,bin_xmax);
 			double hs_bin1 = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(1);
 			double hs_bin2 = ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(2);
-			std::cout << "\ntotal BG = " << hs_tot << " bin 1 = " << hs_bin1 << " bin 2 = " << hs_bin2 << "\n" << std::endl;
+			std::cout << "NSB = " << NSB <<" total BG = " << hs_tot << " bin 1 = " << hs_bin1 << " bin 2 = " << hs_bin2 << "\n" << std::endl;
+			std::cout << "==========================================================================" << std::endl;
+			for(int i = 0; i < NSB; i++)
+			{
+				std::cout << "bin " << i << " " << ((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(i+1) << std::endl;
+				//if(((TH1D*)(hs -> GetStack() -> Last())) -> GetBinContent(i+1) == 0) std::cout << "empty bin " << i << std::endl;
+			}
+			std::cout << "==========================================================================" << std::endl;
 			//int n_bins = 80/rebin;
 			//TH1D *significance = new TH1D ("significance", "significance", n_bins, xmin, xmax);
 		}
@@ -956,12 +971,12 @@ int Plot_1D_test()
 	double signal_scale = lumi;
 	if(sig_scale_to_BG) signal_scale = hs_tot_plot; 
 
-	if (true)
+	if (plot_sig_pad)
 	{
 		if(signal_name == "T2fbd_test") sp = "T2fbd_mStop600_mLSP520";
 		if(signal_name == "T2tt_test") sp = "T2tt_mStop1000_mLSP50";
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1200_mLSP800";
-		if(signal_name == "T2tt_and_T1tttt_high") sp = "T2tt_mStop1000_mLSP500";
+		if(signal_name == "T2tt_and_T1tttt_high") sp = "T1tttt_mGluino2200_mLSP100";
 		if(signal_name == "T2tt_only") sp = "T2tt_mStop425_mLSP325";
 		if(signal_name == "T2bt_and_T2bw") sp = "T2bt_mStop500_mLSP300";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop500_mLSP490";
@@ -1010,12 +1025,12 @@ int Plot_1D_test()
 		leg->AddEntry(h1,sp,"l");
 	}
 
-	if (true)
+	if (plot_sig_pad)
 	{
 		if(signal_name == "T2fbd_test") sp = "T2fbd_mStop600_mLSP590";
 		if(signal_name == "T2tt_test") sp = "T2tt_mStop1000_mLSP500";
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1500_mLSP100";
-		if(signal_name == "T2tt_and_T1tttt_high") sp = "T2tt_mStop1000_mLSP1";
+		if(signal_name == "T2tt_and_T1tttt_high") sp = "T2tt_mStop1200_mLSP50";
 		if(signal_name == "T2tt_only") sp = "T2tt_mStop500_mLSP325";
 		if(signal_name == "T2bt_and_T2bw") sp = "T2bt_mStop800_mLSP100";
 		if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop600_mLSP520";
@@ -1023,7 +1038,7 @@ int Plot_1D_test()
 		Plot_1D_AUX_sg (signal_scale, result_path, sp, full_or_fast, year, var, folder, leg, kGreen, rebin, sig_scale_to_BG);
 	}
 
-	if (false)
+	if (plot_sig_pad)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1000_mLSP800";
 		if(signal_name == "T2tt_and_T1tttt_high") sp = "T1tttt_mGluino2000_mLSP1000";
@@ -1034,7 +1049,7 @@ int Plot_1D_test()
 		Plot_1D_AUX_sg (signal_scale, result_path, sp, full_or_fast, year, var, folder, leg, kGreen, rebin, sig_scale_to_BG);
 	}
 
-	if (false)
+	if (plot_sig_pad)
 	{
 		if(signal_name == "T1tttt_and_T5ttcc") sp = "T5ttcc_mGluino1500_mLSP100";
 		if(signal_name == "T2tt_and_T1tttt_high") sp = "T1tttt_mGluino2000_mLSP100";
@@ -1080,7 +1095,7 @@ int Plot_1D_test()
 			if(signal_name == "T2fbd_test") sp = "T2fbd_mStop600_mLSP520";
 			if(signal_name == "T2tt_test") sp = "T2tt_mStop1000_mLSP50";
 			if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1200_mLSP800";
-			if(signal_name == "T2tt_and_T1tttt_high") sp = "T2tt_mStop1000_mLSP500";
+			if(signal_name == "T2tt_and_T1tttt_high") sp = "T1tttt_mGluino2200_mLSP100";
 			if(signal_name == "T2tt_only") sp = "T2tt_mStop425_mLSP325";
 			if(signal_name == "T2bt_and_T2bw") sp = "T2bt_mStop500_mLSP300";
 			if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop500_mLSP490";
@@ -1149,7 +1164,7 @@ int Plot_1D_test()
 			if(signal_name == "T2fbd_test") sp = "T2fbd_mStop600_mLSP590";
 			if(signal_name == "T2tt_test") sp = "T2tt_mStop1000_mLSP500";
 			if(signal_name == "T1tttt_and_T5ttcc") sp = "T1tttt_mGluino1500_mLSP100";
-			if(signal_name == "T2tt_and_T1tttt_high") sp = "T2tt_mStop1000_mLSP1";
+			if(signal_name == "T2tt_and_T1tttt_high") sp = "T2tt_mStop1200_mLSP50";
 			if(signal_name == "T2tt_only") sp = "T2tt_mStop500_mLSP325";
 			if(signal_name == "T2bt_and_T2bw") sp = "T2bt_mStop800_mLSP100";
 			if(signal_name == "T2fbd_and_T2bwC") sp = "T2fbd_mStop600_mLSP520";
