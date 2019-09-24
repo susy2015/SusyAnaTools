@@ -154,12 +154,13 @@ private:
         std::type_index type;
         mutable TBranch *branchVec;
         mutable TBranch *branch;
+        mutable bool activeFromNTuple;
 
-        Handle() : ptr(nullptr), deleter(nullptr), type(typeid(nullptr)), branch(nullptr), branchVec(nullptr) {}
+        Handle() : ptr(nullptr), deleter(nullptr), type(typeid(nullptr)), branch(nullptr), branchVec(nullptr), activeFromNTuple(false) {}
 
-        Handle(const Handle& h) : ptr(h.ptr), deleter(h.deleter), type(h.type), branch(h.branch), branchVec(h.branchVec) {}
+        Handle(const Handle& h) : ptr(h.ptr), deleter(h.deleter), type(h.type), branch(h.branch), branchVec(h.branchVec), activeFromNTuple(h.activeFromNTuple) {}
 
-        Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr), TBranch* branch = nullptr, TBranch* branchVec = nullptr) :  ptr(ptr), deleter(deleter), type(type), branch(branch), branchVec(branchVec) {}
+        Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr), TBranch* branch = nullptr, TBranch* branchVec = nullptr, const bool activeFromNTuple = false) :  ptr(ptr), deleter(deleter), type(type), branch(branch), branchVec(branchVec), activeFromNTuple(activeFromNTuple) {}
 
         void create(const NTupleReader& tr, int evt) const
         {
@@ -181,16 +182,16 @@ private:
 
     //Helper to make simple Handle
     template<typename T>
-    static inline Handle createHandle(T* ptr)
+    static inline Handle createHandle(T* ptr, const bool activeFromNTuple = false)
     {
-        return Handle(ptr, new deleter<T>, typeid(typename std::remove_pointer<T>::type));
+        return Handle(ptr, new deleter<T>, typeid(typename std::remove_pointer<T>::type), nullptr, nullptr, activeFromNTuple);
     }
 
     //Helper to make vector Handle
     template<typename T>
-    static inline Handle createVecHandle(T* ptr)
+    static inline Handle createVecHandle(T* ptr, const bool activeFromNTuple = false)
     {
-        return Handle(ptr, new vec_deleter<T>, typeid(typename std::remove_pointer<T>::type));
+        return Handle(ptr, new vec_deleter<T>, typeid(typename std::remove_pointer<T>::type), nullptr, nullptr, activeFromNTuple);
     }
 
     //Helper to make array Handle
@@ -304,6 +305,7 @@ public:
     bool getNextEvent();
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
+    void printUsedTupleVar(FILE *f = stdout) const;
 
     void setConvertFloatingPointVectors(const bool doubleToFloat = true, const bool floatToDouble = false);
 
@@ -584,7 +586,7 @@ private:
 
         if(activate)
         {
-            branchMap_[name] = createHandle(new T());
+            branchMap_[name] = createHandle(new T(), true);
 
             tree_->SetBranchStatus(name.c_str(), 1);
             tree_->SetBranchAddress(name.c_str(), branchMap_[name].ptr);
@@ -597,7 +599,7 @@ private:
 
         if(activate)
         {
-            branchVecMap_[name] = createVecHandle(new std::vector<T>*());
+            branchVecMap_[name] = createVecHandle(new std::vector<T>*(), true);
 
             tree_->SetBranchStatus(name.c_str(), 1);
             tree_->SetBranchAddress(name.c_str(), branchVecMap_[name].ptr);
