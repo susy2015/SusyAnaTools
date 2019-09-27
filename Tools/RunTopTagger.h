@@ -33,10 +33,8 @@ private:
         //get necessary tagger input variables 
 
         //AK4 jets
-        const auto& Jet_LV              = tr.getVec_LVFromNano<float>("Jet");
-        // now use DeepCSV
-        //const auto& Jet_csvv2           = tr.getVec<float>("Jet_btagCSVV2");
-        const auto& Jet_btagDeepB           = tr.getVec<float>("Jet_btagDeepB");
+        const auto& Jet_LV          = tr.getVec_LVFromNano<float>("Jet");
+        const auto& Jet_btagDeepB   = tr.getVec<float>("Jet_btagDeepB");
         std::vector<bool> Jet_matchesPhoton;
         std::vector<bool> Jet_matchesElectron;
         std::vector<bool> Jet_matchesMuon;
@@ -144,7 +142,6 @@ private:
         }
 
         //Create top tagger input helpers
-        //ttUtility::ConstAK4Inputs<float> ak4Inputs(Jet_LV, Jet_csvv2);
         ttUtility::ConstAK4Inputs<float> ak4Inputs(Jet_LV, Jet_btagDeepB);
         ak4Inputs.setFilterVector(ak4Filter);
         ttUtility::ConstAK8Inputs<float> ak8Inputs(FatJet_LV, FatJet_deepAK8_t, FatJet_deepAK8_w, FatJet_msoftdrop, subjets);
