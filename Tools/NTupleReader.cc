@@ -541,6 +541,18 @@ void NTupleReader::printTupleMembers(FILE *f) const
     }
 }
 
+void NTupleReader::printUsedTupleVar(FILE *f) const
+{
+    for(auto& iVar : branchMap_)
+    {
+        if(iVar.second.activeFromNTuple) fprintf(f, "%60s %s\n", typeMap_[iVar.first].c_str(), iVar.first.c_str());
+    }
+    for(auto& iVar : branchVecMap_)
+    {
+        if(iVar.second.activeFromNTuple) fprintf(f, "%60s %s\n", typeMap_[iVar.first].c_str(), iVar.first.c_str());
+    }
+}
+
 std::vector<std::string> NTupleReader::getTupleMembers() const
 {
     std::vector<std::string> members;
