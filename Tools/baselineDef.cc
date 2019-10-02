@@ -524,6 +524,7 @@ void BaselineVessel::PassBaseline()
   const auto& Stop0l_nTop       = tr->getVar<int>("Stop0l_nTop");
   const auto& Stop0l_nResolved  = tr->getVar<int>("Stop0l_nResolved");
   const auto& Stop0l_nW         = tr->getVar<int>("Stop0l_nW");
+  const auto& Stop0l_METSig     = tr->getVar<float>("Stop0l_METSig");
   const auto& Pass_lowDM        = tr->getVar<bool>("Pass_lowDM");
   const auto& Pass_highDM       = tr->getVar<bool>("Pass_highDM");
   bool Pass_JetID               = tr->getVar<bool>("Pass_JetID");
@@ -829,14 +830,20 @@ void BaselineVessel::PassBaseline()
   //if (CMS_event == 519215141)
   if (SAT_Pass_lowDM != Pass_lowDM)
   {
-    printf("CMS event: ntuple event: %d; %d\n", event, tr->getEvtNum());
+    printf("firstSpec: %s; CMS event: %d ntuple event: %d\n", firstSpec.c_str(), event, tr->getEvtNum());
     printf("Pass_lowDM = %d and SAT_Pass_lowDM = %d\n", Pass_lowDM, SAT_Pass_lowDM);
-    printf("\tPass_JetID = %d and SAT_Pass_JetID = %d\n", Pass_JetID, SAT_Pass_JetID);
-    printf("\tPass_EventFilter = %d and SAT_Pass_EventFilter = %d\n", Pass_EventFilter, SAT_Pass_EventFilter);
-    printf("\tPass_MET = %d and SAT_Pass_MET = %d\n", Pass_MET, SAT_Pass_MET);
-    printf("\tPass_HT = %d and SAT_Pass_HT = %d\n", Pass_HT, SAT_Pass_HT);
-    printf("\tPass_NJets = %d and SAT_Pass_NJets = %d\n", Pass_NJets, SAT_Pass_NJets);
-    printf("\tPass_dPhiMETLowDM = %d and SAT_Pass_dPhiMETLowDM = %d\n", Pass_dPhiMETLowDM, SAT_Pass_dPhiMETLowDM);
+    printf("\thui_Pass_JetID        = %d and caleb_SAT_Pass_JetID         = %d\n", Pass_JetID, SAT_Pass_JetID);
+    printf("\thui_Pass_EventFilter  = %d and caleb_SAT_Pass_EventFilter   = %d\n", Pass_EventFilter, SAT_Pass_EventFilter);
+    printf("\thui_Pass_MET          = %d and caleb_SAT_Pass_MET           = %d\n", Pass_MET, SAT_Pass_MET);
+    printf("\thui_Pass_HT           = %d and caleb_SAT_Pass_HT            = %d\n", Pass_HT, SAT_Pass_HT);
+    printf("\thui_Pass_NJets        = %d and caleb_SAT_Pass_NJets         = %d\n", Pass_NJets, SAT_Pass_NJets);
+    printf("\thui_Pass_dPhiMETLowDM = %d and caleb_SAT_Pass_dPhiMETLowDM  = %d\n", Pass_dPhiMETLowDM, SAT_Pass_dPhiMETLowDM);
+    printf("\thui_Stop0l_nTop       = %d and caleb_nMergedTops            = %d\n", Stop0l_nTop, nMergedTops);
+    printf("\thui_Stop0l_nResolved  = %d and caleb_nResolvedTops          = %d\n", Stop0l_nResolved, nResolvedTops);
+    printf("\thui_Stop0l_nW         = %d and caleb_nWs                    = %d\n", Stop0l_nW, nWs);
+    printf("\thui_Stop0l_ISRJetPt   = %f and caleb_ISRJetPt               = %f\n", Stop0l_ISRJetPt, ISRJetPt);
+    printf("\thui_Stop0l_METSig     = %f and caleb_S_met                  = %f\n", Stop0l_METSig, S_met);
+    printf("\thui_Stop0l_Mtb        = %f and caleb_mtb                    = %f\n", Stop0l_Mtb, mtb);
     if (verbose)
     {
       printf("SAT_Pass_dPhiMETLowDM: %d\n", SAT_Pass_dPhiMETLowDM);
