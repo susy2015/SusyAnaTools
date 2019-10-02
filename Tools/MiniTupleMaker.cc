@@ -42,11 +42,18 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
             else
             {
                 //Anyone reading this please forgive me, but root made me do it
-                if     (type.find("TLorentzVector") != std::string::npos) prepVec<TLorentzVector>(tr, var);
-                else if(type.find("double")         != std::string::npos) prepVec<double>(tr, var);
-                else if(type.find("float")          != std::string::npos) prepVec<float>(tr, var);
-                else if(type.find("int")            != std::string::npos) prepVec<int>(tr, var);
-				else if(type.find("unsigned char")  != std::string::npos) prepVec<unsigned char>(tr, var);
+                if     (type.find("TLorentzVector")     != std::string::npos) prepVec<TLorentzVector>(tr, var);
+                else if(type.find("double")             != std::string::npos) prepVec<double>(tr, var);
+                else if(type.find("float")              != std::string::npos) prepVec<float>(tr, var);
+                else if(type.find("unsigned int")       != std::string::npos) prepVec<unsigned int>(tr, var);
+                else if(type.find("int")                != std::string::npos) prepVec<int>(tr, var);
+                else if(type.find("unsigned short")     != std::string::npos) prepVec<unsigned short>(tr, var);
+                else if(type.find("short")              != std::string::npos) prepVec<short>(tr, var);
+                else if(type.find("unsigned long long") != std::string::npos) prepVec<unsigned long long>(tr, var);
+                else if(type.find("long long")          != std::string::npos) prepVec<long long>(tr, var);
+                else if(type.find("unsigned long")      != std::string::npos) prepVec<unsigned long>(tr, var);
+                else if(type.find("long")               != std::string::npos) prepVec<long>(tr, var);
+				else if(type.find("unsigned char")      != std::string::npos) prepVec<unsigned char>(tr, var);
                 else
                 {
                     throw "MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var + ", type: " + type;           
