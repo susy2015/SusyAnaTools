@@ -506,7 +506,6 @@ void BaselineVessel::PassBaseline()
   // https://github.com/susy2015/SusyAnaTools/blob/5e4f54e1aa985daff90f1ad7a220b8d17e4b7290/Tools/tupleRead.C#L629-L639
   
   // variables for SAT_Pass_lowDM and SAT_Pass_highDM
-  
   const auto& event             = tr->getVar<unsigned long long>("event");
   const auto& nMergedTops       = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
   const auto& nResolvedTops     = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
@@ -516,6 +515,7 @@ void BaselineVessel::PassBaseline()
   const auto& ptb               = tr->getVar<float>(UseCleanedJetsVar("ptb"));
   const auto& ISRJetPt          = tr->getVar<float>(UseCleanedJetsVar("ISRJetPt"));
   const auto& ISRJetIdx         = tr->getVar<int>(UseCleanedJetsVar("ISRJetIdx"));
+  // variables from post-processing
   const auto& nSoftBottoms      = tr->getVar<int>("Stop0l_nSoftb");;
   const auto& Stop0l_ISRJetPt   = tr->getVar<float>("Stop0l_ISRJetPt");
   const auto& Stop0l_ISRJetIdx  = tr->getVar<int>("Stop0l_ISRJetIdx");
@@ -524,6 +524,15 @@ void BaselineVessel::PassBaseline()
   const auto& Stop0l_nTop       = tr->getVar<int>("Stop0l_nTop");
   const auto& Stop0l_nResolved  = tr->getVar<int>("Stop0l_nResolved");
   const auto& Stop0l_nW         = tr->getVar<int>("Stop0l_nW");
+  const auto& Pass_lowDM        = tr->getVar<bool>("Pass_lowDM");
+  const auto& Pass_highDM       = tr->getVar<bool>("Pass_highDM");
+  bool Pass_JetID               = tr->getVar<bool>("Pass_JetID");
+  bool Pass_EventFilter         = tr->getVar<bool>("Pass_EventFilter");
+  bool Pass_MET                 = tr->getVar<bool>("Pass_MET");
+  bool Pass_HT                  = tr->getVar<bool>("Pass_HT");
+  bool Pass_NJets               = tr->getVar<bool>("Pass_NJets20");
+  bool Pass_dPhiMETLowDM        = tr->getVar<bool>("Pass_dPhiMETLowDM");
+  bool Pass_LeptonVeto          = tr->getVar<bool>("Pass_LeptonVeto");
   
   bool SAT_Pass_MET_Loose   = (met >= 100);
   bool SAT_Pass_MET_Mid     = (met >= 160);
@@ -534,9 +543,8 @@ void BaselineVessel::PassBaseline()
   bool SAT_Pass_LeptonVeto  = (Pass_ElecVeto && Pass_MuonVeto && Pass_TauVeto && Pass_IsoTrkVeto);
   bool SAT_Pass_JetID       = tr->getVar<bool>("SAT_Pass_JetID"+firstSpec);
   bool SAT_Pass_EventFilter = tr->getVar<bool>("SAT_Pass_EventFilter"+firstSpec);
-  bool Pass_JetID           = tr->getVar<bool>("Pass_JetID");
-  bool Pass_EventFilter     = tr->getVar<bool>("Pass_EventFilter");
-  bool Pass_LeptonVeto      = tr->getVar<bool>("Pass_LeptonVeto");
+
+  // check that lepton vetos match
   if (Pass_LeptonVeto != SAT_Pass_LeptonVeto) std::cout << "ERROR: Lepton vetos do not agree. Pass_LeptonVeto=" << Pass_LeptonVeto << " and SAT_Pass_LeptonVeto=" << SAT_Pass_LeptonVeto << std::endl;
  
   // get ISR jet
@@ -819,33 +827,43 @@ void BaselineVessel::PassBaseline()
   //printf("CMS event: %d ntuple event: %d\n", CMS_event, tr->getEvtNum());
   //if (tr->getEvtNum() == 7217)
   //if (CMS_event == 519215141)
-  if (false)
+  if (SAT_Pass_lowDM != Pass_lowDM)
   {
     printf("CMS event: ntuple event: %d; %d\n", event, tr->getEvtNum());
-    printf("SAT_Pass_dPhiMETLowDM: %d\n", SAT_Pass_dPhiMETLowDM);
-    printf("SAT_Pass_dPhiMETHighDM: %d\n", SAT_Pass_dPhiMETHighDM);
-    // dPhi
-    printf("dPhi_0: %f ",           dPhiVec->at(0));
-    printf("dPhi_1: %f ",           dPhiVec->at(1));
-    printf("dPhi_2: %f ",           dPhiVec->at(2));
-    printf("dPhi_3: %f ",           dPhiVec->at(3));
-    printf("met = %f ",             met);
-    printf("metphi = %f ",          metphi);
-    printf("HT = %f ",              HT);
-    printf("mtb = %f ",             mtb);
-    printf("ptb = %f ",             ptb);
-    printf("ISRJetPt = %f ",        ISRJetPt);
-    printf("S_met = %f ",           S_met);
-    printf("nJets = %d ",           nJets);
-    printf("nMergedTops = %d ",     nMergedTops);
-    printf("nBottoms = %d ",        nBottoms);
-    printf("nWs = %d ",             nWs);
-    printf("\n");
-    int i = 0;
-    for (const auto& Jet : Jets)
+    printf("Pass_lowDM = %d and SAT_Pass_lowDM = %d\n", Pass_lowDM, SAT_Pass_lowDM);
+    printf("\tPass_JetID = %d and SAT_Pass_JetID = %d\n", Pass_JetID, SAT_Pass_JetID);
+    printf("\tPass_EventFilter = %d and SAT_Pass_EventFilter = %d\n", Pass_EventFilter, SAT_Pass_EventFilter);
+    printf("\tPass_MET = %d and SAT_Pass_MET = %d\n", Pass_MET, SAT_Pass_MET);
+    printf("\tPass_HT = %d and SAT_Pass_HT = %d\n", Pass_HT, SAT_Pass_HT);
+    printf("\tPass_NJets = %d and SAT_Pass_NJets = %d\n", Pass_NJets, SAT_Pass_NJets);
+    printf("\tPass_dPhiMETLowDM = %d and SAT_Pass_dPhiMETLowDM = %d\n", Pass_dPhiMETLowDM, SAT_Pass_dPhiMETLowDM);
+    if (verbose)
     {
-      printf("Jet %d: pt=%f, eta=%f, phi=%f, mass=%f\n", i, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
-      ++i;
+      printf("SAT_Pass_dPhiMETLowDM: %d\n", SAT_Pass_dPhiMETLowDM);
+      printf("SAT_Pass_dPhiMETHighDM: %d\n", SAT_Pass_dPhiMETHighDM);
+      // dPhi
+      printf("dPhi_0: %f ",           dPhiVec->at(0));
+      printf("dPhi_1: %f ",           dPhiVec->at(1));
+      printf("dPhi_2: %f ",           dPhiVec->at(2));
+      printf("dPhi_3: %f ",           dPhiVec->at(3));
+      printf("met = %f ",             met);
+      printf("metphi = %f ",          metphi);
+      printf("HT = %f ",              HT);
+      printf("mtb = %f ",             mtb);
+      printf("ptb = %f ",             ptb);
+      printf("ISRJetPt = %f ",        ISRJetPt);
+      printf("S_met = %f ",           S_met);
+      printf("nJets = %d ",           nJets);
+      printf("nMergedTops = %d ",     nMergedTops);
+      printf("nBottoms = %d ",        nBottoms);
+      printf("nWs = %d ",             nWs);
+      printf("\n");
+      int i = 0;
+      for (const auto& Jet : Jets)
+      {
+        printf("Jet %d: pt=%f, eta=%f, phi=%f, mass=%f\n", i, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
+        ++i;
+      }
     }
   }
 
