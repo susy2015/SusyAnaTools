@@ -195,6 +195,7 @@ public:
         AK4JetVariables_ = {
                              // custom
                              "JetTLV",              
+                             "Jet_Stop0l",
                              "Jet_btagStop0l",
                              // from Nano AOD 
                              "Jet_area",
@@ -237,6 +238,7 @@ public:
                              // custom
                              "FatJetTLV",              
                              "SubJetTLV_AK8Matched",              
+                             "FatJet_Stop0l",
                              // from Nano AOD 
                              "FatJet_area",
                              // not a vector... cannot clean

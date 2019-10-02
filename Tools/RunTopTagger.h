@@ -55,6 +55,7 @@ private:
         const auto& FatJet_msoftdrop       = tr.getVec<float>("FatJet_msoftdrop");
         const auto& FatJet_subJetIdx1      = tr.getVec<int>("FatJet_subJetIdx1");
         const auto& FatJet_subJetIdx2      = tr.getVec<int>("FatJet_subJetIdx2");
+        const auto& FatJet_Stop0l          = tr.getVec<int>("FatJet_Stop0l");
         std::vector<bool> FatJet_matchesPhoton;
         std::vector<bool> FatJet_matchesElectron;
         std::vector<bool> FatJet_matchesMuon;
@@ -119,6 +120,8 @@ private:
         {
             //no need to slow the tagger down considering low pt jets
             if(FatJet_LV[i].Pt() < 200.0) ak8Filter[i] = false;
+            // apply Stop0l fat jet selection
+            //if(! FatJet_Stop0l[i])        ak8Filter[i] = false;
 
             //do some logic here to decide which jet was lepton/photon matched
             if (doLeptonCleaning_)
