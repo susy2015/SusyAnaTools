@@ -30,7 +30,7 @@ namespace AnaSamples
             }
             fclose(f);
         }
-        else std::cout << "In FileSummary::readFileList(): Filelist file \"" << filePath << "\" not found!!!!!!!" << std::endl;
+        else std::cout << "In FileSummary::readFileList(): Filelist file \"" << filePathAndName << "\" not found!!!!!!!" << std::endl;
     }
 
     void FileSummary::addCollection(const std::string& colName)
@@ -196,7 +196,7 @@ namespace AnaSamples
 
     bool operator< (const FileSummary& lhs, const FileSummary& rhs)
     {
-        return lhs.filePath < rhs.filePath || lhs.treePath < rhs.treePath;
+        return lhs.filePath < rhs.filePath || lhs.treePath < rhs.treePath || lhs.tag < rhs.tag;
     }
 
     bool operator== (const FileSummary& lhs, const FileSummary& rhs)
