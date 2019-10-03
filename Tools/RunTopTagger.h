@@ -147,8 +147,8 @@ private:
         std::vector<std::vector<TLorentzVector>> subjets(nFatJets);
         for(int i = 0; i < nFatJets; ++i)
         {
-            if(FatJet_subJetIdx1[i] >= 0 && FatJet_subJetIdx1[i] < nSubJets) subjets[i].push_back(SubJet_LV[i]);
-            if(FatJet_subJetIdx2[i] >= 0 && FatJet_subJetIdx2[i] < nSubJets) subjets[i].push_back(SubJet_LV[i]);
+            if(FatJet_subJetIdx1[i] >= 0 && FatJet_subJetIdx1[i] < nSubJets) subjets[i].push_back(SubJet_LV[FatJet_subJetIdx1[i]]);
+            if(FatJet_subJetIdx2[i] >= 0 && FatJet_subJetIdx2[i] < nSubJets) subjets[i].push_back(SubJet_LV[FatJet_subJetIdx2[i]]);
         }
 
         //Create top tagger input helpers
@@ -261,6 +261,7 @@ private:
         tr.registerDerivedVec("ResolvedTops_disc" + suffix_,        ResolvedTops_disc);
         tr.registerDerivedVec("ResolvedTops_JetsMap" + suffix_,     ResolvedTops_JetsMap);
         tr.registerDerivedVar("nAllTops" + suffix_,                 nAllTops);
+        tr.registerDerivedVar("ttr" + suffix_,                      &ttr);
         //tr.registerDerivedVec("TopJetsMap" + suffix_,           TopJetsMap);
     }
     

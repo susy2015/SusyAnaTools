@@ -526,6 +526,7 @@ void BaselineVessel::PassBaseline()
   const auto& ResolvedTopsTLV       = tr->getVec<TLorentzVector>(UseCleanedJetsVar("ResolvedTopsTLV"));
   const auto& ResolvedTops_disc     = tr->getVec<double>(UseCleanedJetsVar("ResolvedTops_disc"));
   const auto& ResolvedTops_JetsMap  = tr->getMap<int, std::vector<TLorentzVector>>(UseCleanedJetsVar("ResolvedTops_JetsMap"));
+  const auto* ttr                   = tr->getVar<TopTaggerResults*>("ttr");
   // variables from post-processing
   const auto& nSoftBottoms          = tr->getVar<int>("Stop0l_nSoftb");;
   const auto& Stop0l_ISRJetPt       = tr->getVar<float>("Stop0l_ISRJetPt");
@@ -859,39 +860,52 @@ void BaselineVessel::PassBaseline()
     printf("\thui_Stop0l_nTop       = %d and caleb_nMergedTops            = %d\n", Stop0l_nTop, nMergedTops);
     printf("\thui_Stop0l_nW         = %d and caleb_nWs                    = %d\n", Stop0l_nW, nWs);
     printf("\thui_Stop0l_nResolved  = %d and caleb_nResolvedTops          = %d\n", Stop0l_nResolved, nResolvedTops);
-    for (int i = 0; i < MergedTopsTLV.size(); ++i)
+    for(const auto& top : ttr->getTops())
     {
-        const auto& jets_ = MergedTops_JetsMap.at(i);
-        printf("\tMergedTop %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, MergedTopsTLV[i].Pt(), MergedTopsTLV[i].Eta(), MergedTopsTLV[i].Phi(), MergedTopsTLV[i].M(), MergedTops_disc[i]);
-        int j = 0;
-        for (const auto& jet : jets_)
+        printf("\tpt=%f, eta=%f, phi=%f, mass=%f, disc=%f, type=%d\n", top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M(), top->getDiscriminator(), top->getType());
+        for (const auto& jet : top->getConstituents())
         {
-            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
-            ++j;
+            printf("\t\tjet: (pt=%f, eta=%f, phi=%f, mass=%f)\n", jet->p().Pt(), jet->p().Eta(), jet->p().Phi(), jet->p().M());
+            for(const auto& subjet : jet->getSubjets())
+            {
+                printf("\t\t\tsubjet: (pt=%f, eta=%f, phi=%f, mass=%f)\n", subjet.p().Pt(), subjet.p().Eta(), subjet.p().Phi(), subjet.p().M());
+            }
         }
+        
     }
-    for (int i = 0; i < WTLV.size(); ++i)
-    {
-        const auto& jets_ = W_JetsMap.at(i);
-        printf("\tW %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, WTLV[i].Pt(), WTLV[i].Eta(), WTLV[i].Phi(), WTLV[i].M(), W_disc[i]);
-        int j = 0;
-        for (const auto& jet : jets_)
-        {
-            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
-            ++j;
-        }
-    }
-    for (int i = 0; i < ResolvedTopsTLV.size(); ++i)
-    {
-        const auto& jets_ = ResolvedTops_JetsMap.at(i);
-        printf("\tResolvedTop %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, ResolvedTopsTLV[i].Pt(), ResolvedTopsTLV[i].Eta(), ResolvedTopsTLV[i].Phi(), ResolvedTopsTLV[i].M(), ResolvedTops_disc[i]);
-        int j = 0;
-        for (const auto& jet : jets_)
-        {
-            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
-            ++j;
-        }
-    }
+//    for (int i = 0; i < MergedTopsTLV.size(); ++i)
+//    {
+//        const auto& jets_ = MergedTops_JetsMap.at(i);
+//        printf("\tMergedTop %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, MergedTopsTLV[i].Pt(), MergedTopsTLV[i].Eta(), MergedTopsTLV[i].Phi(), MergedTopsTLV[i].M(), MergedTops_disc[i]);
+//        int j = 0;
+//        for (const auto& jet : jets_)
+//        {
+//            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
+//            ++j;
+//        }
+//    }
+//    for (int i = 0; i < WTLV.size(); ++i)
+//    {
+//        const auto& jets_ = W_JetsMap.at(i);
+//        printf("\tW %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, WTLV[i].Pt(), WTLV[i].Eta(), WTLV[i].Phi(), WTLV[i].M(), W_disc[i]);
+//        int j = 0;
+//        for (const auto& jet : jets_)
+//        {
+//            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
+//            ++j;
+//        }
+//    }
+//    for (int i = 0; i < ResolvedTopsTLV.size(); ++i)
+//    {
+//        const auto& jets_ = ResolvedTops_JetsMap.at(i);
+//        printf("\tResolvedTop %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, ResolvedTopsTLV[i].Pt(), ResolvedTopsTLV[i].Eta(), ResolvedTopsTLV[i].Phi(), ResolvedTopsTLV[i].M(), ResolvedTops_disc[i]);
+//        int j = 0;
+//        for (const auto& jet : jets_)
+//        {
+//            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
+//            ++j;
+//        }
+//    }
     if (verbose)
     {
       printf("SAT_Pass_dPhiMETLowDM: %d\n", SAT_Pass_dPhiMETLowDM);
