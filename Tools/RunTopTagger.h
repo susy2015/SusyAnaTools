@@ -87,11 +87,11 @@ private:
         auto* ResolvedTopsTLV   = new std::vector<TLorentzVector>();
         auto* WTLV              = new std::vector<TLorentzVector>();
         auto* TopJetsMap        = new std::map< int , std::vector<TLorentzVector> >();
-        int nAllTops        = -1;
-        int nMergedTops     = -1;
-        int nSemiMergedTops = -1;
-        int nResolvedTops   = -1;
-        int nWs             = -1;
+        int nAllTops        = 0;
+        int nMergedTops     = 0;
+        int nSemiMergedTops = 0;
+        int nResolvedTops   = 0;
+        int nWs             = 0;
 
         //Select AK4 jets to use in tagger
         //When reading from the resolvedTopCandidate collection from nanoAOD you must pass ALL ak4 jets to ttUtility::ConstAK4Inputs below, 
@@ -120,8 +120,6 @@ private:
         {
             //no need to slow the tagger down considering low pt jets
             if(FatJet_LV[i].Pt() < 200.0) ak8Filter[i] = false;
-            // apply Stop0l fat jet selection
-            //if(! FatJet_Stop0l[i])        ak8Filter[i] = false;
 
             //do some logic here to decide which jet was lepton/photon matched
             if (doLeptonCleaning_)
@@ -131,6 +129,12 @@ private:
             if (doPhotonCleaning_)
             {
                 if (FatJet_matchesPhoton[i]) ak8Filter[i] = false;
+            }
+            //use post-processed selections to calcualte number of merged tops and Ws 
+            if(ak8Filter[i])
+            {
+                if(FatJet_Stop0l[i] == 1) nMergedTops += 1;
+                if(FatJet_Stop0l[i] == 2) nWs         += 1;
             }
         }
 
@@ -238,11 +242,13 @@ private:
         }
 
         // number of tops
+        //use post-processed selections to calcualte number of merged tops and Ws 
         nAllTops        = AllTopsTLV->size();
-        nMergedTops     = MergedTopsTLV->size();
+        //nMergedTops     = MergedTopsTLV->size();
         nSemiMergedTops = SemiMergedTopsTLV->size();
         nResolvedTops   = ResolvedTopsTLV->size();
-        nWs             = WTLV->size();
+        //nWs             = WTLV->size();
+        
         
         //print the number of tops found in the event 
         //if (tops.size() > 1)

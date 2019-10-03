@@ -828,11 +828,11 @@ void BaselineVessel::PassBaseline()
   // ------------------------------ //
   // --- print info for testing --- //
   // ------------------------------ //
-  //unsigned long long CMS_event = tr->getVar<unsigned long long>("event");
-  //printf("CMS event: %d ntuple event: %d\n", CMS_event, tr->getEvtNum());
   //if (tr->getEvtNum() == 7217)
-  //if (CMS_event == 519215141)
-  if (SAT_Pass_lowDM != Pass_lowDM && firstSpec.empty())
+  //if (event == 519215141)
+  //if (SAT_Pass_lowDM != Pass_lowDM && firstSpec.empty())
+  //if (event == 1401471244)
+  if (verbose)
   {
     printf("firstSpec: %s; CMS event: %d ntuple event: %d\n", firstSpec.c_str(), event, tr->getEvtNum());
     printf("Pass_lowDM = %d and SAT_Pass_lowDM = %d\n", Pass_lowDM, SAT_Pass_lowDM);
