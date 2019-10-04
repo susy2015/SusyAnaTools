@@ -845,6 +845,7 @@ void BaselineVessel::PassBaseline()
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
   if (topDifference && firstSpec.empty())
   {
+    printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("firstSpec: %s; CMS event: %d ntuple event: %d\n", firstSpec.c_str(), event, tr->getEvtNum());
     printf("Pass_lowDM = %d and SAT_Pass_lowDM = %d\n", Pass_lowDM, SAT_Pass_lowDM);
     printf("\thui_Pass_LeptonVeto   = %d and caleb_SAT_Pass_LeptonVeto    = %d\n", Pass_LeptonVeto, SAT_Pass_LeptonVeto);
@@ -1686,14 +1687,14 @@ void BaselineVessel::PassEventFilter()
     const auto& Flag_EcalDeadCellTriggerPrimitiveFilter     = tr->getVar<bool>("Flag_EcalDeadCellTriggerPrimitiveFilter");
     const auto& Flag_BadPFMuonFilter                        = tr->getVar<bool>("Flag_BadPFMuonFilter");
     const auto& Flag_BadChargedCandidateFilter              = tr->getVar<bool>("Flag_BadChargedCandidateFilter");
-    const auto& Flag_ecalBadCalibFilter                     = tr->getVar<bool>("Flag_ecalBadCalibFilter");
     const auto& Flag_globalSuperTightHalo2016Filter         = tr->getVar<bool>("Flag_globalSuperTightHalo2016Filter");
-    const auto& Flag_eeBadScFilter                          = tr->getVar<bool>("Flag_eeBadScFilter");
+    const auto& Pass_CaloMETRatio                           = tr->getVar<bool>("Pass_CaloMETRatio");
     // Note: Don't apply Flag_globalSuperTightHalo2016Filter to fastsim samples if you use fastsim
     // Note: Apply Flag_eeBadScFilter to Data but not MC
     // Note: Don't apply Flag_ecalBadCalibFilter to 2016, but apply it to 2017 and 2018
+    // Note: Add Pass_CaloMETRatio to event filter and see if it works
     SAT_Pass_EventFilter =   Flag_goodVertices && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter
-                          && Flag_BadPFMuonFilter && Flag_BadChargedCandidateFilter && Flag_globalSuperTightHalo2016Filter;
+                          && Flag_BadPFMuonFilter && Flag_BadChargedCandidateFilter && Flag_globalSuperTightHalo2016Filter && Pass_CaloMETRatio;
     tr->registerDerivedVar("SAT_Pass_EventFilter"+firstSpec, SAT_Pass_EventFilter);
 }
 
