@@ -448,7 +448,7 @@ bool BaselineVessel::PrintoutConfig() const
   std::cout << "|   Specialization : " << spec                                      << std::endl;
   std::cout << "|   AK4Jet Label   : " << jetVecLabel                               << std::endl;
   std::cout << "|   b-tag Label    : " << CSVVecLabel                               << std::endl;
-  std::cout << "|   b-tag WP       : " << AnaConsts::DeepCSV.at(year).at("cutM")    << std::endl;
+  std::cout << "|   b-tag WP       : " << AnaConsts::DeepCSV.at(year).at("cutL")    << std::endl;
   std::cout << "|   top-tag config : " << toptaggerCfgFile                          << std::endl;
   std::cout << "|   MET Label      : " << METLabel                                  << std::endl;
   std::cout << "|   MET phi Label  : " << METPhiLabel                               << std::endl;
@@ -462,10 +462,11 @@ void BaselineVessel::PassBaseline()
   bool verbose = false;
   
   // Get jet collection
-  const auto& Jets        = tr->getVec<TLorentzVector>(jetVecLabel);
-  const auto& FatJets     = tr->getVec<TLorentzVector>(jetVecLabelAK8);
-  const auto& met         = tr->getVar<float>(METLabel); 
-  const auto& metphi      = tr->getVar<float>(METPhiLabel); 
+  const auto& Jets          = tr->getVec<TLorentzVector>(jetVecLabel);
+  const auto& FatJets       = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const auto& FatJet_Stop0l = tr->getVec<int>("FatJet_Stop0l");
+  const auto& met           = tr->getVar<float>(METLabel); 
+  const auto& metphi        = tr->getVar<float>(METPhiLabel); 
 
 
   // lepton vetos
@@ -493,7 +494,8 @@ void BaselineVessel::PassBaseline()
   (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, dPhiCutArrary);
   // more vars
   int nJets     = AnaFunctions::countJets(Jets,     JetCutArrary);  
-  int nFatJets  = AnaFunctions::countJets(FatJets,  AnaConsts::pt200Eta24Arr);  
+  //int nFatJets  = AnaFunctions::countJets(FatJets,  AnaConsts::pt200Eta24Arr);  
+  int nFatJets = tr->getVar<int>(UseCleanedJetsVar("nFatJets")); 
   float HT      = AnaFunctions::calcHT(Jets,        JetCutArrary);
   float S_met   = met / sqrt(HT);
 
@@ -506,24 +508,44 @@ void BaselineVessel::PassBaseline()
   // https://github.com/susy2015/SusyAnaTools/blob/5e4f54e1aa985daff90f1ad7a220b8d17e4b7290/Tools/tupleRead.C#L629-L639
   
   // variables for SAT_Pass_lowDM and SAT_Pass_highDM
-  
-  const auto& event             = tr->getVar<unsigned long long>("event");
-  const auto& nMergedTops       = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
-  const auto& nResolvedTops     = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
-  const auto& nWs               = tr->getVar<int>(UseCleanedJetsVar("nWs"));
-  const auto& nBottoms          = tr->getVar<int>(UseCleanedJetsVar("nBottoms"));
-  const auto& mtb               = tr->getVar<float>(UseCleanedJetsVar("mtb"));
-  const auto& ptb               = tr->getVar<float>(UseCleanedJetsVar("ptb"));
-  const auto& ISRJetPt          = tr->getVar<float>(UseCleanedJetsVar("ISRJetPt"));
-  const auto& ISRJetIdx         = tr->getVar<int>(UseCleanedJetsVar("ISRJetIdx"));
-  const auto& nSoftBottoms      = tr->getVar<int>("Stop0l_nSoftb");;
-  const auto& Stop0l_ISRJetPt   = tr->getVar<float>("Stop0l_ISRJetPt");
-  const auto& Stop0l_ISRJetIdx  = tr->getVar<int>("Stop0l_ISRJetIdx");
-  const auto& Stop0l_Mtb        = tr->getVar<float>("Stop0l_Mtb");
-  const auto& Stop0l_Ptb        = tr->getVar<float>("Stop0l_Ptb");
-  const auto& Stop0l_nTop       = tr->getVar<int>("Stop0l_nTop");
-  const auto& Stop0l_nResolved  = tr->getVar<int>("Stop0l_nResolved");
-  const auto& Stop0l_nW         = tr->getVar<int>("Stop0l_nW");
+  const auto& event                 = tr->getVar<unsigned long long>("event");
+  const auto& nMergedTops           = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
+  const auto& nWs                   = tr->getVar<int>(UseCleanedJetsVar("nWs"));
+  const auto& nResolvedTops         = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
+  const auto& nBottoms              = tr->getVar<int>(UseCleanedJetsVar("nBottoms"));
+  const auto& mtb                   = tr->getVar<float>(UseCleanedJetsVar("mtb"));
+  const auto& ptb                   = tr->getVar<float>(UseCleanedJetsVar("ptb"));
+  const auto& ISRJetPt              = tr->getVar<float>(UseCleanedJetsVar("ISRJetPt"));
+  const auto& ISRJetIdx             = tr->getVar<int>(UseCleanedJetsVar("ISRJetIdx"));
+  const auto& MergedTopsTLV         = tr->getVec<TLorentzVector>(UseCleanedJetsVar("MergedTopsTLV"));
+  const auto& MergedTops_disc       = tr->getVec<double>(UseCleanedJetsVar("MergedTops_disc"));
+  const auto& MergedTops_JetsMap    = tr->getMap<int, std::vector<TLorentzVector>>(UseCleanedJetsVar("MergedTops_JetsMap"));
+  const auto& WTLV                  = tr->getVec<TLorentzVector>(UseCleanedJetsVar("WTLV"));
+  const auto& W_disc                = tr->getVec<double>(UseCleanedJetsVar("W_disc"));
+  const auto& W_JetsMap             = tr->getMap<int, std::vector<TLorentzVector>>(UseCleanedJetsVar("W_JetsMap"));
+  const auto& ResolvedTopsTLV       = tr->getVec<TLorentzVector>(UseCleanedJetsVar("ResolvedTopsTLV"));
+  const auto& ResolvedTops_disc     = tr->getVec<double>(UseCleanedJetsVar("ResolvedTops_disc"));
+  const auto& ResolvedTops_JetsMap  = tr->getMap<int, std::vector<TLorentzVector>>(UseCleanedJetsVar("ResolvedTops_JetsMap"));
+  const auto* ttr                   = tr->getVar<TopTaggerResults*>("ttr");
+  // variables from post-processing
+  const auto& nSoftBottoms          = tr->getVar<int>("Stop0l_nSoftb");;
+  const auto& Stop0l_ISRJetPt       = tr->getVar<float>("Stop0l_ISRJetPt");
+  const auto& Stop0l_ISRJetIdx      = tr->getVar<int>("Stop0l_ISRJetIdx");
+  const auto& Stop0l_Mtb            = tr->getVar<float>("Stop0l_Mtb");
+  const auto& Stop0l_Ptb            = tr->getVar<float>("Stop0l_Ptb");
+  const auto& Stop0l_nTop           = tr->getVar<int>("Stop0l_nTop");
+  const auto& Stop0l_nResolved      = tr->getVar<int>("Stop0l_nResolved");
+  const auto& Stop0l_nW             = tr->getVar<int>("Stop0l_nW");
+  const auto& Stop0l_METSig         = tr->getVar<float>("Stop0l_METSig");
+  const auto& Pass_lowDM            = tr->getVar<bool>("Pass_lowDM");
+  const auto& Pass_highDM           = tr->getVar<bool>("Pass_highDM");
+  bool Pass_JetID                   = tr->getVar<bool>("Pass_JetID");
+  bool Pass_EventFilter             = tr->getVar<bool>("Pass_EventFilter");
+  bool Pass_MET                     = tr->getVar<bool>("Pass_MET");
+  bool Pass_HT                      = tr->getVar<bool>("Pass_HT");
+  bool Pass_NJets                   = tr->getVar<bool>("Pass_NJets20");
+  bool Pass_dPhiMETLowDM            = tr->getVar<bool>("Pass_dPhiMETLowDM");
+  bool Pass_LeptonVeto              = tr->getVar<bool>("Pass_LeptonVeto");
   
   bool SAT_Pass_MET_Loose   = (met >= 100);
   bool SAT_Pass_MET_Mid     = (met >= 160);
@@ -534,9 +556,8 @@ void BaselineVessel::PassBaseline()
   bool SAT_Pass_LeptonVeto  = (Pass_ElecVeto && Pass_MuonVeto && Pass_TauVeto && Pass_IsoTrkVeto);
   bool SAT_Pass_JetID       = tr->getVar<bool>("SAT_Pass_JetID"+firstSpec);
   bool SAT_Pass_EventFilter = tr->getVar<bool>("SAT_Pass_EventFilter"+firstSpec);
-  bool Pass_JetID           = tr->getVar<bool>("Pass_JetID");
-  bool Pass_EventFilter     = tr->getVar<bool>("Pass_EventFilter");
-  bool Pass_LeptonVeto      = tr->getVar<bool>("Pass_LeptonVeto");
+
+  // check that lepton vetos match
   if (Pass_LeptonVeto != SAT_Pass_LeptonVeto) std::cout << "ERROR: Lepton vetos do not agree. Pass_LeptonVeto=" << Pass_LeptonVeto << " and SAT_Pass_LeptonVeto=" << SAT_Pass_LeptonVeto << std::endl;
  
   // get ISR jet
@@ -554,7 +575,9 @@ void BaselineVessel::PassBaseline()
   // ----------------------- // 
   
   //SUS-16-049, low dm, mtb cut
-  bool SAT_Pass_MTB_LowDM = (nBottoms == 0 || (nBottoms > 0 && mtb < 175));  
+  //bool SAT_Pass_MTB_LowDM = (nBottoms == 0 || (nBottoms > 0 && mtb < 175));  
+  // try without nB=0 
+  bool SAT_Pass_MTB_LowDM = mtb < 175;  
 
   //SUS-16-049, low dm, dphi(met, j1) > 0.5, dphi(met, j23) > 0.15
   bool SAT_Pass_dPhiMETLowDM = ( 
@@ -815,37 +838,102 @@ void BaselineVessel::PassBaseline()
   // ------------------------------ //
   // --- print info for testing --- //
   // ------------------------------ //
-  //unsigned long long CMS_event = tr->getVar<unsigned long long>("event");
-  //printf("CMS event: %d ntuple event: %d\n", CMS_event, tr->getEvtNum());
   //if (tr->getEvtNum() == 7217)
-  //if (CMS_event == 519215141)
-  if (false)
+  //if (event == 519215141)
+  //if (SAT_Pass_lowDM != Pass_lowDM && firstSpec.empty())
+  //if (event == 1401471244)
+  bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
+  if (topDifference && firstSpec.empty())
   {
-    printf("CMS event: ntuple event: %d; %d\n", event, tr->getEvtNum());
-    printf("SAT_Pass_dPhiMETLowDM: %d\n", SAT_Pass_dPhiMETLowDM);
-    printf("SAT_Pass_dPhiMETHighDM: %d\n", SAT_Pass_dPhiMETHighDM);
-    // dPhi
-    printf("dPhi_0: %f ",           dPhiVec->at(0));
-    printf("dPhi_1: %f ",           dPhiVec->at(1));
-    printf("dPhi_2: %f ",           dPhiVec->at(2));
-    printf("dPhi_3: %f ",           dPhiVec->at(3));
-    printf("met = %f ",             met);
-    printf("metphi = %f ",          metphi);
-    printf("HT = %f ",              HT);
-    printf("mtb = %f ",             mtb);
-    printf("ptb = %f ",             ptb);
-    printf("ISRJetPt = %f ",        ISRJetPt);
-    printf("S_met = %f ",           S_met);
-    printf("nJets = %d ",           nJets);
-    printf("nMergedTops = %d ",     nMergedTops);
-    printf("nBottoms = %d ",        nBottoms);
-    printf("nWs = %d ",             nWs);
-    printf("\n");
-    int i = 0;
-    for (const auto& Jet : Jets)
+    printf("WARNING: Difference in number of tops and/or Ws found!\n");
+    printf("firstSpec: %s; CMS event: %d ntuple event: %d\n", firstSpec.c_str(), event, tr->getEvtNum());
+    printf("Pass_lowDM = %d and SAT_Pass_lowDM = %d\n", Pass_lowDM, SAT_Pass_lowDM);
+    printf("\thui_Pass_LeptonVeto   = %d and caleb_SAT_Pass_LeptonVeto    = %d\n", Pass_LeptonVeto, SAT_Pass_LeptonVeto);
+    printf("\thui_Pass_JetID        = %d and caleb_SAT_Pass_JetID         = %d\n", Pass_JetID, SAT_Pass_JetID);
+    printf("\thui_Pass_EventFilter  = %d and caleb_SAT_Pass_EventFilter   = %d\n", Pass_EventFilter, SAT_Pass_EventFilter);
+    printf("\thui_Pass_MET          = %d and caleb_SAT_Pass_MET           = %d\n", Pass_MET, SAT_Pass_MET);
+    printf("\thui_Pass_HT           = %d and caleb_SAT_Pass_HT            = %d\n", Pass_HT, SAT_Pass_HT);
+    printf("\thui_Pass_NJets        = %d and caleb_SAT_Pass_NJets         = %d\n", Pass_NJets, SAT_Pass_NJets);
+    printf("\thui_Pass_dPhiMETLowDM = %d and caleb_SAT_Pass_dPhiMETLowDM  = %d\n", Pass_dPhiMETLowDM, SAT_Pass_dPhiMETLowDM);
+    printf("\thui_Stop0l_ISRJetPt   = %f and caleb_ISRJetPt               = %f\n", Stop0l_ISRJetPt, ISRJetPt);
+    printf("\thui_Stop0l_METSig     = %f and caleb_S_met                  = %f\n", Stop0l_METSig, S_met);
+    printf("\thui_Stop0l_Mtb        = %f and caleb_mtb                    = %f\n", Stop0l_Mtb, mtb);
+    printf("\thui_Stop0l_nTop       = %d and caleb_nMergedTops            = %d\n", Stop0l_nTop, nMergedTops);
+    printf("\thui_Stop0l_nW         = %d and caleb_nWs                    = %d\n", Stop0l_nW, nWs);
+    printf("\thui_Stop0l_nResolved  = %d and caleb_nResolvedTops          = %d\n", Stop0l_nResolved, nResolvedTops);
+    for(const auto& top : ttr->getTops())
     {
-      printf("Jet %d: pt=%f, eta=%f, phi=%f, mass=%f\n", i, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
-      ++i;
+        printf("\tpt=%f, eta=%f, phi=%f, mass=%f, disc=%f, type=%d\n", top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M(), top->getDiscriminator(), top->getType());
+        for (const auto& jet : top->getConstituents())
+        {
+            printf("\t\tjet: (pt=%f, eta=%f, phi=%f, mass=%f)\n", jet->p().Pt(), jet->p().Eta(), jet->p().Phi(), jet->p().M());
+            for(const auto& subjet : jet->getSubjets())
+            {
+                printf("\t\t\tsubjet: (pt=%f, eta=%f, phi=%f, mass=%f)\n", subjet.p().Pt(), subjet.p().Eta(), subjet.p().Phi(), subjet.p().M());
+            }
+        }
+        
+    }
+//    for (int i = 0; i < MergedTopsTLV.size(); ++i)
+//    {
+//        const auto& jets_ = MergedTops_JetsMap.at(i);
+//        printf("\tMergedTop %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, MergedTopsTLV[i].Pt(), MergedTopsTLV[i].Eta(), MergedTopsTLV[i].Phi(), MergedTopsTLV[i].M(), MergedTops_disc[i]);
+//        int j = 0;
+//        for (const auto& jet : jets_)
+//        {
+//            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
+//            ++j;
+//        }
+//    }
+//    for (int i = 0; i < WTLV.size(); ++i)
+//    {
+//        const auto& jets_ = W_JetsMap.at(i);
+//        printf("\tW %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, WTLV[i].Pt(), WTLV[i].Eta(), WTLV[i].Phi(), WTLV[i].M(), W_disc[i]);
+//        int j = 0;
+//        for (const auto& jet : jets_)
+//        {
+//            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
+//            ++j;
+//        }
+//    }
+//    for (int i = 0; i < ResolvedTopsTLV.size(); ++i)
+//    {
+//        const auto& jets_ = ResolvedTops_JetsMap.at(i);
+//        printf("\tResolvedTop %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, ResolvedTopsTLV[i].Pt(), ResolvedTopsTLV[i].Eta(), ResolvedTopsTLV[i].Phi(), ResolvedTopsTLV[i].M(), ResolvedTops_disc[i]);
+//        int j = 0;
+//        for (const auto& jet : jets_)
+//        {
+//            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
+//            ++j;
+//        }
+//    }
+    if (verbose)
+    {
+      printf("SAT_Pass_dPhiMETLowDM: %d\n", SAT_Pass_dPhiMETLowDM);
+      printf("SAT_Pass_dPhiMETHighDM: %d\n", SAT_Pass_dPhiMETHighDM);
+      // dPhi
+      printf("dPhi_0: %f ",           dPhiVec->at(0));
+      printf("dPhi_1: %f ",           dPhiVec->at(1));
+      printf("dPhi_2: %f ",           dPhiVec->at(2));
+      printf("dPhi_3: %f ",           dPhiVec->at(3));
+      printf("met = %f ",             met);
+      printf("metphi = %f ",          metphi);
+      printf("HT = %f ",              HT);
+      printf("mtb = %f ",             mtb);
+      printf("ptb = %f ",             ptb);
+      printf("ISRJetPt = %f ",        ISRJetPt);
+      printf("S_met = %f ",           S_met);
+      printf("nJets = %d ",           nJets);
+      printf("nMergedTops = %d ",     nMergedTops);
+      printf("nBottoms = %d ",        nBottoms);
+      printf("nWs = %d ",             nWs);
+      printf("\n");
+      int i = 0;
+      for (const auto& Jet : Jets)
+      {
+        printf("Jet %d: pt=%f, eta=%f, phi=%f, mass=%f\n", i, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
+        ++i;
+      }
     }
   }
 
@@ -877,7 +965,6 @@ void BaselineVessel::PassBaseline()
   tr->registerDerivedVar("ISRJet" + firstSpec, ISRJet);
   tr->registerDerivedVar("nSoftBottoms" + firstSpec, nSoftBottoms);
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
-  tr->registerDerivedVar("nFatJets" + firstSpec, nFatJets);
   tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
   tr->registerDerivedVar("nTaus_Stop0l" + firstSpec, nTaus_Stop0l);
@@ -1600,14 +1687,14 @@ void BaselineVessel::PassEventFilter()
     const auto& Flag_EcalDeadCellTriggerPrimitiveFilter     = tr->getVar<bool>("Flag_EcalDeadCellTriggerPrimitiveFilter");
     const auto& Flag_BadPFMuonFilter                        = tr->getVar<bool>("Flag_BadPFMuonFilter");
     const auto& Flag_BadChargedCandidateFilter              = tr->getVar<bool>("Flag_BadChargedCandidateFilter");
-    const auto& Flag_ecalBadCalibFilter                     = tr->getVar<bool>("Flag_ecalBadCalibFilter");
     const auto& Flag_globalSuperTightHalo2016Filter         = tr->getVar<bool>("Flag_globalSuperTightHalo2016Filter");
-    const auto& Flag_eeBadScFilter                          = tr->getVar<bool>("Flag_eeBadScFilter");
+    const auto& Pass_CaloMETRatio                           = tr->getVar<bool>("Pass_CaloMETRatio");
     // Note: Don't apply Flag_globalSuperTightHalo2016Filter to fastsim samples if you use fastsim
     // Note: Apply Flag_eeBadScFilter to Data but not MC
     // Note: Don't apply Flag_ecalBadCalibFilter to 2016, but apply it to 2017 and 2018
+    // Note: Add Pass_CaloMETRatio to event filter and see if it works
     SAT_Pass_EventFilter =   Flag_goodVertices && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter
-                          && Flag_BadPFMuonFilter && Flag_BadChargedCandidateFilter && Flag_globalSuperTightHalo2016Filter;
+                          && Flag_BadPFMuonFilter && Flag_BadChargedCandidateFilter && Flag_globalSuperTightHalo2016Filter && Pass_CaloMETRatio;
     tr->registerDerivedVar("SAT_Pass_EventFilter"+firstSpec, SAT_Pass_EventFilter);
 }
 
@@ -1970,6 +2057,7 @@ int BaselineVessel::GetISRJetIdx()
 {
   bool verbose = false;
   const auto& fat_jets           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  //const auto& nFatJets           = tr->getVar<int>(UseCleanedJetsVar("nFatJets"));
   const auto& FatJet_btagDeepB   = tr->getVec<float>(UseCleanedJetsVar("FatJet_btagDeepB"));
   const auto& FatJet_subJetIdx1  = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx1"));
   const auto& FatJet_subJetIdx2  = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx2"));
@@ -2007,7 +2095,7 @@ int BaselineVessel::GetISRJetIdx()
     return -1;
   }
   // require that ISR jet is not a a b-jet
-  if (FatJet_btagDeepB[i] > AnaConsts::DeepCSV.at(year).at("cutM"))
+  if (FatJet_btagDeepB[i] > AnaConsts::DeepCSV.at(year).at("cutL"))
   {
     if (verbose) printf("FAIL fat jet btag requirement\n");
     return -1;
@@ -2015,12 +2103,12 @@ int BaselineVessel::GetISRJetIdx()
   // require that sub-jets are not b-jets
   int subJetIdx1 = FatJet_subJetIdx1[i];
   int subJetIdx2 = FatJet_subJetIdx2[i];
-  if (subJetIdx1 >= 0 && subJetIdx1 < nSubJets && SubJet_btagDeepB[subJetIdx1] > AnaConsts::DeepCSV.at(year).at("cutM"))
+  if (subJetIdx1 >= 0 && subJetIdx1 < nSubJets && SubJet_btagDeepB[subJetIdx1] > AnaConsts::DeepCSV.at(year).at("cutL"))
   {
     if (verbose) printf("FAIL subjet 1 btag requirement\n"); 
     return -1; 
   }  
-  if (subJetIdx2 >= 0 && subJetIdx2 < nSubJets && SubJet_btagDeepB[subJetIdx2] > AnaConsts::DeepCSV.at(year).at("cutM"))
+  if (subJetIdx2 >= 0 && subJetIdx2 < nSubJets && SubJet_btagDeepB[subJetIdx2] > AnaConsts::DeepCSV.at(year).at("cutL"))
   {
     if (verbose) printf("FAIL subjet 2 btag requirement\n"); 
     return -1; 
@@ -2038,11 +2126,25 @@ int BaselineVessel::GetISRJetIdx()
 
 bool BaselineVessel::CalcISRJetVars()
 {
-  const auto& fat_jets = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const auto& fat_jets      = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const auto& FatJet_Stop0l = tr->getVec<int>(UseCleanedJetsVar("FatJet_Stop0l"));
+  // calc nFatJets passing FatJet_Stop0l
+  int nFatJets = 0;
+  for (int i = 0; i < FatJet_Stop0l.size(); ++i)
+  {
+      if (FatJet_Stop0l[i])
+      {
+          nFatJets += 1;
+      }
+  }
+  // register nFatJets before running GetISRJetIdx
+  tr->registerDerivedVar("nFatJets"  + firstSpec, nFatJets);
+  
+  // GetISRJetIdx uses nFatJets
   int ISRJetIdx = GetISRJetIdx();
-  int nFatJets  = fat_jets.size();
   float ISRJetPt = 0.0;
-  if (ISRJetIdx >= 0 && ISRJetIdx < nFatJets) ISRJetPt = fat_jets[ISRJetIdx].Pt();
-  tr->registerDerivedVar("ISRJetPt"+firstSpec,  ISRJetPt);
-  tr->registerDerivedVar("ISRJetIdx"+firstSpec, ISRJetIdx);
+  if (ISRJetIdx >= 0 && ISRJetIdx < fat_jets.size()) ISRJetPt = fat_jets[ISRJetIdx].Pt();
+  
+  tr->registerDerivedVar("ISRJetPt"  + firstSpec, ISRJetPt);
+  tr->registerDerivedVar("ISRJetIdx" + firstSpec, ISRJetIdx);
 }

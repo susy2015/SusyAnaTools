@@ -55,6 +55,7 @@ private:
         const auto& FatJet_msoftdrop       = tr.getVec<float>("FatJet_msoftdrop");
         const auto& FatJet_subJetIdx1      = tr.getVec<int>("FatJet_subJetIdx1");
         const auto& FatJet_subJetIdx2      = tr.getVec<int>("FatJet_subJetIdx2");
+        const auto& FatJet_Stop0l          = tr.getVec<int>("FatJet_Stop0l");
         std::vector<bool> FatJet_matchesPhoton;
         std::vector<bool> FatJet_matchesElectron;
         std::vector<bool> FatJet_matchesMuon;
@@ -80,17 +81,20 @@ private:
 
 
 
-        auto* AllTopsTLV        = new std::vector<TLorentzVector>();
-        auto* MergedTopsTLV     = new std::vector<TLorentzVector>();
-        auto* SemiMergedTopsTLV = new std::vector<TLorentzVector>();
-        auto* ResolvedTopsTLV   = new std::vector<TLorentzVector>();
-        auto* WTLV              = new std::vector<TLorentzVector>();
-        auto* TopJetsMap        = new std::map< int , std::vector<TLorentzVector> >();
-        int nAllTops        = -1;
-        int nMergedTops     = -1;
-        int nSemiMergedTops = -1;
-        int nResolvedTops   = -1;
-        int nWs             = -1;
+        auto* MergedTopsTLV         = new std::vector<TLorentzVector>();
+        auto* MergedTops_disc       = new std::vector<double>();
+        auto* MergedTops_JetsMap    = new std::map< int , std::vector<TLorentzVector> >();
+        auto* WTLV                  = new std::vector<TLorentzVector>();
+        auto* W_disc                = new std::vector<double>();
+        auto* W_JetsMap             = new std::map< int , std::vector<TLorentzVector> >();
+        auto* ResolvedTopsTLV       = new std::vector<TLorentzVector>();
+        auto* ResolvedTops_disc     = new std::vector<double>();
+        auto* ResolvedTops_JetsMap  = new std::map< int , std::vector<TLorentzVector> >();
+        //auto* TopJetsMap            = new std::map< int , std::vector<TLorentzVector> >();
+        int nAllTops        = 0;
+        int nMergedTops     = 0;
+        int nResolvedTops   = 0;
+        int nWs             = 0;
 
         //Select AK4 jets to use in tagger
         //When reading from the resolvedTopCandidate collection from nanoAOD you must pass ALL ak4 jets to ttUtility::ConstAK4Inputs below, 
@@ -129,6 +133,12 @@ private:
             {
                 if (FatJet_matchesPhoton[i]) ak8Filter[i] = false;
             }
+            //use post-processed selections to calcualte number of merged tops and Ws 
+            if(ak8Filter[i])
+            {
+                if(FatJet_Stop0l[i] == 1) nMergedTops += 1;
+                if(FatJet_Stop0l[i] == 2) nWs         += 1;
+            }
         }
 
         //Correlate AK8 jets and their subjets
@@ -137,8 +147,8 @@ private:
         std::vector<std::vector<TLorentzVector>> subjets(nFatJets);
         for(int i = 0; i < nFatJets; ++i)
         {
-            if(FatJet_subJetIdx1[i] >= 0 && FatJet_subJetIdx1[i] < nSubJets) subjets[i].push_back(SubJet_LV[i]);
-            if(FatJet_subJetIdx2[i] >= 0 && FatJet_subJetIdx2[i] < nSubJets) subjets[i].push_back(SubJet_LV[i]);
+            if(FatJet_subJetIdx1[i] >= 0 && FatJet_subJetIdx1[i] < nSubJets) subjets[i].push_back(SubJet_LV[FatJet_subJetIdx1[i]]);
+            if(FatJet_subJetIdx2[i] >= 0 && FatJet_subJetIdx2[i] < nSubJets) subjets[i].push_back(SubJet_LV[FatJet_subJetIdx2[i]]);
         }
 
         //Create top tagger input helpers
@@ -151,95 +161,80 @@ private:
         //make top tagger constituents, order matters here, ak4Inputs must not come after resInputs as the ak4Inputs are needed to build the resolved top candidates 
         std::vector<Constituent> constituents = packageConstituents(ak4Inputs, resInputs, ak8Inputs);
         
-        // TopTagger
-        //std::cout << "Create TopTagger object" << std::endl;
-        //TopTagger tt("TopTagger.cfg", ".");
-
         //run top tager
-        //std::cout << "tt_->runTagger(constituents)" << std::endl;
-        //tt.runTagger(constituents);
         tt_->runTagger(constituents);
 
 
         //get tagger results 
-        //std::cout << "Get TopTagger results" << std::endl;
         const TopTaggerResults& ttr = tt_->getResults();
 
         //print top properties
         //get reconstructed tops
         const std::vector<TopObject*>& tops = ttr.getTops();
         
-        // --- version using topsByType map
-        // --- requires different loops and reordering of AllTops
-        //
-        // std::map<TopObject::Type, std::vector<TopObject*>> topsByType = ttr.getTopsByType();
-        // const std::vector<TopObject*>& MergedTops     = topsByType[TopObject::Type::MERGED_TOP];
-        // const std::vector<TopObject*>& SemiMergedTops = topsByType[TopObject::Type::SEMIMERGEDWB_TOP];
-        // const std::vector<TopObject*>& ResolvedTops   = topsByType[TopObject::Type::RESOLVED_TOP];
-        // const std::vector<TopObject*>& Ws             = topsByType[TopObject::Type::MERGED_W];
-        // nMergedTops = MergedTops.size();
-        // nSemiMergedTops = SemiMergedTops.size();
-        // nResolvedTops = ResolvedTops.size();
-        // nAllTops = nMergedTops + nSemiMergedTops + nResolvedTops;
-        // nWs = Ws.size();
-        // for (const auto* top : MergedTops)      MergedTopsTLV->push_back(top->p());
-        // for (const auto* top : SemiMergedTops)  SemiMergedTopsTLV->push_back(top->p());
-        // for (const auto* top : ResolvedTops)    ResolvedTopsTLV->push_back(top->p());
-        // for (const auto* top : Ws)              WTLV->push_back(top->p());
-        //
-        // --- version using topsByType map
 
         bool printTops = false;
 
         if (printTops) std::cout << "----------------------------------------------------------------------" << std::endl;
-        unsigned int topidx = 0;
+        //unsigned int topidx = 0;
+        unsigned int MergedTopIdx   = 0;
+        unsigned int WIdx           = 0;
+        unsigned int ResolvedTopIdx = 0;
         for(const TopObject* top : tops)
         {
+            //print basic top properties (top->p() gives a TLorentzVector)
+            //N constituents refers to the number of jets included in the top
+            //3 for resolved tops 
+            //2 for W+jet tops
+            //1 for fully merged AK8 tops
+            if (printTops) printf("\tTop properties: Type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf,   M: %7.3lf\n", static_cast<int>(top->getType()), top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M());
+
+            //get vector of top constituents 
+            const std::vector<Constituent const *>& constituents = top->getConstituents();
+            std::vector<TLorentzVector> temp;
+
+            //Print properties of individual top constituent jets 
+            for(const Constituent* constituent : constituents)
+            {
+                if (printTops) printf("\t\tConstituent properties: Constituent type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf\n", constituent->getType(), constituent->p().Pt(), constituent->p().Eta(), constituent->p().Phi());
+                temp.push_back(constituent->p());
+            }                
+            
+            //TopJetsMap->insert(std::make_pair(topidx, temp));
+            
             TopObject::Type type = top->getType();
             //if (tops.size() > 1) std::cout << "  top type: " << type << std::endl;
-            //std::cout << "  top type: " << type << std::endl;
             
-            if (type == TopObject::Type::MERGED_W)          WTLV->push_back(top->p());
-
-            //std::cout << "  top type: " << type << std::endl;
-            if (   type == TopObject::Type::MERGED_TOP
-                || type == TopObject::Type::SEMIMERGEDWB_TOP
-                || type == TopObject::Type::RESOLVED_TOP)
+            if (type == TopObject::Type::MERGED_TOP)        
             {
-                AllTopsTLV->push_back(top->p());
-                if (type == TopObject::Type::MERGED_TOP)        MergedTopsTLV->push_back(top->p());
-                if (type == TopObject::Type::SEMIMERGEDWB_TOP)  SemiMergedTopsTLV->push_back(top->p());
-                if (type == TopObject::Type::RESOLVED_TOP)      ResolvedTopsTLV->push_back(top->p());
-
-                //print basic top properties (top->p() gives a TLorentzVector)
-                //N constituents refers to the number of jets included in the top
-                //3 for resolved tops 
-                //2 for W+jet tops
-                //1 for fully merged AK8 tops
-                
-                if (printTops) printf("\tTop properties: Type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf,   M: %7.3lf\n", static_cast<int>(top->getType()), top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M());
-
-                //get vector of top constituents 
-                const std::vector<Constituent const *>& constituents = top->getConstituents();
-                std::vector<TLorentzVector> temp;
-
-                //Print properties of individual top constituent jets 
-                for(const Constituent* constituent : constituents)
-                {
-                    if (printTops) printf("\t\tConstituent properties: Constituent type: %3d,   Pt: %6.1lf,   Eta: %7.3lf,   Phi: %7.3lf\n", constituent->getType(), constituent->p().Pt(), constituent->p().Eta(), constituent->p().Phi());
-                    temp.push_back(constituent->p());
-                }                
-                TopJetsMap->insert(std::make_pair(topidx, temp));
-                ++topidx;
+                MergedTopsTLV->push_back(top->p());
+                MergedTops_disc->push_back(top->getDiscriminator());
+                MergedTops_JetsMap->insert(std::make_pair(MergedTopIdx, temp));
+                ++MergedTopIdx;
             }
+            if (type == TopObject::Type::MERGED_W)          
+            {
+                WTLV->push_back(top->p());
+                W_disc->push_back(top->getDiscriminator());
+                W_JetsMap->insert(std::make_pair(WIdx, temp));
+                ++WIdx;
+            }
+            if (type == TopObject::Type::RESOLVED_TOP)      
+            {
+                ResolvedTopsTLV->push_back(top->p());
+                ResolvedTops_disc->push_back(top->getDiscriminator());
+                ResolvedTops_JetsMap->insert(std::make_pair(ResolvedTopIdx, temp));
+                ++ResolvedTopIdx;
+            }
+
+            //++topidx;
         }
 
         // number of tops
-        nAllTops        = AllTopsTLV->size();
-        nMergedTops     = MergedTopsTLV->size();
-        nSemiMergedTops = SemiMergedTopsTLV->size();
+        //use post-processed selections to calcualte number of merged tops and Ws 
+        //nMergedTops     = MergedTopsTLV->size();
+        //nWs             = WTLV->size();
         nResolvedTops   = ResolvedTopsTLV->size();
-        nWs             = WTLV->size();
         
         //print the number of tops found in the event 
         //if (tops.size() > 1)
@@ -248,23 +243,26 @@ private:
             printf("tops.size() =  %ld ",      tops.size());
             printf("nAllTops =  %ld ",         nAllTops);
             printf("nMergedTops =  %ld ",      nMergedTops);
-            printf("nSemiMergedTops =  %ld ",  nSemiMergedTops);
-            printf("nResolvedTops =  %ld ",    nResolvedTops);
             printf("nWs =  %ld ",              nWs);
+            printf("nResolvedTops =  %ld ",    nResolvedTops);
             std::cout << std::endl;
         }
         
-        tr.registerDerivedVec("AllTopsTLV" + suffix_,           AllTopsTLV);
-        tr.registerDerivedVec("MergedTopsTLV" + suffix_,        MergedTopsTLV);
-        tr.registerDerivedVec("SemiMergedTopsTLV" + suffix_,    SemiMergedTopsTLV);
-        tr.registerDerivedVec("ResolvedTopsTLV" + suffix_,      ResolvedTopsTLV);
-        tr.registerDerivedVec("WTLV" + suffix_,                 WTLV);
-        tr.registerDerivedVec("TopJetsMap" + suffix_,           TopJetsMap);
-        tr.registerDerivedVar("nAllTops" + suffix_,             nAllTops);
-        tr.registerDerivedVar("nMergedTops" + suffix_,          nMergedTops);
-        tr.registerDerivedVar("nSemiMergedTops" + suffix_,      nSemiMergedTops);
-        tr.registerDerivedVar("nResolvedTops" + suffix_,        nResolvedTops);
-        tr.registerDerivedVar("nWs" + suffix_,                  nWs);
+        tr.registerDerivedVar("nMergedTops" + suffix_,              nMergedTops);
+        tr.registerDerivedVec("MergedTopsTLV" + suffix_,            MergedTopsTLV);
+        tr.registerDerivedVec("MergedTops_disc" + suffix_,          MergedTops_disc);
+        tr.registerDerivedVec("MergedTops_JetsMap" + suffix_,       MergedTops_JetsMap);
+        tr.registerDerivedVar("nWs" + suffix_,                      nWs);
+        tr.registerDerivedVec("WTLV" + suffix_,                     WTLV);
+        tr.registerDerivedVec("W_disc" + suffix_,                   W_disc);
+        tr.registerDerivedVec("W_JetsMap" + suffix_,                W_JetsMap);
+        tr.registerDerivedVar("nResolvedTops" + suffix_,            nResolvedTops);
+        tr.registerDerivedVec("ResolvedTopsTLV" + suffix_,          ResolvedTopsTLV);
+        tr.registerDerivedVec("ResolvedTops_disc" + suffix_,        ResolvedTops_disc);
+        tr.registerDerivedVec("ResolvedTops_JetsMap" + suffix_,     ResolvedTops_JetsMap);
+        tr.registerDerivedVar("nAllTops" + suffix_,                 nAllTops);
+        tr.registerDerivedVar("ttr" + suffix_,                      &ttr);
+        //tr.registerDerivedVec("TopJetsMap" + suffix_,           TopJetsMap);
     }
     
 public:
