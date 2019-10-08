@@ -461,6 +461,21 @@ void BaselineVessel::PassBaseline()
   if (printConfig) PrintoutConfig();
   bool verbose = false;
   
+  // check if we are running on data
+  bool isData = ! tr->checkBranch("genWeight");
+ 
+  // get normalized gen weight
+  if (! isData)
+  {
+    const auto& genWeight = tr->getVar<float>("genWeight");
+    float genWeightNormalized = genWeight;
+    if (genWeightNormalized != 0.0)
+    {
+      genWeightNormalized = genWeightNormalized / fabs(genWeightNormalized);
+    }
+    tr->registerDerivedVar("genWeightNormalized" + firstSpec, genWeightNormalized);
+  }
+
   // Get jet collection
   const auto& Jets          = tr->getVec<TLorentzVector>(jetVecLabel);
   const auto& FatJets       = tr->getVec<TLorentzVector>(jetVecLabelAK8);
@@ -528,24 +543,30 @@ void BaselineVessel::PassBaseline()
   const auto& ResolvedTops_JetsMap  = tr->getMap<int, std::vector<TLorentzVector>>(UseCleanedJetsVar("ResolvedTops_JetsMap"));
   const auto* ttr                   = tr->getVar<TopTaggerResults*>("ttr");
   // variables from post-processing
-  const auto& nSoftBottoms          = tr->getVar<int>("Stop0l_nSoftb");;
-  const auto& Stop0l_ISRJetPt       = tr->getVar<float>("Stop0l_ISRJetPt");
-  const auto& Stop0l_ISRJetIdx      = tr->getVar<int>("Stop0l_ISRJetIdx");
-  const auto& Stop0l_Mtb            = tr->getVar<float>("Stop0l_Mtb");
-  const auto& Stop0l_Ptb            = tr->getVar<float>("Stop0l_Ptb");
-  const auto& Stop0l_nTop           = tr->getVar<int>("Stop0l_nTop");
-  const auto& Stop0l_nResolved      = tr->getVar<int>("Stop0l_nResolved");
-  const auto& Stop0l_nW             = tr->getVar<int>("Stop0l_nW");
-  const auto& Stop0l_METSig         = tr->getVar<float>("Stop0l_METSig");
-  const auto& Pass_lowDM            = tr->getVar<bool>("Pass_lowDM");
-  const auto& Pass_highDM           = tr->getVar<bool>("Pass_highDM");
-  bool Pass_JetID                   = tr->getVar<bool>("Pass_JetID");
-  bool Pass_EventFilter             = tr->getVar<bool>("Pass_EventFilter");
-  bool Pass_MET                     = tr->getVar<bool>("Pass_MET");
-  bool Pass_HT                      = tr->getVar<bool>("Pass_HT");
-  bool Pass_NJets                   = tr->getVar<bool>("Pass_NJets20");
-  bool Pass_dPhiMETLowDM            = tr->getVar<bool>("Pass_dPhiMETLowDM");
-  bool Pass_LeptonVeto              = tr->getVar<bool>("Pass_LeptonVeto");
+  const auto& ResolvedTopCandidateTLV               = tr->getVec<TLorentzVector>("ResolvedTopCandidateTLV");
+  const auto& ResolvedTopCandidate_discriminator    = tr->getVec<float>("ResolvedTopCandidate_discriminator");
+  const auto& ResolvedTopCandidate_type             = tr->getVec<int>("ResolvedTopCandidate_type");
+  const auto& ResolvedTopCandidate_j1Idx            = tr->getVec<int>("ResolvedTopCandidate_j1Idx");
+  const auto& ResolvedTopCandidate_j2Idx            = tr->getVec<int>("ResolvedTopCandidate_j2Idx");
+  const auto& ResolvedTopCandidate_j3Idx            = tr->getVec<int>("ResolvedTopCandidate_j3Idx");
+  const auto& nSoftBottoms                          = tr->getVar<int>("Stop0l_nSoftb");;
+  const auto& Stop0l_ISRJetPt                       = tr->getVar<float>("Stop0l_ISRJetPt");
+  const auto& Stop0l_ISRJetIdx                      = tr->getVar<int>("Stop0l_ISRJetIdx");
+  const auto& Stop0l_Mtb                            = tr->getVar<float>("Stop0l_Mtb");
+  const auto& Stop0l_Ptb                            = tr->getVar<float>("Stop0l_Ptb");
+  const auto& Stop0l_nTop                           = tr->getVar<int>("Stop0l_nTop");
+  const auto& Stop0l_nResolved                      = tr->getVar<int>("Stop0l_nResolved");
+  const auto& Stop0l_nW                             = tr->getVar<int>("Stop0l_nW");
+  const auto& Stop0l_METSig                         = tr->getVar<float>("Stop0l_METSig");
+  const auto& Pass_lowDM                            = tr->getVar<bool>("Pass_lowDM");
+  const auto& Pass_highDM                           = tr->getVar<bool>("Pass_highDM");
+  bool Pass_JetID                                   = tr->getVar<bool>("Pass_JetID");
+  bool Pass_EventFilter                             = tr->getVar<bool>("Pass_EventFilter");
+  bool Pass_MET                                     = tr->getVar<bool>("Pass_MET");
+  bool Pass_HT                                      = tr->getVar<bool>("Pass_HT");
+  bool Pass_NJets                                   = tr->getVar<bool>("Pass_NJets20");
+  bool Pass_dPhiMETLowDM                            = tr->getVar<bool>("Pass_dPhiMETLowDM");
+  bool Pass_LeptonVeto                              = tr->getVar<bool>("Pass_LeptonVeto");
   
   bool SAT_Pass_MET_Loose   = (met >= 100);
   bool SAT_Pass_MET_Mid     = (met >= 160);
@@ -559,6 +580,8 @@ void BaselineVessel::PassBaseline()
 
   // check that lepton vetos match
   if (Pass_LeptonVeto != SAT_Pass_LeptonVeto) std::cout << "ERROR: Lepton vetos do not agree. Pass_LeptonVeto=" << Pass_LeptonVeto << " and SAT_Pass_LeptonVeto=" << SAT_Pass_LeptonVeto << std::endl;
+
+
  
   // get ISR jet
   TLorentzVector ISRJet;
@@ -843,7 +866,8 @@ void BaselineVessel::PassBaseline()
   //if (SAT_Pass_lowDM != Pass_lowDM && firstSpec.empty())
   //if (event == 1401471244)
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
-  if (topDifference && firstSpec.empty())
+  //if (topDifference && firstSpec.empty())
+  if (verbose)
   {
     printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("firstSpec: %s; CMS event: %d ntuple event: %d\n", firstSpec.c_str(), event, tr->getEvtNum());
@@ -861,6 +885,12 @@ void BaselineVessel::PassBaseline()
     printf("\thui_Stop0l_nTop       = %d and caleb_nMergedTops            = %d\n", Stop0l_nTop, nMergedTops);
     printf("\thui_Stop0l_nW         = %d and caleb_nWs                    = %d\n", Stop0l_nW, nWs);
     printf("\thui_Stop0l_nResolved  = %d and caleb_nResolvedTops          = %d\n", Stop0l_nResolved, nResolvedTops);
+    printf("------------- hui tops -------------\n");
+    for (int i = 0; i < ResolvedTopCandidateTLV.size(); ++i)
+    {
+        printf("\tresolved top %d: pt=%f, eta=%f, phi=%f, mass=%f, disc=%f, type=%d\n", i, ResolvedTopCandidateTLV[i].Pt(), ResolvedTopCandidateTLV[i].Eta(), ResolvedTopCandidateTLV[i].Phi(), ResolvedTopCandidateTLV[i].M(), ResolvedTopCandidate_discriminator[i], ResolvedTopCandidate_type[i]);
+    }
+    printf("------------- caleb tops -------------\n");
     for(const auto& top : ttr->getTops())
     {
         printf("\tpt=%f, eta=%f, phi=%f, mass=%f, disc=%f, type=%d\n", top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M(), top->getDiscriminator(), top->getType());
@@ -874,6 +904,8 @@ void BaselineVessel::PassBaseline()
         }
         
     }
+
+
 //    for (int i = 0; i < MergedTopsTLV.size(); ++i)
 //    {
 //        const auto& jets_ = MergedTops_JetsMap.at(i);
@@ -907,6 +939,8 @@ void BaselineVessel::PassBaseline()
 //            ++j;
 //        }
 //    }
+
+    
     if (verbose)
     {
       printf("SAT_Pass_dPhiMETLowDM: %d\n", SAT_Pass_dPhiMETLowDM);
