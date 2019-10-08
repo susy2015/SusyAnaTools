@@ -473,6 +473,7 @@ void BaselineVessel::PassBaseline()
     {
       genWeightNormalized = genWeightNormalized / fabs(genWeightNormalized);
     }
+    //printf("genWeight: %f, genWeightNormalized: %f\n", genWeight, genWeightNormalized);
     tr->registerDerivedVar("genWeightNormalized" + firstSpec, genWeightNormalized);
   }
 
