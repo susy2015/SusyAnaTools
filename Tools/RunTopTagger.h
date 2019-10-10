@@ -95,9 +95,9 @@ private:
         int nMergedTops             = 0;
         int nWs                     = 0;
         int nResolvedTops           = 0;
-        float MergedTopSF           = 1.0;
-        float WSF                   = 1.0;
-        float ResolvedTopSF         = 1.0;
+        float MergedTopTotalSF      = 1.0;
+        float WTotalSF              = 1.0;
+        float ResolvedTopTotalSF    = 1.0;
 
         //Select AK4 jets to use in tagger
         //When reading from the resolvedTopCandidate collection from nanoAOD you must pass ALL ak4 jets to ttUtility::ConstAK4Inputs below, 
@@ -141,13 +141,13 @@ private:
             {
                 if(FatJet_Stop0l[i] == 1)
                 {
-                    nMergedTops += 1;
-                    MergedTopSF *= FatJet_SF[i];
+                    nMergedTops         += 1;
+                    MergedTopTotalSF    *= FatJet_SF[i];
                 }
                 if(FatJet_Stop0l[i] == 2)
                 {
                     nWs         += 1;
-                    WSF         *= FatJet_SF[i];
+                    WTotalSF    *= FatJet_SF[i];
                 }
             }
         }
@@ -264,7 +264,7 @@ private:
             if (type == TopObject::Type::RESOLVED_TOP)      
             {
                 // scale factor
-                ResolvedTopSF *= top->getMCScaleFactor();
+                ResolvedTopTotalSF *= top->getMCScaleFactor();
                 ResolvedTopsTLV->push_back(top->p());
                 ResolvedTops_disc->push_back(top->getDiscriminator());
                 ResolvedTops_JetsMap->insert(std::make_pair(ResolvedTopIdx, temp));
@@ -292,17 +292,17 @@ private:
         }
         
         tr.registerDerivedVar("nMergedTops" + suffix_,              nMergedTops);
-        tr.registerDerivedVar("MergedTopSF" + suffix_,              MergedTopSF);
+        tr.registerDerivedVar("MergedTopTotalSF" + suffix_,         MergedTopTotalSF);
         tr.registerDerivedVec("MergedTopsTLV" + suffix_,            MergedTopsTLV);
         tr.registerDerivedVec("MergedTops_disc" + suffix_,          MergedTops_disc);
         tr.registerDerivedVec("MergedTops_JetsMap" + suffix_,       MergedTops_JetsMap);
         tr.registerDerivedVar("nWs" + suffix_,                      nWs);
-        tr.registerDerivedVar("WSF" + suffix_,                      WSF);
+        tr.registerDerivedVar("WTotalSF" + suffix_,                 WTotalSF);
         tr.registerDerivedVec("WTLV" + suffix_,                     WTLV);
         tr.registerDerivedVec("W_disc" + suffix_,                   W_disc);
         tr.registerDerivedVec("W_JetsMap" + suffix_,                W_JetsMap);
         tr.registerDerivedVar("nResolvedTops" + suffix_,            nResolvedTops);
-        tr.registerDerivedVar("ResolvedTopSF" + suffix_,            ResolvedTopSF);
+        tr.registerDerivedVar("ResolvedTopTotalSF" + suffix_,       ResolvedTopTotalSF);
         tr.registerDerivedVec("ResolvedTopsTLV" + suffix_,          ResolvedTopsTLV);
         tr.registerDerivedVec("ResolvedTops_disc" + suffix_,        ResolvedTops_disc);
         tr.registerDerivedVec("ResolvedTops_JetsMap" + suffix_,     ResolvedTops_JetsMap);

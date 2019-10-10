@@ -550,7 +550,7 @@ void BaselineVessel::PassBaseline()
   const auto& ResolvedTopCandidate_j1Idx            = tr->getVec<int>("ResolvedTopCandidate_j1Idx");
   const auto& ResolvedTopCandidate_j2Idx            = tr->getVec<int>("ResolvedTopCandidate_j2Idx");
   const auto& ResolvedTopCandidate_j3Idx            = tr->getVec<int>("ResolvedTopCandidate_j3Idx");
-  const auto& nSoftBottoms                          = tr->getVar<int>("Stop0l_nSoftb");;
+  const auto& Stop0l_nSoftb                         = tr->getVar<int>("Stop0l_nSoftb");;
   const auto& Stop0l_ISRJetPt                       = tr->getVar<float>("Stop0l_ISRJetPt");
   const auto& Stop0l_ISRJetIdx                      = tr->getVar<int>("Stop0l_ISRJetIdx");
   const auto& Stop0l_Mtb                            = tr->getVar<float>("Stop0l_Mtb");
@@ -998,7 +998,6 @@ void BaselineVessel::PassBaseline()
   // Register all the calculated variables
   tr->registerDerivedVec("dPhiVec" + firstSpec, dPhiVec);
   tr->registerDerivedVar("ISRJet" + firstSpec, ISRJet);
-  tr->registerDerivedVar("nSoftBottoms" + firstSpec, nSoftBottoms);
   tr->registerDerivedVar("nJets" + firstSpec, nJets);
   tr->registerDerivedVar("nElectrons_Stop0l" + firstSpec, nElectrons_Stop0l);
   tr->registerDerivedVar("nMuons_Stop0l" + firstSpec, nMuons_Stop0l);
@@ -2013,6 +2012,8 @@ bool BaselineVessel::CalcBottomVars()
   const auto& jets           = tr->getVec<TLorentzVector>(jetVecLabel);
   const auto& Jet_btagDisc   = tr->getVec<float>(CSVVecLabel);
   const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
+  const auto& SB_Stop0l      = tr->getVec<unsigned char>(UseCleanedJetsVar("SB_Stop0l"));
+  const auto& SB_SF          = tr->getVec<float>(UseCleanedJetsVar("SB_SF"));
   const auto& met            = tr->getVar<float>(METLabel); 
   const auto& metphi         = tr->getVar<float>(METPhiLabel); 
   const auto& event          = tr->getVar<unsigned long long>("event");
@@ -2023,6 +2024,8 @@ bool BaselineVessel::CalcBottomVars()
   float mtb = INFINITY;
   float ptb = 0.0;
   int nBottoms = 0;
+  int nSoftBottoms = 0;
+  float SoftBottomTotalSF = 1.0;
   int i = 0;
   
   std::vector<std::pair<TLorentzVector, unsigned>> sorted_jets;
@@ -2079,11 +2082,25 @@ bool BaselineVessel::CalcBottomVars()
 
   // set mtb to 0 if mtb was not changed
   if (mtb == INFINITY) mtb = 0;
+
+  // count number of soft bottoms
+  i = 0;
+  for (const auto& sb_stop0l : SB_Stop0l)
+  {
+    if (sb_stop0l)
+    {
+      SoftBottomTotalSF *= SB_SF[i];
+      ++nSoftBottoms;
+    }
+    ++i;
+  }
  
   // register variables
-  tr->registerDerivedVar("mtb"+firstSpec, mtb);
-  tr->registerDerivedVar("ptb"+firstSpec, ptb);
-  tr->registerDerivedVar("nBottoms"+firstSpec, nBottoms);
+  tr->registerDerivedVar("mtb"+firstSpec,               mtb);
+  tr->registerDerivedVar("ptb"+firstSpec,               ptb);
+  tr->registerDerivedVar("nBottoms"+firstSpec,          nBottoms);
+  tr->registerDerivedVar("nSoftBottoms"+firstSpec,      nSoftBottoms);
+  tr->registerDerivedVar("SoftBottomTotalSF"+firstSpec, SoftBottomTotalSF);
 }
 
 
