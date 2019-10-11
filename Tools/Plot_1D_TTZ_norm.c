@@ -7,21 +7,18 @@ int Plot_1D_TTZ_norm()
 	double lumi = 36; //2016
 	//lumi = 42; //2017
 	//lumi = 59; //2018
-	TString year = "_2018";
+	TString year = "_2016";
+    const char* outputfile = "output_2016_norm.root";
 	bool plot_log = false;
 	bool plot_sig_pad = true;
 	bool plot_BG = true;
-    bool PostHEM = true;
+    bool PostHEM = false;
 	bool use_low_stat_sig = false;
 	//use_low_stat_sig = true;
 	bool use_original_title = false;
 
     if(year == "_2016") lumi = 36;
-    if(year == "_2017")
-    {
-        lumi = 42;
-        std::cout << "Year is 2017. Skipping GluGluHToZZTo4L, tWll, WWZ." << std::endl;
-    }
+    if(year == "_2017") lumi = 42;
     if(year == "_2018")
     {
         if (PostHEM) lumi = 38;
@@ -51,6 +48,7 @@ int Plot_1D_TTZ_norm()
     bool plot_lep2pT = false;
     bool plot_lep3pT = false;
     bool plot_norm = false;
+    bool plot_norm_eta_eff = false;
     bool plot_norm_notrigwt = true;
     bool plot_numZ_noweights = false;
     bool plot_norm_pt_eff = false;
@@ -362,6 +360,20 @@ int Plot_1D_TTZ_norm()
             ymax = 1000;
         }
     }
+    if(plot_norm_eta_eff)
+    {
+        title = "Normalization using eta-based efficiency";
+        var = "h_norm_eta_eff";
+        folder = "";
+        rebin = 1;
+        ymin = 0;
+        ymax = 100;
+        if (plot_log)
+        {
+            ymin = 1;
+            ymax = 1000;
+        }
+    }
     if(plot_norm_trimmed)
     {
         title = "Normalization without (88,90] GeV mass range";
@@ -502,6 +514,10 @@ int Plot_1D_TTZ_norm()
 	if (plot_log) gPad-> SetLogy();
 
 	THStack *hs = new THStack();
+    TH1D *h_TTZ = NULL;
+    TH1D *h_other = NULL;
+    TH1D *h_Data = NULL;
+    TH1D *h_SF = NULL;
 
 
     if (plot_BG)
@@ -538,6 +554,7 @@ int Plot_1D_TTZ_norm()
                 std::cout << "scaled bin 2 error " << h1->GetBinError(2) << std::endl;
 
                 pro = (TH1D*)h1->Clone("ttztollnunu");
+                h_TTZ = (TH1D*)h1->Clone("TTZ");
         }
 
 
@@ -591,13 +608,13 @@ int Plot_1D_TTZ_norm()
 			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
-		if (year != "_2017")
+		if (true) //prev not in 2017
 		{
 			TString sp = "GluGluHToZZTo4L";
 			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
-		if (year != "_2017")
+		if (true) //prev not in 2017
 		{
 			TString sp = "ST_tWll";
 			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
@@ -623,7 +640,7 @@ int Plot_1D_TTZ_norm()
 			TString sp = "ZZTo4L";
 			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
-        if (year != "_2017")
+        if (true) //prev not in 2017
         {
             TString sp = "WWZ";
             Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
@@ -658,6 +675,8 @@ int Plot_1D_TTZ_norm()
             TString sp = "TTTT";
             Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
         }
+
+        h_other = (TH1D*)pro->Clone("other");
 
         pro->SetLineColor(kBlack);
         //pro->SetLineWidth(3);
@@ -748,6 +767,8 @@ int Plot_1D_TTZ_norm()
                 Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kOrange+1, pro, rebin);
         }
 
+        h_other->Add(pro);
+
         pro->SetLineColor(kBlack);
         //pro->SetLineWidth(3);
         //pro->Draw("bsame");
@@ -810,6 +831,8 @@ int Plot_1D_TTZ_norm()
 		std::cout << "GetEntries  = " << h1->GetEntries() << std::endl;
 		std::cout << "GetIntegral = " << h1->Integral() << std::endl;
 		std::cout << "all_events  = " << all_events << std::endl;
+
+        h_Data = (TH1D*)h1->Clone("Data");
 
 		h1->Rebin(rebin);
 		h1->SetLineColor(kBlack);
@@ -1004,6 +1027,21 @@ int Plot_1D_TTZ_norm()
 		}
 
 	}
+
+    h_SF = (TH1D*)h_Data->Clone("SF");
+    h_SF->Add(h_other,-1);
+    h_SF->Divide(h_TTZ);
+    std::cout << "Data: " << h_Data->GetBinContent(2) << std::endl;
+    std::cout << "TTZ: " << h_TTZ->GetBinContent(2) << std::endl;
+    std::cout << "Other: " << h_other->GetBinContent(2) << std::endl;
+    std::cout << "SF: " << h_SF->GetBinContent(2) << " +/- " << h_SF->GetBinError(2) << std::endl;
+
+    TFile out_file(outputfile,"RECREATE");
+    h_Data->Write();
+    h_TTZ->Write();
+    h_other->Write();
+    h_SF->Write();
+    out_file.Close();
 
 	if(use_low_stat_sig)
 	{
