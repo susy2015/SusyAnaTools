@@ -525,23 +525,17 @@ void BaselineVessel::PassBaseline()
   
   // variables for SAT_Pass_lowDM and SAT_Pass_highDM
   const auto& event                 = tr->getVar<unsigned long long>("event");
-  const auto& nMergedTops           = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
-  const auto& nWs                   = tr->getVar<int>(UseCleanedJetsVar("nWs"));
-  const auto& nResolvedTops         = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
-  const auto& nBottoms              = tr->getVar<int>(UseCleanedJetsVar("nBottoms"));
   const auto& mtb                   = tr->getVar<float>(UseCleanedJetsVar("mtb"));
   const auto& ptb                   = tr->getVar<float>(UseCleanedJetsVar("ptb"));
   const auto& ISRJetPt              = tr->getVar<float>(UseCleanedJetsVar("ISRJetPt"));
   const auto& ISRJetIdx             = tr->getVar<int>(UseCleanedJetsVar("ISRJetIdx"));
-  const auto& MergedTopsTLV         = tr->getVec<TLorentzVector>(UseCleanedJetsVar("MergedTopsTLV"));
-  const auto& MergedTops_disc       = tr->getVec<double>(UseCleanedJetsVar("MergedTops_disc"));
-  const auto& MergedTops_JetsMap    = tr->getMap<int, std::vector<TLorentzVector>>(UseCleanedJetsVar("MergedTops_JetsMap"));
-  const auto& WTLV                  = tr->getVec<TLorentzVector>(UseCleanedJetsVar("WTLV"));
-  const auto& W_disc                = tr->getVec<double>(UseCleanedJetsVar("W_disc"));
-  const auto& W_JetsMap             = tr->getMap<int, std::vector<TLorentzVector>>(UseCleanedJetsVar("W_JetsMap"));
-  const auto& ResolvedTopsTLV       = tr->getVec<TLorentzVector>(UseCleanedJetsVar("ResolvedTopsTLV"));
-  const auto& ResolvedTops_disc     = tr->getVec<double>(UseCleanedJetsVar("ResolvedTops_disc"));
-  const auto& ResolvedTops_JetsMap  = tr->getMap<int, std::vector<TLorentzVector>>(UseCleanedJetsVar("ResolvedTops_JetsMap"));
+  const auto& nBottoms              = tr->getVar<int>(UseCleanedJetsVar("nBottoms"));
+  const auto& nMergedTops           = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
+  const auto& nWs                   = tr->getVar<int>(UseCleanedJetsVar("nWs"));
+  const auto& nResolvedTops         = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
+  const auto& MergedTopTotalSF      = tr->getVar<float>(UseCleanedJetsVar("MergedTopTotalSF"));
+  const auto& WTotalSF              = tr->getVar<float>(UseCleanedJetsVar("WTotalSF"));
+  const auto& ResolvedTopTotalSF    = tr->getVar<float>(UseCleanedJetsVar("ResolvedTopTotalSF"));
   const auto* ttr                   = tr->getVar<TopTaggerResults*>("ttr");
   // variables from post-processing
   const auto& ResolvedTopCandidateTLV               = tr->getVec<TLorentzVector>("ResolvedTopCandidateTLV");
@@ -867,10 +861,13 @@ void BaselineVessel::PassBaseline()
   //if (SAT_Pass_lowDM != Pass_lowDM && firstSpec.empty())
   //if (event == 1401471244)
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
+  int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
   //if (topDifference && firstSpec.empty())
+  //if (totalTopsWs && firstSpec.empty())
   if (verbose)
   {
-    printf("WARNING: Difference in number of tops and/or Ws found!\n");
+    //printf("WARNING: Difference in number of tops and/or Ws found!\n");
+    printf("-----------------------------------------------------------------------------------------\n");
     printf("firstSpec: %s; CMS event: %d ntuple event: %d\n", firstSpec.c_str(), event, tr->getEvtNum());
     printf("Pass_lowDM = %d and SAT_Pass_lowDM = %d\n", Pass_lowDM, SAT_Pass_lowDM);
     printf("\thui_Pass_LeptonVeto   = %d and caleb_SAT_Pass_LeptonVeto    = %d\n", Pass_LeptonVeto, SAT_Pass_LeptonVeto);
@@ -886,6 +883,10 @@ void BaselineVessel::PassBaseline()
     printf("\thui_Stop0l_nTop       = %d and caleb_nMergedTops            = %d\n", Stop0l_nTop, nMergedTops);
     printf("\thui_Stop0l_nW         = %d and caleb_nWs                    = %d\n", Stop0l_nW, nWs);
     printf("\thui_Stop0l_nResolved  = %d and caleb_nResolvedTops          = %d\n", Stop0l_nResolved, nResolvedTops);
+    printf("\tcaleb_MergedTopTotalSF    = %f\n", MergedTopTotalSF);
+    printf("\tcaleb_WTotalSF            = %f\n", WTotalSF);
+    printf("\tcaleb_ResolvedTopTotalSF  = %f\n", ResolvedTopTotalSF);
+    
     printf("------------- hui tops -------------\n");
     for (int i = 0; i < ResolvedTopCandidateTLV.size(); ++i)
     {
@@ -905,42 +906,6 @@ void BaselineVessel::PassBaseline()
         }
         
     }
-
-
-//    for (int i = 0; i < MergedTopsTLV.size(); ++i)
-//    {
-//        const auto& jets_ = MergedTops_JetsMap.at(i);
-//        printf("\tMergedTop %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, MergedTopsTLV[i].Pt(), MergedTopsTLV[i].Eta(), MergedTopsTLV[i].Phi(), MergedTopsTLV[i].M(), MergedTops_disc[i]);
-//        int j = 0;
-//        for (const auto& jet : jets_)
-//        {
-//            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
-//            ++j;
-//        }
-//    }
-//    for (int i = 0; i < WTLV.size(); ++i)
-//    {
-//        const auto& jets_ = W_JetsMap.at(i);
-//        printf("\tW %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, WTLV[i].Pt(), WTLV[i].Eta(), WTLV[i].Phi(), WTLV[i].M(), W_disc[i]);
-//        int j = 0;
-//        for (const auto& jet : jets_)
-//        {
-//            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
-//            ++j;
-//        }
-//    }
-//    for (int i = 0; i < ResolvedTopsTLV.size(); ++i)
-//    {
-//        const auto& jets_ = ResolvedTops_JetsMap.at(i);
-//        printf("\tResolvedTop %d: (pt=%f, eta=%f, phi=%f, mass=%f), disc=%f\n", i, ResolvedTopsTLV[i].Pt(), ResolvedTopsTLV[i].Eta(), ResolvedTopsTLV[i].Phi(), ResolvedTopsTLV[i].M(), ResolvedTops_disc[i]);
-//        int j = 0;
-//        for (const auto& jet : jets_)
-//        {
-//            printf("\t\tjet %d: (pt=%f, eta=%f, phi=%f, mass=%f)\n", i, jet.Pt(), jet.Eta(), jet.Phi(), jet.M());
-//            ++j;
-//        }
-//    }
-
     
     if (verbose)
     {

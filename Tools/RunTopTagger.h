@@ -220,7 +220,6 @@ private:
         bool printTops = false;
 
         if (printTops) std::cout << "----------------------------------------------------------------------" << std::endl;
-        //unsigned int topidx = 0;
         unsigned int MergedTopIdx   = 0;
         unsigned int WIdx           = 0;
         unsigned int ResolvedTopIdx = 0;
@@ -271,17 +270,12 @@ private:
                 ++ResolvedTopIdx;
             }
 
-            //++topidx;
         }
 
-        // number of tops
-        //use post-processed selections to calcualte number of merged tops and Ws 
-        //nMergedTops     = MergedTopsTLV->size();
-        //nWs             = WTLV->size();
+        // number of resolved tops
         nResolvedTops   = ResolvedTopsTLV->size();
         
         //print the number of tops found in the event 
-        //if (tops.size() > 1)
         if (printTops)
         {
             printf("tops.size() =  %ld ",      tops.size());
