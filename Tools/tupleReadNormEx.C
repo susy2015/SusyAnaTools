@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
     bool multiMuTriggEff = false;
     bool leadingMuPt = true;
     bool norm_cuts = true;
-    bool loose_cuts = true;
+    bool loose_cuts = false;
     bool dryrun = false;
     
 
@@ -128,12 +128,12 @@ int main(int argc, char* argv[])
     //BaselineVessel blv(tr,"","fastsim");
     GetVectors getVectors;
     plotterFunctions::BasicLepton basicLepton;
-    plotterFunctions::Gamma gamma;
+    plotterFunctions::Gamma gamma(era);
     CleanedJets cleanedJets;
     RunTopTagger runTopTagger;
     RunTopTagger runTopTagger_drLeptonCleaned("TopTagger.cfg","_drLeptonCleaned",true,false);
-    BaselineVessel blv(tr,"");
-    BaselineVessel blv_drLeptonCleaned(tr, "_drLeptonCleaned");
+    BaselineVessel blv(tr,era,"");
+    BaselineVessel blv_drLeptonCleaned(tr, era, "_drLeptonCleaned");
     plotterFunctions::LepInfo lepInfo(era);
     
     tr.registerFunction(getVectors);
@@ -162,6 +162,12 @@ int main(int argc, char* argv[])
     auto *h_lep1pT = new TH1F("h_lep1pT","pT of lepton 1",60,0,600);
     auto *h_lep2pT = new TH1F("h_lep2pT","pT of lepton 2",60,0,600);
     auto *h_lep3pT = new TH1F("h_lep3pT","pT of lepton 3",60,0,600);
+    auto *h_3mu_lep1pT = new TH1F("h_3mu_lep1pT","pT of lepton 1 in 3 muon section",60,0,600);
+    auto *h_3mu_lep2pT = new TH1F("h_3mu_lep2pT","pT of lepton 2 in 3 muon section",60,0,600);
+    auto *h_3mu_lep3pT = new TH1F("h_3mu_lep3pT","pT of lepton 3 in 3 muon section",60,0,600);
+    auto *h_3mu_lep1eta = new TH1F("h_3mu_lep1eta","eta of lepton 1 in 3 muon section",60,-3,3);
+    auto *h_3mu_lep2eta = new TH1F("h_3mu_lep2eta","eta of lepton 2 in 3 muon section",60,-3,3);
+    auto *h_3mu_lep3eta = new TH1F("h_3mu_lep3eta","eta of lepton 3 in 3 muon section",60,-3,3);
     auto *h_num_mu = new TH1F("h_num_mu","Number of muons",3,1,4);
     auto *h_num_mu_notrigwt = new TH1F("h_num_mu_notrigwt","Number of muons: no trigger weights",3,1,4);
     auto *h_num_mu_trimmed = new TH1F("h_num_mu_trimmed","Number of muons (trimmed bins)",3,1,4);
@@ -191,8 +197,17 @@ int main(int argc, char* argv[])
 
         if(max_events != -1 && tr.getEvtNum() > max_events) break;
 
+        //Count whether event is positive or negative (MC)
+        float Stop0l_evtWeight = 1.0;
+        float sign = 1.0;
+        if(!Data)
+        {
+            Stop0l_evtWeight = tr.getVar<float>("Stop0l_evtWeight");
+            if(Stop0l_evtWeight < 0) sign = -1.0;
+        }
+
         //Get number of events
-        eff_h->Fill(0);
+        eff_h->Fill(0.,sign);
         cutflow_h->Fill(0);
         cutflow_h->GetXaxis()->SetBinLabel(1,"Total");
         cutflow_h->GetXaxis()->SetBinLabel(2,"Single Muon");
@@ -207,8 +222,8 @@ int main(int argc, char* argv[])
         //eta[-3, -1.4], phi[-1.57, -0.87], pt > 20
         if(PostHEM && (era == "2018"))
         {
-            const auto& SAT_Pass_HEMVeto30_drLeptonCleaned = tr.getVar<bool>("SAT_Pass_HEMVeto30_drLeptonCleaned");
-            if(!SAT_Pass_HEMVeto30_drLeptonCleaned) continue;
+            const auto& SAT_Pass_HEMVeto_drLeptonCleaned = tr.getVar<bool>("SAT_Pass_HEMVeto_drLeptonCleaned");
+            if(!SAT_Pass_HEMVeto_drLeptonCleaned) continue;
         }
 
         //Event Filter
@@ -425,7 +440,7 @@ int main(int argc, char* argv[])
         if(!passZMassPeak) continue;
         cutflow_h->Fill(7);
         //cutflow_h->GetXaxis()->SetBinLabel(8,"Z Mass Peak");
-        eff_h->Fill(1);
+        eff_h->Fill(1.,sign);
 
         //Find the weights
         float tot_lepSF = 1.0;
@@ -445,6 +460,9 @@ int main(int argc, char* argv[])
             {
                 tot_lepSF *= cutElecSF[i];
             }
+
+
+            tot_lepSF *= sign; //everything using a weight uses at least tot_lepSF
 
             //TODO: Trigger efficiencies for dilepton triggers
             //Looks like dimuon trigger efficiency is ~92.5% across all pT above 10. Loose cuts are 25,20,20, so that falls well within that bar.
@@ -467,6 +485,12 @@ int main(int argc, char* argv[])
         {
             h_lep1pT->Fill(cutMuVec[bestRecoMuZindices[0]].Pt(), tot_weight);
             h_lep2pT->Fill(cutMuVec[bestRecoMuZindices[1]].Pt(), tot_weight);
+            h_3mu_lep1pT->Fill(cutMuVec[0].Pt(), tot_weight);
+            h_3mu_lep2pT->Fill(cutMuVec[1].Pt(), tot_weight);
+            h_3mu_lep3pT->Fill(cutMuVec[2].Pt(), tot_weight);
+            h_3mu_lep1eta->Fill(cutMuVec[0].Eta(), tot_weight);
+            h_3mu_lep2eta->Fill(cutMuVec[1].Eta(), tot_weight);
+            h_3mu_lep3eta->Fill(cutMuVec[2].Eta(), tot_weight);
             if((bestRecoMuZindices[0] == 0 || bestRecoMuZindices[1] == 0) && (bestRecoMuZindices[0] == 1 || bestRecoMuZindices[1] == 1))
             {
                 h_lep3pT->Fill(cutMuVec[2].Pt(), tot_weight);
@@ -571,6 +595,12 @@ int main(int argc, char* argv[])
     h_lep1pT->Write();
     h_lep2pT->Write();
     h_lep3pT->Write();
+    h_3mu_lep1pT->Write();
+    h_3mu_lep2pT->Write();
+    h_3mu_lep3pT->Write();
+    h_3mu_lep1eta->Write();
+    h_3mu_lep2eta->Write();
+    h_3mu_lep3eta->Write();
     h_num_mu->Write();
     h_num_mu_notrigwt->Write();
     h_num_mu_trimmed->Write();
