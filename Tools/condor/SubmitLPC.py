@@ -12,42 +12,47 @@ import getpass
 import argparse
 from collections import defaultdict
 
-DelExe    = '../tupleReadNormEx'
+#DelExe    = '../tupleReadNormEx'
 #DelExe    = '../tupleReadElec'
+DelExe    = '../SB_reader'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
-ShortProjectName = 'TTZ_v3_loose'
+ShortProjectName = 'SB'
 argument = "%s.$(Process).list %s_$(Process).root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
 defaultLperFile = 5
 run_everything = False
 if run_everything: defaultLperFile = 100
-
-#Ignored if --era argument used in submission.
-#year = "2016"
+year = "2016"
 #year = "2017"
-year = "2018"
+#year = "2018"
 #if args.era != "":
 #    year = args.era
 
 process_dict = {
+##Rare would include TTZToQQ, Diboson, Triboson, Higgs. Also include DY?
+    "TTZToLLNuNu" : ["TTZToLLNuNu"],
 #    "Normalization" : ["TTZToLLNuNu","ttHToNonbb","VHToNonbb","GluGluHToZZTo4L","ST_tWll","ST_tZq_ll","TTWJetsToLNu","WZTo3LNu","ZZTo4L","WWZ","WZZ","ZZZ","WZG","WWG","WWW","TTTT","TTbarDiLep","DYJetsToLL_HT_70to100","DYJetsToLL_HT_100to200","DYJetsToLL_HT_200to400","DYJetsToLL_HT_400to600","DYJetsToLL_HT_600to800","DYJetsToLL_HT_800to1200","DYJetsToLL_HT_1200to2500","DYJetsToLL_HT_2500toInf"],
 #	"TTbar" : ["TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"],
 #	"WJets" : ["WJetsToLNu_HT_70to100", "WJetsToLNu_HT_100to200", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_2500toInf"],
 #	"ZJets" : ["ZJetsToNuNu_HT_100to200", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_600to800", "ZJetsToNuNu_HT_800to1200", "ZJetsToNuNu_HT_1200to2500", "ZJetsToNuNu_HT_2500toInf"],
 #	"QCD" : ["QCD_HT_200to300", "QCD_HT_300to500", "QCD_HT_500to700", "QCD_HT_700to1000", "QCD_HT_1000to1500", "QCD_HT_1500to2000", "QCD_HT_2000toInf"],
 #	"TopAssoc" : ["ST_tW_top_incl", "ST_tW_antitop_incl", "ST_s_lep", "ST_t_top", "ST_t_antitop", "TTZToLLNuNu", "TTZToQQ"],
+#	"TopAssoc" : ["ST_tW_top_incl", "ST_tW_antitop_incl", "ST_s_lep", "ST_t_top", "ST_t_antitop", "TTZToQQ"],
 #	"TopAssoc_ext" : ["TTWJetsToLNu","TTWJetsToQQ","TTTT","TTGJets"],
+#   "TTZToQQ" : ["TTZToQQ"],
 #	"Diboson" : ["ZZTo2Q2Nu", "ZZTo2L2Nu", "WZ", "WWTo2L2Nu", "WWToLNuQQ"],
 #	"Diboson_ext" : ["WWTo4Q","WZTo1L1Nu2Q","WZTo1L3Nu","WZTo3LNu","ZZTo2L2Q","ZZTo4Q","ZZTo4L"],
+#	"Triboson" : ["WWW","WWZ","WZZ","ZZZ","WZG","WWG"],
+#	"Higgs" : ["ttHTobb","ttHToNonbb","VHToNonbb"],
 #	"DY" : ["DYJetsToLL_HT_70to100","DYJetsToLL_HT_100to200","DYJetsToLL_HT_200to400","DYJetsToLL_HT_400to600","DYJetsToLL_HT_600to800","DYJetsToLL_HT_800to1200","DYJetsToLL_HT_1200to2500","DYJetsToLL_HT_2500toInf"],
 #	"GJets" : ["GJets_HT_100To200","GJets_HT_200To400","GJets_HT_400To600","GJets_HT_600ToInf"],
-#	"Higgs" : ["ttHTobb","ttHToNonbb","VHToNonbb"],
-#	"Triboson" : ["WWW","WWZ","WZZ","ZZZ","WZG","WWG"],
 #	"Signal_2017_fullsim" : ["SMS_T1tttt_mGluino2000_mLSP100_fullsim","SMS_T1tttt_mGluino1200_mLSP800_fullsim","SMS_T2tt_mStop_1200_mLSP_100_fullsim","SMS_T2tt_mStop_650_mLSP_350_fullsim","SMS_T2tt_mStop_1200_mLSP_100_TuneCP5_fullsim","SMS_T2tt_mStop_850_mLSP_100_TuneCP5_fullsim","SMS_T2tt_mStop_650_mLSP_350_TuneCP5_fullsim","SMS_T1bbbb_mGluino1000_mLSP900_fullsim","SMS_T1bbbb_mGluino1500_mLSP100_fullsim",],
 #	"SingleMuon_2016" : ["Data_SingleMuon_2016_PeriodB", "Data_SingleMuon_2016_PeriodC", "Data_SingleMuon_2016_PeriodD", "Data_SingleMuon_2016_PeriodE", "Data_SingleMuon_2016_PeriodF", "Data_SingleMuon_2016_PeriodG", "Data_SingleMuon_2016_PeriodH"],
-#	"SingleMuon_2017" : ["Data_SingleMuon_2017_PeriodB", "Data_SingleMuon_2017_PeriodC", "Data_SingleMuon_2017_PeriodD", "Data_SingleMuon_2017_PeriodE", "Data_SingleMuon_2017_PeriodF"],
-	"SingleMuon_2018_PreHEM"  : ["Data_SingleMuon_2018_PeriodA", "Data_SingleMuon_2018_PeriodB_PreHEM"],
+#	"MET_2016" : ["Data_MET_2016_PeriodB", "Data_MET_2016_PeriodC", "Data_MET_2016_PeriodD", "Data_MET_2016_PeriodE", "Data_MET_2016_PeriodF", "Data_MET_2016_PeriodG", "Data_MET_2016_PeriodH"],
+#	"SingleMuon_2017_BtoE" : ["Data_SingleMuon_2017_PeriodB", "Data_SingleMuon_2017_PeriodC", "Data_SingleMuon_2017_PeriodD", "Data_SingleMuon_2017_PeriodE"],
+#   "SingleMuon_2017_F" : ["Data_SingleMuon_2017_PeriodF"],
+#	"SingleMuon_2018_PreHEM"  : ["Data_SingleMuon_2018_PeriodA", "Data_SingleMuon_2018_PeriodB_PreHEM"],
 #	"SingleMuon_2018_AB"  : ["Data_SingleMuon_2018_PeriodA", "Data_SingleMuon_2018_PeriodB"],
 #	"SingleMuon_2018_PostHEM" : ["Data_SingleMuon_2018_PeriodB_PostHEM", "Data_SingleMuon_2018_PeriodC", "Data_SingleMuon_2018_PeriodD"],
 #    "SingleElectron_2018_PreHEM" : ["Data_EGamma_2018_PeriodA","Data_EGamma_2018_PeriodB_PreHEM"],
@@ -55,6 +60,9 @@ process_dict = {
     }
 Data = False
 PostHEM = False
+loose_cuts = False
+isTTZ = False
+PeriodF = False
 
 process_list = []
 for sub_list in process_dict.values():
@@ -64,18 +72,34 @@ for sub_list in process_dict.values():
             Data = True
         else:
             process_list.append(item + "_" + year)
+        if "2017_PeriodF" in item:
+            PeriodF = True
         if "PostHEM" in item:
             PostHEM = True
+        if "TTZToLLNuNu" in item:
+            isTTZ = True
 
+ProjectName = ShortProjectName + "_" + year
+LongProjectName = ShortProjectName + "_" + year
 argument = argument + " --era " + year
 if Data:
-    ProjectName = ShortProjectName + "_" + year + "_norm_Data"
+    LongProjectName = LongProjectName + "_Data"
     argument += " --isData"
-else:
-    ProjectName = ShortProjectName + "_" + year + "_norm"
 if PostHEM:
     ProjectName = ProjectName + "_PostHEM"
+    LongProjectName = LongProjectName + "_PostHEM"
     argument += " --PostHEM"
+if loose_cuts and (DelExe != '../SB_reader'):
+    argument += " --loose_cuts"
+
+if DelExe == '../SB_reader':
+    if isTTZ:
+        LongProjectName = LongProjectName = "_TTZ"
+        argument += " --isTTZ"
+    if PeriodF:
+        ProjectName = ProjectName + "_PeriodF"
+        LongProjectName = LongProjectName + "_PeriodF"
+        argument += " --PeriodF"
 
 #print process_list
 
@@ -203,7 +227,7 @@ def my_process(args):
     tarballnames = []
 
     Tarfiles.append(os.path.abspath(DelExe))
-    tarballname ="%s/%s.tar.gz" % (tempdir, ProjectName)
+    tarballname ="%s/%s.tar.gz" % (tempdir, LongProjectName)
     with tarfile.open(tarballname, "w:gz", dereference=True) as tar:
         [tar.add(f, arcname=f.split('/')[-1]) for f in Tarfiles]
         tar.close()

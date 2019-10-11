@@ -51,6 +51,7 @@ if ($? == 0) then
   rm 2018_trigger_eff.root
   rm PileupHistograms_Nov17.root
   rm test.root
+  rm TTZ_VB_2016.root
   foreach tarfile (`ls *gz FileList/*gz`)
     tar -tf $tarfile  | xargs rm -r
   end
