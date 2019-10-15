@@ -18,7 +18,6 @@ using json = nlohmann::json;
 
 namespace SusyUtility
 {
-    // be careful with repeated funtion name: split() is already defined in "../../json/single_include/nlohmann/json.hpp"
     void splitString(const std::string &s, const char& delim, std::vector<std::string>& result) {
         std::stringstream ss;
         ss.str(s);
