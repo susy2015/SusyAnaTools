@@ -131,11 +131,23 @@ namespace SusyUtility
         std::ifstream i(fileName);
         json j;
         i >> j;
-        // print json file
-        std::cout << title << std::endl;
+
+        // invert map
+        std::map<int, std::string> invMap;
+
         for (const auto& element : j[key].items())
         {
-            std::cout << element.key() << " : " << element.value() << std::endl;
+            std::string k = element.key();
+            int v = std::stoi(std::string(element.value())); 
+            invMap[v] = k;
+        }
+        
+        // print json file
+        int nBins = invMap.size();
+        std::cout << title << " : " << nBins << " bins" << std::endl;
+        for (int i = 0; i < nBins; ++i)
+        {
+            std::cout << i << " : " << invMap[i] << std::endl;
         }
     }
 }
