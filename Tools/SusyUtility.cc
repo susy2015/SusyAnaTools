@@ -4,6 +4,7 @@
 
 // utility functions
 #include "SusyAnaTools/Tools/SusyUtility.h"
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -11,9 +12,14 @@
 #include <iterator>
 #include <regex>
 
+// Repo for json.hpp: https://github.com/nlohmann/json/tree/master
+#include "../../json/single_include/nlohmann/json.hpp"
+using json = nlohmann::json;
+
 namespace SusyUtility
 {
-    void split(const std::string &s, const char& delim, std::vector<std::string>& result) {
+    // be careful with repeated funtion name: split() is already defined in "../../json/single_include/nlohmann/json.hpp"
+    void splitString(const std::string &s, const char& delim, std::vector<std::string>& result) {
         std::stringstream ss;
         ss.str(s);
         std::string item;
@@ -52,14 +58,14 @@ namespace SusyUtility
     
     // return vector of strings given names separated by deliminator, e.g. "electron;muon" ---> {"electron", "muon"} 
     std::vector<std::string> getVecFromString(const std::string &s, const char& delim) {
-        std::vector<std::string> splitString;
+        std::vector<std::string> mySplitString;
         if (!delim)
         {
             std::cout << "ERROR in getVecFromString(): please provide string (s) and char (delim)" << std::endl;
-            return splitString;
+            return mySplitString;
         }
-        split(s, delim, splitString);
-        return splitString;
+        splitString(s, delim, mySplitString);
+        return mySplitString;
     }
     
     // get cut levels
@@ -118,4 +124,21 @@ namespace SusyUtility
 
         return output;
     }
+    
+    void printJson(const std::string& fileName, const std::string& key, const std::string& title)
+    {
+        // read json file
+        std::ifstream i(fileName);
+        json j;
+        i >> j;
+        // print json file
+        std::cout << title << std::endl;
+        for (const auto& element : j[key].items())
+        {
+            std::cout << element.key() << " : " << element.value() << std::endl;
+        }
+    }
 }
+
+
+
