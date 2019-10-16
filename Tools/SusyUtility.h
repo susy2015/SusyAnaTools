@@ -17,7 +17,7 @@
 
 namespace SusyUtility
 {
-    void split(const std::string &s, const char& delim, std::vector<std::string>& result);
+    void splitString(const std::string &s, const char& delim, std::vector<std::string>& result);
     
     template<typename T1, typename T2> 
     bool greaterThan(const std::pair<T1,T2>& p1, const std::pair<T1,T2>& p2)
