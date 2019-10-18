@@ -584,8 +584,8 @@ void BaselineVessel::PassBaseline()
   
   //SUS-16-049, low dm, ISR cut
   // see GetISRJetIdx() and CalcISRJetVars() for details
-  bool SAT_Pass_ISR         = (ISRJetPt >= 200);
-  bool SAT_Pass_ISR_Tight   = (ISRJetPt >= 300);
+  bool SAT_Pass_ISR_Loose   = (ISRJetPt >= 200);
+  bool SAT_Pass_ISR         = (ISRJetPt >= 300);
   bool SAT_Pass_S_MET       = (S_met >= 10);
   
   // ----------------------- // 
@@ -739,7 +739,7 @@ void BaselineVessel::PassBaseline()
                      && nMergedTops == 0
                      && nResolvedTops == 0
                      && nWs == 0
-                     && SAT_Pass_ISR_Tight
+                     && SAT_Pass_ISR
                      && SAT_Pass_S_MET
                      && SAT_Pass_MTB_LowDM
                    );      
@@ -769,13 +769,14 @@ void BaselineVessel::PassBaseline()
                          && SAT_Pass_NJets
                       );
   //baseline for SUS-16-049 low dm plus HT cut
+  //Use SAT_Pass_ISR_Loose
   bool SAT_Pass_lowDM_mid_dPhi = (
                         SAT_Pass_Baseline_no_dPhi
                      && SAT_Pass_mid_dPhiMETLowDM 
                      && nMergedTops == 0
                      && nResolvedTops == 0
                      && nWs == 0
-                     && SAT_Pass_ISR
+                     && SAT_Pass_ISR_Loose
                      && SAT_Pass_S_MET
                      && SAT_Pass_MTB_LowDM
                    );      
@@ -802,7 +803,7 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_mid_dPhiMETLowDM 
                      && nMergedTops == 0
                      && nWs == 0
-                     && SAT_Pass_ISR
+                     && SAT_Pass_ISR_Loose
                      && SAT_Pass_S_MET
                      && SAT_Pass_MTB_LowDM
                    );      
@@ -828,7 +829,7 @@ void BaselineVessel::PassBaseline()
                      && SAT_Pass_mid_dPhiMETLowDM 
                      && nMergedTops == 0
                      && nWs == 0
-                     && SAT_Pass_ISR
+                     && SAT_Pass_ISR_Loose
                      && SAT_Pass_S_MET
                      && SAT_Pass_MTB_LowDM
                    );      
