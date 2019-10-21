@@ -9,7 +9,6 @@
 import argparse
 import re
 from shutil import copyfile
-
 from samples import SampleSet
 from nEvts import getNEvts
 

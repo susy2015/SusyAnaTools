@@ -3,7 +3,9 @@
 # run batchList.py on multiple directories for a config files
 
 from samples import SampleSet
+import argparse
 import optparse 
+import subprocess
 import os
 import sys
 import re
@@ -23,11 +25,13 @@ def getDirs(sampleSetsFile, prefix):
     return dirs
 
 if __name__ == "__main__":
-
-    parser = optparse.OptionParser("usage: %prog [options]\n")
-    parser.add_option ('-s',      dest='sampleSetsFile',       type='string',    default = "",      help="Sample sets config file")
-    options, args = parser.parse_args()
-    sampleSetsFile = options.sampleSetsFile
+    # options
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--sampleSetsFile", "-s",   default = "",                           help="Sample sets config file")
+    parser.add_argument("--run",            "-r",   default = False, action = "store_true", help="run batchList.py on all directories")
+    options         = parser.parse_args()
+    sampleSetsFile  = options.sampleSetsFile
+    run             = options.run 
 
     if not os.path.exists(sampleSetsFile):
         print "The sample sets config file \"{0}\" does not exist.".format(sampleSetsFile)
@@ -35,6 +39,12 @@ if __name__ == "__main__":
 
     dirs = getDirs(sampleSetsFile, "/eos/uscms")
     for d in dirs:
-        print d
+        if run:
+            command = "python batchList.py -d {0} -l -c".format(d)
+            print command
+            subprocess.call(command, shell=True)
+        else:
+            print d
+
 
     
