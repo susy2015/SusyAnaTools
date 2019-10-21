@@ -59,7 +59,7 @@ def makeExeAndFriendsTarrball(filestoTransfer, fname):
 
 submitFile = submitFileTT
 fileParts = [submitFile]
-sc = SampleSet(sampleSetsFile)
+ss = SampleSet(sampleSetsFile)
 
 # make directory for condor submission
 now = datetime.datetime.now()
@@ -76,7 +76,7 @@ if True:
 exeName = "nEvts"
 makeExeAndFriendsTarrball(filestoTransferTT, "TT")
 
-for ds in sc.sampleSetList():
+for ds in ss.sampleSetList():
     dsn = ds[0]
 
     fileParts.append("Arguments = %s $ENV(CMSSW_VERSION) %s\n"%(dsn, sampleSetsFile))
