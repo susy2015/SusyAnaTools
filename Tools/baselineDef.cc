@@ -559,7 +559,7 @@ void BaselineVessel::PassBaseline()
   bool Pass_EventFilter                             = tr->getVar<bool>("Pass_EventFilter");
   bool Pass_MET                                     = tr->getVar<bool>("Pass_MET");
   bool Pass_HT                                      = tr->getVar<bool>("Pass_HT");
-  bool Pass_NJets                                   = tr->getVar<bool>("Pass_NJets20");
+  bool Pass_NJets                                   = tr->getVar<bool>("Pass_NJets30");
   bool Pass_dPhiMETLowDM                            = tr->getVar<bool>("Pass_dPhiMETLowDM");
   bool Pass_LeptonVeto                              = tr->getVar<bool>("Pass_LeptonVeto");
   
