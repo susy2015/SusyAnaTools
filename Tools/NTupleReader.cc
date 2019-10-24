@@ -155,7 +155,7 @@ int NTupleReader::getNEntries() const
     {
         e.print();
         if(reThrow_) throw;
-        else return -1;
+        return -1;
     }
 }
 
@@ -506,7 +506,7 @@ void* NTupleReader::getVarPtr(const std::string& var) const
     {
         e.print();
         if(reThrow_) throw;
-        else return nullptr;
+        return nullptr;
     }
 }
 
@@ -532,7 +532,7 @@ template<> const void* NTupleReader::getVecPtr<void>(const std::string& var) con
     {
         e.print();
         if(reThrow_) throw;
-        else return nullptr;
+        return nullptr;
     }
 }
 
