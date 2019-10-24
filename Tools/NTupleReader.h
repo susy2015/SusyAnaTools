@@ -664,7 +664,7 @@ private:
         else if(convertHackActive_ && intuple) //else check if it is a vector<float> or vector<double>
         {
             //hack to get vector<double> as vector<float>, requires DuplicateFDVector() to be run
-            std::string typen;
+            char typen = '\0';
             if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<float>) && tuple_iter->second.type == typeid(std::vector<double>))
                 typen='f';
             if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<double>) && tuple_iter->second.type == typeid(std::vector<float>))
