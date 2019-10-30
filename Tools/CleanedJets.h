@@ -28,6 +28,8 @@ private:
     std::vector<std::string> AK4JetVariables_;
     // AK8 jet variables
     std::vector<std::string> AK8JetVariables_;
+    // soft bottom quark variables
+    std::vector<std::string> SoftBottomVariables_;
     
     NTupleReader* tr_;
     void setReader(NTupleReader& tr) { tr_ = &tr; }
@@ -38,10 +40,12 @@ private:
         registerJetMatchesObject();
 
         //                  jetCollectionName, jetCollectionVariables, prefix, suffix, doLeptonCleaning, doPhotonCleaning, doJetCuts
-        cleanJetCollection("Jet",      AK4JetVariables_, "", "_drLeptonCleaned", true,  false, false);
-        cleanJetCollection("Jet",      AK4JetVariables_, "", "_drPhotonCleaned", false, true,  false);
-        cleanJetCollection("FatJet",   AK8JetVariables_, "", "_drLeptonCleaned", true,  false, false);
-        cleanJetCollection("FatJet",   AK8JetVariables_, "", "_drPhotonCleaned", false, true,  false);
+        cleanJetCollection("Jet",      AK4JetVariables_,     "", "_drLeptonCleaned", true,  false, false);
+        cleanJetCollection("Jet",      AK4JetVariables_,     "", "_drPhotonCleaned", false, true,  false);
+        cleanJetCollection("FatJet",   AK8JetVariables_,     "", "_drLeptonCleaned", true,  false, false);
+        cleanJetCollection("FatJet",   AK8JetVariables_,     "", "_drPhotonCleaned", false, true,  false);
+        cleanJetCollection("SB",       SoftBottomVariables_, "", "_drLeptonCleaned", true,  false, false);
+        cleanJetCollection("SB",       SoftBottomVariables_, "", "_drPhotonCleaned", false, true,  false);
     
     }
 
@@ -50,6 +54,7 @@ private:
         //TODO: use photon and leptons passing cuts and ID for jet cleaning (instead of all photons and leptons)
         const auto& Jet_TLV            = tr_->getVec<TLorentzVector>("JetTLV");
         const auto& FatJet_TLV         = tr_->getVec<TLorentzVector>("FatJetTLV");
+        const auto& SB_TLV             = tr_->getVec<TLorentzVector>("SBTLV");
         // use objects passing cuts for cleaning
         const auto& Photon_TLV         = tr_->getVec<TLorentzVector>("cutPhotonTLV");
         const auto& Electron_TLV       = tr_->getVec<TLorentzVector>("cutElecVec");
@@ -64,15 +69,21 @@ private:
         auto& FatJet_matchesPhoton     = tr_->createDerivedVec<bool>("FatJet_matchesPhoton");
         auto& FatJet_matchesElectron   = tr_->createDerivedVec<bool>("FatJet_matchesElectron");
         auto& FatJet_matchesMuon       = tr_->createDerivedVec<bool>("FatJet_matchesMuon");
+        auto& SB_matchesPhoton         = tr_->createDerivedVec<bool>("SB_matchesPhoton");
+        auto& SB_matchesElectron       = tr_->createDerivedVec<bool>("SB_matchesElectron");
+        auto& SB_matchesMuon           = tr_->createDerivedVec<bool>("SB_matchesMuon");
         
         const float DRMAX_AK4 = 0.2;
         const float DRMAX_AK8 = 0.4;
-        Jet_matchesPhoton      = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Photon_TLV,   Photon_jetIdx,      DRMAX_AK4);
-        Jet_matchesElectron    = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Electron_TLV, Electron_jetIdx,    DRMAX_AK4);
-        Jet_matchesMuon        = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,    Muon_TLV,     Muon_jetIdx,        DRMAX_AK4);
-        FatJet_matchesPhoton   = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Photon_TLV,   DRMAX_AK8);
-        FatJet_matchesElectron = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Electron_TLV, DRMAX_AK8);
-        FatJet_matchesMuon     = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV, Muon_TLV,     DRMAX_AK8);
+        Jet_matchesPhoton      = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,     Photon_TLV,    Photon_jetIdx,      DRMAX_AK4);
+        Jet_matchesElectron    = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,     Electron_TLV,  Electron_jetIdx,    DRMAX_AK4);
+        Jet_matchesMuon        = AnaFunctions::getJetMatchesObjectVec(Jet_TLV,     Muon_TLV,      Muon_jetIdx,        DRMAX_AK4);
+        FatJet_matchesPhoton   = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV,  Photon_TLV,    DRMAX_AK8);
+        FatJet_matchesElectron = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV,  Electron_TLV,  DRMAX_AK8);
+        FatJet_matchesMuon     = AnaFunctions::getJetMatchesObjectVec(FatJet_TLV,  Muon_TLV,      DRMAX_AK8);
+        SB_matchesPhoton       = AnaFunctions::getJetMatchesObjectVec(SB_TLV,      Photon_TLV,    DRMAX_AK4);
+        SB_matchesElectron     = AnaFunctions::getJetMatchesObjectVec(SB_TLV,      Electron_TLV,  DRMAX_AK4);
+        SB_matchesMuon         = AnaFunctions::getJetMatchesObjectVec(SB_TLV,      Muon_TLV,      DRMAX_AK4);
 
     }
 
@@ -239,6 +250,7 @@ public:
                              "FatJetTLV",              
                              "SubJetTLV_AK8Matched",              
                              "FatJet_Stop0l",
+                             "FatJet_SF",
                              // from Nano AOD 
                              "FatJet_area",
                              // not a vector... cannot clean
@@ -279,6 +291,28 @@ public:
                              "FatJet_tau3",
                              "FatJet_tau4",
                            };
+        // soft bottom quark variables
+        SoftBottomVariables_ = {
+                                 "SBTLV",
+                                 "SB_dlen",
+                                 "SB_dlenSig",
+                                 "SB_DdotP",
+                                 "SB_dxy",
+                                 "SB_dxySig",
+                                 "SB_JetIdx",
+                                 "SB_chi2",
+                                 "SB_eta",
+                                 "SB_mass",
+                                 "SB_ndof",
+                                 "SB_phi",
+                                 "SB_pt",
+                                 "SB_ntracks",
+                                 "SB_Stop0l",
+                                 "SB_SF",
+                                 "SB_SFerr",
+                                 "SB_fastSF",
+                                 "SB_fastSFerr",
+                               };
     }
 
     ~CleanedJets(){}

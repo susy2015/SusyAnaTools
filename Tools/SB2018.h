@@ -60,6 +60,7 @@ int SB_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum,
 //================================copy of SB_lowdm, just for name consistency=================================================
 int SBv2_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met) {return SB_lowdm(njets, nb, nSV, ISRpt, bottompt_scalar_sum, met);}
 int SBv3_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met) {return SB_lowdm(njets, nb, nSV, ISRpt, bottompt_scalar_sum, met);}
+int SBv4_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met) {return SB_lowdm(njets, nb, nSV, ISRpt, bottompt_scalar_sum, met);}
 
 //================================search bin v3 high dm=================================================
 int SBv3_highdm(float mtb, int njets, int nb, int ntop, int nw, int nres, float ht, float met)
@@ -215,6 +216,142 @@ int SBv3_highdm(float mtb, int njets, int nb, int ntop, int nw, int nres, float 
 	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==2 && ht >= 1300 && met >= 550) return 201;
 	if (mtb >= 175 && nb >=3 && ntop+nres+nw >=3 && met >= 250 && met < 450) return 202;
 	if (mtb >= 175 && nb >=3 && ntop+nres+nw >=3 && met >= 450) return 203;
+	return -1;
+}
+
+//================================search bin v4 high dm=================================================
+int SBv4_highdm(float mtb, int njets, int nb, int ntop, int nw, int nres, float ht, float met)
+{
+	if (mtb < 175 && njets >=7 && nb ==1 && nres >=1 && met >= 250 && met < 300) return 53;
+	if (mtb < 175 && njets >=7 && nb ==1 && nres >=1 && met >= 300 && met < 400) return 54;
+	if (mtb < 175 && njets >=7 && nb ==1 && nres >=1 && met >= 400 && met < 500) return 55;
+	if (mtb < 175 && njets >=7 && nb ==1 && nres >=1 && met >= 500) return 56;
+	if (mtb < 175 && njets >=7 && nb >=2 && nres >=1 && met >= 250 && met < 300) return 57;
+	if (mtb < 175 && njets >=7 && nb >=2 && nres >=1 && met >= 300 && met < 400) return 58;
+	if (mtb < 175 && njets >=7 && nb >=2 && nres >=1 && met >= 400 && met < 500) return 59;
+	if (mtb < 175 && njets >=7 && nb >=2 && nres >=1 && met >= 500) return 60;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres ==0 && ht >= 1000 && met >= 250 && met < 350) return 61;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres ==0 && ht >= 1000 && met >= 350 && met < 450) return 62;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres ==0 && ht >= 1000 && met >= 450 && met < 550) return 63;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres ==0 && ht >= 1000 && met >= 550) return 64;
+	if (mtb >= 175 && nb >=2 && ntop ==0 && nw ==0 && nres ==0 && ht >= 1000 && met >= 250 && met < 350) return 65;
+	if (mtb >= 175 && nb >=2 && ntop ==0 && nw ==0 && nres ==0 && ht >= 1000 && met >= 350 && met < 450) return 66;
+	if (mtb >= 175 && nb >=2 && ntop ==0 && nw ==0 && nres ==0 && ht >= 1000 && met >= 450 && met < 550) return 67;
+	if (mtb >= 175 && nb >=2 && ntop ==0 && nw ==0 && nres ==0 && ht >= 1000 && met >= 550) return 68;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw ==0 && nres ==0 && ht < 1000 && met >= 250 && met < 550) return 69;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw ==0 && nres ==0 && ht < 1000 && met >= 550 && met < 650) return 70;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw ==0 && nres ==0 && ht < 1000 && met >= 650) return 71;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw ==0 && nres ==0 && ht >= 1000 && ht < 1500 && met >= 250 && met < 550) return 72;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw ==0 && nres ==0 && ht >= 1000 && ht < 1500 && met >= 550 && met < 650) return 73;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw ==0 && nres ==0 && ht >= 1000 && ht < 1500 && met >= 650) return 74;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw ==0 && nres ==0 && ht >= 1500 && met >= 250 && met < 550) return 75;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw ==0 && nres ==0 && ht >= 1500 && met >= 550 && met < 650) return 76;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw ==0 && nres ==0 && ht >= 1500 && met >= 650) return 77;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw >=1 && nres ==0 && ht < 1300 && met >= 250 && met < 350) return 78;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw >=1 && nres ==0 && ht < 1300 && met >= 350 && met < 450) return 79;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw >=1 && nres ==0 && ht < 1300 && met >= 450) return 80;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw >=1 && nres ==0 && ht >= 1300 && met >= 250 && met < 350) return 81;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw >=1 && nres ==0 && ht >= 1300 && met >= 350 && met < 450) return 82;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw >=1 && nres ==0 && ht >= 1300 && met >= 450) return 83;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht < 1000 && met >= 250 && met < 350) return 84;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht < 1000 && met >= 350 && met < 450) return 85;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht < 1000 && met >= 450 && met < 550) return 86;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht < 1000 && met >= 550 && met < 650) return 87;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht < 1000 && met >= 650) return 88;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht >= 1000 && ht < 1500 && met >= 250 && met < 350) return 89;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht >= 1000 && ht < 1500 && met >= 350 && met < 450) return 90;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht >= 1000 && ht < 1500 && met >= 450 && met < 550) return 91;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht >= 1000 && ht < 1500 && met >= 550 && met < 650) return 92;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht >= 1000 && ht < 1500 && met >= 650) return 93;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht >= 1500 && met >= 250 && met < 350) return 94;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht >= 1500 && met >= 350 && met < 450) return 95;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht >= 1500 && met >= 450 && met < 550) return 96;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht >= 1500 && met >= 550 && met < 650) return 97;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw ==0 && nres >=1 && ht >= 1500 && met >= 650) return 98;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw >=1 && nres ==0 && met >= 250 && met < 550) return 99;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw >=1 && nres ==0 && met >= 550) return 100;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw ==0 && nres >=1 && met >= 250 && met < 550) return 101;
+	if (mtb >= 175 && nb ==1 && ntop >=1 && nw ==0 && nres >=1 && met >= 550) return 102;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw >=1 && nres >=1 && met >= 250 && met < 550) return 103;
+	if (mtb >= 175 && nb ==1 && ntop ==0 && nw >=1 && nres >=1 && met >= 550) return 104;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==0 && ht < 1000 && met >= 250 && met < 550) return 105;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==0 && ht < 1000 && met >= 550 && met < 650) return 106;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==0 && ht < 1000 && met >= 650) return 107;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1000 && ht < 1500 && met >= 250 && met < 550) return 108;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1000 && ht < 1500 && met >= 550 && met < 650) return 109;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1000 && ht < 1500 && met >= 650) return 110;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1500 && met >= 250 && met < 550) return 111;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1500 && met >= 550 && met < 650) return 112;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1500 && met >= 650) return 113;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==1 && nres ==0 && ht < 1300 && met >= 250 && met < 350) return 114;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==1 && nres ==0 && ht < 1300 && met >= 350 && met < 450) return 115;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==1 && nres ==0 && ht < 1300 && met >= 450) return 116;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==1 && nres ==0 && ht >= 1300 && met >= 250 && met < 350) return 117;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==1 && nres ==0 && ht >= 1300 && met >= 350 && met < 450) return 118;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==1 && nres ==0 && ht >= 1300 && met >= 450) return 119;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht < 1000 && met >= 250 && met < 350) return 120;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht < 1000 && met >= 350 && met < 450) return 121;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht < 1000 && met >= 450 && met < 550) return 122;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht < 1000 && met >= 550 && met < 650) return 123;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht < 1000 && met >= 650) return 124;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1000 && ht < 1500 && met >= 250 && met < 350) return 125;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1000 && ht < 1500 && met >= 350 && met < 450) return 126;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1000 && ht < 1500 && met >= 450 && met < 550) return 127;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1000 && ht < 1500 && met >= 550 && met < 650) return 128;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1000 && ht < 1500 && met >= 650) return 129;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1500 && met >= 250 && met < 350) return 130;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1500 && met >= 350 && met < 450) return 131;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1500 && met >= 450 && met < 550) return 132;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1500 && met >= 550 && met < 650) return 133;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1500 && met >= 650) return 134;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==1 && nres ==0 && met >= 250 && met < 550) return 135;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==1 && nres ==0 && met >= 550) return 136;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==1 && ht < 1300 && met >= 250 && met < 350) return 137;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==1 && ht < 1300 && met >= 350 && met < 450) return 138;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==1 && ht < 1300 && met >= 450) return 139;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==1 && ht >= 1300 && met >= 250 && met < 350) return 140;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==1 && ht >= 1300 && met >= 350 && met < 450) return 141;
+	if (mtb >= 175 && nb ==2 && ntop ==1 && nw ==0 && nres ==1 && ht >= 1300 && met >= 450) return 142;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==1 && nres ==1 && met >= 250 && met < 550) return 143;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==1 && nres ==1 && met >= 550) return 144;
+	if (mtb >= 175 && nb ==2 && ntop ==2 && nw ==0 && nres ==0 && met >= 250 && met < 450) return 145;
+	if (mtb >= 175 && nb ==2 && ntop ==2 && nw ==0 && nres ==0 && met >= 450) return 146;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==2 && nres ==0 && met >= 250) return 147;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==2 && ht < 1300 && met >= 250 && met < 450) return 148;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==2 && ht < 1300 && met >= 450) return 149;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==2 && ht >= 1300 && met >= 250 && met < 450) return 150;
+	if (mtb >= 175 && nb ==2 && ntop ==0 && nw ==0 && nres ==2 && ht >= 1300 && met >= 450) return 151;
+	if (mtb >= 175 && nb ==2 && ntop+nres+nw >=3 && met >= 250) return 152;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==0 && nres ==0 && ht < 1000 && met >= 250 && met < 350) return 153;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==0 && nres ==0 && ht < 1000 && met >= 350 && met < 550) return 154;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==0 && nres ==0 && ht < 1000 && met >= 550) return 155;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1000 && ht < 1500 && met >= 250 && met < 350) return 156;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1000 && ht < 1500 && met >= 350 && met < 550) return 157;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1000 && ht < 1500 && met >= 550) return 158;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1500 && met >= 250 && met < 350) return 159;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1500 && met >= 350 && met < 550) return 160;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==0 && nres ==0 && ht >= 1500 && met >= 550) return 161;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==1 && nres ==0 && met >= 250 && met < 350) return 162;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==1 && nres ==0 && met >= 350 && met < 550) return 163;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==1 && nres ==0 && met >= 550) return 164;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==1 && ht < 1000 && met >= 250 && met < 350) return 165;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==1 && ht < 1000 && met >= 350 && met < 550) return 166;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==1 && ht < 1000 && met >= 550) return 167;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1000 && ht < 1500 && met >= 250 && met < 350) return 168;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1000 && ht < 1500 && met >= 350 && met < 550) return 169;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1000 && ht < 1500 && met >= 550) return 170;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1500 && met >= 250 && met < 350) return 171;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1500 && met >= 350 && met < 550) return 172;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==1 && ht >= 1500 && met >= 550) return 173;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==1 && nres ==0 && met >= 250) return 174;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==0 && nres ==1 && met >= 250 && met < 350) return 175;
+	if (mtb >= 175 && nb >=3 && ntop ==1 && nw ==0 && nres ==1 && met >= 350) return 176;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==1 && nres ==1 && met >= 250) return 177;
+	if (mtb >= 175 && nb >=3 && ntop ==2 && nw ==0 && nres ==0 && met >= 250) return 178;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==2 && nres ==0 && met >= 250) return 179;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==2 && met >= 250 && met < 350) return 180;
+	if (mtb >= 175 && nb >=3 && ntop ==0 && nw ==0 && nres ==2 && met >= 350) return 181;
+	if (mtb >= 175 && nb >=3 && ntop+nres+nw >=3 && met >= 250) return 182;
 	return -1;
 }
 
