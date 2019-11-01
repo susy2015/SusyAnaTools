@@ -28,9 +28,11 @@ private:
     void generateGetVectors() 
     {
         // register vector<TLorentzVector>
-        registerTLV("Jet");         // AK4 jets
-        registerTLV("FatJet");      // AK8 jets 
-        registerTLV("SubJet");      // AK8 subjets
+        registerTLV("Jet");                     // AK4 jets
+        registerTLV("FatJet");                  // AK8 jets 
+        registerTLV("SubJet");                  // AK8 subjets
+        registerTLV("ResolvedTopCandidate");    // resolved tops
+        registerTLV("SB");                      // soft (low pt) bottom quarks
         
         // assign subjets to their AK8 jets
         // register vector<vector<TLorentzVector>> of subjets
