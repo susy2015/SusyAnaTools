@@ -395,24 +395,17 @@ public:
         }
     }
 
-    template<typename T> T& createDerivedVar(const std::string& name) const 
+    template<typename T, typename ...Args> T& createDerivedVar(const std::string& name, Args&&... args) const 
     {
-        T varTemp;
+        T varTemp(args...);
         registerDerivedVar(name, varTemp);
         auto* var = static_cast<T*>(getVarPtr(name));
         return (*var);
     }
 
-    template<typename T> std::vector<T>& createDerivedVec(const std::string& name) const 
+    template<typename T, typename ...Args> std::vector<T>& createDerivedVec(const std::string& name, Args&&... args) const 
     {
-        std::vector<T>* vec = new std::vector<T>();
-        registerDerivedVec(name, vec);
-        return (*vec);
-    }
-
-    template<typename T> std::vector<T>& createDerivedVec(const std::string& name, unsigned int nElem) const 
-    {
-        std::vector<T>* vec = new std::vector<T>(nElem);
+        std::vector<T>* vec = new std::vector<T>(args...);
         registerDerivedVec(name, vec);
         return (*vec);
     }
