@@ -7,18 +7,20 @@
 
 int main(int argc, char* argv[])
 {
-	if (argc != 6)
+	if (argc != 8)
 	{
-		std::cerr << "please give 5 arguments" << std::endl;
-		std::cerr << "mother mass, daughter mass, signal name, histo name, mid bin" << std::endl;
+		std::cerr << "please give 6 arguments" << std::endl;
+		std::cerr << "mother mass, daughter mass, signal name, SR, SingleMuCR, SingleElCR, mid bin" << std::endl;
 		return -1;
 	}
 
 	const int  mother = atoi(argv[1]);
 	const int  daughter = atoi(argv[2]);
 	TString sp = argv[3];
-	TString var = argv[4];
-	int mid_bin = atoi(argv[5]);
+	TString SR = argv[4];
+	TString SingleMuCR = argv[5];
+	TString SingleElCR = argv[6];
+	int mid_bin = atoi(argv[7]);
 	const double lumi = 137;
 	//const double lumi = 120;
 
@@ -26,7 +28,6 @@ int main(int argc, char* argv[])
 	TH1D *h3 = NULL;
 
 	TString result_path;
-	TString folder = "";
 
 	if (sp.Contains("T2tt"))
 	{
@@ -57,8 +58,9 @@ int main(int argc, char* argv[])
 	}
 
 	TFile *f1 = new TFile(result_path + sp + ".root");
-	TH1D *h1 = (TH1D*)f1->Get(folder + var);
-	//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
+	TH1D *h1 = (TH1D*)f1->Get(SR);
+	TH1F *h1_singleMuCR = (TH1F*)f1->Get(SingleMuCR);
+	TH1F *h1_singleElCR = (TH1F*)f1->Get(SingleElCR);
 	TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
 
 	double CrossSection = h3->GetBinContent(h3->FindBin(mother));
@@ -66,9 +68,10 @@ int main(int argc, char* argv[])
 	int first_bin = int(h1->GetXaxis()->GetBinCenter(1));
 
 	double all_events = h2->GetBinContent(1);
-	double left_events = h2->GetBinContent(2);
 
 	h1->Sumw2();
+	h1_singleMuCR->Sumw2();
+	h1_singleElCR->Sumw2();
 	h1->SetBinErrorOption(TH1::kPoisson);
 
 	std::cout << "\n" << sp << " xsec = " << CrossSection << std::endl;
@@ -77,12 +80,10 @@ int main(int argc, char* argv[])
 	//std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
 	//std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
 
-	TH1D * raw_sig = (TH1D*)h1->Clone("raw_sig");
-
-	h1->Scale(lumi * CrossSection * 1000 / all_events );
-
-	TH1D * TF_sig = (TH1D*)h1->Clone("TF_sig");
-	TF_sig->Divide(raw_sig);
+	float sig_scale = lumi * CrossSection * 1000 / all_events;
+	h1->Scale(sig_scale);
+	h1_singleMuCR->Scale(sig_scale);
+	h1_singleElCR->Scale(sig_scale);
 
 	//std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
 	//std::cout << "scaled bin 2 content " << h1->GetBinContent(2) << std::endl;
@@ -100,12 +101,25 @@ int main(int argc, char* argv[])
 		signalfile << "\n# Predicted central numbers (need from all backgrounds)\n";
 		signalfile << "rate = "; for(int i=0;i<NSB;i++){ signalfile << h1->GetBinContent(i+1) << " "; } signalfile << "\n";
 
-		signalfile << "cs_event = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
-		signalfile << "contam = "; for(int i=0;i<NSB;i++){ signalfile << "0.0000" << " "; } signalfile << "\n";
+		signalfile << "cs_event = ";
+		std::vector<int> cs_event(NSB,0);
+		for(int i=0;i<NSB;i++)
+		{
+			cs_event[i] = ceil(h1->GetBinContent(i+1)/sig_scale);
+			signalfile << cs_event[i] << " ";
+		} signalfile << "\n";
+		signalfile << "contam = "; for(int i=0;i<NSB;i++){ signalfile << "0.000" << " "; } signalfile << "\n";
+		signalfile << "contam_muCS = "; for(int i=0;i<NSB;i++){ signalfile << h1_singleMuCR->GetBinContent(i+1) << " "; } signalfile << "\n";
+		signalfile << "contam_eleCS = "; for(int i=0;i<NSB;i++){ signalfile << h1_singleElCR->GetBinContent(i+1) << " "; } signalfile << "\n";
 
-		signalfile << "avg_weight = "; for(int i=0;i<NSB;i++){ signalfile << TF_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
+		signalfile << "avg_weight = ";
+		for(int i=0;i<NSB;i++)
+		{
+			if(cs_event[i] > 0) signalfile << h1->GetBinContent(i+1)/cs_event[i] << " ";
+			else signalfile << sig_scale << " ";
+		} signalfile << "\n";
 
-		signalfile << "stat_unc_up = ";
+		/*signalfile << "stat_unc_up = ";
 		for(int i=0;i<NSB;i++)
 		{
 			if (raw_sig->GetBinContent(i+1) > 0) signalfile << raw_sig->GetBinErrorUp(i+1) / raw_sig->GetBinContent(i+1) << " ";
@@ -116,7 +130,7 @@ int main(int argc, char* argv[])
 		{
 			if (raw_sig->GetBinContent(i+1) > 0) signalfile << raw_sig->GetBinErrorLow(i+1) / raw_sig->GetBinContent(i+1) << " ";
 			else signalfile << "0.00" << " ";
-		} signalfile << "\n";
+		} signalfile << "\n";*/
 
 		//signalfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinErrorUp(i+1) / raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
 		//signalfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinErrorLow(i+1) / raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";

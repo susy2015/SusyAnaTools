@@ -1,7 +1,7 @@
 int Plot_compare()
 {
-	const bool plot_log = false;
-	std::vector<TString> hist_list = {"met_uc_h"};
+	const bool plot_log = true;
+	std::vector<TString> hist_list = {"ntop_merge_h"};
 	//std::vector<TString> hist_list = {"loose_baseline_cutflow_h"};
 	//std::vector<TString> hist_list = {"met_h","HT_h", "mtb_h", "ntop_merge_h", "ntop_res_h", "nw_h", "njetspt20_h", "nbottompt20_h"};
 	//std::vector<TString> hist_list = {"met_uc_h","HT_uc_h", "mtb_uc_h", "ntop_merge_h", "ntop_res_uc_h", "nw_h", "njetspt20_uc_h", "nbottompt20_uc_h"};
@@ -10,17 +10,20 @@ int Plot_compare()
 	//TString f1_name = "SMS_T2tt_mStop_175_mLSP_1_fullsim_2017"; 
 	//TString f1_name = "SMS_T2tt_mStop_250_mLSP_50_fullsim_2017"; 
 	//TString f1_name = "SMS_T2tt_mStop_250_mLSP_75_fullsim_2017"; 
-	TString f1_name = "SMS_T2tt_mStop_250_mLSP_100_fullsim_2017"; 
-	TString f1_lag = "fullsim"; 
+	TString f1_name = "SMS_T1tttt_mGluino2200_mLSP100_fastsim_2016"; 
+	TString f1_lag = "105<SD<210";
+	TString f1_folder = "results/results_2016/";
 	//TString f2_name = "SMS_T2tt_mStop175_mLSP0_fastsim_2017"; 
 	//TString f2_name = "SMS_T2tt_mStop250_mLSP50_fastsim_2017"; 
 	//TString f2_name = "SMS_T2tt_mStop250_mLSP75_fastsim_2017"; 
-	TString f2_name = "SMS_T2tt_mStop250_mLSP100_fastsim_2017"; 
-	TString f2_lag = "fastsim";
+	TString f2_name = "SMS_T1tttt_mGluino2200_mLSP100_fastsim_2016"; 
+	TString f2_lag = "105<SD";
+	TString f2_folder = "results/results_2016_no_SD/";
+
 	int rebin = 1; 
 
-	TFile *f1 = new TFile("results/" + f1_name + ".root");
-	TFile *f2 = new TFile("results/" + f2_name + ".root");
+	TFile *f1 = new TFile(f1_folder + f1_name + ".root");
+	TFile *f2 = new TFile(f2_folder + f2_name + ".root");
 
 	TString hist_raw = "Baseline_Only/eff_h";
 	TH1F *h1_raw = (TH1F*)f1->Get(hist_raw);
@@ -29,6 +32,11 @@ int Plot_compare()
 	float f2_tot_raw = h2_raw->GetBinContent(1);
 
 	float tot_scale = (float)f1_tot_raw/(float)f2_tot_raw;
+	tot_scale = 1;
+	float h1_scale = 0.00101 * 1000 * 137 /(float)f1_tot_raw;
+	h1_scale = 1;
+	float h2_scale = 0.00101 * 1000 * 137 /(float)f2_tot_raw;
+	h2_scale = 1;
 	std::cout << "f1_tot_raw " << f1_tot_raw << " f2_tot_raw " << f2_tot_raw << " f2 scale " << tot_scale << std::endl;
 
 	for(int i = 0; i < hist_list.size(); i++)
@@ -49,10 +57,12 @@ int Plot_compare()
 
 		TH1F *h1 = (TH1F*)f1->Get(hist);
 		h1->Rebin(rebin);
+		h1->Scale(h1_scale);
 		h1->SetLineColor(kRed);
 		if(hist_name == "met_gen_uc_h" || hist_name == "met_uc_h") h1->GetXaxis()->SetRangeUser(0,400);
 		h1->Draw("el");
 		h1->SetLineWidth(3);
+		h1->GetXaxis()->SetRangeUser(60,183);
 
 		TH1F *h2 = (TH1F*)f2->Get(hist);
 		if(hist_name == "met_h")
@@ -69,9 +79,11 @@ int Plot_compare()
 		}
 		h2->Rebin(rebin);
 
-		h2->Scale(tot_scale);
+		//h2->Scale(tot_scale);
+		h2->Scale(h2_scale);
 		float y_max = max(h1->GetMaximum(), h2->GetMaximum()) * 1.2;
 		h1->SetMaximum(y_max);
+		if(plot_log) h1->SetMaximum(y_max * 10);
 
 		TString f1_lag_temp = f1_lag;// + " (" + std::to_string(int(h1->Integral())) + ")";
 		TString f2_lag_temp = f2_lag;// + " (" + std::to_string(int(h2->Integral())) + ")";
@@ -97,11 +109,16 @@ int Plot_compare()
 		ratio->SetTitle("");
 		ratio->Sumw2();
 		ratio->Divide(h2);
+		ratio->SetLineColor(kBlack);;
 		ratio->Draw("el");
 		ratio->SetMinimum(0);
 		ratio->SetMaximum(2);
 		ratio->GetXaxis()->SetLabelSize(0.12);
 		ratio->GetYaxis()->SetLabelSize(0.08);
+
+		TLine *l=new TLine(ratio->GetXaxis()->GetXmin(), 1.0,ratio->GetXaxis()->GetXmax(), 1.0);
+		l->SetLineColor(kRed);
+		l->Draw();
 
 		mycanvas->SaveAs("plots_test/" + f1_name + "_" + hist_name + ".png");
 	}

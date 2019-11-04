@@ -33,7 +33,8 @@ int Plot_1D_test()
 	bool plot_MTb = false;
 	bool plot_SB_v2 = false;
 	bool plot_SB_v3 = false;
-	bool plot_SB_v4 = true;
+	bool plot_SB_v4 = false;
+	bool plot_SB_v4_jetpt30 = true;
 	bool plot_SB_v2_highdm_validation = false;
 	bool plot_SB_v2_lowdm_validation = false;
 	bool plot_SB_v2_lowdm_validation_0p1 = false;
@@ -137,6 +138,19 @@ int Plot_1D_test()
 		title = "search bin v4";
 		var = "search_bin_v4_h";
 		var_weight = "search_bin_v4_Stop0l_evtWeight_h";
+		folder = "";
+		rebin = 1;
+		xmax = 183;
+		ymax = 100000000;
+		ymin = 0.1;
+		sig_ymax = 2;
+	}
+
+	if (plot_SB_v4_jetpt30)
+	{
+		title = "search bin v4(jet pt 30)";
+		var = "search_bin_v4_jetpt30_h";
+		var_weight = "search_bin_v4_Stop0l_evtWeight_jetpt30_h";
 		folder = "";
 		rebin = 1;
 		xmax = 183;
@@ -940,7 +954,6 @@ int Plot_1D_test()
 		hs->GetYaxis()->SetTitle("events");
 		hs->GetXaxis()->SetRangeUser(xmin,xmax);
 		hs->GetYaxis()->SetRangeUser(ymin,ymax);
-		if(plot_SB_team_A_highdm || plot_SB_team_A_lowdm) hs->GetXaxis()->SetNdivisions(30);
 		hs->GetXaxis()->SetTitle(title);
 		hs->GetYaxis()->SetTitleSize(0.045);
 		hs->GetYaxis()->SetTitleOffset(1.2);
@@ -1017,7 +1030,6 @@ int Plot_1D_test()
 			h1->GetYaxis()->SetTitle("events");
 			h1->GetXaxis()->SetRangeUser(xmin,xmax);
 			h1->GetYaxis()->SetRangeUser(ymin,ymax);
-			if(plot_SB_team_A_highdm || plot_SB_team_A_lowdm) h1->GetXaxis()->SetNdivisions(30);
 			h1->GetXaxis()->SetTitle(title);
 			h1->GetYaxis()->SetTitleSize(0.045);
 			h1->GetYaxis()->SetTitleOffset(1.2);
@@ -1144,7 +1156,6 @@ int Plot_1D_test()
 			significance->SetTitle("");
 			significance->GetYaxis()->SetTitle("significance");
 			significance->GetXaxis()->SetRangeUser(xmin,xmax);
-			if(plot_SB_team_A_highdm || plot_SB_team_A_lowdm) significance->GetXaxis()->SetNdivisions(30);
 			significance->GetXaxis()->SetTitle(title);
 			significance->GetXaxis()->SetTitleSize(0.1);
 			significance->GetXaxis()->SetLabelSize(0.08);
