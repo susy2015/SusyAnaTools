@@ -11,6 +11,7 @@
 #include <vector>
 #include <iterator>
 #include <regex>
+#include <sys/stat.h>
 
 // Repo for json.hpp: https://github.com/nlohmann/json/tree/master
 #include "../../json/single_include/nlohmann/json.hpp"
@@ -124,6 +125,7 @@ namespace SusyUtility
         return output;
     }
     
+    // print json file
     void printJson(const std::string& fileName, const std::string& key, const std::string& title)
     {
         // read json file
@@ -148,6 +150,15 @@ namespace SusyUtility
         {
             std::cout << i << " : " << invMap[i] << std::endl;
         }
+    }
+    
+    // check if file exists
+    bool fileExists(const std::string& fileName)
+    {
+        // check if file exists
+        struct stat buffer;  
+        bool file_exists = bool(stat(fileName.c_str(), &buffer) == 0);
+        return file_exists;
     }
 }
 
