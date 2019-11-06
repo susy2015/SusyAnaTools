@@ -79,7 +79,7 @@ private:
     class deleter_base
     {
     public:
-        virtual void create(void *, TBranch*, TBranch*, const NTupleReader&, int evt) {}
+        virtual void create(void *, TBranch*, TBranch*, const NTupleReader&, int) {}
         virtual void deletePtr(void *) {}
         virtual void destroy(void *) = 0;
         virtual ~deleter_base() {}
@@ -125,7 +125,7 @@ private:
     class array_deleter : public vec_deleter<T>
     {
     public:
-        void deletePtr(void* ptr) {}
+        void deletePtr(void*) {}
 
         void create(void * ptr, TBranch* branch, TBranch* branchVec, const NTupleReader& tr, int evt)
         {
@@ -152,8 +152,8 @@ private:
         void* ptr;
         mutable deleter_base* deleter;
         std::type_index type;
-        mutable TBranch *branchVec;
         mutable TBranch *branch;
+        mutable TBranch *branchVec;
         mutable bool activeFromNTuple;
 
         Handle() : ptr(nullptr), deleter(nullptr), type(typeid(nullptr)), branch(nullptr), branchVec(nullptr), activeFromNTuple(false) {}
@@ -293,7 +293,7 @@ public:
         return (typeMap_.find(name) != typeMap_.end());
     }
 
-    inline const bool checkBranchInTree(const std::string& name) const
+    inline bool checkBranchInTree(const std::string& name) const
     {
         TBranch* br = static_cast<TBranch*>(tree_->FindBranch(name.c_str()));
         return (br != nullptr);
@@ -395,24 +395,17 @@ public:
         }
     }
 
-    template<typename T> T& createDerivedVar(const std::string& name) const 
+    template<typename T, typename ...Args> T& createDerivedVar(const std::string& name, Args&&... args) const 
     {
-        T varTemp;
+        T varTemp(args...);
         registerDerivedVar(name, varTemp);
         auto* var = static_cast<T*>(getVarPtr(name));
         return (*var);
     }
 
-    template<typename T> std::vector<T>& createDerivedVec(const std::string& name) const 
+    template<typename T, typename ...Args> std::vector<T>& createDerivedVec(const std::string& name, Args&&... args) const 
     {
-        std::vector<T>* vec = new std::vector<T>();
-        registerDerivedVec(name, vec);
-        return (*vec);
-    }
-
-    template<typename T> std::vector<T>& createDerivedVec(const std::string& name, unsigned int nElem) const 
-    {
-        std::vector<T>* vec = new std::vector<T>(nElem);
+        std::vector<T>* vec = new std::vector<T>(args...);
         registerDerivedVec(name, vec);
         return (*vec);
     }
@@ -665,12 +658,12 @@ private:
         else if(convertHackActive_ && intuple) //else check if it is a vector<float> or vector<double>
         {
             //hack to get vector<double> as vector<float>, requires DuplicateFDVector() to be run
-            char typen;
+            char typen = '\0';
             if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<float>) && tuple_iter->second.type == typeid(std::vector<double>))
                 typen='f';
             if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<double>) && tuple_iter->second.type == typeid(std::vector<float>))
                 typen='d';
-            std::string newname = var+"___" + typen;
+            std::string newname = var + "___" + typen;
             auto tuple_iter = branchVecMap_.find(newname);
             if (tuple_iter != branchVecMap_.end())
                 return *static_cast<T*>(tuple_iter->second.ptr);
