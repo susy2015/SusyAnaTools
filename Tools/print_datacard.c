@@ -7,10 +7,12 @@ int print_datacard()
 
     TFile *f1 = new TFile("TTZ_VB_2016.root");
     
-    TString extensions[8] = {"_bsf_down","_bsf_up","_trig_eff_down","_trig_eff_up","_puWeight_down","_puWeight_up","_PFWeight_down","_PFWeight_up"};
+    TString extensions[16] = {"_bsf_down","_bsf_up","_trig_eff_down","_trig_eff_up","_puWeight_down","_puWeight_up","_PFWeight_down","_PFWeight_up","_pdfWeight_down","_pdfWeight_up","_JES_down","_JES_up","_METUnClust_down","_METUnClust_up","_SF_down","_SF_up"};
+    int exts = 16;
     TString bintype[2] = {"_vb","_sb"};
     TString regions[2] = {"_low","_high"};
 
+    //Bintype index. 0 for vb, 1 for sb.
     int bi = 0;
 
     TH1D* h1 = NULL;
@@ -84,7 +86,7 @@ int print_datacard()
         else outputfile << " 0.0000";
     }
 
-    for(int j = 0; j < 8; j++)
+    for(int j = 0; j < exts; j++)
     {
         outputfile << "\nsyst_unc" << extensions[j] << " =";
         for(int i = 0; i < num_bins1; i++)

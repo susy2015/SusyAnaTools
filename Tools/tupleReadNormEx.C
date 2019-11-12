@@ -40,6 +40,7 @@ int main(int argc, char* argv[])
     std::string era = "2018";
     bool Data = false;
     bool PostHEM = false;
+    bool PeriodF = false;
     int max_events = -1;
     //int max_events = 30000; //Set to -1 to run over all events
     bool multiMuTriggEff = false;
@@ -47,7 +48,8 @@ int main(int argc, char* argv[])
     bool norm_cuts = true;
     bool loose_cuts = false;
     bool dryrun = false;
-    
+    bool noTrigEff = false;
+    //Even if false, there is a var h_norm_notrigwt
 
     if (argc < 3)
     {
@@ -68,12 +70,14 @@ int main(int argc, char* argv[])
             {"era",         required_argument,  0,  'e'},
             {"isData",      no_argument,        0,  'D'},
             {"PostHEM",     no_argument,        0,  'p'},
+            {"PeriodF",     no_argument,        0,  'f'},
             {"max_events",  required_argument,  0,  'm'},
             {"loose_cuts",  no_argument,        0,  'l'},
-            {"dryrun",      no_argument,        0,  'd'}
+            {"dryrun",      no_argument,        0,  'd'},
+            {"noTrigEff",   no_argument,        0,  't'}
         };
         //c = getopt_long(argc,argv,"e:Dpm:ld",long_options,&option_index);
-        c = getopt_long(argc,argv,"e:Dpm:ld",long_options,NULL);
+        c = getopt_long(argc,argv,"e:Dpfm:ldt",long_options,NULL);
         if(c==-1) break;
         switch (c)
         {
@@ -86,6 +90,9 @@ int main(int argc, char* argv[])
             case 'p':
                 PostHEM = true;
                 break;
+            case 'f':
+                PeriodF = true;
+                break;
             case 'm':
                 max_events = std::stoi(optarg);
                 break;
@@ -95,10 +102,13 @@ int main(int argc, char* argv[])
             case 'd':
                 dryrun = true;
                 break;
+            case 't':
+                noTrigEff = true;
+                break;
         }
     }
     //Argument testing
-    std::cout << "Era: " << era << "\tisData: " << Data << "\tisPostHEM: " << PostHEM << "\tMax events: " << max_events << "\tloose_cuts: " << loose_cuts << std::endl;
+    std::cout << "Era: " << era << "\tisData: " << Data << "\tisPostHEM: " << PostHEM << "\tPeriodF: " << PeriodF << "\tMax events: " << max_events << "\tloose_cuts: " << loose_cuts << "\tnoTrigEff: " << noTrigEff << std::endl;
     float leptonpts[3] = {0,20,20};
     if(norm_cuts) leptonpts[0] = 40;
     if(loose_cuts) leptonpts[0] = 25;
@@ -232,13 +242,13 @@ int main(int argc, char* argv[])
 
         //const auto& Jet_btag = tr.getVec<float>("Jet_btagCSVV2");
         const auto& Jet_btag = tr.getVec<float>("Jet_btagDeepB_drLeptonCleaned");
-        //TODO: Choice of: Jet_btagStop0l_drLeptonCleaned Jet_btagDeepB_drLeptonCleaned Jet_btagCSVV2_drLeptonCleaned
+        //Choice of: Jet_btagStop0l_drLeptonCleaned Jet_btagDeepB_drLeptonCleaned Jet_btagCSVV2_drLeptonCleaned
         //const auto& Jet_btag = tr.getVec<float>("Jet_btagDeepB");
         const auto& Jet_LV = tr.getVec<TLorentzVector>("JetTLV_drLeptonCleaned");
         const auto& Jet_pt = tr.getVec<float>("Jet_pt_drLeptonCleaned");
         const auto& Jet_eta = tr.getVec<float>("Jet_eta_drLeptonCleaned");
 
-        //NanoSUSY-tools uses DeepB for Stop0l_nbtags
+        //NanoSUSY-tools uses DeepB for Stop0l_nbtags. TODO: specific location
         std::map<std::string,float> DeepCSVMediumWP ={
             {"2016" , 0.6324},
             {"2017" , 0.4941},
@@ -470,7 +480,8 @@ int main(int argc, char* argv[])
             LeadingMuTriggEffPt = tr.getVar<float>("LeadingMuTriggEffPt");
             LeadingMuTriggEffEta = tr.getVar<float>("LeadingMuTriggEffEta");
             float DiMuTriggEffPt = 0.925;
-            if (multiMuTriggEff) tot_weight = tot_lepSF * MuonTriggerEffPt;
+            if (noTrigEff) tot_weight = tot_lepSF;
+            else if (multiMuTriggEff) tot_weight = tot_lepSF * MuonTriggerEffPt;
             else if (!loose_cuts) tot_weight = tot_lepSF * LeadingMuTriggEffEta;
             else
             {

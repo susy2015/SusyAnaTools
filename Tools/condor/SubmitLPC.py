@@ -12,12 +12,12 @@ import getpass
 import argparse
 from collections import defaultdict
 
-#DelExe    = '../tupleReadNormEx'
+DelExe    = '../tupleReadNormEx'
 #DelExe    = '../tupleReadElec'
-DelExe    = '../SB_reader'
+#DelExe    = '../SB_reader'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
-ShortProjectName = 'SB'
+ShortProjectName = 'TTZNormEx'
 argument = "%s.$(Process).list %s_$(Process).root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
 defaultLperFile = 5
@@ -31,7 +31,7 @@ year = "2016"
 
 process_dict = {
 ##Rare would include TTZToQQ, Diboson, Triboson, Higgs. Also include DY?
-    "TTZToLLNuNu" : ["TTZToLLNuNu"],
+#    "TTZToLLNuNu" : ["TTZToLLNuNu"],
 #    "Normalization" : ["TTZToLLNuNu","ttHToNonbb","VHToNonbb","GluGluHToZZTo4L","ST_tWll","ST_tZq_ll","TTWJetsToLNu","WZTo3LNu","ZZTo4L","WWZ","WZZ","ZZZ","WZG","WWG","WWW","TTTT","TTbarDiLep","DYJetsToLL_HT_70to100","DYJetsToLL_HT_100to200","DYJetsToLL_HT_200to400","DYJetsToLL_HT_400to600","DYJetsToLL_HT_600to800","DYJetsToLL_HT_800to1200","DYJetsToLL_HT_1200to2500","DYJetsToLL_HT_2500toInf"],
 #	"TTbar" : ["TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"],
 #	"WJets" : ["WJetsToLNu_HT_70to100", "WJetsToLNu_HT_100to200", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_2500toInf"],
@@ -54,7 +54,9 @@ process_dict = {
 #   "SingleMuon_2017_F" : ["Data_SingleMuon_2017_PeriodF"],
 #	"SingleMuon_2018_PreHEM"  : ["Data_SingleMuon_2018_PeriodA", "Data_SingleMuon_2018_PeriodB_PreHEM"],
 #	"SingleMuon_2018_AB"  : ["Data_SingleMuon_2018_PeriodA", "Data_SingleMuon_2018_PeriodB"],
+#	"SingleMuon_2018_A"  : ["Data_SingleMuon_2018_PeriodA"],
 #	"SingleMuon_2018_PostHEM" : ["Data_SingleMuon_2018_PeriodB_PostHEM", "Data_SingleMuon_2018_PeriodC", "Data_SingleMuon_2018_PeriodD"],
+#	"SingleMuon_2018_CD"  : ["Data_SingleMuon_2018_PeriodC", "Data_SingleMuon_2018_PeriodD"],
 #    "SingleElectron_2018_PreHEM" : ["Data_EGamma_2018_PeriodA","Data_EGamma_2018_PeriodB_PreHEM"],
 #    "SingleElectron_2018_PostHEM" : ["Data_EGamma_2018_PeriodB_PostHEM","Data_EGamma_2018_PeriodC","Data_EGamma_2018_PeriodD"],
     }

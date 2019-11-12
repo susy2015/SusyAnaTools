@@ -7,12 +7,12 @@ int Plot_1D_TTZ_norm()
 	double lumi = 36; //2016
 	//lumi = 42; //2017
 	//lumi = 59; //2018
-	TString year = "_2016";
-    const char* outputfile = "output_2016_norm.root";
+	TString year = "_2018";
+    TString outputfile = "output" + year + "_norm.root";
 	bool plot_log = false;
 	bool plot_sig_pad = true;
 	bool plot_BG = true;
-    bool PostHEM = false;
+    bool PostHEM = true;
 	bool use_low_stat_sig = false;
 	//use_low_stat_sig = true;
 	bool use_original_title = false;
@@ -21,7 +21,11 @@ int Plot_1D_TTZ_norm()
     if(year == "_2017") lumi = 42;
     if(year == "_2018")
     {
-        if (PostHEM) lumi = 38;
+        if (PostHEM)
+        {
+            lumi = 38;
+            outputfile = "output_2018_PostHEM_norm.root";
+        }
         else lumi = 21;
     }
 
@@ -620,7 +624,7 @@ int Plot_1D_TTZ_norm()
 			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
-		if (true)
+		if (year != "_2017") //now not in 2017 :(
 		{
 			TString sp = "ST_tZq_ll";
 			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);

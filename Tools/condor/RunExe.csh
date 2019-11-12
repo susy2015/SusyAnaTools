@@ -51,7 +51,21 @@ if ($? == 0) then
   rm 2018_trigger_eff.root
   rm PileupHistograms_Nov17.root
   rm test.root
+  rm TTZ_VB.root
   rm TTZ_VB_2016.root
+  rm TTZ_VB_2017.root
+  rm TTZ_VB_2017_PeriodF.root
+  rm TTZ_VB_2018.root
+  rm TTZ_VB_2018_PostHEM.root
+  rm output_2016_norm.root
+  rm output_2017_norm.root
+  rm output_2018_PostHEM_norm.root
+  rm output_2018_norm.root
+  rm output_run2.root
+  rm Rare_final.root
+  rm Rare_final_vb.root
+  rm TTZ_final.root
+  rm TTZ_final_vb.root
   foreach tarfile (`ls *gz FileList/*gz`)
     tar -tf $tarfile  | xargs rm -r
   end

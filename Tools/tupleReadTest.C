@@ -22,9 +22,12 @@ int main()
         ch->Add(chname);
     }
 
+    std::string era = "2018";
+
     try
     {
         NTupleReader tr(ch, {"nJet"});
+        BaselineVessel blv(tr,era,"");
 
         while(tr.getNextEvent())
         {
