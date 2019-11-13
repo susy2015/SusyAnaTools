@@ -5,6 +5,7 @@ int Plot_1D_TTZ_norm()
 	//gROOT->ForceStyle();
 
 	double lumi = 36; //2016
+    double shortlumi = 36;
 	//lumi = 42; //2017
 	//lumi = 59; //2018
 	TString year = "_2018";
@@ -17,16 +18,29 @@ int Plot_1D_TTZ_norm()
 	//use_low_stat_sig = true;
 	bool use_original_title = false;
 
-    if(year == "_2016") lumi = 36;
-    if(year == "_2017") lumi = 42;
+    if(year == "_2016")
+    {
+        lumi = 35.917149; //36
+        shortlumi = 36;
+    }
+    if(year == "_2017")
+    {
+        lumi = 41.525059; //42
+        shortlumi = 42;
+    }
     if(year == "_2018")
     {
         if (PostHEM)
         {
-            lumi = 38;
+            lumi = 38.65435; //38
+            shortlumi = 38;
             outputfile = "output_2018_PostHEM_norm.root";
         }
-        else lumi = 21;
+        else
+        {
+            lumi = 21.071447; //21
+            shortlumi = 21;
+        }
     }
 
 	TString result_path = "results/";
@@ -624,7 +638,7 @@ int Plot_1D_TTZ_norm()
 			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
-		if (year != "_2017") //now not in 2017 :(
+		if (false) //now not in 2017 :(
 		{
 			TString sp = "ST_tZq_ll";
 			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
@@ -869,7 +883,7 @@ int Plot_1D_TTZ_norm()
 	//latex.SetTextAlign(13);  //align at top
 	//latex.DrawLatex(0.5,ymax+0.4,"#bf{CMS} Preliminary, 2017 data");
 	latex.DrawLatex(0.1,0.91,"CMS #bf{Simulation}");
-	TString lumi_and_energy = "#bf{" + std::to_string((int)lumi) + " fb^{-1} (13TeV)}";
+	TString lumi_and_energy = "#bf{" + std::to_string((int)shortlumi) + " fb^{-1} (13TeV)}";
 	if(plot_BG) latex.DrawLatex(0.74,0.91,lumi_and_energy);
 	else latex.DrawLatex(0.80,0.91,"#bf{13TeV}");
 
@@ -1052,8 +1066,8 @@ int Plot_1D_TTZ_norm()
 		//mycanvas->SetLogy();
 		if (year == "_2018")
         {
-            if (PostHEM) mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PreHEM_use_low_stat_sig.png");
-		    else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PostHEM_use_low_stat_sig.png");
+            if (PostHEM) mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PostHEM_use_low_stat_sig.png");
+		    else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PreHEM_use_low_stat_sig.png");
         }
 		else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_use_low_stat_sig.png");
 	}
