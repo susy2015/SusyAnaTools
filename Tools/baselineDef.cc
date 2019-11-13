@@ -544,24 +544,30 @@ void BaselineVessel::PassBaseline()
   const auto& ResolvedTopCandidate_j1Idx            = tr->getVec<int>("ResolvedTopCandidate_j1Idx");
   const auto& ResolvedTopCandidate_j2Idx            = tr->getVec<int>("ResolvedTopCandidate_j2Idx");
   const auto& ResolvedTopCandidate_j3Idx            = tr->getVec<int>("ResolvedTopCandidate_j3Idx");
-  const auto& Stop0l_nSoftb                         = tr->getVar<int>("Stop0l_nSoftb");;
-  const auto& Stop0l_ISRJetPt                       = tr->getVar<float>("Stop0l_ISRJetPt");
   const auto& Stop0l_ISRJetIdx                      = tr->getVar<int>("Stop0l_ISRJetIdx");
+  const auto& Stop0l_ISRJetPt                       = tr->getVar<float>("Stop0l_ISRJetPt");
   const auto& Stop0l_Mtb                            = tr->getVar<float>("Stop0l_Mtb");
   const auto& Stop0l_Ptb                            = tr->getVar<float>("Stop0l_Ptb");
+  const auto& MET_pt                                = tr->getVar<float>("MET_pt");
+  const auto& Stop0l_HT                             = tr->getVar<float>("Stop0l_HT");
+  const auto& Stop0l_nJets                          = tr->getVar<int>("Stop0l_nJets");;
+  const auto& Stop0l_nSoftb                         = tr->getVar<int>("Stop0l_nSoftb");;
+  const auto& Stop0l_nbtags                         = tr->getVar<int>("Stop0l_nbtags");
   const auto& Stop0l_nTop                           = tr->getVar<int>("Stop0l_nTop");
   const auto& Stop0l_nResolved                      = tr->getVar<int>("Stop0l_nResolved");
   const auto& Stop0l_nW                             = tr->getVar<int>("Stop0l_nW");
   const auto& Stop0l_METSig                         = tr->getVar<float>("Stop0l_METSig");
   const auto& Pass_lowDM                            = tr->getVar<bool>("Pass_lowDM");
   const auto& Pass_highDM                           = tr->getVar<bool>("Pass_highDM");
-  bool Pass_JetID                                   = tr->getVar<bool>("Pass_JetID");
-  bool Pass_EventFilter                             = tr->getVar<bool>("Pass_EventFilter");
-  bool Pass_MET                                     = tr->getVar<bool>("Pass_MET");
-  bool Pass_HT                                      = tr->getVar<bool>("Pass_HT");
-  bool Pass_NJets                                   = tr->getVar<bool>("Pass_NJets30");
-  bool Pass_dPhiMETLowDM                            = tr->getVar<bool>("Pass_dPhiMETLowDM");
-  bool Pass_LeptonVeto                              = tr->getVar<bool>("Pass_LeptonVeto");
+  const auto& Pass_dPhiMETLowDM                     = tr->getVar<bool>("Pass_dPhiMETLowDM");
+  const auto& Pass_dPhiMETMedDM                     = tr->getVar<bool>("Pass_dPhiMETMedDM");
+  const auto& Pass_dPhiMETHighDM                    = tr->getVar<bool>("Pass_dPhiMETHighDM");
+  const auto& Pass_JetID                            = tr->getVar<bool>("Pass_JetID");
+  const auto& Pass_EventFilter                      = tr->getVar<bool>("Pass_EventFilter");
+  const auto& Pass_MET                              = tr->getVar<bool>("Pass_MET");
+  const auto& Pass_HT                               = tr->getVar<bool>("Pass_HT");
+  const auto& Pass_NJets                            = tr->getVar<bool>("Pass_NJets30");
+  const auto& Pass_LeptonVeto                       = tr->getVar<bool>("Pass_LeptonVeto");
   
   bool SAT_Pass_MET_Loose   = (met >= 100);
   bool SAT_Pass_MET_Mid     = (met >= 160);
@@ -585,7 +591,8 @@ void BaselineVessel::PassBaseline()
   //SUS-16-049, low dm, ISR cut
   // see GetISRJetIdx() and CalcISRJetVars() for details
   bool SAT_Pass_ISR_Loose   = (ISRJetPt >= 200);
-  bool SAT_Pass_ISR         = (ISRJetPt >= 300);
+  bool SAT_Pass_ISR         = (ISRJetPt >= 200);
+  //bool SAT_Pass_ISR         = (ISRJetPt >= 300);
   bool SAT_Pass_S_MET       = (S_met >= 10);
   
   // ----------------------- // 
@@ -863,27 +870,35 @@ void BaselineVessel::PassBaseline()
   //if (event == 1401471244)
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
-  //if (topDifference && firstSpec.empty())
-  //if (totalTopsWs && firstSpec.empty())
-  if (verbose)
+  //if ( firstSpec.empty() && topDifference )
+  //if ( firstSpec.empty() && totalTopsWs   )
+  if ( firstSpec.compare("_jetpt30") == 0 && ( (Pass_lowDM != SAT_Pass_lowDM) || (Pass_highDM != SAT_Pass_highDM) ) )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
     printf("firstSpec: %s; CMS event: %d ntuple event: %d\n", firstSpec.c_str(), event, tr->getEvtNum());
-    printf("Pass_lowDM = %d and SAT_Pass_lowDM = %d\n", Pass_lowDM, SAT_Pass_lowDM);
-    printf("\thui_Pass_LeptonVeto   = %d and caleb_SAT_Pass_LeptonVeto    = %d\n", Pass_LeptonVeto, SAT_Pass_LeptonVeto);
-    printf("\thui_Pass_JetID        = %d and caleb_SAT_Pass_JetID         = %d\n", Pass_JetID, SAT_Pass_JetID);
-    printf("\thui_Pass_EventFilter  = %d and caleb_SAT_Pass_EventFilter   = %d\n", Pass_EventFilter, SAT_Pass_EventFilter);
-    printf("\thui_Pass_MET          = %d and caleb_SAT_Pass_MET           = %d\n", Pass_MET, SAT_Pass_MET);
-    printf("\thui_Pass_HT           = %d and caleb_SAT_Pass_HT            = %d\n", Pass_HT, SAT_Pass_HT);
-    printf("\thui_Pass_NJets        = %d and caleb_SAT_Pass_NJets         = %d\n", Pass_NJets, SAT_Pass_NJets);
-    printf("\thui_Pass_dPhiMETLowDM = %d and caleb_SAT_Pass_dPhiMETLowDM  = %d\n", Pass_dPhiMETLowDM, SAT_Pass_dPhiMETLowDM);
-    printf("\thui_Stop0l_ISRJetPt   = %f and caleb_ISRJetPt               = %f\n", Stop0l_ISRJetPt, ISRJetPt);
-    printf("\thui_Stop0l_METSig     = %f and caleb_S_met                  = %f\n", Stop0l_METSig, S_met);
-    printf("\thui_Stop0l_Mtb        = %f and caleb_mtb                    = %f\n", Stop0l_Mtb, mtb);
-    printf("\thui_Stop0l_nTop       = %d and caleb_nMergedTops            = %d\n", Stop0l_nTop, nMergedTops);
-    printf("\thui_Stop0l_nW         = %d and caleb_nWs                    = %d\n", Stop0l_nW, nWs);
-    printf("\thui_Stop0l_nResolved  = %d and caleb_nResolvedTops          = %d\n", Stop0l_nResolved, nResolvedTops);
+    printf("hui_Pass_lowDM  = %d and caleb_SAT_Pass_lowDM = %d\n", Pass_lowDM, SAT_Pass_lowDM);
+    printf("hui_Pass_highDM = %d and caleb_SAT_Pass_highDM = %d\n", Pass_highDM, SAT_Pass_highDM);
+    printf("\thui_Pass_LeptonVeto    = %d and caleb_SAT_Pass_LeptonVeto       = %d\n", Pass_LeptonVeto, SAT_Pass_LeptonVeto);
+    printf("\thui_Pass_JetID         = %d and caleb_SAT_Pass_JetID            = %d\n", Pass_JetID, SAT_Pass_JetID);
+    printf("\thui_Pass_EventFilter   = %d and caleb_SAT_Pass_EventFilter      = %d\n", Pass_EventFilter, SAT_Pass_EventFilter);
+    printf("\thui_Pass_MET           = %d and caleb_SAT_Pass_MET              = %d\n", Pass_MET, SAT_Pass_MET);
+    printf("\thui_Pass_HT            = %d and caleb_SAT_Pass_HT               = %d\n", Pass_HT, SAT_Pass_HT);
+    printf("\thui_Pass_NJets         = %d and caleb_SAT_Pass_NJets            = %d\n", Pass_NJets, SAT_Pass_NJets);
+    printf("\thui_Pass_dPhiMETLowDM  = %d and caleb_SAT_Pass_dPhiMETLowDM     = %d\n", Pass_dPhiMETLowDM, SAT_Pass_dPhiMETLowDM);
+    printf("\thui_Pass_dPhiMETMedDM  = %d and caleb_SAT_Pass_mid_dPhiMETLowDM = %d\n", Pass_dPhiMETMedDM, SAT_Pass_mid_dPhiMETLowDM);
+    printf("\thui_Pass_dPhiMETHighDM = %d and caleb_SAT_Pass_dPhiMETHighDM    = %d\n", Pass_dPhiMETHighDM, SAT_Pass_dPhiMETHighDM);
+    printf("\thui_MET_pt             = %f and caleb_met                       = %f\n", MET_pt, met);
+    printf("\thui_Stop0l_HT          = %f and caleb_HT                        = %f\n", Stop0l_HT, HT);
+    printf("\thui_Stop0l_ISRJetPt    = %f and caleb_ISRJetPt                  = %f\n", Stop0l_ISRJetPt, ISRJetPt);
+    printf("\thui_Stop0l_METSig      = %f and caleb_S_met                     = %f\n", Stop0l_METSig, S_met);
+    printf("\thui_Stop0l_Mtb         = %f and caleb_mtb                       = %f\n", Stop0l_Mtb, mtb);
+    printf("\thui_Stop0l_Ptb         = %f and caleb_ptb                       = %f\n", Stop0l_Ptb, ptb);
+    printf("\thui_Stop0l_nJets       = %d and caleb_nJets                     = %d\n", Stop0l_nJets, nJets);
+    printf("\thui_Stop0l_nbtags      = %d and caleb_nBottoms                  = %d\n", Stop0l_nbtags, nBottoms);
+    printf("\thui_Stop0l_nTop        = %d and caleb_nMergedTops               = %d\n", Stop0l_nTop, nMergedTops);
+    printf("\thui_Stop0l_nW          = %d and caleb_nWs                       = %d\n", Stop0l_nW, nWs);
+    printf("\thui_Stop0l_nResolved   = %d and caleb_nResolvedTops             = %d\n", Stop0l_nResolved, nResolvedTops);
     printf("\tcaleb_MergedTopTotalSF    = %f\n", MergedTopTotalSF);
     printf("\tcaleb_WTotalSF            = %f\n", WTotalSF);
     printf("\tcaleb_ResolvedTopTotalSF  = %f\n", ResolvedTopTotalSF);
