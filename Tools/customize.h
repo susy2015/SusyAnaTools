@@ -106,9 +106,9 @@ namespace AnaConsts{
    // DeepCSV btag working points
    const std::map<std::string, std::map<std::string, float > > DeepCSV = {
      { "2016", {
-                   {"cutL", 0.2219},
-                   {"cutM", 0.6324},
-                   {"cutT", 0.8958}
+                   {"cutL", 0.2217},
+                   {"cutM", 0.6321},
+                   {"cutT", 0.8953}
  
      }},
      { "2017", {
