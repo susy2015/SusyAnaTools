@@ -79,7 +79,7 @@ private:
     class deleter_base
     {
     public:
-        virtual void create(void *, TBranch*, TBranch*, const NTupleReader&, int evt) {}
+        virtual void create(void *, TBranch*, TBranch*, const NTupleReader&, int) {}
         virtual void deletePtr(void *) {}
         virtual void destroy(void *) = 0;
         virtual ~deleter_base() {}
@@ -125,7 +125,7 @@ private:
     class array_deleter : public vec_deleter<T>
     {
     public:
-        void deletePtr(void* ptr) {}
+        void deletePtr(void*) {}
 
         void create(void * ptr, TBranch* branch, TBranch* branchVec, const NTupleReader& tr, int evt)
         {
@@ -152,14 +152,15 @@ private:
         void* ptr;
         mutable deleter_base* deleter;
         std::type_index type;
-        mutable TBranch *branchVec;
         mutable TBranch *branch;
+        mutable TBranch *branchVec;
+        mutable bool activeFromNTuple;
 
-        Handle() : ptr(nullptr), deleter(nullptr), type(typeid(nullptr)), branch(nullptr), branchVec(nullptr) {}
+        Handle() : ptr(nullptr), deleter(nullptr), type(typeid(nullptr)), branch(nullptr), branchVec(nullptr), activeFromNTuple(false) {}
 
-        Handle(const Handle& h) : ptr(h.ptr), deleter(h.deleter), type(h.type), branch(h.branch), branchVec(h.branchVec) {}
+        Handle(const Handle& h) : ptr(h.ptr), deleter(h.deleter), type(h.type), branch(h.branch), branchVec(h.branchVec), activeFromNTuple(h.activeFromNTuple) {}
 
-        Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr), TBranch* branch = nullptr, TBranch* branchVec = nullptr) :  ptr(ptr), deleter(deleter), type(type), branch(branch), branchVec(branchVec) {}
+        Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr), TBranch* branch = nullptr, TBranch* branchVec = nullptr, const bool activeFromNTuple = false) :  ptr(ptr), deleter(deleter), type(type), branch(branch), branchVec(branchVec), activeFromNTuple(activeFromNTuple) {}
 
         void create(const NTupleReader& tr, int evt) const
         {
@@ -181,21 +182,21 @@ private:
 
     //Helper to make simple Handle
     template<typename T>
-    static inline Handle createHandle(T* ptr)
+    static inline Handle createHandle(T* ptr, const bool activeFromNTuple = false)
     {
-        return Handle(ptr, new deleter<T>, typeid(typename std::remove_pointer<T>::type));
+        return Handle(ptr, new deleter<T>, typeid(typename std::remove_pointer<T>::type), nullptr, nullptr, activeFromNTuple);
     }
 
     //Helper to make vector Handle
     template<typename T>
-    static inline Handle createVecHandle(T* ptr)
+    static inline Handle createVecHandle(T* ptr, const bool activeFromNTuple = false)
     {
-        return Handle(ptr, new vec_deleter<T>, typeid(typename std::remove_pointer<T>::type));
+        return Handle(ptr, new vec_deleter<T>, typeid(typename std::remove_pointer<T>::type), nullptr, nullptr, activeFromNTuple);
     }
 
     //Helper to make array Handle
     template<typename T>
-    static inline Handle createArrayHandle(T* ptr, TBranch* branch, TBranch* branchVec)
+    static inline Handle createArrayHandle(T* ptr, TBranch* branch, TBranch* branchVec, const bool activeFromNTuple = false)
     {
         std::string type;
         TObjArray *lol = branch->GetListOfLeaves();
@@ -209,11 +210,11 @@ private:
 
         if(type.compare("int") == 0 || type.compare("Int_t") == 0)
         {
-            return Handle(ptr, new array_deleter<T, int>, typeid(typename std::remove_pointer<T>::type), branch, branchVec);
+            return Handle(ptr, new array_deleter<T, int>, typeid(typename std::remove_pointer<T>::type), branch, branchVec, activeFromNTuple);
         }
         else if(type.compare("unsigned int") == 0 || type.compare("UInt_t") == 0)
         {
-            return Handle(ptr, new array_deleter<T, unsigned int>, typeid(typename std::remove_pointer<T>::type), branch, branchVec);
+            return Handle(ptr, new array_deleter<T, unsigned int>, typeid(typename std::remove_pointer<T>::type), branch, branchVec, activeFromNTuple);
         }
         else
         {
@@ -245,8 +246,8 @@ private:
         }
 
         inline T& getFunc()
-        {
-            return func_;
+        { 
+            return func_; 
         }
 
         FuncWrapperImpl(T& f) : func_(std::move(f)) {}
@@ -292,7 +293,7 @@ public:
         return (typeMap_.find(name) != typeMap_.end());
     }
 
-    inline const bool checkBranchInTree(const std::string& name) const
+    inline bool checkBranchInTree(const std::string& name) const
     {
         TBranch* br = static_cast<TBranch*>(tree_->FindBranch(name.c_str()));
         return (br != nullptr);
@@ -304,6 +305,7 @@ public:
     bool getNextEvent();
     void disableUpdate();
     void printTupleMembers(FILE *f = stdout) const;
+    void printUsedTupleVar(FILE *f = stdout) const;
 
     void setConvertFloatingPointVectors(const bool doubleToFloat = true, const bool floatToDouble = false);
 
@@ -325,7 +327,7 @@ public:
     template<typename T, typename ...Args> T& emplaceModule(Args&&... args)
     {
         if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(std::move(T(args...))));
-        else THROW_SATEXCEPTION("New module cannot be registered after tuple reading begins!\n");
+        else THROW_SATEXCEPTION("New module cannot be registered after tuple reading begins!\n");        
         return static_cast<FuncWrapperImpl<T>*>(functionVec_.back())->getFunc();
     }
 
@@ -393,24 +395,17 @@ public:
         }
     }
 
-    template<typename T> T& createDerivedVar(const std::string& name) const 
+    template<typename T, typename ...Args> T& createDerivedVar(const std::string& name, Args&&... args) const 
     {
-        T varTemp;
+        T varTemp(args...);
         registerDerivedVar(name, varTemp);
         auto* var = static_cast<T*>(getVarPtr(name));
         return (*var);
     }
 
-    template<typename T> std::vector<T>& createDerivedVec(const std::string& name) const 
+    template<typename T, typename ...Args> std::vector<T>& createDerivedVec(const std::string& name, Args&&... args) const 
     {
-        std::vector<T>* vec = new std::vector<T>();
-        registerDerivedVec(name, vec);
-        return (*vec);
-    }
-
-    template<typename T> std::vector<T>& createDerivedVec(const std::string& name, unsigned int nElem) const 
-    {
-        std::vector<T>* vec = new std::vector<T>(nElem);
+        std::vector<T>* vec = new std::vector<T>(args...);
         registerDerivedVec(name, vec);
         return (*vec);
     }
@@ -584,7 +579,7 @@ private:
 
         if(activate)
         {
-            branchMap_[name] = createHandle(new T());
+            branchMap_[name] = createHandle(new T(), true);
 
             tree_->SetBranchStatus(name.c_str(), 1);
             tree_->SetBranchAddress(name.c_str(), branchMap_[name].ptr);
@@ -597,7 +592,7 @@ private:
 
         if(activate)
         {
-            branchVecMap_[name] = createVecHandle(new std::vector<T>*());
+            branchVecMap_[name] = createVecHandle(new std::vector<T>*(), true);
 
             tree_->SetBranchStatus(name.c_str(), 1);
             tree_->SetBranchAddress(name.c_str(), branchVecMap_[name].ptr);
@@ -622,7 +617,7 @@ private:
                 THROW_SATEXCEPTION("Branch \"" + name + "\" appears to be an array, but there is no size branch");
             }
         
-            branchVecMap_[name] = createArrayHandle(new std::vector<T>*(), countBranch, branch);
+            branchVecMap_[name] = createArrayHandle(new std::vector<T>*(), countBranch, branch, true);
 
             tree_->SetBranchStatus(name.c_str(), 1);
         }
@@ -662,12 +657,12 @@ private:
         else if(convertHackActive_ && intuple) //else check if it is a vector<float> or vector<double>
         {
             //hack to get vector<double> as vector<float>, requires DuplicateFDVector() to be run
-            char typen;
+            char typen = '\0';
             if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<float>) && tuple_iter->second.type == typeid(std::vector<double>))
                 typen='f';
             if( typeid(typename std::remove_pointer<T>::type) == typeid(std::vector<double>) && tuple_iter->second.type == typeid(std::vector<float>))
                 typen='d';
-            std::string newname = var+"___" + typen;
+            std::string newname = var + "___" + typen;
             auto tuple_iter = branchVecMap_.find(newname);
             if (tuple_iter != branchVecMap_.end())
                 return *static_cast<T*>(tuple_iter->second.ptr);

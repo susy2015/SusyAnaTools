@@ -44,14 +44,14 @@ namespace AnaSamples
         double sum_xsec1 = 0.0;
         double sum_xsec2 = 0.0;
         // add sample 1 cross sections
-        for (int i = 0; i < sampleTags1.size(); i++)
+        for (unsigned int i = 0; i < sampleTags1.size(); i++)
         {
             FileSummary fs = sampleSet_[sampleTags1[i]];
             double xsec = fs.kfactor * fs.xsec;
             sum_xsec1 += xsec;
         }
         // add sample 2 cross sections
-        for (int i = 0; i < sampleTags2.size(); i++)
+        for (unsigned int i = 0; i < sampleTags2.size(); i++)
         {
             FileSummary fs = sampleSet_[sampleTags2[i]];
             double xsec = fs.kfactor * fs.xsec;
@@ -129,7 +129,6 @@ namespace AnaSamples
     bool SampleCollection::parseCfgLine(const char* buf)
     {
         char rbuf[BUF_LEN_];
-        size_t offset = 0;
         std::vector<std::string> sampleSetNames;
 
         memcpy(rbuf, buf, strlen(buf) + 1);

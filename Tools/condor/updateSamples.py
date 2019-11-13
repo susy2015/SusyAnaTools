@@ -9,7 +9,6 @@
 import argparse
 import re
 from shutil import copyfile
-
 from samples import SampleSet
 from nEvts import getNEvts
 
@@ -51,7 +50,7 @@ def compareNEventsFiles(sample, neventsFile1, neventsFile2):
     neventsFile2.seek(0)
     # be careful: strip() removes spaces and endlines
     sample_list = list(x.strip() for x in sample.split(','))
-    name = sample_list[0]
+    name = sample_list[0] 
     regex = re.compile(name+'.*Positive weights: (.*), Negative weights: (.*)')
     files = [neventsFile1, neventsFile2]
     matches = []
@@ -63,25 +62,25 @@ def compareNEventsFiles(sample, neventsFile1, neventsFile2):
             if match:
                 matches.append(match)
                 break
-    num_matches = len(matches)
+    num_matches = len(matches) 
     if num_matches == 2:
         pos_weights = list(int(float(match.group(1))) for match in matches)
         neg_weights = list(int(float(match.group(2))) for match in matches)
-        pos_diff = pos_weights[0] - pos_weights[1]
-        neg_diff = neg_weights[0] - neg_weights[1]
+        pos_diff = pos_weights[0] - pos_weights[1] 
+        neg_diff = neg_weights[0] - neg_weights[1] 
         if verbose:
-            print "{0} pos_weights: {1} diff: {2}".format(name, pos_weights, pos_diff)
+            print "{0} pos_weights: {1} diff: {2}".format(name, pos_weights, pos_diff)  
             print "{0} neg_weights: {1} diff: {2}".format(name, neg_weights, neg_diff)
         if pos_diff or neg_diff:
             if verbose:
                 print TextColor.yellow + "WARNING: nonzero difference for {0}".format(name) + TextColor.end
             else:
-                print "{0} pos_weights: {1} diff: {2}".format(name, pos_weights, pos_diff)
+                print "{0} pos_weights: {1} diff: {2}".format(name, pos_weights, pos_diff)  
                 print "{0} neg_weights: {1} diff: {2}".format(name, neg_weights, neg_diff)
                 print TextColor.yellow + "WARNING: nonzero difference for {0}".format(name) + TextColor.end
     else:
         print "ERROR for {0}: {1} matches found (should be exactly 2)".format(name, num_matches)
-   
+        
 
 # update n_events in config
 def getNewSample(sample, weight_dict, neventsFile):
@@ -140,7 +139,7 @@ def getNewSample(sample, weight_dict, neventsFile):
             print TextColor.yellow + "WARNING: more than one match found in nEvents file; {0} has {1} matches".format(name, num_matches) + TextColor.end
         else:
             print "{0} has {1} match(es) in nEvents file: {2}".format(name, num_matches, message)
-
+        
         # replace commas and a space removed by split()
         # replace endline that was removed by strip()
         newSample = ", ".join(sample_list) + "\n"
@@ -290,7 +289,7 @@ def main():
             if sample[0] == "#":
                 continue
             compareNEventsFiles(sample, neventsFile, neventsFile2)
-
+        
         # update config file with n_events
         else:
             # if line is empty (after being stripped), write original line (with endline) to file
@@ -313,7 +312,7 @@ def main():
                 if verbose:
                     print "newSample: {0}".format(newSample)
             outputSamples.write(newSample)
-
+        
 
     inputSamples.close()
     outputSamples.close()

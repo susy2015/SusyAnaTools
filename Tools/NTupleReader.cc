@@ -155,6 +155,7 @@ int NTupleReader::getNEntries() const
     {
         e.print();
         if(reThrow_) throw;
+        return -1;
     }
 }
 
@@ -164,7 +165,7 @@ void NTupleReader::populateBranchList()
     TIter next(lob);
     TBranch *branch;
 
-    while(branch = (TBranch*)next()) 
+    while((branch = (TBranch*)next())) 
     {
         std::string name(branch->GetName());
 
@@ -505,6 +506,7 @@ void* NTupleReader::getVarPtr(const std::string& var) const
     {
         e.print();
         if(reThrow_) throw;
+        return nullptr;
     }
 }
 
@@ -530,6 +532,7 @@ template<> const void* NTupleReader::getVecPtr<void>(const std::string& var) con
     {
         e.print();
         if(reThrow_) throw;
+        return nullptr;
     }
 }
 
@@ -538,6 +541,18 @@ void NTupleReader::printTupleMembers(FILE *f) const
     for(auto& iVar : typeMap_)
     {
         fprintf(f, "%60s %s\n", iVar.second.c_str(), iVar.first.c_str());
+    }
+}
+
+void NTupleReader::printUsedTupleVar(FILE *f) const
+{
+    for(auto& iVar : branchMap_)
+    {
+        if(iVar.second.activeFromNTuple) fprintf(f, "%60s %s\n", typeMap_[iVar.first].c_str(), iVar.first.c_str());
+    }
+    for(auto& iVar : branchVecMap_)
+    {
+        if(iVar.second.activeFromNTuple) fprintf(f, "%60s %s\n", typeMap_[iVar.first].c_str(), iVar.first.c_str());
     }
 }
 
