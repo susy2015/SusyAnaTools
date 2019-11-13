@@ -507,6 +507,15 @@ int main(int argc, char* argv[])
         //Res top tag SF
         //std::vector<float, std::allocator<float> > ResolvedTopCandidate_sf
         auto ResolvedTopCandidate_syst_CSPur_Up = tr.getVec<float>("ResolvedTopCandidate_syst_CSPur_Up");
+        auto ResolvedTopCandidate_syst_CSPur_Down = tr.getVec<float>("ResolvedTopCandidate_syst_CSPur_Down");
+        auto ResolvedTopCandidate_syst_Stat_Up = tr.getVec<float>("ResolvedTopCandidate_syst_Stat_Up");
+        auto ResolvedTopCandidate_syst_Stat_Down = tr.getVec<float>("ResolvedTopCandidate_syst_Stat_Down");
+        auto ResolvedTopCandidate_syst_Btag_Up = tr.getVec<float>("ResolvedTopCandidate_syst_Btag_Up");
+        auto ResolvedTopCandidate_syst_Btag_Down = tr.getVec<float>("ResolvedTopCandidate_syst_Btag_Down");
+        auto ResolvedTopCandidate_syst_Closure_Up = tr.getVec<float>("ResolvedTopCandidate_syst_Closure_Up");
+        auto ResolvedTopCandidate_syst_Closure_Down = tr.getVec<float>("ResolvedTopCandidate_syst_Closure_Down");
+        auto ResolvedTopCandidate_syst_Pileup_Up = tr.getVec<float>("ResolvedTopCandidate_syst_Pileup_Up");
+        auto ResolvedTopCandidate_syst_Pileup_Down = tr.getVec<float>("ResolvedTopCandidate_syst_Pileup_Down");
 
         //Merged top tag SF
 
