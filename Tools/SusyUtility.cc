@@ -161,6 +161,3 @@ namespace SusyUtility
         return file_exists;
     }
 }
-
-
-

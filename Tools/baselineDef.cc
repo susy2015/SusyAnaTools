@@ -878,6 +878,23 @@ void BaselineVessel::PassBaseline()
   //if (event == 519215141)
   //if (SAT_Pass_lowDM != Pass_lowDM && firstSpec.empty())
   //if (event == 1401471244)
+
+  double a1 = 222.222222;
+  double b1 = 222.222223;
+  float a2 = 422.29;
+  float b2 = 422.20;
+  int a3 = 4;
+  int b3 = 4;
+  unsigned int a4 = 6666;
+  unsigned int b4 = 6667;
+  printf("-----------------------------------------------------------------------------------------\n");
+  printf("%lf, %lf, isClose=%d\n", a1, b1, SusyUtility::isClose(a1, b1));
+  printf("%f, %f, isClose=%d\n", a2, b2, SusyUtility::isClose(a2, b2));
+  printf("%d, %d, isClose=%d\n", a3, b3, SusyUtility::isClose(a3, b3));
+  printf("%d, %d, isClose=%d\n", a4, b4, SusyUtility::isClose(a4, b4));
+  printf("-----------------------------------------------------------------------------------------\n");
+  
+  
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
   //if ( firstSpec.empty() && topDifference )
