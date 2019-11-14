@@ -563,10 +563,12 @@ void BaselineVessel::PassBaseline()
   bool Pass_dPhiMETLowDM                            = tr->getVar<bool>("Pass_dPhiMETLowDM");
   bool Pass_LeptonVeto                              = tr->getVar<bool>("Pass_LeptonVeto");
   
-  bool SAT_Pass_MET_Loose   = (met >= 100);
-  bool SAT_Pass_MET_Mid     = (met >= 160);
+  bool SAT_Pass_MET_Loose   = (met >= 160);
+  bool SAT_Pass_MET_Mid     = (met >= 200);
   bool SAT_Pass_MET         = (met >= 250);
   bool SAT_Pass_MET_Tight   = (met >= 300);
+  bool SAT_Pass_HT_Loose    = (HT  >= 200);
+  bool SAT_Pass_HT_Mid      = (HT  >= 250);
   bool SAT_Pass_HT          = (HT  >= 300);
   bool SAT_Pass_NJets       = nJets >= 2;
   bool SAT_Pass_LeptonVeto  = (Pass_ElecVeto && Pass_MuonVeto && Pass_TauVeto && Pass_IsoTrkVeto);
@@ -672,7 +674,7 @@ void BaselineVessel::PassBaseline()
                             SAT_Pass_JetID 
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET_Loose 
-                         && SAT_Pass_HT
+                         && SAT_Pass_HT_Loose
                          && SAT_Pass_NJets
                          && SAT_Pass_dPhiMETLowDM
                     );
@@ -681,6 +683,7 @@ void BaselineVessel::PassBaseline()
   SAT_Pass_lowDM_Loose = (
                         SAT_Pass_Baseline_Loose
                      && nMergedTops == 0
+                     && nResolvedTops == 0
                      && nWs == 0
                      && SAT_Pass_ISR
                      && SAT_Pass_S_MET
@@ -700,7 +703,7 @@ void BaselineVessel::PassBaseline()
                             SAT_Pass_JetID 
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET_Mid 
-                         && SAT_Pass_HT
+                         && SAT_Pass_HT_Mid
                          && SAT_Pass_NJets
                          && SAT_Pass_dPhiMETLowDM
                     );
@@ -709,6 +712,7 @@ void BaselineVessel::PassBaseline()
   SAT_Pass_lowDM_Mid = (
                         SAT_Pass_Baseline_Mid
                      && nMergedTops == 0
+                     && nResolvedTops == 0
                      && nWs == 0
                      && SAT_Pass_ISR
                      && SAT_Pass_S_MET
@@ -794,7 +798,7 @@ void BaselineVessel::PassBaseline()
                             SAT_Pass_JetID 
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET_Loose 
-                         && SAT_Pass_HT
+                         && SAT_Pass_HT_Loose
                          && SAT_Pass_NJets
                       );
   //baseline for SUS-16-049 low dm plus HT cut
@@ -802,6 +806,7 @@ void BaselineVessel::PassBaseline()
                         SAT_Pass_Baseline_no_dPhi_Loose
                      && SAT_Pass_mid_dPhiMETLowDM 
                      && nMergedTops == 0
+                     && nResolvedTops == 0
                      && nWs == 0
                      && SAT_Pass_ISR_Loose
                      && SAT_Pass_S_MET
@@ -820,7 +825,7 @@ void BaselineVessel::PassBaseline()
                             SAT_Pass_JetID 
                          && SAT_Pass_EventFilter
                          && SAT_Pass_MET_Mid 
-                         && SAT_Pass_HT
+                         && SAT_Pass_HT_Mid
                          && SAT_Pass_NJets
                       );
   //baseline for SUS-16-049 low dm plus HT cut
@@ -828,6 +833,7 @@ void BaselineVessel::PassBaseline()
                         SAT_Pass_Baseline_no_dPhi_Mid
                      && SAT_Pass_mid_dPhiMETLowDM 
                      && nMergedTops == 0
+                     && nResolvedTops == 0
                      && nWs == 0
                      && SAT_Pass_ISR_Loose
                      && SAT_Pass_S_MET
