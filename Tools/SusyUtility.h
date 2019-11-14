@@ -53,7 +53,7 @@ namespace SusyUtility
     template<typename T>
     bool isClose(T a, T b, double precision=0.000001)
     {
-        if (typeid(T) == typeid(int) || typeid(T) == typeid(unsigned int))
+        if (typeid(T) == typeid(bool) || typeid(T) == typeid(int) || typeid(T) == typeid(unsigned int))
         {
             return a == b; 
         }

@@ -90,7 +90,6 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
 // constructor without nullptr as argument
 BaselineVessel::BaselineVessel(const std::string year, const std::string specialization, const std::string filterString) : BaselineVessel(*static_cast<NTupleReader*>(nullptr), year, specialization, filterString) {}
 
-
 bool BaselineVessel::getBool(const std::string& var)
 {
   bool val = false;
@@ -99,6 +98,12 @@ bool BaselineVessel::getBool(const std::string& var)
     val = tr->getVar<bool>(var);
   }
   return val;
+}
+
+std::string BaselineVessel::checkEquality(bool equal)
+{
+    if (equal) return "";
+    else       return " --- NOT_EQUAL --- ";
 }
 
 // ===  FUNCTION  ============================================================
@@ -650,7 +655,7 @@ void BaselineVessel::PassBaseline()
   // standard baseline
   SAT_Pass_Baseline = (
                             SAT_Pass_JetID 
-                         && SAT_Pass_EventFilter
+                         && Pass_EventFilter
                          && Pass_CaloMETRatio
                          && SAT_Pass_MET 
                          && SAT_Pass_HT
@@ -681,7 +686,7 @@ void BaselineVessel::PassBaseline()
   //baseline for shapeFactor calculation (loose)
   SAT_Pass_Baseline_Loose = (
                             SAT_Pass_JetID 
-                         && SAT_Pass_EventFilter
+                         && Pass_EventFilter
                          && Pass_CaloMETRatio
                          && SAT_Pass_MET_Loose 
                          && SAT_Pass_HT
@@ -710,7 +715,7 @@ void BaselineVessel::PassBaseline()
   //baseline for shapeFactor calculation (mid)
   SAT_Pass_Baseline_Mid = (
                             SAT_Pass_JetID 
-                         && SAT_Pass_EventFilter
+                         && Pass_EventFilter
                          && Pass_CaloMETRatio
                          && SAT_Pass_MET_Mid 
                          && SAT_Pass_HT
@@ -739,7 +744,7 @@ void BaselineVessel::PassBaseline()
   // standard baseline
   SAT_Pass_Baseline_Tight = (
                             SAT_Pass_JetID 
-                         && SAT_Pass_EventFilter
+                         && Pass_EventFilter
                          && Pass_CaloMETRatio
                          && SAT_Pass_MET_Tight
                          && SAT_Pass_HT
@@ -777,7 +782,7 @@ void BaselineVessel::PassBaseline()
   // without dPhi
   bool SAT_Pass_Baseline_no_dPhi = (
                             SAT_Pass_JetID 
-                         && SAT_Pass_EventFilter
+                         && Pass_EventFilter
                          && Pass_CaloMETRatio
                          && SAT_Pass_MET 
                          && SAT_Pass_HT
@@ -807,7 +812,7 @@ void BaselineVessel::PassBaseline()
   //Loose version
   bool SAT_Pass_Baseline_no_dPhi_Loose = (
                             SAT_Pass_JetID 
-                         && SAT_Pass_EventFilter
+                         && Pass_EventFilter
                          && Pass_CaloMETRatio
                          && SAT_Pass_MET_Loose 
                          && SAT_Pass_HT
@@ -834,7 +839,7 @@ void BaselineVessel::PassBaseline()
   //Mid version
   bool SAT_Pass_Baseline_no_dPhi_Mid = (
                             SAT_Pass_JetID 
-                         && SAT_Pass_EventFilter
+                         && Pass_EventFilter
                          && Pass_CaloMETRatio
                          && SAT_Pass_MET_Mid 
                          && SAT_Pass_HT
@@ -879,20 +884,22 @@ void BaselineVessel::PassBaseline()
   //if (SAT_Pass_lowDM != Pass_lowDM && firstSpec.empty())
   //if (event == 1401471244)
 
-  double a1 = 222.222222;
-  double b1 = 222.222223;
-  float a2 = 422.29;
-  float b2 = 422.20;
-  int a3 = 4;
-  int b3 = 4;
-  unsigned int a4 = 6666;
-  unsigned int b4 = 6667;
-  printf("-----------------------------------------------------------------------------------------\n");
-  printf("%lf, %lf, isClose=%d\n", a1, b1, SusyUtility::isClose(a1, b1));
-  printf("%f, %f, isClose=%d\n", a2, b2, SusyUtility::isClose(a2, b2));
-  printf("%d, %d, isClose=%d\n", a3, b3, SusyUtility::isClose(a3, b3));
-  printf("%d, %d, isClose=%d\n", a4, b4, SusyUtility::isClose(a4, b4));
-  printf("-----------------------------------------------------------------------------------------\n");
+  //double a1 = 222.222222;
+  //double b1 = 222.222223;
+  //float a2 = 422.29;
+  //float b2 = 422.20;
+  //int a3 = 4;
+  //int b3 = 4;
+  //unsigned int a4 = 6666;
+  //unsigned int b4 = 6667;
+  //printf("-----------------------------------------------------------------------------------------\n");
+  //printf("%lf, %lf, isClose=%d\n", a1, b1, SusyUtility::isClose(a1, b1));
+  //printf("%f, %f, isClose=%d\n", a2, b2, SusyUtility::isClose(a2, b2));
+  //printf("%d, %d, isClose=%d\n", a3, b3, SusyUtility::isClose(a3, b3));
+  //printf("%d, %d, isClose=%d\n", a4, b4, SusyUtility::isClose(a4, b4));
+  //printf("-----------------------------------------------------------------------------------------\n");
+  // use SusyUtility::isClose()
+  // use checkEquality()
   
   
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
@@ -904,29 +911,29 @@ void BaselineVessel::PassBaseline()
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
     printf("firstSpec: %s; CMS event: %d ntuple event: %d\n", firstSpec.c_str(), event, tr->getEvtNum());
-    printf("hui_Pass_lowDM_withCaloMETRatio  = %d and caleb_SAT_Pass_lowDM  = %d\n", Pass_lowDM_withCaloMETRatio,  SAT_Pass_lowDM);
-    printf("hui_Pass_highDM_withCaloMETRatio = %d and caleb_SAT_Pass_highDM = %d\n", Pass_highDM_withCaloMETRatio, SAT_Pass_highDM);
-    printf("\thui_Pass_LeptonVeto    = %d and caleb_SAT_Pass_LeptonVeto       = %d\n", Pass_LeptonVeto, SAT_Pass_LeptonVeto);
-    printf("\thui_Pass_JetID         = %d and caleb_SAT_Pass_JetID            = %d\n", Pass_JetID, SAT_Pass_JetID);
-    printf("\thui_Pass_EventFilter   = %d and caleb_SAT_Pass_EventFilter      = %d\n", Pass_EventFilter, SAT_Pass_EventFilter);
-    printf("\thui_Pass_CaloMETRatio  = %d and caleb_Pass_CaloMETRatio         = %d\n", Pass_CaloMETRatio, Pass_CaloMETRatio);
-    printf("\thui_Pass_MET           = %d and caleb_SAT_Pass_MET              = %d\n", Pass_MET, SAT_Pass_MET);
-    printf("\thui_Pass_HT            = %d and caleb_SAT_Pass_HT               = %d\n", Pass_HT, SAT_Pass_HT);
-    printf("\thui_Pass_NJets         = %d and caleb_SAT_Pass_NJets            = %d\n", Pass_NJets, SAT_Pass_NJets);
-    printf("\thui_Pass_dPhiMETLowDM  = %d and caleb_SAT_Pass_dPhiMETLowDM     = %d\n", Pass_dPhiMETLowDM, SAT_Pass_dPhiMETLowDM);
-    printf("\thui_Pass_dPhiMETMedDM  = %d and caleb_SAT_Pass_mid_dPhiMETLowDM = %d\n", Pass_dPhiMETMedDM, SAT_Pass_mid_dPhiMETLowDM);
-    printf("\thui_Pass_dPhiMETHighDM = %d and caleb_SAT_Pass_dPhiMETHighDM    = %d\n", Pass_dPhiMETHighDM, SAT_Pass_dPhiMETHighDM);
-    printf("\thui_MET_pt             = %f and caleb_met                       = %f\n", MET_pt, met);
-    printf("\thui_Stop0l_HT          = %f and caleb_HT                        = %f\n", Stop0l_HT, HT);
-    printf("\thui_Stop0l_ISRJetPt    = %f and caleb_ISRJetPt                  = %f\n", Stop0l_ISRJetPt, ISRJetPt);
-    printf("\thui_Stop0l_METSig      = %f and caleb_S_met                     = %f\n", Stop0l_METSig, S_met);
-    printf("\thui_Stop0l_Mtb         = %f and caleb_mtb                       = %f\n", Stop0l_Mtb, mtb);
-    printf("\thui_Stop0l_Ptb         = %f and caleb_ptb                       = %f\n", Stop0l_Ptb, ptb);
-    printf("\thui_Stop0l_nJets       = %d and caleb_nJets                     = %d\n", Stop0l_nJets, nJets);
-    printf("\thui_Stop0l_nbtags      = %d and caleb_nBottoms                  = %d\n", Stop0l_nbtags, nBottoms);
-    printf("\thui_Stop0l_nTop        = %d and caleb_nMergedTops               = %d\n", Stop0l_nTop, nMergedTops);
-    printf("\thui_Stop0l_nW          = %d and caleb_nWs                       = %d\n", Stop0l_nW, nWs);
-    printf("\thui_Stop0l_nResolved   = %d and caleb_nResolvedTops             = %d\n", Stop0l_nResolved, nResolvedTops);
+    printf("hui_Pass_lowDM_withCaloMETRatio  = %d and caleb_SAT_Pass_lowDM  = %d %s\n",   Pass_lowDM_withCaloMETRatio,  SAT_Pass_lowDM,             checkEquality(SusyUtility::isClose(Pass_lowDM_withCaloMETRatio,     SAT_Pass_lowDM)).c_str());
+    printf("hui_Pass_highDM_withCaloMETRatio = %d and caleb_SAT_Pass_highDM = %d %s\n",   Pass_highDM_withCaloMETRatio, SAT_Pass_highDM,            checkEquality(SusyUtility::isClose(Pass_highDM_withCaloMETRatio,    SAT_Pass_highDM)).c_str());
+    printf("\thui_Pass_LeptonVeto    = %d and caleb_SAT_Pass_LeptonVeto       = %d %s\n", Pass_LeptonVeto,              SAT_Pass_LeptonVeto,        checkEquality(SusyUtility::isClose(Pass_LeptonVeto,                 SAT_Pass_LeptonVeto)).c_str());
+    printf("\thui_Pass_JetID         = %d and caleb_SAT_Pass_JetID            = %d %s\n", Pass_JetID,                   SAT_Pass_JetID,             checkEquality(SusyUtility::isClose(Pass_JetID,                      SAT_Pass_JetID)).c_str());
+    printf("\thui_Pass_EventFilter   = %d and caleb_Pass_EventFilter          = %d %s\n", Pass_EventFilter,             Pass_EventFilter,           checkEquality(SusyUtility::isClose(Pass_EventFilter,                Pass_EventFilter)).c_str());
+    printf("\thui_Pass_CaloMETRatio  = %d and caleb_Pass_CaloMETRatio         = %d %s\n", Pass_CaloMETRatio,            Pass_CaloMETRatio,          checkEquality(SusyUtility::isClose(Pass_CaloMETRatio,               Pass_CaloMETRatio)).c_str());
+    printf("\thui_Pass_MET           = %d and caleb_SAT_Pass_MET              = %d %s\n", Pass_MET,                     SAT_Pass_MET,               checkEquality(SusyUtility::isClose(Pass_MET,                        SAT_Pass_MET)).c_str());
+    printf("\thui_Pass_HT            = %d and caleb_SAT_Pass_HT               = %d %s\n", Pass_HT,                      SAT_Pass_HT,                checkEquality(SusyUtility::isClose(Pass_HT,                         SAT_Pass_HT)).c_str());
+    printf("\thui_Pass_NJets         = %d and caleb_SAT_Pass_NJets            = %d %s\n", Pass_NJets,                   SAT_Pass_NJets,             checkEquality(SusyUtility::isClose(Pass_NJets,                      SAT_Pass_NJets)).c_str());
+    printf("\thui_Pass_dPhiMETLowDM  = %d and caleb_SAT_Pass_dPhiMETLowDM     = %d %s\n", Pass_dPhiMETLowDM,            SAT_Pass_dPhiMETLowDM,      checkEquality(SusyUtility::isClose(Pass_dPhiMETLowDM,               SAT_Pass_dPhiMETLowDM)).c_str());
+    printf("\thui_Pass_dPhiMETMedDM  = %d and caleb_SAT_Pass_mid_dPhiMETLowDM = %d %s\n", Pass_dPhiMETMedDM,            SAT_Pass_mid_dPhiMETLowDM,  checkEquality(SusyUtility::isClose(Pass_dPhiMETMedDM,               SAT_Pass_mid_dPhiMETLowDM)).c_str());
+    printf("\thui_Pass_dPhiMETHighDM = %d and caleb_SAT_Pass_dPhiMETHighDM    = %d %s\n", Pass_dPhiMETHighDM,           SAT_Pass_dPhiMETHighDM,     checkEquality(SusyUtility::isClose(Pass_dPhiMETHighDM,              SAT_Pass_dPhiMETHighDM)).c_str());
+    printf("\thui_MET_pt             = %f and caleb_met                       = %f %s\n", MET_pt,                       met,                        checkEquality(SusyUtility::isClose(MET_pt,                          met)).c_str());
+    printf("\thui_Stop0l_HT          = %f and caleb_HT                        = %f %s\n", Stop0l_HT,                    HT,                         checkEquality(SusyUtility::isClose(Stop0l_HT,                       HT)).c_str());
+    printf("\thui_Stop0l_ISRJetPt    = %f and caleb_ISRJetPt                  = %f %s\n", Stop0l_ISRJetPt,              ISRJetPt,                   checkEquality(SusyUtility::isClose(Stop0l_ISRJetPt,                 ISRJetPt)).c_str());
+    printf("\thui_Stop0l_METSig      = %f and caleb_S_met                     = %f %s\n", Stop0l_METSig,                S_met,                      checkEquality(SusyUtility::isClose(Stop0l_METSig,                   S_met)).c_str());
+    printf("\thui_Stop0l_Mtb         = %f and caleb_mtb                       = %f %s\n", Stop0l_Mtb,                   mtb,                        checkEquality(SusyUtility::isClose(Stop0l_Mtb,                      mtb)).c_str());
+    printf("\thui_Stop0l_Ptb         = %f and caleb_ptb                       = %f %s\n", Stop0l_Ptb,                   ptb,                        checkEquality(SusyUtility::isClose(Stop0l_Ptb,                      ptb)).c_str());
+    printf("\thui_Stop0l_nJets       = %d and caleb_nJets                     = %d %s\n", Stop0l_nJets,                 nJets,                      checkEquality(SusyUtility::isClose(Stop0l_nJets,                    nJets)).c_str());
+    printf("\thui_Stop0l_nbtags      = %d and caleb_nBottoms                  = %d %s\n", Stop0l_nbtags,                nBottoms,                   checkEquality(SusyUtility::isClose(Stop0l_nbtags,                   nBottoms)).c_str());
+    printf("\thui_Stop0l_nTop        = %d and caleb_nMergedTops               = %d %s\n", Stop0l_nTop,                  nMergedTops,                checkEquality(SusyUtility::isClose(Stop0l_nTop,                     nMergedTops)).c_str());
+    printf("\thui_Stop0l_nW          = %d and caleb_nWs                       = %d %s\n", Stop0l_nW,                    nWs,                        checkEquality(SusyUtility::isClose(Stop0l_nW,                       nWs)).c_str());
+    printf("\thui_Stop0l_nResolved   = %d and caleb_nResolvedTops             = %d %s\n", Stop0l_nResolved,             nResolvedTops,              checkEquality(SusyUtility::isClose(Stop0l_nResolved,                nResolvedTops)).c_str());
     printf("\tcaleb_MergedTopTotalSF    = %f\n", MergedTopTotalSF);
     printf("\tcaleb_WTotalSF            = %f\n", WTotalSF);
     printf("\tcaleb_ResolvedTopTotalSF  = %f\n", ResolvedTopTotalSF);
