@@ -50,6 +50,7 @@ namespace SusyUtility
     // check if file exists
     bool fileExists(const std::string& fileName);
     // compare ints, doubles, floats, etc.
+    // use relative tolerance
     template<typename T>
     bool isClose(T a, T b, double precision=0.000001)
     {
@@ -59,7 +60,18 @@ namespace SusyUtility
         }
         else
         {
-            return abs(a - b) / a <= precision;
+            if (a == 0.0 && b == 0.0)
+            {
+                return true;
+            }
+            else if (a != 0.0)
+            {
+                return abs(a - b) <= precision * abs(a);
+            }
+            else
+            {
+                return abs(a - b) <= precision * abs(b);
+            }
         }
     }
 }
