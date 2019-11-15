@@ -2065,7 +2065,7 @@ bool BaselineVessel::CalcBottomVars()
     // jet index sorted by pt
     i = p.second; 
     // check if it passes pt, eta, and b requirement
-    if (jets[i].Pt() > pt_cut && fabs(jets[i].Eta()) < eta_cut && Jet_btagStop0l[i])
+    if (jets[i].Pt() >= pt_cut && fabs(jets[i].Eta()) <= eta_cut && Jet_btagStop0l[i])
     {
       if (verbose) printf("event %d, jet %d: Jet_btagDisc = %f, Jet_btagStop0l = %s, Jet_pt = %f\n", event, i, Jet_btagDisc[i], Jet_btagStop0l[i] ? "true" : "false", jets[i].Pt());
       ++nBottoms;
