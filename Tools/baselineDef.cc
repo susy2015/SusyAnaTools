@@ -483,7 +483,10 @@ void BaselineVessel::PassBaseline()
   }
 
   // Get jet collection
+  // Note: Jet_sortedIdx has jet pt >= 30 and abs(eta) <+ 4.7 cuts applied; thus is does not have the same length as other jet variables
+  // Also, we do not clean Jet_sortedIdx because it does not have the standard length
   const auto& Jets          = tr->getVec<TLorentzVector>(jetVecLabel);
+  const auto& Jet_sortedIdx = tr->getVec<int>("Jet_sortedIdx");
   const auto& FatJets       = tr->getVec<TLorentzVector>(jetVecLabelAK8);
   const auto& FatJet_Stop0l = tr->getVec<int>("FatJet_Stop0l");
   const auto& met           = tr->getVar<float>(METLabel); 
@@ -912,7 +915,9 @@ void BaselineVessel::PassBaseline()
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
   //if ( firstSpec.empty() && topDifference )
   //if ( firstSpec.empty() && totalTopsWs   )
-  if ( firstSpec.compare("_jetpt30") == 0 && ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) )
+  //if (firstSpec.compare("_jetpt30") == 0)
+  //if ( firstSpec.compare("_jetpt30") == 0 && ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) )
+  if (firstSpec.compare("_jetpt30") == 0 && ( event == 519215141 || ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) ) )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
@@ -963,16 +968,33 @@ void BaselineVessel::PassBaseline()
         }
         
     }
+    printf("------------- caleb met, jets, dphi -------------\n");
+    printf("met = %f\n",             met);
+    printf("metphi = %f\n",          metphi);
+    for (int i = 0; i < Jet_sortedIdx.size(); ++i)
+    {
+        printf("jet index=%d, sorted_index=%d\n", i, Jet_sortedIdx[i]);
+    }
+    int j = 0;
+    for (const auto& Jet : Jets)
+    {
+      printf("Jet_%d: pt=%f, eta=%f, phi=%f, mass=%f\n", j, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
+      ++j;
+    }
+    for (int i = 0; i < dPhiVec->size(); ++i)
+    {
+        printf("dPhi_%d = %f\n", i, dPhiVec->at(i));
+    }
     
     if (verbose)
     {
       printf("SAT_Pass_dPhiMETLowDM: %d\n", SAT_Pass_dPhiMETLowDM);
       printf("SAT_Pass_dPhiMETHighDM: %d\n", SAT_Pass_dPhiMETHighDM);
       // dPhi
-      printf("dPhi_0: %f ",           dPhiVec->at(0));
-      printf("dPhi_1: %f ",           dPhiVec->at(1));
-      printf("dPhi_2: %f ",           dPhiVec->at(2));
-      printf("dPhi_3: %f ",           dPhiVec->at(3));
+      //printf("dPhi_0: %f ",           dPhiVec->at(0));
+      //printf("dPhi_1: %f ",           dPhiVec->at(1));
+      //printf("dPhi_2: %f ",           dPhiVec->at(2));
+      //printf("dPhi_3: %f ",           dPhiVec->at(3));
       printf("met = %f ",             met);
       printf("metphi = %f ",          metphi);
       printf("HT = %f ",              HT);
@@ -985,17 +1007,21 @@ void BaselineVessel::PassBaseline()
       printf("nBottoms = %d ",        nBottoms);
       printf("nWs = %d ",             nWs);
       printf("\n");
-      int i = 0;
+      for (int i = 0; i < dPhiVec->size(); ++i)
+      {
+          printf("dPhi_%d = %f\n", i, dPhiVec->at(i));
+      }
+      int j = 0;
       for (const auto& Jet : Jets)
       {
-        printf("Jet %d: pt=%f, eta=%f, phi=%f, mass=%f\n", i, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
-        ++i;
+        printf("Jet %d: pt=%f, eta=%f, phi=%f, mass=%f\n", j, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
+        ++j;
       }
     }
   }
 
-  // compare original variables to those with cleaned jets
-  if (verbose)
+  // compare SAT and Stop0l variables
+  if (false)
   {
     // ISR jet variables
     printf("nFatJets: %d ",         nFatJets);
