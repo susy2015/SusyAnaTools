@@ -526,7 +526,6 @@ void BaselineVessel::PassBaseline()
   const auto& Jets          = tr->getVec<TLorentzVector>(jetVecLabel);
   const auto& Jet_sortedIdx = tr->getVec<int>("Jet_sortedIdx");
   const auto& FatJets       = tr->getVec<TLorentzVector>(jetVecLabelAK8);
-  const auto& FatJet_Stop0l = tr->getVec<int>("FatJet_Stop0l");
   const auto& met           = tr->getVar<float>(METLabel); 
   const auto& metphi        = tr->getVar<float>(METPhiLabel); 
 
@@ -570,6 +569,8 @@ void BaselineVessel::PassBaseline()
   // https://github.com/susy2015/SusyAnaTools/blob/5e4f54e1aa985daff90f1ad7a220b8d17e4b7290/Tools/tupleRead.C#L629-L639
   
   // variables for SAT_Pass_lowDM and SAT_Pass_highDM
+  const auto& run                   = tr->getVar<unsigned int>("run");
+  const auto& luminosityBlock       = tr->getVar<unsigned int>("luminosityBlock");
   const auto& event                 = tr->getVar<unsigned long long>("event");
   const auto& mtb                   = tr->getVar<float>(UseCleanedJetsVar("mtb"));
   const auto& ptb                   = tr->getVar<float>(UseCleanedJetsVar("ptb"));
@@ -954,12 +955,12 @@ void BaselineVessel::PassBaseline()
   //if ( firstSpec.empty() && topDifference )
   //if ( firstSpec.empty() && totalTopsWs   )
   //if (firstSpec.compare("_jetpt30") == 0)
-  //if ( firstSpec.compare("_jetpt30") == 0 && ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) )
-  if (firstSpec.compare("_jetpt30") == 0 && ( event == 519215141 || ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) ) )
+  //if (firstSpec.compare("_jetpt30") == 0 && ( event == 196937071 || ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) ) )
+  if ( firstSpec.compare("_jetpt30") == 0 && ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
-    printf("firstSpec: %s; CMS event: %d ntuple event: %d\n", firstSpec.c_str(), event, tr->getEvtNum());
+    printf("firstSpec=%s; run=%d; luminosityBlock=%d; CMS_event=%d; ntuple_event=%d\n",   firstSpec.c_str(), run, luminosityBlock, event, tr->getEvtNum());
     printf("hui_Pass_lowDM_withCaloMETRatio  = %d and caleb_SAT_Pass_lowDM  = %d %s\n",   Pass_lowDM_withCaloMETRatio,  SAT_Pass_lowDM,             checkEquality(SusyUtility::isClose(Pass_lowDM_withCaloMETRatio,     SAT_Pass_lowDM)).c_str());
     printf("hui_Pass_highDM_withCaloMETRatio = %d and caleb_SAT_Pass_highDM = %d %s\n",   Pass_highDM_withCaloMETRatio, SAT_Pass_highDM,            checkEquality(SusyUtility::isClose(Pass_highDM_withCaloMETRatio,    SAT_Pass_highDM)).c_str());
     printf("\thui_Pass_LeptonVeto    = %d and caleb_SAT_Pass_LeptonVeto       = %d %s\n", Pass_LeptonVeto,              SAT_Pass_LeptonVeto,        checkEquality(SusyUtility::isClose(Pass_LeptonVeto,                 SAT_Pass_LeptonVeto)).c_str());
@@ -1023,6 +1024,16 @@ void BaselineVessel::PassBaseline()
     {
         printf("dPhi_%d = %f\n", i, dPhiVec->at(i));
     }
+    printf("------------- caleb fat jets -------------\n");
+    j = 0;
+    for (const auto& FatJet : FatJets)
+    {
+      printf("FatJet_%d: pt=%f, eta=%f, phi=%f, mass=%f\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M());
+      ++j;
+    }
+    // for testing ISR jet pt
+    int myISRJetIndex = GetISRJetIdx(true);
+    printf("myISRJetIndex = %d\n", myISRJetIndex);
     
     if (verbose)
     {
@@ -1739,7 +1750,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassEventFilter();
   PassHEMVeto();
   PassBaseline();
-  Test();
+  //Test();
 }
 
 void BaselineVessel::PassTrigger()
@@ -2189,9 +2200,8 @@ bool BaselineVessel::CalcBottomVars()
 
 
 
-int BaselineVessel::GetISRJetIdx()
+int BaselineVessel::GetISRJetIdx(bool verbose)
 {
-  bool verbose = false;
   const auto& fat_jets           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
   //const auto& nFatJets           = tr->getVar<int>(UseCleanedJetsVar("nFatJets"));
   const auto& FatJet_btagDeepB   = tr->getVec<float>(UseCleanedJetsVar("FatJet_btagDeepB"));
@@ -2204,6 +2214,7 @@ int BaselineVessel::GetISRJetIdx()
   const auto& nWs                = tr->getVar<int>(UseCleanedJetsVar("nWs"));
   int nFatJets = fat_jets.size();
   int nSubJets = SubJet_btagDeepB.size();
+  double fat_jet_pt_cut = 199.999;
   int i = 0; // only use leading fat jet (ordered by pt, index 0)
   if (verbose) printf("FatJet %d: p_t = %f, eta = %f, phi = %f, mass = %f, btag_disc = %f\n", i, fat_jets[i].Pt(), fat_jets[i].Eta(), fat_jets[i].Phi(), fat_jets[i].M(), FatJet_btagDeepB[i]);
   // require that there are no merged or resolved tops and no Ws
@@ -2218,13 +2229,21 @@ int BaselineVessel::GetISRJetIdx()
     if (verbose) printf("FAIL number of fat jets requirement\n");
     return -1;
   }
-  // pt > 200
-  if (fat_jets[i].Pt() < 200.0)
+  // testing ISR jet pt cut
+  if (verbose)
+  {
+      if (SusyUtility::isClose(fat_jets[i].Pt(), fat_jet_pt_cut))    printf("ISR jet pt %f is close to %f.\n",      fat_jets[i].Pt(), fat_jet_pt_cut);
+      if (fat_jets[i].Pt() == fat_jet_pt_cut)                        printf("ISR jet pt %f is equal to %f.\n",      fat_jets[i].Pt(), fat_jet_pt_cut);
+      if (fat_jets[i].Pt() <  fat_jet_pt_cut)                        printf("ISR jet pt %f is less than %f.\n",     fat_jets[i].Pt(), fat_jet_pt_cut);
+      if (fat_jets[i].Pt() >  fat_jet_pt_cut)                        printf("ISR jet pt %f is greater than %f.\n",  fat_jets[i].Pt(), fat_jet_pt_cut);
+  }
+  // pt >= 200
+  if (fat_jets[i].Pt() < fat_jet_pt_cut)
   {
     if (verbose) printf("FAIL fat jet pt requirement\n");
     return -1;
   }
-  // |eta| < 2.4
+  // |eta| <= 2.4
   if (fabs(fat_jets[i].Eta()) > 2.4)
   {
     if (verbose) printf("FAIL fat jet eta requirement\n");
