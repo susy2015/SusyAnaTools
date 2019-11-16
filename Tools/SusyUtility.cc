@@ -32,12 +32,16 @@ namespace SusyUtility
     template<> 
     bool greaterThan(const std::pair<TLorentzVector,unsigned int>& p1, const std::pair<TLorentzVector,unsigned int>& p2)
     {
-        if (p1.first.Pt() == p2.first.Pt())
+        // be careful with float comparison
+        //if (p1.first.Pt() == p2.first.Pt())
+        if (isClose(p1.first.Pt(), p2.first.Pt()))
         {
+            printf("INFO: pt are equal; sorting by abs(eta). pt_1 = %f, pt_2 = %f, eta_1 = %f, eta_2 = %f\n", p1.first.Pt(), p2.first.Pt(), p1.first.Eta(), p2.first.Eta());
             return abs(p1.first.Eta()) < abs(p2.first.Eta());
         }
         else
         {
+            //printf("pt_1 = %f, pt_2 = %f, pt_1 - pt_2 = %f, diff_equal_zero = %d\n", p1.first.Pt(), p2.first.Pt(), p1.first.Pt() - p2.first.Pt(), p1.first.Pt() - p2.first.Pt() == 0.0);
             return p1.first.Pt() > p2.first.Pt();
         }
     }

@@ -102,6 +102,7 @@ public:
     inline std::string UseCleanedJetsVar(std::string varname) const;
     bool getBool(const std::string& var);
     std::string checkEquality(bool equal);
+    void Test();
     void PassBaseline();
     void PassTrigger();
     void PassJetID();

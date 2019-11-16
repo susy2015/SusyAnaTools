@@ -38,10 +38,10 @@ namespace AnaFunctions
     return cntNJets;
   }
 
-  std::vector<float> calcDPhi(const std::vector<TLorentzVector> &inputJets, const TLorentzVector &metLVec, const int nDPhi, const AnaConsts::AccRec& jetCutsArr)
+  std::vector<float> calcDPhi(const std::vector<TLorentzVector> &inputJets, const TLorentzVector &metLVec, const int nDPhi, const AnaConsts::AccRec& jetCutsArr, bool verbose)
   {
     const float minAbsEta = jetCutsArr.minAbsEta, maxAbsEta = jetCutsArr.maxAbsEta, minPt = jetCutsArr.minPt, maxPt = jetCutsArr.maxPt;
-    int cntNJets =0;
+    int cntNJets = 0;
     int i = 0;
     
     std::vector<std::pair<TLorentzVector, unsigned>> sorted_jets;
@@ -53,13 +53,16 @@ namespace AnaFunctions
     
     // sort jets by pt (since JEC change jet pt)
     std::sort(sorted_jets.begin(), sorted_jets.end(), SusyUtility::greaterThan<TLorentzVector, unsigned>);
-    
     std::vector<float> outDPhiVec(nDPhi, 999);
-    //for(unsigned int i=0; i<inputJets.size(); i++){
     for (const auto& p : sorted_jets)
     {
       // jet index sorted by pt
       i = p.second; 
+      if (verbose)
+      {
+          printf("jet index=%d, sorted_index=%d\n", cntNJets, i);
+      }
+      
       if( !jetPassCuts(inputJets[i], jetCutsArr) ) continue;
       if( cntNJets < nDPhi )
       {
@@ -67,7 +70,7 @@ namespace AnaFunctions
         float perDPhi = fabs(ROOT::Math::VectorUtil::DeltaPhi(inputJets[i], metLVec)); // using metLVec
         outDPhiVec[cntNJets] = perDPhi;
       }
-      cntNJets ++;
+      ++cntNJets;
     }
     return outDPhiVec;
   }
