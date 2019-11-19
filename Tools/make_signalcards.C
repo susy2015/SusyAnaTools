@@ -22,10 +22,10 @@ int main(int argc, char* argv[])
 	TString SingleElCR = argv[6];
 	int mid_bin = atoi(argv[7]);
 	const double lumi = 137;
-	//const double lumi = 120;
 
+	bool is_compressed_signal = false;
 	TFile *f3 = new TFile("xSec.root");
-	TH1D *h3 = NULL;
+	TH1F *h3 = NULL;
 
 	TString result_path;
 
@@ -33,22 +33,22 @@ int main(int argc, char* argv[])
 	{
 		std::cout << "=============== find T2tt =================" << std::endl;
 		result_path = "results/T2tt_signal_scan/";
-		h3 = (TH1D*)f3->Get("stop_xsection");
+		h3 = (TH1F*)f3->Get("stop_xsection");
 	}
 
 	else if (sp.Contains("T1tttt"))
 	{
 		std::cout << "=============== find T1tttt =================" << std::endl;
 		result_path = "results/T1tttt_signal_scan/";
-		h3 = (TH1D*)f3->Get("gluino_xsection");
+		h3 = (TH1F*)f3->Get("gluino_xsection");
 	}
 
 	else if (sp.Contains("T2fbd"))
 	{
 		std::cout << "=============== find T2fbd =================" << std::endl;
 		result_path = "results/T2fbd_signal_scan/";
-		h3 = (TH1D*)f3->Get("stop_xsection");
-		h3->Scale(0.355096816688248);		//T2fbd_mStop600_mLSP590 gen filter eff
+		h3 = (TH1F*)f3->Get("stop_xsection");
+		is_compressed_signal = true;
 	}
 
 	else
@@ -58,10 +58,17 @@ int main(int argc, char* argv[])
 	}
 
 	TFile *f1 = new TFile(result_path + sp + ".root");
-	TH1D *h1 = (TH1D*)f1->Get(SR);
+	TH1F *h1 = (TH1F*)f1->Get(SR);
 	TH1F *h1_singleMuCR = (TH1F*)f1->Get(SingleMuCR);
 	TH1F *h1_singleElCR = (TH1F*)f1->Get(SingleElCR);
-	TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
+	TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
+	float gen_filter_eff = 1;
+	if(is_compressed_signal)
+	{
+		TH1F *h4 = (TH1F*)f1->Get("Baseline_Only/gen_filter_eff_h");
+		gen_filter_eff = h4->GetBinContent(2)/ h4->GetBinContent(1);
+		std::cout << "this is a compressed signal with gen_filter_eff = " << gen_filter_eff << std::endl;
+	}	
 
 	double CrossSection = h3->GetBinContent(h3->FindBin(mother));
 	int NSB = h1->GetSize() - 2;
@@ -81,6 +88,7 @@ int main(int argc, char* argv[])
 	//std::cout << "unscale bin 2 error " << h1->GetBinError(2) << std::endl;
 
 	float sig_scale = lumi * CrossSection * 1000 / all_events;
+	sig_scale = sig_scale * gen_filter_eff;
 	h1->Scale(sig_scale);
 	h1_singleMuCR->Scale(sig_scale);
 	h1_singleElCR->Scale(sig_scale);
@@ -120,17 +128,17 @@ int main(int argc, char* argv[])
 		} signalfile << "\n";
 
 		/*signalfile << "stat_unc_up = ";
-		for(int i=0;i<NSB;i++)
-		{
-			if (raw_sig->GetBinContent(i+1) > 0) signalfile << raw_sig->GetBinErrorUp(i+1) / raw_sig->GetBinContent(i+1) << " ";
-			else signalfile << "0.00" << " ";
-		} signalfile << "\n";
-		signalfile << "stat_unc_dn = ";
-		for(int i=0;i<NSB;i++)
-		{
-			if (raw_sig->GetBinContent(i+1) > 0) signalfile << raw_sig->GetBinErrorLow(i+1) / raw_sig->GetBinContent(i+1) << " ";
-			else signalfile << "0.00" << " ";
-		} signalfile << "\n";*/
+		  for(int i=0;i<NSB;i++)
+		  {
+		  if (raw_sig->GetBinContent(i+1) > 0) signalfile << raw_sig->GetBinErrorUp(i+1) / raw_sig->GetBinContent(i+1) << " ";
+		  else signalfile << "0.00" << " ";
+		  } signalfile << "\n";
+		  signalfile << "stat_unc_dn = ";
+		  for(int i=0;i<NSB;i++)
+		  {
+		  if (raw_sig->GetBinContent(i+1) > 0) signalfile << raw_sig->GetBinErrorLow(i+1) / raw_sig->GetBinContent(i+1) << " ";
+		  else signalfile << "0.00" << " ";
+		  } signalfile << "\n";*/
 
 		//signalfile << "stat_unc_up = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinErrorUp(i+1) / raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";
 		//signalfile << "stat_unc_dn = "; for(int i=0;i<NSB;i++){ signalfile << raw_sig->GetBinErrorLow(i+1) / raw_sig->GetBinContent(i+1) << " "; } signalfile << "\n";

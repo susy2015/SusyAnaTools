@@ -17,13 +17,14 @@ int make_datacards()
 	//folder = "results_2017/";
 	folder = "results_2018/";
 	
-	int bin_test = 17;
+	int bin_test = 147;
 
 	bool do_validation = true;
 	bool do_photon_unc = false;
 	bool compare_TF = false;
 	bool round_data = false;
 	//bool only_lowdm = true;
+	bool is_compressed_signal = false;
 
 	bool make_QCD_datacard = false;
 	bool make_smear_QCD_datacard = true;
@@ -3029,6 +3030,14 @@ int make_datacards()
 		TH1F *h1_singleMuCR = (TH1F*)f1->Get(SingleMuCR);
 		TH1F *h1_singleElCR = (TH1F*)f1->Get(SingleElCR);
 		TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
+		TH1F *h3 = NULL;
+		float gen_filter_eff = 1;
+		if(is_compressed_signal)
+		{
+			h3 = (TH1F*)f1->Get("Baseline_Only/gen_filter_eff_h");
+			gen_filter_eff = h3->GetBinContent(2)/ h3->GetBinContent(1);
+			std::cout << "this is a compressed signal with gen_filter_eff = " << gen_filter_eff << std::endl;
+		}	
 
 		double all_events = h2->GetBinContent(1);
 
@@ -3044,6 +3053,7 @@ int make_datacards()
 		std::cout << "unscale bin_test error " << h1->GetBinError(bin_test) << std::endl;
 
 		float sig_scale = lumi * CrossSection.at(sp) * 1000 / all_events;
+		sig_scale = sig_scale * gen_filter_eff;
 		h1->Scale(sig_scale);
 		//h1->Scale(lumi * 1000);
 		h1_singleMuCR->Scale(sig_scale);

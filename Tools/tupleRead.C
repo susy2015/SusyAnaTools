@@ -93,6 +93,7 @@ int main(int argc, char* argv[]){
 
 	auto loose_baseline_cutflow_h=new TH1F("loose_baseline_cutflow_h","0: all 1: PassEventFilter 2: PassLeptonVeto 3: PassNjets 4: PassMET 5: PassHT 6: PassdPhiLowDM",7,0.0,7.0);
 	auto eff_h=new TH1F("eff_h","0: all. 1: loose baseline. 2: low dm. 3: high dm",4,0.0,4.0);
+	auto gen_filter_eff_h=new TH1F("gen_filter_eff_h","0: SigWTab_SigWeightGenCut. 1: SigWTab_SigWeightGenCutPass",2,0.0,2.0);
         auto ISR_SF_uc_h=new TH1F("ISR_SF_uc_h","ISR SF, no cuts",100,0.0,2.0);
         auto B_SF_uc_h=new TH1F("B_SF_uc_h","B tagging SF, no cuts",100,0.0,2.0);
         auto Trigger_SF_uc_h=new TH1F("Trigger_SF_uc_h","Trigger efficiency, no cuts",100,0.0,2.0);
@@ -219,6 +220,8 @@ int main(int argc, char* argv[]){
 	auto nMuons_uc_h=new TH1F("nMuons_uc_h","number of muons, no cuts",10,0.0,10.0);
 	auto nElectrons_uc_h=new TH1F("nElectrons_uc_h","number of electrons, no cuts",10,0.0,10.0);
 
+	//int bin68_all = 0, bin68_HT_MET = 0;
+
 	while(tr.getNextEvent())
 	{
 
@@ -235,6 +238,13 @@ int main(int argc, char* argv[]){
 		float Stop0l_evtWeight = tr.getVar<float>("Stop0l_evtWeight");
 		float evtWeight = 1.0;
 		if (Stop0l_evtWeight < 0) evtWeight = -1.0;
+
+		float SigWTab_SigWeightGenCut = 1, SigWTab_SigWeightGenCutPass = 1;
+		if(tr.checkBranch("SigWTab_SigWeightGenCut") && tr.checkBranch("SigWTab_SigWeightGenCutPass"))
+		{
+			SigWTab_SigWeightGenCut = tr.getVar<float>("SigWTab_SigWeightGenCut");
+			SigWTab_SigWeightGenCutPass = tr.getVar<float>("SigWTab_SigWeightGenCutPass");
+		}
 
 		float B_SF = 1.0;
 		float ISR_SF = 1.0;
@@ -352,7 +362,7 @@ int main(int argc, char* argv[]){
 		bool Pass_highDM_QCD_pt30 = (njetspt30 >=5 && HTpt30 >= 300 && pass_dPhi_QCD_jetpt30);
 
 		//==================== a test for AK8 top tagger, to be commented out=================
-		float tight_WP = 0.937;
+		/*float tight_WP = 0.937;
 		if(sample_name.find("2017") != std::string::npos || sample_name.find("2018") != std::string::npos) tight_WP = 0.895;
 		std::vector<float> FatJet_pt = tr.getVec<float>("FatJet_pt");
 		std::vector<float> FatJet_eta = tr.getVec<float>("FatJet_eta");
@@ -363,7 +373,25 @@ int main(int argc, char* argv[]){
 		{
 			//if(FatJet_pt.at(i) > 400 && fabs(FatJet_eta.at(i)) < 2 && FatJet_SD.at(i) > 105 && FatJet_SD.at(i) < 210 && FatJet_disc.at(i) > 0.937) ntop_merge++;
 			if(FatJet_pt.at(i) > 400 && fabs(FatJet_eta.at(i)) < 2 && FatJet_SD.at(i) > 105 && FatJet_disc.at(i) > tight_WP) ntop_merge++;
-		}
+		}*/
+		//=================== test end =======================================================
+
+		//==================== a test for TTbar, to be commented out==========================
+		/*if(sample_name.find("TTbarSingleLep") != std::string::npos)
+		{
+			std::vector<int> GenPart_pdgId_vec = tr.getVec<int>("GenPart_pdgId");
+			bool found_Z = false;
+			for(int i=0; i < GenPart_pdgId_vec.size(); i++)
+			{
+				if(GenPart_pdgId_vec.at(i) == 23) found_Z = true;
+			}
+			if(found_Z)
+			{
+				std::cout << "found Z in TTbar event" << std::endl;
+				std::cout << "event number " << tr.getVar<unsigned long long>("event") << std::endl;
+				for(int i=0; i < GenPart_pdgId_vec.size(); i++){std::cout << GenPart_pdgId_vec.at(i) << ", ";}
+			}
+		}*/
 		//=================== test end =======================================================
 
 		int nElectrons = 0, nMuons = 0;
@@ -451,6 +479,9 @@ int main(int argc, char* argv[]){
 
 		// no cut
 		eff_h->Fill(0.);
+		gen_filter_eff_h->Fill(0., SigWTab_SigWeightGenCut);
+		gen_filter_eff_h->Fill(1., SigWTab_SigWeightGenCutPass);
+
                 ISR_SF_uc_h->Fill(ISR_SF);
                 B_SF_uc_h->Fill(B_SF);
                 Trigger_SF_uc_h->Fill(trigger_eff);
@@ -561,14 +592,23 @@ int main(int argc, char* argv[]){
 				std::cout << "found TTbarSingleLepTbar event in bin 178" << std::endl;
 				std::cout << "event number " << tr.getVar<unsigned long long>("event") << std::endl;
 				std::cout << "nt " << ntop_merge << " nw " << nw << " nres " << ntop_res << std::endl;
-			}
-			if(sample_name.find("TTbarSingleLepTbar") != std::string::npos && tr.getVar<unsigned long long>("event") == 38155774)
+			}*/
+			/*if(sample_name.find("TTbarSingleLepTbar") != std::string::npos && tr.getVar<unsigned long long>("event") == 38155774)
 			{
 				std::cout << "found TTbarSingleLepTbar event 38155774" << std::endl;
 				std::cout << "bin number " << SBv4_highdm_index << std::endl;
 				std::cout << "nt " << ntop_merge << " nw " << nw << " nres " << ntop_res << std::endl;
+				std::cout << "GenPart_pdgId" << std::endl;
+				std::vector<int> GenPart_pdgId_vec = tr.getVec<int>("GenPart_pdgId");
+				for(int i=0; i < GenPart_pdgId_vec.size(); i++)
+				{std::cout << GenPart_pdgId_vec.at(i) << ", ";}
 			}*/
 			//===========================================test end===========================================
+			/*if(SBv4_highdm_index == 68)
+			{
+				bin68_all++;
+				if(HT > 1500 && met > 650) bin68_HT_MET++;
+			}*/
 	
 			for (int i = 0; i < SBv2_highdm_loose_bin_index_175.size(); i++) search_bin_v2_highdm_loose_bin_h->Fill(SBv2_highdm_loose_bin_index_175.at(i),evtWeight);
 
@@ -814,12 +854,13 @@ int main(int argc, char* argv[]){
 	out_file.cd("Baseline_Only");
 
 	eff_h->Write();
-
+	gen_filter_eff_h->Write();
 
 	out_file.Close();
 
 	ch->Reset();
 
+	//std::cout << "bin68_all " << bin68_all << " bin68_HT_MET " << bin68_HT_MET << std::endl;
 	return 0;
 
 } // End Main
