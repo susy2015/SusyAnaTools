@@ -954,9 +954,9 @@ void BaselineVessel::PassBaseline()
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
   //if ( firstSpec.empty() && topDifference )
   //if ( firstSpec.empty() && totalTopsWs   )
-  //if (firstSpec.compare("_jetpt30") == 0)
-  //if (firstSpec.compare("_jetpt30") == 0 && ( event == 196937071 || ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) ) )
-  if ( firstSpec.compare("_jetpt30") == 0 && ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) )
+  //if ( firstSpec.compare("_jetpt30") == 0 )
+  //if ( firstSpec.compare("_jetpt30") == 0 && ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) )
+  if ( firstSpec.compare("_jetpt30") == 0 && ( event == 31829586 || ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) ) )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
@@ -973,43 +973,43 @@ void BaselineVessel::PassBaseline()
     printf("\thui_Pass_dPhiMETLowDM  = %d and caleb_SAT_Pass_dPhiMETLowDM     = %d %s\n", Pass_dPhiMETLowDM,            SAT_Pass_dPhiMETLowDM,      checkEquality(SusyUtility::isClose(Pass_dPhiMETLowDM,               SAT_Pass_dPhiMETLowDM)).c_str());
     printf("\thui_Pass_dPhiMETMedDM  = %d and caleb_SAT_Pass_mid_dPhiMETLowDM = %d %s\n", Pass_dPhiMETMedDM,            SAT_Pass_mid_dPhiMETLowDM,  checkEquality(SusyUtility::isClose(Pass_dPhiMETMedDM,               SAT_Pass_mid_dPhiMETLowDM)).c_str());
     printf("\thui_Pass_dPhiMETHighDM = %d and caleb_SAT_Pass_dPhiMETHighDM    = %d %s\n", Pass_dPhiMETHighDM,           SAT_Pass_dPhiMETHighDM,     checkEquality(SusyUtility::isClose(Pass_dPhiMETHighDM,              SAT_Pass_dPhiMETHighDM)).c_str());
-    printf("\thui_MET_pt             = %f and caleb_met                       = %f %s\n", MET_pt,                       met,                        checkEquality(SusyUtility::isClose(MET_pt,                          met)).c_str());
-    printf("\thui_Stop0l_HT          = %f and caleb_HT                        = %f %s\n", Stop0l_HT,                    HT,                         checkEquality(SusyUtility::isClose(Stop0l_HT,                       HT)).c_str());
-    printf("\thui_Stop0l_ISRJetPt    = %f and caleb_ISRJetPt                  = %f %s\n", Stop0l_ISRJetPt,              ISRJetPt,                   checkEquality(SusyUtility::isClose(Stop0l_ISRJetPt,                 ISRJetPt)).c_str());
-    printf("\thui_Stop0l_METSig      = %f and caleb_S_met                     = %f %s\n", Stop0l_METSig,                S_met,                      checkEquality(SusyUtility::isClose(Stop0l_METSig,                   S_met)).c_str());
-    printf("\thui_Stop0l_Mtb         = %f and caleb_mtb                       = %f %s\n", Stop0l_Mtb,                   mtb,                        checkEquality(SusyUtility::isClose(Stop0l_Mtb,                      mtb)).c_str());
-    printf("\thui_Stop0l_Ptb         = %f and caleb_ptb                       = %f %s\n", Stop0l_Ptb,                   ptb,                        checkEquality(SusyUtility::isClose(Stop0l_Ptb,                      ptb)).c_str());
+    printf("\thui_MET_pt             = %.30lf and caleb_met                   = %.30lf %s\n", MET_pt,                   met,                        checkEquality(SusyUtility::isClose(MET_pt,                          met)).c_str());
+    printf("\thui_Stop0l_HT          = %.30lf and caleb_HT                    = %.30lf %s\n", Stop0l_HT,                HT,                         checkEquality(SusyUtility::isClose(Stop0l_HT,                       HT)).c_str());
+    printf("\thui_Stop0l_ISRJetPt    = %.30lf and caleb_ISRJetPt              = %.30lf %s\n", Stop0l_ISRJetPt,          ISRJetPt,                   checkEquality(SusyUtility::isClose(Stop0l_ISRJetPt,                 ISRJetPt)).c_str());
+    printf("\thui_Stop0l_METSig      = %.30lf and caleb_S_met                 = %.30lf %s\n", Stop0l_METSig,            S_met,                      checkEquality(SusyUtility::isClose(Stop0l_METSig,                   S_met)).c_str());
+    printf("\thui_Stop0l_Mtb         = %.30lf and caleb_mtb                   = %.30lf %s\n", Stop0l_Mtb,               mtb,                        checkEquality(SusyUtility::isClose(Stop0l_Mtb,                      mtb)).c_str());
+    printf("\thui_Stop0l_Ptb         = %.30lf and caleb_ptb                   = %.30lf %s\n", Stop0l_Ptb,               ptb,                        checkEquality(SusyUtility::isClose(Stop0l_Ptb,                      ptb)).c_str());
     printf("\thui_Stop0l_nJets       = %d and caleb_nJets                     = %d %s\n", Stop0l_nJets,                 nJets,                      checkEquality(SusyUtility::isClose(Stop0l_nJets,                    nJets)).c_str());
     printf("\thui_Stop0l_nbtags      = %d and caleb_nBottoms                  = %d %s\n", Stop0l_nbtags,                nBottoms,                   checkEquality(SusyUtility::isClose(Stop0l_nbtags,                   nBottoms)).c_str());
     printf("\thui_Stop0l_nTop        = %d and caleb_nMergedTops               = %d %s\n", Stop0l_nTop,                  nMergedTops,                checkEquality(SusyUtility::isClose(Stop0l_nTop,                     nMergedTops)).c_str());
     printf("\thui_Stop0l_nW          = %d and caleb_nWs                       = %d %s\n", Stop0l_nW,                    nWs,                        checkEquality(SusyUtility::isClose(Stop0l_nW,                       nWs)).c_str());
     printf("\thui_Stop0l_nResolved   = %d and caleb_nResolvedTops             = %d %s\n", Stop0l_nResolved,             nResolvedTops,              checkEquality(SusyUtility::isClose(Stop0l_nResolved,                nResolvedTops)).c_str());
-    printf("\tcaleb_MergedTopTotalSF    = %f\n", MergedTopTotalSF);
-    printf("\tcaleb_WTotalSF            = %f\n", WTotalSF);
-    printf("\tcaleb_ResolvedTopTotalSF  = %f\n", ResolvedTopTotalSF);
+    printf("\tcaleb_MergedTopTotalSF    = %.30lf\n", MergedTopTotalSF);
+    printf("\tcaleb_WTotalSF            = %.30lf\n", WTotalSF);
+    printf("\tcaleb_ResolvedTopTotalSF  = %.30lf\n", ResolvedTopTotalSF);
     
     printf("------------- hui tops -------------\n");
     for (int i = 0; i < ResolvedTopCandidateTLV.size(); ++i)
     {
-        printf("\tresolved top %d: pt=%f, eta=%f, phi=%f, mass=%f, disc=%f, type=%d\n", i, ResolvedTopCandidateTLV[i].Pt(), ResolvedTopCandidateTLV[i].Eta(), ResolvedTopCandidateTLV[i].Phi(), ResolvedTopCandidateTLV[i].M(), ResolvedTopCandidate_discriminator[i], ResolvedTopCandidate_type[i]);
+        printf("\tresolved top %d: pt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf, disc=%.30lf, type=%d\n", i, ResolvedTopCandidateTLV[i].Pt(), ResolvedTopCandidateTLV[i].Eta(), ResolvedTopCandidateTLV[i].Phi(), ResolvedTopCandidateTLV[i].M(), ResolvedTopCandidate_discriminator[i], ResolvedTopCandidate_type[i]);
     }
     printf("------------- caleb tops -------------\n");
     for(const auto& top : ttr->getTops())
     {
-        printf("\tpt=%f, eta=%f, phi=%f, mass=%f, disc=%f, type=%d\n", top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M(), top->getDiscriminator(), top->getType());
+        printf("\tpt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf, disc=%.30lf, type=%d\n", top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M(), top->getDiscriminator(), top->getType());
         for (const auto& jet : top->getConstituents())
         {
-            printf("\t\tjet: (pt=%f, eta=%f, phi=%f, mass=%f)\n", jet->p().Pt(), jet->p().Eta(), jet->p().Phi(), jet->p().M());
+            printf("\t\tjet: (pt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf)\n", jet->p().Pt(), jet->p().Eta(), jet->p().Phi(), jet->p().M());
             for(const auto& subjet : jet->getSubjets())
             {
-                printf("\t\t\tsubjet: (pt=%f, eta=%f, phi=%f, mass=%f)\n", subjet.p().Pt(), subjet.p().Eta(), subjet.p().Phi(), subjet.p().M());
+                printf("\t\t\tsubjet: (pt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf)\n", subjet.p().Pt(), subjet.p().Eta(), subjet.p().Phi(), subjet.p().M());
             }
         }
         
     }
     printf("------------- caleb met, jets, dphi -------------\n");
-    printf("met = %f\n",             met);
-    printf("metphi = %f\n",          metphi);
+    printf("met = %.30lf\n",             met);
+    printf("metphi = %.30lf\n",          metphi);
     for (int i = 0; i < Jet_sortedIdx.size(); ++i)
     {
         printf("jet index=%d, sorted_index=%d\n", i, Jet_sortedIdx[i]);
@@ -1017,18 +1017,18 @@ void BaselineVessel::PassBaseline()
     int j = 0;
     for (const auto& Jet : Jets)
     {
-      printf("Jet_%d: pt=%f, eta=%f, phi=%f, mass=%f\n", j, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
+      printf("Jet_%d: pt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf\n", j, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
       ++j;
     }
     for (int i = 0; i < dPhiVec->size(); ++i)
     {
-        printf("dPhi_%d = %f\n", i, dPhiVec->at(i));
+        printf("dPhi_%d = %.30lf\n", i, dPhiVec->at(i));
     }
     printf("------------- caleb fat jets -------------\n");
     j = 0;
     for (const auto& FatJet : FatJets)
     {
-      printf("FatJet_%d: pt=%f, eta=%f, phi=%f, mass=%f\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M());
+      printf("FatJet_%d: pt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M());
       ++j;
     }
     // for testing ISR jet pt
@@ -2214,9 +2214,8 @@ int BaselineVessel::GetISRJetIdx(bool verbose)
   const auto& nWs                = tr->getVar<int>(UseCleanedJetsVar("nWs"));
   int nFatJets = fat_jets.size();
   int nSubJets = SubJet_btagDeepB.size();
-  double fat_jet_pt_cut = 199.999;
   int i = 0; // only use leading fat jet (ordered by pt, index 0)
-  if (verbose) printf("FatJet %d: p_t = %f, eta = %f, phi = %f, mass = %f, btag_disc = %f\n", i, fat_jets[i].Pt(), fat_jets[i].Eta(), fat_jets[i].Phi(), fat_jets[i].M(), FatJet_btagDeepB[i]);
+  if (verbose) printf("FatJet %d: p_t = %.30lf, eta = %.30lf, phi = %.30lf, mass = %.30lf, btag_disc = %.30lf\n", i, fat_jets[i].Pt(), fat_jets[i].Eta(), fat_jets[i].Phi(), fat_jets[i].M(), FatJet_btagDeepB[i]);
   // require that there are no merged or resolved tops and no Ws
   if (nMergedTops + nResolvedTops + nWs != 0) 
   {
@@ -2229,16 +2228,19 @@ int BaselineVessel::GetISRJetIdx(bool verbose)
     if (verbose) printf("FAIL number of fat jets requirement\n");
     return -1;
   }
+  // WARNING: must cast to fat jet pt to float (round) to match post-processing selection
+  float fat_jet_pt_cut = 200.0;
+  float fat_jet_pt     = fat_jets[i].Pt();
   // testing ISR jet pt cut
   if (verbose)
   {
-      if (SusyUtility::isClose(fat_jets[i].Pt(), fat_jet_pt_cut))    printf("ISR jet pt %f is close to %f.\n",      fat_jets[i].Pt(), fat_jet_pt_cut);
-      if (fat_jets[i].Pt() == fat_jet_pt_cut)                        printf("ISR jet pt %f is equal to %f.\n",      fat_jets[i].Pt(), fat_jet_pt_cut);
-      if (fat_jets[i].Pt() <  fat_jet_pt_cut)                        printf("ISR jet pt %f is less than %f.\n",     fat_jets[i].Pt(), fat_jet_pt_cut);
-      if (fat_jets[i].Pt() >  fat_jet_pt_cut)                        printf("ISR jet pt %f is greater than %f.\n",  fat_jets[i].Pt(), fat_jet_pt_cut);
+      if (SusyUtility::isClose(fat_jet_pt, fat_jet_pt_cut))    printf("ISR jet pt %.30lf is close to %.30lf.\n",      fat_jet_pt, fat_jet_pt_cut);
+      if (fat_jet_pt == fat_jet_pt_cut)                        printf("ISR jet pt %.30lf is equal to %.30lf.\n",      fat_jet_pt, fat_jet_pt_cut);
+      if (fat_jet_pt <  fat_jet_pt_cut)                        printf("ISR jet pt %.30lf is less than %.30lf.\n",     fat_jet_pt, fat_jet_pt_cut);
+      if (fat_jet_pt >  fat_jet_pt_cut)                        printf("ISR jet pt %.30lf is greater than %.30lf.\n",  fat_jet_pt, fat_jet_pt_cut);
   }
   // pt >= 200
-  if (fat_jets[i].Pt() < fat_jet_pt_cut)
+  if (fat_jet_pt < fat_jet_pt_cut)
   {
     if (verbose) printf("FAIL fat jet pt requirement\n");
     return -1;
