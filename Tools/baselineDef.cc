@@ -956,7 +956,7 @@ void BaselineVessel::PassBaseline()
   //if ( firstSpec.empty() && totalTopsWs   )
   //if ( firstSpec.compare("_jetpt30") == 0 )
   //if ( firstSpec.compare("_jetpt30") == 0 && ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) )
-  if ( firstSpec.compare("_jetpt30") == 0 && ( event == 31829586 || ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) ) )
+  if ( firstSpec.compare("_jetpt30") == 0 && ( event == 519215141 || ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) ) )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
