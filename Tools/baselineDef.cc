@@ -604,8 +604,9 @@ void BaselineVessel::PassBaseline()
   const auto& Stop0l_nTop                           = tr->getVar<int>("Stop0l_nTop");
   const auto& Stop0l_nResolved                      = tr->getVar<int>("Stop0l_nResolved");
   const auto& Stop0l_nW                             = tr->getVar<int>("Stop0l_nW");
-  const auto& Pass_lowDM                            = tr->getVar<bool>("Pass_lowDM");
-  const auto& Pass_highDM                           = tr->getVar<bool>("Pass_highDM");
+  // don't make Pass_lowDM/Pass_highDM const so that we can apply Pass_CaloMETRatio
+  bool        Pass_lowDM                            = tr->getVar<bool>("Pass_lowDM");
+  bool        Pass_highDM                           = tr->getVar<bool>("Pass_highDM");
   const auto& Pass_dPhiMETLowDM                     = tr->getVar<bool>("Pass_dPhiMETLowDM");
   const auto& Pass_dPhiMETMedDM                     = tr->getVar<bool>("Pass_dPhiMETMedDM");
   const auto& Pass_dPhiMETHighDM                    = tr->getVar<bool>("Pass_dPhiMETHighDM");
@@ -633,8 +634,8 @@ void BaselineVessel::PassBaseline()
   if (Pass_LeptonVeto != SAT_Pass_LeptonVeto) std::cout << "ERROR: Lepton vetos do not agree. Pass_LeptonVeto=" << Pass_LeptonVeto << " and SAT_Pass_LeptonVeto=" << SAT_Pass_LeptonVeto << std::endl;
 
   // Apply Pass_CaloMETRatio
-  bool Pass_lowDM_withCaloMETRatio  = Pass_lowDM  && Pass_CaloMETRatio;
-  bool Pass_highDM_withCaloMETRatio = Pass_highDM && Pass_CaloMETRatio;
+  Pass_lowDM  = Pass_lowDM  && Pass_CaloMETRatio;
+  Pass_highDM = Pass_highDM && Pass_CaloMETRatio;
  
   // get ISR jet
   TLorentzVector ISRJet;
@@ -642,10 +643,14 @@ void BaselineVessel::PassBaseline()
   
   //SUS-16-049, low dm, ISR cut
   // see GetISRJetIdx() and CalcISRJetVars() for details
+  // WARNING on ISR pt cut:
+  // ISRJetPt >= 200 for standard baselines (Pass_lowDM)
+  // ISRJetPt >= 300 in validation, search, and unit bins
+  // ISRJetPt is not explicitly applied in get unit bin functions
   bool SAT_Pass_ISR_Loose   = (ISRJetPt >= 200);
   bool SAT_Pass_ISR         = (ISRJetPt >= 200);
   //bool SAT_Pass_ISR         = (ISRJetPt >= 300);
-  bool SAT_Pass_S_MET       = (S_met >= 10);
+  bool SAT_Pass_S_MET       = (S_met > 10);
   
   // ----------------------- // 
   // --- For Search Bins --- //
@@ -825,6 +830,46 @@ void BaselineVessel::PassBaseline()
   // --------------------------- // 
   // --- For Validation Bins --- //
   // --------------------------- // 
+  
+  // ntuple version of validation baselines from Hui for comparison
+  // https://github.com/susy2015/SusyAnaTools/blob/hui_nanoAOD/Tools/tupleRead.C#L413
+  // https://github.com/susy2015/SusyAnaTools/blob/hui_nanoAOD/Tools/tupleRead.C#L417
+  
+  // ------------------------------------- //
+  // --- validation low dm from ntuple --- //
+  // ------------------------------------- //
+  bool Pass_lowDM_no_dPhi = (   
+                                 Pass_JetID 
+                              && Pass_EventFilter 
+                              && Pass_CaloMETRatio
+                              && Pass_LeptonVeto
+                              && Pass_MET
+                              && Pass_HT
+                              && Pass_NJets 
+                              && Stop0l_nTop == 0
+                              && Stop0l_nResolved == 0
+                              && Stop0l_nW == 0
+                              && Stop0l_ISRJetPt >= 200 
+                              && Stop0l_METSig > 10
+                              && Stop0l_Mtb < 175 
+                            );
+  bool Pass_lowDM_mid_dPhi = (Pass_lowDM_no_dPhi && Pass_dPhiMETMedDM);
+  
+  // -------------------------------------- //
+  // --- validation high dm from ntuple --- //
+  // -------------------------------------- //
+  bool Pass_highDM_no_dPhi = (   
+                                 Pass_JetID 
+                              && Pass_EventFilter 
+                              && Pass_CaloMETRatio
+                              && Pass_LeptonVeto
+                              && Pass_MET
+                              && Pass_HT
+                              && Stop0l_nJets >= 5 
+                              && Stop0l_nbtags >= 1 
+                            );
+  bool Pass_highDM_mid_dPhi = (Pass_highDM_no_dPhi && Pass_dPhiMETLowDM && (! Pass_dPhiMETHighDM) );
+  
   // without dPhi
   bool SAT_Pass_Baseline_no_dPhi = (
                             SAT_Pass_JetID 
@@ -949,20 +994,29 @@ void BaselineVessel::PassBaseline()
   // use SusyUtility::isClose()
   // use checkEquality()
   
+  // check for differences in baseline selection between ntuples and SusyAnaTools
+  bool baselineDifference = (
+                                 (Pass_lowDM           != SAT_Pass_lowDM           )
+                              || (Pass_highDM          != SAT_Pass_highDM          )
+                              || (Pass_lowDM_mid_dPhi  != SAT_Pass_lowDM_mid_dPhi  ) 
+                              || (Pass_highDM_mid_dPhi != SAT_Pass_highDM_mid_dPhi ) 
+                            ); 
   
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
   //if ( firstSpec.empty() && topDifference )
   //if ( firstSpec.empty() && totalTopsWs   )
   //if ( firstSpec.compare("_jetpt30") == 0 )
-  //if ( firstSpec.compare("_jetpt30") == 0 && ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) )
-  if ( firstSpec.compare("_jetpt30") == 0 && ( event == 519215141 || ( (Pass_lowDM_withCaloMETRatio != SAT_Pass_lowDM) || (Pass_highDM_withCaloMETRatio != SAT_Pass_highDM) ) ) )
+  //if ( firstSpec.compare("_jetpt30") == 0 && ( event == 519215141 || baselineDifference ) )
+  if ( firstSpec.compare("_jetpt30") == 0 && baselineDifference)
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
     printf("firstSpec=%s; run=%d; luminosityBlock=%d; CMS_event=%d; ntuple_event=%d\n",   firstSpec.c_str(), run, luminosityBlock, event, tr->getEvtNum());
-    printf("hui_Pass_lowDM_withCaloMETRatio  = %d and caleb_SAT_Pass_lowDM  = %d %s\n",   Pass_lowDM_withCaloMETRatio,  SAT_Pass_lowDM,             checkEquality(SusyUtility::isClose(Pass_lowDM_withCaloMETRatio,     SAT_Pass_lowDM)).c_str());
-    printf("hui_Pass_highDM_withCaloMETRatio = %d and caleb_SAT_Pass_highDM = %d %s\n",   Pass_highDM_withCaloMETRatio, SAT_Pass_highDM,            checkEquality(SusyUtility::isClose(Pass_highDM_withCaloMETRatio,    SAT_Pass_highDM)).c_str());
+    printf("hui_Pass_lowDM           = %d and caleb_SAT_Pass_lowDM            = %d %s\n", Pass_lowDM,                   SAT_Pass_lowDM,             checkEquality(SusyUtility::isClose(Pass_lowDM,                      SAT_Pass_lowDM)).c_str());
+    printf("hui_Pass_highDM          = %d and caleb_SAT_Pass_highDM           = %d %s\n", Pass_highDM,                  SAT_Pass_highDM,            checkEquality(SusyUtility::isClose(Pass_highDM,                     SAT_Pass_highDM)).c_str());
+    printf("hui_Pass_lowDM_mid_dPhi  = %d and caleb_SAT_Pass_lowDM_mid_dPhi   = %d %s\n", Pass_lowDM_mid_dPhi,          SAT_Pass_lowDM_mid_dPhi,    checkEquality(SusyUtility::isClose(Pass_lowDM_mid_dPhi,             SAT_Pass_lowDM_mid_dPhi)).c_str());
+    printf("hui_Pass_highDM_mid_dPhi = %d and caleb_SAT_Pass_highDM_mid_dPhi  = %d %s\n", Pass_highDM_mid_dPhi,         SAT_Pass_highDM_mid_dPhi,   checkEquality(SusyUtility::isClose(Pass_highDM_mid_dPhi,            SAT_Pass_highDM_mid_dPhi)).c_str());
     printf("\thui_Pass_LeptonVeto    = %d and caleb_SAT_Pass_LeptonVeto       = %d %s\n", Pass_LeptonVeto,              SAT_Pass_LeptonVeto,        checkEquality(SusyUtility::isClose(Pass_LeptonVeto,                 SAT_Pass_LeptonVeto)).c_str());
     printf("\thui_Pass_JetID         = %d and caleb_SAT_Pass_JetID            = %d %s\n", Pass_JetID,                   SAT_Pass_JetID,             checkEquality(SusyUtility::isClose(Pass_JetID,                      SAT_Pass_JetID)).c_str());
     printf("\thui_Pass_EventFilter   = %d and caleb_Pass_EventFilter          = %d %s\n", Pass_EventFilter,             Pass_EventFilter,           checkEquality(SusyUtility::isClose(Pass_EventFilter,                Pass_EventFilter)).c_str());
