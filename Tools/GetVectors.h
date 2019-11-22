@@ -29,6 +29,8 @@ private:
     {
         // register vector<TLorentzVector>
         registerTLV("Jet");                     // AK4 jets
+        registerTLV("Jet", "_jesTotalUp");      // jec up (for systematics)
+        registerTLV("Jet", "_jesTotalDown");    // jec down (for systematics)
         registerTLV("FatJet");                  // AK8 jets 
         registerTLV("SubJet");                  // AK8 subjets
         registerTLV("ResolvedTopCandidate");    // resolved tops
@@ -73,14 +75,14 @@ private:
         }
     }
 
-    void registerTLV(const std::string& objectName)
+    void registerTLV(const std::string& objectName, const std::string& ptTag = "")
     {
         // print statement for testing
         if (verbose_)   std::cout << "Calling registerTLV(" << objectName << ") to register " << objectName << "TLV" << std::endl;
         // new vector of TLorentzVector
         std::vector<TLorentzVector>* VectorTLV = new std::vector<TLorentzVector>();
         // get pt, eta, phi, mass
-        const auto& vec_pt   = tr_->getVec<float>(objectName + "_pt");
+        const auto& vec_pt   = tr_->getVec<float>(objectName + "_pt" + ptTag);
         const auto& vec_eta  = tr_->getVec<float>(objectName + "_eta");
         const auto& vec_phi  = tr_->getVec<float>(objectName + "_phi");
         const auto& vec_mass = tr_->getVec<float>(objectName + "_mass");
@@ -100,7 +102,7 @@ private:
             VectorTLV->push_back(TLV);
         }
         // register vector of TLorentzVector
-        tr_->registerDerivedVec(objectName + "TLV", VectorTLV);
+        tr_->registerDerivedVec(objectName + "TLV" + ptTag, VectorTLV);
     }
 
 public:
