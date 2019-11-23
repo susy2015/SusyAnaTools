@@ -63,6 +63,8 @@ public:
     bool incZEROtop;
     bool UseDRLeptonCleanJet;
     bool UseDRPhotonCleanJet;
+    bool UseJESUpJet;
+    bool UseJESDownJet;
     bool UseDeepTagger;
     bool UseDeepCSV;
 

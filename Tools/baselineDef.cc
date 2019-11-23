@@ -16,6 +16,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
   incZEROtop            = false;
   UseDRLeptonCleanJet   = false;
   UseDRPhotonCleanJet   = false;
+  UseJESUpJet           = false; 
+  UseJESDownJet         = false;
   UseDeepTagger         = true;
   UseDeepCSV            = true;
   jetVecLabel           = "JetTLV";
@@ -337,6 +339,20 @@ bool BaselineVessel::PredefineSpec()
     UseDRPhotonCleanJet = true;
     UseDRLeptonCleanJet = false;
     doLeptonVeto        = true;
+  }
+  // TODO: make JES Up/Down options specify the right jet collections
+  // Specify JES Up/Down systematics for MET and jets
+  if (spec.find("jesTotalUp") != std::string::npos)
+  {
+    METLabel        = METLabel    + "_jesTotalUp";
+    METPhiLabel     = METPhiLabel + "_jesTotalUp";
+    UseJESUpJet     = true;
+  }
+  else if (spec.find("jesTotalDown") != std::string::npos)
+  {
+    METLabel        = METLabel    + "_jesTotalDown";
+    METPhiLabel     = METPhiLabel + "_jesTotalDown";
+    UseJESDownJet   = true;
   }
   // Specify Jet pt cut
   if (spec.find("jetpt20") != std::string::npos)

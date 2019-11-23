@@ -46,6 +46,16 @@ private:
         cleanJetCollection("FatJet",   AK8JetVariables_,     "", "_drPhotonCleaned", false, true,  false);
         cleanJetCollection("SB",       SoftBottomVariables_, "", "_drLeptonCleaned", true,  false, false);
         cleanJetCollection("SB",       SoftBottomVariables_, "", "_drPhotonCleaned", false, true,  false);
+
+        // MC only
+        if (tr_->checkBranch("GenJet_pt"))
+        {
+            // apply JES to cleaned jet collections
+            registerJetsJES("_drLeptonCleaned", "_jesTotalUp");
+            registerJetsJES("_drLeptonCleaned", "_jesTotalDown");
+            registerJetsJES("_drPhotonCleaned", "_jesTotalUp");
+            registerJetsJES("_drPhotonCleaned", "_jesTotalDown");
+        }
     
     }
 
@@ -85,6 +95,22 @@ private:
         SB_matchesElectron     = AnaFunctions::getJetMatchesObjectVec(SB_TLV,      Electron_TLV,  DRMAX_AK4);
         SB_matchesMuon         = AnaFunctions::getJetMatchesObjectVec(SB_TLV,      Muon_TLV,      DRMAX_AK4);
 
+    }
+
+    // apply JES to cleaned jet collections
+    void registerJetsJES(const std::string& suffix, const std::string& jesTag)
+    {
+        auto& Jets = tr_->createDerivedVec<TLorentzVector>("JetTLV" + jesTag + suffix);
+        const auto& vec_pt   = tr_->getVec<float>("Jet_pt"   + jesTag + suffix);
+        const auto& vec_eta  = tr_->getVec<float>("Jet_eta"  + suffix);
+        const auto& vec_phi  = tr_->getVec<float>("Jet_phi"  + suffix);
+        const auto& vec_mass = tr_->getVec<float>("Jet_mass" + jesTag + suffix);
+        for (int i = 0; i < vec_pt.size(); ++i)
+        {
+            TLorentzVector tlv;
+            tlv.SetPtEtaPhiM(vec_pt[i], vec_eta[i], vec_phi[i], vec_mass[i]);
+            Jets.push_back(tlv);
+        }
     }
 
     template <class type> void cleanVector(const std::string& vectorName, const std::vector<bool>& keepJet, const std::string& suffix)
@@ -226,6 +252,8 @@ public:
                              "Jet_hadronFlavour",
                              "Jet_jetId",
                              "Jet_mass",
+                             "Jet_mass_jesTotalUp",
+                             "Jet_mass_jesTotalDown",
                              "Jet_muEF",
                              "Jet_muonIdx1",
                              "Jet_muonIdx2",
@@ -237,6 +265,8 @@ public:
                              "Jet_partonFlavour",
                              "Jet_phi",
                              "Jet_pt",
+                             "Jet_pt_jesTotalUp",
+                             "Jet_pt_jesTotalDown",
                              "Jet_puId",
                              "Jet_qgl",
                              "Jet_rawFactor",
