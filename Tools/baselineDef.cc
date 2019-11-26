@@ -119,15 +119,17 @@ std::string BaselineVessel::checkEquality(bool equal)
 bool BaselineVessel::UseCleanedJets() 
 {
   std::string suffix = "";
+  std::string JES    = "";
   if      (UseDRPhotonCleanJet) suffix = "_drPhotonCleaned";
   else if (UseDRLeptonCleanJet) suffix = "_drLeptonCleaned";
-  jetVecLabel     = "JetTLV"        + suffix;
+  if      (UseJESUpJet)         JES    = "_jesTotalUp";
+  else if (UseJESDownJet)       JES    = "_jesTotalDown";
+  jetVecLabel     = "JetTLV"        + suffix + JES;
   jetVecLabelAK8  = "FatJetTLV"     + suffix;
-  btagVecLabel    = "Jet_btagCSVV2" + suffix;
+  btagVecLabel    = "Jet_btagDeepB" + suffix;
   qgLikehoodLabel = "qgLikelihood"  + suffix;
   if (UseDeepCSV)
   {
-    // Note that DeepCSVcomb is a derived variable... but it is derived with cleaned variables 
     btagVecLabel   = "Jet_btagDeepB" + suffix;
   }
   else
@@ -581,7 +583,7 @@ void BaselineVessel::PassBaseline()
   // more vars
   int nJets     = AnaFunctions::countJets(Jets,     JetCutArrary);  
   //int nFatJets  = AnaFunctions::countJets(FatJets,  AnaConsts::pt200Eta24Arr);  
-  int nFatJets = tr->getVar<int>(UseCleanedJetsVar("nFatJets")); 
+  int nFatJets = tr->getVar<int>(UseSpecVar("nFatJets")); 
   float HT      = AnaFunctions::calcHT(Jets,        JetCutArrary);
   float S_met   = met / sqrt(HT);
 
@@ -597,18 +599,18 @@ void BaselineVessel::PassBaseline()
   const auto& run                   = tr->getVar<unsigned int>("run");
   const auto& luminosityBlock       = tr->getVar<unsigned int>("luminosityBlock");
   const auto& event                 = tr->getVar<unsigned long long>("event");
-  const auto& mtb                   = tr->getVar<float>(UseCleanedJetsVar("mtb"));
-  const auto& ptb                   = tr->getVar<float>(UseCleanedJetsVar("ptb"));
-  const auto& ISRJetPt              = tr->getVar<float>(UseCleanedJetsVar("ISRJetPt"));
-  const auto& ISRJetIdx             = tr->getVar<int>(UseCleanedJetsVar("ISRJetIdx"));
-  const auto& nBottoms              = tr->getVar<int>(UseCleanedJetsVar("nBottoms"));
-  const auto& nMergedTops           = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
-  const auto& nWs                   = tr->getVar<int>(UseCleanedJetsVar("nWs"));
-  const auto& nResolvedTops         = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
-  const auto& MergedTopTotalSF      = tr->getVar<float>(UseCleanedJetsVar("MergedTopTotalSF"));
-  const auto& WTotalSF              = tr->getVar<float>(UseCleanedJetsVar("WTotalSF"));
-  const auto& ResolvedTopTotalSF    = tr->getVar<float>(UseCleanedJetsVar("ResolvedTopTotalSF"));
-  const auto* ttr                   = tr->getVar<TopTaggerResults*>("ttr");
+  const auto& mtb                   = tr->getVar<float>(UseSpecVar("mtb"));
+  const auto& ptb                   = tr->getVar<float>(UseSpecVar("ptb"));
+  const auto& ISRJetPt              = tr->getVar<float>(UseSpecVar("ISRJetPt"));
+  const auto& ISRJetIdx             = tr->getVar<int>(UseSpecVar("ISRJetIdx"));
+  const auto& nBottoms              = tr->getVar<int>(UseSpecVar("nBottoms"));
+  const auto& nMergedTops           = tr->getVar<int>(UseSpecVar("nMergedTops"));
+  const auto& nWs                   = tr->getVar<int>(UseSpecVar("nWs"));
+  const auto& nResolvedTops         = tr->getVar<int>(UseSpecVar("nResolvedTops"));
+  const auto& MergedTopTotalSF      = tr->getVar<float>(UseSpecVar("MergedTopTotalSF"));
+  const auto& WTotalSF              = tr->getVar<float>(UseSpecVar("WTotalSF"));
+  const auto& ResolvedTopTotalSF    = tr->getVar<float>(UseSpecVar("ResolvedTopTotalSF"));
+  const auto* ttr                   = tr->getVar<TopTaggerResults*>(UseSpecVar("ttr"));
   // variables from post-processing
   const auto& ResolvedTopCandidateTLV               = tr->getVec<TLorentzVector>("ResolvedTopCandidateTLV");
   const auto& ResolvedTopCandidate_discriminator    = tr->getVec<float>("ResolvedTopCandidate_discriminator");
@@ -2282,15 +2284,14 @@ bool BaselineVessel::CalcBottomVars()
 int BaselineVessel::GetISRJetIdx(bool verbose)
 {
   const auto& fat_jets           = tr->getVec<TLorentzVector>(jetVecLabelAK8);
-  //const auto& nFatJets           = tr->getVar<int>(UseCleanedJetsVar("nFatJets"));
   const auto& FatJet_btagDeepB   = tr->getVec<float>(UseCleanedJetsVar("FatJet_btagDeepB"));
   const auto& FatJet_subJetIdx1  = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx1"));
   const auto& FatJet_subJetIdx2  = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx2"));
   const auto& SubJet_btagDeepB   = tr->getVec<float>("SubJet_btagDeepB");
   const auto& metphi             = tr->getVar<float>(METPhiLabel); 
-  const auto& nMergedTops        = tr->getVar<int>(UseCleanedJetsVar("nMergedTops"));
-  const auto& nResolvedTops      = tr->getVar<int>(UseCleanedJetsVar("nResolvedTops"));
-  const auto& nWs                = tr->getVar<int>(UseCleanedJetsVar("nWs"));
+  const auto& nMergedTops        = tr->getVar<int>(UseSpecVar("nMergedTops"));
+  const auto& nResolvedTops      = tr->getVar<int>(UseSpecVar("nResolvedTops"));
+  const auto& nWs                = tr->getVar<int>(UseSpecVar("nWs"));
   int nFatJets = fat_jets.size();
   int nSubJets = SubJet_btagDeepB.size();
   int i = 0; // only use leading fat jet (ordered by pt, index 0)

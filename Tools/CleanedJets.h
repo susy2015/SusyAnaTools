@@ -100,7 +100,7 @@ private:
     // apply JES to cleaned jet collections
     void registerJetsJES(const std::string& suffix, const std::string& jesTag)
     {
-        auto& Jets = tr_->createDerivedVec<TLorentzVector>("JetTLV" + jesTag + suffix);
+        auto& Jets = tr_->createDerivedVec<TLorentzVector>("JetTLV" + suffix + jesTag);
         const auto& vec_pt   = tr_->getVec<float>("Jet_pt"   + jesTag + suffix);
         const auto& vec_eta  = tr_->getVec<float>("Jet_eta"  + suffix);
         const auto& vec_phi  = tr_->getVec<float>("Jet_phi"  + suffix);

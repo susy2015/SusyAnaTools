@@ -23,17 +23,18 @@ class RunTopTagger {
 
 private:
     std::shared_ptr<TopTagger> tt_; // std::unique_ptr gives a compile error
+    std::string jetsLabel_;
     std::string taggerCfg_;
     std::string suffix_;
-    bool doLeptonCleaning_;
-    bool doPhotonCleaning_;
+    bool doLeptonCleaning_ = false;
+    bool doPhotonCleaning_ = false;
 
     void runTopTagger(NTupleReader& tr) 
     {
         //get necessary tagger input variables 
 
         //AK4 jets
-        const auto& Jet_LV          = tr.getVec_LVFromNano<float>("Jet");
+        const auto& Jet_LV          = tr.getVec<TLorentzVector>(jetsLabel_);
         const auto& Jet_btagDeepB   = tr.getVec<float>("Jet_btagDeepB");
         const auto& Jet_qgl         = tr.getVec<float>("Jet_qgl");
         std::vector<bool> Jet_matchesPhoton;
@@ -191,7 +192,6 @@ private:
             ak4Inputs = new ttUtility::ConstAK4Inputs<float>(Jet_LV, Jet_btagDeepB, Jet_qgl);
         }
 
-        //ttUtility::ConstAK4Inputs<float> ak4Inputs(Jet_LV, Jet_btagDeepB);
         ak4Inputs->setFilterVector(ak4Filter);
         ttUtility::ConstAK8Inputs<float> ak8Inputs(FatJet_LV, FatJet_deepAK8_t, FatJet_deepAK8_w, FatJet_msoftdrop, subjets);
         ak8Inputs.setFilterVector(ak8Filter);
@@ -306,7 +306,7 @@ private:
     
 public:
 
-    bool verbose_ = false;
+    bool verbose_ = true;
 
     RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string suffix = "", bool doLeptonCleaning = false, bool doPhotonCleaning = false) :
         taggerCfg_ (taggerCfg),
@@ -315,7 +315,10 @@ public:
         doPhotonCleaning_ (doPhotonCleaning),
         tt_ (new TopTagger())
     {
-        if (verbose_) std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", suffix_ = " << suffix_ << ", doLeptonCleaning_ = " << doLeptonCleaning_ << ", doPhotonCleaning_ = " << doPhotonCleaning_ << std::endl;
+        jetsLabel_ = "JetTLV";
+        if      (suffix.find("jesTotalUp") != std::string::npos)    jetsLabel_ = jetsLabel_ + "_jesTotalUp";
+        else if (suffix.find("jesTotalDown") != std::string::npos)  jetsLabel_ = jetsLabel_ + "_jesTotalDown";
+        if (verbose_) std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", suffix_ = " << suffix_ << ", jetsLabel_ = " << jetsLabel_ << ", doLeptonCleaning_ = " << doLeptonCleaning_ << ", doPhotonCleaning_ = " << doPhotonCleaning_ << std::endl;
         tt_->setCfgFile(taggerCfg_);
     }
     
