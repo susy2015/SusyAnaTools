@@ -2190,6 +2190,7 @@ bool BaselineVessel::CalcBottomVars()
   const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
   const auto& SB_Stop0l      = tr->getVec<unsigned char>(UseCleanedJetsVar("SB_Stop0l"));
   const auto& SB_SF          = tr->getVec<float>(UseCleanedJetsVar("SB_SF"));
+  const auto& SB_SFerr       = tr->getVec<float>(UseCleanedJetsVar("SB_SFerr"));
   const auto& met            = tr->getVar<float>(METLabel); 
   const auto& metphi         = tr->getVar<float>(METPhiLabel); 
   const auto& event          = tr->getVar<unsigned long long>("event");
@@ -2201,7 +2202,9 @@ bool BaselineVessel::CalcBottomVars()
   float ptb = 0.0;
   int nBottoms = 0;
   int nSoftBottoms = 0;
-  float SoftBottomTotalSF = 1.0;
+  float SoftBottomTotalSF      = 1.0;
+  float SoftBottomTotalSF_Up   = 1.0;
+  float SoftBottomTotalSF_Down = 1.0;
   int i = 0;
   
   std::vector<std::pair<TLorentzVector, unsigned>> sorted_jets;
@@ -2265,18 +2268,23 @@ bool BaselineVessel::CalcBottomVars()
   {
     if (sb_stop0l)
     {
-      SoftBottomTotalSF *= SB_SF[i];
+      if (verbose) printf("SB_SF[%d] = %f, SB_SFerr[%d] = %f\n", i, SB_SF[i], i, SB_SFerr[i]);
+      SoftBottomTotalSF         *= SB_SF[i];
+      SoftBottomTotalSF_Up      *= (SB_SF[i] + SB_SFerr[i]);
+      SoftBottomTotalSF_Down    *= (SB_SF[i] - SB_SFerr[i]);
       ++nSoftBottoms;
     }
     ++i;
   }
  
   // register variables
-  tr->registerDerivedVar("mtb"+firstSpec,               mtb);
-  tr->registerDerivedVar("ptb"+firstSpec,               ptb);
-  tr->registerDerivedVar("nBottoms"+firstSpec,          nBottoms);
-  tr->registerDerivedVar("nSoftBottoms"+firstSpec,      nSoftBottoms);
-  tr->registerDerivedVar("SoftBottomTotalSF"+firstSpec, SoftBottomTotalSF);
+  tr->registerDerivedVar("mtb"+firstSpec,                       mtb);
+  tr->registerDerivedVar("ptb"+firstSpec,                       ptb);
+  tr->registerDerivedVar("nBottoms"+firstSpec,                  nBottoms);
+  tr->registerDerivedVar("nSoftBottoms"+firstSpec,              nSoftBottoms);
+  tr->registerDerivedVar("SoftBottomTotalSF"+firstSpec,         SoftBottomTotalSF);
+  tr->registerDerivedVar("SoftBottomTotalSF_Up"+firstSpec,      SoftBottomTotalSF_Up);
+  tr->registerDerivedVar("SoftBottomTotalSF_Down"+firstSpec,    SoftBottomTotalSF_Down);
 }
 
 

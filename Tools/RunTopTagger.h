@@ -59,6 +59,7 @@ private:
         const auto& FatJet_subJetIdx2      = tr.getVec<int>("FatJet_subJetIdx2");
         const auto& FatJet_Stop0l          = tr.getVec<int>("FatJet_Stop0l");
         const auto& FatJet_SF              = tr.getVec<float>("FatJet_SF");
+        const auto& FatJet_SFerr           = tr.getVec<float>("FatJet_SFerr");
         std::vector<bool> FatJet_matchesPhoton;
         std::vector<bool> FatJet_matchesElectron;
         std::vector<bool> FatJet_matchesMuon;
@@ -84,21 +85,27 @@ private:
 
 
 
-        auto* MergedTopsTLV         = new std::vector<TLorentzVector>();
-        auto* MergedTops_disc       = new std::vector<double>();
-        auto* MergedTops_JetsMap    = new std::map< int , std::vector<TLorentzVector> >();
-        auto* WTLV                  = new std::vector<TLorentzVector>();
-        auto* W_disc                = new std::vector<double>();
-        auto* W_JetsMap             = new std::map< int , std::vector<TLorentzVector> >();
-        auto* ResolvedTopsTLV       = new std::vector<TLorentzVector>();
-        auto* ResolvedTops_disc     = new std::vector<double>();
-        auto* ResolvedTops_JetsMap  = new std::map< int , std::vector<TLorentzVector> >();
-        int nMergedTops             = 0;
-        int nWs                     = 0;
-        int nResolvedTops           = 0;
-        float MergedTopTotalSF      = 1.0;
-        float WTotalSF              = 1.0;
-        float ResolvedTopTotalSF    = 1.0;
+        auto* MergedTopsTLV          = new std::vector<TLorentzVector>();
+        auto* MergedTops_disc        = new std::vector<double>();
+        auto* MergedTops_JetsMap     = new std::map< int , std::vector<TLorentzVector> >();
+        auto* WTLV                   = new std::vector<TLorentzVector>();
+        auto* W_disc                 = new std::vector<double>();
+        auto* W_JetsMap              = new std::map< int , std::vector<TLorentzVector> >();
+        auto* ResolvedTopsTLV        = new std::vector<TLorentzVector>();
+        auto* ResolvedTops_disc      = new std::vector<double>();
+        auto* ResolvedTops_JetsMap   = new std::map< int , std::vector<TLorentzVector> >();
+        int nMergedTops                 = 0;
+        int nWs                         = 0;
+        int nResolvedTops               = 0;
+        float MergedTopTotalSF          = 1.0;
+        float MergedTopTotalSF_Up       = 1.0;
+        float MergedTopTotalSF_Down     = 1.0;
+        float WTotalSF                  = 1.0;
+        float WTotalSF_Up               = 1.0;
+        float WTotalSF_Down             = 1.0;
+        float ResolvedTopTotalSF        = 1.0;
+        float ResolvedTopTotalSF_Up     = 1.0;
+        float ResolvedTopTotalSF_Down   = 1.0;
 
         //Select AK4 jets to use in tagger
         //When reading from the resolvedTopCandidate collection from nanoAOD you must pass ALL ak4 jets to ttUtility::ConstAK4Inputs below, 
@@ -142,13 +149,25 @@ private:
             {
                 if(FatJet_Stop0l[i] == 1)
                 {
-                    nMergedTops         += 1;
-                    MergedTopTotalSF    *= FatJet_SF[i];
+                    if (verbose_ >= 2)
+                    {
+                        printf("FatJet_SF[%d] = %f,  FatJet_SFerr[%d] = %f\n", i, FatJet_SF[i], i, FatJet_SFerr[i]);
+                    }
+                    nMergedTops             += 1;
+                    MergedTopTotalSF        *= FatJet_SF[i];
+                    MergedTopTotalSF_Up     *= (FatJet_SF[i] + FatJet_SFerr[i]);
+                    MergedTopTotalSF_Down   *= (FatJet_SF[i] - FatJet_SFerr[i]);
                 }
                 if(FatJet_Stop0l[i] == 2)
                 {
-                    nWs         += 1;
-                    WTotalSF    *= FatJet_SF[i];
+                    if (verbose_ >= 2)
+                    {
+                        printf("FatJet_SF[%d] = %f,  FatJet_SFerr[%d] = %f\n", i, FatJet_SF[i], i, FatJet_SFerr[i]);
+                    }
+                    nWs             += 1;
+                    WTotalSF        *= FatJet_SF[i];
+                    WTotalSF_Up     *= (FatJet_SF[i] + FatJet_SFerr[i]);
+                    WTotalSF_Down   *= (FatJet_SF[i] - FatJet_SFerr[i]);
                 }
             }
         }
@@ -287,11 +306,15 @@ private:
         
         tr.registerDerivedVar("nMergedTops" + suffix_,              nMergedTops);
         tr.registerDerivedVar("MergedTopTotalSF" + suffix_,         MergedTopTotalSF);
+        tr.registerDerivedVar("MergedTopTotalSF_Up" + suffix_,      MergedTopTotalSF_Up);
+        tr.registerDerivedVar("MergedTopTotalSF_Down" + suffix_,    MergedTopTotalSF_Down);
         tr.registerDerivedVec("MergedTopsTLV" + suffix_,            MergedTopsTLV);
         tr.registerDerivedVec("MergedTops_disc" + suffix_,          MergedTops_disc);
         tr.registerDerivedVec("MergedTops_JetsMap" + suffix_,       MergedTops_JetsMap);
         tr.registerDerivedVar("nWs" + suffix_,                      nWs);
         tr.registerDerivedVar("WTotalSF" + suffix_,                 WTotalSF);
+        tr.registerDerivedVar("WTotalSF_Up" + suffix_,              WTotalSF_Up);
+        tr.registerDerivedVar("WTotalSF_Down" + suffix_,            WTotalSF_Down);
         tr.registerDerivedVec("WTLV" + suffix_,                     WTLV);
         tr.registerDerivedVec("W_disc" + suffix_,                   W_disc);
         tr.registerDerivedVec("W_JetsMap" + suffix_,                W_JetsMap);
@@ -306,7 +329,7 @@ private:
     
 public:
 
-    bool verbose_ = false;
+    int verbose_ = 0;
 
     RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string suffix = "", bool doLeptonCleaning = false, bool doPhotonCleaning = false) :
         taggerCfg_ (taggerCfg),
