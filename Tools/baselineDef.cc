@@ -22,7 +22,7 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
   UseDeepCSV            = true;
   jetVecLabel           = "JetTLV";
   jetVecLabelAK8        = "FatJetTLV";
-  CSVVecLabel           = "Jet_btagCSVV2";
+  btagVecLabel          = "Jet_btagDeepB";
   METLabel              = "MET_pt";
   METPhiLabel           = "MET_phi";
   qgLikehoodLabel       = "qgLikelihood";
@@ -38,9 +38,8 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
   SAT_Pass_lowDM_Mid      = false;
   SAT_Pass_highDM_Mid     = false;
   metLVec.SetPtEtaPhiM(0, 0, 0, 0);
-  min_jet_pt = 20.0;
-  JetCutArrary  = AnaConsts::pt20Eta24Arr;
-  dPhiCutArrary = AnaConsts::pt20Eta47Arr;
+  JetCutArrary  = AnaConsts::pt30Eta24Arr;
+  dPhiCutArrary = AnaConsts::pt30Eta47Arr;
   
   // check year
   if (year.compare("2016") != 0 && year.compare("2017") != 0 && year.compare("2018") != 0)
@@ -50,7 +49,11 @@ BaselineVessel::BaselineVessel(NTupleReader &tr_, const std::string year, const 
   
   if (UseDeepCSV)
   {
-    CSVVecLabel           = "Jet_btagDeepB";
+    btagVecLabel           = "Jet_btagDeepB";
+  }
+  else
+  {
+    btagVecLabel           = "Jet_btagCSVV2";
   }
   if (UseDeepTagger)
   {
@@ -115,18 +118,21 @@ std::string BaselineVessel::checkEquality(bool equal)
 // ===========================================================================
 bool BaselineVessel::UseCleanedJets() 
 {
-  std::string prefix = "";
   std::string suffix = "";
   if      (UseDRPhotonCleanJet) suffix = "_drPhotonCleaned";
   else if (UseDRLeptonCleanJet) suffix = "_drLeptonCleaned";
-  jetVecLabel     = prefix + "JetTLV"        + suffix;
-  jetVecLabelAK8  = prefix + "FatJetTLV"     + suffix;
-  CSVVecLabel     = prefix + "Jet_btagCSVV2" + suffix;
-  qgLikehoodLabel = prefix + "qgLikelihood"  + suffix;
+  jetVecLabel     = "JetTLV"        + suffix;
+  jetVecLabelAK8  = "FatJetTLV"     + suffix;
+  btagVecLabel    = "Jet_btagCSVV2" + suffix;
+  qgLikehoodLabel = "qgLikelihood"  + suffix;
   if (UseDeepCSV)
   {
     // Note that DeepCSVcomb is a derived variable... but it is derived with cleaned variables 
-    CSVVecLabel   = prefix + "Jet_btagDeepB" + suffix;
+    btagVecLabel   = "Jet_btagDeepB" + suffix;
+  }
+  else
+  {
+    btagVecLabel   = "Jet_btagCSVV2" + suffix;
   }
   return true;
 }       // -----  end of function BaselineVessel::UseCleanedJets  -----
@@ -148,6 +154,12 @@ bool BaselineVessel::OpenWMassCorrFile()
   }
   return true;
 }       // -----  end of function BaselineVessel::OpenWMassCorrFile  -----
+
+
+std::string BaselineVessel::UseSpecVar(std::string varname) const
+{
+  return varname + firstSpec;
+}
 
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::UseCleanedJetsVar
@@ -187,7 +199,7 @@ void BaselineVessel::prepareDeepTopTagger()
   recoJetsBtag_forTagger  = new std::vector<float>();
   qgLikelihood_forTagger  = new std::vector<float>();
   *jetsLVec_forTagger     = tr->getVec<TLorentzVector>(jetVecLabel);
-  *recoJetsBtag_forTagger = tr->getVec<float>(CSVVecLabel);
+  *recoJetsBtag_forTagger = tr->getVec<float>(btagVecLabel);
   *qgLikelihood_forTagger = tr->getVec<float>(qgLikehoodLabel);
 
   tr->registerDerivedVec("jetsLVec_forTagger"     + firstSpec, jetsLVec_forTagger);
@@ -279,7 +291,7 @@ void BaselineVessel::prepareTopTagger()
     qgLikelihood.clear();
   }
     
-  AnaFunctions::prepareJetsForTagger(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(CSVVecLabel), 
+  AnaFunctions::prepareJetsForTagger(tr->getVec<TLorentzVector>(jetVecLabel), tr->getVec<float>(btagVecLabel), 
       *jetsLVec_forTagger, *recoJetsBtag_forTagger, qgLikelihood, *qgLikelihood_forTagger);
 
   tr->registerDerivedVec("jetsLVec_forTagger" + firstSpec, jetsLVec_forTagger);
@@ -357,19 +369,16 @@ bool BaselineVessel::PredefineSpec()
   // Specify Jet pt cut
   if (spec.find("jetpt20") != std::string::npos)
   {
-    min_jet_pt          = 20.0;
     JetCutArrary        = AnaConsts::pt20Eta24Arr;
     dPhiCutArrary       = AnaConsts::pt20Eta47Arr;
   }
   else if (spec.find("jetpt30") != std::string::npos)
   {
-    min_jet_pt          = 30.0;
     JetCutArrary        = AnaConsts::pt30Eta24Arr;
     dPhiCutArrary       = AnaConsts::pt30Eta47Arr;
   }
   else if (spec.find("jetpt40") != std::string::npos)
   {
-    min_jet_pt          = 40.0;
     JetCutArrary        = AnaConsts::pt40Eta24Arr;
     dPhiCutArrary       = AnaConsts::pt40Eta47Arr;
   }
@@ -400,10 +409,10 @@ bool BaselineVessel::PredefineSpec()
   else if( spec.find("jecUp") != std::string::npos || spec.find("jecDn") != std::string::npos || spec.find("metMagUp") != std::string::npos || spec.find("metMagDn") != std::string::npos || spec.find("metPhiUp") != std::string::npos || spec.find("metPhiDn") != std::string::npos ){
     if( spec.find("jecUp") != std::string::npos ){
       jetVecLabel = "jetLVec_jecUp";
-      CSVVecLabel = "recoJetsBtag_jecUp";
+      btagVecLabel = "recoJetsBtag_jecUp";
     }else if(spec.find("jecDn") != std::string::npos ){
       jetVecLabel = "jetLVec_jecDn";
-      CSVVecLabel = "recoJetsBtag_jecDn";
+      btagVecLabel = "recoJetsBtag_jecDn";
     }else if(spec.find("metMagUp") != std::string::npos ){
       METLabel = "met_metMagUp";
     }else if(spec.find("metMagDn") != std::string::npos ){
@@ -420,7 +429,7 @@ bool BaselineVessel::PredefineSpec()
   }
   if( !printOnce ){
     printOnce = true;
-    //std::cout<<"spec : "<<spec.c_str()<<"  jetVecLabel : "<<jetVecLabel.c_str() <<"  CSVVecLabel : "<<CSVVecLabel.c_str() <<"  METLabel : "<<METLabel.c_str()<< std::endl;
+    //std::cout<<"spec : "<<spec.c_str()<<"  jetVecLabel : "<<jetVecLabel.c_str() <<"  btagVecLabel : "<<btagVecLabel.c_str() <<"  METLabel : "<<METLabel.c_str()<< std::endl;
   }  
   return true;
 }       // -----  end of function BaselineVessel::PredefineSpec  -----
@@ -468,7 +477,7 @@ bool BaselineVessel::PrintoutConfig() const
   std::cout << "|   Year           : " << year                                      << std::endl;
   std::cout << "|   Specialization : " << spec                                      << std::endl;
   std::cout << "|   AK4Jet Label   : " << jetVecLabel                               << std::endl;
-  std::cout << "|   b-tag Label    : " << CSVVecLabel                               << std::endl;
+  std::cout << "|   b-tag Label    : " << btagVecLabel                               << std::endl;
   std::cout << "|   b-tag WP       : " << AnaConsts::DeepCSV.at(year).at("cutL")    << std::endl;
   std::cout << "|   top-tag config : " << toptaggerCfgFile                          << std::endl;
   std::cout << "|   MET Label      : " << METLabel                                  << std::endl;
@@ -1333,7 +1342,7 @@ AK8Flag BaselineVessel::FlagAK8FromCSV(Constituent &ak8) const
   unsigned loosebcnt =0 ;
   unsigned mediumbcnt = 0;
   const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
-  const std::vector<float> &CSV = tr->getVec<float>(CSVVecLabel);
+  const std::vector<float> &CSV = tr->getVec<float>(btagVecLabel);
 
   for(auto sub : ak8.getSubjets())
   {
@@ -1365,7 +1374,7 @@ AK8Flag BaselineVessel::FlagAK8DeepFromCSV(unsigned int AK8index) const
 
   const std::vector<std::vector<TLorentzVector> > &subjets = tr->getVec<std::vector<TLorentzVector> >(UseCleanedJetsVar("puppiAK8SubjetLVec"));
   const std::vector<TLorentzVector> &jets = tr->getVec<TLorentzVector>(jetVecLabel);
-  const std::vector<float> &CSV = tr->getVec<float>(CSVVecLabel);
+  const std::vector<float> &CSV = tr->getVec<float>(btagVecLabel);
 
   for(auto sub : subjets.at(AK8index))
   {
@@ -2175,7 +2184,7 @@ bool BaselineVessel::GetRecoZ(const std::string leptype, const std::string lepch
 bool BaselineVessel::CalcBottomVars()
 {
   const auto& jets           = tr->getVec<TLorentzVector>(jetVecLabel);
-  const auto& Jet_btagDisc   = tr->getVec<float>(CSVVecLabel);
+  const auto& Jet_btagDisc   = tr->getVec<float>(btagVecLabel);
   const auto& Jet_btagStop0l = tr->getVec<unsigned char>(UseCleanedJetsVar("Jet_btagStop0l"));
   const auto& SB_Stop0l      = tr->getVec<unsigned char>(UseCleanedJetsVar("SB_Stop0l"));
   const auto& SB_SF          = tr->getVec<float>(UseCleanedJetsVar("SB_SF"));
