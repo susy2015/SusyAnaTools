@@ -151,7 +151,7 @@ private:
                 {
                     if (verbose_ >= 2)
                     {
-                        printf("FatJet_SF[%d] = %f,  FatJet_SFerr[%d] = %f\n", i, FatJet_SF[i], i, FatJet_SFerr[i]);
+                        printf("Merged Top: FatJet_SF[%d] = %f,  FatJet_SFerr[%d] = %f\n", i, FatJet_SF[i], i, FatJet_SFerr[i]);
                     }
                     nMergedTops             += 1;
                     MergedTopTotalSF        *= FatJet_SF[i];
@@ -162,7 +162,7 @@ private:
                 {
                     if (verbose_ >= 2)
                     {
-                        printf("FatJet_SF[%d] = %f,  FatJet_SFerr[%d] = %f\n", i, FatJet_SF[i], i, FatJet_SFerr[i]);
+                        printf("W: FatJet_SF[%d] = %f,  FatJet_SFerr[%d] = %f\n", i, FatJet_SF[i], i, FatJet_SFerr[i]);
                     }
                     nWs             += 1;
                     WTotalSF        *= FatJet_SF[i];
@@ -281,6 +281,16 @@ private:
             }
             if (type == TopObject::Type::RESOLVED_TOP)      
             {
+                // systematic uncertainties
+                const auto& syst_map = top->getAllSystematicUncertainties();
+                if (verbose_ >= 2)
+                {
+                    printf("--- resolved top systematics ---\n");
+                    for (const auto& syst : syst_map)
+                    {
+                        printf("%s : %f\n", syst.first.c_str(), syst.second);
+                    }
+                }
                 // scale factor
                 ResolvedTopTotalSF *= top->getMCScaleFactor();
                 ResolvedTopsTLV->push_back(top->p());
@@ -320,6 +330,8 @@ private:
         tr.registerDerivedVec("W_JetsMap" + suffix_,                W_JetsMap);
         tr.registerDerivedVar("nResolvedTops" + suffix_,            nResolvedTops);
         tr.registerDerivedVar("ResolvedTopTotalSF" + suffix_,       ResolvedTopTotalSF);
+        tr.registerDerivedVar("ResolvedTopTotalSF_Up" + suffix_,    ResolvedTopTotalSF_Up);
+        tr.registerDerivedVar("ResolvedTopTotalSF_Down" + suffix_,  ResolvedTopTotalSF_Down);
         tr.registerDerivedVec("ResolvedTopsTLV" + suffix_,          ResolvedTopsTLV);
         tr.registerDerivedVec("ResolvedTops_disc" + suffix_,        ResolvedTops_disc);
         tr.registerDerivedVec("ResolvedTops_JetsMap" + suffix_,     ResolvedTops_JetsMap);
@@ -329,7 +341,7 @@ private:
     
 public:
 
-    int verbose_ = 0;
+    int verbose_ = 2;
 
     RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string suffix = "", bool doLeptonCleaning = false, bool doPhotonCleaning = false) :
         taggerCfg_ (taggerCfg),
