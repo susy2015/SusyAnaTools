@@ -282,17 +282,30 @@ private:
             if (type == TopObject::Type::RESOLVED_TOP)      
             {
                 // systematic uncertainties
+                double totalUp   = 0.0;
+                double totalDown = 0.0;
                 const auto& syst_map = top->getAllSystematicUncertainties();
-                if (verbose_ >= 2)
+                if (verbose_ >= 2) printf("--- resolved top systematics ---\n");
+                for (const auto& syst : syst_map)
                 {
-                    printf("--- resolved top systematics ---\n");
-                    for (const auto& syst : syst_map)
+                    if (verbose_ >= 2) printf("%s : %f\n", syst.first.c_str(), syst.second);
+                    if (syst.first.find("_Up") != std::string::npos)        totalUp   += syst.second * syst.second;
+                    else if (syst.first.find("_Down") != std::string::npos) totalDown += syst.second * syst.second;
+                    // symmetric uncertainty without Up/Down
+                    else
                     {
-                        printf("%s : %f\n", syst.first.c_str(), syst.second);
+                        totalUp   += syst.second * syst.second;
+                        totalDown += syst.second * syst.second;
                     }
                 }
                 // scale factor
-                ResolvedTopTotalSF *= top->getMCScaleFactor();
+                double sf       = top->getMCScaleFactor();
+                double systUp   = sqrt(totalUp);
+                double systDown = sqrt(totalDown);
+                if (verbose_ >= 2) printf("sf = %f, systUp = %f, systDown = %f\n", sf, systUp, systDown);
+                ResolvedTopTotalSF      *= sf;
+                ResolvedTopTotalSF_Up   *= (sf + systUp);
+                ResolvedTopTotalSF_Down *= (sf - systDown);
                 ResolvedTopsTLV->push_back(top->p());
                 ResolvedTops_disc->push_back(top->getDiscriminator());
                 ResolvedTops_JetsMap->insert(std::make_pair(ResolvedTopIdx, temp));
