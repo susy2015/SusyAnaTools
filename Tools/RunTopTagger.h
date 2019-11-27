@@ -354,7 +354,7 @@ private:
     
 public:
 
-    int verbose_ = 2;
+    int verbose_ = 0;
 
     RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string suffix = "", bool doLeptonCleaning = false, bool doPhotonCleaning = false) :
         taggerCfg_ (taggerCfg),
