@@ -95,9 +95,9 @@ int main(int argc, char* argv[])
 
     if(isTTZ)
     {
-        SF = 1.17;
-        SF_up = 1.33;
-        SF_down = 1.01;
+        SF = 1.19589; //was 1.17, then 1.26484, then 1.24827
+        SF_up = 1.19589 + 0.168534; //was 1.33, then 1.09131, then 1.42179
+        SF_down = 1.19589 - 0.168534; //was 1.01, then 1.43837, then 1.07475
     }
 
     std::cout << "Era: " << era << "\tisTTZ: " << isTTZ <<"\tSF: " << SF << "\tisSignal: " << isSignal << "\tisData: " << isData << "\tPeriodF: " << PeriodF << "\tPostHEM: " << PostHEM << "\tMax events: " << max_events << std::endl;
@@ -307,35 +307,35 @@ int main(int argc, char* argv[])
         bool Pass_trigger_MET = true;
         if(isData) Pass_trigger_MET = tr.getVar<bool>("Pass_trigger_MET");
         bool Pass_HEMVeto30 = true;
-        if(PostHEM && era == "2018") Pass_HEMVeto30 = tr.getVar<bool>("Pass_HEMVeto30");
+        if(PostHEM && era == "2018") Pass_HEMVeto30 = tr.getVar<bool>("Pass_exHEMVeto30");
         Pass_EventFilter = Pass_EventFilter && Pass_JetID && Pass_CaloMETRatio && Pass_trigger_MET && Pass_HEMVeto30;
 
         bool Pass_EventFilter_JESUp = tr.getVar<bool>("Pass_EventFilter_JESUp");
         bool Pass_JetID_JESUp = tr.getVar<bool>("Pass_JetID_JESUp");
         bool Pass_CaloMETRatio_JESUp = tr.getVar<bool>("Pass_CaloMETRatio_JESUp");
         bool Pass_HEMVeto30_JESUp = true;
-        if(PostHEM && era == "2018") Pass_HEMVeto30_JESUp = tr.getVar<bool>("Pass_HEMVeto30_JESUp");
+        if(PostHEM && era == "2018") Pass_HEMVeto30_JESUp = tr.getVar<bool>("Pass_exHEMVeto30_JESUp");
         Pass_EventFilter_JESUp = Pass_EventFilter_JESUp && Pass_JetID_JESUp && Pass_CaloMETRatio_JESUp && Pass_trigger_MET && Pass_HEMVeto30_JESUp;
         
         bool Pass_EventFilter_JESDown = tr.getVar<bool>("Pass_EventFilter_JESDown");
         bool Pass_JetID_JESDown = tr.getVar<bool>("Pass_JetID_JESDown");
         bool Pass_CaloMETRatio_JESDown = tr.getVar<bool>("Pass_CaloMETRatio_JESDown");
         bool Pass_HEMVeto30_JESDown = true;
-        if(PostHEM && era == "2018") Pass_HEMVeto30_JESDown = tr.getVar<bool>("Pass_HEMVeto30_JESDown");
+        if(PostHEM && era == "2018") Pass_HEMVeto30_JESDown = tr.getVar<bool>("Pass_exHEMVeto30_JESDown");
         Pass_EventFilter_JESDown = Pass_EventFilter_JESDown && Pass_JetID_JESDown && Pass_CaloMETRatio_JESDown && Pass_trigger_MET && Pass_HEMVeto30_JESDown;
 
         bool Pass_EventFilter_METUnClustUp = tr.getVar<bool>("Pass_EventFilter_METUnClustUp");
         bool Pass_JetID_METUnClustUp = tr.getVar<bool>("Pass_JetID_METUnClustUp");
         bool Pass_CaloMETRatio_METUnClustUp = tr.getVar<bool>("Pass_CaloMETRatio_METUnClustUp");
         bool Pass_HEMVeto30_METUnClustUp = true;
-        if(PostHEM && era == "2018") Pass_HEMVeto30_METUnClustUp = tr.getVar<bool>("Pass_HEMVeto30_METUnClustUp");
+        if(PostHEM && era == "2018") Pass_HEMVeto30_METUnClustUp = tr.getVar<bool>("Pass_exHEMVeto30_METUnClustUp");
         Pass_EventFilter_METUnClustUp = Pass_EventFilter_METUnClustUp && Pass_JetID_METUnClustUp && Pass_CaloMETRatio_METUnClustUp && Pass_trigger_MET && Pass_HEMVeto30_METUnClustUp;
         
         bool Pass_EventFilter_METUnClustDown = tr.getVar<bool>("Pass_EventFilter_METUnClustDown");
         bool Pass_JetID_METUnClustDown = tr.getVar<bool>("Pass_JetID_METUnClustDown");
         bool Pass_CaloMETRatio_METUnClustDown = tr.getVar<bool>("Pass_CaloMETRatio_METUnClustDown");
         bool Pass_HEMVeto30_METUnClustDown = true;
-        if(PostHEM && era == "2018") Pass_HEMVeto30_METUnClustDown = tr.getVar<bool>("Pass_HEMVeto30_METUnClustDown");
+        if(PostHEM && era == "2018") Pass_HEMVeto30_METUnClustDown = tr.getVar<bool>("Pass_exHEMVeto30_METUnClustDown");
         Pass_EventFilter_METUnClustDown = Pass_EventFilter_METUnClustDown && Pass_JetID_METUnClustDown && Pass_CaloMETRatio_METUnClustDown && Pass_trigger_MET && Pass_HEMVeto30_METUnClustDown;
 
         //if(!Pass_EventFilter) continue;
@@ -440,23 +440,91 @@ int main(int argc, char* argv[])
         }
 
         //Res top tag SF
+        //Up and down values are already set to be summed in quadrature. Need to make total SF.
+        auto ResolvedTopCandidate_sf = tr.getVec<float>("ResolvedTopCandidate_sf");
+        auto ResTopCand_CSPur_Up = tr.getVec<float>("ResolvedTopCandidate_syst_CSPur_Up");
+        auto ResTopCand_CSPur_Down = tr.getVec<float>("ResolvedTopCandidate_syst_CSPur_Down");
+        auto ResTopCand_Stat_Up = tr.getVec<float>("ResolvedTopCandidate_syst_Stat_Up");
+        auto ResTopCand_Stat_Down = tr.getVec<float>("ResolvedTopCandidate_syst_Stat_Down");
+        auto ResTopCand_Btag_Up = tr.getVec<float>("ResolvedTopCandidate_syst_Btag_Up");
+        auto ResTopCand_Btag_Down = tr.getVec<float>("ResolvedTopCandidate_syst_Btag_Down");
+        auto ResTopCand_Closure_Up = tr.getVec<float>("ResolvedTopCandidate_syst_Closure_Up");
+        auto ResTopCand_Closure_Down = tr.getVec<float>("ResolvedTopCandidate_syst_Closure_Down");
+        auto ResTopCand_Pileup_Up = tr.getVec<float>("ResolvedTopCandidate_syst_Pileup_Up");
+        auto ResTopCand_Pileup_Down = tr.getVec<float>("ResolvedTopCandidate_syst_Pileup_Down");
+        auto ResolvedTop_Stop0l = tr.getVec<unsigned char>("ResolvedTop_Stop0l");
+        auto ResolvedTopCandidate_genMatch = tr.getVec<unsigned char>("ResolvedTopCandidate_genMatch");
+
+        float ResTop_SF = 1.0;
+        float ResTop_SF_up = 0.0;
+        float ResTop_SF_down = 0.0;
+
+        float test_sf = 1.0;
+        float test_sf_cspur_up = 1.0;
+        float test_sf_stat_up = 1.0;
+        float test_sf_cspur_down = 1.0;
+        float test_sf_stat_down = 1.0;
+
+        for(int v = 0; v < ResolvedTop_Stop0l.size(); v++)
+        {
+            if(ResolvedTop_Stop0l[v])
+            {
+                ResTop_SF *= ResolvedTopCandidate_sf[v];
+                ResTop_SF_up = ResTop_SF_up + std::pow(ResTopCand_CSPur_Up[v],2) + std::pow(ResTopCand_Stat_Up[v],2) + std::pow(ResTopCand_Btag_Up[v],2) + std::pow(ResTopCand_Pileup_Up[v],2);
+                ResTop_SF_down = ResTop_SF_down + std::pow(ResTopCand_CSPur_Down[v],2) + std::pow(ResTopCand_Stat_Down[v],2) + std::pow(ResTopCand_Btag_Down[v],2) + std::pow(ResTopCand_Pileup_Down[v],2);
+                if(!ResolvedTopCandidate_genMatch[v])
+                {
+                    ResTop_SF_up += std::pow(ResTopCand_Closure_Up[v],2);
+                    ResTop_SF_down += std::pow(ResTopCand_Closure_Down[v],2);
+                }
+                test_sf_cspur_up = ResTopCand_CSPur_Up[v];
+                test_sf_stat_up = ResTopCand_Stat_Up[v];
+                test_sf_cspur_down = ResTopCand_CSPur_Down[v];
+                test_sf_stat_down = ResTopCand_Stat_Down[v];
+            }
+        }
+        ResTop_SF_up = std::sqrt(ResTop_SF_up);
+        ResTop_SF_down = std::sqrt(ResTop_SF_down);
+        //ResTop_SF_up = ResTop_SF * (1 + ResTop_SF_up);
+        ResTop_SF_up = ResTop_SF + ResTop_SF_up;
+        //ResTop_SF_down = ResTop_SF * (1 - ResTop_SF_down);
+        ResTop_SF_down = ResTop_SF - ResTop_SF_down;
+
+        if(verbose)
+        {
+            std::cout << "ResTop SF: " << ResTop_SF << "\tResTop SF Down: " << ResTop_SF_down << "\tlast CSPur down: " << test_sf_cspur_down << "\tlast stat down: " << test_sf_stat_down << std::endl;
+        }
 
         //Merged top tag SF
 
         //W tag SF
 
+        //both are part of the following:
         //FatJetSF
         auto vec_FatJet_SF = tr.getVec<float>("FatJet_SF");
         auto vec_FatJet_SFerr = tr.getVec<float>("FatJet_SFerr");
-        float FatJet_SF = 1.0;
-        float FatJet_SFerr = 0.0;
+        auto FatJet_Stop0l = tr.getVec<int>("FatJet_Stop0l");
+        float W_SF = 1.0;
+        float W_SFerr = 0.0;
+        float MergedTop_SF = 1.0;
+        float MergedTop_SFerr = 0.0;
         for(int v = 0; v < vec_FatJet_SF.size(); v++)
         {
-            FatJet_SF *= vec_FatJet_SF[v];
-            FatJet_SFerr += vec_FatJet_SFerr[v]*vec_FatJet_SFerr[v];
+            if(FatJet_Stop0l[v] == 1)
+            {
+                MergedTop_SF *= vec_FatJet_SF[v];
+                MergedTop_SFerr += vec_FatJet_SFerr[v]*vec_FatJet_SFerr[v];
+            }
+            else if(FatJet_Stop0l[v] == 2)
+            {
+                W_SF *= vec_FatJet_SF[v];
+                W_SFerr += vec_FatJet_SFerr[v]*vec_FatJet_SFerr[v];
+            }
         }
-        float FatJet_SF_up = FatJet_SF + std::sqrt(FatJet_SFerr);
-        float FatJet_SF_down = FatJet_SF - std::sqrt(FatJet_SFerr);
+        float W_SF_up = W_SF + std::sqrt(W_SFerr);
+        float W_SF_down = W_SF - std::sqrt(W_SFerr);
+        float MergedTop_SF_up = MergedTop_SF + std::sqrt(MergedTop_SFerr);
+        float MergedTop_SF_down = MergedTop_SF - std::sqrt(MergedTop_SFerr);
 
         //mtb
         if(verbose && (tr.getEvtNum() < 1000)) std::cout << "mtb" << std::endl;
@@ -636,7 +704,7 @@ int main(int argc, char* argv[])
                 PrefireWeightUp = tr.getVar<float>("PrefireWeight_Up");
             }
 
-            evtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF;
+            evtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * W_SF * MergedTop_SF * ResTop_SF;
 
         }
 
@@ -657,28 +725,32 @@ int main(int argc, char* argv[])
             if(bin_num != -1)
             {
                 h_vb_low->Fill(bin_num,SF*evtWeight);
-                h_vb_low_bsf_up->Fill(bin_num, SF * sign * B_SF_Up * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_bsf_down->Fill(bin_num, SF * sign * B_SF_Down * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_trig_eff_up->Fill(bin_num, SF * sign * B_SF * trigger_eff_up * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_trig_eff_down->Fill(bin_num, SF * sign * B_SF * trigger_eff_down * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_puWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeightUp * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_puWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeightDown * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_PFWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeightUp * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_PFWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeightDown * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_pdfWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * pdfWeight_Up * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_pdfWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * pdfWeight_Down * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_SF_up->Fill(bin_num, SF_up * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_SF_down->Fill(bin_num, SF_down * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_ivfunc_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF_up * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_ivfunc_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF_down * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_eff_e_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF_up * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_eff_e_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF_down * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_err_mu_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF_up * Tau_MediumSF * FatJet_SF);
-                h_vb_low_err_mu_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF_down * Tau_MediumSF * FatJet_SF);
-                h_vb_low_eff_tau_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF_Up * FatJet_SF);
-                h_vb_low_eff_tau_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF_Down * FatJet_SF);
-                h_vb_low_ak8jet_sf_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF_up);
-                h_vb_low_ak8jet_sf_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF_down);
+                h_vb_low_bsf_up->Fill(bin_num, SF * evtWeight * B_SF_Up / B_SF);
+                h_vb_low_bsf_down->Fill(bin_num, SF * evtWeight * B_SF_Down / B_SF);
+                h_vb_low_trig_eff_up->Fill(bin_num, SF * evtWeight * trigger_eff_up / trigger_eff);
+                h_vb_low_trig_eff_down->Fill(bin_num, SF * evtWeight * trigger_eff_down / trigger_eff);
+                h_vb_low_puWeight_up->Fill(bin_num, SF * evtWeight * puWeightUp / puWeight);
+                h_vb_low_puWeight_down->Fill(bin_num, SF * evtWeight * puWeightDown / puWeight);
+                h_vb_low_PFWeight_up->Fill(bin_num, SF * evtWeight * PrefireWeightUp / PrefireWeight);
+                h_vb_low_PFWeight_down->Fill(bin_num, SF * evtWeight * PrefireWeightDown / PrefireWeight);
+                h_vb_low_pdfWeight_up->Fill(bin_num, SF * evtWeight * pdfWeight_Up);
+                h_vb_low_pdfWeight_down->Fill(bin_num, SF * evtWeight * pdfWeight_Down);
+                h_vb_low_SF_up->Fill(bin_num, SF_up * evtWeight);
+                h_vb_low_SF_down->Fill(bin_num, SF_down * evtWeight);
+                h_vb_low_ivfunc_up->Fill(bin_num, SF * evtWeight * SB_SF_up / SB_SF);
+                h_vb_low_ivfunc_down->Fill(bin_num, SF * evtWeight * SB_SF_down / SB_SF);
+                h_vb_low_eff_e_up->Fill(bin_num, SF * evtWeight * Electron_VetoSF_up / Electron_VetoSF);
+                h_vb_low_eff_e_down->Fill(bin_num, SF * evtWeight * Electron_VetoSF_down / Electron_VetoSF);
+                h_vb_low_err_mu_up->Fill(bin_num, SF * evtWeight * Muon_MediumSF_up / Muon_MediumSF);
+                h_vb_low_err_mu_down->Fill(bin_num, SF * evtWeight * Muon_MediumSF_down / Muon_MediumSF);
+                h_vb_low_eff_tau_up->Fill(bin_num, SF * evtWeight * Tau_MediumSF_Up / Tau_MediumSF);
+                h_vb_low_eff_tau_down->Fill(bin_num, SF * evtWeight * Tau_MediumSF_Down / Tau_MediumSF);
+                h_vb_low_eff_wtag_up->Fill(bin_num, SF * evtWeight * W_SF_up / W_SF);
+                h_vb_low_eff_wtag_down->Fill(bin_num, SF * evtWeight * W_SF_down / W_SF);
+                h_vb_low_eff_toptag_up->Fill(bin_num, SF * evtWeight * MergedTop_SF_up / MergedTop_SF);
+                h_vb_low_eff_toptag_down->Fill(bin_num, SF * evtWeight * MergedTop_SF_down / MergedTop_SF);
+                h_vb_low_eff_restoptag_up->Fill(bin_num, SF * evtWeight * ResTop_SF_up / ResTop_SF);
+                h_vb_low_eff_restoptag_down->Fill(bin_num, SF * evtWeight * ResTop_SF_down / ResTop_SF);
                 eff_h->Fill(1.,sign);
             }
             else if(verbose) std::cout << "Event number " << tr.getEvtNum() << " passing Val_bin_0_14 has bin number -1." << std::endl;
@@ -731,28 +803,32 @@ int main(int argc, char* argv[])
             {
                 h_vb_low->Fill(bin_num,SF*evtWeight);
                 h_njets_low_middphi->Fill(njets,SF*evtWeight);
-                h_vb_low_bsf_up->Fill(bin_num, SF * sign * B_SF_Up * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_bsf_down->Fill(bin_num, SF * sign * B_SF_Down * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_trig_eff_up->Fill(bin_num, SF * sign * B_SF * trigger_eff_up * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_trig_eff_down->Fill(bin_num, SF * sign * B_SF * trigger_eff_down * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_puWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeightUp * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_puWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeightDown * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_PFWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeightUp * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_PFWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeightDown * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_pdfWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * pdfWeight_Up * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_pdfWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * pdfWeight_Down * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_SF_up->Fill(bin_num, SF_up * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_SF_down->Fill(bin_num, SF_down * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_ivfunc_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF_up * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_ivfunc_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF_down * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_eff_e_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF_up * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_eff_e_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF_down * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_low_err_mu_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF_up * Tau_MediumSF * FatJet_SF);
-                h_vb_low_err_mu_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF_down * Tau_MediumSF * FatJet_SF);
-                h_vb_low_eff_tau_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF_Up * FatJet_SF);
-                h_vb_low_eff_tau_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF_Down * FatJet_SF);
-                h_vb_low_ak8jet_sf_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF_up);
-                h_vb_low_ak8jet_sf_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF_down);
+                h_vb_low_bsf_up->Fill(bin_num, SF * evtWeight * B_SF_Up / B_SF);
+                h_vb_low_bsf_down->Fill(bin_num, SF * evtWeight * B_SF_Down / B_SF);
+                h_vb_low_trig_eff_up->Fill(bin_num, SF * evtWeight * trigger_eff_up / trigger_eff);
+                h_vb_low_trig_eff_down->Fill(bin_num, SF * evtWeight * trigger_eff_down / trigger_eff);
+                h_vb_low_puWeight_up->Fill(bin_num, SF * evtWeight * puWeightUp / puWeight);
+                h_vb_low_puWeight_down->Fill(bin_num, SF * evtWeight * puWeightDown / puWeight);
+                h_vb_low_PFWeight_up->Fill(bin_num, SF * evtWeight * PrefireWeightUp / PrefireWeight);
+                h_vb_low_PFWeight_down->Fill(bin_num, SF * evtWeight * PrefireWeightDown / PrefireWeight);
+                h_vb_low_pdfWeight_up->Fill(bin_num, SF * evtWeight * pdfWeight_Up);
+                h_vb_low_pdfWeight_down->Fill(bin_num, SF * evtWeight * pdfWeight_Down);
+                h_vb_low_SF_up->Fill(bin_num, SF_up * evtWeight);
+                h_vb_low_SF_down->Fill(bin_num, SF_down * evtWeight);
+                h_vb_low_ivfunc_up->Fill(bin_num, SF * evtWeight * SB_SF_up / SB_SF);
+                h_vb_low_ivfunc_down->Fill(bin_num, SF * evtWeight * SB_SF_down / SB_SF);
+                h_vb_low_eff_e_up->Fill(bin_num, SF * evtWeight * Electron_VetoSF_up / Electron_VetoSF);
+                h_vb_low_eff_e_down->Fill(bin_num, SF * evtWeight * Electron_VetoSF_down / Electron_VetoSF);
+                h_vb_low_err_mu_up->Fill(bin_num, SF * evtWeight * Muon_MediumSF_up / Muon_MediumSF);
+                h_vb_low_err_mu_down->Fill(bin_num, SF * evtWeight * Muon_MediumSF_down / Muon_MediumSF);
+                h_vb_low_eff_tau_up->Fill(bin_num, SF * evtWeight * Tau_MediumSF_Up / Tau_MediumSF);
+                h_vb_low_eff_tau_down->Fill(bin_num, SF * evtWeight * Tau_MediumSF_Down / Tau_MediumSF);
+                h_vb_low_eff_wtag_up->Fill(bin_num, SF * evtWeight * W_SF_up / W_SF);
+                h_vb_low_eff_wtag_down->Fill(bin_num, SF * evtWeight * W_SF_down / W_SF);
+                h_vb_low_eff_toptag_up->Fill(bin_num, SF * evtWeight * MergedTop_SF_up / MergedTop_SF);
+                h_vb_low_eff_toptag_down->Fill(bin_num, SF * evtWeight * MergedTop_SF_down / MergedTop_SF);
+                h_vb_low_eff_restoptag_up->Fill(bin_num, SF * evtWeight * ResTop_SF_up / ResTop_SF);
+                h_vb_low_eff_restoptag_down->Fill(bin_num, SF * evtWeight * ResTop_SF_down / ResTop_SF);
                 eff_h->Fill(1.,sign);
             }
             else if(verbose) std::cout << "Event number " << tr.getEvtNum() << " passing Val_bin_15_18 has bin number -1." << std::endl;
@@ -805,28 +881,32 @@ int main(int argc, char* argv[])
             {
                 h_vb_high->Fill(bin_num,SF*evtWeight);
                 h_njets_high_middphi->Fill(njets,SF*evtWeight);
-                h_vb_high_bsf_up->Fill(bin_num, SF * sign * B_SF_Up * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_bsf_down->Fill(bin_num, SF * sign * B_SF_Down * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_trig_eff_up->Fill(bin_num, SF * sign * B_SF * trigger_eff_up * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_trig_eff_down->Fill(bin_num, SF * sign * B_SF * trigger_eff_down * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_puWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeightUp * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_puWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeightDown * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_PFWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeightUp * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_PFWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeightDown * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_pdfWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * pdfWeight_Up * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_pdfWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * pdfWeight_Down * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_SF_up->Fill(bin_num, SF_up * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_SF_down->Fill(bin_num, SF_down * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_ivfunc_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF_up * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_ivfunc_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF_down * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_eff_e_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF_up * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_eff_e_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF_down * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_vb_high_err_mu_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF_up * Tau_MediumSF * FatJet_SF);
-                h_vb_high_err_mu_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF_down * Tau_MediumSF * FatJet_SF);
-                h_vb_high_eff_tau_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF_Up * FatJet_SF);
-                h_vb_high_eff_tau_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF_Down * FatJet_SF);
-                h_vb_high_ak8jet_sf_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF_up);
-                h_vb_high_ak8jet_sf_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF_down);
+                h_vb_high_bsf_up->Fill(bin_num, SF * evtWeight * B_SF_Up / B_SF);
+                h_vb_high_bsf_down->Fill(bin_num, SF * evtWeight * B_SF_Down / B_SF);
+                h_vb_high_trig_eff_up->Fill(bin_num, SF * evtWeight * trigger_eff_up / trigger_eff);
+                h_vb_high_trig_eff_down->Fill(bin_num, SF * evtWeight * trigger_eff_down / trigger_eff);
+                h_vb_high_puWeight_up->Fill(bin_num, SF * evtWeight * puWeightUp / puWeight);
+                h_vb_high_puWeight_down->Fill(bin_num, SF * evtWeight * puWeightDown / puWeight);
+                h_vb_high_PFWeight_up->Fill(bin_num, SF * evtWeight * PrefireWeightUp / PrefireWeight);
+                h_vb_high_PFWeight_down->Fill(bin_num, SF * evtWeight * PrefireWeightDown / PrefireWeight);
+                h_vb_high_pdfWeight_up->Fill(bin_num, SF * evtWeight * pdfWeight_Up);
+                h_vb_high_pdfWeight_down->Fill(bin_num, SF * evtWeight * pdfWeight_Down);
+                h_vb_high_SF_up->Fill(bin_num, SF_up * evtWeight);
+                h_vb_high_SF_down->Fill(bin_num, SF_down * evtWeight);
+                h_vb_high_ivfunc_up->Fill(bin_num, SF * evtWeight * SB_SF_up / SB_SF);
+                h_vb_high_ivfunc_down->Fill(bin_num, SF * evtWeight * SB_SF_down / SB_SF);
+                h_vb_high_eff_e_up->Fill(bin_num, SF * evtWeight * Electron_VetoSF_up / Electron_VetoSF);
+                h_vb_high_eff_e_down->Fill(bin_num, SF * evtWeight * Electron_VetoSF_down / Electron_VetoSF);
+                h_vb_high_err_mu_up->Fill(bin_num, SF * evtWeight * Muon_MediumSF_up / Muon_MediumSF);
+                h_vb_high_err_mu_down->Fill(bin_num, SF * evtWeight * Muon_MediumSF_down / Muon_MediumSF);
+                h_vb_high_eff_tau_up->Fill(bin_num, SF * evtWeight * Tau_MediumSF_Up / Tau_MediumSF);
+                h_vb_high_eff_tau_down->Fill(bin_num, SF * evtWeight * Tau_MediumSF_Down / Tau_MediumSF);
+                h_vb_high_eff_wtag_up->Fill(bin_num, SF * evtWeight * W_SF_up / W_SF);
+                h_vb_high_eff_wtag_down->Fill(bin_num, SF * evtWeight * W_SF_down / W_SF);
+                h_vb_high_eff_toptag_up->Fill(bin_num, SF * evtWeight * MergedTop_SF_up / MergedTop_SF);
+                h_vb_high_eff_toptag_down->Fill(bin_num, SF * evtWeight * MergedTop_SF_down / MergedTop_SF);
+                h_vb_high_eff_restoptag_up->Fill(bin_num, SF * evtWeight * ResTop_SF_up / ResTop_SF);
+                h_vb_high_eff_restoptag_down->Fill(bin_num, SF * evtWeight * ResTop_SF_down / ResTop_SF);
                 eff_h->Fill(1.,sign);
             }
             else if(verbose) std::cout << "Event number " << tr.getEvtNum() << " passing Val_bin_19_42 has bin number -1." << std::endl;
@@ -878,28 +958,32 @@ int main(int argc, char* argv[])
             if(bin_num != -1)
             {
                 h_sb_low->Fill(bin_num,SF*evtWeight);
-                h_sb_low_bsf_up->Fill(bin_num, SF * sign * B_SF_Up * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_bsf_down->Fill(bin_num, SF * sign * B_SF_Down * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_trig_eff_up->Fill(bin_num, SF * sign * B_SF * trigger_eff_up * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_trig_eff_down->Fill(bin_num, SF * sign * B_SF * trigger_eff_down * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_puWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeightUp * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_puWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeightDown * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_PFWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeightUp * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_PFWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeightDown * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_pdfWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * pdfWeight_Up * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_pdfWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * pdfWeight_Down * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_SF_up->Fill(bin_num, SF_up * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_SF_down->Fill(bin_num, SF_down * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_ivfunc_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF_up * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_ivfunc_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF_down * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_eff_e_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF_up * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_eff_e_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF_down * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_low_err_mu_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF_up * Tau_MediumSF * FatJet_SF);
-                h_sb_low_err_mu_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF_down * Tau_MediumSF * FatJet_SF);
-                h_sb_low_eff_tau_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF_Up * FatJet_SF);
-                h_sb_low_eff_tau_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF_Down * FatJet_SF);
-                h_sb_low_ak8jet_sf_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF_up);
-                h_sb_low_ak8jet_sf_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF_down);
+                h_sb_low_bsf_up->Fill(bin_num, SF * evtWeight * B_SF_Up / B_SF);
+                h_sb_low_bsf_down->Fill(bin_num, SF * evtWeight * B_SF_Down / B_SF);
+                h_sb_low_trig_eff_up->Fill(bin_num, SF * evtWeight * trigger_eff_up / trigger_eff);
+                h_sb_low_trig_eff_down->Fill(bin_num, SF * evtWeight * trigger_eff_down / trigger_eff);
+                h_sb_low_puWeight_up->Fill(bin_num, SF * evtWeight * puWeightUp / puWeight);
+                h_sb_low_puWeight_down->Fill(bin_num, SF * evtWeight * puWeightDown / puWeight);
+                h_sb_low_PFWeight_up->Fill(bin_num, SF * evtWeight * PrefireWeightUp / PrefireWeight);
+                h_sb_low_PFWeight_down->Fill(bin_num, SF * evtWeight * PrefireWeightDown / PrefireWeight);
+                h_sb_low_pdfWeight_up->Fill(bin_num, SF * evtWeight * pdfWeight_Up);
+                h_sb_low_pdfWeight_down->Fill(bin_num, SF * evtWeight * pdfWeight_Down);
+                h_sb_low_SF_up->Fill(bin_num, SF_up * evtWeight);
+                h_sb_low_SF_down->Fill(bin_num, SF_down * evtWeight);
+                h_sb_low_ivfunc_up->Fill(bin_num, SF * evtWeight * SB_SF_up / SB_SF);
+                h_sb_low_ivfunc_down->Fill(bin_num, SF * evtWeight * SB_SF_down / SB_SF);
+                h_sb_low_eff_e_up->Fill(bin_num, SF * evtWeight * Electron_VetoSF_up / Electron_VetoSF);
+                h_sb_low_eff_e_down->Fill(bin_num, SF * evtWeight * Electron_VetoSF_down / Electron_VetoSF);
+                h_sb_low_err_mu_up->Fill(bin_num, SF * evtWeight * Muon_MediumSF_up / Muon_MediumSF);
+                h_sb_low_err_mu_down->Fill(bin_num, SF * evtWeight * Muon_MediumSF_down / Muon_MediumSF);
+                h_sb_low_eff_tau_up->Fill(bin_num, SF * evtWeight * Tau_MediumSF_Up / Tau_MediumSF);
+                h_sb_low_eff_tau_down->Fill(bin_num, SF * evtWeight * Tau_MediumSF_Down / Tau_MediumSF);
+                h_sb_low_eff_wtag_up->Fill(bin_num, SF * evtWeight * W_SF_up / W_SF);
+                h_sb_low_eff_wtag_down->Fill(bin_num, SF * evtWeight * W_SF_down / W_SF);
+                h_sb_low_eff_toptag_up->Fill(bin_num, SF * evtWeight * MergedTop_SF_up / MergedTop_SF);
+                h_sb_low_eff_toptag_down->Fill(bin_num, SF * evtWeight * MergedTop_SF_down / MergedTop_SF);
+                h_sb_low_eff_restoptag_up->Fill(bin_num, SF * evtWeight * ResTop_SF_up / ResTop_SF);
+                h_sb_low_eff_restoptag_down->Fill(bin_num, SF * evtWeight * ResTop_SF_down / ResTop_SF);
                 eff_h->Fill(1.,sign);
             }
         }
@@ -950,28 +1034,32 @@ int main(int argc, char* argv[])
             if(bin_num != -1)
             {
                 h_sb_high->Fill(bin_num,SF*evtWeight);
-                h_sb_high_bsf_up->Fill(bin_num, SF * sign * B_SF_Up * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_bsf_down->Fill(bin_num, SF * sign * B_SF_Down * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_trig_eff_up->Fill(bin_num, SF * sign * B_SF * trigger_eff_up * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_trig_eff_down->Fill(bin_num, SF * sign * B_SF * trigger_eff_down * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_puWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeightUp * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_puWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeightDown * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_PFWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeightUp * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_PFWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeightDown * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_pdfWeight_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * pdfWeight_Up * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_pdfWeight_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * pdfWeight_Down * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_SF_up->Fill(bin_num, SF_up * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_SF_down->Fill(bin_num, SF_down * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_ivfunc_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF_up * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_ivfunc_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF_down * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_eff_e_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF_up * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_eff_e_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF_down * Muon_MediumSF * Tau_MediumSF * FatJet_SF);
-                h_sb_high_err_mu_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF_up * Tau_MediumSF * FatJet_SF);
-                h_sb_high_err_mu_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF_down * Tau_MediumSF * FatJet_SF);
-                h_sb_high_eff_tau_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF_Up * FatJet_SF);
-                h_sb_high_eff_tau_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF_Down * FatJet_SF);
-                h_sb_high_ak8jet_sf_up->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF_up);
-                h_sb_high_ak8jet_sf_down->Fill(bin_num, SF * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * FatJet_SF_down);
+                h_sb_high_bsf_up->Fill(bin_num, SF * evtWeight * B_SF_Up / B_SF);
+                h_sb_high_bsf_down->Fill(bin_num, SF * evtWeight * B_SF_Down / B_SF);
+                h_sb_high_trig_eff_up->Fill(bin_num, SF * evtWeight * trigger_eff_up / trigger_eff);
+                h_sb_high_trig_eff_down->Fill(bin_num, SF * evtWeight * trigger_eff_down / trigger_eff);
+                h_sb_high_puWeight_up->Fill(bin_num, SF * evtWeight * puWeightUp / puWeight);
+                h_sb_high_puWeight_down->Fill(bin_num, SF * evtWeight * puWeightDown / puWeight);
+                h_sb_high_PFWeight_up->Fill(bin_num, SF * evtWeight * PrefireWeightUp / PrefireWeight);
+                h_sb_high_PFWeight_down->Fill(bin_num, SF * evtWeight * PrefireWeightDown / PrefireWeight);
+                h_sb_high_pdfWeight_up->Fill(bin_num, SF * evtWeight * pdfWeight_Up);
+                h_sb_high_pdfWeight_down->Fill(bin_num, SF * evtWeight * pdfWeight_Down);
+                h_sb_high_SF_up->Fill(bin_num, SF_up * evtWeight);
+                h_sb_high_SF_down->Fill(bin_num, SF_down * evtWeight);
+                h_sb_high_ivfunc_up->Fill(bin_num, SF * evtWeight * SB_SF_up / SB_SF);
+                h_sb_high_ivfunc_down->Fill(bin_num, SF * evtWeight * SB_SF_down / SB_SF);
+                h_sb_high_eff_e_up->Fill(bin_num, SF * evtWeight * Electron_VetoSF_up / Electron_VetoSF);
+                h_sb_high_eff_e_down->Fill(bin_num, SF * evtWeight * Electron_VetoSF_down / Electron_VetoSF);
+                h_sb_high_err_mu_up->Fill(bin_num, SF * evtWeight * Muon_MediumSF_up / Muon_MediumSF);
+                h_sb_high_err_mu_down->Fill(bin_num, SF * evtWeight * Muon_MediumSF_down / Muon_MediumSF);
+                h_sb_high_eff_tau_up->Fill(bin_num, SF * evtWeight * Tau_MediumSF_Up / Tau_MediumSF);
+                h_sb_high_eff_tau_down->Fill(bin_num, SF * evtWeight * Tau_MediumSF_Down / Tau_MediumSF);
+                h_sb_high_eff_wtag_up->Fill(bin_num, SF * evtWeight * W_SF_up / W_SF);
+                h_sb_high_eff_wtag_down->Fill(bin_num, SF * evtWeight * W_SF_down / W_SF);
+                h_sb_high_eff_toptag_up->Fill(bin_num, SF * evtWeight * MergedTop_SF_up / MergedTop_SF);
+                h_sb_high_eff_toptag_down->Fill(bin_num, SF * evtWeight * MergedTop_SF_down / MergedTop_SF);
+                h_sb_high_eff_restoptag_up->Fill(bin_num, SF * evtWeight * ResTop_SF_up / ResTop_SF);
+                h_sb_high_eff_restoptag_down->Fill(bin_num, SF * evtWeight * ResTop_SF_down / ResTop_SF);
                 eff_h->Fill(1.,sign);
             }
         }
@@ -1048,8 +1136,12 @@ int main(int argc, char* argv[])
     h_vb_low_err_mu_down->Write();
     h_vb_low_eff_tau_up->Write();
     h_vb_low_eff_tau_down->Write();
-    h_vb_low_ak8jet_sf_up->Write();
-    h_vb_low_ak8jet_sf_down->Write();
+    h_vb_low_eff_wtag_up->Write();
+    h_vb_low_eff_wtag_down->Write();
+    h_vb_low_eff_toptag_up->Write();
+    h_vb_low_eff_toptag_down->Write();
+    h_vb_low_eff_restoptag_up->Write();
+    h_vb_low_eff_restoptag_down->Write();
     h_vb_high->Write();
     h_vb_high_bsf_up->Write();
     h_vb_high_bsf_down->Write();
@@ -1075,8 +1167,12 @@ int main(int argc, char* argv[])
     h_vb_high_err_mu_down->Write();
     h_vb_high_eff_tau_up->Write();
     h_vb_high_eff_tau_down->Write();
-    h_vb_high_ak8jet_sf_up->Write();
-    h_vb_high_ak8jet_sf_down->Write();
+    h_vb_high_eff_wtag_up->Write();
+    h_vb_high_eff_wtag_down->Write();
+    h_vb_high_eff_toptag_up->Write();
+    h_vb_high_eff_toptag_down->Write();
+    h_vb_high_eff_restoptag_up->Write();
+    h_vb_high_eff_restoptag_down->Write();
     h_sb_low->Write();
     h_sb_low_bsf_up->Write();
     h_sb_low_bsf_down->Write();
@@ -1102,8 +1198,12 @@ int main(int argc, char* argv[])
     h_sb_low_err_mu_down->Write();
     h_sb_low_eff_tau_up->Write();
     h_sb_low_eff_tau_down->Write();
-    h_sb_low_ak8jet_sf_up->Write();
-    h_sb_low_ak8jet_sf_down->Write();
+    h_sb_low_eff_wtag_up->Write();
+    h_sb_low_eff_wtag_down->Write();
+    h_sb_low_eff_toptag_up->Write();
+    h_sb_low_eff_toptag_down->Write();
+    h_sb_low_eff_restoptag_up->Write();
+    h_sb_low_eff_restoptag_down->Write();
     h_sb_high->Write();
     h_sb_high_bsf_up->Write();
     h_sb_high_bsf_down->Write();
@@ -1129,8 +1229,12 @@ int main(int argc, char* argv[])
     h_sb_high_err_mu_down->Write();
     h_sb_high_eff_tau_up->Write();
     h_sb_high_eff_tau_down->Write();
-    h_sb_high_ak8jet_sf_up->Write();
-    h_sb_high_ak8jet_sf_down->Write();
+    h_sb_high_eff_wtag_up->Write();
+    h_sb_high_eff_wtag_down->Write();
+    h_sb_high_eff_toptag_up->Write();
+    h_sb_high_eff_toptag_down->Write();
+    h_sb_high_eff_restoptag_up->Write();
+    h_sb_high_eff_restoptag_down->Write();
     out_file.Close();
 
     return 0;
