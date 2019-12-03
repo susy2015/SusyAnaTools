@@ -38,11 +38,15 @@ private:
         // register vector<vector<TLorentzVector>> of subjets
         registerSubJets("_AK8Matched");
         
+        // MC only
         if (tr_->checkBranch("GenJet_pt"))
         {
             registerTLV("GenJet");      // generated AK4 jets
             registerTLV("GenJetAK8");   // generated AK8 jets
             registerTLV("GenPart");     // interesting gen particles
+            // only apply JES systematics to MC, not Data
+            registerTLV("Jet", "_jesTotalUp");      // jec up (for systematics)
+            registerTLV("Jet", "_jesTotalDown");    // jec down (for systematics)
         }
         
         registerTLV("Electron");    // electrons
@@ -73,17 +77,17 @@ private:
         }
     }
 
-    void registerTLV(const std::string& objectName)
+    void registerTLV(const std::string& objectName, const std::string& jesTag = "")
     {
         // print statement for testing
         if (verbose_)   std::cout << "Calling registerTLV(" << objectName << ") to register " << objectName << "TLV" << std::endl;
         // new vector of TLorentzVector
         std::vector<TLorentzVector>* VectorTLV = new std::vector<TLorentzVector>();
         // get pt, eta, phi, mass
-        const auto& vec_pt   = tr_->getVec<float>(objectName + "_pt");
+        const auto& vec_pt   = tr_->getVec<float>(objectName + "_pt" + jesTag);
         const auto& vec_eta  = tr_->getVec<float>(objectName + "_eta");
         const auto& vec_phi  = tr_->getVec<float>(objectName + "_phi");
-        const auto& vec_mass = tr_->getVec<float>(objectName + "_mass");
+        const auto& vec_mass = tr_->getVec<float>(objectName + "_mass" + jesTag);
         const int vec_size = vec_pt.size();
         if ( vec_eta.size() != vec_size || vec_phi.size() != vec_size || vec_mass.size() != vec_size )
         {
@@ -100,7 +104,7 @@ private:
             VectorTLV->push_back(TLV);
         }
         // register vector of TLorentzVector
-        tr_->registerDerivedVec(objectName + "TLV", VectorTLV);
+        tr_->registerDerivedVec(objectName + "TLV" + jesTag, VectorTLV);
     }
 
 public:

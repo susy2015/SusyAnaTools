@@ -23,17 +23,18 @@ class RunTopTagger {
 
 private:
     std::shared_ptr<TopTagger> tt_; // std::unique_ptr gives a compile error
+    std::string jetsLabel_;
     std::string taggerCfg_;
     std::string suffix_;
-    bool doLeptonCleaning_;
-    bool doPhotonCleaning_;
+    bool doLeptonCleaning_ = false;
+    bool doPhotonCleaning_ = false;
 
     void runTopTagger(NTupleReader& tr) 
     {
         //get necessary tagger input variables 
 
         //AK4 jets
-        const auto& Jet_LV          = tr.getVec_LVFromNano<float>("Jet");
+        const auto& Jet_LV          = tr.getVec<TLorentzVector>(jetsLabel_);
         const auto& Jet_btagDeepB   = tr.getVec<float>("Jet_btagDeepB");
         const auto& Jet_qgl         = tr.getVec<float>("Jet_qgl");
         std::vector<bool> Jet_matchesPhoton;
@@ -58,6 +59,7 @@ private:
         const auto& FatJet_subJetIdx2      = tr.getVec<int>("FatJet_subJetIdx2");
         const auto& FatJet_Stop0l          = tr.getVec<int>("FatJet_Stop0l");
         const auto& FatJet_SF              = tr.getVec<float>("FatJet_SF");
+        const auto& FatJet_SFerr           = tr.getVec<float>("FatJet_SFerr");
         std::vector<bool> FatJet_matchesPhoton;
         std::vector<bool> FatJet_matchesElectron;
         std::vector<bool> FatJet_matchesMuon;
@@ -83,21 +85,27 @@ private:
 
 
 
-        auto* MergedTopsTLV         = new std::vector<TLorentzVector>();
-        auto* MergedTops_disc       = new std::vector<double>();
-        auto* MergedTops_JetsMap    = new std::map< int , std::vector<TLorentzVector> >();
-        auto* WTLV                  = new std::vector<TLorentzVector>();
-        auto* W_disc                = new std::vector<double>();
-        auto* W_JetsMap             = new std::map< int , std::vector<TLorentzVector> >();
-        auto* ResolvedTopsTLV       = new std::vector<TLorentzVector>();
-        auto* ResolvedTops_disc     = new std::vector<double>();
-        auto* ResolvedTops_JetsMap  = new std::map< int , std::vector<TLorentzVector> >();
-        int nMergedTops             = 0;
-        int nWs                     = 0;
-        int nResolvedTops           = 0;
-        float MergedTopTotalSF      = 1.0;
-        float WTotalSF              = 1.0;
-        float ResolvedTopTotalSF    = 1.0;
+        auto* MergedTopsTLV          = new std::vector<TLorentzVector>();
+        auto* MergedTops_disc        = new std::vector<double>();
+        auto* MergedTops_JetsMap     = new std::map< int , std::vector<TLorentzVector> >();
+        auto* WTLV                   = new std::vector<TLorentzVector>();
+        auto* W_disc                 = new std::vector<double>();
+        auto* W_JetsMap              = new std::map< int , std::vector<TLorentzVector> >();
+        auto* ResolvedTopsTLV        = new std::vector<TLorentzVector>();
+        auto* ResolvedTops_disc      = new std::vector<double>();
+        auto* ResolvedTops_JetsMap   = new std::map< int , std::vector<TLorentzVector> >();
+        int nMergedTops                 = 0;
+        int nWs                         = 0;
+        int nResolvedTops               = 0;
+        float MergedTopTotalSF          = 1.0;
+        float MergedTopTotalSF_Up       = 1.0;
+        float MergedTopTotalSF_Down     = 1.0;
+        float WTotalSF                  = 1.0;
+        float WTotalSF_Up               = 1.0;
+        float WTotalSF_Down             = 1.0;
+        float ResolvedTopTotalSF        = 1.0;
+        float ResolvedTopTotalSF_Up     = 1.0;
+        float ResolvedTopTotalSF_Down   = 1.0;
 
         //Select AK4 jets to use in tagger
         //When reading from the resolvedTopCandidate collection from nanoAOD you must pass ALL ak4 jets to ttUtility::ConstAK4Inputs below, 
@@ -141,13 +149,25 @@ private:
             {
                 if(FatJet_Stop0l[i] == 1)
                 {
-                    nMergedTops         += 1;
-                    MergedTopTotalSF    *= FatJet_SF[i];
+                    if (verbose_ >= 2)
+                    {
+                        printf("Merged Top: FatJet_SF[%d] = %f,  FatJet_SFerr[%d] = %f\n", i, FatJet_SF[i], i, FatJet_SFerr[i]);
+                    }
+                    nMergedTops             += 1;
+                    MergedTopTotalSF        *= FatJet_SF[i];
+                    MergedTopTotalSF_Up     *= (FatJet_SF[i] + FatJet_SFerr[i]);
+                    MergedTopTotalSF_Down   *= (FatJet_SF[i] - FatJet_SFerr[i]);
                 }
                 if(FatJet_Stop0l[i] == 2)
                 {
-                    nWs         += 1;
-                    WTotalSF    *= FatJet_SF[i];
+                    if (verbose_ >= 2)
+                    {
+                        printf("W: FatJet_SF[%d] = %f,  FatJet_SFerr[%d] = %f\n", i, FatJet_SF[i], i, FatJet_SFerr[i]);
+                    }
+                    nWs             += 1;
+                    WTotalSF        *= FatJet_SF[i];
+                    WTotalSF_Up     *= (FatJet_SF[i] + FatJet_SFerr[i]);
+                    WTotalSF_Down   *= (FatJet_SF[i] - FatJet_SFerr[i]);
                 }
             }
         }
@@ -191,7 +211,6 @@ private:
             ak4Inputs = new ttUtility::ConstAK4Inputs<float>(Jet_LV, Jet_btagDeepB, Jet_qgl);
         }
 
-        //ttUtility::ConstAK4Inputs<float> ak4Inputs(Jet_LV, Jet_btagDeepB);
         ak4Inputs->setFilterVector(ak4Filter);
         ttUtility::ConstAK8Inputs<float> ak8Inputs(FatJet_LV, FatJet_deepAK8_t, FatJet_deepAK8_w, FatJet_msoftdrop, subjets);
         ak8Inputs.setFilterVector(ak8Filter);
@@ -262,8 +281,31 @@ private:
             }
             if (type == TopObject::Type::RESOLVED_TOP)      
             {
+                // systematic uncertainties
+                double totalUp   = 0.0;
+                double totalDown = 0.0;
+                const auto& syst_map = top->getAllSystematicUncertainties();
+                if (verbose_ >= 2) printf("--- resolved top systematics ---\n");
+                for (const auto& syst : syst_map)
+                {
+                    if (verbose_ >= 2) printf("%s : %f\n", syst.first.c_str(), syst.second);
+                    if (syst.first.find("_Up") != std::string::npos)        totalUp   += syst.second * syst.second;
+                    else if (syst.first.find("_Down") != std::string::npos) totalDown += syst.second * syst.second;
+                    // symmetric uncertainty without Up/Down
+                    else
+                    {
+                        totalUp   += syst.second * syst.second;
+                        totalDown += syst.second * syst.second;
+                    }
+                }
                 // scale factor
-                ResolvedTopTotalSF *= top->getMCScaleFactor();
+                double sf       = top->getMCScaleFactor();
+                double systUp   = sqrt(totalUp);
+                double systDown = sqrt(totalDown);
+                if (verbose_ >= 2) printf("sf = %f, systUp = %f, systDown = %f\n", sf, systUp, systDown);
+                ResolvedTopTotalSF      *= sf;
+                ResolvedTopTotalSF_Up   *= (sf + systUp);
+                ResolvedTopTotalSF_Down *= (sf - systDown);
                 ResolvedTopsTLV->push_back(top->p());
                 ResolvedTops_disc->push_back(top->getDiscriminator());
                 ResolvedTops_JetsMap->insert(std::make_pair(ResolvedTopIdx, temp));
@@ -287,16 +329,22 @@ private:
         
         tr.registerDerivedVar("nMergedTops" + suffix_,              nMergedTops);
         tr.registerDerivedVar("MergedTopTotalSF" + suffix_,         MergedTopTotalSF);
+        tr.registerDerivedVar("MergedTopTotalSF_Up" + suffix_,      MergedTopTotalSF_Up);
+        tr.registerDerivedVar("MergedTopTotalSF_Down" + suffix_,    MergedTopTotalSF_Down);
         tr.registerDerivedVec("MergedTopsTLV" + suffix_,            MergedTopsTLV);
         tr.registerDerivedVec("MergedTops_disc" + suffix_,          MergedTops_disc);
         tr.registerDerivedVec("MergedTops_JetsMap" + suffix_,       MergedTops_JetsMap);
         tr.registerDerivedVar("nWs" + suffix_,                      nWs);
         tr.registerDerivedVar("WTotalSF" + suffix_,                 WTotalSF);
+        tr.registerDerivedVar("WTotalSF_Up" + suffix_,              WTotalSF_Up);
+        tr.registerDerivedVar("WTotalSF_Down" + suffix_,            WTotalSF_Down);
         tr.registerDerivedVec("WTLV" + suffix_,                     WTLV);
         tr.registerDerivedVec("W_disc" + suffix_,                   W_disc);
         tr.registerDerivedVec("W_JetsMap" + suffix_,                W_JetsMap);
         tr.registerDerivedVar("nResolvedTops" + suffix_,            nResolvedTops);
         tr.registerDerivedVar("ResolvedTopTotalSF" + suffix_,       ResolvedTopTotalSF);
+        tr.registerDerivedVar("ResolvedTopTotalSF_Up" + suffix_,    ResolvedTopTotalSF_Up);
+        tr.registerDerivedVar("ResolvedTopTotalSF_Down" + suffix_,  ResolvedTopTotalSF_Down);
         tr.registerDerivedVec("ResolvedTopsTLV" + suffix_,          ResolvedTopsTLV);
         tr.registerDerivedVec("ResolvedTops_disc" + suffix_,        ResolvedTops_disc);
         tr.registerDerivedVec("ResolvedTops_JetsMap" + suffix_,     ResolvedTops_JetsMap);
@@ -306,7 +354,7 @@ private:
     
 public:
 
-    bool verbose_ = false;
+    int verbose_ = 0;
 
     RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string suffix = "", bool doLeptonCleaning = false, bool doPhotonCleaning = false) :
         taggerCfg_ (taggerCfg),
@@ -315,7 +363,10 @@ public:
         doPhotonCleaning_ (doPhotonCleaning),
         tt_ (new TopTagger())
     {
-        if (verbose_) std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", suffix_ = " << suffix_ << ", doLeptonCleaning_ = " << doLeptonCleaning_ << ", doPhotonCleaning_ = " << doPhotonCleaning_ << std::endl;
+        jetsLabel_ = "JetTLV";
+        if      (suffix.find("jesTotalUp") != std::string::npos)    jetsLabel_ = jetsLabel_ + "_jesTotalUp";
+        else if (suffix.find("jesTotalDown") != std::string::npos)  jetsLabel_ = jetsLabel_ + "_jesTotalDown";
+        if (verbose_) std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", suffix_ = " << suffix_ << ", jetsLabel_ = " << jetsLabel_ << ", doLeptonCleaning_ = " << doLeptonCleaning_ << ", doPhotonCleaning_ = " << doPhotonCleaning_ << std::endl;
         tt_->setCfgFile(taggerCfg_);
     }
     
