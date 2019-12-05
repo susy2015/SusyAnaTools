@@ -33,31 +33,41 @@ def myprocess(sample,mass_point):
     #infile = ROOT.TFile("TTZ_VB_2016.root")
     #infile = ROOT.TFile("TTZ_VB.root")
     #infilename = "results/" + sample + "/" + mass_point + ".root"
-    infilename = "results/{0}/{1}.root".format(sample,mass_point)
+    #infilename = "results/fastsim/{0}/{1}.root".format(sample,mass_point)
+    year = sample[-4:]
+    infilename = "results/VBSB/{0}/{1}.root".format(year,mass_point)
     infile = ROOT.TFile(infilename)
     h_vb_low  = infile.Get("h_vb_low")
     h_vb_high = infile.Get("h_vb_high")
     h_vb_low_avgwtsq = infile.Get("h_vb_low_avg_weight_sq")
     h_vb_high_avgwtsq = infile.Get("h_vb_high_avg_weight_sq")
 
-    extensions = ["_bsf","_trig_eff","_puWeight","_PFWeight","_pdfWeight","_JES","_METUnClust"]
-    ext_names = {   "_bsf" : "b_SF",
-                    "_trig_eff" : "trigger_eff",
+    extensions = ["_bsf","_trig_eff","_puWeight","_PFWeight","_pdfWeight","_JES","_METUnClust","_ivfunc","_eff_e","_err_mu","_eff_tau","_ISRWeight","_fastSF","_METunc","_eff_wtag","_eff_toptag","_eff_restoptag"]
+    ext_names = {   "_bsf" : "b",
+                    "_trig_eff" : "trigger_err",
                     "_puWeight" : "PU_Weight",
                     "_PFWeight" : "Prefire_Weight",
                     "_pdfWeight" : "PDF_Weight",
-                    "_JES" : "JEC",
-                    "_METUnClust" : "MET_UnClust"}
-    if sample == "TTZ":
-        extensions.append("_SF")
-        ext_names.update({"_SF" : "TTZ_SF"})
+                    "_JES" : "JES",
+                    "_METUnClust" : "metres",
+                    "_ivfunc" : "ivfunc",
+                    "_eff_e" : "eff_e",
+                    "_err_mu" : "err_mu",
+                    "_eff_tau" : "eff_tau",
+                    "_eff_wtag" : "eff_wtag",
+                    "_eff_toptag" : "eff_toptag",
+                    "_eff_restoptag" : "eff_restoptag",
+                    "_ISRWeight" : "ISR_Weight",
+                    "_fastSF" : "Scale_Unc",
+                    "_METunc" : "MET_Unc",
+                }
 
     #rate
     dict_vb = {i : [h_vb_low.GetBinContent(i+1),h_vb_low.GetBinError(i+1)] for i in range(19)}
     dict_vb.update({i+19 : [h_vb_high.GetBinContent(i+1),h_vb_high.GetBinError(i+1)] for i in range(24)})
     #Ensure non-negative
     for k,v in dict_vb.iteritems():
-        if dict_vb[k][0] < 0: dict_vb[k][0] = 0.0
+        if dict_vb[k][0] <= 0: dict_vb[k][0] = 1e-06
 
     '''
     #cs_event
