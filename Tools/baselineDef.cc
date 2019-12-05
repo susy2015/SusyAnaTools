@@ -1620,7 +1620,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassEventFilter();
   PassHEMVeto();
   PassBaseline();
-  PassDiLepTrigger();
+  //PassDiLepTrigger();
 }
 
 void BaselineVessel::PassTrigger()
