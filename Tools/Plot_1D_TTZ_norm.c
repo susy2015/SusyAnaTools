@@ -9,7 +9,6 @@ int Plot_1D_TTZ_norm()
 	//lumi = 42; //2017
 	//lumi = 59; //2018
 	TString year = "_2018";
-    TString outputfile = "output" + year + "_norm.root";
 	bool plot_log = false;
 	bool plot_sig_pad = true;
 	bool plot_BG = true;
@@ -18,34 +17,66 @@ int Plot_1D_TTZ_norm()
 	//use_low_stat_sig = true;
 	bool use_original_title = false;
 
-    if(year == "_2016")
-    {
-        lumi = 35.917149; //36
-        shortlumi = 36;
-    }
-    if(year == "_2017")
-    {
-        lumi = 41.525059; //42
-        shortlumi = 42;
-    }
-    if(year == "_2018")
-    {
-        if (PostHEM)
-        {
-            lumi = 38.65435; //38
-            shortlumi = 38;
-            outputfile = "output_2018_PostHEM_norm.root";
-        }
-        else
-        {
-            lumi = 21.071447; //21
-            shortlumi = 21;
-        }
-    }
-
 	TString result_path = "results/";
-	TString data_name = "SingleMuon";
-    //TString data_name = "EGamma";
+	//TString data_name = "SingleMuon";
+    TString data_name = "EGamma";
+    //TString data_name = "SingleElectron";
+    TString outputfile = "results/TTZoutput/output_" + data_name + year + "_norm.root";
+    if(PostHEM) outputfile = "results/TTZoutput/output_" + data_name + year + "_PostHEM_norm.root";
+    bool createOutputFile = true;
+
+    if(data_name == "SingleMuon")
+    {
+        if(year == "_2016")
+        {
+            lumi = 35.917149; //36
+            shortlumi = 36;
+        }
+        if(year == "_2017")
+        {
+            lumi = 41.525059; //42
+            shortlumi = 42; //BtoE: 27.9865, F: 13.538559
+        }
+        if(year == "_2018")
+        {
+            if (PostHEM)
+            {
+                lumi = 38.65435; //38
+                shortlumi = 38;
+            }
+            else
+            {
+                lumi = 21.071447; //21
+                shortlumi = 21;
+            }
+        }
+    }
+    else if(data_name == "SingleElectron" || data_name == "EGamma")
+    {
+        if(year == "_2016")
+        {
+            lumi = 35.905224;
+            shortlumi = 36;
+        }
+        if(year == "_2017")
+        {
+            lumi = 41.525338;
+            shortlumi = 42;
+        }
+        if(year == "_2018")
+        {
+            if (PostHEM)
+            {
+                lumi = 33.319237;
+                shortlumi = 38;
+            }
+            else
+            {
+                lumi = 20.74076;
+                shortlumi = 21;
+            }
+        }
+    }
 
     bool plot_recoZpt = false;
     bool plot_recoZM = false;
@@ -57,19 +88,20 @@ int Plot_1D_TTZ_norm()
     bool plot_njetpt40eta24 = false;
     bool plot_njetpt40 = false;
     bool plot_Stop0l_nJets = false;
-    bool plot_num_mu = false;
+    bool plot_num_mu = false; //n_mu
     bool plot_num_mu_notrigwt = false;
     bool plot_num_mu_trimmed = false;
-    bool plot_num_elec = false;
+    bool plot_num_elec = false; //n_elec
+    bool plot_num_elec_notrigwt = false;
     bool plot_mu_indices = false;
     bool plot_lep1pT = false;
     bool plot_lep2pT = false;
     bool plot_lep3pT = false;
     bool plot_norm = false;
     bool plot_norm_eta_eff = false;
-    bool plot_norm_notrigwt = true;
+    bool plot_norm_pt_eff = true; //norm
+    bool plot_norm_notrigwt = false;
     bool plot_numZ_noweights = false;
-    bool plot_norm_pt_eff = false;
     bool plot_norm_trimmed = false;
     bool plot_norm_1mu = false;
     bool plot_norm_2mu = false;
@@ -260,6 +292,19 @@ int Plot_1D_TTZ_norm()
     {
         title = "nElectrons";
         var = "h_num_elec";
+        folder = "";
+        rebin = 1;
+        ymax = 30;
+        if (plot_log)
+        {
+            ymin = 1;
+            ymax = 1000;
+        }
+    }
+    if (plot_num_elec_notrigwt)
+    {
+        title = "nElectrons";
+        var = "h_num_elec_notrigwt";
         folder = "";
         rebin = 1;
         ymax = 30;
@@ -638,9 +683,9 @@ int Plot_1D_TTZ_norm()
 			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 
-		if (false) //now not in 2017 :(
+		if (true) //Was ST_tZq_ll until v4
 		{
-			TString sp = "ST_tZq_ll";
+			TString sp = "tZq_ll";
 			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
 		}
 		if (true)
@@ -831,6 +876,7 @@ int Plot_1D_TTZ_norm()
 	{
 		if(data_name == "SingleMuon") sp = "Data_SingleMuon";
         if(data_name == "EGamma") sp = "Data_EGamma";
+        if(data_name == "SingleElectron") sp = "Data_SingleElectron";
 
         TFile *f1 = new TFile();	    
         if (year == "_2018")
@@ -904,6 +950,7 @@ int Plot_1D_TTZ_norm()
 		{
 			if(data_name == "SingleMuon") sp = "Data_SingleMuon";
             if(data_name == "EGamma") sp = "Data_EGamma";
+            if(data_name == "SingleElectron") sp = "Data_SingleElectron";
             TFile *f1 = new TFile();
             if (year == "_2018")
             {
@@ -1054,12 +1101,15 @@ int Plot_1D_TTZ_norm()
     std::cout << "Other: " << h_other->GetBinContent(2) << std::endl;
     std::cout << "SF: " << h_SF->GetBinContent(2) << " +/- " << h_SF->GetBinError(2) << std::endl;
 
-    TFile out_file(outputfile,"RECREATE");
-    h_Data->Write();
-    h_TTZ->Write();
-    h_other->Write();
-    h_SF->Write();
-    out_file.Close();
+    if(createOutputFile)
+    {
+        TFile out_file(outputfile,"RECREATE");
+        h_Data->Write();
+        h_TTZ->Write();
+        h_other->Write();
+        h_SF->Write();
+        out_file.Close();
+    }
 
 	if(use_low_stat_sig)
 	{
