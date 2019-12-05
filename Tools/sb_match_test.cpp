@@ -62,7 +62,7 @@ int main()
         int ntop    = dist_ntop(generator);
         int nw      = dist_nw(generator);
 
-        const bool Pass_LowDM = nres == 0 && ntop == 0 && nw == 0 && ISRpt >= 300 && mtb < 175;
+        const bool Pass_LowDM = nres == 0 && ntop == 0 && nw == 0 && ISRpt >= 200 && (nb == 0 || mtb < 175);
         const bool Pass_HighDM = njets >= 5 && nb >= 1;
 
         int SB_Hui = SRbin_hui(Pass_LowDM, Pass_HighDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
