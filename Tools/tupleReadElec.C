@@ -25,6 +25,7 @@
 //#include "TopTagger/TopTagger/interface/TopTaggerResults.h"
 ////#include "TopTagger/Tools/cpp/PlotUtility.h"
 //#include "TopTagger/TopTagger/interface/TopObject.h"
+#include <getopt.h>
 
 int main(int argc, char* argv[])
 {
@@ -47,63 +48,8 @@ int main(int argc, char* argv[])
     bool norm_cuts = true;
     bool loose_cuts = false;
     bool dryrun = false;
-    
-    float leptonpts[3] = {0,20,20};
-    if(norm_cuts) leptonpts[0] = 40;
-    if(loose_cuts) leptonpts[0] = 25;
+    bool verbose = false;
 
-    //Format taken from http://www.cplusplus.com/articles/DEN36Up4/ July 18 2019
-    for (int i = 1; i < argc; ++i)
-    {
-        if (std::string(argv[i]) == "--era")
-        {
-            if (i + 1 < argc) // Make sure we aren't at the end of argv!
-            {
-                era = argv[i+1];
-            }
-            else // Uh-oh, there was no argument to the option.
-            {
-                std::cerr << "--era option requires an argument." << std::endl;
-                return 1;
-            }  
-        }
-        else if (std::string(argv[i]) == "--isData")
-        {
-            Data = true;
-        }
-        else if (std::string(argv[i]) == "--PostHEM")
-        {
-            PostHEM = true; 
-        }
-        else if (std::string(argv[i]) == "--max_events")
-        {
-            if (i + 1 < argc) max_events = atoi(argv[i+1]);
-            else
-            {
-                std::cerr << "--max_events option requires an argument." << std::endl;
-                return 1;
-            }
-        }
-        else if (std::string(argv[i]) == "--dryrun")
-        {
-            std::cout << "Dryrun option. Ending as soon as all arguments are parsed." << std::endl;
-            dryrun = true;
-        }
-        else if (std::string(argv[i]) == "-h" || std::string(argv[i]) == "--help")
-        {
-            std::cout << "Usage: ./tupleReadNormEx <FileList> <NameOfOutputFile> <options>" << std::endl;
-            std::cout << "Options:" << std::endl;
-            std::cout << "\t--era\t\tRequires 2016, 2017, or 2018." << std::endl;
-            std::cout << "\t--isData\tUse if running over data (default assumption MC). No argument." << std::endl;
-            std::cout << "\t--PostHEM\tUse if running over 2018 PostHEM. Irrelevant otherwise (default false). No argument." << std::endl;
-            std::cout << "\t--max_events\tSet number of max events. Default = -1 (all)." << std::endl;
-            std::cout << "\t--dryrun\tUse to exit after printing arguments." << std::endl;
-            std::cout << "\t--help / -h\tPrints this message and exits." << std::endl;
-            return 0;
-        }
-    }
-
-    //Moved after help option.
     if (argc < 3)
     {
         std::cerr <<"Please give at least 2 arguments " << "File List " << "Name of output file" << std::endl;
@@ -113,9 +59,63 @@ int main(int argc, char* argv[])
     const char *outputfile   = argv[2];
     
     //Argument testing
-    std::cout << "Era: " << era << "\tisData: " << Data << "\tisPostHEM: " << PostHEM << "\tMax events: " << max_events << "\tDryrun: " << dryrun << std::endl;
+    std::cout << argv[1] << " " << argv[2] << std::endl;
 
-    if (dryrun) return 0;
+    int c;
+    while (1)
+    {
+        //int option_index = 3;
+        static struct option long_options[] = {
+            {"era",         required_argument,  0,  'e'},
+            {"isData",      no_argument,        0,  'D'},
+            {"PostHEM",     no_argument,        0,  'p'},
+            {"max_events",  required_argument,  0,  'm'},
+            {"loose_cuts",  no_argument,        0,  'l'},
+            {"dryrun",      no_argument,        0,  'd'},
+            {"verbose",     no_argument,        0,  'v'},
+        };
+        //c = getopt_long(argc,argv,"e:Dpm:ldv",long_options,&option_index);
+        c = getopt_long(argc,argv,"e:Dpm:ldv",long_options,NULL);
+        if(c==-1) break;
+        switch (c)
+        {
+            case 'e':
+                era = optarg;
+                break;
+            case 'D':
+                Data = true;
+                break;
+            case 'p':
+                PostHEM = true;
+                break;
+            case 'm':
+                max_events = std::stoi(optarg);
+                break;
+            case 'l':
+                loose_cuts = true;
+                break;
+            case 'd':
+                dryrun = true;
+                break;
+            case 'v':
+                verbose = true;
+                break;
+        }
+    }
+    //Argument testing
+    std::cout << "Era: " << era << "\tisData: " << Data << "\tisPostHEM: " << PostHEM << "\tMax events: " << max_events << "\tloose_cuts: " << loose_cuts << "\tverbose: " << verbose << std::endl;
+    float leptonpts[3] = {0,20,20};
+    if(norm_cuts) leptonpts[0] = 40;
+    if(loose_cuts) leptonpts[0] = 25;
+    std::cout << "Lepton pts: " << leptonpts[0] << leptonpts[1] << leptonpts[2] << std::endl;
+
+    if (dryrun)
+    {
+        std::cout << "Doing a dryrun just to check variables. Exiting now." << std::endl;
+        return 0;
+    }
+
+    if(verbose) std::cout << "Creating tchain and bigfile." << std::endl;
 
     TChain *ch = new TChain("Events");
 
@@ -133,19 +133,23 @@ int main(int argc, char* argv[])
         }
         bigfile.close();
     }
+
+    if(verbose) std::cout << "Bigfile created. Setting up modules." << std::endl;
  
     NTupleReader tr(ch);
     //BaselineVessel blv(tr,"","fastsim");
     GetVectors getVectors;
     plotterFunctions::BasicLepton basicLepton;
-    plotterFunctions::Gamma gamma;
+    plotterFunctions::Gamma gamma(era);
     CleanedJets cleanedJets;
     RunTopTagger runTopTagger;
     RunTopTagger runTopTagger_drLeptonCleaned("TopTagger.cfg","_drLeptonCleaned",true,false);
-    BaselineVessel blv(tr,"");
-    BaselineVessel blv_drLeptonCleaned(tr, "_drLeptonCleaned");
+    BaselineVessel blv(tr,era,"");
+    BaselineVessel blv_drLeptonCleaned(tr, era, "_drLeptonCleaned");
     plotterFunctions::LepInfo lepInfo(era);
     
+    if(verbose) std::cout << "Registering functions." << std::endl;
+
     tr.registerFunction(getVectors);
     tr.registerFunction(gamma);
     tr.registerFunction(basicLepton);
@@ -155,6 +159,8 @@ int main(int argc, char* argv[])
     tr.registerFunction(blv);
     tr.registerFunction(lepInfo);
     tr.registerFunction(blv_drLeptonCleaned);
+
+    if(verbose) std::cout << "Functions registered. Setting up histograms." << std::endl;
 
     auto *h_recoZpt = new TH1F("h_recoZpt","Reconstructed Z pT;pT;Events",60,0,600);
     auto *h_recoZM = new TH1F("h_recoZM","Reconstructed Z mass;Mass;Events",60,80,110);
@@ -172,13 +178,17 @@ int main(int argc, char* argv[])
     auto *h_lep2pT = new TH1F("h_lep2pT","pT of lepton 2",60,0,600);
     auto *h_lep3pT = new TH1F("h_lep3pT","pT of lepton 3",60,0,600);
     auto *h_num_elec = new TH1F("h_num_elec","Number of electrons",3,1,4);
+    auto *h_num_elec_notrigwt = new TH1F("h_num_elec_notrigwt","Number of electrons: no trigger weights",3,1,4);
     //auto *h_elec_indices = new TH1F("h_mu_indices", "Frequency of pT-ordered electron index used to reconstruct Z", 4,-1,3);
     auto *h_normalization = new TH1F("h_normalization","TTZ Normalization Exercise",4,61,141);
+    auto *h_norm_notrigwt = new TH1F("h_norm_notrigwt","TTZ Normalization: No Trigger Weight",4,61,141);
     auto *h_norm_pt_eff = new TH1F("h_norm_pt_eff","TTZ Normalization Exercise",4,61,141);
     auto *h_norm_1elec = new TH1F("h_norm_1elec","TTZ Normalization Exercise: 1 electron",4,61,141);
     auto *h_norm_2elec = new TH1F("h_norm_2elec","TTZ Normalization Exercise: 2 electrons",4,61,141);
     auto *h_norm_3elec = new TH1F("h_norm_3elec","TTZ Normalization Exercise: 3 electrons",4,61,141);
     //auto *h_normalization = new TH1F("h_normalization","TTZ Normalization Exercise",4,60,144);
+
+    if(verbose) std::cout << "Entering while loop." << std::endl;
     
     while(tr.getNextEvent())
     {
@@ -196,8 +206,17 @@ int main(int argc, char* argv[])
 
         if(max_events != -1 && tr.getEvtNum() > max_events) break;
 
+        //Count whether event is positive or negative (MC)
+        float Stop0l_evtWeight = 1.0;
+        float sign = 1.0;
+        if(!Data)
+        {
+            Stop0l_evtWeight = tr.getVar<float>("Stop0l_evtWeight");
+            if(Stop0l_evtWeight < 0) sign = -1.0;
+        }
+
         //Get number of events
-        eff_h->Fill(0);
+        eff_h->Fill(0.,sign);
         cutflow_h->Fill(0);
         cutflow_h->GetXaxis()->SetBinLabel(1,"Total");
         cutflow_h->GetXaxis()->SetBinLabel(2,"Single Electron");
@@ -211,8 +230,8 @@ int main(int argc, char* argv[])
         //HEM Veto
         if(PostHEM && (era == "2018"))
         {
-            const auto& SAT_Pass_HEMVeto30_drLeptonCleaned = tr.getVar<bool>("SAT_Pass_HEMVeto30_drLeptonCleaned");
-            if(!SAT_Pass_HEMVeto30_drLeptonCleaned) continue;
+            const auto& SAT_Pass_HEMVeto_drLeptonCleaned = tr.getVar<bool>("SAT_Pass_HEMVeto_drLeptonCleaned");
+            if(!SAT_Pass_HEMVeto_drLeptonCleaned) continue;
         }
 
         //Event Filter
@@ -229,7 +248,7 @@ int main(int argc, char* argv[])
 
         //NanoSUSY-tools uses DeepB for Stop0l_nbtags
         std::map<std::string,float> DeepCSVMediumWP ={
-            {"2016" , 0.6324},
+            {"2016" , 0.6321}, //now 0.6321, was 0.6324
             {"2017" , 0.4941},
             {"2018" , 0.4184}
         };
@@ -426,7 +445,7 @@ int main(int argc, char* argv[])
         if(!passZMassPeak) continue;
         cutflow_h->Fill(7);
         //cutflow_h->GetXaxis()->SetBinLabel(8,"Z Mass Peak");
-        eff_h->Fill(1);
+        eff_h->Fill(1.,sign);
 
         //Find the weights
         float tot_lepSF = 1.0;
@@ -446,6 +465,8 @@ int main(int argc, char* argv[])
             {
                 tot_lepSF *= cutElecSF[i];
             }
+
+            tot_lepSF *= sign; //everything using a weight uses at least tot_lepSF
 
             //MuonTriggerEffPt = tr.getVar<float>("MuonTriggerEffPt");
             LeadingElecTriggEffPt = tr.getVar<float>("LeadingElecTriggEffPt");
@@ -500,6 +521,7 @@ int main(int argc, char* argv[])
             h_lep2pT->Fill(cutElecVec[1].Pt(),tot_weight);
             h_lep3pT->Fill(cutElecVec[2].Pt(),tot_weight);
             h_num_elec->Fill(3,tot_weight);
+            h_num_elec_notrigwt->Fill(3,tot_lepSF);
             h_norm_3elec->Fill(bestRecoZM, tot_weight);
         }
         if(cutElecVec.size() == 2)
@@ -508,6 +530,7 @@ int main(int argc, char* argv[])
             h_lep2pT->Fill(cutElecVec[1].Pt(), tot_weight);
             h_lep3pT->Fill(cutMuVec[0].Pt(), tot_weight);
             h_num_elec->Fill(2,tot_weight);
+            h_num_elec_notrigwt->Fill(2,tot_lepSF);
             h_norm_2elec->Fill(bestRecoZM, tot_weight);
         }
         if(cutElecVec.size() == 1)
@@ -516,6 +539,7 @@ int main(int argc, char* argv[])
             h_lep2pT->Fill(cutMuVec[1].Pt(), tot_weight);
             h_lep3pT->Fill(cutElecVec[0].Pt(), tot_weight);
             h_num_elec->Fill(1,tot_weight);
+            h_num_elec_notrigwt->Fill(1,tot_lepSF);
             h_norm_1elec->Fill(bestRecoZM, tot_weight);
         }
 
@@ -523,6 +547,7 @@ int main(int argc, char* argv[])
         h_recoZpt->Fill(bestRecoZPt, tot_weight);
         h_recoZM->Fill(bestRecoZM, tot_weight);
         h_normalization->Fill(bestRecoZM, tot_weight);
+        h_norm_notrigwt->Fill(bestRecoZM, tot_lepSF);
         h_norm_pt_eff->Fill(bestRecoZM, pt_weight);
         if (tr.getEvtNum() < 20000) std::cout << "Eta weight: " << pt_weight << "\tEta: " << cutElecVec[0].Eta() << std::endl;
         //MET
@@ -572,8 +597,10 @@ int main(int argc, char* argv[])
     h_lep2pT->Write();
     h_lep3pT->Write();
     h_num_elec->Write();
+    h_num_elec_notrigwt->Write();
     //h_elec_indices->Write();
     h_normalization->Write();
+    h_norm_notrigwt->Write();
     h_norm_pt_eff->Write();
     h_norm_1elec->Write();
     h_norm_2elec->Write();
