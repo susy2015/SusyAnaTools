@@ -181,6 +181,8 @@ int main(int argc, char* argv[])
     auto *h_num_mu = new TH1F("h_num_mu","Number of muons",3,1,4);
     auto *h_num_mu_notrigwt = new TH1F("h_num_mu_notrigwt","Number of muons: no trigger weights",3,1,4);
     auto *h_num_mu_trimmed = new TH1F("h_num_mu_trimmed","Number of muons (trimmed bins)",3,1,4);
+    auto *h_num_elec = new TH1F("h_num_elec","Number of electrons",3,0,3);
+    auto *h_num_elec_notrigwt = new TH1F("h_num_elec_notrigwt","Number of electrons: no trigger weights",3,0,3);
     auto *h_mu_indices = new TH1F("h_mu_indices", "Frequency of pT-ordered muon index used to reconstruct Z", 4,-1,3);
     auto *h_normalization = new TH1F("h_normalization","TTZ Normalization Exercise",4,61,141);
     auto *h_norm_notrigwt = new TH1F("h_norm_notrigwt","TTZ Normalization: No Trigger Weight",4,61,141);
@@ -248,9 +250,9 @@ int main(int argc, char* argv[])
         const auto& Jet_pt = tr.getVec<float>("Jet_pt_drLeptonCleaned");
         const auto& Jet_eta = tr.getVec<float>("Jet_eta_drLeptonCleaned");
 
-        //NanoSUSY-tools uses DeepB for Stop0l_nbtags. TODO: specific location
+        //NanoSUSY-tools uses DeepB for Stop0l_nbtags. Found in customize.h.
         std::map<std::string,float> DeepCSVMediumWP ={
-            {"2016" , 0.6324},
+            {"2016" , 0.6321}, //now 0.6321, was 0.6324
             {"2017" , 0.4941},
             {"2018" , 0.4184}
         };
@@ -539,6 +541,9 @@ int main(int argc, char* argv[])
             h_num_mu_notrigwt->Fill(1,tot_lepSF);
             h_norm_1mu->Fill(bestRecoZM, tot_weight);
         }
+        //also want num electrons
+        h_num_elec->Fill(cutElecVec.size(),tot_weight);
+        h_num_elec_notrigwt->Fill(cutElecVec.size(),tot_lepSF);
 
         //RecoZ
         h_recoZpt->Fill(bestRecoZPt, tot_weight);
@@ -615,6 +620,8 @@ int main(int argc, char* argv[])
     h_num_mu->Write();
     h_num_mu_notrigwt->Write();
     h_num_mu_trimmed->Write();
+    h_num_elec->Write();
+    h_num_elec_notrigwt->Write();
     h_mu_indices->Write();
     h_normalization->Write();
     h_norm_notrigwt->Write();
