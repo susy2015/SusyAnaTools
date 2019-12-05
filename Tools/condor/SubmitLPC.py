@@ -12,18 +12,20 @@ import getpass
 import argparse
 from collections import defaultdict
 
-DelExe    = '../tupleReadNormEx'
-#DelExe    = '../tupleReadElec'
+#DelExe    = '../tupleReadNormEx'
+DelExe    = '../tupleReadElec'
 #DelExe    = '../SB_reader'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
-ShortProjectName = 'TTZNormEx'
+#ShortProjectName = 'TTZNormEx'
+ShortProjectName = 'TTZElec'
+#ShortProjectName = 'VBSB'
 argument = "%s.$(Process).list %s_$(Process).root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
 defaultLperFile = 5
 run_everything = False
 if run_everything: defaultLperFile = 100
-year = "2016"
+#year = "2016"
 #year = "2017"
 #year = "2018"
 #if args.era != "":
@@ -32,7 +34,8 @@ year = "2016"
 process_dict = {
 ##Rare would include TTZToQQ, Diboson, Triboson, Higgs. Also include DY?
 #    "TTZToLLNuNu" : ["TTZToLLNuNu"],
-#    "Normalization" : ["TTZToLLNuNu","ttHToNonbb","VHToNonbb","GluGluHToZZTo4L","ST_tWll","ST_tZq_ll","TTWJetsToLNu","WZTo3LNu","ZZTo4L","WWZ","WZZ","ZZZ","WZG","WWG","WWW","TTTT","TTbarDiLep","DYJetsToLL_HT_70to100","DYJetsToLL_HT_100to200","DYJetsToLL_HT_200to400","DYJetsToLL_HT_400to600","DYJetsToLL_HT_600to800","DYJetsToLL_HT_800to1200","DYJetsToLL_HT_1200to2500","DYJetsToLL_HT_2500toInf"],
+#    "ttHToNonbb" : ["ttHToNonbb"],
+#    "Normalization" : ["TTZToLLNuNu","ttHToNonbb","VHToNonbb","GluGluHToZZTo4L","ST_tWll","tZq_ll","TTWJetsToLNu","WZTo3LNu","ZZTo4L","WWZ","WZZ","ZZZ","WZG","WWG","WWW","TTTT","TTbarDiLep","DYJetsToLL_HT_70to100","DYJetsToLL_HT_100to200","DYJetsToLL_HT_200to400","DYJetsToLL_HT_400to600","DYJetsToLL_HT_600to800","DYJetsToLL_HT_800to1200","DYJetsToLL_HT_1200to2500","DYJetsToLL_HT_2500toInf"],
 #	"TTbar" : ["TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"],
 #	"WJets" : ["WJetsToLNu_HT_70to100", "WJetsToLNu_HT_100to200", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_2500toInf"],
 #	"ZJets" : ["ZJetsToNuNu_HT_100to200", "ZJetsToNuNu_HT_200to400", "ZJetsToNuNu_HT_400to600", "ZJetsToNuNu_HT_600to800", "ZJetsToNuNu_HT_800to1200", "ZJetsToNuNu_HT_1200to2500", "ZJetsToNuNu_HT_2500toInf"],
@@ -57,6 +60,9 @@ process_dict = {
 #	"SingleMuon_2018_A"  : ["Data_SingleMuon_2018_PeriodA"],
 #	"SingleMuon_2018_PostHEM" : ["Data_SingleMuon_2018_PeriodB_PostHEM", "Data_SingleMuon_2018_PeriodC", "Data_SingleMuon_2018_PeriodD"],
 #	"SingleMuon_2018_CD"  : ["Data_SingleMuon_2018_PeriodC", "Data_SingleMuon_2018_PeriodD"],
+#   "SingleElectron_2016" : ["Data_SingleElectron_2016_PeriodB","Data_SingleElectron_2016_PeriodC","Data_SingleElectron_2016_PeriodD","Data_SingleElectron_2016_PeriodE","Data_SingleElectron_2016_PeriodF","Data_SingleElectron_2016_PeriodG","Data_SingleElectron_2016_PeriodH"],
+#   "SingleElectron_2017_BtoE" : ["Data_SingleElectron_2017_PeriodB","Data_SingleElectron_2017_PeriodC","Data_SingleElectron_2017_PeriodD","Data_SingleElectron_2017_PeriodE"],
+#   "SingleElectron_2017_F" : ["Data_SingleElectron_2017_PeriodF"],
 #    "SingleElectron_2018_PreHEM" : ["Data_EGamma_2018_PeriodA","Data_EGamma_2018_PeriodB_PreHEM"],
 #    "SingleElectron_2018_PostHEM" : ["Data_EGamma_2018_PeriodB_PostHEM","Data_EGamma_2018_PeriodC","Data_EGamma_2018_PeriodD"],
     }
@@ -120,7 +126,7 @@ def tar_cmssw():
         if tarinfo.size > 100*1024*1024:
             tarinfo = None
             return tarinfo
-        exclude_patterns = ['/.git/', '/tmp/', '/jobs.*/', '/logs/', '/.SCRAM/', '.pyc', '/datacards/', '/results.*/', '/plots.*/']
+        exclude_patterns = ['/.git/', '/tmp/', '/jobs.*/', '/logs/', '/.SCRAM/', '.pyc', '/datacards/', '/results.*/', '/plots.*/','/fastsim_results.*/']
         for pattern in exclude_patterns:
             if re.search(pattern, tarinfo.name):
                 # print('ignoring %s in the tarball', tarinfo.name)

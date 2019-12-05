@@ -18,20 +18,20 @@ DelExe    = '../SB_reader_signal'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
 #Sample name added in myprocess, which has access to args
-ShortProjectName = 'VBSB'
-argument = "%s.$(Process).list %s_$(Process).root"
+ShortProjectName = 'VBSB_signal'
+argument = "%s.$(Process).list %s.root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
 defaultLperFile = 5
 run_everything = True
 #if run_everything: defaultLperFile = 100
-year = "2016"
+#year = "2016"
 #year = "2017"
-#year = "2018"
+year = "2018"
 #if args.era != "":
 #    year = args.era
 
 
-PostHEM = False
+PostHEM = True
 loose_cuts = False
 PeriodF = False
 
@@ -40,15 +40,16 @@ process_list = []
 
 ProjectName = ShortProjectName + "_" + year
 LongProjectName = ShortProjectName + "_" + year
+if PostHEM or PeriodF: argument = "%s.$(Process).list %s2.root"
 argument = argument + " --era " + year
 if PostHEM:
     ProjectName = ProjectName + "_PostHEM"
     LongProjectName = LongProjectName + "_PostHEM"
     argument += " --PostHEM"
-if loose_cuts and (DelExe != '../SB_reader'):
+if loose_cuts and (DelExe != '../SB_reader' and DelExe != '../SB_reader_signal'):
     argument += " --loose_cuts"
 
-if DelExe == '../SB_reader':
+if (DelExe == '../SB_reader' or DelExe == '../SB_reader_signal'):
     if PeriodF:
         ProjectName = ProjectName + "_PeriodF"
         LongProjectName = LongProjectName + "_PeriodF"

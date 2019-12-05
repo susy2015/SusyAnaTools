@@ -64,8 +64,23 @@ if ($? == 0) then
   rm output_run2.root
   rm Rare_final.root
   rm Rare_final_vb.root
+  rm Rare_final_sb_2016.root
+  rm Rare_final_sb_2017.root
+  rm Rare_final_sb_2018.root
+  rm Rare_final_vb_2016.root
+  rm Rare_final_vb_2017.root
+  rm Rare_final_vb_2018.root
   rm TTZ_final.root
   rm TTZ_final_vb.root
+  rm TTZ_VB_2017_BtoE.root
+  rm TTZ_VB_2018_PreHEM.root
+  rm TTZ_final_sb_2016.root
+  rm TTZ_final_sb_2017.root
+  rm TTZ_final_sb_2018.root
+  rm TTZ_final_vb_2016.root
+  rm TTZ_final_vb_2017.root
+  rm TTZ_final_vb_2018.root
+  rm xSec.root
   foreach tarfile (`ls *gz FileList/*gz`)
     tar -tf $tarfile  | xargs rm -r
   end
