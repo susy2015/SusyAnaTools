@@ -98,7 +98,9 @@ cut_defs = {
     "pt750toinf" : ["MET >= 750"],
 }
 
-with open("dc_BkgPred_BinMaps_master.json") as f:
+inputJsonFile = sys.argv[1]
+
+with open(inputJsonFile) as f:
     JSON = json.load(f)
 
 def make_cpp(units, func_name, outfile=sys.stdout, header=False):
@@ -107,9 +109,12 @@ def make_cpp(units, func_name, outfile=sys.stdout, header=False):
     if(header):
         print(";\n", end="", file=outfile)
     else:
+        units = [(b,a) for a, b in units.items()]
+        units.sort(key=lambda x: int(x[0]))
         print("\n{\n", end="", file=outfile)
-        print("\tif(!Pass_Baseline) return -1;\n\t", end="", file=outfile)
-        for bin_index, (bin_name, unit_num) in enumerate(units):
+#        print("\tif(!Pass_Baseline) return -1;\n", end="", file=outfile)
+        print("\t", end="", file=outfile)
+        for bin_index, (unit_num, bin_name) in enumerate(units):
             cuts = bin_name.split('_')[1:]
             conditionals = []
             if "cr_" not in bin_name:
@@ -122,18 +127,18 @@ def make_cpp(units, func_name, outfile=sys.stdout, header=False):
         print(file=outfile)
 
 with open("units.cc", "w") as outfile:
-    make_cpp(JSON["binNum"].items(), "SRbin", outfile)
-    make_cpp(JSON["unitSRNum"].items(), "SRunit", outfile)
-    make_cpp(JSON["unitCRNum"]["qcdcr"].items(), "QCDCRunit", outfile)
-    make_cpp(JSON["unitCRNum"]["lepcr"].items(), "lepCRunit", outfile)
-    make_cpp(JSON["unitCRNum"]["phocr"].items(), "phoCRunit", outfile)
+    make_cpp(JSON["binNum"], "SRbin", outfile)
+    make_cpp(JSON["unitSRNum"], "SRunit", outfile)
+    make_cpp(JSON["unitCRNum"]["qcdcr"], "QCDCRunit", outfile)
+    make_cpp(JSON["unitCRNum"]["lepcr"], "lepCRunit", outfile)
+    make_cpp(JSON["unitCRNum"]["phocr"], "phoCRunit", outfile)
 
 with open("units.hh", "w") as outfile:
     print("#ifndef SEARCHUNITDEF_HH", file=outfile)
     print("#define SEARCHUNITDEF_HH", file=outfile)
-    make_cpp(JSON["binNum"].items(),             "SRbin",     outfile, True)
-    make_cpp(JSON["unitSRNum"].items(),          "SRunit",    outfile, True)
-    make_cpp(JSON["unitCRNum"]["qcdcr"].items(), "QCDCRunit", outfile, True)
-    make_cpp(JSON["unitCRNum"]["lepcr"].items(), "lepCRunit", outfile, True)
-    make_cpp(JSON["unitCRNum"]["phocr"].items(), "phoCRunit", outfile, True)
+    make_cpp(JSON["binNum"],             "SRbin",     outfile, True)
+    make_cpp(JSON["unitSRNum"],          "SRunit",    outfile, True)
+    make_cpp(JSON["unitCRNum"]["qcdcr"], "QCDCRunit", outfile, True)
+    make_cpp(JSON["unitCRNum"]["lepcr"], "lepCRunit", outfile, True)
+    make_cpp(JSON["unitCRNum"]["phocr"], "phoCRunit", outfile, True)
     print("#endif", file=outfile)
