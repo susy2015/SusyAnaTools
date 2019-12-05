@@ -49,7 +49,31 @@ namespace SusyUtility
     void printJson(const std::string& fileName, const std::string& key, const std::string& title);
     // check if file exists
     bool fileExists(const std::string& fileName);
-
+    // compare ints, doubles, floats, etc.
+    // use relative tolerance
+    template<typename T>
+    bool isClose(T a, T b, double precision=0.000001)
+    {
+        if (typeid(T) == typeid(bool) || typeid(T) == typeid(int) || typeid(T) == typeid(unsigned int))
+        {
+            return a == b; 
+        }
+        else
+        {
+            if (a == 0.0 && b == 0.0)
+            {
+                return true;
+            }
+            else if (a != 0.0)
+            {
+                return abs(a - b) <= precision * abs(a);
+            }
+            else
+            {
+                return abs(a - b) <= precision * abs(b);
+            }
+        }
+    }
 }
 
 #endif
