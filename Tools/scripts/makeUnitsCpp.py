@@ -2,6 +2,7 @@
 # coding: utf-8
 import json
 import sys
+from collections import OrderedDict
 
 variables = [
 ("Pass_Baseline",   "bool"),
@@ -100,9 +101,6 @@ cut_defs = {
 
 inputJsonFile = sys.argv[1]
 
-with open(inputJsonFile) as f:
-    JSON = json.load(f)
-
 def make_cpp(units, func_name, outfile=sys.stdout, header=False):
     varstring = ", ".join([" ".join(a[::-1]) for a in variables])
     print("int %s(%s)"%(func_name, varstring), end="", file=outfile)
@@ -126,6 +124,69 @@ def make_cpp(units, func_name, outfile=sys.stdout, header=False):
         print("return -1;\n}", file=outfile)
         print(file=outfile)
 
+def make_cpp_unitMap(JSON, proc, outfile=sys.stdout, unitDict=None, doSR=False):
+    binMap = JSON["binMaps"][proc]
+    unitsSR = JSON["unitSRNum"]
+    unitsCR = JSON["unitCRNum"][proc]
+    bins = JSON["binNum"]
+
+    binMapListSR = {}
+    binMapListCR = {}
+    for searchBin, cr_description in binMap.items():
+        for entry in cr_description.replace(' ','').split('+'):
+            entry_split = entry.split('*')
+            if len(entry_split) >= 2:
+                sr, cr = entry_split
+                if '<' in cr: sr, cr = cr, sr
+                sr = sr.strip('<>')
+                cr = cr.strip('()')
+            else:
+                sr = searchBin
+                cr = entry_split[0]
+            try:
+                binMapListSR[bins[searchBin]].append(unitsSR[sr])
+                binMapListCR[bins[searchBin]].append(unitsCR[cr])
+            except KeyError:
+                binMapListSR[bins[searchBin]] = [unitsSR[sr]]
+                binMapListCR[bins[searchBin]] = [unitsCR[cr]]
+
+    if isinstance(unitDict ,dict):
+        unitDict["unitBinMapSR_%s"%proc] = binMapListSR
+        unitDict["unitBinMapCR_%s"%proc] = binMapListCR
+                
+    binMapListSR = list(binMapListSR.items())
+    binMapListCR = list(binMapListCR.items())
+    binMapListSR.sort(key=lambda x: int(x[0]))
+    binMapListCR.sort(key=lambda x: int(x[0]))
+
+    for i, iBin in enumerate(binMapListSR):
+        if int(i) != int(iBin[0]):
+            print("ERROR: bin numbers not continous: %s, %s"%(i, iBin[0]))
+            exit()
+
+    for i, iBin in enumerate(binMapListCR):
+        if int(i) != int(iBin[0]):
+            print("ERROR: bin numbers not continous: %s, %s"%(i, iBin[0]))
+            exit()
+
+    if doSR:
+        print("", file=outfile)
+        print("const static std::vector<std::set<int>> unitBinMapSR = {", file=outfile)
+        for key, vals in binMapListSR:
+            print("    {%s},"%(",".join(vals)), file=outfile)
+        print("};", file=outfile)
+    print("", file=outfile)
+    print("const static std::vector<std::set<int>> unitBinMapCR_%s = {"%(proc), file=outfile)
+    for key, vals in binMapListCR:
+        print("    {%s},"%(",".join(vals)), file=outfile)
+    print("};", file=outfile)
+
+    return unitDict
+
+
+with open(inputJsonFile) as f:
+    JSON = json.load(f)
+
 with open("units.cc", "w") as outfile:
     make_cpp(JSON["binNum"], "SRbin", outfile)
     make_cpp(JSON["unitSRNum"], "SRunit", outfile)
@@ -133,12 +194,33 @@ with open("units.cc", "w") as outfile:
     make_cpp(JSON["unitCRNum"]["lepcr"], "lepCRunit", outfile)
     make_cpp(JSON["unitCRNum"]["phocr"], "phoCRunit", outfile)
 
-with open("units.hh", "w") as outfile:
+with open("units.hh", "w") as outfile, open("units.json", "w") as jsonOutFile:
     print("#ifndef SEARCHUNITDEF_HH", file=outfile)
     print("#define SEARCHUNITDEF_HH", file=outfile)
+    print("", file=outfile)
+    print("#include <vector>", file=outfile)
+    print("#include <set>", file=outfile)
+    print("", file=outfile)
+
     make_cpp(JSON["binNum"],             "SRbin",     outfile, True)
     make_cpp(JSON["unitSRNum"],          "SRunit",    outfile, True)
     make_cpp(JSON["unitCRNum"]["qcdcr"], "QCDCRunit", outfile, True)
     make_cpp(JSON["unitCRNum"]["lepcr"], "lepCRunit", outfile, True)
     make_cpp(JSON["unitCRNum"]["phocr"], "phoCRunit", outfile, True)
+
+    print("", file=outfile)
+
+    outDict = {}
+    outDict = make_cpp_unitMap(JSON, "lepcr", outfile, outDict, True)
+    outDict = make_cpp_unitMap(JSON, "phocr", outfile, outDict)
+    outDict = make_cpp_unitMap(JSON, "qcdcr", outfile, outDict)
+    if outDict["unitBinMapSR_qcdcr"] != outDict["unitBinMapSR_lepcr"] or outDict["unitBinMapSR_qcdcr"] != outDict["unitBinMapSR_phocr"]:
+        print("WARNING!!! SR unit bin maps do not agree, something is wrong in the input json")
+    else:
+        outDict["unitBinMapSR"] = outDict["unitBinMapSR_qcdcr"]
+        del outDict["unitBinMapSR_qcdcr"]
+        del outDict["unitBinMapSR_lepcr"]
+        del outDict["unitBinMapSR_phocr"]
+    json.dump(outDict, jsonOutFile, sort_keys=True, indent=4, separators=(',', ' : '))
+
     print("#endif", file=outfile)

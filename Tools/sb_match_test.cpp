@@ -31,6 +31,46 @@ int SRbin_jon(bool Pass_LowDM, bool Pass_HighDM, int nb, float mtb, float ptb, f
     return SRbin(Pass_Baseline, Pass_QCDCR, Pass_LepCR, Pass_PhoCR, Pass_HighDM, Pass_LowDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
 }
 
+int SRunit(bool Pass_LowDM, bool Pass_HighDM, int nb, float mtb, float ptb, float MET, int nSoftB, int njets, float ISRpt, float HT, int nres, int ntop, int nw)
+{
+    const bool Pass_Baseline = true;
+    const bool Pass_QCDCR = true;
+    const bool Pass_LepCR = true;
+    const bool Pass_PhoCR = true;
+    
+    return SRunit(Pass_Baseline, Pass_QCDCR, Pass_LepCR, Pass_PhoCR, Pass_HighDM, Pass_LowDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
+}
+
+int CRunit_lep(bool Pass_LowDM, bool Pass_HighDM, int nb, float mtb, float ptb, float MET, int nSoftB, int njets, float ISRpt, float HT, int nres, int ntop, int nw)
+{
+    const bool Pass_Baseline = true;
+    const bool Pass_QCDCR = true;
+    const bool Pass_LepCR = true;
+    const bool Pass_PhoCR = true;
+    
+    return lepCRunit(Pass_Baseline, Pass_QCDCR, Pass_LepCR, Pass_PhoCR, Pass_HighDM, Pass_LowDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
+}
+
+int CRunit_pho(bool Pass_LowDM, bool Pass_HighDM, int nb, float mtb, float ptb, float MET, int nSoftB, int njets, float ISRpt, float HT, int nres, int ntop, int nw)
+{
+    const bool Pass_Baseline = true;
+    const bool Pass_QCDCR = true;
+    const bool Pass_LepCR = true;
+    const bool Pass_PhoCR = true;
+    
+    return phoCRunit(Pass_Baseline, Pass_QCDCR, Pass_LepCR, Pass_PhoCR, Pass_HighDM, Pass_LowDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
+}
+
+int CRunit_qcd(bool Pass_LowDM, bool Pass_HighDM, int nb, float mtb, float ptb, float MET, int nSoftB, int njets, float ISRpt, float HT, int nres, int ntop, int nw)
+{
+    const bool Pass_Baseline = true;
+    const bool Pass_QCDCR = true;
+    const bool Pass_LepCR = true;
+    const bool Pass_PhoCR = true;
+    
+    return QCDCRunit(Pass_Baseline, Pass_QCDCR, Pass_LepCR, Pass_PhoCR, Pass_HighDM, Pass_LowDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
+}
+
 int main()
 {
     std::mt19937 generator(clock());
@@ -67,10 +107,41 @@ int main()
 
         int SB_Hui = SRbin_hui(Pass_LowDM, Pass_HighDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
         int SB_Jon = SRbin_jon(Pass_LowDM, Pass_HighDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
+        int SR_unit = SRunit(Pass_LowDM, Pass_HighDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
+        int CR_unit_lep = CRunit_lep(Pass_LowDM, Pass_HighDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
+        int CR_unit_pho = CRunit_pho(Pass_LowDM, Pass_HighDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
+        int CR_unit_qcd = CRunit_qcd(Pass_LowDM, Pass_HighDM, nb, mtb, ptb, MET, nSoftB, njets, ISRpt, HT, nres, ntop, nw);
 
         if(SB_Hui != SB_Jon)
         {
             std::cout << "PANIC!!! Hui: " << SB_Hui << "\tJon/Matt: " << SB_Jon  << std::endl;
+        }
+        
+        if(SB_Jon >= 0 && SR_unit >= 0 && !unitBinMapSR[SB_Jon].count(SR_unit))
+        {
+            std::cout << "PANIC!!! SR unit mismatch: " << SR_unit << "\t: " << CR_unit_lep << "\t" << std::endl;
+        }
+        if(SB_Jon >= 0 && CR_unit_lep >= 0 && !unitBinMapCR_lepcr[SB_Jon].count(CR_unit_lep))
+        {
+            std::cout << "PANIC!!! CR unit mismatch: " << SR_unit << "\t: " << CR_unit_lep << "\t" << std::endl;
+        }
+
+        if(SB_Jon >= 0 && SR_unit >= 0 && !unitBinMapSR[SB_Jon].count(SR_unit))
+        {
+            std::cout << "PANIC!!! SR unit mismatch: " << SR_unit << "\t: " << CR_unit_pho << "\t" << std::endl;
+        }
+        if(SB_Jon >= 0 && CR_unit_pho >= 0 && !unitBinMapCR_phocr[SB_Jon].count(CR_unit_pho))
+        {
+            std::cout << "PANIC!!! CR unit mismatch: " << SR_unit << "\t: " << CR_unit_pho << "\t" << std::endl;
+        }
+
+        if(SB_Jon >= 0 && SR_unit >= 0 && !unitBinMapSR[SB_Jon].count(SR_unit))
+        {
+            std::cout << "PANIC!!! SR unit mismatch: " << SR_unit << "\t: " << CR_unit_qcd << "\t" << std::endl;
+        }
+        if(SB_Jon >= 0 && CR_unit_qcd >= 0 && !unitBinMapCR_qcdcr[SB_Jon].count(CR_unit_qcd))
+        {
+            std::cout << "PANIC!!! CR unit mismatch: " << SR_unit << "\t: " << CR_unit_qcd << "\t" << std::endl;
         }
     }
 }
