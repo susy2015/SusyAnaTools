@@ -604,6 +604,7 @@ void BaselineVessel::PassBaseline()
   const auto& ISRJetPt              = tr->getVar<float>(UseSpecVar("ISRJetPt"));
   const auto& ISRJetIdx             = tr->getVar<int>(UseSpecVar("ISRJetIdx"));
   const auto& nBottoms              = tr->getVar<int>(UseSpecVar("nBottoms"));
+  const auto& nSoftBottoms          = tr->getVar<int>(UseSpecVar("nSoftBottoms"));
   const auto& nMergedTops           = tr->getVar<int>(UseSpecVar("nMergedTops"));
   const auto& nWs                   = tr->getVar<int>(UseSpecVar("nWs"));
   const auto& nResolvedTops         = tr->getVar<int>(UseSpecVar("nResolvedTops"));
@@ -1034,7 +1035,7 @@ void BaselineVessel::PassBaseline()
   //if ( firstSpec.empty() && topDifference )
   //if ( firstSpec.empty() && totalTopsWs   )
   //if ( firstSpec.compare("_jetpt30") == 0 )
-  //if ( firstSpec.compare("_jetpt30") == 0 && ( event == 519215141 || baselineDifference ) )
+  //if ( firstSpec.compare("_jetpt30") == 0 && ( event == 33359910 || baselineDifference ) )
   if ( firstSpec.compare("_jetpt30") == 0 && baselineDifference)
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
@@ -1061,6 +1062,7 @@ void BaselineVessel::PassBaseline()
     printf("\thui_Stop0l_Mtb         = %.30lf and caleb_mtb                   = %.30lf %s\n", Stop0l_Mtb,               mtb,                        checkEquality(SusyUtility::isClose(Stop0l_Mtb,                      mtb)).c_str());
     printf("\thui_Stop0l_Ptb         = %.30lf and caleb_ptb                   = %.30lf %s\n", Stop0l_Ptb,               ptb,                        checkEquality(SusyUtility::isClose(Stop0l_Ptb,                      ptb)).c_str());
     printf("\thui_Stop0l_nJets       = %d and caleb_nJets                     = %d %s\n", Stop0l_nJets,                 nJets,                      checkEquality(SusyUtility::isClose(Stop0l_nJets,                    nJets)).c_str());
+    printf("\thui_Stop0l_nSoftb      = %d and caleb_nSoftBottoms              = %d %s\n", Stop0l_nSoftb,                nSoftBottoms,               checkEquality(SusyUtility::isClose(Stop0l_nSoftb,                   nSoftBottoms)).c_str());
     printf("\thui_Stop0l_nbtags      = %d and caleb_nBottoms                  = %d %s\n", Stop0l_nbtags,                nBottoms,                   checkEquality(SusyUtility::isClose(Stop0l_nbtags,                   nBottoms)).c_str());
     printf("\thui_Stop0l_nTop        = %d and caleb_nMergedTops               = %d %s\n", Stop0l_nTop,                  nMergedTops,                checkEquality(SusyUtility::isClose(Stop0l_nTop,                     nMergedTops)).c_str());
     printf("\thui_Stop0l_nW          = %d and caleb_nWs                       = %d %s\n", Stop0l_nW,                    nWs,                        checkEquality(SusyUtility::isClose(Stop0l_nW,                       nWs)).c_str());
