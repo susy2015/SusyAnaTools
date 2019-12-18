@@ -13,6 +13,17 @@ cd CMSSW_10_2_9
 cmsenv
 ```
 
+## Get Dependencies
+
+Get json library to use json files in C++.
+
+```
+cd $CMSSW_BASE/src
+git clone git@github.com:nlohmann/json.git
+cd json
+git checkout v3.7.3
+```
+
 
 ## TopTagger Repos
 
