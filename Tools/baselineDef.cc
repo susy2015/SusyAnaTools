@@ -139,6 +139,25 @@ bool BaselineVessel::UseCleanedJets()
   return true;
 }       // -----  end of function BaselineVessel::UseCleanedJets  -----
 
+// --- MET unclustering variables
+bool BaselineVessel::PrepMETUncluster()
+{
+  // --- top tagger is not rerun for MET unclustering systematic
+  // --- register top/W variables with MET specification for later use
+  if (spec.find("METUnClust") != std::string::npos)
+  {
+      tr->registerDerivedVar("nMergedTops" + firstSpec,         tr->getVar<int>("nMergedTops_jetpt30"));
+      tr->registerDerivedVar("nWs" + firstSpec,                 tr->getVar<int>("nWs_jetpt30"));
+      tr->registerDerivedVar("nResolvedTops" + firstSpec,       tr->getVar<int>("nResolvedTops_jetpt30"));
+      tr->registerDerivedVar("MergedTopTotalSF" + firstSpec,    tr->getVar<float>("MergedTopTotalSF_jetpt30"));
+      tr->registerDerivedVar("WTotalSF" + firstSpec,            tr->getVar<float>("WTotalSF_jetpt30"));
+      tr->registerDerivedVar("ResolvedTopTotalSF" + firstSpec,  tr->getVar<float>("ResolvedTopTotalSF_jetpt30"));
+      tr->registerDerivedVar("ttr" + firstSpec,                 tr->getVar<TopTaggerResults*>("ttr_jetpt30"));
+  }
+}
+
+
+
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::OpenWMassCorrFile
 //  Description:  
@@ -596,6 +615,7 @@ void BaselineVessel::PassBaseline()
   int nFatJets = tr->getVar<int>(UseSpecVar("nFatJets")); 
   float HT      = AnaFunctions::calcHT(Jets,        JetCutArrary);
   float S_met   = met / sqrt(HT);
+
 
   //---------------------------------------//
   //--- Updated Baseline (January 2019) ---//
@@ -1836,6 +1856,7 @@ float BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLor
 void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
+  PrepMETUncluster();
   UseCleanedJets();
   CalcBottomVars();
   CalcISRJetVars();
