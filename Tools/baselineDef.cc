@@ -354,7 +354,17 @@ bool BaselineVessel::PredefineSpec()
     UseDRLeptonCleanJet = false;
     doLeptonVeto        = true;
   }
-  // TODO: make JES Up/Down options specify the right jet collections
+  // MET unclustering systematic
+  if (spec.find("METUnClustUp") != std::string::npos)
+  {
+    METLabel        = METLabel    + "_unclustEnUp";
+    METPhiLabel     = METPhiLabel + "_unclustEnUp";
+  }
+  else if (spec.find("METUnClustDown") != std::string::npos)
+  {
+    METLabel        = METLabel    + "_unclustEnDown";
+    METPhiLabel     = METPhiLabel + "_unclustEnDown";
+  }
   // Specify JES Up/Down systematics for MET and jets
   if (spec.find("jesTotalUp") != std::string::npos)
   {
