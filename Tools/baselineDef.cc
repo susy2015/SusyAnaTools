@@ -642,6 +642,10 @@ void BaselineVessel::PassBaseline()
   const auto& WTotalSF              = tr->getVar<float>(UseSpecVar("WTotalSF"));
   const auto& ResolvedTopTotalSF    = tr->getVar<float>(UseSpecVar("ResolvedTopTotalSF"));
   const auto* ttr                   = tr->getVar<TopTaggerResults*>(UseSpecVar("ttr"));
+  const auto& FatJet_Stop0l         = tr->getVec<int>(UseCleanedJetsVar("FatJet_Stop0l"));
+  const auto& FatJet_msoftdrop      = tr->getVec<float>(UseCleanedJetsVar("FatJet_msoftdrop"));
+  const auto& FatJet_deepTag_TvsQCD = tr->getVec<float>(UseCleanedJetsVar("FatJet_deepTag_TvsQCD"));
+  const auto& FatJet_deepTag_WvsQCD = tr->getVec<float>(UseCleanedJetsVar("FatJet_deepTag_WvsQCD"));
   // variables from post-processing
   const auto& ResolvedTopCandidateTLV               = tr->getVec<TLorentzVector>("ResolvedTopCandidateTLV");
   const auto& ResolvedTopCandidate_discriminator    = tr->getVec<float>("ResolvedTopCandidate_discriminator");
@@ -1111,7 +1115,7 @@ void BaselineVessel::PassBaseline()
         }
     }
     // ttr->getTopCandidates() returns TopObjects and gives top candidates
-    printf("------------- caleb tops -------------\n");
+    printf("------------- caleb top candidates -------------\n");
     for(const auto& top : ttr->getTopCandidates())
     {
         printf("\tpt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d\n", top.p().Pt(), top.p().Eta(), top.p().Phi(), top.p().M(), top.getDiscriminator(), top.getType());
@@ -1126,20 +1130,20 @@ void BaselineVessel::PassBaseline()
         
     }
     // ttr->getTops() returns TopObjects* and gives tagged tops
-    //printf("------------- caleb tops -------------\n");
-    //for(const auto& top : ttr->getTops())
-    //{
-    //    printf("\tpt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d\n", top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M(), top->getDiscriminator(), top->getType());
-    //    for (const auto& jet : top->getConstituents())
-    //    {
-    //        printf("\t\tjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", jet->p().Pt(), jet->p().Eta(), jet->p().Phi(), jet->p().M());
-    //        for(const auto& subjet : jet->getSubjets())
-    //        {
-    //            printf("\t\t\tsubjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", subjet.p().Pt(), subjet.p().Eta(), subjet.p().Phi(), subjet.p().M());
-    //        }
-    //    }
-    //    
-    //}
+    printf("------------- caleb tagged tops -------------\n");
+    for(const auto& top : ttr->getTops())
+    {
+        printf("\tpt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d\n", top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M(), top->getDiscriminator(), top->getType());
+        for (const auto& jet : top->getConstituents())
+        {
+            printf("\t\tjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", jet->p().Pt(), jet->p().Eta(), jet->p().Phi(), jet->p().M());
+            for(const auto& subjet : jet->getSubjets())
+            {
+                printf("\t\t\tsubjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", subjet.p().Pt(), subjet.p().Eta(), subjet.p().Phi(), subjet.p().M());
+            }
+        }
+        
+    }
     printf("------------- caleb met, jets, dphi -------------\n");
     printf("met = %.5lf\n",             met);
     printf("metphi = %.5lf\n",          metphi);
@@ -1157,11 +1161,12 @@ void BaselineVessel::PassBaseline()
     {
         printf("dPhi_%d = %.5lf\n", i, dPhiVec->at(i));
     }
-    printf("------------- caleb fat jets -------------\n");
+    printf("------------- hui and caleb fat jets -------------\n");
+    //printf("FatJets.size()=%d, FatJet_Stop0l.size()=%d, FatJet_deepTag_TvsQCD.size()=%d, FatJet_deepTag_WvsQCD=%d\n", FatJets.size(), FatJet_Stop0l.size(), FatJet_deepTag_TvsQCD.size(), FatJet_deepTag_WvsQCD.size());
     j = 0;
     for (const auto& FatJet : FatJets)
     {
-      printf("FatJet_%d: pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M());
+      printf("FatJet_%d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf), type=%d, mt-disc=%.5lf, w-disc=%.5lf, msoftdrop=%.5lf\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M(), FatJet_Stop0l[j], FatJet_deepTag_TvsQCD[j], FatJet_deepTag_WvsQCD[j], FatJet_msoftdrop[j]);
       ++j;
     }
     // for testing ISR jet pt
