@@ -18,20 +18,20 @@ DelExe    = '../SB_reader_signal'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
 #Sample name added in myprocess, which has access to args
-ShortProjectName = 'VBSB_signal'
+ShortProjectName = 'VBSB_signal_v5'
 argument = "%s.$(Process).list %s.root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
 defaultLperFile = 5
 run_everything = True
 #if run_everything: defaultLperFile = 100
-#year = "2016"
+year = "2016"
 #year = "2017"
-year = "2018"
+#year = "2018"
 #if args.era != "":
 #    year = args.era
 
 
-PostHEM = True
+PostHEM = False
 loose_cuts = False
 PeriodF = False
 
@@ -72,7 +72,7 @@ def tar_cmssw():
         if tarinfo.size > 100*1024*1024:
             tarinfo = None
             return tarinfo
-        exclude_patterns = ['/.git/', '/tmp/', '/jobs.*/', '/logs/', '/.SCRAM/', '.pyc', '/datacards/', '/results.*/', '/plots.*/']
+        exclude_patterns = ['/.git/', '/tmp/', '/jobs.*/', '/logs/', '/.SCRAM/', '.pyc', '/datacards/', '/results.*/', '/plots.*/','/fastsim_results.*/']
         for pattern in exclude_patterns:
             if re.search(pattern, tarinfo.name):
                 # print('ignoring %s in the tarball', tarinfo.name)
@@ -170,9 +170,10 @@ def my_process(args):
     #elif args.era != "":
     #    Process = ConfigList(os.path.abspath("configs/sampleSets_PostProcessed_"+args.era+".cfg"))
     for key, value in Process.items():
-        if (not run_everything) and (key not in process_list):
-            del Process[key]
-            continue
+        #if (not run_everything) and (key not in process_list):
+        #    del Process[key]
+        #    continue
+        print Process[key]
         if value[0] == "":
             value[0] = "../FileList/"+key+".list"
         if not os.path.isfile(value[0]):

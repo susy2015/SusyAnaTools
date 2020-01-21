@@ -24,95 +24,15 @@
 #include <getopt.h>
 #include "units.hh"
 
-int main(int argc, char* argv[])
+int analyze(std::string filename, std::string era, int max_events, bool isData, bool isSignal, bool PeriodF, bool PostHEM, float SF, bool verbose)
 {
-    //defaults
-    std::string era = "2018";
-    //float SF = 1.17; //for TTZToLLNuNu
-    float SF = 1.0; //for everything else
-    float SF_up = 1.0;
-    float SF_down = 1.0;
-    bool verbose = false;
-    int max_events = -1;
-    bool isData = false;
-    bool PeriodF = false;
-    bool PostHEM = false;
-    bool isSignal = true;
-
-    if (argc < 3)
-    {
-        std::cerr <<"Please give at least 2 arguments " << "File List " << "Name of output file" << std::endl;
-        return -1;
-    }
-    const char *inputfilelist = argv[1];
-    const char *outputfile    = argv[2];
-
-    int c;
-    while (1)
-    {
-        //int option_index = 3;
-        //required_argument: option takes an argument. Still optional to include.
-        //no_argument: option does not take an argument
-        static struct option long_options[] = {
-            {"era",         required_argument,  0,  'e'},
-            {"max_events",  required_argument,  0,  'm'},
-            {"isData",      no_argument,        0,  'd'},
-            {"isSignal",    no_argument,        0,  'S'},
-            {"PeriodF",     no_argument,        0,  'F'},
-            {"PostHEM",     no_argument,        0,  'H'},
-            {"verbose",     no_argument,        0,  'v'},
-        };
-        c = getopt_long(argc,argv,"e:m:dTSFHv",long_options,NULL);
-        if(c==-1) break;
-        switch (c)
-        {
-            case 'e':
-                era = optarg;
-                break;
-            case 'm':
-                max_events = std::stoi(optarg);
-                break;
-            case 'd':
-                isData = true;
-                break;
-            case 'S':
-                isSignal = true;
-                break;
-            case 'F':
-                PeriodF = true;
-                break;
-            case 'H':
-                PostHEM = true;
-                break;
-            case 'v':
-                verbose = true;
-                break;
-        }
-    }
-
-
-    std::cout << "Era: " << era << "\tSF: " << SF << "\tisSignal: " << isSignal << "\tisData: " << isData << "\tPeriodF: " << PeriodF << "\tPostHEM: " << PostHEM << "\tMax events: " << max_events << std::endl;
-
     TChain *ch = new TChain("Events");
-
-    std::string filename;
-    std::ifstream bigfile;
+    ch->Add(filename.c_str());
     std::string samplename;
-
-    bigfile.open (inputfilelist);
-
-    if (bigfile.is_open())
-    {
-        while (getline(bigfile,filename))
-        {
-            std::cout << filename << std::endl;
-            ch->Add(filename.c_str());
-            samplename = filename.substr(filename.find("SMS_"),filename.find(".root")-filename.find("SMS_"));
-            if(samplename.find("/") != std::string::npos) samplename = samplename.substr(samplename.find("/") + 1);
-            std::cout << samplename << std::endl;
-        }
-        bigfile.close();
-    }
+    samplename = filename.substr(filename.find("SMS_"),filename.find(".root")-filename.find("SMS_"));
+    if(samplename.find("/") != std::string::npos) samplename = samplename.substr(samplename.find("/") + 1);
+    if(samplename.find("Skim") != std::string::npos) samplename = samplename.substr(0,samplename.find("Skim") - 1);
+    std::cout << samplename << std::endl;
 
     if(verbose) std::cout << "Setting up" << std::endl;
 
@@ -123,7 +43,7 @@ int main(int argc, char* argv[])
     //CleanedJets cleanedJets;
     RunTopTagger runTopTagger;
     BaselineVessel blv(tr,era,"");
-    BaselineVessel blv_jetpt30(tr,era,"_jetpt30");
+    //BaselineVessel blv_jetpt30(tr,era,"_jetpt30");
     //plotterFunctions::GetSearchBin getsearchbin;
     
     if(verbose) std::cout << "Registering getVectors" << std::endl;
@@ -136,8 +56,8 @@ int main(int argc, char* argv[])
     tr.registerFunction(runTopTagger);
     if(verbose) std::cout << "Registering blv" << std::endl;
     tr.registerFunction(blv);
-    if(verbose) std::cout << "Registering blv_jetpt30" << std::endl;
-    tr.registerFunction(blv_jetpt30);
+    //if(verbose) std::cout << "Registering blv_jetpt30" << std::endl;
+    //tr.registerFunction(blv_jetpt30);
     //if(verbose) std::cout << "Registering getsearchbin" << std::endl;
     //tr.registerFunction(getsearchbin);
     if(verbose) std::cout << "Done registering" << std::endl;
@@ -171,8 +91,8 @@ int main(int argc, char* argv[])
     auto *h_vb_eff_toptag_down = new TH1F("h_vb_eff_toptag_down","VB Merged Top Tag SF Down",43,0,43);
     auto *h_vb_eff_wtag_up = new TH1F("h_vb_eff_wtag_up","VB W Tag SF Up",43,0,43);
     auto *h_vb_eff_wtag_down = new TH1F("h_vb_eff_wtag_down","VB W TagSF Down",43,0,43);
-    auto *h_vb_ak8jet_sf_up = new TH1F("h_vb_ak8jet_sf_up","VB AK8Jet SF Up",43,0,43);
-    auto *h_vb_ak8jet_sf_down = new TH1F("h_vb_ak8jet_sf_down","VB AK8Jet SF Down",43,0,43);
+    //auto *h_vb_ak8jet_sf_up = new TH1F("h_vb_ak8jet_sf_up","VB AK8Jet SF Up",43,0,43);
+    //auto *h_vb_ak8jet_sf_down = new TH1F("h_vb_ak8jet_sf_down","VB AK8Jet SF Down",43,0,43);
     auto *h_vb_ISRWeight_up = new TH1F("h_vb_ISRWeight_up","VB ISR Weight Up",43,0,43);
     auto *h_vb_ISRWeight_down = new TH1F("h_vb_ISRWeight_down","VB ISR Weight Down",43,0,43);
     auto *h_vb_fastSF_up = new TH1F("h_vb_fastSF_up","VB Fastsim SF Up",43,0,43);
@@ -209,8 +129,8 @@ int main(int argc, char* argv[])
     auto *h_sb_eff_toptag_down = new TH1F("h_sb_eff_toptag_down","SB Merged Top Tag SF Down",183,0,183);
     auto *h_sb_eff_wtag_up = new TH1F("h_sb_eff_wtag_up","SB W Tag SF Up",183,0,183);
     auto *h_sb_eff_wtag_down = new TH1F("h_sb_eff_wtag_down","SB W TagSF Down",183,0,183);
-    auto *h_sb_ak8jet_sf_up = new TH1F("h_sb_ak8jet_sf_up","SB AK8Jet SF Up",183,0,183);
-    auto *h_sb_ak8jet_sf_down = new TH1F("h_sb_ak8jet_sf_down","SB AK8Jet SF Down",183,0,183);
+    //auto *h_sb_ak8jet_sf_up = new TH1F("h_sb_ak8jet_sf_up","SB AK8Jet SF Up",183,0,183);
+    //auto *h_sb_ak8jet_sf_down = new TH1F("h_sb_ak8jet_sf_down","SB AK8Jet SF Down",183,0,183);
     auto *h_sb_ISRWeight_up = new TH1F("h_sb_ISRWeight_up","SB ISR Weight Up",183,0,183);
     auto *h_sb_ISRWeight_down = new TH1F("h_sb_ISRWeight_down","SB ISR Weight Down",183,0,183);
     auto *h_sb_fastSF_up = new TH1F("h_sb_fastSF_up","SB Fastsim SF Up",183,0,183);
@@ -218,7 +138,7 @@ int main(int argc, char* argv[])
     auto *h_sb_METunc_up = new TH1F("h_sb_METunc_up","SB MET uncertainty Up",183,0,183);
     auto *h_sb_METunc_down = new TH1F("h_sb_METunc_down","SB MET uncertainty Down",183,0,183);
 
-    auto *h_ub = new TH1F("h_ub","Unit Bins",112,0,112);
+    auto *h_ub = new TH1F("h_ub","LL CR Unit Bins",112,0,112);
     auto *h_ub_bsf_up = new TH1F("h_ub_bsf_up","UB B SF Up",112,0,112);
     auto *h_ub_bsf_down = new TH1F("h_ub_bsf_down","UB B SF Down",112,0,112);
     auto *h_ub_trig_eff_up = new TH1F("h_ub_trig_eff_up","UB Trigger Efficiency Up",112,0,112);
@@ -247,14 +167,52 @@ int main(int argc, char* argv[])
     auto *h_ub_eff_toptag_down = new TH1F("h_ub_eff_toptag_down","UB Merged Top Tag SF Down",112,0,112);
     auto *h_ub_eff_wtag_up = new TH1F("h_ub_eff_wtag_up","UB W Tag SF Up",112,0,112);
     auto *h_ub_eff_wtag_down = new TH1F("h_ub_eff_wtag_down","UB W TagSF Down",112,0,112);
-    auto *h_ub_ak8jet_sf_up = new TH1F("h_ub_ak8jet_sf_up","UB AK8Jet SF Up",112,0,112);
-    auto *h_ub_ak8jet_sf_down = new TH1F("h_ub_ak8jet_sf_down","UB AK8Jet SF Down",112,0,112);
+    //auto *h_ub_ak8jet_sf_up = new TH1F("h_ub_ak8jet_sf_up","UB AK8Jet SF Up",112,0,112);
+    //auto *h_ub_ak8jet_sf_down = new TH1F("h_ub_ak8jet_sf_down","UB AK8Jet SF Down",112,0,112);
     auto *h_ub_ISRWeight_up = new TH1F("h_ub_ISRWeight_up","UB ISR Weight Up",112,0,112);
     auto *h_ub_ISRWeight_down = new TH1F("h_ub_ISRWeight_down","UB ISR Weight Down",112,0,112);
     auto *h_ub_fastSF_up = new TH1F("h_ub_fastSF_up","UB Fastsim SF Up",112,0,112);
     auto *h_ub_fastSF_down = new TH1F("h_ub_fastSF_down","UB Fastsim SF Down",112,0,112);
     auto *h_ub_METunc_up = new TH1F("h_ub_METunc_up","UB MET uncertainty Up",112,0,112);
     auto *h_ub_METunc_down = new TH1F("h_ub_METunc_down","UB MET uncertainty Down",112,0,112);
+
+    auto *h_qb = new TH1F("h_qb","QCD CR Unit Bins",92,0,92);
+    auto *h_qb_bsf_up = new TH1F("h_qb_bsf_up","QCD CR B SF Up",92,0,92);
+    auto *h_qb_bsf_down = new TH1F("h_qb_bsf_down","QCD CR B SF Down",92,0,92);
+    auto *h_qb_trig_eff_up = new TH1F("h_qb_trig_eff_up","QCD CR Trigger Efficiency Up",92,0,92);
+    auto *h_qb_trig_eff_down = new TH1F("h_qb_trig_eff_down","QCD CR Trigger Efficiency Down",92,0,92);
+    auto *h_qb_puWeight_up = new TH1F("h_qb_puWeight_up","QCD CR PU Weight Up",92,0,92);
+    auto *h_qb_puWeight_down = new TH1F("h_qb_puWeight_down","QCD CR PU Weight Down",92,0,92);
+    auto *h_qb_PFWeight_up = new TH1F("h_qb_PFWeight_up","QCD CR PF Weight Up",92,0,92);
+    auto *h_qb_PFWeight_down = new TH1F("h_qb_PFWeight_down","QCD CR PF Weight Down",92,0,92);
+    auto *h_qb_pdfWeight_up = new TH1F("h_qb_pdfWeight_up","QCD CR PDF Weight Up",92,0,92);
+    auto *h_qb_pdfWeight_down = new TH1F("h_qb_pdfWeight_down","QCD CR PDF Weight Down",92,0,92);
+    auto *h_qb_JES_up = new TH1F("h_qb_JES_up","QCD CR JES Up",92,0,92);
+    auto *h_qb_JES_down = new TH1F("h_qb_JES_down","QCD CR JES Down",92,0,92);
+    auto *h_qb_METUnClust_up = new TH1F("h_qb_METUnClust_up","QCD CR METUnClust Up",92,0,92);
+    auto *h_qb_METUnClust_down = new TH1F("h_qb_METUnClust_down","QCD CR METUnClust Down",92,0,92);
+    auto *h_qb_ivfunc_up = new TH1F("h_qb_ivfunc_up","QCD CR Soft B Tag SF Up",92,0,92);
+    auto *h_qb_ivfunc_down = new TH1F("h_qb_ivfunc_down","QCD CR Soft B Tag SF Down",92,0,92);
+    auto *h_qb_eff_e_up = new TH1F("h_qb_eff_e_up","QCD CR Electron Veto SF Up",92,0,92);
+    auto *h_qb_eff_e_down = new TH1F("h_qb_eff_e_down","QCD CR Electron Veto SF Down",92,0,92);
+    auto *h_qb_err_mu_up = new TH1F("h_qb_err_mu_up","QCD CR Muon Loose SF Up",92,0,92);
+    auto *h_qb_err_mu_down = new TH1F("h_qb_err_mu_down","QCD CR Muon Loose SF Down",92,0,92);
+    auto *h_qb_eff_tau_up = new TH1F("h_qb_eff_tau_up","QCD CR Tau POG SF Up",92,0,92);
+    auto *h_qb_eff_tau_down = new TH1F("h_qb_eff_tau_down","QCD CR Tau POG SF Down",92,0,92);
+    auto *h_qb_eff_restoptag_up = new TH1F("h_qb_eff_restoptag_up","QCD CR Resolved Top Tag SF Up",92,0,92);
+    auto *h_qb_eff_restoptag_down = new TH1F("h_qb_eff_restoptag_down","QCD CR Resolved Top Tag SF Down",92,0,92);
+    auto *h_qb_eff_toptag_up = new TH1F("h_qb_eff_toptag_up","QCD CR Merged Top Tag SF Up",92,0,92);
+    auto *h_qb_eff_toptag_down = new TH1F("h_qb_eff_toptag_down","QCD CR Merged Top Tag SF Down",92,0,92);
+    auto *h_qb_eff_wtag_up = new TH1F("h_qb_eff_wtag_up","QCD CR W Tag SF Up",92,0,92);
+    auto *h_qb_eff_wtag_down = new TH1F("h_qb_eff_wtag_down","QCD CR W TagSF Down",92,0,92);
+    //auto *h_qb_ak8jet_sf_up = new TH1F("h_qb_ak8jet_sf_up","QCD CR AK8Jet SF Up",92,0,92);
+    //auto *h_qb_ak8jet_sf_down = new TH1F("h_qb_ak8jet_sf_down","QCD CR AK8Jet SF Down",92,0,92);
+    auto *h_qb_ISRWeight_up = new TH1F("h_qb_ISRWeight_up","QCD CR ISR Weight Up",92,0,92);
+    auto *h_qb_ISRWeight_down = new TH1F("h_qb_ISRWeight_down","QCD CR ISR Weight Down",92,0,92);
+    auto *h_qb_fastSF_up = new TH1F("h_qb_fastSF_up","QCD CR Fastsim SF Up",92,0,92);
+    auto *h_qb_fastSF_down = new TH1F("h_qb_fastSF_down","QCD CR Fastsim SF Down",92,0,92);
+    auto *h_qb_METunc_up = new TH1F("h_qb_METunc_up","QCD CR MET uncertainty Up",92,0,92);
+    auto *h_qb_METunc_down = new TH1F("h_qb_METunc_down","QCD CR MET uncertainty Down",92,0,92);
 
     if(verbose) std::cout << "bin histograms declared" << std::endl;
 
@@ -268,6 +226,8 @@ int main(int argc, char* argv[])
     auto *h_njets_high_middphi = new TH1F("h_njets_high_middphi","NJets for High DM mid-dphi region",25,0,25);
 
     auto *eff_h = new TH1F("eff_h","eff_h",4,0,4); //Counting events. First bin counts all, second event filter, third baselines, fourth counts total to VB.
+    float numerator_genfiltereff = 0;
+    float denominator_genfiltereff = 0;
 
     if(verbose) std::cout << "Starting while loop." << std::endl;
 
@@ -295,6 +255,17 @@ int main(int argc, char* argv[])
 
         //Count all events:
         eff_h->Fill(0.,sign);
+
+        //gen filter efficiency
+        float SigWTab_SigWeightGenCutPass = 1;
+        float SigWTab_SigWeightGenCut = 1;
+        if(tr.checkBranch("SigWTab_SigWeightGenCut") && tr.checkBranch("SigWTab_SigWeightGenCutPass"))
+        {
+            SigWTab_SigWeightGenCutPass = tr.getVar<float>("SigWTab_SigWeightGenCutPass");
+            SigWTab_SigWeightGenCut = tr.getVar<float>("SigWTab_SigWeightGenCut");
+        }
+        numerator_genfiltereff += SigWTab_SigWeightGenCutPass;
+        denominator_genfiltereff += SigWTab_SigWeightGenCut;
 
         bool Pass_EventFilter = tr.getVar<bool>("Pass_EventFilter");
         //bool SAT_Pass_EventFilter = tr.getVar<bool>("SAT_Pass_EventFilter");
@@ -345,6 +316,11 @@ int main(int argc, char* argv[])
         bool Pass_LLCR_JESDown = tr.getVar<bool>("Pass_LLCR_JESDown");
         bool Pass_LLCR_METUnClustUp = tr.getVar<bool>("Pass_LLCR_METUnClustUp");
         bool Pass_LLCR_METUnClustDown = tr.getVar<bool>("Pass_LLCR_METUnClustDown");
+        bool Pass_QCDCR = tr.getVar<bool>("Pass_QCDCR");
+        bool Pass_QCDCR_JESUp = tr.getVar<bool>("Pass_QCDCR_JESUp");
+        bool Pass_QCDCR_JESDown = tr.getVar<bool>("Pass_QCDCR_JESDown");
+        bool Pass_QCDCR_METUnClustUp = tr.getVar<bool>("Pass_QCDCR_METUnClustUp");
+        bool Pass_QCDCR_METUnClustDown = tr.getVar<bool>("Pass_QCDCR_METUnClustDown");
         bool Pass_dPhiMETHighDM = tr.getVar<bool>("Pass_dPhiMETHighDM"); //used in Pass_LLCR_highdm
         bool Pass_dPhiMETHighDM_JESUp = tr.getVar<bool>("Pass_dPhiMETHighDM_JESUp");
         bool Pass_dPhiMETHighDM_JESDown = tr.getVar<bool>("Pass_dPhiMETHighDM_JESDown");
@@ -557,6 +533,15 @@ int main(int argc, char* argv[])
         float W_SF_down = W_SF - std::sqrt(W_SFerr);
         float MergedTop_SF_up = MergedTop_SF + std::sqrt(MergedTop_SFerr);
         float MergedTop_SF_down = MergedTop_SF - std::sqrt(MergedTop_SFerr);
+
+        //used for crosscheck
+        //std::vector<float> Top_SF_vec = tr.getVec<float>("FatJet_SF");
+        //float Top_SF = 1.0;
+        //MergedTop_SF = 1.0;
+        //W_SF = 1.0;
+        //ResTop_SF = 1.0;
+        //for(int i = 0; i < Top_SF_vec.size(); i++)
+        //{Top_SF = Top_SF * Top_SF_vec.at(i);}
 
         //MET uncertainty
         //doesn't seem to be a SF, but rather error. Listed in MET var section.
@@ -812,6 +797,12 @@ int main(int argc, char* argv[])
             lowDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * ISRWeight * fastSF;
             highDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * ISRWeight * fastSF;
             //Multiply in W_SF, MergedTop_SF, and ResTop_SF as needed
+            //Hui: evtWeight = evtWeight * B_SF * ISR_SF * trigger_eff * puWeight * PrefireWeight * Top_SF * fastsim_SF;
+            //diff's: SB_SF, mergedtop/w sf?
+            //lowDMevtWeight = evtWeight * sign * B_SF * ISRWeight * trigger_eff * puWeight * PrefireWeight * fastSF;
+            //highDMevtWeight = evtWeight * sign * B_SF * ISRWeight * trigger_eff * puWeight * PrefireWeight * fastSF;
+            //lowDMevtWeight = sign;
+            //highDMevtWeight = sign;
         }
 
         //if(!Val_bin_0_14 && !Val_bin_15_18 && !Val_bin_19_42 && !Search_lowdm && !Search_highdm) continue;
@@ -920,7 +911,10 @@ int main(int argc, char* argv[])
             }
         }
 
-        if(bin_num != -1) reset++;
+        if(bin_num != -1)
+        {
+            reset++;
+        }
         bin_num = -1;
 
         //Bins 15-18: SB_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met)
@@ -1018,7 +1012,10 @@ int main(int argc, char* argv[])
             }
         }
 
-        if(bin_num != -1) reset++;
+        if(bin_num != -1)
+        {
+            reset++;
+        }
         bin_num = -1;
 
         float topw_sf = 1;
@@ -1145,7 +1142,10 @@ int main(int argc, char* argv[])
             }
         }
 
-        if(bin_num != -1) reset++;
+        if(bin_num != -1)
+        {
+            reset++;
+        }
         bin_num = -1;
 
         bool Pass_LowDM = ntop_res == 0 && ntop_merge == 0 && nw == 0 && ISRpt >= 200 && (nb == 0 || mtb < 175);
@@ -1161,10 +1161,11 @@ int main(int argc, char* argv[])
 
         //int SB_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met)
         if(Search_lowdm)
+        //if(Pass_Baseline && Pass_LowDM)
         {
             //bin_num = SB_lowdm(njets,nb,nSV,ISRpt,ptb,met);
             //int SRbin(bool Pass_Baseline, bool Pass_QCDCR, bool Pass_LepCR, bool Pass_PhoCR, bool HighDM, bool LowDM, int nb, float mtb, float ptb, float MET, int nSoftB, int njets, float ISRpt, float HT, int nres, int ntop, int nw)
-            bin_num = SRbin(Pass_Baseline,false,false,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,met,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num = SRbin(Pass_Baseline,false,false,false,false,Pass_LowDM,nb,mtb,ptb,met,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num != -1)
             {
                 h_sb->Fill(bin_num,SF*lowDMevtWeight);
@@ -1202,7 +1203,7 @@ int main(int argc, char* argv[])
         if(Search_lowdm_JESUp)
         {
             //bin_num_JESUp = SB_lowdm(njets_JESUp,nb_JESUp,nSV_JESUp,ISRpt_JESUp,ptb_JESUp,met_JESUp);
-            bin_num_JESUp = SRbin(Pass_Baseline_JESUp,false,false,false,Pass_HighDM_JESUp,Pass_LowDM_JESUp,nb_JESUp,mtb_JESUp,ptb_JESUp,met_JESUp,nSV_JESUp,njets_JESUp,ISRpt_JESUp,HT_JESUp,ntop_res_JESUp,ntop_merge_JESUp,nw_JESUp);
+            bin_num_JESUp = SRbin(Pass_Baseline_JESUp,false,false,false,false,Pass_LowDM_JESUp,nb_JESUp,mtb_JESUp,ptb_JESUp,met_JESUp,nSV_JESUp,njets_JESUp,ISRpt_JESUp,HT_JESUp,ntop_res_JESUp,ntop_merge_JESUp,nw_JESUp);
             if(bin_num_JESUp != -1)
             {
                 h_sb_JES_up->Fill(bin_num_JESUp,SF*lowDMevtWeight);
@@ -1212,7 +1213,7 @@ int main(int argc, char* argv[])
         if(Search_lowdm_JESDown)
         {
             //bin_num_JESDown = SB_lowdm(njets_JESDown,nb_JESDown,nSV_JESDown,ISRpt_JESDown,ptb_JESDown,met_JESDown);
-            bin_num_JESDown = SRbin(Pass_Baseline_JESDown,false,false,false,Pass_HighDM_JESDown,Pass_LowDM_JESDown,nb_JESDown,mtb_JESDown,ptb_JESDown,met_JESDown,nSV_JESDown,njets_JESDown,ISRpt_JESDown,HT_JESDown,ntop_res_JESDown,ntop_merge_JESDown,nw_JESDown);
+            bin_num_JESDown = SRbin(Pass_Baseline_JESDown,false,false,false,false,Pass_LowDM_JESDown,nb_JESDown,mtb_JESDown,ptb_JESDown,met_JESDown,nSV_JESDown,njets_JESDown,ISRpt_JESDown,HT_JESDown,ntop_res_JESDown,ntop_merge_JESDown,nw_JESDown);
             if(bin_num_JESDown != -1)
             {
                 h_sb_JES_down->Fill(bin_num_JESDown,SF*lowDMevtWeight);
@@ -1222,7 +1223,7 @@ int main(int argc, char* argv[])
         if(Search_lowdm_METUnClustUp)
         {
             //bin_num_METUnClustUp = SB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustUp);
-            bin_num_METUnClustUp = SRbin(Pass_Baseline_METUnClustUp,false,false,false,Pass_HighDM_METUnClustUp,Pass_LowDM_METUnClustUp,nb,mtb_METUnClustUp,ptb,met_METUnClustUp,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METUnClustUp = SRbin(Pass_Baseline_METUnClustUp,false,false,false,false,Pass_LowDM_METUnClustUp,nb,mtb_METUnClustUp,ptb,met_METUnClustUp,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METUnClustUp != -1)
             {
                 h_sb_METUnClust_up->Fill(bin_num_METUnClustUp,SF*lowDMevtWeight);
@@ -1232,7 +1233,7 @@ int main(int argc, char* argv[])
         if(Search_lowdm_METUnClustDown)
         {
             //bin_num_METUnClustDown = SB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustDown);
-            bin_num_METUnClustDown = SRbin(Pass_Baseline_METUnClustDown,false,false,false,Pass_HighDM_METUnClustDown,Pass_LowDM_METUnClustDown,nb,mtb_METUnClustDown,ptb,met_METUnClustDown,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METUnClustDown = SRbin(Pass_Baseline_METUnClustDown,false,false,false,false,Pass_LowDM_METUnClustDown,nb,mtb_METUnClustDown,ptb,met_METUnClustDown,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METUnClustDown != -1)
             {
                 h_sb_METUnClust_down->Fill(bin_num_METUnClustDown,SF*lowDMevtWeight);
@@ -1242,7 +1243,7 @@ int main(int argc, char* argv[])
         if(Search_lowdm_METunc_up)
         {
             //bin_num_METunc_up = SB_lowdm(njets,nb,nSV,ISRpt,ptb,METunc_up);
-            bin_num_METunc_up = SRbin(Pass_Baseline,false,false,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_up = SRbin(Pass_Baseline,false,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_up != -1)
             {
                 h_sb_METunc_up->Fill(bin_num_METunc_up,SF*lowDMevtWeight);
@@ -1252,7 +1253,7 @@ int main(int argc, char* argv[])
         if(Search_lowdm_METunc_down)
         {
             //bin_num_METunc_down = SB_lowdm(njets,nb,nSV,ISRpt,ptb,METunc_down);
-            bin_num_METunc_down = SRbin(Pass_Baseline,false,false,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_down = SRbin(Pass_Baseline,false,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_down != -1)
             {
                 h_sb_METunc_down->Fill(bin_num_METunc_down,SF*lowDMevtWeight);
@@ -1260,14 +1261,18 @@ int main(int argc, char* argv[])
             }
         }
 
-        if(bin_num != -1) reset++;
+        if(bin_num != -1)
+        {
+            reset++;
+        }
         bin_num = -1;
 
         //int SBv4_highdm(float mtb, int njets, int nb, int ntop, int nw, int nres, float ht, float met)
         if(Search_highdm)
+        //if(Pass_Baseline && Pass_HighDM)
         {
             //bin_num = SBv4_highdm(mtb,njets,nb,ntop_merge,nw,ntop_res,HT,met);
-            bin_num = SRbin(Pass_Baseline,false,false,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,met,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num = SRbin(Pass_Baseline,false,false,false,Pass_HighDM,false,nb,mtb,ptb,met,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num != -1)
             {
                 topw_sf = 1;
@@ -1309,7 +1314,7 @@ int main(int argc, char* argv[])
         if(Search_highdm_JESUp)
         {
             //bin_num_JESUp = SBv4_highdm(mtb_JESUp,njets_JESUp,nb_JESUp,ntop_merge_JESUp,nw_JESUp,ntop_res_JESUp,HT_JESUp,met_JESUp);
-            bin_num_JESUp = SRbin(Pass_Baseline_JESUp,false,false,false,Pass_HighDM_JESUp,Pass_LowDM_JESUp,nb_JESUp,mtb_JESUp,ptb_JESUp,met_JESUp,nSV_JESUp,njets_JESUp,ISRpt_JESUp,HT_JESUp,ntop_res_JESUp,ntop_merge_JESUp,nw_JESUp);
+            bin_num_JESUp = SRbin(Pass_Baseline_JESUp,false,false,false,Pass_HighDM_JESUp,false,nb_JESUp,mtb_JESUp,ptb_JESUp,met_JESUp,nSV_JESUp,njets_JESUp,ISRpt_JESUp,HT_JESUp,ntop_res_JESUp,ntop_merge_JESUp,nw_JESUp);
             if(bin_num_JESUp != -1)
             {
                 topw_sf = 1;
@@ -1323,7 +1328,7 @@ int main(int argc, char* argv[])
         if(Search_highdm_JESDown)
         {
             //bin_num_JESDown = SBv4_highdm(mtb_JESDown,njets_JESDown,nb_JESDown,ntop_merge_JESDown,nw_JESDown,ntop_res_JESDown,HT_JESDown,met_JESDown);
-            bin_num_JESDown = SRbin(Pass_Baseline_JESDown,false,false,false,Pass_HighDM_JESDown,Pass_LowDM_JESDown,nb_JESDown,mtb_JESDown,ptb_JESDown,met_JESDown,nSV_JESDown,njets_JESDown,ISRpt_JESDown,HT_JESDown,ntop_res_JESDown,ntop_merge_JESDown,nw_JESDown);
+            bin_num_JESDown = SRbin(Pass_Baseline_JESDown,false,false,false,Pass_HighDM_JESDown,false,nb_JESDown,mtb_JESDown,ptb_JESDown,met_JESDown,nSV_JESDown,njets_JESDown,ISRpt_JESDown,HT_JESDown,ntop_res_JESDown,ntop_merge_JESDown,nw_JESDown);
             if(bin_num_JESDown != -1)
             {
                 topw_sf = 1;
@@ -1337,7 +1342,7 @@ int main(int argc, char* argv[])
         if(Search_highdm_METUnClustUp)
         {
             //bin_num_METUnClustUp = SBv4_highdm(mtb_METUnClustUp,njets,nb,ntop_merge,nw,ntop_res,HT,met_METUnClustUp);
-            bin_num_METUnClustUp = SRbin(Pass_Baseline_METUnClustUp,false,false,false,Pass_HighDM_METUnClustUp,Pass_LowDM_METUnClustUp,nb,mtb_METUnClustUp,ptb,met_METUnClustUp,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METUnClustUp = SRbin(Pass_Baseline_METUnClustUp,false,false,false,Pass_HighDM_METUnClustUp,false,nb,mtb_METUnClustUp,ptb,met_METUnClustUp,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METUnClustUp != -1)
             {
                 topw_sf = 1;
@@ -1351,7 +1356,7 @@ int main(int argc, char* argv[])
         if(Search_highdm_METUnClustDown)
         {
             //bin_num_METUnClustDown = SBv4_highdm(mtb_METUnClustDown,njets,nb,ntop_merge,nw,ntop_res,HT,met_METUnClustDown);
-            bin_num_METUnClustDown = SRbin(Pass_Baseline_METUnClustDown,false,false,false,Pass_HighDM_METUnClustDown,Pass_LowDM_METUnClustDown,nb,mtb_METUnClustDown,ptb,met_METUnClustDown,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METUnClustDown = SRbin(Pass_Baseline_METUnClustDown,false,false,false,Pass_HighDM_METUnClustDown,false,nb,mtb_METUnClustDown,ptb,met_METUnClustDown,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METUnClustDown != -1)
             {
                 topw_sf = 1;
@@ -1365,7 +1370,7 @@ int main(int argc, char* argv[])
         if(Search_highdm_METunc_up)
         {
             //bin_num_METunc_up = SBv4_highdm(mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_up);
-            bin_num_METunc_up = SRbin(Pass_Baseline,false,false,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_up = SRbin(Pass_Baseline,false,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_up != -1)
             {
                 topw_sf = 1;
@@ -1379,7 +1384,7 @@ int main(int argc, char* argv[])
         if(Search_highdm_METunc_down)
         {
             //bin_num_METunc_down = SBv4_highdm(mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_down);
-            bin_num_METunc_down = SRbin(Pass_Baseline,false,false,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_down = SRbin(Pass_Baseline,false,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_down != -1)
             {
                 topw_sf = 1;
@@ -1391,7 +1396,10 @@ int main(int argc, char* argv[])
             }
         }
 
-        if(bin_num != -1) reset++;
+        if(bin_num != -1)
+        {
+            reset++;
+        }
         if(reset > 1) std::cout << "Error: Bin number reset multiple times in event " << tr.getEvtNum() << "." << std::endl;
 
         //int nCRUnitLowDM  = tr.getVar<int>("nCRUnitLowDM_jetpt30");
@@ -1418,7 +1426,7 @@ int main(int argc, char* argv[])
             //bin_num = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met);
             //bin_num = nCRUnitLowDM;
             //int lepCRunit(bool Pass_Baseline, bool Pass_QCDCR, bool Pass_LepCR, bool Pass_PhoCR, bool HighDM, bool LowDM, int nb, float mtb, float ptb, float MET, int nSoftB, int njets, float ISRpt, float HT, int nres, int ntop, int nw)
-            bin_num = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,met,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,false,Pass_LowDM,nb,mtb,ptb,met,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num != -1)
             {
                 //std::cout << "Low DM UB num: " << bin_num << std::endl;
@@ -1459,7 +1467,7 @@ int main(int argc, char* argv[])
             //bin_num_JESUp = UB_lowdm(njets_JESUp,nb_JESUp,nSV_JESUp,ISRpt_JESUp,ptb_JESUp,met_JESUp);
             //bin_num_JESUp = nCRUnitLowDM;
             //bin_num_JESUp = getsearchbin.getUnitNumLowDM("unitCRNum",njets_JESUp,nb_JESUp,nSV_JESUp,ISRpt_JESUp,ptb_JESUp,met_JESUp);
-            bin_num_JESUp = lepCRunit(Pass_Baseline_JESUp,false,Pass_LLCR_JESUp,false,Pass_HighDM_JESUp,Pass_LowDM_JESUp,nb_JESUp,mtb_JESUp,ptb_JESUp,met_JESUp,nSV_JESUp,njets_JESUp,ISRpt_JESUp,HT_JESUp,ntop_res_JESUp,ntop_merge_JESUp,nw_JESUp);
+            bin_num_JESUp = lepCRunit(Pass_Baseline_JESUp,false,Pass_LLCR_JESUp,false,false,Pass_LowDM_JESUp,nb_JESUp,mtb_JESUp,ptb_JESUp,met_JESUp,nSV_JESUp,njets_JESUp,ISRpt_JESUp,HT_JESUp,ntop_res_JESUp,ntop_merge_JESUp,nw_JESUp);
             if(bin_num_JESUp != -1)
             {
                 h_ub_JES_up->Fill(bin_num_JESUp,SF*lowDMevtWeight);
@@ -1471,7 +1479,7 @@ int main(int argc, char* argv[])
             //bin_num_JESDown = UB_lowdm(njets_JESDown,nb_JESDown,nSV_JESDown,ISRpt_JESDown,ptb_JESDown,met_JESDown);
             //bin_num_JESDown = nCRUnitLowDM;
             //bin_num_JESDown = getsearchbin.getUnitNumLowDM("unitCRNum",njets_JESDown,nb_JESDown,nSV_JESDown,ISRpt_JESDown,ptb_JESDown,met_JESDown);
-            bin_num_JESDown = lepCRunit(Pass_Baseline_JESDown,false,Pass_LLCR_JESDown,false,Pass_HighDM_JESDown,Pass_LowDM_JESDown,nb_JESDown,mtb_JESDown,ptb_JESDown,met_JESDown,nSV_JESDown,njets_JESDown,ISRpt_JESDown,HT_JESDown,ntop_res_JESDown,ntop_merge_JESDown,nw_JESDown);
+            bin_num_JESDown = lepCRunit(Pass_Baseline_JESDown,false,Pass_LLCR_JESDown,false,false,Pass_LowDM_JESDown,nb_JESDown,mtb_JESDown,ptb_JESDown,met_JESDown,nSV_JESDown,njets_JESDown,ISRpt_JESDown,HT_JESDown,ntop_res_JESDown,ntop_merge_JESDown,nw_JESDown);
             if(bin_num_JESDown != -1)
             {
                 h_ub_JES_down->Fill(bin_num_JESDown,SF*lowDMevtWeight);
@@ -1483,7 +1491,7 @@ int main(int argc, char* argv[])
             //bin_num_METUnClustUp = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustUp);
             //bin_num_METUnClustUp = nCRUnitLowDM;
             //bin_num_METUnClustUp = getsearchbin.getUnitNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,met_METUnClustUp);
-            bin_num_METUnClustUp = lepCRunit(Pass_Baseline_METUnClustUp,false,Pass_LLCR_METUnClustUp,false,Pass_HighDM_METUnClustUp,Pass_LowDM_METUnClustUp,nb,mtb_METUnClustUp,ptb,met_METUnClustUp,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METUnClustUp = lepCRunit(Pass_Baseline_METUnClustUp,false,Pass_LLCR_METUnClustUp,false,false,Pass_LowDM_METUnClustUp,nb,mtb_METUnClustUp,ptb,met_METUnClustUp,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METUnClustUp != -1)
             {
                 h_ub_METUnClust_up->Fill(bin_num_METUnClustUp,SF*lowDMevtWeight);
@@ -1495,7 +1503,7 @@ int main(int argc, char* argv[])
             //bin_num_METUnClustDown = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustDown);
             //bin_num_METUnClustDown = nCRUnitLowDM;
             //bin_num_METUnClustDown = getsearchbin.getUnitNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,met_METUnClustDown);
-            bin_num_METUnClustDown = lepCRunit(Pass_Baseline_METUnClustDown,false,Pass_LLCR_METUnClustDown,false,Pass_HighDM_METUnClustDown,Pass_LowDM_METUnClustDown,nb,mtb_METUnClustDown,ptb,met_METUnClustDown,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METUnClustDown = lepCRunit(Pass_Baseline_METUnClustDown,false,Pass_LLCR_METUnClustDown,false,false,Pass_LowDM_METUnClustDown,nb,mtb_METUnClustDown,ptb,met_METUnClustDown,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METUnClustDown != -1)
             {
                 h_ub_METUnClust_down->Fill(bin_num_METUnClustDown,SF*lowDMevtWeight);
@@ -1507,7 +1515,7 @@ int main(int argc, char* argv[])
             //bin_num_METUnClustUp = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustUp);
             //bin_num_METUnClustUp = nCRUnitLowDM;
             //bin_num_METunc_up = getsearchbin.getUnitNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,METunc_up);
-            bin_num_METunc_up = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_up = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,false,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_up != -1)
             {
                 h_ub_METunc_up->Fill(bin_num_METunc_up,SF*lowDMevtWeight);
@@ -1519,7 +1527,7 @@ int main(int argc, char* argv[])
             //bin_num_METUnClustDown = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustDown);
             //bin_num_METUnClustDown = nCRUnitLowDM;
             //bin_num_METunc_down = getsearchbin.getUnitNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,METunc_down);
-            bin_num_METunc_down = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_down = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,false,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_down != -1)
             {
                 h_ub_METunc_down->Fill(bin_num_METunc_down,SF*lowDMevtWeight);
@@ -1532,7 +1540,7 @@ int main(int argc, char* argv[])
         {
             //bin_num = UBv4_highdm(mtb,njets,nb,ntop_merge,nw,ntop_res,HT,met);
             //bin_num = nCRUnitHighDM;
-            bin_num = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,met,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,Pass_HighDM,false,nb,mtb,ptb,met,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num != -1)
             {
                 //std::cout << "High DM UB num: " << bin_num << std::endl;
@@ -1578,7 +1586,7 @@ int main(int argc, char* argv[])
             //TODO: need to rerun getUnitNumHighDM with other vars
             //bin_num_JESUp = nCRUnitHighDM;
             //bin_num_JESUp = getsearchbin.getUnitNumHighDM("unitCRNum",mtb_JESUp,njets_JESUp,nb_JESUp,ntop_merge_JESUp,nw_JESUp,ntop_res_JESUp,HT_JESUp,met_JESUp);
-            bin_num_JESUp = lepCRunit(Pass_Baseline_JESUp,false,Pass_LLCR_JESUp,false,Pass_HighDM_JESUp,Pass_LowDM_JESUp,nb_JESUp,mtb_JESUp,ptb_JESUp,met_JESUp,nSV_JESUp,njets_JESUp,ISRpt_JESUp,HT_JESUp,ntop_res_JESUp,ntop_merge_JESUp,nw_JESUp);
+            bin_num_JESUp = lepCRunit(Pass_Baseline_JESUp,false,Pass_LLCR_JESUp,false,Pass_HighDM_JESUp,false,nb_JESUp,mtb_JESUp,ptb_JESUp,met_JESUp,nSV_JESUp,njets_JESUp,ISRpt_JESUp,HT_JESUp,ntop_res_JESUp,ntop_merge_JESUp,nw_JESUp);
             if(bin_num_JESUp != -1)
             {
                 topw_sf = 1;
@@ -1594,7 +1602,7 @@ int main(int argc, char* argv[])
             //bin_num_JESDown = UBv4_highdm(mtb_JESDown,njets_JESDown,nb_JESDown,ntop_merge_JESDown,nw_JESDown,ntop_res_JESDown,HT_JESDown,met_JESDown);
             //bin_num_JESDown = nCRUnitHighDM;
             //bin_num_JESDown = getsearchbin.getUnitNumHighDM("unitCRNum",mtb_JESDown,njets_JESDown,nb_JESDown,ntop_merge_JESDown,nw_JESDown,ntop_res_JESDown,HT_JESDown,met_JESDown);
-            bin_num_JESDown = lepCRunit(Pass_Baseline_JESDown,false,Pass_LLCR_JESDown,false,Pass_HighDM_JESDown,Pass_LowDM_JESDown,nb_JESDown,mtb_JESDown,ptb_JESDown,met_JESDown,nSV_JESDown,njets_JESDown,ISRpt_JESDown,HT_JESDown,ntop_res_JESDown,ntop_merge_JESDown,nw_JESDown);
+            bin_num_JESDown = lepCRunit(Pass_Baseline_JESDown,false,Pass_LLCR_JESDown,false,Pass_HighDM_JESDown,false,nb_JESDown,mtb_JESDown,ptb_JESDown,met_JESDown,nSV_JESDown,njets_JESDown,ISRpt_JESDown,HT_JESDown,ntop_res_JESDown,ntop_merge_JESDown,nw_JESDown);
             if(bin_num_JESDown != -1)
             {
                 topw_sf = 1;
@@ -1610,7 +1618,7 @@ int main(int argc, char* argv[])
             //bin_num_METUnClustUp = UBv4_highdm(mtb_METUnClustUp,njets,nb,ntop_merge,nw,ntop_res,HT,met_METUnClustUp);
             //bin_num_METUnClustUp = nCRUnitHighDM;
             //bin_num_METUnClustUp = getsearchbin.getUnitNumHighDM("unitCRNum",mtb_METUnClustUp,njets,nb,ntop_merge,nw,ntop_res,HT,met_METUnClustUp);
-            bin_num_METUnClustUp = lepCRunit(Pass_Baseline_METUnClustUp,false,Pass_LLCR_METUnClustUp,false,Pass_HighDM_METUnClustUp,Pass_LowDM_METUnClustUp,nb,mtb_METUnClustUp,ptb,met_METUnClustUp,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METUnClustUp = lepCRunit(Pass_Baseline_METUnClustUp,false,Pass_LLCR_METUnClustUp,false,Pass_HighDM_METUnClustUp,false,nb,mtb_METUnClustUp,ptb,met_METUnClustUp,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METUnClustUp != -1)
             {
                 topw_sf = 1;
@@ -1626,7 +1634,7 @@ int main(int argc, char* argv[])
             //bin_num_METUnClustDown = UBv4_highdm(mtb_METUnClustDown,njets,nb,ntop_merge,nw,ntop_res,HT,met_METUnClustDown);
             //bin_num_METUnClustDown = nCRUnitHighDM;
             //bin_num_METUnClustDown = getsearchbin.getUnitNumHighDM("unitCRNum",mtb_METUnClustDown,njets,nb,ntop_merge,nw,ntop_res,HT,met_METUnClustDown);
-            bin_num_METUnClustDown = lepCRunit(Pass_Baseline_METUnClustDown,false,Pass_LLCR_METUnClustDown,false,Pass_HighDM_METUnClustDown,Pass_LowDM_METUnClustDown,nb,mtb_METUnClustDown,ptb,met_METUnClustDown,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METUnClustDown = lepCRunit(Pass_Baseline_METUnClustDown,false,Pass_LLCR_METUnClustDown,false,Pass_HighDM_METUnClustDown,false,nb,mtb_METUnClustDown,ptb,met_METUnClustDown,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METUnClustDown != -1)
             {
                 topw_sf = 1;
@@ -1640,7 +1648,7 @@ int main(int argc, char* argv[])
         if(Unit_highdm_METuncUp)
         {
             //bin_num_METunc_up = getsearchbin.getUnitNumHighDM("unitCRNum",mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_up);
-            bin_num_METunc_up = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_up = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,Pass_HighDM,false,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_up != -1)
             {
                 topw_sf = 1;
@@ -1654,7 +1662,7 @@ int main(int argc, char* argv[])
         if(Unit_highdm_METuncDown)
         {
             //bin_num_METunc_down = getsearchbin.getUnitNumHighDM("unitCRNum",mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_down);
-            bin_num_METunc_down = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,Pass_HighDM,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_down = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,Pass_HighDM,false,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_down != -1)
             {
                 topw_sf = 1;
@@ -1662,6 +1670,282 @@ int main(int argc, char* argv[])
                 if(ntop_res != 0) topw_sf *= ResTop_SF;
                 if(nw != 0) topw_sf *= W_SF;
                 h_ub_METunc_down->Fill(bin_num_METunc_down,SF*highDMevtWeight * topw_sf);
+                eff_h->Fill(3.,sign);
+            }
+        }
+
+        //QCD CR
+        //int QCDCRunit(bool Pass_Baseline, bool Pass_QCDCR, bool Pass_LepCR, bool Pass_PhoCR, bool HighDM, bool LowDM, int nb, float mtb, float ptb, float MET, int nSoftB, int njets, float ISRpt, float HT, int nres, int ntop, int nw);
+        bool QCD_lowdm = Pass_QCDCR && Pass_LowDM && (S_met > 10);
+        //bool QCD_highdm = Pass_QCDCR && Pass_HighDM && Pass_dPhiMETHighDM;
+        bool QCD_highdm = Pass_QCDCR && Pass_HighDM;
+        bool QCD_lowdm_JESUp = Pass_QCDCR_JESUp && Pass_LowDM_JESUp && (S_met_JESUp > 10);
+        bool QCD_lowdm_JESDown = Pass_QCDCR_JESDown && Pass_LowDM_JESDown && (S_met_JESDown > 10);
+        //bool QCD_highdm_JESUp = Pass_QCDCR_JESUp && Pass_HighDM_JESUp && Pass_dPhiMETHighDM_JESUp;
+        //bool QCD_highdm_JESDown = Pass_QCDCR_JESDown && Pass_HighDM_JESDown && Pass_dPhiMETHighDM_JESDown;
+        bool QCD_highdm_JESUp = Pass_QCDCR_JESUp && Pass_HighDM_JESUp;
+        bool QCD_highdm_JESDown = Pass_QCDCR_JESDown && Pass_HighDM_JESDown;
+        bool QCD_lowdm_METUnClustUp = Pass_QCDCR_METUnClustUp && Pass_LowDM_METUnClustUp && (S_met_METUnClustUp > 10);
+        bool QCD_lowdm_METUnClustDown = Pass_QCDCR_METUnClustDown && Pass_LowDM_METUnClustDown && (S_met_METUnClustDown > 10);
+        //bool QCD_highdm_METUnClustUp = Pass_QCDCR_METUnClustUp && Pass_HighDM_METUnClustUp && Pass_dPhiMETHighDM_METUnClustUp;
+        //bool QCD_highdm_METUnClustDown = Pass_QCDCR_METUnClustDown && Pass_HighDM_METUnClustDown && Pass_dPhiMETHighDM_METUnClustDown;
+        bool QCD_highdm_METUnClustUp = Pass_QCDCR_METUnClustUp && Pass_HighDM_METUnClustUp;
+        bool QCD_highdm_METUnClustDown = Pass_QCDCR_METUnClustDown && Pass_HighDM_METUnClustDown;
+        bool QCD_lowdm_METuncUp = QCD_lowdm;
+        bool QCD_lowdm_METuncDown = QCD_lowdm;
+        bool QCD_highdm_METuncUp = QCD_highdm;
+        bool QCD_highdm_METuncDown = QCD_highdm;
+
+        //int UB_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met)
+        if(QCD_lowdm)
+        {
+            //bin_num = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met);
+            //bin_num = nCRQCDLowDM;
+            //int QCDCRunit(bool Pass_Baseline, bool Pass_QCDCR, bool Pass_LepCR, bool Pass_PhoCR, bool HighDM, bool LowDM, int nb, float mtb, float ptb, float MET, int nSoftB, int njets, float ISRpt, float HT, int nres, int ntop, int nw)
+            bin_num = QCDCRunit(Pass_Baseline,Pass_QCDCR,false,false,false,Pass_LowDM,nb,mtb,ptb,met,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            if(bin_num != -1)
+            {
+                //std::cout << "Low DM UB num: " << bin_num << std::endl;
+                h_qb->Fill(bin_num,SF*lowDMevtWeight);
+                h_qb_bsf_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up / B_SF);
+                h_qb_bsf_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Down / B_SF);
+                h_qb_trig_eff_up->Fill(bin_num, SF * lowDMevtWeight * trigger_eff_up / trigger_eff);
+                h_qb_trig_eff_down->Fill(bin_num, SF * lowDMevtWeight * trigger_eff_down / trigger_eff);
+                h_qb_puWeight_up->Fill(bin_num, SF * lowDMevtWeight * puWeightUp / puWeight);
+                h_qb_puWeight_down->Fill(bin_num, SF * lowDMevtWeight * puWeightDown / puWeight);
+                h_qb_PFWeight_up->Fill(bin_num, SF * lowDMevtWeight * PrefireWeightUp / PrefireWeight);
+                h_qb_PFWeight_down->Fill(bin_num, SF * lowDMevtWeight * PrefireWeightDown / PrefireWeight);
+                h_qb_pdfWeight_up->Fill(bin_num, SF * lowDMevtWeight * pdfWeight_Up);
+                h_qb_pdfWeight_down->Fill(bin_num, SF * lowDMevtWeight * pdfWeight_Down);
+                h_qb_ivfunc_up->Fill(bin_num, SF * lowDMevtWeight * SB_SF_up / SB_SF);
+                h_qb_ivfunc_down->Fill(bin_num, SF * lowDMevtWeight * SB_SF_down / SB_SF);
+                h_qb_eff_e_up->Fill(bin_num, SF * lowDMevtWeight * Electron_VetoSF_up / Electron_VetoSF);
+                h_qb_eff_e_down->Fill(bin_num, SF * lowDMevtWeight * Electron_VetoSF_down / Electron_VetoSF);
+                h_qb_err_mu_up->Fill(bin_num, SF * lowDMevtWeight * Muon_MediumSF_up / Muon_MediumSF);
+                h_qb_err_mu_down->Fill(bin_num, SF * lowDMevtWeight * Muon_MediumSF_down / Muon_MediumSF);
+                h_qb_eff_tau_up->Fill(bin_num, SF * lowDMevtWeight * Tau_MediumSF_Up / Tau_MediumSF);
+                h_qb_eff_tau_down->Fill(bin_num, SF * lowDMevtWeight * Tau_MediumSF_Down / Tau_MediumSF);
+                h_qb_eff_wtag_up->Fill(bin_num, SF * lowDMevtWeight * W_SF_up / W_SF);
+                h_qb_eff_wtag_down->Fill(bin_num, SF * lowDMevtWeight * W_SF_down / W_SF);
+                h_qb_eff_toptag_up->Fill(bin_num, SF * lowDMevtWeight * MergedTop_SF_up / MergedTop_SF);
+                h_qb_eff_toptag_down->Fill(bin_num, SF * lowDMevtWeight * MergedTop_SF_down / MergedTop_SF);
+                h_qb_ISRWeight_up->Fill(bin_num, SF * lowDMevtWeight * ISRWeight_Up / ISRWeight);
+                h_qb_ISRWeight_down->Fill(bin_num, SF * lowDMevtWeight * ISRWeight_Down / ISRWeight);
+                h_qb_fastSF_up->Fill(bin_num, SF * lowDMevtWeight * fastSF_up / fastSF);
+                h_qb_fastSF_down->Fill(bin_num, SF * lowDMevtWeight * fastSF_down / fastSF);
+                h_qb_eff_restoptag_up->Fill(bin_num, SF * lowDMevtWeight * ResTop_SF_up / ResTop_SF);
+                h_qb_eff_restoptag_down->Fill(bin_num, SF * lowDMevtWeight * ResTop_SF_down / ResTop_SF);
+                eff_h->Fill(1.,sign);
+            }
+        }
+        if(QCD_lowdm_JESUp)
+        {
+            //bin_num_JESUp = UB_lowdm(njets_JESUp,nb_JESUp,nSV_JESUp,ISRpt_JESUp,ptb_JESUp,met_JESUp);
+            //bin_num_JESUp = nCRQCDLowDM;
+            //bin_num_JESUp = getsearchbin.getQCDNumLowDM("unitCRNum",njets_JESUp,nb_JESUp,nSV_JESUp,ISRpt_JESUp,ptb_JESUp,met_JESUp);
+            bin_num_JESUp = QCDCRunit(Pass_Baseline_JESUp,Pass_QCDCR_JESUp,false,false,false,Pass_LowDM_JESUp,nb_JESUp,mtb_JESUp,ptb_JESUp,met_JESUp,nSV_JESUp,njets_JESUp,ISRpt_JESUp,HT_JESUp,ntop_res_JESUp,ntop_merge_JESUp,nw_JESUp);
+            if(bin_num_JESUp != -1)
+            {
+                h_qb_JES_up->Fill(bin_num_JESUp,SF*lowDMevtWeight);
+                eff_h->Fill(2.,sign);
+            }
+        }
+        if(QCD_lowdm_JESDown)
+        {
+            //bin_num_JESDown = UB_lowdm(njets_JESDown,nb_JESDown,nSV_JESDown,ISRpt_JESDown,ptb_JESDown,met_JESDown);
+            //bin_num_JESDown = nCRQCDLowDM;
+            //bin_num_JESDown = getsearchbin.getQCDNumLowDM("unitCRNum",njets_JESDown,nb_JESDown,nSV_JESDown,ISRpt_JESDown,ptb_JESDown,met_JESDown);
+            bin_num_JESDown = QCDCRunit(Pass_Baseline_JESDown,Pass_QCDCR_JESDown,false,false,false,Pass_LowDM_JESDown,nb_JESDown,mtb_JESDown,ptb_JESDown,met_JESDown,nSV_JESDown,njets_JESDown,ISRpt_JESDown,HT_JESDown,ntop_res_JESDown,ntop_merge_JESDown,nw_JESDown);
+            if(bin_num_JESDown != -1)
+            {
+                h_qb_JES_down->Fill(bin_num_JESDown,SF*lowDMevtWeight);
+                eff_h->Fill(3.,sign);
+            }
+        }
+        if(QCD_lowdm_METUnClustUp)
+        {
+            //bin_num_METUnClustUp = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustUp);
+            //bin_num_METUnClustUp = nCRQCDLowDM;
+            //bin_num_METUnClustUp = getsearchbin.getQCDNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,met_METUnClustUp);
+            bin_num_METUnClustUp = QCDCRunit(Pass_Baseline_METUnClustUp,Pass_QCDCR_METUnClustUp,false,false,false,Pass_LowDM_METUnClustUp,nb,mtb_METUnClustUp,ptb,met_METUnClustUp,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            if(bin_num_METUnClustUp != -1)
+            {
+                h_qb_METUnClust_up->Fill(bin_num_METUnClustUp,SF*lowDMevtWeight);
+                eff_h->Fill(2.,sign);
+            }
+        }
+        if(QCD_lowdm_METUnClustDown)
+        {
+            //bin_num_METUnClustDown = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustDown);
+            //bin_num_METUnClustDown = nCRQCDLowDM;
+            //bin_num_METUnClustDown = getsearchbin.getQCDNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,met_METUnClustDown);
+            bin_num_METUnClustDown = QCDCRunit(Pass_Baseline_METUnClustDown,Pass_QCDCR_METUnClustDown,false,false,false,Pass_LowDM_METUnClustDown,nb,mtb_METUnClustDown,ptb,met_METUnClustDown,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            if(bin_num_METUnClustDown != -1)
+            {
+                h_qb_METUnClust_down->Fill(bin_num_METUnClustDown,SF*lowDMevtWeight);
+                eff_h->Fill(3.,sign);
+            }
+        }
+        if(QCD_lowdm_METuncUp)
+        {
+            //bin_num_METUnClustUp = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustUp);
+            //bin_num_METUnClustUp = nCRQCDLowDM;
+            //bin_num_METunc_up = getsearchbin.getQCDNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,METunc_up);
+            bin_num_METunc_up = QCDCRunit(Pass_Baseline,Pass_QCDCR,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            if(bin_num_METunc_up != -1)
+            {
+                h_qb_METunc_up->Fill(bin_num_METunc_up,SF*lowDMevtWeight);
+                eff_h->Fill(2.,sign);
+            }
+        }
+        if(QCD_lowdm_METuncDown)
+        {
+            //bin_num_METUnClustDown = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustDown);
+            //bin_num_METUnClustDown = nCRQCDLowDM;
+            //bin_num_METunc_down = getsearchbin.getQCDNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,METunc_down);
+            bin_num_METunc_down = QCDCRunit(Pass_Baseline,Pass_QCDCR,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            if(bin_num_METunc_down != -1)
+            {
+                h_qb_METunc_down->Fill(bin_num_METunc_down,SF*lowDMevtWeight);
+                eff_h->Fill(3.,sign);
+            }
+        }
+
+        //int UBv4_highdm(float mtb, int njets, int nb, int ntop, int nw, int nres, float ht, float met)
+        if(QCD_highdm)
+        {
+            //bin_num = UBv4_highdm(mtb,njets,nb,ntop_merge,nw,ntop_res,HT,met);
+            //bin_num = nCRQCDHighDM;
+            bin_num = QCDCRunit(Pass_Baseline,Pass_QCDCR,false,false,Pass_HighDM,false,nb,mtb,ptb,met,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            if(bin_num != -1)
+            {
+                //std::cout << "High DM UB num: " << bin_num << std::endl;
+                topw_sf = 1;
+                if(ntop_merge != 0) topw_sf *= MergedTop_SF;
+                if(ntop_res != 0) topw_sf *= ResTop_SF;
+                if(nw != 0) topw_sf *= W_SF;
+                h_qb->Fill(bin_num,SF*highDMevtWeight * topw_sf);
+                h_qb_bsf_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Up / B_SF);
+                h_qb_bsf_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Down / B_SF);
+                h_qb_trig_eff_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * trigger_eff_up / trigger_eff);
+                h_qb_trig_eff_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * trigger_eff_down / trigger_eff);
+                h_qb_puWeight_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * puWeightUp / puWeight);
+                h_qb_puWeight_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * puWeightDown / puWeight);
+                h_qb_PFWeight_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * PrefireWeightUp / PrefireWeight);
+                h_qb_PFWeight_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * PrefireWeightDown / PrefireWeight);
+                h_qb_pdfWeight_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * pdfWeight_Up);
+                h_qb_pdfWeight_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * pdfWeight_Down);
+                h_qb_ivfunc_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * SB_SF_up / SB_SF);
+                h_qb_ivfunc_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * SB_SF_down / SB_SF);
+                h_qb_eff_e_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Electron_VetoSF_up / Electron_VetoSF);
+                h_qb_eff_e_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Electron_VetoSF_down / Electron_VetoSF);
+                h_qb_err_mu_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Muon_MediumSF_up / Muon_MediumSF);
+                h_qb_err_mu_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Muon_MediumSF_down / Muon_MediumSF);
+                h_qb_eff_tau_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Tau_MediumSF_Up / Tau_MediumSF);
+                h_qb_eff_tau_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Tau_MediumSF_Down / Tau_MediumSF);
+                h_qb_eff_wtag_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * W_SF_up / W_SF);
+                h_qb_eff_wtag_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * W_SF_down / W_SF);
+                h_qb_eff_toptag_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * MergedTop_SF_up / MergedTop_SF);
+                h_qb_eff_toptag_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * MergedTop_SF_down / MergedTop_SF);
+                h_qb_ISRWeight_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * ISRWeight_Up / ISRWeight);
+                h_qb_ISRWeight_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * ISRWeight_Down / ISRWeight);
+                h_qb_fastSF_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * fastSF_up / fastSF);
+                h_qb_fastSF_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * fastSF_down / fastSF);
+                h_qb_eff_restoptag_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * ResTop_SF_up / ResTop_SF);
+                h_qb_eff_restoptag_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * ResTop_SF_down / ResTop_SF);
+                eff_h->Fill(1.,sign);
+            }
+        }
+        if(QCD_highdm_JESUp)
+        {
+            //bin_num_JESUp = UBv4_highdm(mtb_JESUp,njets_JESUp,nb_JESUp,ntop_merge_JESUp,nw_JESUp,ntop_res_JESUp,HT_JESUp,met_JESUp);
+            //TODO: need to rerun getQCDNumHighDM with other vars
+            //bin_num_JESUp = nCRQCDHighDM;
+            //bin_num_JESUp = getsearchbin.getQCDNumHighDM("unitCRNum",mtb_JESUp,njets_JESUp,nb_JESUp,ntop_merge_JESUp,nw_JESUp,ntop_res_JESUp,HT_JESUp,met_JESUp);
+            bin_num_JESUp = QCDCRunit(Pass_Baseline_JESUp,Pass_QCDCR_JESUp,false,false,Pass_HighDM_JESUp,false,nb_JESUp,mtb_JESUp,ptb_JESUp,met_JESUp,nSV_JESUp,njets_JESUp,ISRpt_JESUp,HT_JESUp,ntop_res_JESUp,ntop_merge_JESUp,nw_JESUp);
+            if(bin_num_JESUp != -1)
+            {
+                topw_sf = 1;
+                if(ntop_merge_JESUp != 0) topw_sf *= MergedTop_SF;
+                if(ntop_res_JESUp != 0) topw_sf *= ResTop_SF;
+                if(nw_JESUp != 0) topw_sf *= W_SF;
+                h_qb_JES_up->Fill(bin_num_JESUp,SF*highDMevtWeight * topw_sf);
+                eff_h->Fill(2.,sign);
+            }
+        }
+        if(QCD_highdm_JESDown)
+        {
+            //bin_num_JESDown = UBv4_highdm(mtb_JESDown,njets_JESDown,nb_JESDown,ntop_merge_JESDown,nw_JESDown,ntop_res_JESDown,HT_JESDown,met_JESDown);
+            //bin_num_JESDown = nCRQCDHighDM;
+            //bin_num_JESDown = getsearchbin.getQCDNumHighDM("unitCRNum",mtb_JESDown,njets_JESDown,nb_JESDown,ntop_merge_JESDown,nw_JESDown,ntop_res_JESDown,HT_JESDown,met_JESDown);
+            bin_num_JESDown = QCDCRunit(Pass_Baseline_JESDown,Pass_QCDCR_JESDown,false,false,Pass_HighDM_JESDown,false,nb_JESDown,mtb_JESDown,ptb_JESDown,met_JESDown,nSV_JESDown,njets_JESDown,ISRpt_JESDown,HT_JESDown,ntop_res_JESDown,ntop_merge_JESDown,nw_JESDown);
+            if(bin_num_JESDown != -1)
+            {
+                topw_sf = 1;
+                if(ntop_merge_JESDown != 0) topw_sf *= MergedTop_SF;
+                if(ntop_res_JESDown != 0) topw_sf *= ResTop_SF;
+                if(nw_JESDown != 0) topw_sf *= W_SF;
+                h_qb_JES_down->Fill(bin_num_JESDown,SF*highDMevtWeight * topw_sf);
+                eff_h->Fill(3.,sign);
+            }
+        }
+        if(QCD_highdm_METUnClustUp)
+        {
+            //bin_num_METUnClustUp = UBv4_highdm(mtb_METUnClustUp,njets,nb,ntop_merge,nw,ntop_res,HT,met_METUnClustUp);
+            //bin_num_METUnClustUp = nCRQCDHighDM;
+            //bin_num_METUnClustUp = getsearchbin.getQCDNumHighDM("unitCRNum",mtb_METUnClustUp,njets,nb,ntop_merge,nw,ntop_res,HT,met_METUnClustUp);
+            bin_num_METUnClustUp = QCDCRunit(Pass_Baseline_METUnClustUp,Pass_QCDCR_METUnClustUp,false,false,Pass_HighDM_METUnClustUp,false,nb,mtb_METUnClustUp,ptb,met_METUnClustUp,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            if(bin_num_METUnClustUp != -1)
+            {
+                topw_sf = 1;
+                if(ntop_merge != 0) topw_sf *= MergedTop_SF;
+                if(ntop_res != 0) topw_sf *= ResTop_SF;
+                if(nw != 0) topw_sf *= W_SF;
+                h_qb_METUnClust_up->Fill(bin_num_METUnClustUp,SF*highDMevtWeight * topw_sf);
+                eff_h->Fill(2.,sign);
+            }
+        }
+        if(QCD_highdm_METUnClustDown)
+        {
+            //bin_num_METUnClustDown = UBv4_highdm(mtb_METUnClustDown,njets,nb,ntop_merge,nw,ntop_res,HT,met_METUnClustDown);
+            //bin_num_METUnClustDown = nCRQCDHighDM;
+            //bin_num_METUnClustDown = getsearchbin.getQCDNumHighDM("unitCRNum",mtb_METUnClustDown,njets,nb,ntop_merge,nw,ntop_res,HT,met_METUnClustDown);
+            bin_num_METUnClustDown = QCDCRunit(Pass_Baseline_METUnClustDown,Pass_QCDCR_METUnClustDown,false,false,Pass_HighDM_METUnClustDown,false,nb,mtb_METUnClustDown,ptb,met_METUnClustDown,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            if(bin_num_METUnClustDown != -1)
+            {
+                topw_sf = 1;
+                if(ntop_merge != 0) topw_sf *= MergedTop_SF;
+                if(ntop_res != 0) topw_sf *= ResTop_SF;
+                if(nw != 0) topw_sf *= W_SF;
+                h_qb_METUnClust_down->Fill(bin_num_METUnClustDown,SF*highDMevtWeight * topw_sf);
+                eff_h->Fill(3.,sign);
+            }
+        }
+        if(QCD_highdm_METuncUp)
+        {
+            //bin_num_METunc_up = getsearchbin.getQCDNumHighDM("unitCRNum",mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_up);
+            bin_num_METunc_up = QCDCRunit(Pass_Baseline,Pass_QCDCR,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            if(bin_num_METunc_up != -1)
+            {
+                topw_sf = 1;
+                if(ntop_merge != 0) topw_sf *= MergedTop_SF;
+                if(ntop_res != 0) topw_sf *= ResTop_SF;
+                if(nw != 0) topw_sf *= W_SF;
+                h_qb_METunc_up->Fill(bin_num_METunc_up,SF*highDMevtWeight * topw_sf);
+                eff_h->Fill(3.,sign);
+            }
+        }
+        if(QCD_highdm_METuncDown)
+        {
+            //bin_num_METunc_down = getsearchbin.getQCDNumHighDM("unitCRNum",mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_down);
+            bin_num_METunc_down = QCDCRunit(Pass_Baseline,Pass_QCDCR,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            if(bin_num_METunc_down != -1)
+            {
+                topw_sf = 1;
+                if(ntop_merge != 0) topw_sf *= MergedTop_SF;
+                if(ntop_res != 0) topw_sf *= ResTop_SF;
+                if(nw != 0) topw_sf *= W_SF;
+                h_qb_METunc_down->Fill(bin_num_METunc_down,SF*highDMevtWeight * topw_sf);
                 eff_h->Fill(3.,sign);
             }
         }
@@ -1700,120 +1984,160 @@ int main(int argc, char* argv[])
     int mass = std::stoi(str_mass);
     //std::cout << mass << std::endl;
 
+    float genfiltereff = 1;
+    if(denominator_genfiltereff != 0) genfiltereff = numerator_genfiltereff / denominator_genfiltereff;
+    else std::cout << "Error: no events found. denominator_genfiltereff = 0." << std::endl;
+
     TFile *infile = new TFile("xSec.root");
     TH1F *xsection = (TH1F*) infile->Get(histname);
     float xs = xsection->GetBinContent(xsection->GetXaxis()->FindBin(mass));
 
     std::cout << "Era: " << era << "\tLumi: " << lumi << "\tMass: " << mass << "\txs: " << xs << std::endl;
 
-    h_njets_low_middphi->Scale(lumi * xs * 1000 / all_events);
-    h_njets_high_middphi->Scale(lumi * xs * 1000 / all_events);
-    h_vb->Scale(lumi * xs * 1000 / all_events);
-    h_vb_bsf_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_bsf_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_trig_eff_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_trig_eff_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_puWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_puWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_PFWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_PFWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_pdfWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_pdfWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_JES_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_JES_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_METUnClust_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_METUnClust_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_ivfunc_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_ivfunc_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_eff_e_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_eff_e_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_err_mu_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_err_mu_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_eff_tau_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_eff_tau_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_ISRWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_ISRWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_fastSF_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_fastSF_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_METunc_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_METunc_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_eff_wtag_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_eff_wtag_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_eff_toptag_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_eff_toptag_down->Scale(lumi * xs * 1000 / all_events);
-    h_vb_eff_restoptag_up->Scale(lumi * xs * 1000 / all_events);
-    h_vb_eff_restoptag_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb->Scale(lumi * xs * 1000 / all_events);
-    h_sb_bsf_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_bsf_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_trig_eff_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_trig_eff_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_puWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_puWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_PFWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_PFWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_pdfWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_pdfWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_JES_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_JES_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_METUnClust_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_METUnClust_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_ivfunc_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_ivfunc_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_eff_e_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_eff_e_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_err_mu_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_err_mu_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_eff_tau_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_eff_tau_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_ISRWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_ISRWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_fastSF_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_fastSF_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_METunc_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_METunc_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_eff_wtag_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_eff_wtag_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_eff_toptag_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_eff_toptag_down->Scale(lumi * xs * 1000 / all_events);
-    h_sb_eff_restoptag_up->Scale(lumi * xs * 1000 / all_events);
-    h_sb_eff_restoptag_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub->Scale(lumi * xs * 1000 / all_events);
-    h_ub_bsf_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_bsf_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_trig_eff_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_trig_eff_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_puWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_puWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_PFWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_PFWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_pdfWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_pdfWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_JES_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_JES_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_METUnClust_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_METUnClust_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_ivfunc_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_ivfunc_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_eff_e_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_eff_e_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_err_mu_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_err_mu_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_eff_tau_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_eff_tau_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_ISRWeight_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_ISRWeight_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_fastSF_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_fastSF_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_METunc_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_METunc_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_eff_wtag_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_eff_wtag_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_eff_toptag_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_eff_toptag_down->Scale(lumi * xs * 1000 / all_events);
-    h_ub_eff_restoptag_up->Scale(lumi * xs * 1000 / all_events);
-    h_ub_eff_restoptag_down->Scale(lumi * xs * 1000 / all_events);
+    h_njets_low_middphi->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_njets_high_middphi->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_bsf_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_bsf_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_trig_eff_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_trig_eff_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_puWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_puWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_PFWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_PFWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_pdfWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_pdfWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_JES_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_JES_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_METUnClust_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_METUnClust_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_ivfunc_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_ivfunc_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_eff_e_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_eff_e_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_err_mu_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_err_mu_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_eff_tau_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_eff_tau_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_ISRWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_ISRWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_fastSF_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_fastSF_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_METunc_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_METunc_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_eff_wtag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_eff_wtag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_eff_toptag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_eff_toptag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_eff_restoptag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_eff_restoptag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_bsf_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_bsf_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_trig_eff_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_trig_eff_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_puWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_puWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_PFWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_PFWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_pdfWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_pdfWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_JES_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_JES_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_METUnClust_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_METUnClust_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_ivfunc_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_ivfunc_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_eff_e_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_eff_e_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_err_mu_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_err_mu_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_eff_tau_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_eff_tau_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_ISRWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_ISRWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_fastSF_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_fastSF_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_METunc_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_METunc_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_eff_wtag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_eff_wtag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_eff_toptag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_eff_toptag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_eff_restoptag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_eff_restoptag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_bsf_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_bsf_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_trig_eff_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_trig_eff_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_puWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_puWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_PFWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_PFWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_pdfWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_pdfWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_JES_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_JES_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_METUnClust_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_METUnClust_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_ivfunc_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_ivfunc_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_eff_e_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_eff_e_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_err_mu_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_err_mu_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_eff_tau_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_eff_tau_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_ISRWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_ISRWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_fastSF_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_fastSF_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_METunc_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_METunc_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_eff_wtag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_eff_wtag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_eff_toptag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_eff_toptag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_eff_restoptag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_eff_restoptag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_bsf_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_bsf_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_trig_eff_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_trig_eff_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_puWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_puWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_PFWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_PFWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_pdfWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_pdfWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_JES_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_JES_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_METUnClust_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_METUnClust_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_ivfunc_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_ivfunc_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_eff_e_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_eff_e_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_err_mu_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_err_mu_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_eff_tau_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_eff_tau_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_ISRWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_ISRWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_fastSF_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_fastSF_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_METunc_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_METunc_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_eff_wtag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_eff_wtag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_eff_toptag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_eff_toptag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_eff_restoptag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_eff_restoptag_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
 
+    TString outputfile = samplename + ".root";
     TFile out_file(outputfile,"RECREATE");
     out_file.mkdir("Baseline_Only");
     out_file.cd("Baseline_Only");
@@ -1926,9 +2250,293 @@ int main(int argc, char* argv[])
     h_ub_eff_toptag_down->Write();
     h_ub_eff_restoptag_up->Write();
     h_ub_eff_restoptag_down->Write();
+    h_qb->Write();
+    h_qb_bsf_up->Write();
+    h_qb_bsf_down->Write();
+    h_qb_trig_eff_up->Write();
+    h_qb_trig_eff_down->Write();
+    h_qb_puWeight_up->Write();
+    h_qb_puWeight_down->Write();
+    h_qb_PFWeight_up->Write();
+    h_qb_PFWeight_down->Write();
+    h_qb_pdfWeight_up->Write();
+    h_qb_pdfWeight_down->Write();
+    h_qb_JES_up->Write();
+    h_qb_JES_down->Write();
+    h_qb_METUnClust_up->Write();
+    h_qb_METUnClust_down->Write();
+    h_qb_ivfunc_up->Write();
+    h_qb_ivfunc_down->Write();
+    h_qb_eff_e_up->Write();
+    h_qb_eff_e_down->Write();
+    h_qb_err_mu_up->Write();
+    h_qb_err_mu_down->Write();
+    h_qb_eff_tau_up->Write();
+    h_qb_eff_tau_down->Write();
+    h_qb_ISRWeight_up->Write();
+    h_qb_ISRWeight_down->Write();
+    h_qb_fastSF_up->Write();
+    h_qb_fastSF_down->Write();
+    h_qb_METunc_up->Write();
+    h_qb_METunc_down->Write();
+    h_qb_eff_wtag_up->Write();
+    h_qb_eff_wtag_down->Write();
+    h_qb_eff_toptag_up->Write();
+    h_qb_eff_toptag_down->Write();
+    h_qb_eff_restoptag_up->Write();
+    h_qb_eff_restoptag_down->Write();
     out_file.Close();
 
+    delete eff_h;
+    delete h_njets_low_middphi;
+    delete h_njets_high_middphi;
+    delete h_vb;
+    delete h_vb_bsf_up;
+    delete h_vb_bsf_down;
+    delete h_vb_trig_eff_up;
+    delete h_vb_trig_eff_down;
+    delete h_vb_puWeight_up;
+    delete h_vb_puWeight_down;
+    delete h_vb_PFWeight_up;
+    delete h_vb_PFWeight_down;
+    delete h_vb_pdfWeight_up;
+    delete h_vb_pdfWeight_down;
+    delete h_vb_JES_up;
+    delete h_vb_JES_down;
+    delete h_vb_METUnClust_up;
+    delete h_vb_METUnClust_down;
+    delete h_vb_ivfunc_up;
+    delete h_vb_ivfunc_down;
+    delete h_vb_eff_e_up;
+    delete h_vb_eff_e_down;
+    delete h_vb_err_mu_up;
+    delete h_vb_err_mu_down;
+    delete h_vb_eff_tau_up;
+    delete h_vb_eff_tau_down;
+    delete h_vb_ISRWeight_up;
+    delete h_vb_ISRWeight_down;
+    delete h_vb_fastSF_up;
+    delete h_vb_fastSF_down;
+    delete h_vb_METunc_up;
+    delete h_vb_METunc_down;
+    delete h_vb_eff_wtag_up;
+    delete h_vb_eff_wtag_down;
+    delete h_vb_eff_toptag_up;
+    delete h_vb_eff_toptag_down;
+    delete h_vb_eff_restoptag_up;
+    delete h_vb_eff_restoptag_down;
+    delete h_sb;
+    delete h_sb_bsf_up;
+    delete h_sb_bsf_down;
+    delete h_sb_trig_eff_up;
+    delete h_sb_trig_eff_down;
+    delete h_sb_puWeight_up;
+    delete h_sb_puWeight_down;
+    delete h_sb_PFWeight_up;
+    delete h_sb_PFWeight_down;
+    delete h_sb_pdfWeight_up;
+    delete h_sb_pdfWeight_down;
+    delete h_sb_JES_up;
+    delete h_sb_JES_down;
+    delete h_sb_METUnClust_up;
+    delete h_sb_METUnClust_down;
+    delete h_sb_ivfunc_up;
+    delete h_sb_ivfunc_down;
+    delete h_sb_eff_e_up;
+    delete h_sb_eff_e_down;
+    delete h_sb_err_mu_up;
+    delete h_sb_err_mu_down;
+    delete h_sb_eff_tau_up;
+    delete h_sb_eff_tau_down;
+    delete h_sb_ISRWeight_up;
+    delete h_sb_ISRWeight_down;
+    delete h_sb_fastSF_up;
+    delete h_sb_fastSF_down;
+    delete h_sb_METunc_up;
+    delete h_sb_METunc_down;
+    delete h_sb_eff_wtag_up;
+    delete h_sb_eff_wtag_down;
+    delete h_sb_eff_toptag_up;
+    delete h_sb_eff_toptag_down;
+    delete h_sb_eff_restoptag_up;
+    delete h_sb_eff_restoptag_down;
+    delete h_ub;
+    delete h_ub_bsf_up;
+    delete h_ub_bsf_down;
+    delete h_ub_trig_eff_up;
+    delete h_ub_trig_eff_down;
+    delete h_ub_puWeight_up;
+    delete h_ub_puWeight_down;
+    delete h_ub_PFWeight_up;
+    delete h_ub_PFWeight_down;
+    delete h_ub_pdfWeight_up;
+    delete h_ub_pdfWeight_down;
+    delete h_ub_JES_up;
+    delete h_ub_JES_down;
+    delete h_ub_METUnClust_up;
+    delete h_ub_METUnClust_down;
+    delete h_ub_ivfunc_up;
+    delete h_ub_ivfunc_down;
+    delete h_ub_eff_e_up;
+    delete h_ub_eff_e_down;
+    delete h_ub_err_mu_up;
+    delete h_ub_err_mu_down;
+    delete h_ub_eff_tau_up;
+    delete h_ub_eff_tau_down;
+    delete h_ub_ISRWeight_up;
+    delete h_ub_ISRWeight_down;
+    delete h_ub_fastSF_up;
+    delete h_ub_fastSF_down;
+    delete h_ub_METunc_up;
+    delete h_ub_METunc_down;
+    delete h_ub_eff_wtag_up;
+    delete h_ub_eff_wtag_down;
+    delete h_ub_eff_toptag_up;
+    delete h_ub_eff_toptag_down;
+    delete h_ub_eff_restoptag_up;
+    delete h_ub_eff_restoptag_down;
+    delete h_qb;
+    delete h_qb_bsf_up;
+    delete h_qb_bsf_down;
+    delete h_qb_trig_eff_up;
+    delete h_qb_trig_eff_down;
+    delete h_qb_puWeight_up;
+    delete h_qb_puWeight_down;
+    delete h_qb_PFWeight_up;
+    delete h_qb_PFWeight_down;
+    delete h_qb_pdfWeight_up;
+    delete h_qb_pdfWeight_down;
+    delete h_qb_JES_up;
+    delete h_qb_JES_down;
+    delete h_qb_METUnClust_up;
+    delete h_qb_METUnClust_down;
+    delete h_qb_ivfunc_up;
+    delete h_qb_ivfunc_down;
+    delete h_qb_eff_e_up;
+    delete h_qb_eff_e_down;
+    delete h_qb_err_mu_up;
+    delete h_qb_err_mu_down;
+    delete h_qb_eff_tau_up;
+    delete h_qb_eff_tau_down;
+    delete h_qb_ISRWeight_up;
+    delete h_qb_ISRWeight_down;
+    delete h_qb_fastSF_up;
+    delete h_qb_fastSF_down;
+    delete h_qb_METunc_up;
+    delete h_qb_METunc_down;
+    delete h_qb_eff_wtag_up;
+    delete h_qb_eff_wtag_down;
+    delete h_qb_eff_toptag_up;
+    delete h_qb_eff_toptag_down;
+    delete h_qb_eff_restoptag_up;
+    delete h_qb_eff_restoptag_down;
     return 0;
 
+}
+
+int main(int argc, char* argv[])
+{
+    //defaults
+    std::string era = "2018";
+    //float SF = 1.17; //for TTZToLLNuNu
+    float SF = 1.0; //for everything else
+    float SF_up = 1.0;
+    float SF_down = 1.0;
+    bool verbose = false;
+    int max_events = -1;
+    bool isData = false;
+    bool PeriodF = false;
+    bool PostHEM = false;
+    bool isSignal = true;
+
+    if (argc < 3)
+    {
+        std::cerr <<"Please give at least 2 arguments " << "File List " << "Name of output file" << std::endl;
+        return -1;
+    }
+    const char *inputfilelist = argv[1];
+    const char *unused        = argv[2];
+
+    int c;
+    while (1)
+    {
+        //int option_index = 3;
+        //required_argument: option takes an argument. Still optional to include.
+        //no_argument: option does not take an argument
+        static struct option long_options[] = {
+            {"era",         required_argument,  0,  'e'},
+            {"max_events",  required_argument,  0,  'm'},
+            {"isData",      no_argument,        0,  'd'},
+            {"isSignal",    no_argument,        0,  'S'},
+            {"PeriodF",     no_argument,        0,  'F'},
+            {"PostHEM",     no_argument,        0,  'H'},
+            {"verbose",     no_argument,        0,  'v'},
+        };
+        c = getopt_long(argc,argv,"e:m:dTSFHv",long_options,NULL);
+        if(c==-1) break;
+        switch (c)
+        {
+            case 'e':
+                era = optarg;
+                break;
+            case 'm':
+                max_events = std::stoi(optarg);
+                break;
+            case 'd':
+                isData = true;
+                break;
+            case 'S':
+                isSignal = true;
+                break;
+            case 'F':
+                PeriodF = true;
+                break;
+            case 'H':
+                PostHEM = true;
+                break;
+            case 'v':
+                verbose = true;
+                break;
+        }
+    }
+
+
+    std::cout << "Era: " << era << "\tSF: " << SF << "\tisSignal: " << isSignal << "\tisData: " << isData << "\tPeriodF: " << PeriodF << "\tPostHEM: " << PostHEM << "\tMax events: " << max_events << std::endl;
+
+    /*
+    TChain *ch = new TChain("Events");
+
+    std::string filename;
+    std::ifstream bigfile;
+    std::string samplename;
+
+    bigfile.open (inputfilelist);
+
+    if (bigfile.is_open())
+    {
+        while (getline(bigfile,filename))
+        {
+            std::cout << filename << std::endl;
+            ch->Add(filename.c_str());
+            samplename = filename.substr(filename.find("SMS_"),filename.find(".root")-filename.find("SMS_"));
+            if(samplename.find("/") != std::string::npos) samplename = samplename.substr(samplename.find("/") + 1);
+            std::cout << samplename << std::endl;
+        }
+        bigfile.close();
+    }
+    */
+    std::string filename;
+    std::ifstream bigfile;
+    bigfile.open (inputfilelist);
+    if (bigfile.is_open())
+    {
+        while (getline(bigfile,filename))
+        {
+            std::cout << filename << std::endl;
+            analyze(filename,era,max_events,isData,isSignal,PeriodF,PostHEM,SF,verbose);
+        }
+        bigfile.close();
+    }
+    return 0;
 }
 

@@ -43,12 +43,13 @@ int main(int argc, char* argv[])
     bool PeriodF = false;
     int max_events = -1;
     //int max_events = 30000; //Set to -1 to run over all events
-    bool multiMuTriggEff = false;
-    bool leadingMuPt = true;
+    bool multiMuTriggEff = true;
+    bool leadingMuPt = false;
     bool norm_cuts = true;
     bool loose_cuts = false;
     bool dryrun = false;
     bool noTrigEff = false;
+    bool leptoncleaned = true;
     //Even if false, there is a var h_norm_notrigwt
 
     if (argc < 3)
@@ -112,6 +113,8 @@ int main(int argc, char* argv[])
     float leptonpts[3] = {0,20,20};
     if(norm_cuts) leptonpts[0] = 40;
     if(loose_cuts) leptonpts[0] = 25;
+    std::string suffix = "";
+    if(leptoncleaned) suffix = "_drLeptonCleaned";
     std::cout << "Lepton pts: " << leptonpts[0] << leptonpts[1] << leptonpts[2] << std::endl;
     
     if (dryrun) return 0;
@@ -181,6 +184,8 @@ int main(int argc, char* argv[])
     auto *h_num_mu = new TH1F("h_num_mu","Number of muons",3,1,4);
     auto *h_num_mu_notrigwt = new TH1F("h_num_mu_notrigwt","Number of muons: no trigger weights",3,1,4);
     auto *h_num_mu_trimmed = new TH1F("h_num_mu_trimmed","Number of muons (trimmed bins)",3,1,4);
+    auto *h_num_mu_pt_eff = new TH1F("h_num_mu_pt_eff","Number of muons (pt eff)",3,1,4);
+    auto *h_num_mu_eta_eff = new TH1F("h_num_mu_eta_eff","Number of muons (eta eff)",3,1,4);
     auto *h_num_elec = new TH1F("h_num_elec","Number of electrons",3,0,3);
     auto *h_num_elec_notrigwt = new TH1F("h_num_elec_notrigwt","Number of electrons: no trigger weights",3,0,3);
     auto *h_mu_indices = new TH1F("h_mu_indices", "Frequency of pT-ordered muon index used to reconstruct Z", 4,-1,3);
@@ -188,6 +193,7 @@ int main(int argc, char* argv[])
     auto *h_norm_notrigwt = new TH1F("h_norm_notrigwt","TTZ Normalization: No Trigger Weight",4,61,141);
     auto *h_norm_trimmed = new TH1F("h_norm_trimmed","TTZ Normalization Exercise",4,61,141); //Looking into oddities in 2018 PreHEM
     auto *h_norm_pt_eff = new TH1F("h_norm_pt_eff","TTZ Normalization Exercise",4,61,141);
+    auto *h_norm_eta_eff = new TH1F("h_norm_eta_eff","TTZ Normalization Exercise",4,61,141);
     auto *h_norm_1mu = new TH1F("h_norm_1mu","TTZ Normalization Exercise: 1 muon",4,61,141);
     auto *h_norm_2mu = new TH1F("h_norm_2mu","TTZ Normalization Exercise: 2 muons",4,61,141);
     auto *h_norm_3mu = new TH1F("h_norm_3mu","TTZ Normalization Exercise: 3 muons",4,61,141);
@@ -234,21 +240,21 @@ int main(int argc, char* argv[])
         //eta[-3, -1.4], phi[-1.57, -0.87], pt > 20
         if(PostHEM && (era == "2018"))
         {
-            const auto& SAT_Pass_HEMVeto_drLeptonCleaned = tr.getVar<bool>("SAT_Pass_HEMVeto_drLeptonCleaned");
-            if(!SAT_Pass_HEMVeto_drLeptonCleaned) continue;
+            const auto& SAT_Pass_HEMVeto = tr.getVar<bool>("SAT_Pass_HEMVeto" + suffix);
+            if(!SAT_Pass_HEMVeto) continue;
         }
 
         //Event Filter
-        bool SAT_Pass_EventFilter = tr.getVar<bool>("SAT_Pass_EventFilter"); //drLeptonCleaned?
+        bool SAT_Pass_EventFilter = tr.getVar<bool>("SAT_Pass_EventFilter" + suffix); //drLeptonCleaned?
         if(!SAT_Pass_EventFilter) continue;
 
         //const auto& Jet_btag = tr.getVec<float>("Jet_btagCSVV2");
-        const auto& Jet_btag = tr.getVec<float>("Jet_btagDeepB_drLeptonCleaned");
-        //Choice of: Jet_btagStop0l_drLeptonCleaned Jet_btagDeepB_drLeptonCleaned Jet_btagCSVV2_drLeptonCleaned
+        const auto& Jet_btag = tr.getVec<float>("Jet_btagDeepB" + suffix);
+        //Choice of: Jet_btagStop0l Jet_btagDeepB Jet_btagCSVV2
         //const auto& Jet_btag = tr.getVec<float>("Jet_btagDeepB");
-        const auto& Jet_LV = tr.getVec<TLorentzVector>("JetTLV_drLeptonCleaned");
-        const auto& Jet_pt = tr.getVec<float>("Jet_pt_drLeptonCleaned");
-        const auto& Jet_eta = tr.getVec<float>("Jet_eta_drLeptonCleaned");
+        const auto& Jet_LV = tr.getVec<TLorentzVector>("JetTLV" + suffix);
+        const auto& Jet_pt = tr.getVec<float>("Jet_pt" + suffix);
+        const auto& Jet_eta = tr.getVec<float>("Jet_eta" + suffix);
 
         //NanoSUSY-tools uses DeepB for Stop0l_nbtags. Found in customize.h.
         std::map<std::string,float> DeepCSVMediumWP ={
@@ -333,9 +339,9 @@ int main(int argc, char* argv[])
         if (Data)
         {
             const auto& Pass_trigger_muon = tr.getVar<bool>("Pass_trigger_muon"); //Efficiencies calc'd by Hui, grabbed for weight below.
-            const auto& passDiMuTrigger = tr.getVar<bool>("passDiMuTrigger");
+            //const auto& passDiMuTrigger = tr.getVar<bool>("passDiMuTrigger");
             if(!Pass_trigger_muon && !loose_cuts) continue;
-            if(!passDiMuTrigger && loose_cuts) continue;
+            //if(!passDiMuTrigger && loose_cuts) continue;
         }
         cutflow_h->Fill(1);
         //cutflow_h->GetXaxis()->SetBinLabel(4,"Single Muon");
@@ -430,7 +436,7 @@ int main(int argc, char* argv[])
         const auto& met    = tr.getVar<float>("MET_pt");
         const auto& metphi = tr.getVar<float>("MET_phi");
         //const auto& ht     = tr.getVar<float>("Stop0l_HT");
-        const auto& ht     = tr.getVar<float>("HT_drLeptonCleaned");
+        const auto& ht     = tr.getVar<float>("HT" + suffix);
         if(met < 30) continue;
         //if(met < 40) continue;
         cutflow_h->Fill(6);
@@ -457,40 +463,60 @@ int main(int argc, char* argv[])
         //Find the weights
         float tot_lepSF = 1.0;
         float MuonTriggerEffPt = 1.0;
+        float MuonTriggerEffEta = 1.0;
         float LeadingMuTriggEffPt = 1.0;
         float LeadingMuTriggEffEta = 1.0;
         float tot_weight = 1.0;
         float pt_weight = 1.0;
+        float eta_weight = 1.0;
+        float multi_weight = 1.0;
+        float B_SF = 1.0;
+        float puWeight = 1.0;
+        float PrefireWeight = 1.0;
+        float mostweights = 1.0;
         //Already have cutMuSF.size() + cutElecSF.size() == 3 from earlier cut, so just loop over all leptons
         if(!Data)
         {
+            
+            //if(tr.getEvtNum() < 1000) std::cout << "Event Number: " << tr.getEvtNum() << "Muon SF: ";
             for(int i = 0; i < cutMuSF.size(); i++)
             {
+                //if(tr.getEvtNum() < 1000) std::cout << cutMuSF[i] << "\t";
                 tot_lepSF *= cutMuSF[i];
             }
+            //if(tr.getEvtNum() < 1000) std::cout << "\tElectron SF: ";
             for(int i = 0; i < cutElecSF.size(); i++)
             {
+                //if(tr.getEvtNum() < 1000) std::cout << cutElecSF[i] << "\t";
                 tot_lepSF *= cutElecSF[i];
             }
+            //if(tr.getEvtNum() < 1000) std::cout << std::endl;
 
-
-            tot_lepSF *= sign; //everything using a weight uses at least tot_lepSF
+            //Btag
+            B_SF = tr.getVar<float>("BTagWeight");
+            //PUWeight
+            if(era != "2017") puWeight = tr.getVar<float>("puWeight");
+            else if(!PeriodF) puWeight = tr.getVar<float>("17BtoEpuWeight");
+            else puWeight = tr.getVar<float>("17FpuWeight");
+            //PrefireWeight
+            if(era == "2016" || era == "2017") PrefireWeight = tr.getVar<float>("PrefireWeight");
+            mostweights = sign * tot_lepSF * B_SF * puWeight * PrefireWeight;
 
             //TODO: Trigger efficiencies for dilepton triggers
             //Looks like dimuon trigger efficiency is ~92.5% across all pT above 10. Loose cuts are 25,20,20, so that falls well within that bar.
             MuonTriggerEffPt = tr.getVar<float>("MuonTriggerEffPt");
+            MuonTriggerEffEta = tr.getVar<float>("MuonTriggerEffEta");
             LeadingMuTriggEffPt = tr.getVar<float>("LeadingMuTriggEffPt");
             LeadingMuTriggEffEta = tr.getVar<float>("LeadingMuTriggEffEta");
-            float DiMuTriggEffPt = 0.925;
-            if (noTrigEff) tot_weight = tot_lepSF;
-            else if (multiMuTriggEff) tot_weight = tot_lepSF * MuonTriggerEffPt;
-            else if (!loose_cuts) tot_weight = tot_lepSF * LeadingMuTriggEffEta;
-            else
-            {
-                tot_weight = tot_lepSF * DiMuTriggEffPt;
-                //if (tr.getEvtNum == 1): std::cout << "Using DiMuTriggEffPt" << std::endl;
-            }
-            pt_weight = tot_lepSF * LeadingMuTriggEffPt;
+            float DiMuTriggEffPt = 0.925; //What is this?
+            pt_weight = mostweights * LeadingMuTriggEffPt;
+            eta_weight = mostweights * LeadingMuTriggEffEta;
+            multi_weight = mostweights * MuonTriggerEffEta;
+            
+            if (noTrigEff) tot_weight = mostweights;
+            else if (multiMuTriggEff) tot_weight = multi_weight;
+            else if (!loose_cuts) tot_weight = eta_weight;
+            else tot_weight = mostweights * DiMuTriggEffPt;
         }
 
         //Lepton pTs
@@ -518,7 +544,9 @@ int main(int argc, char* argv[])
             }
             else std::cout << "Error: Failed to find index of third muon in 3-muon case." << std::endl;
             h_num_mu->Fill(3,tot_weight);
-            h_num_mu_notrigwt->Fill(3,tot_lepSF);
+            h_num_mu_notrigwt->Fill(3,mostweights);
+            h_num_mu_pt_eff->Fill(3,pt_weight);
+            h_num_mu_eta_eff->Fill(3,eta_weight);
             h_mu_indices->Fill(bestRecoMuZindices[0], tot_weight);
             h_mu_indices->Fill(bestRecoMuZindices[1], tot_weight);
             h_norm_3mu->Fill(bestRecoZM, tot_weight);
@@ -529,7 +557,9 @@ int main(int argc, char* argv[])
             h_lep2pT->Fill(cutMuVec[1].Pt(), tot_weight);
             h_lep3pT->Fill(cutElecVec[0].Pt(), tot_weight);
             h_num_mu->Fill(2,tot_weight);
-            h_num_mu_notrigwt->Fill(2,tot_lepSF);
+            h_num_mu_notrigwt->Fill(2,mostweights);
+            h_num_mu_pt_eff->Fill(2,pt_weight);
+            h_num_mu_eta_eff->Fill(2,eta_weight);
             h_norm_2mu->Fill(bestRecoZM, tot_weight);
         }
         if(cutMuVec.size() == 1)
@@ -538,12 +568,14 @@ int main(int argc, char* argv[])
             h_lep2pT->Fill(cutElecVec[1].Pt(), tot_weight);
             h_lep3pT->Fill(cutMuVec[0].Pt(), tot_weight);
             h_num_mu->Fill(1,tot_weight);
-            h_num_mu_notrigwt->Fill(1,tot_lepSF);
+            h_num_mu_notrigwt->Fill(1,mostweights);
+            h_num_mu_pt_eff->Fill(1,pt_weight);
+            h_num_mu_eta_eff->Fill(1,eta_weight);
             h_norm_1mu->Fill(bestRecoZM, tot_weight);
         }
         //also want num electrons
         h_num_elec->Fill(cutElecVec.size(),tot_weight);
-        h_num_elec_notrigwt->Fill(cutElecVec.size(),tot_lepSF);
+        h_num_elec_notrigwt->Fill(cutElecVec.size(),mostweights);
 
         //RecoZ
         h_recoZpt->Fill(bestRecoZPt, tot_weight);
@@ -561,8 +593,9 @@ int main(int argc, char* argv[])
             h_num_mu_trimmed->Fill(cutMuVec.size(),tot_weight);
         }
         h_normalization->Fill(bestRecoZM, tot_weight);
-        h_norm_notrigwt->Fill(bestRecoZM, tot_lepSF);
+        h_norm_notrigwt->Fill(bestRecoZM, mostweights);
         h_norm_pt_eff->Fill(bestRecoZM, pt_weight);
+        h_norm_eta_eff->Fill(bestRecoZM, eta_weight);
         //if (tr.getEvtNum() < 20000) std::cout << "Eta weight: " << pt_weight << "\tEta: " << cutMuVec[0].Eta() << std::endl;
         //MET
         h_met->Fill(met, tot_weight);
@@ -589,6 +622,23 @@ int main(int argc, char* argv[])
         h_njetpt30eta24->Fill(njetpt30eta24, tot_weight);
         h_njetpt40eta24->Fill(njetpt40eta24, tot_weight);
         h_njetpt40->Fill(njetpt40, tot_weight);
+
+        if(Data)
+        {
+            std::cout << "Found an event: " << tr.getEvtNum() << std::endl;
+            std::cout << "Muon pts: ";
+            for(int i = 0; i < cutMuVec.size(); i++)
+            {
+                std::cout << cutMuVec[i].Pt() << "\t";
+            }
+            std::cout << std::endl;
+            std::cout << "Electron pts: ";
+            for(int i = 0; i < cutElecVec.size(); i++)
+            {
+                std::cout << cutElecVec[i].Pt() << "\t";
+            }
+            std::cout << std::endl;
+        }
     }
 
     TFile out_file(outputfile,"RECREATE");
@@ -620,6 +670,8 @@ int main(int argc, char* argv[])
     h_num_mu->Write();
     h_num_mu_notrigwt->Write();
     h_num_mu_trimmed->Write();
+    h_num_mu_pt_eff->Write();
+    h_num_mu_eta_eff->Write();
     h_num_elec->Write();
     h_num_elec_notrigwt->Write();
     h_mu_indices->Write();
@@ -627,6 +679,7 @@ int main(int argc, char* argv[])
     h_norm_notrigwt->Write();
     h_norm_trimmed->Write();
     h_norm_pt_eff->Write();
+    h_norm_eta_eff->Write();
     h_norm_1mu->Write();
     h_norm_2mu->Write();
     h_norm_3mu->Write();

@@ -40,6 +40,7 @@ int main(int argc, char* argv[])
     std::string era = "2018";
     bool Data = false;
     bool PostHEM = false;
+    bool PeriodF = false;
     int max_events = -1;
     //int max_events = 30000; //Set to -1 to run over all events
     //bool multiMuTriggEff = false;
@@ -69,13 +70,14 @@ int main(int argc, char* argv[])
             {"era",         required_argument,  0,  'e'},
             {"isData",      no_argument,        0,  'D'},
             {"PostHEM",     no_argument,        0,  'p'},
+            {"PeriodF",     no_argument,        0,  'f'},
             {"max_events",  required_argument,  0,  'm'},
             {"loose_cuts",  no_argument,        0,  'l'},
             {"dryrun",      no_argument,        0,  'd'},
             {"verbose",     no_argument,        0,  'v'},
         };
         //c = getopt_long(argc,argv,"e:Dpm:ldv",long_options,&option_index);
-        c = getopt_long(argc,argv,"e:Dpm:ldv",long_options,NULL);
+        c = getopt_long(argc,argv,"e:Dpfm:ldv",long_options,NULL);
         if(c==-1) break;
         switch (c)
         {
@@ -87,6 +89,9 @@ int main(int argc, char* argv[])
                 break;
             case 'p':
                 PostHEM = true;
+                break;
+            case 'f':
+                PeriodF = true;
                 break;
             case 'm':
                 max_events = std::stoi(optarg);
@@ -178,6 +183,7 @@ int main(int argc, char* argv[])
     auto *h_lep2pT = new TH1F("h_lep2pT","pT of lepton 2",60,0,600);
     auto *h_lep3pT = new TH1F("h_lep3pT","pT of lepton 3",60,0,600);
     auto *h_num_elec = new TH1F("h_num_elec","Number of electrons",3,1,4);
+    auto *h_num_elec_pt = new TH1F("h_num_elec_pt","Number of electrons: leading muon pt trigger weights",3,1,4);
     auto *h_num_elec_notrigwt = new TH1F("h_num_elec_notrigwt","Number of electrons: no trigger weights",3,1,4);
     //auto *h_elec_indices = new TH1F("h_mu_indices", "Frequency of pT-ordered electron index used to reconstruct Z", 4,-1,3);
     auto *h_normalization = new TH1F("h_normalization","TTZ Normalization Exercise",4,61,141);
@@ -449,11 +455,16 @@ int main(int argc, char* argv[])
 
         //Find the weights
         float tot_lepSF = 1.0;
-        //float MuonTriggerEffPt = 1.0;
+        float ElecTriggerEffPt = 1.0;
         float LeadingElecTriggEffPt = 1.0;
         float LeadingElecTriggEffEta = 1.0;
         float tot_weight = 1.0;
         float pt_weight = 1.0;
+        float eta_weight = 1.0;
+        float mostweights = 1.0;
+        float B_SF = 1.0;
+        float puWeight = 1.0;
+        float PrefireWeight = 1.0;
         //Already have cutMuSF.size() + cutElecSF.size() == 3 from earlier cut, so just loop over all leptons
         if(!Data)
         {
@@ -466,9 +477,17 @@ int main(int argc, char* argv[])
                 tot_lepSF *= cutElecSF[i];
             }
 
-            tot_lepSF *= sign; //everything using a weight uses at least tot_lepSF
+            //Btag
+            B_SF = tr.getVar<float>("BTagWeight");
+            //PUWeight
+            if(era != "2017") puWeight = tr.getVar<float>("puWeight");
+            else if(!PeriodF) puWeight = tr.getVar<float>("17BtoEpuWeight");
+            else puWeight = tr.getVar<float>("17FpuWeight");
+            //PrefireWeight
+            if(era == "2016" || era == "2017") PrefireWeight = tr.getVar<float>("PrefireWeight");
+            mostweights = sign * tot_lepSF * B_SF * puWeight * PrefireWeight;
 
-            //MuonTriggerEffPt = tr.getVar<float>("MuonTriggerEffPt");
+            ElecTriggerEffPt = tr.getVar<float>("ElecTriggerEffPt");
             LeadingElecTriggEffPt = tr.getVar<float>("LeadingElecTriggEffPt");
             LeadingElecTriggEffEta = tr.getVar<float>("LeadingElecTriggEffEta");
 /*
@@ -489,8 +508,9 @@ int main(int argc, char* argv[])
 */
             //if (multiMuTriggEff) tot_weight = tot_lepSF * MuonTriggerEffPt;
             //else tot_weight = tot_lepSF * LeadingElecTriggEffPt;
-            tot_weight = tot_lepSF * LeadingElecTriggEffEta;
-            pt_weight = tot_lepSF * LeadingElecTriggEffPt;
+            tot_weight = mostweights * ElecTriggerEffPt;
+            eta_weight = mostweights * LeadingElecTriggEffEta;
+            pt_weight = mostweights * LeadingElecTriggEffPt;
         }
 
         //Lepton pTs
@@ -521,7 +541,8 @@ int main(int argc, char* argv[])
             h_lep2pT->Fill(cutElecVec[1].Pt(),tot_weight);
             h_lep3pT->Fill(cutElecVec[2].Pt(),tot_weight);
             h_num_elec->Fill(3,tot_weight);
-            h_num_elec_notrigwt->Fill(3,tot_lepSF);
+            h_num_elec_notrigwt->Fill(3,mostweights);
+            h_num_elec_pt->Fill(3,pt_weight);
             h_norm_3elec->Fill(bestRecoZM, tot_weight);
         }
         if(cutElecVec.size() == 2)
@@ -530,7 +551,8 @@ int main(int argc, char* argv[])
             h_lep2pT->Fill(cutElecVec[1].Pt(), tot_weight);
             h_lep3pT->Fill(cutMuVec[0].Pt(), tot_weight);
             h_num_elec->Fill(2,tot_weight);
-            h_num_elec_notrigwt->Fill(2,tot_lepSF);
+            h_num_elec_notrigwt->Fill(2,mostweights);
+            h_num_elec_pt->Fill(2,pt_weight);
             h_norm_2elec->Fill(bestRecoZM, tot_weight);
         }
         if(cutElecVec.size() == 1)
@@ -539,7 +561,8 @@ int main(int argc, char* argv[])
             h_lep2pT->Fill(cutMuVec[1].Pt(), tot_weight);
             h_lep3pT->Fill(cutElecVec[0].Pt(), tot_weight);
             h_num_elec->Fill(1,tot_weight);
-            h_num_elec_notrigwt->Fill(1,tot_lepSF);
+            h_num_elec_notrigwt->Fill(1,mostweights);
+            h_num_elec_pt->Fill(1,pt_weight);
             h_norm_1elec->Fill(bestRecoZM, tot_weight);
         }
 
@@ -547,9 +570,9 @@ int main(int argc, char* argv[])
         h_recoZpt->Fill(bestRecoZPt, tot_weight);
         h_recoZM->Fill(bestRecoZM, tot_weight);
         h_normalization->Fill(bestRecoZM, tot_weight);
-        h_norm_notrigwt->Fill(bestRecoZM, tot_lepSF);
+        h_norm_notrigwt->Fill(bestRecoZM, mostweights);
         h_norm_pt_eff->Fill(bestRecoZM, pt_weight);
-        if (tr.getEvtNum() < 20000) std::cout << "Eta weight: " << pt_weight << "\tEta: " << cutElecVec[0].Eta() << std::endl;
+        //if (tr.getEvtNum() < 20000) std::cout << "Eta weight: " << pt_weight << "\tEta: " << cutElecVec[0].Eta() << std::endl;
         //MET
         h_met->Fill(met, tot_weight);
         //HT
@@ -575,6 +598,23 @@ int main(int argc, char* argv[])
         h_njetpt30eta24->Fill(njetpt30eta24, tot_weight);
         h_njetpt40eta24->Fill(njetpt40eta24, tot_weight);
         h_njetpt40->Fill(njetpt40, tot_weight);
+
+        if(Data)
+        {
+            std::cout << "Found an event: " << tr.getEvtNum() << std::endl;
+            std::cout << "Muon pts: ";
+            for(int i = 0; i < cutMuVec.size(); i++)
+            {
+                std::cout << cutMuVec[i].Pt() << "\t";
+            }
+            std::cout << std::endl;
+            std::cout << "Electron pts: ";
+            for(int i = 0; i < cutElecVec.size(); i++)
+            {
+                std::cout << cutElecVec[i].Pt() << "\t";
+            }
+            std::cout << std::endl;
+        }
     }
 
     TFile out_file(outputfile,"RECREATE");

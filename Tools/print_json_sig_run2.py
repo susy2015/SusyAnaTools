@@ -41,7 +41,8 @@ def myprocess(sample,mass_point,bintype):
     #infile = ROOT.TFile("TTZ_VB.root")
     #infilename = "results/" + sample + "/" + mass_point + ".root"
     #infilename = "results/fastsim/{0}/{1}.root".format(sample,mass_point)
-    infilename = "results/VBSB/{0}.root".format(mass_point)
+    #infilename = "results/VBSB/{0}.root".format(mass_point)
+    infilename = "results/v4/VBSB/{0}.root".format(mass_point)
     infile = ROOT.TFile(infilename)
     h_b  = infile.Get("h_{0}".format(bintype))
     #h_sb_avgwtsq = infile.Get("h_sb_avg_weight_sq")
@@ -52,6 +53,8 @@ def myprocess(sample,mass_point,bintype):
     elif bintype == "ub": nbin = 112
 
     extensions = ["_bsf","_trig_eff","_puWeight","_PFWeight","_pdfWeight","_JES","_METUnClust","_ivfunc","_eff_e","_err_mu","_eff_tau","_ISRWeight","_fastSF","_METunc","_eff_wtag","_eff_toptag","_eff_restoptag"]
+    leptonvetos = ["_eff_e","_err_mu","_eff_tau"]
+    topvetos = ["_eff_wtag","_eff_toptag","_eff_restoptag"]
     ext_names = {   "_bsf" : "b",
                     "_trig_eff" : "trigger_err",
                     "_puWeight" : "PU_Weight",
@@ -106,6 +109,12 @@ def myprocess(sample,mass_point,bintype):
     syst_unc = {}
     syst_unc_map = {}
     syst_updown = {}
+    if bintype == "sb":
+        lowdm = [0,53]
+        highdm = [53,183]
+    elif bintype == "ub":
+        lowdm = [0,53]
+        highdm = [53,529]
     for ext in extensions:
         #print ext
         sys_b[ext] = [infile.Get("h_" + bintype + ext + "_up"),infile.Get("h_" + bintype + ext + "_down")]
@@ -121,16 +130,37 @@ def myprocess(sample,mass_point,bintype):
         for i in range(nbin):
             if dict_b[i][0] == 1e-06:
                 syst_unc[ext][i] = [2,0.001]
+        if (ext in leptonvetos) or (ext in topvetos):
+            for i in range(lowdm[1]):
+                syst_unc[ext][i] = [1,1]
+        if ext in leptonvetos:
+            for i in range(highdm[0],highdm[1]):
+                syst_unc[ext][i] = [1,1]
+        if ext == "_ivfunc":
+            for i in range(highdm[0],highdm[1]):
+                syst_unc[ext][i] = [1,1]
+        
         syst_unc_map[ext] = {binMap.get(k,k) : v for k,v in syst_unc[ext].iteritems()}
-        if bintype == "sb":
-            testbin = 142
-            print "Bin ", testbin, ext
-            print "dict_b", dict_b[testbin]
-            print "sys_b", sys_b[ext][0].GetBinContent(testbin+1), sys_b[ext][1].GetBinContent(testbin+1)
-            print "syst_updown", syst_updown[testbin]
-            print "syst_unc", syst_unc[ext][testbin]
-            print "syst_unc_map", syst_unc_map[ext]["bin_hm_nbeq2_highmtb_nt1_nrt1_nw0_htgt1300_MET_pt450toinf"]
+
+        #if bintype == "sb":
+        #    testbin = 142
+        #    print "Bin ", testbin, ext
+        #    print "dict_b", dict_b[testbin]
+        #    print "sys_b", sys_b[ext][0].GetBinContent(testbin+1), sys_b[ext][1].GetBinContent(testbin+1)
+        #    print "syst_updown", syst_updown[testbin]
+        #    print "syst_unc", syst_unc[ext][testbin]
+        #    print "syst_unc_map", syst_unc_map[ext]["bin_hm_nbeq2_highmtb_nt1_nrt1_nw0_htgt1300_MET_pt450toinf"]
         #j["syst_unc" + ext] = syst_unc_map[ext]
+    #turning off rest of top/w vetos
+    for k,v in syst_unc_map["_eff_wtag"].iteritems():
+        if "nw0" in k:
+            syst_unc_map["_eff_wtag"][k] = [1,1]
+    for k,v in syst_unc_map["_eff_toptag"].iteritems():
+        if "nt0" in k:
+            syst_unc_map["_eff_toptag"][k] = [1,1]
+    for k,v in syst_unc_map["_eff_restoptag"].iteritems():
+        if "nrt0" in k:
+            syst_unc_map["_eff_restoptag"][k] = [1,1]
 
     #print "Creating file fastsim_results/{0}/{1}_pred.json".format(sample,mass_point)
     #outfile = "fastsim_results/{0}/{1}_pred.json".format(sample,mass_point)
@@ -146,7 +176,7 @@ def myprocess(sample,mass_point,bintype):
     #            outputFile.write("{0}\t{1}_down\t{2}\t{3}\n".format(k,ext_names[ext],sample,v[1]))
 
     #return j
-    return predMap,syst_unc_map
+    return predMap,syst_unc_map,syst_unc
 
 if __name__ == "__main__":
     #Input arg: config. Read in list of mass points from config.
@@ -183,6 +213,7 @@ if __name__ == "__main__":
     mass_point_list = []
     yieldsmap = {}
     systmap = {}
+    syst = {}
     with open(args.config, "r") as infile:
         for line in infile:
             entries = line.split(", ")
@@ -193,11 +224,41 @@ if __name__ == "__main__":
             mass_point_list.append(shortmasspoint)
             #Run myprocess(sample) for each mass point.
             #print mass_point
-            yieldsmap[shortmasspoint],systmap[shortmasspoint] = myprocess(samplename,mass_point,"sb")
-            yieldsmap["lepcr_{0}".format(shortmasspoint)],systmap["lepcr_{0}".format(shortmasspoint)] = myprocess(samplename,mass_point,"ub")
+            yieldsmap[shortmasspoint],systmap[shortmasspoint],syst[shortmasspoint] = myprocess(samplename,mass_point,"sb")
+            yieldsmap["lepcr_{0}".format(shortmasspoint)],systmap["lepcr_{0}".format(shortmasspoint)],syst["lepcr_{0}".format(shortmasspoint)] = myprocess(samplename,mass_point,"ub")
+
+            '''
+            mycanvas = ROOT.TCanvas(shortmasspoint, shortmasspoint, 600, 600)
+            ROOT.gStyle.SetOptStat(0)
+            #testext = ["_bsf"]
+            #testext = ["_bsf","_trig_eff"]
+            small = ["_trig_eff","_PFWeight","_eff_e","_err_mu","_eff_tau","_fastSF"]
+            for ext in extensions:
+                leg = ROOT.TLegend(0.4,0.8,0.9,0.89)
+                leg.SetBorderSize(0)
+                leg.SetTextSize(0.04)
+                hist_up = ROOT.TH1F(shortmasspoint + ext + "_up", shortmasspoint + ext + " Up",183,0,183)
+                hist_down = ROOT.TH1F(shortmasspoint + ext + "_down", shortmasspoint + ext + " Down",183,0,183)
+                for i in range(183):
+                    hist_up.SetBinContent(i+1,syst[shortmasspoint][ext][i][0])
+                    hist_down.SetBinContent(i+1,syst[shortmasspoint][ext][i][1])
+                hist_up.SetLineColor(ROOT.kBlue)
+                hist_up.SetLineWidth(2)
+                hist_up.GetYaxis().SetRangeUser(0,2)
+                if ext in small: hist_up.GetYaxis().SetRangeUser(0.8,1.2)
+                hist_up.Draw()
+                hist_down.SetLineColor(ROOT.kRed)
+                hist_down.SetLineWidth(2)
+                hist_down.Draw("same")
+                leg.AddEntry(hist_up, shortmasspoint + ext + " Up","l")
+                leg.AddEntry(hist_down, shortmasspoint + ext + " Down","l")
+                leg.Draw("same")
+                mycanvas.SaveAs("VBSB_plots/{0}{1}.png".format(shortmasspoint,ext))
+            '''
     j = {}
     j["signals"] = mass_point_list
     j["yieldsMap"] = yieldsmap
+    
     for point in mass_point_list:
         json_outfile = "fastsim_results/{0}/{1}.json".format(samplename,point)
         print "Creating file {0}".format(json_outfile)
@@ -218,6 +279,8 @@ if __name__ == "__main__":
                 for k,v in systmap["lepcr_{0}".format(point)][ext].iteritems():
                     outfile.write("{0}    {1}_up    {2}    {3}\n".format(k,ext_names[ext],point,v[0]))
                     outfile.write("{0}    {1}_down    {2}    {3}\n".format(k,ext_names[ext],point,v[1]))
+    
+    
     #outfilename = "fastsim_results/{0}/{0}_sb.json".format(samplename)
     #print "Creating file {0}".format(outfilename)
     #with open(outfilename,"w") as outfile:
