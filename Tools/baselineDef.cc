@@ -1106,19 +1106,25 @@ void BaselineVessel::PassBaseline()
     printf("\tcaleb_WTotalSF            = %.15lf\n", WTotalSF);
     printf("\tcaleb_ResolvedTopTotalSF  = %.15lf\n", ResolvedTopTotalSF);
  
-    printf("------------- hui tops -------------\n");
+    printf("------------- hui resolved top candidates -------------\n");
+    for (int i = 0; i < ResolvedTopCandidateTLV.size(); ++i)
+    {
+        printf("\tresolved top %d: pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d, j1Idx=%d, j2Idx=%d, j3Idx=%d\n", i, ResolvedTopCandidateTLV[i].Pt(), ResolvedTopCandidateTLV[i].Eta(), ResolvedTopCandidateTLV[i].Phi(), ResolvedTopCandidateTLV[i].M(), ResolvedTopCandidate_discriminator[i], ResolvedTopCandidate_type[i], ResolvedTopCandidate_j1Idx[i], ResolvedTopCandidate_j2Idx[i], ResolvedTopCandidate_j3Idx[i]);
+    }
+    printf("------------- hui tagged resolved tops -------------\n");
     for (int i = 0; i < ResolvedTopCandidateTLV.size(); ++i)
     {
         if (ResolvedTop_Stop0l[i])
         {
-            printf("\tresolved top %d: pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d\n", i, ResolvedTopCandidateTLV[i].Pt(), ResolvedTopCandidateTLV[i].Eta(), ResolvedTopCandidateTLV[i].Phi(), ResolvedTopCandidateTLV[i].M(), ResolvedTopCandidate_discriminator[i], ResolvedTopCandidate_type[i]);
+            printf("\tresolved top %d: pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d, j1Idx=%d, j2Idx=%d, j3Idx=%d\n", i, ResolvedTopCandidateTLV[i].Pt(), ResolvedTopCandidateTLV[i].Eta(), ResolvedTopCandidateTLV[i].Phi(), ResolvedTopCandidateTLV[i].M(), ResolvedTopCandidate_discriminator[i], ResolvedTopCandidate_type[i], ResolvedTopCandidate_j1Idx[i], ResolvedTopCandidate_j2Idx[i], ResolvedTopCandidate_j3Idx[i]);
         }
     }
     // ttr->getTopCandidates() returns TopObjects and gives top candidates
     printf("------------- caleb top candidates -------------\n");
+    int t = 0;
     for(const auto& top : ttr->getTopCandidates())
     {
-        printf("\tpt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d\n", top.p().Pt(), top.p().Eta(), top.p().Phi(), top.p().M(), top.getDiscriminator(), top.getType());
+        printf("\ttop %d: pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d\n", t, top.p().Pt(), top.p().Eta(), top.p().Phi(), top.p().M(), top.getDiscriminator(), top.getType());
         for (const auto& jet : top.getConstituents())
         {
             printf("\t\tjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf), b_tag_disc=%.5lf\n", jet->p().Pt(), jet->p().Eta(), jet->p().Phi(), jet->p().M(), jet->getBTagDisc());
@@ -1127,13 +1133,14 @@ void BaselineVessel::PassBaseline()
                 printf("\t\t\tsubjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", subjet.p().Pt(), subjet.p().Eta(), subjet.p().Phi(), subjet.p().M());
             }
         }
-        
+        ++t;
     }
     // ttr->getTops() returns TopObjects* and gives tagged tops
     printf("------------- caleb tagged tops -------------\n");
+    t = 0;
     for(const auto& top : ttr->getTops())
     {
-        printf("\tpt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d\n", top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M(), top->getDiscriminator(), top->getType());
+        printf("\ttop %d: pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d\n", t, top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M(), top->getDiscriminator(), top->getType());
         for (const auto& jet : top->getConstituents())
         {
             printf("\t\tjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", jet->p().Pt(), jet->p().Eta(), jet->p().Phi(), jet->p().M());
@@ -1142,7 +1149,7 @@ void BaselineVessel::PassBaseline()
                 printf("\t\t\tsubjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", subjet.p().Pt(), subjet.p().Eta(), subjet.p().Phi(), subjet.p().M());
             }
         }
-        
+        ++t;
     }
     printf("------------- caleb met, jets, dphi -------------\n");
     printf("met = %.5lf\n",             met);
