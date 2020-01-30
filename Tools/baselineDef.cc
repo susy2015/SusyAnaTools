@@ -1888,7 +1888,7 @@ float BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLor
 void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
-  GetPileup();
+  GetPileupWeight();
   PrepMETUncluster();
   UseCleanedJets();
   CalcBottomVars();
@@ -2041,10 +2041,26 @@ void BaselineVessel::PassHEMVeto()
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_electron_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_photon_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_phi_low,   wide_phi_high,   jet_pt_cut);
-    tr->registerDerivedVar("SAT_Pass_HEMVeto"+firstSpec,   SAT_Pass_HEMVeto);
+    // get HEM veto weight
+    float lumi2018PreHEM    = 21068.576;
+    float lumi2018PostHEM   = 38630.913;
+    float lumi2018          = lumi2018PreHEM + lumi2018PostHEM;
+    float SAT_HEMVetoWeight = lumi2018PreHEM / lumi2018;
+    if (SAT_Pass_HEMVeto)
+    {
+        SAT_HEMVetoWeight = 1.0;
+    }
+    // print for testing
+    if (firstSpec.compare("_jetpt30") == 0)
+    {
+        printf("SAT_Pass_HEMVeto = %d, SAT_HEMVetoWeight = %f\n", SAT_Pass_HEMVeto, SAT_HEMVetoWeight);
+    }
+    // register variables
+    tr->registerDerivedVar("SAT_Pass_HEMVeto"  + firstSpec, SAT_Pass_HEMVeto    );
+    tr->registerDerivedVar("SAT_HEMVetoWeight" + firstSpec, SAT_HEMVetoWeight   );
 }
 
-void BaselineVessel::GetPileup()
+void BaselineVessel::GetPileupWeight()
 {
     const auto& puWeight       = tr->getVar<float>("puWeight");
     const auto& puWeight2017BE = tr->getVar<float>("17BtoEpuWeight");
@@ -2053,7 +2069,9 @@ void BaselineVessel::GetPileup()
     float lumi2017F          = 13498.415;
     float lumi2017           = lumi2017BE + lumi2017F;
     float puWeight2017weightedAverage = (puWeight2017BE * lumi2017BE + puWeight2017F * lumi2017F) / lumi2017;
-    if (firstSpec.compare("_jetpt30") == 0)
+    // print for testing
+    //if (firstSpec.compare("_jetpt30") == 0)
+    if (false)
     {
         printf("puWeight2017BE = %f, puWeight2017F = %f, puWeight2017weightedAverage = %f, puWeight = %f, diff = %f\n", puWeight2017BE, puWeight2017F, puWeight2017weightedAverage, puWeight, puWeight2017weightedAverage - puWeight);
     }
