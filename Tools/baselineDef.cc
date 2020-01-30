@@ -1888,7 +1888,6 @@ float BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLor
 void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
-  GetPileupWeight();
   PrepMETUncluster();
   UseCleanedJets();
   CalcBottomVars();
@@ -2042,6 +2041,7 @@ void BaselineVessel::PassHEMVeto()
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_photon_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_phi_low,   wide_phi_high,   jet_pt_cut);
     // get HEM veto weight
+    // WARNING: luminosities are hard coded here
     float lumi2018PreHEM    = 21068.576;
     float lumi2018PostHEM   = 38630.913;
     float lumi2018          = lumi2018PreHEM + lumi2018PostHEM;
@@ -2051,7 +2051,8 @@ void BaselineVessel::PassHEMVeto()
         SAT_HEMVetoWeight = 1.0;
     }
     // print for testing
-    if (firstSpec.compare("_jetpt30") == 0)
+    //if (firstSpec.compare("_jetpt30") == 0)
+    if (false)
     {
         printf("SAT_Pass_HEMVeto = %d, SAT_HEMVetoWeight = %f\n", SAT_Pass_HEMVeto, SAT_HEMVetoWeight);
     }
@@ -2065,6 +2066,7 @@ void BaselineVessel::GetPileupWeight()
     const auto& puWeight       = tr->getVar<float>("puWeight");
     const auto& puWeight2017BE = tr->getVar<float>("17BtoEpuWeight");
     const auto& puWeight2017F  = tr->getVar<float>("17FpuWeight");
+    // WARNING: luminosities are hard coded here
     float lumi2017BE         = 27987.721;
     float lumi2017F          = 13498.415;
     float lumi2017           = lumi2017BE + lumi2017F;
