@@ -120,6 +120,7 @@ public:
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
     bool UseCleanedJets();
+    bool PrepMETUncluster();
     bool OpenWMassCorrFile();
 
     bool FlagDeepAK8Jets();
