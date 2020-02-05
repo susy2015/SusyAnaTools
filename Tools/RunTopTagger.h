@@ -211,6 +211,41 @@ private:
             ak4Inputs = new ttUtility::ConstAK4Inputs<float>(Jet_LV, Jet_btagDeepB, Jet_qgl);
         }
 
+        //Helper function to turn int vectors into float vectors
+        auto convertTofloatandRegister = [](NTupleReader& tr, const std::string& name)
+        {
+            const std::vector<int>& intVec = tr.getVec<int>(name);
+            std::vector<float>* floatVec = new std::vector<float>(intVec.begin(), intVec.end());
+            tr.registerDerivedVec(name+"ConvertedTofloat3", floatVec);
+            return floatVec;
+        };
+
+        ak4Inputs->addSupplamentalVector("qgLikelihood",                         tr.getVec<float>("Jet_qgl"));
+        ak4Inputs->addSupplamentalVector("qgPtD",                                tr.getVec<float>("Jet_qgptD"));
+        ak4Inputs->addSupplamentalVector("qgAxis1",                              tr.getVec<float>("Jet_qgAxis1"));
+        ak4Inputs->addSupplamentalVector("qgAxis2",                              tr.getVec<float>("Jet_qgAxis2"));
+        ak4Inputs->addSupplamentalVector("recoJetschargedHadronEnergyFraction",  tr.getVec<float>("Jet_chHEF"));
+        ak4Inputs->addSupplamentalVector("recoJetschargedEmEnergyFraction",      tr.getVec<float>("Jet_chEmEF"));
+        ak4Inputs->addSupplamentalVector("recoJetsneutralEmEnergyFraction",      tr.getVec<float>("Jet_neEmEF"));
+        ak4Inputs->addSupplamentalVector("recoJetsmuonEnergyFraction",           tr.getVec<float>("Jet_muEF"));
+        ak4Inputs->addSupplamentalVector("recoJetsHFHadronEnergyFraction",       tr.getVec<float>("Jet_hfHadEF"));
+        ak4Inputs->addSupplamentalVector("recoJetsHFEMEnergyFraction",           tr.getVec<float>("Jet_hfEMEF"));
+        ak4Inputs->addSupplamentalVector("recoJetsneutralEnergyFraction",        tr.getVec<float>("Jet_neHEF"));
+        ak4Inputs->addSupplamentalVector("PhotonEnergyFraction",                 tr.getVec<float>("Jet_phEF"));
+        ak4Inputs->addSupplamentalVector("ElectronEnergyFraction",               tr.getVec<float>("Jet_elEF"));
+        ak4Inputs->addSupplamentalVector("ChargedHadronMultiplicity",            tr.getVec<float>("Jet_chHadMult"));
+        ak4Inputs->addSupplamentalVector("NeutralHadronMultiplicity",            tr.getVec<float>("Jet_neHadMult"));
+        ak4Inputs->addSupplamentalVector("PhotonMultiplicity",                   tr.getVec<float>("Jet_phMult"));
+        ak4Inputs->addSupplamentalVector("ElectronMultiplicity",                 tr.getVec<float>("Jet_elMult"));
+        ak4Inputs->addSupplamentalVector("MuonMultiplicity",                     tr.getVec<float>("Jet_muMult"));
+        ak4Inputs->addSupplamentalVector("DeepCSVb",                             tr.getVec<float>("Jet_deepCSVb"));
+        ak4Inputs->addSupplamentalVector("DeepCSVc",                             tr.getVec<float>("Jet_deepCSVc"));
+        ak4Inputs->addSupplamentalVector("DeepCSVl",                             tr.getVec<float>("Jet_deepCSVudsg"));
+        ak4Inputs->addSupplamentalVector("DeepCSVbb",                            tr.getVec<float>("Jet_deepCSVbb"));
+        ak4Inputs->addSupplamentalVector("CvsL",                                 tr.getVec<float>("Jet_CvsL"));
+        ak4Inputs->addSupplamentalVector("qgMult",                               *convertTofloatandRegister(tr, "Jet_qgMult"));
+
+
         ak4Inputs->setFilterVector(ak4Filter);
         ttUtility::ConstAK8Inputs<float> ak8Inputs(FatJet_LV, FatJet_deepAK8_t, FatJet_deepAK8_w, FatJet_msoftdrop, subjets);
         ak8Inputs.setFilterVector(ak8Filter);

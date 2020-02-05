@@ -1071,7 +1071,7 @@ void BaselineVessel::PassBaseline()
   //if ( firstSpec.empty() && totalTopsWs   )
   //if ( firstSpec.compare("_jetpt30") == 0 )
   //if ( firstSpec.compare("_jetpt30") == 0 && ( event == 33359910 || baselineDifference ) )
-  if ( firstSpec.compare("_jetpt30") == 0 && (baselineDifference || topDifference))
+  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference))
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
@@ -1888,6 +1888,7 @@ float BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLor
 void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
+  GetPileup();
   PrepMETUncluster();
   UseCleanedJets();
   CalcBottomVars();
@@ -2013,6 +2014,8 @@ bool BaselineVessel::PassObjectVeto(std::vector<TLorentzVector> objects, float e
     return true;
 }
 
+
+
 void BaselineVessel::PassHEMVeto()
 {
     // PassHEMVeto eta, phi, and pt cuts
@@ -2039,6 +2042,21 @@ void BaselineVessel::PassHEMVeto()
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_photon_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_phi_low,   wide_phi_high,   jet_pt_cut);
     tr->registerDerivedVar("SAT_Pass_HEMVeto"+firstSpec,   SAT_Pass_HEMVeto);
+}
+
+void BaselineVessel::GetPileup()
+{
+    const auto& puWeight       = tr->getVar<float>("puWeight");
+    const auto& puWeight2017BE = tr->getVar<float>("17BtoEpuWeight");
+    const auto& puWeight2017F  = tr->getVar<float>("17FpuWeight");
+    float lumi2017BE         = 27987.721;
+    float lumi2017F          = 13498.415;
+    float lumi2017           = lumi2017BE + lumi2017F;
+    float puWeight2017weightedAverage = (puWeight2017BE * lumi2017BE + puWeight2017F * lumi2017F) / lumi2017;
+    if (firstSpec.compare("_jetpt30") == 0)
+    {
+        printf("puWeight2017BE = %f, puWeight2017F = %f, puWeight2017weightedAverage = %f, puWeight = %f, diff = %f\n", puWeight2017BE, puWeight2017F, puWeight2017weightedAverage, puWeight, puWeight2017weightedAverage - puWeight);
+    }
 }
 
 // ===  FUNCTION  ============================================================
