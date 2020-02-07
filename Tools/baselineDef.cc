@@ -1994,6 +1994,7 @@ bool BaselineVessel::PassObjectVeto(std::vector<TLorentzVector> objects, float e
 // https://github.com/susy2015/NanoSUSY-tools/blob/master/python/modules/Stop0lBaselineProducer.py#L236-L239
 void BaselineVessel::PassHEMVeto()
 {
+    bool verbose = false;
     // check if we are running on data
     bool isData             = ! tr->checkBranch("genWeight");
     const auto& run         = tr->getVar<unsigned int>("run");
@@ -2060,8 +2061,7 @@ void BaselineVessel::PassHEMVeto()
     {
         SAT_HEMVetoWeight = 1.0;
     }
-    //if (false)
-    if (firstSpec.compare("_jetpt30") == 0)
+    if (verbose && firstSpec.compare("_jetpt30") == 0)
     {
         printf("SAT_Pass_HEMVeto_DataOnly = %d, SAT_Pass_HEMVeto_DataAndMC = %d, SAT_HEMVetoWeight = %f\n", SAT_Pass_HEMVeto_DataOnly, SAT_Pass_HEMVeto_DataAndMC, SAT_HEMVetoWeight);
     }
