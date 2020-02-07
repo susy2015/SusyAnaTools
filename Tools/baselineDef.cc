@@ -1035,27 +1035,6 @@ void BaselineVessel::PassBaseline()
   // ------------------------------ //
   // --- print info for testing --- //
   // ------------------------------ //
-  //if (tr->getEvtNum() == 7217)
-  //if (event == 519215141)
-  //if (SAT_Pass_lowDM != Pass_lowDM && firstSpec.empty())
-  //if (event == 1401471244)
-
-  //double a1 = 222.222222;
-  //double b1 = 222.222223;
-  //float a2 = 422.29;
-  //float b2 = 422.20;
-  //int a3 = 4;
-  //int b3 = 4;
-  //unsigned int a4 = 6666;
-  //unsigned int b4 = 6667;
-  //printf("-----------------------------------------------------------------------------------------\n");
-  //printf("%lf, %lf, isClose=%d\n", a1, b1, SusyUtility::isClose(a1, b1));
-  //printf("%f, %f, isClose=%d\n", a2, b2, SusyUtility::isClose(a2, b2));
-  //printf("%d, %d, isClose=%d\n", a3, b3, SusyUtility::isClose(a3, b3));
-  //printf("%d, %d, isClose=%d\n", a4, b4, SusyUtility::isClose(a4, b4));
-  //printf("-----------------------------------------------------------------------------------------\n");
-  // use SusyUtility::isClose()
-  // use checkEquality()
   
   // check for differences in baseline selection between ntuples and SusyAnaTools
   bool baselineDifference = (
@@ -1067,10 +1046,7 @@ void BaselineVessel::PassBaseline()
   
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
-  //if ( firstSpec.empty() && topDifference )
-  //if ( firstSpec.empty() && totalTopsWs   )
   //if ( firstSpec.compare("_jetpt30") == 0 )
-  //if ( firstSpec.compare("_jetpt30") == 0 && ( event == 33359910 || baselineDifference ) )
   if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference))
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
@@ -1896,7 +1872,6 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassEventFilter();
   PassHEMVeto();
   PassBaseline();
-  //Test();
 }
 
 void BaselineVessel::PassTrigger()
@@ -2014,32 +1989,46 @@ bool BaselineVessel::PassObjectVeto(std::vector<TLorentzVector> objects, float e
 }
 
 
-
+// PassHEMVeto eta, phi, and pt cuts
+// HEMVeto for jets, electrons, and photons
+// https://github.com/susy2015/NanoSUSY-tools/blob/master/python/modules/Stop0lBaselineProducer.py#L236-L239
 void BaselineVessel::PassHEMVeto()
 {
-    // PassHEMVeto eta, phi, and pt cuts
-    // https://github.com/susy2015/NanoSUSY-tools/blob/master/python/modules/Stop0lBaselineProducer.py#L236-L239
+    // check if we are running on data
+    bool isData             = ! tr->checkBranch("genWeight");
+    const auto& run         = tr->getVar<unsigned int>("run");
     const auto& Jets        = tr->getVec<TLorentzVector>(jetVecLabel);
     const auto& Electrons   = tr->getVec<TLorentzVector>("cutElecVec");
     const auto& Photons     = tr->getVec<TLorentzVector>("cutPhotonTLV");
     // use exact (narrow) window for electrons and photons: eta_low, eta_high, phi_low, phi_high = -3.0, -1.4, -1.57, -0.87
     // use extended (wide) window for jets:                 eta_low, eta_high, phi_low, phi_high = -3.2, -1.2, -1.77, -0.67
-    float narrow_eta_low  = -3.0;
-    float narrow_eta_high = -1.4;
-    float narrow_phi_low  = -1.57;
-    float narrow_phi_high = -0.87;
-    float wide_eta_low    = -3.2;
-    float wide_eta_high   = -1.2;
-    float wide_phi_low    = -1.77;
-    float wide_phi_high   = -0.67;
+    float narrow_eta_low  =  -3.0;
+    float narrow_eta_high =  -1.4;
+    float narrow_phi_low  =  -1.57;
+    float narrow_phi_high =  -0.87;
+    float wide_eta_low    =  -3.2;
+    float wide_eta_high   =  -1.2;
+    float wide_phi_low    =  -1.77;
+    float wide_phi_high   =  -0.67;
     float min_electron_pt =  20.0;
     float min_photon_pt   = 220.0;
-    float jet_pt_cut      = 30.0;
+    float jet_pt_cut      =  30.0;
     // bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low) 
     bool SAT_Pass_HEMVeto = true;
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_electron_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_photon_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_phi_low,   wide_phi_high,   jet_pt_cut);
+    // for data, only apply HEM veto to 2018 starting with run 319077
+    if (year.compare("2018") == 0 && isData)
+    {
+        if (run < 319077)
+        {
+            SAT_Pass_HEMVeto = true;
+        }
+        // print for testing
+        //printf("run = %d, SAT_Pass_HEMVeto = %d\n", run, SAT_Pass_HEMVeto);
+    }
+    
     // get HEM veto weight
     // WARNING: luminosities are hard coded here
     float lumi2018PreHEM    = 21068.576;
