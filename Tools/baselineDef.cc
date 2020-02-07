@@ -2018,15 +2018,36 @@ void BaselineVessel::PassHEMVeto()
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_electron_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_photon_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_phi_low,   wide_phi_high,   jet_pt_cut);
-    // for data, only apply HEM veto to 2018 starting with run 319077
-    if (year.compare("2018") == 0 && isData)
+    
+    
+    // HEM vetos
+    // - Cut for Data only, used for running over all 2018 at once
+    // - Cut for Data and MC, used for running over 2018 pre/post HEM eras
+    bool SAT_Pass_HEMVeto_DataOnly  = SAT_Pass_HEMVeto; 
+    bool SAT_Pass_HEMVeto_DataAndMC = SAT_Pass_HEMVeto; 
+    
+    // only apply HEM veto in 2018
+    if (year.compare("2018") != 0)
     {
-        if (run < 319077)
+        SAT_Pass_HEMVeto           = true;
+        SAT_Pass_HEMVeto_DataOnly  = true; 
+        SAT_Pass_HEMVeto_DataAndMC = true;
+    }
+    else
+    {
+        // for data, only apply HEM veto to 2018 starting with run 319077
+        if (isData)
         {
-            SAT_Pass_HEMVeto = true;
+            if (run < 319077)
+            {
+                SAT_Pass_HEMVeto_DataOnly = true;
+            }
         }
-        // print for testing
-        //printf("run = %d, SAT_Pass_HEMVeto = %d\n", run, SAT_Pass_HEMVeto);
+        // only apply HEM veto cut to data when using HEM veto weight for MC
+        else
+        {
+            SAT_Pass_HEMVeto_DataOnly = true;
+        }
     }
     
     // get HEM veto weight
@@ -2039,15 +2060,15 @@ void BaselineVessel::PassHEMVeto()
     {
         SAT_HEMVetoWeight = 1.0;
     }
-    // print for testing
-    //if (firstSpec.compare("_jetpt30") == 0)
-    if (false)
+    //if (false)
+    if (firstSpec.compare("_jetpt30") == 0)
     {
-        printf("SAT_Pass_HEMVeto = %d, SAT_HEMVetoWeight = %f\n", SAT_Pass_HEMVeto, SAT_HEMVetoWeight);
+        printf("SAT_Pass_HEMVeto_DataOnly = %d, SAT_Pass_HEMVeto_DataAndMC = %d, SAT_HEMVetoWeight = %f\n", SAT_Pass_HEMVeto_DataOnly, SAT_Pass_HEMVeto_DataAndMC, SAT_HEMVetoWeight);
     }
     // register variables
-    tr->registerDerivedVar("SAT_Pass_HEMVeto"  + firstSpec, SAT_Pass_HEMVeto    );
-    tr->registerDerivedVar("SAT_HEMVetoWeight" + firstSpec, SAT_HEMVetoWeight   );
+    tr->registerDerivedVar("SAT_Pass_HEMVeto_DataOnly"   + firstSpec, SAT_Pass_HEMVeto_DataOnly     );
+    tr->registerDerivedVar("SAT_Pass_HEMVeto_DataAndMC"  + firstSpec, SAT_Pass_HEMVeto_DataAndMC    );
+    tr->registerDerivedVar("SAT_HEMVetoWeight"           + firstSpec, SAT_HEMVetoWeight             );
 }
 
 void BaselineVessel::GetPileupWeight()
