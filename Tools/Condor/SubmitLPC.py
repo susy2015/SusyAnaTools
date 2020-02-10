@@ -15,19 +15,19 @@ from collections import defaultdict
 DelExe    = '../tupleRead'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
-ProjectName = 'PostProcessed_2018_data_v403'
+ProjectName = 'PostProcessed_2016_v5_validation_MET_v2'
 argument = "%s.$(Process).list %s_$(Process).root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
-defaultLperFile = 5
+defaultLperFile = 2
 run_everything = False
 if run_everything: defaultLperFile = 10000
 
-#year = "_2016"
+year = "_2016"
 #year = "_2017"
-year = "_2018"
+#year = "_2018"
 
 process_dict = {
-	"test" : ["Data_MET_2018_PeriodB_PreHEM", "Data_MET_2018_PeriodB_PostHEM"]
+#	"test" : ["Data_MET_2018_PeriodB_PreHEM", "Data_MET_2018_PeriodB_PostHEM"]
 #	"Signal" : ["SMS_T2fbd_mStop600_mLSP520_fastsim", "SMS_T2bw_mStop500_mLSP325_fastsim", "SMS_T2bw_mStop800_mLSP100_fastsim", "SMS_T2tt_mStop600_mLSP514_fastsim", "SMS_T2tt_mStop1000_mLSP500_fastsim", "SMS_T1tttt_mGluino2000_mLSP1000_fastsim"],
 #	"TTbar" : ["TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"],
 #	"WJets" : ["WJetsToLNu_HT_70to100", "WJetsToLNu_HT_100to200", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_2500toInf"],
@@ -36,7 +36,7 @@ process_dict = {
 #	"TopAss" : ["ST_tW_top_incl", "ST_tW_antitop_incl", "ST_s_lep", "ST_t_top", "ST_t_antitop", "TTZToLLNuNu", "TTZToQQ"],
 #	"Rare" : ["ZZTo2Q2Nu", "ZZTo2L2Nu", "WZ", "WWTo2L2Nu", "WWToLNuQQ"],
 #	"QCD" : ["QCD_HT_200to300", "QCD_HT_300to500", "QCD_HT_500to700", "QCD_HT_700to1000", "QCD_HT_1000to1500", "QCD_HT_1500to2000", "QCD_HT_2000toInf"],
-#	"Data_MET_2016" : ["Data_MET_2016_PeriodB","Data_MET_2016_PeriodC","Data_MET_2016_PeriodD","Data_MET_2016_PeriodE","Data_MET_2016_PeriodF","Data_MET_2016_PeriodG","Data_MET_2016_PeriodH"],
+	"Data_MET_2016" : ["Data_MET_2016_PeriodB","Data_MET_2016_PeriodC","Data_MET_2016_PeriodD","Data_MET_2016_PeriodE","Data_MET_2016_PeriodF","Data_MET_2016_PeriodG","Data_MET_2016_PeriodH"],
 #	"Data_MET_2017" : ["Data_MET_2017_PeriodB","Data_MET_2017_PeriodC","Data_MET_2017_PeriodD","Data_MET_2017_PeriodE","Data_MET_2017_PeriodF"],
 #	"Data_MET_2018" : ["Data_MET_2018_PeriodA","Data_MET_2018_PeriodB_PreHEM","Data_MET_2018_PeriodB_PostHEM","Data_MET_2018_PeriodC","Data_MET_2018_PeriodD"],
 #	"Data_MET_2018" : ["Data_MET_2018_PeriodA","Data_MET_2018_PeriodB","Data_MET_2018_PeriodC","Data_MET_2018_PeriodD"],

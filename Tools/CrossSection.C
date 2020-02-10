@@ -48,6 +48,7 @@ std::map<TString, double> CrossSection = {
   { "T2tt_mStop650_mLSP350", 0.107045 },
   { "T2tt_mStop850_mLSP100", 0.0189612 },
   { "T2tt_mStop850_mLSP350", 0.0189612 },
+  { "T2tt_mStop1000_mLSP0", 0.00683 },
   { "T2tt_mStop1000_mLSP1", 0.00615134 },
   { "T2tt_mStop1000_mLSP50", 0.00615134 },
   { "T2tt_mStop1000_mLSP500", 0.00615134 },

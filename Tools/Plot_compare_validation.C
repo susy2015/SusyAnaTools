@@ -7,11 +7,13 @@ int Plot_compare_validation()
 	bool plot_zinv_highdm = false;
 	bool plot_LL_lowdm = false;
 	bool plot_LL_highdm = false;
-	bool plot_data_Matt_lowdm = true;
+	bool plot_data_Matt_lowdm = false;
 	bool plot_data_Matt_highdm = false;
 	bool plot_data_Dipika_lowdm = false;
 	bool plot_data_Dipika_highdm = false;
-	bool plot_data_Caleb_lowdm = false;
+	bool plot_data_Jon_lowdm = false;
+	bool plot_data_Jon_highdm = false;
+	bool plot_data_Caleb_lowdm = true;
 	bool plot_data_Caleb_highdm = false;
 	bool plot_data_Anna_lowdm = false;
 	bool plot_data_Anna_highdm = false;
@@ -20,15 +22,20 @@ int Plot_compare_validation()
 
 	TString year = "";
 	//year = "_2016";
+	//year = "_2017";
+	//year = "_2018";
 	TString folder = "";
 	//folder = "validation_2016/";
+	//folder = "validation_2017/";
+	//folder = "validation_2018/";
 
 	TString f1_name = "Zinv_validation_lowdm_2016";
 	TString hist1 = "zjets"; 
 	TString f1_leg = "MC"; 
 	TString f2_name = "validationBinsZinv_2016"; 
 	TString hist2 = "validation_mc_lowdm";
-	TString f2_leg = "Caleb_MC"; 
+	TString f2_leg = "Caleb_MC";
+	int first_bin = 0; 
 
 	if(plot_SBv3)
 	{
@@ -114,6 +121,27 @@ int Plot_compare_validation()
 		f2_leg = "Dipika_data"; 
 	}
 
+	if(plot_data_Jon_lowdm)
+	{
+		f1_name = "Data_validation_lowdm";
+		hist1 = "data"; 
+		f1_leg = "Data"; 
+		f2_name = "Validation_QCD"; 
+		hist2 = "Data";
+		f2_leg = "Jon_data"; 
+	}
+
+	if(plot_data_Jon_highdm)
+	{
+		f1_name = "Data_validation_highdm";
+		hist1 = "data"; 
+		f1_leg = "Data"; 
+		f2_name = "Validation_QCD"; 
+		hist2 = "Data";
+		f2_leg = "Jon_data";
+		first_bin = 19;
+	}
+
 	if(plot_data_Dipika_highdm)
 	{
 		f1_name = "Data_validation_highdm";
@@ -126,20 +154,20 @@ int Plot_compare_validation()
 
 	if(plot_data_Caleb_lowdm)
 	{
-		f1_name = "Data_validation_lowdm_2016";
+		f1_name = "Data_validation_lowdm";
 		hist1 = "data"; 
 		f1_leg = "Data"; 
-		f2_name = "validationBinsZinv_2016"; 
+		f2_name = "validationBinsZinv"; 
 		hist2 = "data_lowdm";
 		f2_leg = "Caleb_data"; 
 	}
 
 	if(plot_data_Caleb_highdm)
 	{
-		f1_name = "Data_validation_highdm_2016";
+		f1_name = "Data_validation_highdm";
 		hist1 = "data"; 
 		f1_leg = "Data"; 
-		f2_name = "validationBinsZinv_2016"; 
+		f2_name = "validationBinsZinv"; 
 		hist2 = "data_highdm";
 		f2_leg = "Caleb_data"; 
 	}
@@ -218,8 +246,8 @@ int Plot_compare_validation()
 	TH1F *h2_clone = (TH1F*)h1->Clone();
 	for(int i = 1; i <= h2->GetSize() - 2; i++)
 	{
-		h2_clone->SetBinContent(i, h2->GetBinContent(i));
-		h2_clone->SetBinError(i, h2->GetBinError(i));
+		h2_clone->SetBinContent(i, h2->GetBinContent(i + first_bin));
+		h2_clone->SetBinError(i, h2->GetBinError(i + first_bin));
 	}
 	h2_clone->SetLineColor(kBlue);
 	h2_clone->Draw("plsame");

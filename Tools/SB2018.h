@@ -865,6 +865,16 @@ int SB_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met)
 	return -1;
 }
 
+//================================low dm validation MET study=================================================
+int lowdm_validation_MET(float ISRpt, float met)
+{
+	if (ISRpt >= 200 && met >= 250 && met < 300) return 0;
+	if (ISRpt >= 200 && met >= 300 && met < 400) return 1;
+	if (ISRpt >= 200 && met >= 400 && met < 500) return 2;
+	if (ISRpt >= 200 && met >= 500) return 3;
+	return -1;
+}
+
 //================================copy of SB_lowdm_validation_high_MET, just for name consistency=================================================
 int SBv2_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met) {return SB_lowdm_validation_high_MET(nb, nSV, ISRpt, met);}
 int SBv3_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met) {return SB_lowdm_validation_high_MET(nb, nSV, ISRpt, met);}
@@ -926,6 +936,17 @@ int SBv3_highdm_validation(float mtb, int njets, int ntop, int nw, int nres, int
 	if (nb >=2 && mtb >= 175 && ntop ==0 && nres ==1 && nw ==0 && met >= 400) return 40;
 	if (nb >=2 && mtb >= 175 && ntop + nres + nw >=2 && met >= 250 && met < 400) return 41;
 	if (nb >=2 && mtb >= 175 && ntop + nres + nw >=2 && met >= 400) return 42;
+	return -1;
+}
+
+//================================high dm validation MET study=================================================
+int highdm_validation_MET(float mtb, int ntop, int nw, int nres, float met)
+{
+	if (mtb >= 175 && ntop ==0 && nres ==0 && nw ==0 && met >= 250 && met < 350) return 0;
+	if (mtb >= 175 && ntop ==0 && nres ==0 && nw ==0 && met >= 350 && met < 450) return 1;
+	if (mtb >= 175 && ntop ==0 && nres ==0 && nw ==0 && met >= 450 && met < 550) return 2;
+	if (mtb >= 175 && ntop ==0 && nres ==0 && nw ==0 && met >= 550 && met < 650) return 3;
+	if (mtb >= 175 && ntop ==0 && nres ==0 && nw ==0 && met >= 650) return 4;
 	return -1;
 }
 

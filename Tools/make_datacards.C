@@ -4,18 +4,22 @@ int make_datacards()
 	gROOT->ForceStyle();
 
 	double lumi = 137;
-	//lumi = 36;
-	//lumi = 42;
-	lumi = 59;
+	lumi = 35.8;	//2016
+	//lumi = 41.1;	//2017
+	//lumi = 21.0;	//2018 preHEM
+	//lumi = 38.6;	//2018 postHEM
+	//lumi = 59.6;	//2018 full
 	TString year = "";
-	//year = "_2016";
+	year = "_2016";
 	//year = "_2017";
-	year = "_2018";
+	//year = "_2018";
 	TString folder = "";
 	//folder = "results_no_SD/";
-	//folder = "results_2016/";
+	folder = "results_2016/";
 	//folder = "results_2017/";
-	folder = "results_2018/";
+	//folder = "results_2018_pre_HEM/";
+	//folder = "results_2018_post_HEM/";
+	//folder = "results_2018/";
 	
 	int bin_test = 147;
 
@@ -27,7 +31,7 @@ int make_datacards()
 	bool is_compressed_signal = false;
 
 	bool make_QCD_datacard = false;
-	bool make_smear_QCD_datacard = true;
+	bool make_smear_QCD_datacard = false;
 	bool make_Zinv_datacard = true;
 	bool make_LL_datacard = true;
 	bool make_TTZ_datacard = true;
@@ -60,7 +64,7 @@ int make_datacards()
 	//TString signal_name = "T2tt_mStop550_mLSP400";
 	//TString signal_name = "T2tt_mStop600_mLSP514";
 	//TString signal_name = "T2tt_mStop850_mLSP100";
-	//TString signal_name = "T2tt_mStop1000_mLSP1";
+	//TString signal_name = "T2tt_mStop1000_mLSP0";
 	//TString signal_name = "T2tt_mStop1000_mLSP50";
 	//TString signal_name = "T2tt_mStop1000_mLSP500";
 	//TString signal_name = "T2tt_mStop1200_mLSP50";
