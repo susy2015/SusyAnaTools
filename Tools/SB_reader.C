@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
     bool PeriodF = false;
     bool PostHEM = false;
     bool isSignal = false;
+    bool nosplit = false;
 
     if (argc < 3)
     {
@@ -102,6 +103,17 @@ int main(int argc, char* argv[])
         SF_up = 1.214+0.0997;
         SF_down = 1.214-0.0997;
     }
+    float nosplit_lumi = 1.0;
+    if(nosplit)
+    {
+        if(era == "2016") nosplit_lumi = 35.815165;
+        if(era == "2017") nosplit_lumi = 41.208034;
+        if(era == "2018") nosplit_lumi = 21.068576; //PreHEM. Use full if pass HEM veto. (59.699489)
+    }
+    float nosplit_lumi_JESUp = nosplit_lumi;
+    float nosplit_lumi_JESDown = nosplit_lumi;
+    float nosplit_lumi_METUnClustUp = nosplit_lumi;
+    float nosplit_lumi_METUnClustDown = nosplit_lumi;
 
     std::cout << "Era: " << era << "\tisTTZ: " << isTTZ <<"\tSF: " << SF << "\tisSignal: " << isSignal << "\tisData: " << isData << "\tPeriodF: " << PeriodF << "\tPostHEM: " << PostHEM << "\tMax events: " << max_events << std::endl;
 
@@ -347,35 +359,40 @@ int main(int argc, char* argv[])
         if(isData) Pass_trigger_MET = tr.getVar<bool>("Pass_trigger_MET");
         bool Pass_HEMVeto30 = true;
         if(PostHEM && era == "2018") Pass_HEMVeto30 = tr.getVar<bool>("Pass_exHEMVeto30");
-        Pass_EventFilter = Pass_EventFilter && Pass_JetID && Pass_CaloMETRatio && Pass_trigger_MET && Pass_HEMVeto30;
+        Pass_EventFilter = Pass_EventFilter && Pass_JetID && Pass_CaloMETRatio && Pass_trigger_MET;
+        if (!nosplit) Pass_EventFilter = Pass_EventFilter && Pass_HEMVeto30;
 
         bool Pass_EventFilter_JESUp = tr.getVar<bool>("Pass_EventFilter_JESUp");
         bool Pass_JetID_JESUp = tr.getVar<bool>("Pass_JetID_JESUp");
         bool Pass_CaloMETRatio_JESUp = tr.getVar<bool>("Pass_CaloMETRatio_JESUp");
         bool Pass_HEMVeto30_JESUp = true;
         if(PostHEM && era == "2018") Pass_HEMVeto30_JESUp = tr.getVar<bool>("Pass_exHEMVeto30_JESUp");
-        Pass_EventFilter_JESUp = Pass_EventFilter_JESUp && Pass_JetID_JESUp && Pass_CaloMETRatio_JESUp && Pass_trigger_MET && Pass_HEMVeto30_JESUp;
+        Pass_EventFilter_JESUp = Pass_EventFilter_JESUp && Pass_JetID_JESUp && Pass_CaloMETRatio_JESUp && Pass_trigger_MET;
+        if (!nosplit) Pass_EventFilter_JESUp = Pass_EventFilter_JESUp && Pass_HEMVeto30_JESUp;
         
         bool Pass_EventFilter_JESDown = tr.getVar<bool>("Pass_EventFilter_JESDown");
         bool Pass_JetID_JESDown = tr.getVar<bool>("Pass_JetID_JESDown");
         bool Pass_CaloMETRatio_JESDown = tr.getVar<bool>("Pass_CaloMETRatio_JESDown");
         bool Pass_HEMVeto30_JESDown = true;
         if(PostHEM && era == "2018") Pass_HEMVeto30_JESDown = tr.getVar<bool>("Pass_exHEMVeto30_JESDown");
-        Pass_EventFilter_JESDown = Pass_EventFilter_JESDown && Pass_JetID_JESDown && Pass_CaloMETRatio_JESDown && Pass_trigger_MET && Pass_HEMVeto30_JESDown;
+        Pass_EventFilter_JESDown = Pass_EventFilter_JESDown && Pass_JetID_JESDown && Pass_CaloMETRatio_JESDown && Pass_trigger_MET;
+        if (!nosplit) Pass_EventFilter_JESDown = Pass_EventFilter_JESDown && Pass_HEMVeto30_JESDown;
 
         bool Pass_EventFilter_METUnClustUp = tr.getVar<bool>("Pass_EventFilter_METUnClustUp");
         bool Pass_JetID_METUnClustUp = tr.getVar<bool>("Pass_JetID_METUnClustUp");
         bool Pass_CaloMETRatio_METUnClustUp = tr.getVar<bool>("Pass_CaloMETRatio_METUnClustUp");
         bool Pass_HEMVeto30_METUnClustUp = true;
         if(PostHEM && era == "2018") Pass_HEMVeto30_METUnClustUp = tr.getVar<bool>("Pass_exHEMVeto30_METUnClustUp");
-        Pass_EventFilter_METUnClustUp = Pass_EventFilter_METUnClustUp && Pass_JetID_METUnClustUp && Pass_CaloMETRatio_METUnClustUp && Pass_trigger_MET && Pass_HEMVeto30_METUnClustUp;
+        Pass_EventFilter_METUnClustUp = Pass_EventFilter_METUnClustUp && Pass_JetID_METUnClustUp && Pass_CaloMETRatio_METUnClustUp && Pass_trigger_MET;
+        if(!nosplit) Pass_EventFilter_METUnClustUp = Pass_EventFilter_METUnClustUp && Pass_HEMVeto30_METUnClustUp;
         
         bool Pass_EventFilter_METUnClustDown = tr.getVar<bool>("Pass_EventFilter_METUnClustDown");
         bool Pass_JetID_METUnClustDown = tr.getVar<bool>("Pass_JetID_METUnClustDown");
         bool Pass_CaloMETRatio_METUnClustDown = tr.getVar<bool>("Pass_CaloMETRatio_METUnClustDown");
         bool Pass_HEMVeto30_METUnClustDown = true;
         if(PostHEM && era == "2018") Pass_HEMVeto30_METUnClustDown = tr.getVar<bool>("Pass_exHEMVeto30_METUnClustDown");
-        Pass_EventFilter_METUnClustDown = Pass_EventFilter_METUnClustDown && Pass_JetID_METUnClustDown && Pass_CaloMETRatio_METUnClustDown && Pass_trigger_MET && Pass_HEMVeto30_METUnClustDown;
+        Pass_EventFilter_METUnClustDown = Pass_EventFilter_METUnClustDown && Pass_JetID_METUnClustDown && Pass_CaloMETRatio_METUnClustDown && Pass_trigger_MET;
+        if(!nosplit) Pass_EventFilter_METUnClustDown = Pass_EventFilter_METUnClustDown && Pass_HEMVeto30_METUnClustDown;
 
         //if(!Pass_EventFilter) continue;
         //Count events passing filter:
@@ -785,6 +802,14 @@ int main(int argc, char* argv[])
         float evtWeight = 1.0;
         float lowDMevtWeight = 1.0;
         float highDMevtWeight = 1.0;
+        float lowDMevtWeight_JESUp = 1.0;
+        float lowDMevtWeight_JESDown = 1.0;
+        float highDMevtWeight_JESUp = 1.0;
+        float highDMevtWeight_JESDown = 1.0;
+        float lowDMevtWeight_METUnClustUp = 1.0;
+        float lowDMevtWeight_METUnClustDown = 1.0;
+        float highDMevtWeight_METUnClustUp = 1.0;
+        float highDMevtWeight_METUnClustDown = 1.0;
         float B_SF = 1.0;
         float B_SF_Down = 1.0;
         float B_SF_Up = 1.0;
@@ -841,8 +866,21 @@ int main(int argc, char* argv[])
             //lowDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * W_SF * MergedTop_SF * ResTop_SF;
             //highDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * W_SF * MergedTop_SF * ResTop_SF;
             //Turning off veto SF for full status (lepton veto as well as low dm top/w veto)
-            lowDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF;
-            highDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight;
+            if(nosplit && (era == "2018") && Pass_HEMVeto30) nosplit_lumi = 59.699489;
+            if(nosplit && (era == "2018") && Pass_HEMVeto30_JESUp) nosplit_lumi_JESUp = 59.699489;
+            if(nosplit && (era == "2018") && Pass_HEMVeto30_JESDown) nosplit_lumi_JESDown = 59.699489;
+            if(nosplit && (era == "2018") && Pass_HEMVeto30_METUnClustUp) nosplit_lumi_METUnClustUp = 59.699489;
+            if(nosplit && (era == "2018") && Pass_HEMVeto30_METUnClustDown) nosplit_lumi_METUnClustDown = 59.699489;
+            lowDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * nosplit_lumi;
+            highDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * nosplit_lumi;
+            lowDMevtWeight_JESUp = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * nosplit_lumi_JESUp;
+            highDMevtWeight_JESUp = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * nosplit_lumi_JESUp;
+            lowDMevtWeight_JESDown = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * nosplit_lumi_JESDown;
+            highDMevtWeight_JESDown = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * nosplit_lumi_JESDown;
+            lowDMevtWeight_METUnClustUp = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * nosplit_lumi_METUnClustUp;
+            highDMevtWeight_METUnClustUp = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * nosplit_lumi_METUnClustUp;
+            lowDMevtWeight_METUnClustDown = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * nosplit_lumi_METUnClustDown;
+            highDMevtWeight_METUnClustDown = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * nosplit_lumi_METUnClustDown;
             //Multiply in W_SF, MergedTop_SF, and ResTop_SF as needed
             //...Instead of finding the list of bins (which can vary and will be large), just check what ntop, nres, nw is
         }
@@ -901,7 +939,7 @@ int main(int argc, char* argv[])
             bin_num_JESUp = SB_lowdm_validation(njets_JESUp,nb_JESUp,nSV_JESUp,ISRpt_JESUp,ptb_JESUp,met_JESUp);
             if(bin_num_JESUp != -1)
             {
-                h_vb_low_JES_up->Fill(bin_num_JESUp,SF*lowDMevtWeight);
+                h_vb_low_JES_up->Fill(bin_num_JESUp,SF*lowDMevtWeight_JESUp);
                 eff_h->Fill(2.,sign);
             }
         }
@@ -910,7 +948,7 @@ int main(int argc, char* argv[])
             bin_num_JESDown = SB_lowdm_validation(njets_JESDown,nb_JESDown,nSV_JESDown,ISRpt_JESDown,ptb_JESDown,met_JESDown);
             if(bin_num_JESDown != -1)
             {
-                h_vb_low_JES_down->Fill(bin_num_JESDown,SF*lowDMevtWeight);
+                h_vb_low_JES_down->Fill(bin_num_JESDown,SF*lowDMevtWeight_JESDown);
                 eff_h->Fill(3.,sign);
             }
         }
@@ -919,7 +957,7 @@ int main(int argc, char* argv[])
             bin_num_METUnClustUp = SB_lowdm_validation(njets,nb,nSV,ISRpt,ptb,met_METUnClustUp);
             if(bin_num_METUnClustUp != -1)
             {
-                h_vb_low_METUnClust_up->Fill(bin_num_METUnClustUp,SF*lowDMevtWeight);
+                h_vb_low_METUnClust_up->Fill(bin_num_METUnClustUp,SF*lowDMevtWeight_METUnClustUp);
                 eff_h->Fill(2.,sign);
             }
         }
@@ -928,7 +966,7 @@ int main(int argc, char* argv[])
             bin_num_METUnClustDown = SB_lowdm_validation(njets,nb,nSV,ISRpt,ptb,met_METUnClustDown);
             if(bin_num_METUnClustDown != -1)
             {
-                h_vb_low_METUnClust_down->Fill(bin_num_METUnClustDown,SF*lowDMevtWeight);
+                h_vb_low_METUnClust_down->Fill(bin_num_METUnClustDown,SF*lowDMevtWeight_METUnClustDown);
                 eff_h->Fill(3.,sign);
             }
         }
@@ -1004,7 +1042,7 @@ int main(int argc, char* argv[])
             bin_num_JESUp = SB_lowdm_validation_high_MET(nb_JESUp,nSV_JESUp,ISRpt_JESUp,met_JESUp);
             if(bin_num_JESUp != -1)
             {
-                h_vb_low_JES_up->Fill(bin_num_JESUp,SF*lowDMevtWeight);
+                h_vb_low_JES_up->Fill(bin_num_JESUp,SF*lowDMevtWeight_JESUp);
                 eff_h->Fill(2.,sign);
             }
         }
@@ -1013,7 +1051,7 @@ int main(int argc, char* argv[])
             bin_num_JESDown = SB_lowdm_validation_high_MET(nb_JESDown,nSV_JESDown,ISRpt_JESDown,met_JESDown);
             if(bin_num_JESDown != -1)
             {
-                h_vb_low_JES_down->Fill(bin_num_JESDown,SF*lowDMevtWeight);
+                h_vb_low_JES_down->Fill(bin_num_JESDown,SF*lowDMevtWeight_JESDown);
                 eff_h->Fill(3.,sign);
             }
         }
@@ -1022,7 +1060,7 @@ int main(int argc, char* argv[])
             bin_num_METUnClustUp = SB_lowdm_validation_high_MET(nb,nSV,ISRpt,met_METUnClustUp);
             if(bin_num_METUnClustUp != -1)
             {
-                h_vb_low_METUnClust_up->Fill(bin_num_METUnClustUp,SF*lowDMevtWeight);
+                h_vb_low_METUnClust_up->Fill(bin_num_METUnClustUp,SF*lowDMevtWeight_METUnClustUp);
                 eff_h->Fill(2.,sign);
             }
         }
@@ -1031,7 +1069,7 @@ int main(int argc, char* argv[])
             bin_num_METUnClustDown = SB_lowdm_validation_high_MET(nb,nSV,ISRpt,met_METUnClustDown);
             if(bin_num_METUnClustDown != -1)
             {
-                h_vb_low_METUnClust_down->Fill(bin_num_METUnClustDown,SF*lowDMevtWeight);
+                h_vb_low_METUnClust_down->Fill(bin_num_METUnClustDown,SF*lowDMevtWeight_METUnClustDown);
                 eff_h->Fill(3.,sign);
             }
         }
@@ -1134,7 +1172,7 @@ int main(int argc, char* argv[])
                 if(ntop_merge_JESUp != 0) topw_sf *= MergedTop_SF;
                 if(ntop_res_JESUp != 0) topw_sf *= ResTop_SF;
                 if(nw_JESUp != 0) topw_sf *= W_SF;
-                h_vb_high_JES_up->Fill(bin_num_JESUp,SF*highDMevtWeight*topw_sf);
+                h_vb_high_JES_up->Fill(bin_num_JESUp,SF*highDMevtWeight_JESUp*topw_sf);
                 eff_h->Fill(2.,sign);
             }
         }
@@ -1147,7 +1185,7 @@ int main(int argc, char* argv[])
                 if(ntop_merge_JESDown != 0) topw_sf *= MergedTop_SF;
                 if(ntop_res_JESDown != 0) topw_sf *= ResTop_SF;
                 if(nw_JESDown != 0) topw_sf *= W_SF;
-                h_vb_high_JES_down->Fill(bin_num_JESDown,SF*highDMevtWeight*topw_sf);
+                h_vb_high_JES_down->Fill(bin_num_JESDown,SF*highDMevtWeight_JESDown*topw_sf);
                 eff_h->Fill(3.,sign);
             }
         }
@@ -1160,7 +1198,7 @@ int main(int argc, char* argv[])
                 if(ntop_merge != 0) topw_sf *= MergedTop_SF;
                 if(ntop_res != 0) topw_sf *= ResTop_SF;
                 if(nw != 0) topw_sf *= W_SF;
-                h_vb_high_METUnClust_up->Fill(bin_num_METUnClustUp,SF*highDMevtWeight*topw_sf);
+                h_vb_high_METUnClust_up->Fill(bin_num_METUnClustUp,SF*highDMevtWeight_METUnClustUp*topw_sf);
                 eff_h->Fill(2.,sign);
             }
         }
@@ -1173,7 +1211,7 @@ int main(int argc, char* argv[])
                 if(ntop_merge != 0) topw_sf *= MergedTop_SF;
                 if(ntop_res != 0) topw_sf *= ResTop_SF;
                 if(nw != 0) topw_sf *= W_SF;
-                h_vb_high_METUnClust_down->Fill(bin_num_METUnClustDown,SF*highDMevtWeight*topw_sf);
+                h_vb_high_METUnClust_down->Fill(bin_num_METUnClustDown,SF*highDMevtWeight_METUnClustDown*topw_sf);
                 eff_h->Fill(3.,sign);
             }
         }
@@ -1250,7 +1288,7 @@ int main(int argc, char* argv[])
             bin_num_JESUp = SB_lowdm(njets_JESUp,nb_JESUp,nSV_JESUp,ISRpt_JESUp,ptb_JESUp,met_JESUp);
             if(bin_num_JESUp != -1)
             {
-                h_sb_low_JES_up->Fill(bin_num_JESUp,SF*lowDMevtWeight);
+                h_sb_low_JES_up->Fill(bin_num_JESUp,SF*lowDMevtWeight_JESUp);
                 eff_h->Fill(2.,sign);
             }
         }
@@ -1259,7 +1297,7 @@ int main(int argc, char* argv[])
             bin_num_JESDown = SB_lowdm(njets_JESDown,nb_JESDown,nSV_JESDown,ISRpt_JESDown,ptb_JESDown,met_JESDown);
             if(bin_num_JESDown != -1)
             {
-                h_sb_low_JES_down->Fill(bin_num_JESDown,SF*lowDMevtWeight);
+                h_sb_low_JES_down->Fill(bin_num_JESDown,SF*lowDMevtWeight_JESDown);
                 eff_h->Fill(3.,sign);
             }
         }
@@ -1268,7 +1306,7 @@ int main(int argc, char* argv[])
             bin_num_METUnClustUp = SB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustUp);
             if(bin_num_METUnClustUp != -1)
             {
-                h_sb_low_METUnClust_up->Fill(bin_num_METUnClustUp,SF*lowDMevtWeight);
+                h_sb_low_METUnClust_up->Fill(bin_num_METUnClustUp,SF*lowDMevtWeight_METUnClustUp);
                 eff_h->Fill(2.,sign);
             }
         }
@@ -1277,7 +1315,7 @@ int main(int argc, char* argv[])
             bin_num_METUnClustDown = SB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustDown);
             if(bin_num_METUnClustDown != -1)
             {
-                h_sb_low_METUnClust_down->Fill(bin_num_METUnClustDown,SF*lowDMevtWeight);
+                h_sb_low_METUnClust_down->Fill(bin_num_METUnClustDown,SF*lowDMevtWeight_METUnClustDown);
                 eff_h->Fill(3.,sign);
             }
         }
@@ -1359,7 +1397,7 @@ int main(int argc, char* argv[])
                 if(ntop_merge_JESUp != 0) topw_sf *= MergedTop_SF;
                 if(ntop_res_JESUp != 0) topw_sf *= ResTop_SF;
                 if(nw_JESUp != 0) topw_sf *= W_SF;
-                h_sb_high_JES_up->Fill(bin_num_JESUp,SF*highDMevtWeight*topw_sf);
+                h_sb_high_JES_up->Fill(bin_num_JESUp,SF*highDMevtWeight_JESUp*topw_sf);
                 eff_h->Fill(2.,sign);
             }
         }
@@ -1372,7 +1410,7 @@ int main(int argc, char* argv[])
                 if(ntop_merge_JESDown != 0) topw_sf *= MergedTop_SF;
                 if(ntop_res_JESDown != 0) topw_sf *= ResTop_SF;
                 if(nw_JESDown != 0) topw_sf *= W_SF;
-                h_sb_high_JES_down->Fill(bin_num_JESDown,SF*highDMevtWeight*topw_sf);
+                h_sb_high_JES_down->Fill(bin_num_JESDown,SF*highDMevtWeight_JESDown*topw_sf);
                 eff_h->Fill(3.,sign);
             }
         }
@@ -1385,7 +1423,7 @@ int main(int argc, char* argv[])
                 if(ntop_merge != 0) topw_sf *= MergedTop_SF;
                 if(ntop_res != 0) topw_sf *= ResTop_SF;
                 if(nw != 0) topw_sf *= W_SF;
-                h_sb_high_METUnClust_up->Fill(bin_num_METUnClustUp,SF*highDMevtWeight*topw_sf);
+                h_sb_high_METUnClust_up->Fill(bin_num_METUnClustUp,SF*highDMevtWeight_METUnClustUp*topw_sf);
                 eff_h->Fill(2.,sign);
             }
         }
@@ -1398,7 +1436,7 @@ int main(int argc, char* argv[])
                 if(ntop_merge != 0) topw_sf *= MergedTop_SF;
                 if(ntop_res != 0) topw_sf *= ResTop_SF;
                 if(nw != 0) topw_sf *= W_SF;
-                h_sb_high_METUnClust_down->Fill(bin_num_METUnClustDown,SF*highDMevtWeight*topw_sf);
+                h_sb_high_METUnClust_down->Fill(bin_num_METUnClustDown,SF*highDMevtWeight_METUnClustDown*topw_sf);
                 eff_h->Fill(3.,sign);
             }
         }
