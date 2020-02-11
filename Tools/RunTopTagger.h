@@ -24,7 +24,6 @@ class RunTopTagger {
 private:
     std::shared_ptr<TopTagger> tt_; // std::unique_ptr gives a compile error
     std::string jetsLabel_;
-    std::string resTopCandDiscLabel_;
     std::string taggerCfg_;
     std::string suffix_;
     bool doLeptonCleaning_ = false;
@@ -101,15 +100,14 @@ private:
         // --- old version --- //
         //resolved top candidates
         //const auto& ResTopCand_LV            = tr.getVec_LVFromNano<float>("ResolvedTopCandidate");
-        // load discriminator to fix double truncation/rounding
         //const auto& ResTopCand_discriminator = tr.getVec<float>("ResolvedTopCandidate_discriminator");
-        //const auto& ResTopCand_discriminator = tr.getVec<float>(resTopCandDiscLabel_);
         //const auto& ResTopCand_j1Idx         = tr.getVec<int>("ResolvedTopCandidate_j1Idx");
         //const auto& ResTopCand_j2Idx         = tr.getVec<int>("ResolvedTopCandidate_j2Idx");
         //const auto& ResTopCand_j3Idx         = tr.getVec<int>("ResolvedTopCandidate_j3Idx");
         
         // --- new version --- //
-        //resolved top candidates
+        // load previously run top tagger candidates to fix double truncation/rounding
+        // resolved top candidates
         const auto& ResTopCand_LV            = tr.getVec<TLorentzVector>(getSATVar("ResolvedTopCandidateTLV"));
         const auto& ResTopCand_discriminator = tr.getVec<float>(getSATVar("ResolvedTopCandidate_discriminator"));
         const auto& ResTopCand_j1Idx         = tr.getVec<int>(getSATVar("ResolvedTopCandidate_j1Idx"));
@@ -455,7 +453,7 @@ private:
     
 public:
 
-    int verbose_ = 1;
+    int verbose_ = 0;
 
     RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string suffix = "", bool doLeptonCleaning = false, bool doPhotonCleaning = false) :
         taggerCfg_ (taggerCfg),
@@ -465,25 +463,18 @@ public:
         tt_ (new TopTagger())
     {
         jetsLabel_           = "JetTLV";
-        resTopCandDiscLabel_ = "ResolvedTopCandidate_discriminator"; 
-        if (doLeptonCleaning || doPhotonCleaning)
-        {
-            resTopCandDiscLabel_ = "SAT_ResolvedTopCandidate_discriminator_jetpt30";
-        }
         if (suffix_.find("jesTotalUp") != std::string::npos)
         {
             jetsLabel_              += "_jesTotalUp";
-            resTopCandDiscLabel_    += "_jesTotalUp";
         }
         else if (suffix_.find("jesTotalDown") != std::string::npos)
         {
             jetsLabel_              += "_jesTotalDown";
-            resTopCandDiscLabel_    += "_jesTotalDown";
         }
         if (verbose_) 
         {
             std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", suffix_ = " << suffix_ << ", jetsLabel_ = " << jetsLabel_ 
-                      << ", resTopCandDiscLabel_ = " << resTopCandDiscLabel_ << ", doLeptonCleaning_ = " << doLeptonCleaning_ << ", doPhotonCleaning_ = " << doPhotonCleaning_ << std::endl;
+                      << ", doLeptonCleaning_ = " << doLeptonCleaning_ << ", doPhotonCleaning_ = " << doPhotonCleaning_ << std::endl;
         }
         tt_->setCfgFile(taggerCfg_);
     }
