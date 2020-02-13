@@ -29,15 +29,15 @@ private:
     bool doLeptonCleaning_ = false;
     bool doPhotonCleaning_ = false;
 
-    std::string getSATVar(std::string var)
+    std::string getSATVar(std::string collection, std::string var)
     {
         // only use SAT version of variable when doing lepton/photon cleaning (using top candidates which are already saved)
         // otherwise, we run the top tagger with Tensorflow and do not use the top candidates
         bool useSAT = doLeptonCleaning_ || doPhotonCleaning_;
-        std::string final_var = var;
+        std::string final_var = collection + var;
         if (useSAT) 
         {
-            final_var = "SAT_" + var + "_jetpt30";
+            final_var = "SAT_" + collection + var + "_jetpt30";
             if (suffix_.find("jesTotalUp") != std::string::npos)
             {
                 final_var += "_jesTotalUp";
@@ -45,6 +45,17 @@ private:
             else if (suffix_.find("jesTotalDown") != std::string::npos)
             {
                 final_var += "_jesTotalDown";
+            }
+        }
+        else
+        {
+            if (suffix_.find("jesTotalUp") != std::string::npos)
+            {
+                final_var = collection + "_JESUp" + var;
+            }
+            else if (suffix_.find("jesTotalDown") != std::string::npos)
+            {
+                final_var = collection + "_JESDown" + var;
             }
         }
         return final_var;
@@ -108,11 +119,12 @@ private:
         // --- new version --- //
         // load previously run top tagger candidates to fix double truncation/rounding
         // resolved top candidates
-        const auto& ResTopCand_LV            = tr.getVec<TLorentzVector>(getSATVar("ResolvedTopCandidateTLV"));
-        const auto& ResTopCand_discriminator = tr.getVec<float>(getSATVar("ResolvedTopCandidate_discriminator"));
-        const auto& ResTopCand_j1Idx         = tr.getVec<int>(getSATVar("ResolvedTopCandidate_j1Idx"));
-        const auto& ResTopCand_j2Idx         = tr.getVec<int>(getSATVar("ResolvedTopCandidate_j2Idx"));
-        const auto& ResTopCand_j3Idx         = tr.getVec<int>(getSATVar("ResolvedTopCandidate_j3Idx"));
+        // std::string getSATVar(std::string collection, std::string var)
+        const auto& ResTopCand_LV            = tr.getVec<TLorentzVector>(   getSATVar("ResolvedTopCandidate", "TLV")                );
+        const auto& ResTopCand_discriminator = tr.getVec<float>(            getSATVar("ResolvedTopCandidate", "_discriminator")     );
+        const auto& ResTopCand_j1Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j1Idx")             );
+        const auto& ResTopCand_j2Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j2Idx")             );
+        const auto& ResTopCand_j3Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j3Idx")             );
 
         auto* MergedTopsTLV                             = new std::vector<TLorentzVector>();
         auto* MergedTops_disc                           = new std::vector<float>();
