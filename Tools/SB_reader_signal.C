@@ -681,6 +681,20 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
 
         //W tag SF
 
+        //New vars for v6:
+        /*
+        Stop0l_ResTopWeight
+        Stop0l_ResTopWeight_Up
+        Stop0l_ResTopWeight_Dn
+        Stop0l_DeepAK8_SFWeight
+        Stop0l_DeepAK8_SFWeight_up
+        Stop0l_DeepAK8_SFWeight_dn
+        Stop0l_ResTopWeight_fast_Up
+        Stop0l_ResTopWeight_fast_Dn
+        Stop0l_DeepAK8_SFWeight_fast_up
+        Stop0l_DeepAK8_SFWeight_fast_dn
+        */
+
         //both are part of the following:
         //FatJetSF
         auto vec_FatJet_SF = tr.getVec<float>("FatJet_SF");
@@ -1547,7 +1561,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         if(Search_lowdm_METunc_up)
         {
             //bin_num_METunc_up = SB_lowdm(njets,nb,nSV,ISRpt,ptb,METunc_up);
-            bin_num_METunc_up = SRbin(Pass_Baseline,false,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_up = SRbin(Pass_Baseline_METUncUp,false,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_up != -1)
             {
                 h_sb_METunc_up->Fill(bin_num_METunc_up,SF*lowDMevtWeight);
@@ -1557,7 +1571,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         if(Search_lowdm_METunc_down)
         {
             //bin_num_METunc_down = SB_lowdm(njets,nb,nSV,ISRpt,ptb,METunc_down);
-            bin_num_METunc_down = SRbin(Pass_Baseline,false,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_down = SRbin(Pass_Baseline_METUncDown,false,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_down != -1)
             {
                 h_sb_METunc_down->Fill(bin_num_METunc_down,SF*lowDMevtWeight);
@@ -1700,7 +1714,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         if(Search_highdm_METunc_up)
         {
             //bin_num_METunc_up = SBv4_highdm(mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_up);
-            bin_num_METunc_up = SRbin(Pass_Baseline,false,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_up = SRbin(Pass_Baseline_METUncUp,false,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_up != -1)
             {
                 topw_sf = 1;
@@ -1714,7 +1728,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         if(Search_highdm_METunc_down)
         {
             //bin_num_METunc_down = SBv4_highdm(mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_down);
-            bin_num_METunc_down = SRbin(Pass_Baseline,false,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_down = SRbin(Pass_Baseline_METUncDown,false,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_down != -1)
             {
                 topw_sf = 1;
@@ -1889,7 +1903,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             //bin_num_METUnClustUp = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustUp);
             //bin_num_METUnClustUp = nCRUnitLowDM;
             //bin_num_METunc_up = getsearchbin.getUnitNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,METunc_up);
-            bin_num_METunc_up = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,false,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_up = lepCRunit(Pass_Baseline,false,Pass_LLCR_METuncUp,false,false,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_up != -1)
             {
                 h_ub_METunc_up->Fill(bin_num_METunc_up,SF*lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF);
@@ -1901,7 +1915,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             //bin_num_METUnClustDown = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustDown);
             //bin_num_METUnClustDown = nCRUnitLowDM;
             //bin_num_METunc_down = getsearchbin.getUnitNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,METunc_down);
-            bin_num_METunc_down = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,false,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_down = lepCRunit(Pass_Baseline,false,Pass_LLCR_METuncDown,false,false,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_down != -1)
             {
                 h_ub_METunc_down->Fill(bin_num_METunc_down,SF*lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF);
@@ -2022,7 +2036,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         if(Unit_highdm_METuncUp)
         {
             //bin_num_METunc_up = getsearchbin.getUnitNumHighDM("unitCRNum",mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_up);
-            bin_num_METunc_up = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,Pass_HighDM,false,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_up = lepCRunit(Pass_Baseline,false,Pass_LLCR_METuncUp,false,Pass_HighDM,false,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_up != -1)
             {
                 topw_sf = 1;
@@ -2036,7 +2050,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         if(Unit_highdm_METuncDown)
         {
             //bin_num_METunc_down = getsearchbin.getUnitNumHighDM("unitCRNum",mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_down);
-            bin_num_METunc_down = lepCRunit(Pass_Baseline,false,Pass_LLCR,false,Pass_HighDM,false,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_down = lepCRunit(Pass_Baseline,false,Pass_LLCR_METuncDown,false,Pass_HighDM,false,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_down != -1)
             {
                 topw_sf = 1;
@@ -2077,10 +2091,16 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         bool QCD_highdm_METUnClustUp = tr.getVar<bool>("Pass_QCDCR_highDM_METUnClustUp");
         bool QCD_lowdm_METUnClustDown = tr.getVar<bool>("Pass_QCDCR_lowDM_METUnClustDown");
         bool QCD_highdm_METUnClustDown = tr.getVar<bool>("Pass_QCDCR_highDM_METUnClustDown");
-        bool QCD_lowdm_METuncUp = QCD_lowdm;
-        bool QCD_lowdm_METuncDown = QCD_lowdm;
-        bool QCD_highdm_METuncUp = QCD_highdm;
-        bool QCD_highdm_METuncDown = QCD_highdm;
+        //need dphi of jets 1,2,3 < 0.1,0.1,0.1
+        bool Pass_dphiQCD = true;
+        auto Jet_phi = tr.getVec<float>("Jet_phi");
+        if(Jet_phi[0] > 0.1 || Jet_phi[1] > 0.1 || Jet_phi[2] > 0.1) Pass_dphiQCD = false;
+        bool QCD_METuncUp = Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && tr.getVar<bool>("Pass_NJets30") && (METunc_up > 250) && tr.getVar<bool>("Pass_HT") && Pass_dphiQCD;
+        bool QCD_METuncDown = Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && tr.getVar<bool>("Pass_NJets30") && (METunc_down > 250) && tr.getVar<bool>("Pass_HT") && Pass_dphiQCD;
+        bool QCD_lowdm_METuncUp = QCD_METuncUp && Pass_LowDM;
+        bool QCD_lowdm_METuncDown = QCD_METuncDown && Pass_LowDM;
+        bool QCD_highdm_METuncUp = QCD_METuncUp && Pass_HighDM;
+        bool QCD_highdm_METuncDown = QCD_METuncDown && Pass_HighDM;
 
         //int UB_lowdm(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met)
         if(QCD_lowdm)
@@ -2177,7 +2197,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             //bin_num_METUnClustUp = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustUp);
             //bin_num_METUnClustUp = nCRQCDLowDM;
             //bin_num_METunc_up = getsearchbin.getQCDNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,METunc_up);
-            bin_num_METunc_up = QCDCRunit(Pass_Baseline,Pass_QCDCR,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_up = QCDCRunit(Pass_Baseline,QCD_METuncUp,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_up != -1)
             {
                 h_qb_METunc_up->Fill(bin_num_METunc_up,SF*lowDMevtWeight);
@@ -2189,7 +2209,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             //bin_num_METUnClustDown = UB_lowdm(njets,nb,nSV,ISRpt,ptb,met_METUnClustDown);
             //bin_num_METUnClustDown = nCRQCDLowDM;
             //bin_num_METunc_down = getsearchbin.getQCDNumLowDM("unitCRNum",njets,nb,nSV,ISRpt,ptb,METunc_down);
-            bin_num_METunc_down = QCDCRunit(Pass_Baseline,Pass_QCDCR,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_down = QCDCRunit(Pass_Baseline,QCD_METuncDown,false,false,false,Pass_LowDM,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_down != -1)
             {
                 h_qb_METunc_down->Fill(bin_num_METunc_down,SF*lowDMevtWeight);
@@ -2310,7 +2330,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         if(QCD_highdm_METuncUp)
         {
             //bin_num_METunc_up = getsearchbin.getQCDNumHighDM("unitCRNum",mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_up);
-            bin_num_METunc_up = QCDCRunit(Pass_Baseline,Pass_QCDCR,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_up = QCDCRunit(Pass_Baseline,QCD_METuncUp,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_up,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_up != -1)
             {
                 topw_sf = 1;
@@ -2324,7 +2344,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         if(QCD_highdm_METuncDown)
         {
             //bin_num_METunc_down = getsearchbin.getQCDNumHighDM("unitCRNum",mtb,njets,nb,ntop_merge,nw,ntop_res,HT,METunc_down);
-            bin_num_METunc_down = QCDCRunit(Pass_Baseline,Pass_QCDCR,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
+            bin_num_METunc_down = QCDCRunit(Pass_Baseline,QCD_METuncDown,false,false,Pass_HighDM,false,nb,mtb,ptb,METunc_down,nSV,njets,ISRpt,HT,ntop_res,ntop_merge,nw);
             if(bin_num_METunc_down != -1)
             {
                 topw_sf = 1;
