@@ -582,6 +582,7 @@ void BaselineVessel::PassBaseline()
   const auto& Jets          = tr->getVec<TLorentzVector>(jetVecLabel);
   const auto& Jet_sortedIdx = tr->getVec<int>("Jet_sortedIdx");
   const auto& FatJets       = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const auto& SubJets       = tr->getVec<TLorentzVector>("SubJetTLV");
   const auto& met           = tr->getVar<float>(METLabel); 
   const auto& metphi        = tr->getVar<float>(METPhiLabel); 
 
@@ -643,6 +644,8 @@ void BaselineVessel::PassBaseline()
   const auto& ResolvedTopTotalSF    = tr->getVar<float>(UseSpecVar("ResolvedTopTotalSF"));
   const auto* ttr                   = tr->getVar<TopTaggerResults*>(UseSpecVar("ttr"));
   const auto& FatJet_Stop0l         = tr->getVec<int>(UseCleanedJetsVar("FatJet_Stop0l"));
+  const auto& FatJet_subJetIdx1     = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx1"));
+  const auto& FatJet_subJetIdx2     = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx2"));
   const auto& FatJet_msoftdrop      = tr->getVec<float>(UseCleanedJetsVar("FatJet_msoftdrop"));
   const auto& FatJet_deepTag_TvsQCD = tr->getVec<float>(UseCleanedJetsVar("FatJet_deepTag_TvsQCD"));
   const auto& FatJet_deepTag_WvsQCD = tr->getVec<float>(UseCleanedJetsVar("FatJet_deepTag_WvsQCD"));
@@ -1149,8 +1152,17 @@ void BaselineVessel::PassBaseline()
     j = 0;
     for (const auto& FatJet : FatJets)
     {
-      printf("FatJet_%d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf), type=%d, mt-disc=%.5lf, w-disc=%.5lf, msoftdrop=%.5lf\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M(), FatJet_Stop0l[j], FatJet_deepTag_TvsQCD[j], FatJet_deepTag_WvsQCD[j], FatJet_msoftdrop[j]);
-      ++j;
+        printf("FatJet_%d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf), type=%d, mt-disc=%.5lf, w-disc=%.5lf, msoftdrop=%.5lf\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M(), FatJet_Stop0l[j], FatJet_deepTag_TvsQCD[j], FatJet_deepTag_WvsQCD[j], FatJet_msoftdrop[j]);
+        // sub jets
+        std::vector<int> subJetIdxs;
+        subJetIdxs.push_back(FatJet_subJetIdx1[j]);
+        subJetIdxs.push_back(FatJet_subJetIdx2[j]);
+        for (int k = 0; k < subJetIdxs.size(); ++k)
+        {
+            TLorentzVector subjet = SubJets[subJetIdxs[k]];
+            printf("\t\tsub jet %d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", k, subjet.Pt(), subjet.Eta(), subjet.Phi(), subjet.M());
+        }
+        ++j;
     }
     // for testing ISR jet pt
     int myISRJetIndex = GetISRJetIdx(true);
