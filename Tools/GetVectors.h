@@ -32,8 +32,6 @@ private:
         registerTLV("FatJet");                          // AK8 jets 
         registerTLV("SubJet");                          // AK8 subjets
         registerTLV("ResolvedTopCandidate");            // resolved tops
-        registerTLV("ResolvedTopCandidate_JESUp");      // resolved tops JES up
-        registerTLV("ResolvedTopCandidate_JESDown");    // resolved tops JES down
         registerTLV("SB");                              // soft (low pt) bottom quarks
         
         // assign subjets to their AK8 jets
@@ -49,6 +47,8 @@ private:
             // only apply JES systematics to MC, not Data
             registerTLV("Jet", "_jesTotalUp");      // jec up (for systematics)
             registerTLV("Jet", "_jesTotalDown");    // jec down (for systematics)
+            registerTLV("ResolvedTopCandidate_JESUp");      // resolved tops JES up
+            registerTLV("ResolvedTopCandidate_JESDown");    // resolved tops JES down
         }
         
         registerTLV("Electron");    // electrons
