@@ -1050,7 +1050,8 @@ void BaselineVessel::PassBaseline()
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
   //if ( firstSpec.compare("_jetpt30") == 0 )
-  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference))
+  //if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference))
+  if (false)
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
@@ -1152,17 +1153,21 @@ void BaselineVessel::PassBaseline()
     j = 0;
     for (const auto& FatJet : FatJets)
     {
-        printf("FatJet_%d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf), type=%d, mt-disc=%.5lf, w-disc=%.5lf, msoftdrop=%.5lf\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M(), FatJet_Stop0l[j], FatJet_deepTag_TvsQCD[j], FatJet_deepTag_WvsQCD[j], FatJet_msoftdrop[j]);
-        // sub jets
-        std::vector<int> subJetIdxs;
-        subJetIdxs.push_back(FatJet_subJetIdx1[j]);
-        subJetIdxs.push_back(FatJet_subJetIdx2[j]);
-        for (int k = 0; k < subJetIdxs.size(); ++k)
+      printf("FatJet_%d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf), type=%d, mt-disc=%.5lf, w-disc=%.5lf, msoftdrop=%.5lf\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M(), FatJet_Stop0l[j], FatJet_deepTag_TvsQCD[j], FatJet_deepTag_WvsQCD[j], FatJet_msoftdrop[j]);
+      // sub jets
+      std::vector<int> subJetIdxs;
+      subJetIdxs.push_back(FatJet_subJetIdx1[j]);
+      subJetIdxs.push_back(FatJet_subJetIdx2[j]);
+      for (int k = 0; k < subJetIdxs.size(); ++k)
+      {
+        int subJetIdx = subJetIdxs[k];
+        if (subJetIdx >= 0 && subJetIdx < SubJets.size())
         {
-            TLorentzVector subjet = SubJets[subJetIdxs[k]];
-            printf("\t\tsub jet %d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", k, subjet.Pt(), subjet.Eta(), subjet.Phi(), subjet.M());
+          TLorentzVector subjet = SubJets[subJetIdxs[k]];
+          printf("\t\tsub jet %d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", k, subjet.Pt(), subjet.Eta(), subjet.Phi(), subjet.M());
         }
-        ++j;
+      }
+      ++j;
     }
     // for testing ISR jet pt
     int myISRJetIndex = GetISRJetIdx(true);
