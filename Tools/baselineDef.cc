@@ -522,35 +522,12 @@ void BaselineVessel::Test()
     if (firstSpec.compare("_jetpt30") == 0)
     {
         std::cout << " ----------------------------- Running Test ----------------------------- " << std::endl;
-        float met = 497.632263; 
-        float metphi = 0.447388; 
-        std::vector<TLorentzVector> Jets;
-        TLorentzVector v;
-        v.SetPtEtaPhiM(1075.000000, 1.201172, -2.917969, 81.625000);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(548.500000, 0.113953, -0.103775, 64.562500);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(221.375000, 0.012928, 2.608887, 40.531250);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(221.375000, 0.133606, 0.361755, 16.500000);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(199.000000, 0.565918, -1.702148, 20.203125);
-        Jets.push_back(v);
-        TLorentzVector met_TLV; 
-        // Set TLorentzVector for MET
-        met_TLV.SetPtEtaPhiM(met, 0, metphi, 0);
-        // Calculate deltaPhi
-        std::vector<float> dphi_vec = AnaFunctions::calcDPhi(Jets, met_TLV, 5, dPhiCutArrary, true);
-        int j = 0;
-        for (const auto& Jet : Jets)
-        {
-          printf("Jet_%d: pt=%f, eta=%f, phi=%f, mass=%f\n", j, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
-          ++j;
-        }
-        for (int i = 0; i < dphi_vec.size(); ++i)
-        {
-            printf("dPhi_%d = %f\n", i, dphi_vec[i]);
-        }
+        TLorentzVector mySubJet;
+        TLorentzVector myJet;
+        mySubJet.SetPtEtaPhiM(337.50000, 0.53296, 3.13477, 97.68750);
+        myJet.SetPtEtaPhiM(177.62500, 0.25934, 3.12354, 18.20312);
+        float dR = ROOT::Math::VectorUtil::DeltaR(mySubJet, myJet);
+        printf("sub jet and jet dR = %f\n", dR);
     }
 }
 
@@ -1049,9 +1026,9 @@ void BaselineVessel::PassBaseline()
   
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
+  //if (false)
   //if ( firstSpec.compare("_jetpt30") == 0 )
-  //if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference))
-  if (false)
+  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference))
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
@@ -1889,6 +1866,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassEventFilter();
   PassHEMVeto();
   PassBaseline();
+  //Test(); // for testing
 }
 
 void BaselineVessel::PassTrigger()
