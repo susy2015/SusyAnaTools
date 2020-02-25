@@ -522,12 +522,18 @@ void BaselineVessel::Test()
     if (firstSpec.compare("_jetpt30") == 0)
     {
         std::cout << " ----------------------------- Running Test ----------------------------- " << std::endl;
-        TLorentzVector mySubJet;
-        TLorentzVector myJet;
-        mySubJet.SetPtEtaPhiM(337.50000, 0.53296, 3.13477, 97.68750);
-        myJet.SetPtEtaPhiM(177.62500, 0.25934, 3.12354, 18.20312);
-        float dR = ROOT::Math::VectorUtil::DeltaR(mySubJet, myJet);
-        printf("sub jet and jet dR = %f\n", dR);
+        TLorentzVector jet1;
+        TLorentzVector jet2;
+        
+        //jet1.SetPtEtaPhiM(337.50000, 0.53296, 3.13477, 97.68750);
+        //jet2.SetPtEtaPhiM(177.62500, 0.25934, 3.12354, 18.20312);
+        
+        //jet1.SetPtEtaPhiM(1166.00000, -1.03369, -0.41223, 159.00000);
+        jet1.SetPtEtaPhiM(577.50000, -0.56909, 2.52930, 220.50000);
+        jet2.SetPtEtaPhiM(222.12500, -1.11816, -3.04541, 80.50000);
+        
+        float dR = ROOT::Math::VectorUtil::DeltaR(jet1, jet2);
+        printf("jet 1 and jet 2 dR = %f\n", dR);
     }
 }
 
