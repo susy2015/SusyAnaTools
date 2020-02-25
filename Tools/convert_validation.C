@@ -199,16 +199,24 @@ int convert_validation()
 			h2_clone->SetBinError(i, h2->GetBinError(i + first_bin));
 		}
 		TH1F *h2_clone_sys = (TH1F*)h2_clone->Clone();
+		TH1F *h2_clone_sys_up = (TH1F*)h2_clone->Clone();
+		TH1F *h2_clone_sys_down = (TH1F*)h2_clone->Clone();
 		for(int i = 1; i <= h1->GetSize() - 2; i++)
 		{
 			float mean_sys = (fabs(h2_up->GetBinContent(i + first_bin_sys)-1) + fabs(1-h2_down->GetBinContent(i + first_bin_sys)))/2 * h2_clone->GetBinContent(i);
+                        float sys_up = fabs(h2_up->GetBinContent(i + first_bin_sys)-1) * h2_clone->GetBinContent(i);
+                        float sys_down = fabs(1-h2_down->GetBinContent(i + first_bin_sys)) * h2_clone->GetBinContent(i);
 			//if(i==1)std::cout << "bin 1 central = " << h2_clone->GetBinContent(i) << std::endl;
 			//if(i==1)std::cout << "bin 1 sys unc = " << mean_sys << std::endl;
 			float stat = h2_clone->GetBinError(i);
 			//if(i==1)std::cout << "bin 1 stat unc = " << stat << std::endl;
 			float total_unc = sqrt(mean_sys* mean_sys + stat*stat);
+			float total_unc_up = sqrt(sys_up* sys_up + stat*stat);
+			float total_unc_down = sqrt(sys_down* sys_down + stat*stat);
 			//if(i==1)std::cout << "bin 1 total unc = " << total_unc << std::endl;
 			h2_clone_sys->SetBinError(i, total_unc);
+			h2_clone_sys_up->SetBinError(i, total_unc_up);
+			h2_clone_sys_down->SetBinError(i, total_unc_down);
 			//if(i==1)std::cout << "bin test: simulation, prediction, stat unc, sys down/up, sys unc, tot unc" << std::endl;
 			if(i==1)std::cout << "bin test: central, stat unc, sys down/up, sys unc, tot unc" << std::endl;
 			std::cout << std::fixed;
@@ -217,13 +225,16 @@ int convert_validation()
 			if(i==bin_test)std::cout << h2_clone->GetBinContent(i) << " " << stat << " " << h2_down->GetBinContent(i + first_bin_sys) << "/" << h2_up->GetBinContent(i + first_bin_sys) << " " << mean_sys << " " << total_unc << std::endl;
 		}
 		TString stat_unc_name = h2_clone->GetName();
-		stat_unc_name = stat_unc_name + "_stat";
-		h2_clone->SetName(stat_unc_name);
+		h2_clone->SetName(stat_unc_name + "_stat");
+		h2_clone_sys_up->SetName(stat_unc_name + "_up");
+		h2_clone_sys_down->SetName(stat_unc_name + "_down");
 		
 		TFile out_file(my_file + year + "_people.root","RECREATE");
 		h2_clone->Write();
 		std::cout << h2_clone->GetName() << " bin 1 stat unc = " << h2_clone->GetBinError(1) << std::endl;
 		h2_clone_sys->Write();
+		h2_clone_sys_up->Write();
+		h2_clone_sys_down->Write();
 		std::cout << h2_clone_sys->GetName() << " bin 1 total unc = " << h2_clone_sys->GetBinError(1) << std::endl;
 		out_file.Close();
 	}

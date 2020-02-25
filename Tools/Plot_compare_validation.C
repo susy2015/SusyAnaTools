@@ -9,11 +9,13 @@ int Plot_compare_validation()
 	bool plot_LL_highdm = false;
 	bool plot_data_Matt_lowdm = false;
 	bool plot_data_Matt_highdm = false;
+	bool plot_data_Matt_lowdm_MET = false;
+	bool plot_data_Matt_highdm_MET = true;
 	bool plot_data_Dipika_lowdm = false;
 	bool plot_data_Dipika_highdm = false;
 	bool plot_data_Jon_lowdm = false;
 	bool plot_data_Jon_highdm = false;
-	bool plot_data_Caleb_lowdm = true;
+	bool plot_data_Caleb_lowdm = false;
 	bool plot_data_Caleb_highdm = false;
 	bool plot_data_Anna_lowdm = false;
 	bool plot_data_Anna_highdm = false;
@@ -107,6 +109,26 @@ int Plot_compare_validation()
 		hist1 = "data"; 
 		f1_leg = "Data"; 
 		f2_name = "std_pred_trad_HM"; 
+		hist2 = "data";
+		f2_leg = "Matt_data"; 
+	}
+
+	if(plot_data_Matt_lowdm_MET)
+	{
+		f1_name = "Data_validation_lowdm_MET";
+		hist1 = "data"; 
+		f1_leg = "Data"; 
+		f2_name = "std_pred_trad_LM_MET"; 
+		hist2 = "data";
+		f2_leg = "Matt_data"; 
+	}
+
+	if(plot_data_Matt_highdm_MET)
+	{
+		f1_name = "Data_validation_highdm_MET";
+		hist1 = "data"; 
+		f1_leg = "Data"; 
+		f2_name = "std_pred_trad_HM_MET"; 
 		hist2 = "data";
 		f2_leg = "Matt_data"; 
 	}

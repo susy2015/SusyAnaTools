@@ -4,20 +4,20 @@ int make_datacards()
 	gROOT->ForceStyle();
 
 	double lumi = 137;
-	lumi = 35.8;	//2016
-	//lumi = 41.1;	//2017
-	//lumi = 21.0;	//2018 preHEM
-	//lumi = 38.6;	//2018 postHEM
-	//lumi = 59.6;	//2018 full
+	lumi = 35.8;	//2016 35815.165 pb-1
+	lumi = 41.5;	//2017 41486.136 pb-1
+	lumi = 21.1;	//2018 preHEM 21068.576 pb-1
+	//lumi = 38.6;	//2018 postHEM 38630.913 pb-1
+	//lumi = 59.7;	//2018 full 59699.489 pb-1
 	TString year = "";
 	year = "_2016";
-	//year = "_2017";
-	//year = "_2018";
+	year = "_2017";
+	year = "_2018";
 	TString folder = "";
 	//folder = "results_no_SD/";
 	folder = "results_2016/";
-	//folder = "results_2017/";
-	//folder = "results_2018_pre_HEM/";
+	folder = "results_2017/";
+	folder = "results_2018_pre_HEM/";
 	//folder = "results_2018_post_HEM/";
 	//folder = "results_2018/";
 	
@@ -31,7 +31,7 @@ int make_datacards()
 	bool is_compressed_signal = false;
 
 	bool make_QCD_datacard = false;
-	bool make_smear_QCD_datacard = false;
+	bool make_smear_QCD_datacard = true;
 	bool make_Zinv_datacard = true;
 	bool make_LL_datacard = true;
 	bool make_TTZ_datacard = true;
@@ -50,8 +50,10 @@ int make_datacards()
 	bool SBv2_highdm = false;
 	bool SBv2_highdm_validation = false;
 	bool SBv3_highdm_validation = false;
+	bool SBv3_highdm_validation_MET = true;
 	bool SBv2_lowdm = false;
-	bool SBv2_lowdm_validation = true;
+	bool SBv2_lowdm_validation = false;
+	bool SBv2_lowdm_validation_MET = false;
 	bool SBv2_lowdm_more_MET = false;
 	bool SBv2_lowdm_high_ISRpt = false;
 	bool more_HT_bins = false;
@@ -94,7 +96,7 @@ int make_datacards()
 	TString SR = "", SR_loose_bin = "", SR_weight = "";
 	TString SingleMuCR = "", SingleMuCR_loose_bin = "";
 	TString SingleElCR = "", SingleElCR_loose_bin = "";
-	TString low_or_high = "_lowdm";
+	TString post_fix = "_lowdm";
 
  	int first_bin;
 	int NSB = 999;
@@ -181,7 +183,7 @@ int make_datacards()
 		SingleMuCR = "search_bin_v2_singleMuCR_highdm_h";
 		SingleElCR = "search_bin_v2_singleElCR_highdm_h";
 		SR_weight = "search_bin_v2_highdm_validation_Stop0l_evtWeight_h";
-		low_or_high = "_highdm";
+		post_fix = "_highdm";
 		mid_bin = -1;
 	}
 
@@ -191,7 +193,17 @@ int make_datacards()
 		SingleMuCR = "search_bin_v2_singleMuCR_highdm_h";
 		SingleElCR = "search_bin_v2_singleElCR_highdm_h";
 		SR_weight = "search_bin_v3_highdm_validation_Stop0l_evtWeight_h";
-		low_or_high = "_highdm";
+		post_fix = "_highdm";
+		mid_bin = -1;
+	}
+
+	if (SBv3_highdm_validation_MET)
+	{
+		SR = "search_bin_v3_highdm_validation_MET_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_highdm_h";
+		SingleElCR = "search_bin_v2_singleElCR_highdm_h";
+		SR_weight = "search_bin_v3_highdm_validation_MET_Stop0l_evtWeight_h";
+		post_fix = "_highdm_MET";
 		mid_bin = -1;
 	}
 
@@ -209,7 +221,17 @@ int make_datacards()
 		SingleMuCR = "search_bin_v2_singleMuCR_highdm_h";
 		SingleElCR = "search_bin_v2_singleElCR_highdm_h";
 		SR_weight = "search_bin_v2_lowdm_validation_Stop0l_evtWeight_h";
-		low_or_high = "_lowdm";
+		post_fix = "_lowdm";
+		mid_bin = 999;
+	}
+
+	if (SBv2_lowdm_validation_MET)
+	{
+		SR = "search_bin_v2_lowdm_validation_MET_h";
+		SingleMuCR = "search_bin_v2_singleMuCR_highdm_h";
+		SingleElCR = "search_bin_v2_singleElCR_highdm_h";
+		SR_weight = "search_bin_v2_lowdm_validation_MET_Stop0l_evtWeight_h";
+		post_fix = "_lowdm_MET";
 		mid_bin = 999;
 	}
 
@@ -505,7 +527,7 @@ int make_datacards()
 
 		if(do_validation)
 		{
-			TFile out_file("validation/QCD_validation" + low_or_high + year + ".root","RECREATE");
+			TFile out_file("validation/QCD_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
 		}
@@ -578,7 +600,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEAR_HT_300to500";
+			TString sp = "QCD_SMEARED_HT_300to500";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -618,7 +640,7 @@ int make_datacards()
 
 		if (false)
 		{
-			TString sp = "QCD_SMEAR_HT_200to300";
+			TString sp = "QCD_SMEARED_HT_200to300";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -656,7 +678,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEAR_HT_500to700";
+			TString sp = "QCD_SMEARED_HT_500to700";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -694,7 +716,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEAR_HT_700to1000";
+			TString sp = "QCD_SMEARED_HT_700to1000";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -732,7 +754,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEAR_HT_1000to1500";
+			TString sp = "QCD_SMEARED_HT_1000to1500";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -770,7 +792,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEAR_HT_1500to2000";
+			TString sp = "QCD_SMEARED_HT_1500to2000";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -808,7 +830,7 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEAR_HT_2000toInf";
+			TString sp = "QCD_SMEARED_HT_2000toInf";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -849,7 +871,7 @@ int make_datacards()
 
 		if(do_validation)
 		{
-			TFile out_file("validation/QCD_validation" + low_or_high + year + ".root","RECREATE");
+			TFile out_file("validation/QCD_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
 		}
@@ -1179,7 +1201,7 @@ int make_datacards()
 
 		if(do_validation)
 		{
-			TFile out_file("validation/Zinv_validation" + low_or_high + year + ".root","RECREATE");
+			TFile out_file("validation/Zinv_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
 		}
@@ -2134,7 +2156,7 @@ int make_datacards()
 		pro_singleElCR->SetBinErrorOption(TH1::kPoisson);
 		if(do_validation)
 		{
-			TFile out_file("validation/LL_validation" + low_or_high + year + ".root","RECREATE");
+			TFile out_file("validation/LL_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
 		}
@@ -2710,7 +2732,7 @@ int make_datacards()
 
 		if(do_validation)
 		{
-			TFile out_file("validation/TTZ_validation" + low_or_high + year + ".root","RECREATE");
+			TFile out_file("validation/TTZ_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
 		}
@@ -2956,7 +2978,7 @@ int make_datacards()
 
 		if(do_validation)
 		{
-			TFile out_file("validation/Rare_validation" + low_or_high + year + ".root","RECREATE");
+			TFile out_file("validation/Rare_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
 		}
@@ -3169,7 +3191,7 @@ int make_datacards()
 	{
 		TFile *f1 = new TFile("results/" + folder + "Data_MET" + year + ".root");
 		TH1F *h1 = (TH1F*)f1->Get(SR);
-		TFile out_file("validation/Data_validation" + low_or_high + year + ".root","RECREATE");
+		TFile out_file("validation/Data_validation" + post_fix + year + ".root","RECREATE");
 		h1->SetName("data");
 		h1->Write();
 		out_file.Close();

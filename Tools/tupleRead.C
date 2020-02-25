@@ -33,11 +33,11 @@ int main(int argc, char* argv[]){
 
 	if(debug) std::cout << __LINE__ << std::endl;
 
+	bool apply_pass_HEM_veto = false;//force to apply HEM veto on 2018 MC
 	bool apply_SF = true;		//turn off when running on data
 	bool apply_prefire_SF = true;	//turn off when running 2018 sample
 	bool apply_ISR_SF = false;	//only for signal and 2016 TTbar
 	bool apply_pass_trigger = false;//only for data
-	bool apply_pass_HEM_veto = false;//only for 2018 data, run >= 319077
 	bool apply_fastsim_SF = false;	//only for fastsim
 
 	std::string sample_name(inputfilelist);
@@ -46,7 +46,6 @@ int main(int argc, char* argv[]){
 		std::cout << "=======================find data, turn off SF================================" << std::endl;
 		apply_SF = false;
 		apply_pass_trigger = true;
-		apply_pass_HEM_veto = true;
 	}
 	if(sample_name.find("SMS") != std::string::npos)
 	{
@@ -92,6 +91,7 @@ int main(int argc, char* argv[]){
 	if(debug) std::cout << __LINE__ << std::endl;
 
 	auto loose_baseline_cutflow_h=new TH1F("loose_baseline_cutflow_h","0: all 1: PassEventFilter 2: PassLeptonVeto 3: PassNjets 4: PassMET 5: PassHT 6: PassdPhiLowDM",7,0.0,7.0);
+	auto photon_trigger_cutflow_h=new TH1F("photon_trigger_cutflow_h","0: all 1: PassEventFilter 2: PassLeptonVeto 3: PassNjets 4: PassMET 5: PassHT 6: Pass_dPhi_QCD 7: n_photon_mid >=1 8: PassTrigger",9,0.0,9.0);
 	auto eff_h=new TH1F("eff_h","0: all. 1: loose baseline. 2: low dm. 3: high dm",4,0.0,4.0);
 	auto gen_filter_eff_h=new TH1F("gen_filter_eff_h","0: SigWTab_SigWeightGenCut. 1: SigWTab_SigWeightGenCutPass",2,0.0,2.0);
         auto ISR_SF_uc_h=new TH1F("ISR_SF_uc_h","ISR SF, no cuts",100,0.0,2.0);
@@ -212,10 +212,14 @@ int main(int argc, char* argv[]){
 	auto search_bin_v2_lowdm_validation_0p2_h=new TH1F("search_bin_v2_lowdm_validation_0p2_h","search bin v2 low dm validation, dPhi 0.2",22,0.0,22.0);
 	auto search_bin_v2_lowdm_validation_h=new TH1F("search_bin_v2_lowdm_validation_h","search bin v2 low dm validation",19,0.0,19.0);
 	auto search_bin_v2_lowdm_validation_Stop0l_evtWeight_h=new TH1F("search_bin_v2_lowdm_validation_Stop0l_evtWeight_h","search bin v2 low dm validation with Stop0l_evtWeight",19,0.0,19.0);
+	auto search_bin_v2_lowdm_validation_MET_h=new TH1F("search_bin_v2_lowdm_validation_MET_h","low dm validation MET study, 0: 250-300, 1: 300-400, 2: 400-500, 3: >500",4,0.0,4.0);
+	auto search_bin_v2_lowdm_validation_MET_Stop0l_evtWeight_h=new TH1F("search_bin_v2_lowdm_validation_MET_Stop0l_evtWeight_h","low dm validation MET study, 0: 250-300, 1: 300-400, 2: 400-500, 3: >500",4,0.0,4.0);
 	auto search_bin_v2_highdm_validation_h=new TH1F("search_bin_v2_highdm_validation_h","search bin v2 high dm validation",24,19.0,43.0);
 	auto search_bin_v2_highdm_validation_Stop0l_evtWeight_h=new TH1F("search_bin_v2_highdm_validation_Stop0l_evtWeight_h","search bin v2 high dm validation with Stop0l_evtWeight",24,19.0,43.0);
 	auto search_bin_v3_highdm_validation_h=new TH1F("search_bin_v3_highdm_validation_h","search bin v3 high dm validation",24,19.0,43.0);
 	auto search_bin_v3_highdm_validation_Stop0l_evtWeight_h=new TH1F("search_bin_v3_highdm_validation_Stop0l_evtWeight_h","search bin v3 high dm validation with Stop0l_evtWeight",24,19.0,43.0);
+	auto search_bin_v3_highdm_validation_MET_h=new TH1F("search_bin_v3_highdm_validation_MET_h","high dm validation MET study, 0: 250-350, 1: 350-450, 2: 450-550, 3: 550-650, 4:>650",5,0.0,5.0);
+	auto search_bin_v3_highdm_validation_MET_Stop0l_evtWeight_h=new TH1F("search_bin_v3_highdm_validation_MET_Stop0l_evtWeight_h","high dm validation MET study, 0: 250-350, 1: 350-450, 2: 450-550, 3: 550-650, 4:>650",5,0.0,5.0);
 
 	auto nMuons_uc_h=new TH1F("nMuons_uc_h","number of muons, no cuts",10,0.0,10.0);
 	auto nElectrons_uc_h=new TH1F("nElectrons_uc_h","number of electrons, no cuts",10,0.0,10.0);
@@ -229,15 +233,17 @@ int main(int argc, char* argv[]){
 
 		if(max_events > 0 && tr.getEvtNum() > max_events) break;
 
-		if(tr.getEvtNum() % 2000 == 0) std::cout << "Event Number " << tr.getEvtNum() << std::endl;
+		//if(tr.getEvtNum() % 2000 == 0) std::cout << "Event Number " << tr.getEvtNum() << std::endl;
 
 		//if(tr.getEvtNum() < 350000) continue;
 		//if (tr.getVar<unsigned long long>("event") != 519215141) continue;
 
 		//only take the sign from evtWeight!
 		float Stop0l_evtWeight = tr.getVar<float>("Stop0l_evtWeight");
-		float evtWeight = 1.0;
-		if (Stop0l_evtWeight < 0) evtWeight = -1.0;
+		float evtWeight = 1.0, evtWeight_sign = 1.0;
+		if (Stop0l_evtWeight < 0) evtWeight_sign = -1.0;
+		if(tr.checkBranch("Stop0l_smearWeight"))
+		{Stop0l_evtWeight = Stop0l_evtWeight * tr.getVar<float>("Stop0l_smearWeight"); }
 
 		float SigWTab_SigWeightGenCut = 1, SigWTab_SigWeightGenCutPass = 1;
 		if(tr.checkBranch("SigWTab_SigWeightGenCut") && tr.checkBranch("SigWTab_SigWeightGenCutPass"))
@@ -272,18 +278,19 @@ int main(int argc, char* argv[]){
 			}
 			if(apply_prefire_SF) PrefireWeight = tr.getVar<float>("PrefireWeight");
 			if(apply_ISR_SF) ISR_SF = tr.getVar<float>("ISRWeight");
-			evtWeight = evtWeight * B_SF * ISR_SF * trigger_eff * puWeight * PrefireWeight * Top_SF * fastsim_SF;
+			evtWeight = evtWeight_sign * B_SF * ISR_SF * trigger_eff * puWeight * PrefireWeight * Top_SF * fastsim_SF;
 		}
 
 		bool Pass_trigger_MET = true;
 		if(apply_pass_trigger) Pass_trigger_MET = tr.getVar<bool>("Pass_trigger_MET");
 		bool Pass_exHEMVeto30 = true;
-		if(apply_pass_HEM_veto && tr.getVar<unsigned int>("run") >= 319077) Pass_exHEMVeto30 = tr.getVar<bool>("Pass_exHEMVeto30");
+		if((sample_name.find("2018") != std::string::npos && apply_pass_HEM_veto) || (sample_name.find("Data") != std::string::npos && tr.getVar<unsigned int>("run") >= 319077)) Pass_exHEMVeto30 = tr.getVar<bool>("Pass_exHEMVeto30");
 		//if (Pass_exHEMVeto30 == false) std::cout << "veto a HEM event" << std::endl;
 		bool Pass_EventFilter = tr.getVar<bool>("Pass_EventFilter");
 		bool Pass_JetID = tr.getVar<bool>("Pass_JetID");
 		bool Pass_CaloMETRatio = tr.getVar<bool>("Pass_CaloMETRatio");
 		Pass_EventFilter = Pass_EventFilter && Pass_JetID && Pass_CaloMETRatio && Pass_trigger_MET && Pass_exHEMVeto30; 
+		//Pass_EventFilter = Pass_EventFilter && Pass_JetID && Pass_CaloMETRatio && Pass_exHEMVeto30; 
 
 		//bool Pass_Baseline = (Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && tr.getVar<bool>("Pass_NJets20") && met >= 250 && tr.getVar<bool>("Pass_HT") && tr.getVar<bool>("Pass_dPhiMET"));
 		bool Pass_Baseline = (Pass_EventFilter && tr.getVar<bool>("Pass_Baseline"));
@@ -394,7 +401,7 @@ int main(int argc, char* argv[]){
 		}*/
 		//=================== test end =======================================================
 
-		int nElectrons = 0, nMuons = 0;
+		int nElectrons = 0, nMuons = 0, nPhotons = 0;
 		std::vector<unsigned char> Electron_Stop0l = tr.getVec<unsigned char>("Electron_Stop0l");
 		std::vector<float> Electron_MtW = tr.getVec<float>("Electron_MtW");
 		for (int i = 0; i < Electron_Stop0l.size(); i++)
@@ -403,6 +410,9 @@ int main(int argc, char* argv[]){
 		std::vector<float> Muon_MtW = tr.getVec<float>("Muon_MtW");
 		for (int i = 0; i < Muon_Stop0l.size(); i++)
 		{if (Muon_Stop0l.at(i) && Muon_MtW.at(i) < 100) nMuons++;}
+		std::vector<unsigned char> Photon_Stop0l = tr.getVec<unsigned char>("Photon_Stop0l");
+		for (int i = 0; i < Photon_Stop0l.size(); i++)
+		{ nPhotons++;}
 
 		bool Pass_dPhi_QCD = (min_jet_dPhi < 0.1);
 		bool Pass_dPhi_0p15 = (min_jet_dPhi < 0.15);
@@ -444,10 +454,14 @@ int main(int argc, char* argv[]){
 		int SBv2_highdm_validation_index = SBv2_highdm_validation(mtb, njets, ntop_merge, nw, ntop_res, nb, met);
 		int SBv3_highdm_validation(float mtb, int njets, int ntop, int nw, int nres, int nb, float met);
 		int SBv3_highdm_validation_index = SBv3_highdm_validation(mtb, njets, ntop_merge, nw, ntop_res, nb, met);
+		int highdm_validation_MET(float mtb, int ntop, int nw, int nres, float met);
+		int highdm_validation_MET_index = highdm_validation_MET(mtb, ntop_merge, nw, ntop_res, met);
 		int SBv2_lowdm_validation(int njets, int nb, int nSV, float ISRpt, float bottompt_scalar_sum, float met);
 		int SBv2_lowdm_validation_index = SBv2_lowdm_validation(njets, nb, nSV, ISRpt, bottompt_scalar_sum, met);
 		int SBv2_lowdm_validation_high_MET(int nb, int nSV, float ISRpt, float met);
 		int SBv2_lowdm_validation_high_MET_index = SBv2_lowdm_validation_high_MET(nb, nSV, ISRpt, met);
+		int lowdm_validation_MET(float ISRpt, float met);
+		int lowdm_validation_MET_index = lowdm_validation_MET(ISRpt, met);
 		int SBv2_lowdm_validation_mid_dPhi(int njets, int nb, int nSV, float ISRpt, float met);
 		int SBv2_lowdm_validation_mid_dPhi_index = SBv2_lowdm_validation_mid_dPhi(njets, nb, nSV, ISRpt, met);
 
@@ -469,18 +483,46 @@ int main(int argc, char* argv[]){
 		}*/
 
                 // cutflow
-                loose_baseline_cutflow_h->Fill(0.);
-                if(Pass_EventFilter)loose_baseline_cutflow_h->Fill(1.);
-                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto"))loose_baseline_cutflow_h->Fill(2.);
-                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2)loose_baseline_cutflow_h->Fill(3.);
-                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2 && met >= 250)loose_baseline_cutflow_h->Fill(4.);
-                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2 && met >= 250 && tr.getVar<bool>("Pass_HT"))loose_baseline_cutflow_h->Fill(5.);
-                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2 && met >= 250 && tr.getVar<bool>("Pass_HT") && tr.getVar<bool>("Pass_dPhiMETLowDM"))loose_baseline_cutflow_h->Fill(6.);
+                loose_baseline_cutflow_h->Fill(0., evtWeight_sign);
+		photon_trigger_cutflow_h->Fill(0., evtWeight_sign);
+                if(Pass_EventFilter)
+		{
+			loose_baseline_cutflow_h->Fill(1., evtWeight_sign);
+			photon_trigger_cutflow_h->Fill(1., evtWeight_sign);
+		}
+                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto"))
+		{
+			loose_baseline_cutflow_h->Fill(2., evtWeight_sign);
+			photon_trigger_cutflow_h->Fill(2., evtWeight_sign);
+		}
+                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2)
+		{
+			loose_baseline_cutflow_h->Fill(3., evtWeight_sign);
+			photon_trigger_cutflow_h->Fill(3., evtWeight_sign);
+		}
+                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2 && met >= 250)
+		{
+			loose_baseline_cutflow_h->Fill(4., evtWeight_sign);
+			photon_trigger_cutflow_h->Fill(4., evtWeight_sign);
+		}
+                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2 && met >= 250 && tr.getVar<bool>("Pass_HT"))
+		{
+			loose_baseline_cutflow_h->Fill(5., evtWeight_sign);
+			photon_trigger_cutflow_h->Fill(5., evtWeight_sign);
+		}
+                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2 && met >= 250 && tr.getVar<bool>("Pass_HT") && tr.getVar<bool>("Pass_dPhiMETLowDM"))
+		{loose_baseline_cutflow_h->Fill(6., evtWeight_sign);}
+                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2 && met >= 250 && tr.getVar<bool>("Pass_HT") && Pass_dPhi_QCD)
+		{photon_trigger_cutflow_h->Fill(6., evtWeight_sign);}
+                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2 && met >= 250 && tr.getVar<bool>("Pass_HT") && Pass_dPhi_QCD && nPhotons >=1)
+		{photon_trigger_cutflow_h->Fill(7., evtWeight_sign);}
+                if(Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2 && met >= 250 && tr.getVar<bool>("Pass_HT") && Pass_dPhi_QCD && nPhotons >=1 && tr.getVar<bool>("Pass_trigger_MET"))
+		{photon_trigger_cutflow_h->Fill(8., evtWeight_sign);}
 
 		// no cut
-		eff_h->Fill(0.);
-		gen_filter_eff_h->Fill(0., SigWTab_SigWeightGenCut);
-		gen_filter_eff_h->Fill(1., SigWTab_SigWeightGenCutPass);
+		eff_h->Fill(0., evtWeight_sign);
+		gen_filter_eff_h->Fill(0., evtWeight_sign * SigWTab_SigWeightGenCut);
+		gen_filter_eff_h->Fill(1., evtWeight_sign * SigWTab_SigWeightGenCutPass);
 
                 ISR_SF_uc_h->Fill(ISR_SF);
                 B_SF_uc_h->Fill(B_SF);
@@ -509,7 +551,7 @@ int main(int argc, char* argv[]){
 
 		if(Pass_Baseline) 
 		{
-			eff_h->Fill(1.);
+			eff_h->Fill(1., evtWeight_sign);
                         ISR_SF_h->Fill(ISR_SF);
                         B_SF_h->Fill(B_SF);
                 	Trigger_SF_h->Fill(trigger_eff);
@@ -536,7 +578,7 @@ int main(int argc, char* argv[]){
 
 		if(Pass_lowDM)
 		{
-			eff_h->Fill(2.);
+			eff_h->Fill(2., evtWeight_sign);
 			met_lowdm_h->Fill(met,evtWeight);
 			ISRpt_lowdm_h->Fill(ISRpt,evtWeight);
 			bottompt_scalar_sum_lowdm_h->Fill(bottompt_scalar_sum,evtWeight);
@@ -557,6 +599,7 @@ int main(int argc, char* argv[]){
 			//if(SBv2_lowdm_more_MET_index != -1) search_bin_v2_lowdm_more_MET_h->Fill(SBv2_lowdm_more_MET_index,evtWeight);
 			//if(SBv2_lowdm_high_ISRpt_index != -1) search_bin_v2_lowdm_high_ISRpt_h->Fill(SBv2_lowdm_high_ISRpt_index,evtWeight);
 			if(SBv2_lowdm_validation_index != -1) search_bin_v2_lowdm_validation_h->Fill(SBv2_lowdm_validation_index,evtWeight);
+			//if(SBv2_lowdm_validation_index == 0) std::cout << "validation bin 0, run " << tr.getVar<unsigned int>("run") << " event " << tr.getVar<unsigned long long>("event") << std::endl;
 			if(SBv2_lowdm_validation_index != -1) search_bin_v2_lowdm_validation_Stop0l_evtWeight_h->Fill(SBv2_lowdm_validation_index,evtWeight * fabs(Stop0l_evtWeight));
 
 			if(Pass_lowDM_pt30)
@@ -572,7 +615,7 @@ int main(int argc, char* argv[]){
 
 		if(Pass_highDM)
 		{
-			eff_h->Fill(3.);
+			eff_h->Fill(3., evtWeight_sign);
 			met_highdm_h->Fill(met,evtWeight);
 		
 			if(SBv2_highdm_index_175 != -1) search_bin_v2_h->Fill(SBv2_highdm_index_175,evtWeight);
@@ -583,7 +626,21 @@ int main(int argc, char* argv[]){
 			if(SBv4_highdm_index != -1) search_bin_v4_Stop0l_evtWeight_h->Fill(SBv4_highdm_index,evtWeight * fabs(Stop0l_evtWeight));
 
 			if(SBv2_highdm_index_175 != -1) search_bin_v2_highdm_h->Fill(SBv2_highdm_index_175,evtWeight);
-			//if(SBv2_highdm_index_175 == 203) std::cout << "evtWeight = evtWeight * B_SF * ISR_SF * trigger_eff * puWeight * PrefireWeight" << evtWeight << std::endl;
+			//========================a test of v4 vs v5 ntuple, to be commented out======================
+			/*if(SBv4_highdm_index == 182)
+			{
+				//std::cout << "find event in SB 182, tr.getVar<unsigned long long>(\"event\")= " << tr.getVar<unsigned long long>("event") << ", evtWeight = " << evtWeight << std::endl;
+			}
+			std::vector<int> last_bin_event_number = {23334112,176434507,56460412,15444274,199321902,2991396,37509395,77730017,92439059,84576925,85900697,80753297,45360420,50582049,102101863,99503863,122912266,38412301,31931149,18607018,78574167,10394824,52507884,53657196,177709245};
+			for (int i=0; i < last_bin_event_number.size(); i++)
+			{
+				if(last_bin_event_number.at(i) == tr.getVar<unsigned long long>("event"))
+				{
+					std::cout << "find event " << last_bin_event_number.at(i) << std::endl;
+					std::cout << "nt " << ntop_merge << " nw " << nw << " nres " << ntop_res << std::endl;
+				}
+			}*/
+			//===========================================test end===========================================
 			//if(SBv2_highdm_index_175 != -1 && SBv3_highdm_index == -1) std::cout << "more v2 bin " << SBv2_highdm_index_175 << " ht " << HT << std::endl;
 			//if(SBv2_highdm_index_175 == -1 && SBv3_highdm_index != -1) std::cout << "more v3 bin " << SBv3_highdm_index << " Njet " << njets << std::endl;
 			//========================a test of 2016 TTbar, to be commented out=============================
@@ -719,6 +776,8 @@ int main(int argc, char* argv[]){
 			if(SBv2_lowdm_validation_mid_dPhi_index != -1) search_bin_v2_lowdm_validation_0p15_h->Fill(SBv2_lowdm_validation_mid_dPhi_index,evtWeight);
 			if(SBv2_lowdm_validation_high_MET_index != -1) search_bin_v2_lowdm_validation_h->Fill(SBv2_lowdm_validation_high_MET_index,evtWeight);
 			if(SBv2_lowdm_validation_high_MET_index != -1) search_bin_v2_lowdm_validation_Stop0l_evtWeight_h->Fill(SBv2_lowdm_validation_high_MET_index,evtWeight * fabs(Stop0l_evtWeight));
+			if(lowdm_validation_MET_index != -1) search_bin_v2_lowdm_validation_MET_h->Fill(lowdm_validation_MET_index,evtWeight);
+			if(lowdm_validation_MET_index != -1) search_bin_v2_lowdm_validation_MET_Stop0l_evtWeight_h->Fill(lowdm_validation_MET_index,evtWeight * fabs(Stop0l_evtWeight));
 		}
 		if(Pass_lowDM_mid_dPhi_0p2)
 		{
@@ -734,7 +793,10 @@ int main(int argc, char* argv[]){
 			if(SBv2_highdm_validation_index != -1) search_bin_v2_highdm_validation_h->Fill(SBv2_highdm_validation_index,evtWeight);
 			if(SBv2_highdm_validation_index != -1) search_bin_v2_highdm_validation_Stop0l_evtWeight_h->Fill(SBv2_highdm_validation_index,evtWeight * fabs(Stop0l_evtWeight));
 			if(SBv3_highdm_validation_index != -1) search_bin_v3_highdm_validation_h->Fill(SBv3_highdm_validation_index,evtWeight);
+			//if(SBv3_highdm_validation_index == 23) std::cout << "validation bin 23, run " << tr.getVar<unsigned int>("run") << " event " << tr.getVar<unsigned long long>("event") << std::endl;
 			if(SBv3_highdm_validation_index != -1) search_bin_v3_highdm_validation_Stop0l_evtWeight_h->Fill(SBv3_highdm_validation_index,evtWeight * fabs(Stop0l_evtWeight));
+			if(highdm_validation_MET_index != -1) search_bin_v3_highdm_validation_MET_h->Fill(highdm_validation_MET_index,evtWeight);
+			if(highdm_validation_MET_index != -1) search_bin_v3_highdm_validation_MET_Stop0l_evtWeight_h->Fill(highdm_validation_MET_index,evtWeight * fabs(Stop0l_evtWeight));
 		}
 
 	}// End event loop
@@ -742,6 +804,7 @@ int main(int argc, char* argv[]){
 	TFile out_file(outputfile,"RECREATE");
 
 	loose_baseline_cutflow_h->Write();
+	photon_trigger_cutflow_h->Write();
         ISR_SF_uc_h->Write();
         B_SF_uc_h->Write();
         Trigger_SF_uc_h->Write();
@@ -845,10 +908,14 @@ int main(int argc, char* argv[]){
 	search_bin_v2_lowdm_validation_0p2_h->Write();
 	search_bin_v2_lowdm_validation_h->Write();
 	search_bin_v2_lowdm_validation_Stop0l_evtWeight_h->Write();
+	search_bin_v2_lowdm_validation_MET_h->Write();
+	search_bin_v2_lowdm_validation_MET_Stop0l_evtWeight_h->Write();
 	search_bin_v2_highdm_validation_h->Write();
 	search_bin_v2_highdm_validation_Stop0l_evtWeight_h->Write();
 	search_bin_v3_highdm_validation_h->Write();
 	search_bin_v3_highdm_validation_Stop0l_evtWeight_h->Write();
+	search_bin_v3_highdm_validation_MET_h->Write();
+	search_bin_v3_highdm_validation_MET_Stop0l_evtWeight_h->Write();
 
 	out_file.mkdir("Baseline_Only");
 	out_file.cd("Baseline_Only");

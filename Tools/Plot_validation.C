@@ -6,10 +6,10 @@ int Plot_validation()
 	//gROOT->ForceStyle();
 
 	int bin_test = 5;
-	bin_test = 9;
+	//bin_test = 9;
 	bin_test = 10;
 	//bin_test = 24;
-	bin_test = 19;
+	//bin_test = 19;
 
 	double lumi = 137;
 	//lumi = 36;
@@ -29,12 +29,12 @@ int Plot_validation()
 	bool plot_log = true;
 	bool plot_sig_pad = true;
 	bool plot_BG = true;
-	bool plot_pull = false;
+	bool plot_pull = true;
 	TString pull = "";
 	if(plot_pull) pull = "_pull";
 
 	TString low_or_high = "_lowdm";
-	//low_or_high = "_highdm";
+	low_or_high = "_highdm";
 
 	float ymin = 0.1, ymax = 100000;
 
@@ -60,6 +60,8 @@ int Plot_validation()
 	if (plot_log) gPad-> SetLogy();
 
 	THStack *hs = new THStack();
+	THStack *hs_up = new THStack();
+	THStack *hs_down = new THStack();
 	THStack *hs_stat = new THStack();
 	THStack *hs_MC = new THStack();
 
@@ -67,6 +69,8 @@ int Plot_validation()
 	{
 		TFile *f1 = new TFile("validation/" + folder + "Rare_validation" + low_or_high + year + "_people.root");
 		TH1D *pro = (TH1D*)f1->Get("rare");
+		TH1D *pro_up = (TH1D*)f1->Get("rare_up");
+		TH1D *pro_down = (TH1D*)f1->Get("rare_down");
 		TH1D *pro_stat = (TH1D*)f1->Get("rare_stat");
 
 		TFile *f2 = new TFile("validation/" + folder + "Rare_validation" + low_or_high + year + ".root");
@@ -80,10 +84,12 @@ int Plot_validation()
 		pro_MC->SetFillColor(kYellow);
 		leg->AddEntry(pro,"Rare","f");
 		std::cout << "Rare total " << pro->Integral() << std::endl;
-		std::cout << "Tot unc bin " << bin_test << ": " << pro->GetBinContent(bin_test) << " +- " << pro->GetBinError(bin_test) << std::endl;
+		std::cout << "Tot unc bin " << bin_test << ": " << pro->GetBinContent(bin_test) << " + " << pro_up->GetBinError(bin_test) << " - " << pro_down->GetBinError(bin_test) << std::endl;
 		std::cout << "Stat unc bin " << bin_test << ": " << pro_stat->GetBinContent(bin_test) << " +- " << pro_stat->GetBinError(bin_test) << "\n" << std::endl;
 
 		hs->Add(pro);
+		hs_up->Add(pro_up);
+		hs_down->Add(pro_down);
 		hs_stat->Add(pro_stat);
 		hs_MC->Add(pro_MC);
 	}
@@ -92,6 +98,8 @@ int Plot_validation()
 	{
 		TFile *f1 = new TFile("validation/" + folder + "TTZ_validation" + low_or_high + year + "_people.root");
 		TH1D *pro = (TH1D*)f1->Get("TTZ");
+		TH1D *pro_up = (TH1D*)f1->Get("TTZ_up");
+		TH1D *pro_down = (TH1D*)f1->Get("TTZ_down");
 		TH1D *pro_stat = (TH1D*)f1->Get("TTZ_stat");
 
 		TFile *f2 = new TFile("validation/" + folder + "TTZ_validation" + low_or_high + year + ".root");
@@ -105,10 +113,12 @@ int Plot_validation()
 		pro_MC->SetFillColor(kViolet);
 		leg->AddEntry(pro,"TTZ","f");
 		std::cout << "TTZ total " << pro->Integral() << std::endl;
-		std::cout << "Tot unc bin " << bin_test << ": " << pro->GetBinContent(bin_test) << " +- " << pro->GetBinError(bin_test) << std::endl;
+		std::cout << "Tot unc bin " << bin_test << ": " << pro->GetBinContent(bin_test) << " + " << pro_up->GetBinError(bin_test) << " - " << pro_down->GetBinError(bin_test) << std::endl;
 		std::cout << "Stat unc bin " << bin_test << ": " << pro_stat->GetBinContent(bin_test) << " +- " << pro_stat->GetBinError(bin_test) << "\n" << std::endl;
 
 		hs->Add(pro);
+		hs_up->Add(pro_up);
+		hs_down->Add(pro_down);
 		hs_stat->Add(pro_stat);
 		hs_MC->Add(pro_MC);
 	}
@@ -117,9 +127,11 @@ int Plot_validation()
 	{
 		TFile *f1 = new TFile("validation/" + folder + "QCD_validation" + low_or_high + year + "_people.root");
 		TH1D *pro = (TH1D*)f1->Get("QCD");
+		TH1D *pro_up = (TH1D*)f1->Get("QCD_up");
+		TH1D *pro_down = (TH1D*)f1->Get("QCD_down");
 		TH1D *pro_stat = (TH1D*)f1->Get("QCD_stat");
 
-		TFile *f2 = new TFile("validation/" + folder + "QCD_validation" + low_or_high + year + ".root");
+		TFile *f2 = new TFile("validation/" + folder + "QCD_validation" + low_or_high + year + "_people.root");
 		TH1D *pro_MC = (TH1D*)f2->Get("QCD");
 
 		pro->SetLineColor(kBlack);
@@ -130,10 +142,12 @@ int Plot_validation()
 		pro_MC->SetFillColor(kGreen);
 		leg->AddEntry(pro,"QCD","f");
 		std::cout << "QCD total " << pro->Integral() << std::endl;
-		std::cout << "Tot unc bin " << bin_test << ": " << pro->GetBinContent(bin_test) << " +- " << pro->GetBinError(bin_test) << std::endl;
+		std::cout << "Tot unc bin " << bin_test << ": " << pro->GetBinContent(bin_test) << " + " << pro_up->GetBinError(bin_test) << " - " << pro_down->GetBinError(bin_test) << std::endl;
 		std::cout << "Stat unc bin " << bin_test << ": " << pro_stat->GetBinContent(bin_test) << " +- " << pro_stat->GetBinError(bin_test) << "\n" << std::endl;
 
 		hs->Add(pro);
+		hs_up->Add(pro_up);
+		hs_down->Add(pro_down);
 		hs_stat->Add(pro_stat);
 		hs_MC->Add(pro_MC);
 	}
@@ -142,6 +156,8 @@ int Plot_validation()
 	{
 		TFile *f1 = new TFile("validation/" + folder + "Zinv_validation" + low_or_high + year + "_people.root");
 		TH1D *pro = (TH1D*)f1->Get("zjets");
+		TH1D *pro_up = (TH1D*)f1->Get("zjets_up");
+		TH1D *pro_down = (TH1D*)f1->Get("zjets_down");
 		TH1D *pro_stat = (TH1D*)f1->Get("zjets_stat");
 
 		TFile *f2 = new TFile("validation/" + folder + "Zinv_validation" + low_or_high + year + ".root");
@@ -155,10 +171,12 @@ int Plot_validation()
 		pro_MC->SetFillColor(kRed);
 		leg->AddEntry(pro,"Zinv","f");
 		std::cout << "Zinv total " << pro->Integral() << std::endl;
-		std::cout << "Tot unc bin " << bin_test << ": " << pro->GetBinContent(bin_test) << " +- " << pro->GetBinError(bin_test) << std::endl;
+		std::cout << "Tot unc bin " << bin_test << ": " << pro->GetBinContent(bin_test) << " + " << pro_up->GetBinError(bin_test) << " - " << pro_down->GetBinError(bin_test) << std::endl;
 		std::cout << "Stat unc bin " << bin_test << ": " << pro_stat->GetBinContent(bin_test) << " +- " << pro_stat->GetBinError(bin_test) << "\n" << std::endl;
 
 		hs->Add(pro);
+		hs_up->Add(pro_up);
+		hs_down->Add(pro_down);
 		hs_stat->Add(pro_stat);
 		hs_MC->Add(pro_MC);
 	}
@@ -167,6 +185,8 @@ int Plot_validation()
 	{
 		TFile *f1 = new TFile("validation/" + folder + "LL_validation" + low_or_high + year + "_people.root");
 		TH1D *pro = (TH1D*)f1->Get("LL_SR");
+		TH1D *pro_up = (TH1D*)f1->Get("LL_SR_up");
+		TH1D *pro_down = (TH1D*)f1->Get("LL_SR_down");
 		TH1D *pro_stat = (TH1D*)f1->Get("LL_SR_stat");
 
 		TFile *f2 = new TFile("validation/" + folder + "LL_validation" + low_or_high + year + ".root");
@@ -180,10 +200,12 @@ int Plot_validation()
 		pro_MC->SetFillColor(kBlue);
 		leg->AddEntry(pro,"LL","f");
 		std::cout << "LL total " << pro->Integral() << std::endl;
-		std::cout << "Tot unc bin " << bin_test << ": " << pro->GetBinContent(bin_test) << " +- " << pro->GetBinError(bin_test) << std::endl;
+		std::cout << "Tot unc bin " << bin_test << ": " << pro->GetBinContent(bin_test) << " + " << pro_up->GetBinError(bin_test) << " - " << pro_down->GetBinError(bin_test) << std::endl;
 		std::cout << "Stat unc bin " << bin_test << ": " << pro_stat->GetBinContent(bin_test) << " +- " << pro_stat->GetBinError(bin_test) << "\n" << std::endl;
 
 		hs->Add(pro);
+		hs_up->Add(pro_up);
+		hs_down->Add(pro_down);
 		hs_stat->Add(pro_stat);
 		hs_MC->Add(pro_MC);
 	}
@@ -225,7 +247,7 @@ int Plot_validation()
 	leg->AddEntry(h_data,"Data","lp");
 
 	std::cout << "BG total " << ((TH1D*)(hs->GetStack()->Last()))->Integral() << std::endl;
-	std::cout << "Tot unc BG bin " << bin_test << ": " << ((TH1D*)(hs->GetStack()->Last()))->GetBinContent(bin_test) << " +- " << ((TH1D*)(hs->GetStack()->Last()))->GetBinError(bin_test) << std::endl;
+	std::cout << "Tot unc BG bin " << bin_test << ": " << ((TH1D*)(hs->GetStack()->Last()))->GetBinContent(bin_test) << " + " << ((TH1D*)(hs_up->GetStack()->Last()))->GetBinError(bin_test) << " - " << ((TH1D*)(hs_down->GetStack()->Last()))->GetBinError(bin_test) << std::endl;
 	std::cout << "Stat unc BG bin " << bin_test << ": " << ((TH1D*)(hs_stat->GetStack()->Last()))->GetBinContent(bin_test) << " +- " << ((TH1D*)(hs_stat->GetStack()->Last()))->GetBinError(bin_test) << "\n" << std::endl;
 	std::cout << "Data total " << h_data->Integral() << std::endl;
 	std::cout << "Data bin " << bin_test << ": " << h_data->GetBinContent(bin_test) << " +- " << h_data->GetBinError(bin_test) << std::endl;
@@ -326,9 +348,15 @@ int Plot_validation()
 			{
 				ratio->SetBinError(i,0);
 				float a = h_data->GetBinContent(i);
-				float da = h_data->GetBinError(i) * h_data->GetBinError(i);
 				float b = ((TH1D*)hs->GetStack()->Last())->GetBinContent(i);
-				float db = ((TH1D*)hs->GetStack()->Last())->GetBinError(i) * ((TH1D*)hs->GetStack()->Last())->GetBinError(i);
+				//if data >= BG
+				float da = h_data->GetBinErrorLow(i) * h_data->GetBinErrorLow(i);
+				float db = ((TH1D*)hs_up->GetStack()->Last())->GetBinError(i) * ((TH1D*)hs_up->GetStack()->Last())->GetBinError(i);
+				if (a < b)//if data < BG
+				{
+					da = h_data->GetBinErrorUp(i) * h_data->GetBinErrorUp(i);
+					db = ((TH1D*)hs_down->GetStack()->Last())->GetBinError(i) * ((TH1D*)hs_down->GetStack()->Last())->GetBinError(i);
+				}
 				float pull = (a-b)/sqrt(da+db);	//pull = data-pred/sqrt(d_data^2 + d_pred^2)
 				pull = (a-b)/sqrt(b+db);	//ken's formular: pull = data-pred/sqrt(pred + d_pred^2)
 				ratio->SetBinContent(i,pull);
@@ -339,7 +367,7 @@ int Plot_validation()
 
 			std::cout << std::fixed;
 			std::cout << std::setprecision(2);
-			std::cout << "Bin " << bin_test << " pull: " << ratio->GetBinContent(bin_test) << ". Data " << h_data->GetBinContent(bin_test) << "+-" << h_data->GetBinError(bin_test) << ". BG " << ((TH1D*)(hs->GetStack()->Last()))->GetBinContent(bin_test) << "+-" << ((TH1D*)(hs->GetStack()->Last()))->GetBinError(bin_test) << std::endl;
+			std::cout << "Bin " << bin_test << " pull: " << ratio->GetBinContent(bin_test) << ". Data " << h_data->GetBinContent(bin_test) << " + " << h_data->GetBinErrorUp(bin_test) << " - " << h_data->GetBinErrorLow(bin_test) << ". BG " << ((TH1D*)(hs->GetStack()->Last()))->GetBinContent(bin_test) << " + " << ((TH1D*)(hs_up->GetStack()->Last()))->GetBinError(bin_test) << " - " << ((TH1D*)(hs_down->GetStack()->Last()))->GetBinError(bin_test) << std::endl;
 
 			ratio->SetTitle("");
 			ratio->GetXaxis()->SetTitle("validation bins ");

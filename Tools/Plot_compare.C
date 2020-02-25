@@ -2,23 +2,23 @@ int Plot_compare()
 {
 	const bool plot_log = true;
 	//std::vector<TString> hist_list = {"search_bin_v2_lowdm_validation_h", "search_bin_v3_highdm_validation_h"};
-	std::vector<TString> hist_list = {"data"};
+	std::vector<TString> hist_list = {"Tot_Up"};
 	//std::vector<TString> hist_list = {"met_h","HT_h", "mtb_h", "ntop_merge_h", "ntop_res_h", "nw_h", "njetspt20_h", "nbottompt20_h"};
 	//std::vector<TString> hist_list = {"met_uc_h","HT_uc_h", "mtb_uc_h", "ntop_merge_h", "ntop_res_uc_h", "nw_h", "njetspt20_uc_h", "nbottompt20_uc_h"};
 	//std::vector<TString> hist_list = {"loose_baseline_cutflow_h", "ISR_SF_h", "B_SF_h"};
 
-	TString f1_name = "Data_validation_highdm"; 
+	TString f1_name = "Validation_QCD_default"; 
 	//TString f1_name = "SMS_T2tt_mStop_250_mLSP_50_fullsim_2017"; 
 	//TString f1_name = "SMS_T2tt_mStop_250_mLSP_75_fullsim_2017"; 
 	//TString f1_name = "SMS_T1tttt_mGluino2200_mLSP100_fastsim_2016"; 
-	TString f1_lag = "v5";
+	TString f1_lag = "default";
 	TString f1_folder = "validation/";
-	TString f2_name = "Data_validation_highdm"; 
+	TString f2_name = "Validation_QCD"; 
 	//TString f2_name = "SMS_T2tt_mStop250_mLSP50_fastsim_2017"; 
 	//TString f2_name = "SMS_T2tt_mStop250_mLSP75_fastsim_2017"; 
 	//TString f2_name = "SMS_T1tttt_mGluino2200_mLSP100_fastsim_2016"; 
-	TString f2_lag = "v4";
-	TString f2_folder = "validation_v4/";
+	TString f2_lag = "reMET";
+	TString f2_folder = "validation/";
 
 	int rebin = 1; 
 
@@ -60,8 +60,9 @@ int Plot_compare()
 		//h1->Scale(h1_scale);
 		h1->SetLineColor(kRed);
 		if(hist_name == "met_gen_uc_h" || hist_name == "met_uc_h") h1->GetXaxis()->SetRangeUser(0,400);
-		h1->Draw("el");
-		h1->SetLineWidth(3);
+		h1->SetMarkerStyle(20);
+		h1->Draw("p");
+		h1->SetLineWidth(2);
 		h1->GetXaxis()->SetRangeUser(60,183);
 
 		TH1F *h2 = (TH1F*)f2->Get(hist);
@@ -109,10 +110,10 @@ int Plot_compare()
 		ratio->SetTitle("");
 		ratio->Sumw2();
 		ratio->Divide(h2);
-		ratio->SetLineColor(kBlack);;
-		ratio->Draw("el");
-		ratio->SetMinimum(0);
-		ratio->SetMaximum(2);
+		//ratio->SetLineColor(kBlack);;
+		ratio->Draw("p");
+		ratio->SetMinimum(0.9);
+		ratio->SetMaximum(1.1);
 		ratio->GetXaxis()->SetLabelSize(0.12);
 		ratio->GetYaxis()->SetLabelSize(0.08);
 
