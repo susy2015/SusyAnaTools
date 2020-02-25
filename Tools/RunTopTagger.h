@@ -63,6 +63,9 @@ private:
 
     void runTopTagger(NTupleReader& tr) 
     {
+        // print for testing
+        std::cout << "Running top tagger: suffix_ = " << suffix_ << std::endl;
+
         //get necessary tagger input variables 
 
         //AK4 jets
