@@ -29,6 +29,38 @@ private:
     bool doLeptonCleaning_ = false;
     bool doPhotonCleaning_ = false;
 
+    std::string getSATVar(std::string collection, std::string var)
+    {
+        // only use SAT version of variable when doing lepton/photon cleaning (using top candidates which are already saved)
+        // otherwise, we run the top tagger with Tensorflow and do not use the top candidates
+        bool useSAT = doLeptonCleaning_ || doPhotonCleaning_;
+        std::string final_var = collection + var;
+        if (useSAT) 
+        {
+            final_var = "SAT_" + collection + var + "_jetpt30";
+            if (suffix_.find("jesTotalUp") != std::string::npos)
+            {
+                final_var += "_jesTotalUp";
+            }
+            else if (suffix_.find("jesTotalDown") != std::string::npos)
+            {
+                final_var += "_jesTotalDown";
+            }
+        }
+        else
+        {
+            if (suffix_.find("jesTotalUp") != std::string::npos)
+            {
+                final_var = collection + "_JESUp" + var;
+            }
+            else if (suffix_.find("jesTotalDown") != std::string::npos)
+            {
+                final_var = collection + "_JESDown" + var;
+            }
+        }
+        return final_var;
+    }
+
     void runTopTagger(NTupleReader& tr) 
     {
         //get necessary tagger input variables 
@@ -76,24 +108,39 @@ private:
         //AK8 subjets 
         const auto& SubJet_LV = tr.getVec_LVFromNano<float>("SubJet");
         
+        // --- old version --- //
         //resolved top candidates
-        const auto& ResTopCand_LV            = tr.getVec_LVFromNano<float>("ResolvedTopCandidate");
-        const auto& ResTopCand_discriminator = tr.getVec<float>("ResolvedTopCandidate_discriminator");
-        const auto& ResTopCand_j1Idx         = tr.getVec<int>("ResolvedTopCandidate_j1Idx");
-        const auto& ResTopCand_j2Idx         = tr.getVec<int>("ResolvedTopCandidate_j2Idx");
-        const auto& ResTopCand_j3Idx         = tr.getVec<int>("ResolvedTopCandidate_j3Idx");
+        //const auto& ResTopCand_LV            = tr.getVec_LVFromNano<float>("ResolvedTopCandidate");
+        //const auto& ResTopCand_discriminator = tr.getVec<float>("ResolvedTopCandidate_discriminator");
+        //const auto& ResTopCand_j1Idx         = tr.getVec<int>("ResolvedTopCandidate_j1Idx");
+        //const auto& ResTopCand_j2Idx         = tr.getVec<int>("ResolvedTopCandidate_j2Idx");
+        //const auto& ResTopCand_j3Idx         = tr.getVec<int>("ResolvedTopCandidate_j3Idx");
+        
+        // --- new version --- //
+        // load previously run top tagger candidates to fix double truncation/rounding
+        // resolved top candidates
+        // std::string getSATVar(std::string collection, std::string var)
+        const auto& ResTopCand_LV            = tr.getVec<TLorentzVector>(   getSATVar("ResolvedTopCandidate", "TLV")                );
+        const auto& ResTopCand_discriminator = tr.getVec<float>(            getSATVar("ResolvedTopCandidate", "_discriminator")     );
+        const auto& ResTopCand_j1Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j1Idx")             );
+        const auto& ResTopCand_j2Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j2Idx")             );
+        const auto& ResTopCand_j3Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j3Idx")             );
 
-
-
-        auto* MergedTopsTLV          = new std::vector<TLorentzVector>();
-        auto* MergedTops_disc        = new std::vector<double>();
-        auto* MergedTops_JetsMap     = new std::map< int , std::vector<TLorentzVector> >();
-        auto* WTLV                   = new std::vector<TLorentzVector>();
-        auto* W_disc                 = new std::vector<double>();
-        auto* W_JetsMap              = new std::map< int , std::vector<TLorentzVector> >();
-        auto* ResolvedTopsTLV        = new std::vector<TLorentzVector>();
-        auto* ResolvedTops_disc      = new std::vector<double>();
-        auto* ResolvedTops_JetsMap   = new std::map< int , std::vector<TLorentzVector> >();
+        auto* MergedTopsTLV                             = new std::vector<TLorentzVector>();
+        auto* MergedTops_disc                           = new std::vector<float>();
+        auto* MergedTops_JetsMap                        = new std::map< int , std::vector<TLorentzVector> >();
+        auto* WTLV                                      = new std::vector<TLorentzVector>();
+        auto* W_disc                                    = new std::vector<float>();
+        auto* W_JetsMap                                 = new std::map< int , std::vector<TLorentzVector> >();
+        auto* ResolvedTopsTLV                           = new std::vector<TLorentzVector>();
+        auto* ResolvedTops_disc                         = new std::vector<float>();
+        auto* ResolvedTops_JetsMap                      = new std::map< int , std::vector<TLorentzVector> >();
+        auto& SAT_ResolvedTopCandidate_TLV              = tr.createDerivedVec<TLorentzVector>("SAT_ResolvedTopCandidateTLV"   + suffix_);
+        auto& SAT_ResolvedTopCandidate_discriminator    = tr.createDerivedVec<float>("SAT_ResolvedTopCandidate_discriminator" + suffix_);
+        auto& SAT_ResolvedTopCandidate_j1Idx            = tr.createDerivedVec<int>("SAT_ResolvedTopCandidate_j1Idx"           + suffix_);
+        auto& SAT_ResolvedTopCandidate_j2Idx            = tr.createDerivedVec<int>("SAT_ResolvedTopCandidate_j2Idx"           + suffix_);
+        auto& SAT_ResolvedTopCandidate_j3Idx            = tr.createDerivedVec<int>("SAT_ResolvedTopCandidate_j3Idx"           + suffix_);
+        
         int nMergedTops                 = 0;
         int nWs                         = 0;
         int nResolvedTops               = 0;
@@ -255,7 +302,13 @@ private:
         std::vector<Constituent> constituents = packageConstituents(*ak4Inputs, resInputs, ak8Inputs);
         
         //run top tager
-        tt_->runTagger(constituents);
+        try {
+            tt_->runTagger(constituents);
+        }
+        catch (TTException e)
+        {
+            std::cout << "Here is your TTException: " << e << std::endl;
+        }
 
 
         // delete pointers
@@ -265,11 +318,34 @@ private:
 
         //get tagger results 
         const TopTaggerResults& ttr = tt_->getResults();
-
-        //print top properties
-        //get reconstructed tops
-        const std::vector<TopObject*>& tops = ttr.getTops();
         
+        //get tops and top candidates
+        const std::vector<TopObject*>& tops           = ttr.getTops();
+        const std::vector<TopObject>&  topCandidates  = ttr.getTopCandidates();
+        
+        /////////////////////////////////////////
+        // save top tagger candidate variables //
+        /////////////////////////////////////////
+        for(const TopObject topCand : topCandidates)
+        {
+            int nConstituents = topCand.getNConstituents();
+            //printf("nConstituents = %d\n", nConstituents);
+            std::vector<int> jetIdxs(3, -1);
+            for (int i = 0; i < 3; ++i)
+            {
+                // check that there are enough constituents before accessing
+                if (nConstituents > i)
+                {
+                    jetIdxs[i] = constituents[i].getIndex();
+                }
+            }
+            const std::vector<Constituent const *>& constituents = topCand.getConstituents();
+            SAT_ResolvedTopCandidate_TLV.push_back(topCand.p());
+            SAT_ResolvedTopCandidate_discriminator.push_back(topCand.getDiscriminator());
+            SAT_ResolvedTopCandidate_j1Idx.push_back(jetIdxs[0]);
+            SAT_ResolvedTopCandidate_j2Idx.push_back(jetIdxs[1]);
+            SAT_ResolvedTopCandidate_j3Idx.push_back(jetIdxs[2]);
+        }
 
         bool printTops = false;
 
@@ -362,29 +438,29 @@ private:
             std::cout << std::endl;
         }
         
-        tr.registerDerivedVar("nMergedTops" + suffix_,              nMergedTops);
-        tr.registerDerivedVar("MergedTopTotalSF" + suffix_,         MergedTopTotalSF);
-        tr.registerDerivedVar("MergedTopTotalSF_Up" + suffix_,      MergedTopTotalSF_Up);
-        tr.registerDerivedVar("MergedTopTotalSF_Down" + suffix_,    MergedTopTotalSF_Down);
-        tr.registerDerivedVec("MergedTopsTLV" + suffix_,            MergedTopsTLV);
-        tr.registerDerivedVec("MergedTops_disc" + suffix_,          MergedTops_disc);
-        tr.registerDerivedVec("MergedTops_JetsMap" + suffix_,       MergedTops_JetsMap);
-        tr.registerDerivedVar("nWs" + suffix_,                      nWs);
-        tr.registerDerivedVar("WTotalSF" + suffix_,                 WTotalSF);
-        tr.registerDerivedVar("WTotalSF_Up" + suffix_,              WTotalSF_Up);
-        tr.registerDerivedVar("WTotalSF_Down" + suffix_,            WTotalSF_Down);
-        tr.registerDerivedVec("WTLV" + suffix_,                     WTLV);
-        tr.registerDerivedVec("W_disc" + suffix_,                   W_disc);
-        tr.registerDerivedVec("W_JetsMap" + suffix_,                W_JetsMap);
-        tr.registerDerivedVar("nResolvedTops" + suffix_,            nResolvedTops);
-        tr.registerDerivedVar("ResolvedTopTotalSF" + suffix_,       ResolvedTopTotalSF);
-        tr.registerDerivedVar("ResolvedTopTotalSF_Up" + suffix_,    ResolvedTopTotalSF_Up);
-        tr.registerDerivedVar("ResolvedTopTotalSF_Down" + suffix_,  ResolvedTopTotalSF_Down);
-        tr.registerDerivedVec("ResolvedTopsTLV" + suffix_,          ResolvedTopsTLV);
-        tr.registerDerivedVec("ResolvedTops_disc" + suffix_,        ResolvedTops_disc);
-        tr.registerDerivedVec("ResolvedTops_JetsMap" + suffix_,     ResolvedTops_JetsMap);
-        tr.registerDerivedVar("ttr" + suffix_,                      &ttr);
-        tr.registerDerivedVec("genTops" + suffix_,                  genTops);
+        tr.registerDerivedVar("nMergedTops" + suffix_,                              nMergedTops);
+        tr.registerDerivedVar("MergedTopTotalSF" + suffix_,                         MergedTopTotalSF);
+        tr.registerDerivedVar("MergedTopTotalSF_Up" + suffix_,                      MergedTopTotalSF_Up);
+        tr.registerDerivedVar("MergedTopTotalSF_Down" + suffix_,                    MergedTopTotalSF_Down);
+        tr.registerDerivedVec("MergedTopsTLV" + suffix_,                            MergedTopsTLV);
+        tr.registerDerivedVec("MergedTops_disc" + suffix_,                          MergedTops_disc);
+        tr.registerDerivedVec("MergedTops_JetsMap" + suffix_,                       MergedTops_JetsMap);
+        tr.registerDerivedVar("nWs" + suffix_,                                      nWs);
+        tr.registerDerivedVar("WTotalSF" + suffix_,                                 WTotalSF);
+        tr.registerDerivedVar("WTotalSF_Up" + suffix_,                              WTotalSF_Up);
+        tr.registerDerivedVar("WTotalSF_Down" + suffix_,                            WTotalSF_Down);
+        tr.registerDerivedVec("WTLV" + suffix_,                                     WTLV);
+        tr.registerDerivedVec("W_disc" + suffix_,                                   W_disc);
+        tr.registerDerivedVec("W_JetsMap" + suffix_,                                W_JetsMap);
+        tr.registerDerivedVar("nResolvedTops" + suffix_,                            nResolvedTops);
+        tr.registerDerivedVar("ResolvedTopTotalSF" + suffix_,                       ResolvedTopTotalSF);
+        tr.registerDerivedVar("ResolvedTopTotalSF_Up" + suffix_,                    ResolvedTopTotalSF_Up);
+        tr.registerDerivedVar("ResolvedTopTotalSF_Down" + suffix_,                  ResolvedTopTotalSF_Down);
+        tr.registerDerivedVec("ResolvedTopsTLV" + suffix_,                          ResolvedTopsTLV);
+        tr.registerDerivedVec("ResolvedTops_disc" + suffix_,                        ResolvedTops_disc);
+        tr.registerDerivedVec("ResolvedTops_JetsMap" + suffix_,                     ResolvedTops_JetsMap);
+        tr.registerDerivedVar("ttr" + suffix_,                                      &ttr);
+        tr.registerDerivedVec("genTops" + suffix_,                                  genTops);
     }
     
 public:
@@ -398,10 +474,20 @@ public:
         doPhotonCleaning_ (doPhotonCleaning),
         tt_ (new TopTagger())
     {
-        jetsLabel_ = "JetTLV";
-        if      (suffix.find("jesTotalUp") != std::string::npos)    jetsLabel_ = jetsLabel_ + "_jesTotalUp";
-        else if (suffix.find("jesTotalDown") != std::string::npos)  jetsLabel_ = jetsLabel_ + "_jesTotalDown";
-        if (verbose_) std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", suffix_ = " << suffix_ << ", jetsLabel_ = " << jetsLabel_ << ", doLeptonCleaning_ = " << doLeptonCleaning_ << ", doPhotonCleaning_ = " << doPhotonCleaning_ << std::endl;
+        jetsLabel_           = "JetTLV";
+        if (suffix_.find("jesTotalUp") != std::string::npos)
+        {
+            jetsLabel_              += "_jesTotalUp";
+        }
+        else if (suffix_.find("jesTotalDown") != std::string::npos)
+        {
+            jetsLabel_              += "_jesTotalDown";
+        }
+        if (verbose_) 
+        {
+            std::cout << "Constructing RunTopTagger; taggerCfg_ = " << taggerCfg_ << ", suffix_ = " << suffix_ << ", jetsLabel_ = " << jetsLabel_ 
+                      << ", doLeptonCleaning_ = " << doLeptonCleaning_ << ", doPhotonCleaning_ = " << doPhotonCleaning_ << std::endl;
+        }
         tt_->setCfgFile(taggerCfg_);
     }
     

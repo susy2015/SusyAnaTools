@@ -582,6 +582,7 @@ void BaselineVessel::PassBaseline()
   const auto& Jets          = tr->getVec<TLorentzVector>(jetVecLabel);
   const auto& Jet_sortedIdx = tr->getVec<int>("Jet_sortedIdx");
   const auto& FatJets       = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const auto& SubJets       = tr->getVec<TLorentzVector>("SubJetTLV");
   const auto& met           = tr->getVar<float>(METLabel); 
   const auto& metphi        = tr->getVar<float>(METPhiLabel); 
 
@@ -643,6 +644,8 @@ void BaselineVessel::PassBaseline()
   const auto& ResolvedTopTotalSF    = tr->getVar<float>(UseSpecVar("ResolvedTopTotalSF"));
   const auto* ttr                   = tr->getVar<TopTaggerResults*>(UseSpecVar("ttr"));
   const auto& FatJet_Stop0l         = tr->getVec<int>(UseCleanedJetsVar("FatJet_Stop0l"));
+  const auto& FatJet_subJetIdx1     = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx1"));
+  const auto& FatJet_subJetIdx2     = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx2"));
   const auto& FatJet_msoftdrop      = tr->getVec<float>(UseCleanedJetsVar("FatJet_msoftdrop"));
   const auto& FatJet_deepTag_TvsQCD = tr->getVec<float>(UseCleanedJetsVar("FatJet_deepTag_TvsQCD"));
   const auto& FatJet_deepTag_WvsQCD = tr->getVec<float>(UseCleanedJetsVar("FatJet_deepTag_WvsQCD"));
@@ -1035,27 +1038,6 @@ void BaselineVessel::PassBaseline()
   // ------------------------------ //
   // --- print info for testing --- //
   // ------------------------------ //
-  //if (tr->getEvtNum() == 7217)
-  //if (event == 519215141)
-  //if (SAT_Pass_lowDM != Pass_lowDM && firstSpec.empty())
-  //if (event == 1401471244)
-
-  //double a1 = 222.222222;
-  //double b1 = 222.222223;
-  //float a2 = 422.29;
-  //float b2 = 422.20;
-  //int a3 = 4;
-  //int b3 = 4;
-  //unsigned int a4 = 6666;
-  //unsigned int b4 = 6667;
-  //printf("-----------------------------------------------------------------------------------------\n");
-  //printf("%lf, %lf, isClose=%d\n", a1, b1, SusyUtility::isClose(a1, b1));
-  //printf("%f, %f, isClose=%d\n", a2, b2, SusyUtility::isClose(a2, b2));
-  //printf("%d, %d, isClose=%d\n", a3, b3, SusyUtility::isClose(a3, b3));
-  //printf("%d, %d, isClose=%d\n", a4, b4, SusyUtility::isClose(a4, b4));
-  //printf("-----------------------------------------------------------------------------------------\n");
-  // use SusyUtility::isClose()
-  // use checkEquality()
   
   // check for differences in baseline selection between ntuples and SusyAnaTools
   bool baselineDifference = (
@@ -1067,11 +1049,9 @@ void BaselineVessel::PassBaseline()
   
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
-  //if ( firstSpec.empty() && topDifference )
-  //if ( firstSpec.empty() && totalTopsWs   )
   //if ( firstSpec.compare("_jetpt30") == 0 )
-  //if ( firstSpec.compare("_jetpt30") == 0 && ( event == 33359910 || baselineDifference ) )
-  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference))
+  //if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference))
+  if (false)
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
@@ -1174,6 +1154,19 @@ void BaselineVessel::PassBaseline()
     for (const auto& FatJet : FatJets)
     {
       printf("FatJet_%d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf), type=%d, mt-disc=%.5lf, w-disc=%.5lf, msoftdrop=%.5lf\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M(), FatJet_Stop0l[j], FatJet_deepTag_TvsQCD[j], FatJet_deepTag_WvsQCD[j], FatJet_msoftdrop[j]);
+      // sub jets
+      std::vector<int> subJetIdxs;
+      subJetIdxs.push_back(FatJet_subJetIdx1[j]);
+      subJetIdxs.push_back(FatJet_subJetIdx2[j]);
+      for (int k = 0; k < subJetIdxs.size(); ++k)
+      {
+        int subJetIdx = subJetIdxs[k];
+        if (subJetIdx >= 0 && subJetIdx < SubJets.size())
+        {
+          TLorentzVector subjet = SubJets[subJetIdxs[k]];
+          printf("\t\tsub jet %d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", k, subjet.Pt(), subjet.Eta(), subjet.Phi(), subjet.M());
+        }
+      }
       ++j;
     }
     // for testing ISR jet pt
@@ -1888,7 +1881,6 @@ float BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLor
 void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
-  GetPileup();
   PrepMETUncluster();
   UseCleanedJets();
   CalcBottomVars();
@@ -1897,7 +1889,6 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassEventFilter();
   PassHEMVeto();
   PassBaseline();
-  //Test();
 }
 
 void BaselineVessel::PassTrigger()
@@ -2015,45 +2006,101 @@ bool BaselineVessel::PassObjectVeto(std::vector<TLorentzVector> objects, float e
 }
 
 
-
+// PassHEMVeto eta, phi, and pt cuts
+// HEMVeto for jets, electrons, and photons
+// https://github.com/susy2015/NanoSUSY-tools/blob/master/python/modules/Stop0lBaselineProducer.py#L236-L239
 void BaselineVessel::PassHEMVeto()
 {
-    // PassHEMVeto eta, phi, and pt cuts
-    // https://github.com/susy2015/NanoSUSY-tools/blob/master/python/modules/Stop0lBaselineProducer.py#L236-L239
+    bool verbose = false;
+    // check if we are running on data
+    bool isData             = ! tr->checkBranch("genWeight");
+    const auto& run         = tr->getVar<unsigned int>("run");
     const auto& Jets        = tr->getVec<TLorentzVector>(jetVecLabel);
     const auto& Electrons   = tr->getVec<TLorentzVector>("cutElecVec");
     const auto& Photons     = tr->getVec<TLorentzVector>("cutPhotonTLV");
     // use exact (narrow) window for electrons and photons: eta_low, eta_high, phi_low, phi_high = -3.0, -1.4, -1.57, -0.87
     // use extended (wide) window for jets:                 eta_low, eta_high, phi_low, phi_high = -3.2, -1.2, -1.77, -0.67
-    float narrow_eta_low  = -3.0;
-    float narrow_eta_high = -1.4;
-    float narrow_phi_low  = -1.57;
-    float narrow_phi_high = -0.87;
-    float wide_eta_low    = -3.2;
-    float wide_eta_high   = -1.2;
-    float wide_phi_low    = -1.77;
-    float wide_phi_high   = -0.67;
+    float narrow_eta_low  =  -3.0;
+    float narrow_eta_high =  -1.4;
+    float narrow_phi_low  =  -1.57;
+    float narrow_phi_high =  -0.87;
+    float wide_eta_low    =  -3.2;
+    float wide_eta_high   =  -1.2;
+    float wide_phi_low    =  -1.77;
+    float wide_phi_high   =  -0.67;
     float min_electron_pt =  20.0;
     float min_photon_pt   = 220.0;
-    float jet_pt_cut      = 30.0;
+    float jet_pt_cut      =  30.0;
     // bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low) 
     bool SAT_Pass_HEMVeto = true;
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_electron_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_photon_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_phi_low,   wide_phi_high,   jet_pt_cut);
-    tr->registerDerivedVar("SAT_Pass_HEMVeto"+firstSpec,   SAT_Pass_HEMVeto);
+    
+    
+    // HEM vetos
+    // - Cut for Data only, used for running over all 2018 at once
+    // - Cut for Data and MC, used for running over 2018 pre/post HEM eras
+    bool SAT_Pass_HEMVeto_DataOnly  = SAT_Pass_HEMVeto; 
+    bool SAT_Pass_HEMVeto_DataAndMC = SAT_Pass_HEMVeto; 
+    
+    // only apply HEM veto in 2018
+    if (year.compare("2018") != 0)
+    {
+        SAT_Pass_HEMVeto           = true;
+        SAT_Pass_HEMVeto_DataOnly  = true; 
+        SAT_Pass_HEMVeto_DataAndMC = true;
+    }
+    else
+    {
+        // for data, only apply HEM veto to 2018 starting with run 319077
+        if (isData)
+        {
+            if (run < 319077)
+            {
+                SAT_Pass_HEMVeto_DataOnly = true;
+            }
+        }
+        // only apply HEM veto cut to data when using HEM veto weight for MC
+        else
+        {
+            SAT_Pass_HEMVeto_DataOnly = true;
+        }
+    }
+    
+    // get HEM veto weight
+    // WARNING: luminosities are hard coded here
+    float lumi2018PreHEM    = 21068.576;
+    float lumi2018PostHEM   = 38630.913;
+    float lumi2018          = lumi2018PreHEM + lumi2018PostHEM;
+    float SAT_HEMVetoWeight = lumi2018PreHEM / lumi2018;
+    if (SAT_Pass_HEMVeto)
+    {
+        SAT_HEMVetoWeight = 1.0;
+    }
+    if (verbose && firstSpec.compare("_jetpt30") == 0)
+    {
+        printf("SAT_Pass_HEMVeto_DataOnly = %d, SAT_Pass_HEMVeto_DataAndMC = %d, SAT_HEMVetoWeight = %f\n", SAT_Pass_HEMVeto_DataOnly, SAT_Pass_HEMVeto_DataAndMC, SAT_HEMVetoWeight);
+    }
+    // register variables
+    tr->registerDerivedVar("SAT_Pass_HEMVeto_DataOnly"   + firstSpec, SAT_Pass_HEMVeto_DataOnly     );
+    tr->registerDerivedVar("SAT_Pass_HEMVeto_DataAndMC"  + firstSpec, SAT_Pass_HEMVeto_DataAndMC    );
+    tr->registerDerivedVar("SAT_HEMVetoWeight"           + firstSpec, SAT_HEMVetoWeight             );
 }
 
-void BaselineVessel::GetPileup()
+void BaselineVessel::GetPileupWeight()
 {
     const auto& puWeight       = tr->getVar<float>("puWeight");
     const auto& puWeight2017BE = tr->getVar<float>("17BtoEpuWeight");
     const auto& puWeight2017F  = tr->getVar<float>("17FpuWeight");
+    // WARNING: luminosities are hard coded here
     float lumi2017BE         = 27987.721;
     float lumi2017F          = 13498.415;
     float lumi2017           = lumi2017BE + lumi2017F;
     float puWeight2017weightedAverage = (puWeight2017BE * lumi2017BE + puWeight2017F * lumi2017F) / lumi2017;
-    if (firstSpec.compare("_jetpt30") == 0)
+    // print for testing
+    //if (firstSpec.compare("_jetpt30") == 0)
+    if (false)
     {
         printf("puWeight2017BE = %f, puWeight2017F = %f, puWeight2017weightedAverage = %f, puWeight = %f, diff = %f\n", puWeight2017BE, puWeight2017F, puWeight2017weightedAverage, puWeight, puWeight2017weightedAverage - puWeight);
     }

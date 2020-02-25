@@ -26,15 +26,19 @@ SUPP_CFG=supplementaryFiles.cfg
 SETS_CFG_2016=sampleSets_PostProcessed_2016.cfg
 SETS_CFG_2017=sampleSets_PostProcessed_2017.cfg
 SETS_CFG_2018=sampleSets_PostProcessed_2018.cfg
+SETS_CFG_RUN2=sampleSets_PostProcessed_Run2.cfg
 COLL_CFG_2016=sampleCollections_2016.cfg
 COLL_CFG_2017=sampleCollections_2017.cfg
 COLL_CFG_2018=sampleCollections_2018.cfg
+COLL_CFG_RUN2=sampleCollections_Run2.cfg
 SETS_LINK_NAME_2016=$SETS_CFG_2016
 SETS_LINK_NAME_2017=$SETS_CFG_2017
 SETS_LINK_NAME_2018=$SETS_CFG_2018
+SETS_LINK_NAME_RUN2=$SETS_CFG_RUN2
 COLL_LINK_NAME_2016=$COLL_CFG_2016
 COLL_LINK_NAME_2017=$COLL_CFG_2017
 COLL_LINK_NAME_2018=$COLL_CFG_2018
+COLL_LINK_NAME_RUN2=$COLL_CFG_RUN2
 SUPP_FILE_DIR=supplementaryFiles
 TARBALL=SUPP_FILE_TARBALL.tar.gz
 
@@ -46,12 +50,14 @@ function print_help {
     echo "Options:"
     echo "    -t RELEASE_TAG :         This is the github release tag to check out (required option)"
     echo "    -d checkout_directory :  This is the directory where the configuration files will be downloaded to (default: .)"
-    echo "    -a SETS_LINK_NAME_2016 : Specify this option to name the softlink to \"$SETS_CFG_2016\" something other than \"$SETS_LINK_NAME_2016\""
-    echo "    -b SETS_LINK_NAME_2017 : Specify this option to name the softlink to \"$SETS_CFG_2017\" something other than \"$SETS_LINK_NAME_2017\""
-    echo "    -c SETS_LINK_NAME_2018 : Specify this option to name the softlink to \"$SETS_CFG_2018\" something other than \"$SETS_LINK_NAME_2018\""
-    echo "    -x COLL_LINK_NAME_2016 : Specify this option to name the softlink to \"$COLL_CFG_2016\" something other than \"$COLL_LINK_NAME_2016\""
-    echo "    -y COLL_LINK_NAME_2017 : Specify this option to name the softlink to \"$COLL_CFG_2017\" something other than \"$COLL_LINK_NAME_2017\""
-    echo "    -z COLL_LINK_NAME_2018 : Specify this option to name the softlink to \"$COLL_CFG_2018\" something other than \"$COLL_LINK_NAME_2018\""
+    echo "    -i SETS_LINK_NAME_2016 : Specify this option to name the softlink to \"$SETS_CFG_2016\" something other than \"$SETS_LINK_NAME_2016\""
+    echo "    -j SETS_LINK_NAME_2017 : Specify this option to name the softlink to \"$SETS_CFG_2017\" something other than \"$SETS_LINK_NAME_2017\""
+    echo "    -k SETS_LINK_NAME_2018 : Specify this option to name the softlink to \"$SETS_CFG_2018\" something other than \"$SETS_LINK_NAME_2018\""
+    echo "    -l SETS_LINK_NAME_RUN2 : Specify this option to name the softlink to \"$SETS_CFG_RUN2\" something other than \"$SETS_LINK_NAME_RUN2\""
+    echo "    -w COLL_LINK_NAME_2016 : Specify this option to name the softlink to \"$COLL_CFG_2016\" something other than \"$COLL_LINK_NAME_2016\""
+    echo "    -x COLL_LINK_NAME_2017 : Specify this option to name the softlink to \"$COLL_CFG_2017\" something other than \"$COLL_LINK_NAME_2017\""
+    echo "    -y COLL_LINK_NAME_2018 : Specify this option to name the softlink to \"$COLL_CFG_2018\" something other than \"$COLL_LINK_NAME_2018\""
+    echo "    -z COLL_LINK_NAME_RUN2 : Specify this option to name the softlink to \"$COLL_CFG_RUN2\" something other than \"$COLL_LINK_NAME_RUN2\""
     echo "    -e :                     Softlink pre-processed config files."
     echo "    -n :                     Download files without producing softlinks"
     echo "    -o :                     Overwrite the softlinks if they already exist"
@@ -78,17 +84,21 @@ while getopts "h?t:d:a:b:x:y:enov" opt; do
         ;;
     d)  CFG_DIRECTORY=$OPTARG
         ;;
-    a)  SETS_LINK_NAME_2016=$OPTARG
+    i)  SETS_LINK_NAME_2016=$OPTARG
         ;;
-    b)  SETS_LINK_NAME_2017=$OPTARG
+    j)  SETS_LINK_NAME_2017=$OPTARG
         ;;
-    c)  SETS_LINK_NAME_2018=$OPTARG
+    k)  SETS_LINK_NAME_2018=$OPTARG
         ;;
-    x)  COLL_LINK_NAME_2016=$OPTARG
+    l)  SETS_LINK_NAME_RUN2=$OPTARG
         ;;
-    y)  COLL_LINK_NAME_2017=$OPTARG
+    w)  COLL_LINK_NAME_2016=$OPTARG
         ;;
-    z)  COLL_LINK_NAME_2018=$OPTARG
+    x)  COLL_LINK_NAME_2017=$OPTARG
+        ;;
+    y)  COLL_LINK_NAME_2018=$OPTARG
+        ;;
+    z)  COLL_LINK_NAME_RUN2=$OPTARG
         ;;
     e) USE_PRE=1
         ;;
@@ -119,9 +129,11 @@ then
     SETS_CFG_2016=sampleSets_PreProcessed_2016.cfg
     SETS_CFG_2017=sampleSets_PreProcessed_2017.cfg
     SETS_CFG_2018=sampleSets_PreProcessed_2018.cfg
+    SETS_CFG_RUN2=sampleSets_PreProcessed_Run2.cfg
     SETS_LINK_NAME_2016=$SETS_CFG_2016
     SETS_LINK_NAME_2017=$SETS_CFG_2017
     SETS_LINK_NAME_2018=$SETS_CFG_2018
+    SETS_LINK_NAME_RUN2=$SETS_CFG_RUN2
 fi
 
 # get source directory of bash script
@@ -263,9 +275,11 @@ then
     ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG_2016 $SETS_LINK_NAME_2016 > /dev/null 2>&1 
     ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG_2017 $SETS_LINK_NAME_2017 > /dev/null 2>&1 
     ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG_2018 $SETS_LINK_NAME_2018 > /dev/null 2>&1 
+    ln $OVERWRITE -s $DOWNLOAD_DIR/$SETS_CFG_RUN2 $SETS_LINK_NAME_RUN2 > /dev/null 2>&1 
     ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG_2016 $COLL_LINK_NAME_2016 > /dev/null 2>&1
     ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG_2017 $COLL_LINK_NAME_2017 > /dev/null 2>&1
     ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG_2018 $COLL_LINK_NAME_2018 > /dev/null 2>&1
+    ln $OVERWRITE -s $DOWNLOAD_DIR/$COLL_CFG_RUN2 $COLL_LINK_NAME_RUN2 > /dev/null 2>&1
     # make list of files to tar
     if [[ -f $DOWNLOAD_DIR/$SUPP_CFG ]]
     then
