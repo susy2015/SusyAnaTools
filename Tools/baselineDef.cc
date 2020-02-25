@@ -1034,7 +1034,8 @@ void BaselineVessel::PassBaseline()
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
   //if (false)
   //if ( firstSpec.compare("_jetpt30") == 0 )
-  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference))
+  //if ( firstSpec.compare("_jetpt30") == 0 && tr->getEvtNum() == 6410 )
+  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference) )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
