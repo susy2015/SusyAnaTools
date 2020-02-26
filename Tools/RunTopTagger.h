@@ -430,8 +430,8 @@ private:
 
         // --- WARNING: Testing fat jets --- //
         // --- testing number of merged tops and Ws calculated in this module ---
-        nMergedTops     = MergedTopsTLV->size();
-        nWs             = WTLV->size();
+        //nMergedTops     = MergedTopsTLV->size();
+        //nWs             = WTLV->size();
         // number of resolved tops
         nResolvedTops   = ResolvedTopsTLV->size();
         
