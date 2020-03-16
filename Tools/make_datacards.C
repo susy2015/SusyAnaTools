@@ -17,11 +17,11 @@ int make_datacards()
 	//folder = "results_no_SD/";
 	folder = "results_2016/";
 	folder = "results_2017/";
-	folder = "results_2018_pre_HEM/";
-	//folder = "results_2018_post_HEM/";
+	folder = "results_2018_preHEM/";
+	//folder = "results_2018_postHEM/";
 	//folder = "results_2018/";
 	
-	int bin_test = 147;
+	int bin_test = 183;
 
 	bool do_validation = true;
 	bool do_photon_unc = false;
@@ -36,7 +36,7 @@ int make_datacards()
 	bool make_LL_datacard = true;
 	bool make_TTZ_datacard = true;
 	bool make_Rare_datacard = true;
-	bool make_data_datacard = true;
+	bool make_data_datacard = false;
 	bool make_signal_datacard = true;
 
 	bool team_A = false;
@@ -49,8 +49,8 @@ int make_datacards()
 	bool SBv2_jetpt30 = false;
 	bool SBv2_highdm = false;
 	bool SBv2_highdm_validation = false;
-	bool SBv3_highdm_validation = false;
-	bool SBv3_highdm_validation_MET = true;
+	bool SBv3_highdm_validation = true;
+	bool SBv3_highdm_validation_MET = false;
 	bool SBv2_lowdm = false;
 	bool SBv2_lowdm_validation = false;
 	bool SBv2_lowdm_validation_MET = false;
@@ -148,6 +148,7 @@ int make_datacards()
 		SingleMuCR = "search_bin_v4_singleMuCR_h";
 		SingleElCR = "search_bin_v4_singleElCR_h";
 		SR_weight = "search_bin_v4_Stop0l_evtWeight_h";
+		post_fix = "";
 	}
 
 	if (SBv4_jetpt30)
@@ -527,6 +528,7 @@ int make_datacards()
 
 		if(do_validation)
 		{
+			//TFile out_file("validation/QCD_" + SR + post_fix + year + ".root","RECREATE");
 			TFile out_file("validation/QCD_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
@@ -600,7 +602,8 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEARED_HT_300to500";
+			//TString sp = "QCD_SMEARED_HT_300to500";
+			TString sp = "QCD_Smear_HT_300to500";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -640,7 +643,8 @@ int make_datacards()
 
 		if (false)
 		{
-			TString sp = "QCD_SMEARED_HT_200to300";
+			//TString sp = "QCD_SMEARED_HT_200to300";
+			TString sp = "QCD_Smear_HT_200to300";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -678,7 +682,8 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEARED_HT_500to700";
+			//TString sp = "QCD_SMEARED_HT_500to700";
+			TString sp = "QCD_Smear_HT_500to700";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -716,7 +721,8 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEARED_HT_700to1000";
+			//TString sp = "QCD_SMEARED_HT_700to1000";
+			TString sp = "QCD_Smear_HT_700to1000";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -754,7 +760,8 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEARED_HT_1000to1500";
+			//TString sp = "QCD_SMEARED_HT_1000to1500";
+			TString sp = "QCD_Smear_HT_1000to1500";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -792,7 +799,8 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEARED_HT_1500to2000";
+			//TString sp = "QCD_SMEARED_HT_1500to2000";
+			TString sp = "QCD_Smear_HT_1500to2000";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -830,7 +838,8 @@ int make_datacards()
 
 		if (true)
 		{
-			TString sp = "QCD_SMEARED_HT_2000toInf";
+			//TString sp = "QCD_SMEARED_HT_2000toInf";
+			TString sp = "QCD_Smear_HT_2000toInf";
 
 			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
 			TH1F *h1 = (TH1F*)f1->Get(SR_weight);
@@ -871,6 +880,7 @@ int make_datacards()
 
 		if(do_validation)
 		{
+			//TFile out_file("validation/QCD_" + SR + post_fix + year + ".root","RECREATE");
 			TFile out_file("validation/QCD_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
@@ -1201,6 +1211,7 @@ int make_datacards()
 
 		if(do_validation)
 		{
+			//TFile out_file("validation/Zinv_" + SR + post_fix + year + ".root","RECREATE");
 			TFile out_file("validation/Zinv_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
@@ -1752,6 +1763,139 @@ int make_datacards()
 			}
 		}
 
+		if (true)
+		{
+			TString sp = "TTWJetsToLNu";
+
+			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
+
+			double all_events = h2->GetBinContent(1);
+
+			h1->Sumw2();
+			h1_singleMuCR->Sumw2();
+			h1_singleElCR->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin_test content " << h1->GetBinContent(bin_test) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin_test error " << h1->GetBinError(bin_test) << std::endl;
+			std::cout << "unscale mu bin 1 content " << h1_singleMuCR->GetBinContent(1) << std::endl;
+			std::cout << "unscale mu bin 2 content " << h1_singleMuCR->GetBinContent(2) << std::endl;
+			std::cout << "unscale mu bin 1 error " << h1_singleMuCR->GetBinError(1) << std::endl;
+			std::cout << "unscale mu bin 2 error " << h1_singleMuCR->GetBinError(2) << std::endl;
+			std::cout << "unscale el bin 1 content " << h1_singleElCR->GetBinContent(1) << std::endl;
+			std::cout << "unscale el bin 2 content " << h1_singleElCR->GetBinContent(2) << std::endl;
+			std::cout << "unscale el bin 1 error " << h1_singleElCR->GetBinError(1) << std::endl;
+			std::cout << "unscale el bin 2 error " << h1_singleElCR->GetBinError(2) << std::endl;
+
+			std::cout << "=========================================================================" << std::endl;
+			std::cout << "lumi = " << lumi << " CrossSection.at(sp) " << CrossSection.at(sp) << " all_events " << all_events << std::endl;
+			std::cout << "=========================================================================" << std::endl;
+
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin_test content " << h1->GetBinContent(bin_test) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin_test error " << h1->GetBinError(bin_test) << std::endl;
+			std::cout << "scaled mu bin 1 content " << h1_singleMuCR->GetBinContent(1) << std::endl;
+			std::cout << "scaled mu bin 2 content " << h1_singleMuCR->GetBinContent(2) << std::endl;
+			std::cout << "scaled mu bin 1 error " << h1_singleMuCR->GetBinError(1) << std::endl;
+			std::cout << "scaled mu bin 2 error " << h1_singleMuCR->GetBinError(2) << std::endl;
+			std::cout << "scaled el bin 1 content " << h1_singleElCR->GetBinContent(1) << std::endl;
+			std::cout << "scaled el bin 2 content " << h1_singleElCR->GetBinContent(2) << std::endl;
+			std::cout << "scaled el bin 1 error " << h1_singleElCR->GetBinError(1) << std::endl;
+			std::cout << "scaled el bin 2 error " << h1_singleElCR->GetBinError(2) << std::endl;
+			pro->Add(h1);
+			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleElCR->Add(h1_singleElCR);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
+		}
+
+		if (true)
+		{
+			TString sp = "TTWJetsToQQ";
+
+			TFile *f1 = new TFile("results/" + folder + sp + year + ".root");
+			TH1F *h1 = (TH1F*)f1->Get(SR);
+			TH1F *h1_loose_bin = (TH1F*)f1->Get(SR_loose_bin);
+			TH1F *h1_singleMuCR = (TH1F*)f1->Get(SingleMuCR);
+			TH1F *h1_singleMuCR_loose_bin = (TH1F*)f1->Get(SingleMuCR_loose_bin);
+			TH1F *h1_singleElCR = (TH1F*)f1->Get(SingleElCR);
+			TH1F *h1_singleElCR_loose_bin = (TH1F*)f1->Get(SingleElCR_loose_bin);
+			TH1F *h2 = (TH1F*)f1->Get("Baseline_Only/eff_h");
+
+			double all_events = h2->GetBinContent(1);
+
+			h1->Sumw2();
+			h1_singleMuCR->Sumw2();
+			h1_singleElCR->Sumw2();
+
+			std::cout << "\n" << sp << std::endl;
+			std::cout << "unscale bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "unscale bin_test content " << h1->GetBinContent(bin_test) << std::endl;
+			std::cout << "unscale bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "unscale bin_test error " << h1->GetBinError(bin_test) << std::endl;
+			std::cout << "unscale mu bin 1 content " << h1_singleMuCR->GetBinContent(1) << std::endl;
+			std::cout << "unscale mu bin 2 content " << h1_singleMuCR->GetBinContent(2) << std::endl;
+			std::cout << "unscale mu bin 1 error " << h1_singleMuCR->GetBinError(1) << std::endl;
+			std::cout << "unscale mu bin 2 error " << h1_singleMuCR->GetBinError(2) << std::endl;
+			std::cout << "unscale el bin 1 content " << h1_singleElCR->GetBinContent(1) << std::endl;
+			std::cout << "unscale el bin 2 content " << h1_singleElCR->GetBinContent(2) << std::endl;
+			std::cout << "unscale el bin 1 error " << h1_singleElCR->GetBinError(1) << std::endl;
+			std::cout << "unscale el bin 2 error " << h1_singleElCR->GetBinError(2) << std::endl;
+
+			std::cout << "=========================================================================" << std::endl;
+			std::cout << "lumi = " << lumi << " CrossSection.at(sp) " << CrossSection.at(sp) << " all_events " << all_events << std::endl;
+			std::cout << "=========================================================================" << std::endl;
+
+			h1->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			h1_singleMuCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			h1_singleElCR->Scale(lumi * CrossSection.at(sp) * 1000 / all_events );
+			//h1->Scale(lumi * 1000);
+			//h1_singleMuCR->Scale(lumi * 1000);
+			//h1_singleElCR->Scale(lumi * 1000);
+
+			std::cout << "scaled bin 1 content " << h1->GetBinContent(1) << std::endl;
+			std::cout << "scaled bin_test content " << h1->GetBinContent(bin_test) << std::endl;
+			std::cout << "scaled bin 1 error " << h1->GetBinError(1) << std::endl;
+			std::cout << "scaled bin_test error " << h1->GetBinError(bin_test) << std::endl;
+			std::cout << "scaled mu bin 1 content " << h1_singleMuCR->GetBinContent(1) << std::endl;
+			std::cout << "scaled mu bin 2 content " << h1_singleMuCR->GetBinContent(2) << std::endl;
+			std::cout << "scaled mu bin 1 error " << h1_singleMuCR->GetBinError(1) << std::endl;
+			std::cout << "scaled mu bin 2 error " << h1_singleMuCR->GetBinError(2) << std::endl;
+			std::cout << "scaled el bin 1 content " << h1_singleElCR->GetBinContent(1) << std::endl;
+			std::cout << "scaled el bin 2 content " << h1_singleElCR->GetBinContent(2) << std::endl;
+			std::cout << "scaled el bin 1 error " << h1_singleElCR->GetBinError(1) << std::endl;
+			std::cout << "scaled el bin 2 error " << h1_singleElCR->GetBinError(2) << std::endl;
+			pro->Add(h1);
+			pro_singleMuCR->Add(h1_singleMuCR);
+			pro_singleElCR->Add(h1_singleElCR);
+			if(compare_TF)
+			{
+				pro_loose_bin->Add(h1_loose_bin);
+				pro_singleMuCR_loose_bin->Add(h1_singleMuCR_loose_bin);
+				pro_singleElCR_loose_bin->Add(h1_singleElCR_loose_bin);
+			}
+		}
 
 		if (true)
 		{
@@ -2156,6 +2300,7 @@ int make_datacards()
 		pro_singleElCR->SetBinErrorOption(TH1::kPoisson);
 		if(do_validation)
 		{
+			//TFile out_file("validation/LL_" + SR + post_fix + year + ".root","RECREATE");
 			TFile out_file("validation/LL_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
@@ -2732,6 +2877,7 @@ int make_datacards()
 
 		if(do_validation)
 		{
+			//TFile out_file("validation/TTZ_" + SR + post_fix + year + ".root","RECREATE");
 			TFile out_file("validation/TTZ_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
@@ -2978,6 +3124,7 @@ int make_datacards()
 
 		if(do_validation)
 		{
+			//TFile out_file("validation/Rare_" + SR + post_fix + year + ".root","RECREATE");
 			TFile out_file("validation/Rare_validation" + post_fix + year + ".root","RECREATE");
 			pro->Write();
 			out_file.Close();
@@ -3191,6 +3338,7 @@ int make_datacards()
 	{
 		TFile *f1 = new TFile("results/" + folder + "Data_MET" + year + ".root");
 		TH1F *h1 = (TH1F*)f1->Get(SR);
+		//TFile out_file("validation/Data_" + SR + post_fix + year + ".root","RECREATE");
 		TFile out_file("validation/Data_validation" + post_fix + year + ".root","RECREATE");
 		h1->SetName("data");
 		h1->Write();

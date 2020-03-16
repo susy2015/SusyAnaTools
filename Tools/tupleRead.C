@@ -19,7 +19,7 @@ int main(int argc, char* argv[]){
 	bool debug = false;
 
 	int max_events = -1;
-	//max_events = 50000;
+	//max_events = 1;
 
 	// ---------- Input & Output File Arguments ----------
 
@@ -31,9 +31,7 @@ int main(int argc, char* argv[]){
 	const char *inputfilelist = argv[1];
 	const char *outputfile   = argv[2];
 
-	if(debug) std::cout << __LINE__ << std::endl;
-
-	bool apply_pass_HEM_veto = false;//force to apply HEM veto on 2018 MC
+	bool apply_pass_HEM_veto = true;//force to apply HEM veto on 2018 MC
 	bool apply_SF = true;		//turn off when running on data
 	bool apply_prefire_SF = true;	//turn off when running 2018 sample
 	bool apply_ISR_SF = false;	//only for signal and 2016 TTbar
@@ -99,6 +97,7 @@ int main(int argc, char* argv[]){
         auto Trigger_SF_uc_h=new TH1F("Trigger_SF_uc_h","Trigger efficiency, no cuts",100,0.0,2.0);
         auto PU_SF_uc_h=new TH1F("PU_SF_uc_h","pileup weight, no cuts",100,0.0,2.0);
         auto preFire_SF_uc_h=new TH1F("preFire_SF_uc_h","preFire weight, no cuts",100,0.0,2.0);
+        auto Res_SF_uc_h=new TH1F("Res_SF_uc_h","Res top tagging SF, no cuts",100,0.0,2.0);
         auto Top_SF_uc_h=new TH1F("Top_SF_uc_h","Top tagging SF, no cuts",100,0.0,2.0);
         auto fastsim_SF_uc_h=new TH1F("fastsim_SF_uc_h","fastsim SF, no cuts",100,0.0,2.0);
         auto ISR_SF_h=new TH1F("ISR_SF_h","ISR SF, loose baseline",100,0.0,2.0);
@@ -106,6 +105,7 @@ int main(int argc, char* argv[]){
         auto Trigger_SF_h=new TH1F("Trigger_SF_h","Trigger efficiency, loose baseline",100,0.0,2.0);
         auto PU_SF_h=new TH1F("PU_SF_h","pileup weight, loose baseline",100,0.0,2.0);
         auto preFire_SF_h=new TH1F("preFire_SF_h","preFire weight, loose baseline",100,0.0,2.0);
+        auto Res_SF_h=new TH1F("Res_SF_h","Res top tagging SF, loose baseline",100,0.0,2.0);
         auto Top_SF_h=new TH1F("Top_SF_h","Top tagging SF, loose baseline",100,0.0,2.0);
         auto fastsim_SF_h=new TH1F("fastsim_SF_h","fastsim SF, loose baseline",100,0.0,2.0);
 
@@ -230,10 +230,10 @@ int main(int argc, char* argv[]){
 	{
 
 		if(debug) std::cout << __LINE__ << std::endl;
-
 		if(max_events > 0 && tr.getEvtNum() > max_events) break;
 
-		//if(tr.getEvtNum() % 2000 == 0) std::cout << "Event Number " << tr.getEvtNum() << std::endl;
+		//if(tr.getEvtNum() == 1) tr.printTupleMembers();
+		if(tr.getEvtNum() % 2000 == 0) std::cout << "Event Number " << tr.getEvtNum() << std::endl;
 
 		//if(tr.getEvtNum() < 350000) continue;
 		//if (tr.getVar<unsigned long long>("event") != 519215141) continue;
@@ -257,6 +257,7 @@ int main(int argc, char* argv[]){
 		float trigger_eff = 1.0;
 		float puWeight = 1.0;
 		float PrefireWeight = 1.0;
+		float Res_SF = 1.0;
 		float Top_SF = 1.0;
 		float fastsim_SF = 1.0;
 		
@@ -266,6 +267,7 @@ int main(int argc, char* argv[]){
 			trigger_eff = tr.getVar<float>("Stop0l_trigger_eff_MET_loose_baseline");
 			puWeight = tr.getVar<float>("puWeight");
 			
+			Res_SF = tr.getVar<float>("Stop0l_ResTopWeight");
 			std::vector<float> Top_SF_vec = tr.getVec<float>("FatJet_SF");
 			for(int i = 0; i < Top_SF_vec.size(); i++)
 			{Top_SF = Top_SF * Top_SF_vec.at(i);}
@@ -278,7 +280,7 @@ int main(int argc, char* argv[]){
 			}
 			if(apply_prefire_SF) PrefireWeight = tr.getVar<float>("PrefireWeight");
 			if(apply_ISR_SF) ISR_SF = tr.getVar<float>("ISRWeight");
-			evtWeight = evtWeight_sign * B_SF * ISR_SF * trigger_eff * puWeight * PrefireWeight * Top_SF * fastsim_SF;
+			evtWeight = evtWeight_sign * B_SF * ISR_SF * trigger_eff * puWeight * PrefireWeight * Res_SF * Top_SF * fastsim_SF;
 		}
 
 		bool Pass_trigger_MET = true;
@@ -529,6 +531,7 @@ int main(int argc, char* argv[]){
                 Trigger_SF_uc_h->Fill(trigger_eff);
                 PU_SF_uc_h->Fill(puWeight);
                 preFire_SF_uc_h->Fill(PrefireWeight);
+                Res_SF_uc_h->Fill(Res_SF);
                 Top_SF_uc_h->Fill(Top_SF);
                 fastsim_SF_uc_h->Fill(fastsim_SF);
 
@@ -557,6 +560,7 @@ int main(int argc, char* argv[]){
                 	Trigger_SF_h->Fill(trigger_eff);
                 	PU_SF_h->Fill(puWeight);
                 	preFire_SF_h->Fill(PrefireWeight);
+                        Res_SF_h->Fill(Res_SF);
                         Top_SF_h->Fill(Top_SF);
                         fastsim_SF_h->Fill(fastsim_SF);
 
@@ -810,6 +814,7 @@ int main(int argc, char* argv[]){
         Trigger_SF_uc_h->Write();
         PU_SF_uc_h->Write();
         preFire_SF_uc_h->Write();
+        Res_SF_uc_h->Write();
         Top_SF_uc_h->Write();
         fastsim_SF_uc_h->Write();
         ISR_SF_h->Write();
@@ -817,6 +822,7 @@ int main(int argc, char* argv[]){
         Trigger_SF_h->Write();
         PU_SF_h->Write();
         preFire_SF_h->Write();
+        Res_SF_h->Write();
         Top_SF_h->Write();
         fastsim_SF_h->Write();
 

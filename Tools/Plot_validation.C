@@ -29,12 +29,12 @@ int Plot_validation()
 	bool plot_log = true;
 	bool plot_sig_pad = true;
 	bool plot_BG = true;
-	bool plot_pull = true;
+	bool plot_pull = false;
 	TString pull = "";
 	if(plot_pull) pull = "_pull";
 
 	TString low_or_high = "_lowdm";
-	low_or_high = "_highdm";
+	//low_or_high = "_highdm";
 
 	float ymin = 0.1, ymax = 100000;
 
@@ -342,7 +342,7 @@ int Plot_validation()
 
 		if(plot_pull)
 		{
-			auto pull_h=new TH1F("pull_h","distribution of pull",14,-3.5,3.5);
+			auto pull_h=new TH1F("pull_h","distribution of pull",24,-3,3);
 			TH1D *ratio = (TH1D*)h_data->Clone();
 			for(int i = 1; i <= ratio->GetSize() - 2; i++)
 			{
@@ -361,13 +361,13 @@ int Plot_validation()
 				pull = (a-b)/sqrt(b+db);	//ken's formular: pull = data-pred/sqrt(pred + d_pred^2)
 				ratio->SetBinContent(i,pull);
 				pull_h->Fill(pull);
-				//std::cout << "bin " << i << " pull " << ratio->GetBinContent(i) << std::endl;
+				std::cout << pull << ", ";
 			}
 			ratio->Draw("hist");
 
 			std::cout << std::fixed;
 			std::cout << std::setprecision(2);
-			std::cout << "Bin " << bin_test << " pull: " << ratio->GetBinContent(bin_test) << ". Data " << h_data->GetBinContent(bin_test) << " + " << h_data->GetBinErrorUp(bin_test) << " - " << h_data->GetBinErrorLow(bin_test) << ". BG " << ((TH1D*)(hs->GetStack()->Last()))->GetBinContent(bin_test) << " + " << ((TH1D*)(hs_up->GetStack()->Last()))->GetBinError(bin_test) << " - " << ((TH1D*)(hs_down->GetStack()->Last()))->GetBinError(bin_test) << std::endl;
+			std::cout << "\nBin " << bin_test << " pull: " << ratio->GetBinContent(bin_test) << ". Data " << h_data->GetBinContent(bin_test) << " + " << h_data->GetBinErrorUp(bin_test) << " - " << h_data->GetBinErrorLow(bin_test) << ". BG " << ((TH1D*)(hs->GetStack()->Last()))->GetBinContent(bin_test) << " + " << ((TH1D*)(hs_up->GetStack()->Last()))->GetBinError(bin_test) << " - " << ((TH1D*)(hs_down->GetStack()->Last()))->GetBinError(bin_test) << std::endl;
 
 			ratio->SetTitle("");
 			ratio->GetXaxis()->SetTitle("validation bins ");

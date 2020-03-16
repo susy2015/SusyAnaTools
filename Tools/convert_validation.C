@@ -222,7 +222,9 @@ int convert_validation()
 			std::cout << std::fixed;
 			std::cout << std::setprecision(2);
 			//if(i==bin_test)std::cout << h1->GetBinContent(i) << " " << h2_clone->GetBinContent(i) << " " << stat << " " << h2_down->GetBinContent(i + first_bin_sys) << "/" << h2_up->GetBinContent(i + first_bin_sys) << " " << mean_sys << " " << total_unc << std::endl;
-			if(i==bin_test)std::cout << h2_clone->GetBinContent(i) << " " << stat << " " << h2_down->GetBinContent(i + first_bin_sys) << "/" << h2_up->GetBinContent(i + first_bin_sys) << " " << mean_sys << " " << total_unc << std::endl;
+			//if(i==bin_test)std::cout << h2_clone->GetBinContent(i) << " " << stat << " " << h2_down->GetBinContent(i + first_bin_sys) << "/" << h2_up->GetBinContent(i + first_bin_sys) << " " << mean_sys << " " << total_unc << std::endl;
+			//if(i==bin_test)std::cout << h2_clone->GetBinContent(i) << " " << stat << " " << h2_down->GetBinContent(i + first_bin_sys) << "/" << h2_up->GetBinContent(i + first_bin_sys) << " " << sys_up << " " << total_unc_up << std::endl;
+			if(i==bin_test)std::cout << h2_clone->GetBinContent(i) << " " << stat << " " << h2_down->GetBinContent(i + first_bin_sys) << "/" << h2_up->GetBinContent(i + first_bin_sys) << " " << sys_down << " " << total_unc_down << std::endl;
 		}
 		TString stat_unc_name = h2_clone->GetName();
 		h2_clone->SetName(stat_unc_name + "_stat");

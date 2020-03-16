@@ -3,14 +3,19 @@ int Plot_compare_validation()
 	const bool plot_log = true;
 
 	bool plot_SBv3 = false;
-	bool plot_SBv4 = false;
+	bool plot_SBv4_tot = false;
+	bool plot_SBv4_LL = false;
+	bool plot_SBv4_Zinv = false;
+	bool plot_SBv4_QCD = false;
+	bool plot_2017_v6 = false;
+	bool plot_SBv4_TTZ = false;
 	bool plot_zinv_highdm = false;
 	bool plot_LL_lowdm = false;
 	bool plot_LL_highdm = false;
 	bool plot_data_Matt_lowdm = false;
-	bool plot_data_Matt_highdm = false;
+	bool plot_data_Matt_highdm = true;
 	bool plot_data_Matt_lowdm_MET = false;
-	bool plot_data_Matt_highdm_MET = true;
+	bool plot_data_Matt_highdm_MET = false;
 	bool plot_data_Dipika_lowdm = false;
 	bool plot_data_Dipika_highdm = false;
 	bool plot_data_Jon_lowdm = false;
@@ -49,14 +54,64 @@ int Plot_compare_validation()
 		f2_leg = "Matt"; 
 	}
 
-	if(plot_SBv4)
+	if(plot_2017_v6)
 	{
-		f1_name = "SMS_T1tttt_fastsim_2016";
-		hist1 = "search_bin_v4_h"; 
+		f1_name = "BG_validation_highdm_2017";
+		hist1 = "BG_tot"; 
 		f1_leg = "Mine"; 
-		f2_name = "std_pred_SBv4"; 
-		hist2 = "T1tttt";
-		f2_leg = "Matt"; 
+		f2_name = "Data_validation_highdm_2017"; 
+		hist2 = "data";
+		f2_leg = "data"; 
+	}
+
+	if(plot_SBv4_tot)
+	{
+		f1_name = "BG_search_bin_v4_h";
+		hist1 = "BG_tot"; 
+		f1_leg = "Mine"; 
+		f2_name = "SumOfBkg"; 
+		hist2 = "hpred";
+		f2_leg = "Pred"; 
+	}
+
+	if(plot_SBv4_LL)
+	{
+		f1_name = "LL_search_bin_v4_h";
+		hist1 = "LL_SR"; 
+		f1_leg = "Mine"; 
+		f2_name = "SumOfBkg"; 
+		hist2 = "httbar_stack_5";
+		f2_leg = "Pred"; 
+	}
+
+	if(plot_SBv4_Zinv)
+	{
+		f1_name = "Zinv_search_bin_v4_h";
+		hist1 = "zjets"; 
+		f1_leg = "Mine"; 
+		f2_name = "SumOfBkg"; 
+		hist2 = "hznunu_stack_4";
+		f2_leg = "Pred"; 
+	}
+
+	if(plot_SBv4_QCD)
+	{
+		f1_name = "QCD_search_bin_v4_h";
+		hist1 = "QCD"; 
+		f1_leg = "Mine"; 
+		f2_name = "SumOfBkg"; 
+		hist2 = "hqcd_stack_3";
+		f2_leg = "Pred"; 
+	}
+
+	if(plot_SBv4_TTZ)
+	{
+		f1_name = "TTZ_search_bin_v4_h";
+		hist1 = "TTZ"; 
+		f1_leg = "Mine"; 
+		f2_name = "SumOfBkg"; 
+		hist2 = "httz_stack_2";
+		f2_leg = "Pred"; 
 	}
 
 	if(plot_zinv_highdm)
