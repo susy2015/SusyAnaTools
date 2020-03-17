@@ -146,13 +146,15 @@ bool BaselineVessel::PrepMETUncluster()
   // --- register top/W variables with MET specification for later use
   if (spec.find("METUnClust") != std::string::npos)
   {
-      tr->registerDerivedVar("nMergedTops" + firstSpec,         tr->getVar<int>("nMergedTops_jetpt30"));
-      tr->registerDerivedVar("nWs" + firstSpec,                 tr->getVar<int>("nWs_jetpt30"));
-      tr->registerDerivedVar("nResolvedTops" + firstSpec,       tr->getVar<int>("nResolvedTops_jetpt30"));
-      tr->registerDerivedVar("MergedTopTotalSF" + firstSpec,    tr->getVar<float>("MergedTopTotalSF_jetpt30"));
-      tr->registerDerivedVar("WTotalSF" + firstSpec,            tr->getVar<float>("WTotalSF_jetpt30"));
-      tr->registerDerivedVar("ResolvedTopTotalSF" + firstSpec,  tr->getVar<float>("ResolvedTopTotalSF_jetpt30"));
-      tr->registerDerivedVar("ttr" + firstSpec,                 tr->getVar<TopTaggerResults*>("ttr_jetpt30"));
+      tr->registerDerivedVar("nRemovedJets" + firstSpec,            tr->getVar<int>("nRemovedJets_jetpt30"));
+      tr->registerDerivedVar("nRemovedResolvedTops" + firstSpec,    tr->getVar<int>("nRemovedResolvedTops_jetpt30"));
+      tr->registerDerivedVar("nMergedTops" + firstSpec,             tr->getVar<int>("nMergedTops_jetpt30"));
+      tr->registerDerivedVar("nWs" + firstSpec,                     tr->getVar<int>("nWs_jetpt30"));
+      tr->registerDerivedVar("nResolvedTops" + firstSpec,           tr->getVar<int>("nResolvedTops_jetpt30"));
+      tr->registerDerivedVar("MergedTopTotalSF" + firstSpec,        tr->getVar<float>("MergedTopTotalSF_jetpt30"));
+      tr->registerDerivedVar("WTotalSF" + firstSpec,                tr->getVar<float>("WTotalSF_jetpt30"));
+      tr->registerDerivedVar("ResolvedTopTotalSF" + firstSpec,      tr->getVar<float>("ResolvedTopTotalSF_jetpt30"));
+      tr->registerDerivedVar("ttr" + firstSpec,                     tr->getVar<TopTaggerResults*>("ttr_jetpt30"));
   }
 }
 
