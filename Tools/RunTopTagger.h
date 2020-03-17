@@ -447,8 +447,9 @@ private:
 
         // --- WARNING: Testing fat jets --- //
         // --- testing number of merged tops and Ws calculated in this module ---
-        //nMergedTops     = MergedTopsTLV->size();
-        //nWs             = WTLV->size();
+        // TODO: update top tagger SF calculation; use total event weight from v6 ntuple, and divide out cleaned tops...
+        nMergedTops     = MergedTopsTLV->size();
+        nWs             = WTLV->size();
         // number of resolved tops
         nResolvedTops        = ResolvedTopsTLV->size();
         nRemovedResolvedTops = Stop0l_nResolved - nResolvedTops;
@@ -465,13 +466,13 @@ private:
         
         // --- testing photon cleaning 
         //if (!(doPhotonCleaning_ || doLeptonCleaning_))
-        if (doPhotonCleaning_)
-        {
-            if (nRemovedJets > 0)
-            {
-                printf("num. removed jets = %d, num. removed resolved tops = %d\n", nRemovedJets, nRemovedResolvedTops);
-            }
-        }
+        //if (doPhotonCleaning_)
+        //{
+        //    if (nRemovedJets > 0)
+        //    {
+        //        printf("num. removed jets = %d, num. removed resolved tops = %d\n", nRemovedJets, nRemovedResolvedTops);
+        //    }
+        //}
         
         tr.registerDerivedVar("nRemovedJets" + suffix_,                             nRemovedJets);
         tr.registerDerivedVar("nRemovedResolvedTops" + suffix_,                     nRemovedResolvedTops);

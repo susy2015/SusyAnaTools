@@ -1040,6 +1040,7 @@ void BaselineVessel::PassBaseline()
   //if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 )
   //if ( firstSpec.compare("_jetpt30") == 0 && tr->getEvtNum() == 6410 )
   //if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 && nRemovedJets > 0 )
+  //if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 && nRemovedResolvedTops < 0 )
   if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference) )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
