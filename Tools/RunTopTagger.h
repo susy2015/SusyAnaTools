@@ -65,6 +65,9 @@ private:
     {
         // print for testing
         //std::cout << "### --------- Running top tagger: suffix_ = " << suffix_ << std::endl;
+        
+        // Stop0l variables for comparison
+        const auto& Stop0l_nResolved = tr.getVar<int>("Stop0l_nResolved");
 
         //get necessary tagger input variables 
 
@@ -156,6 +159,8 @@ private:
         float ResolvedTopTotalSF        = 1.0;
         float ResolvedTopTotalSF_Up     = 1.0;
         float ResolvedTopTotalSF_Down   = 1.0;
+        int nRemovedJets = 0;
+        int nRemovedResolvedTops = 0;
 
         //Select AK4 jets to use in tagger
         //When reading from the resolvedTopCandidate collection from nanoAOD you must pass ALL ak4 jets to ttUtility::ConstAK4Inputs below, 
@@ -165,16 +170,27 @@ private:
         for(int i = 0; i < ak4Filter.size(); ++i)
         {
             //no need to slow the tagger down considering low pt jets
-            if(Jet_LV[i].Pt() < 20.0) ak4Filter[i] = false;
+            if(Jet_LV[i].Pt() < 20.0) 
+            {
+                ak4Filter[i] = false;
+            }
 
             //do some logic here to decide which jet was lepton/photon matched
             if (doLeptonCleaning_)
             {
-                if (Jet_matchesElectron[i] || Jet_matchesMuon[i]) ak4Filter[i] = false;
+                if (Jet_matchesElectron[i] || Jet_matchesMuon[i]) 
+                {
+                    ak4Filter[i] = false;
+                    ++nRemovedJets;
+                }
             }
             if (doPhotonCleaning_)
             {
-                if (Jet_matchesPhoton[i]) ak4Filter[i] = false;
+                if (Jet_matchesPhoton[i]) 
+                {
+                    ak4Filter[i] = false;
+                    ++nRemovedJets;
+                }
             }
         }
 
@@ -433,7 +449,8 @@ private:
         //nMergedTops     = MergedTopsTLV->size();
         //nWs             = WTLV->size();
         // number of resolved tops
-        nResolvedTops   = ResolvedTopsTLV->size();
+        nResolvedTops        = ResolvedTopsTLV->size();
+        nRemovedResolvedTops = Stop0l_nResolved - nResolvedTops;
         
         //print the number of tops found in the event 
         if (printTops)
@@ -445,6 +462,17 @@ private:
             std::cout << std::endl;
         }
         
+        // --- testing photon cleaning 
+        if (doPhotonCleaning_)
+        {
+            if (nRemovedJets > 0)
+            {
+                printf("num. removed jets = %d, num. removed resolved tops = %d\n", nRemovedJets, nRemovedResolvedTops);
+            }
+        }
+        
+        tr.registerDerivedVar("nRemovedJets" + suffix_,                             nRemovedJets);
+        tr.registerDerivedVar("nRemovedResolvedTops" + suffix_,                     nRemovedResolvedTops);
         tr.registerDerivedVar("nMergedTops" + suffix_,                              nMergedTops);
         tr.registerDerivedVar("MergedTopTotalSF" + suffix_,                         MergedTopTotalSF);
         tr.registerDerivedVar("MergedTopTotalSF_Up" + suffix_,                      MergedTopTotalSF_Up);

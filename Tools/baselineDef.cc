@@ -625,6 +625,8 @@ void BaselineVessel::PassBaseline()
   const auto& MergedTopTotalSF      = tr->getVar<float>(UseSpecVar("MergedTopTotalSF"));
   const auto& WTotalSF              = tr->getVar<float>(UseSpecVar("WTotalSF"));
   const auto& ResolvedTopTotalSF    = tr->getVar<float>(UseSpecVar("ResolvedTopTotalSF"));
+  const auto& nRemovedJets          = tr->getVar<int>(UseSpecVar("nRemovedJets"));
+  const auto& nRemovedResolvedTops  = tr->getVar<int>(UseSpecVar("nRemovedResolvedTops"));
   const auto* ttr                   = tr->getVar<TopTaggerResults*>(UseSpecVar("ttr"));
   const auto& FatJet_Stop0l         = tr->getVec<int>(UseCleanedJetsVar("FatJet_Stop0l"));
   const auto& FatJet_subJetIdx1     = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx1"));
@@ -1035,7 +1037,8 @@ void BaselineVessel::PassBaseline()
   //if (false)
   //if ( firstSpec.compare("_jetpt30") == 0 )
   //if ( firstSpec.compare("_jetpt30") == 0 && tr->getEvtNum() == 6410 )
-  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference) )
+  //if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference) )
+  if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 && nRemovedJets > 0 )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
