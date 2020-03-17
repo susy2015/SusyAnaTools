@@ -114,23 +114,24 @@ private:
         //AK8 subjets 
         const auto& SubJet_LV = tr.getVec_LVFromNano<float>("SubJet");
         
-        // --- old version --- //
-        //resolved top candidates
-        //const auto& ResTopCand_LV            = tr.getVec_LVFromNano<float>("ResolvedTopCandidate");
-        //const auto& ResTopCand_discriminator = tr.getVec<float>("ResolvedTopCandidate_discriminator");
-        //const auto& ResTopCand_j1Idx         = tr.getVec<int>("ResolvedTopCandidate_j1Idx");
-        //const auto& ResTopCand_j2Idx         = tr.getVec<int>("ResolvedTopCandidate_j2Idx");
-        //const auto& ResTopCand_j3Idx         = tr.getVec<int>("ResolvedTopCandidate_j3Idx");
         
-        // --- new version --- //
+        // --- old version --- //
         // load previously run top tagger candidates to fix double truncation/rounding
         // resolved top candidates
         // std::string getSATVar(std::string collection, std::string var)
-        const auto& ResTopCand_LV            = tr.getVec<TLorentzVector>(   getSATVar("ResolvedTopCandidate", "TLV")                );
-        const auto& ResTopCand_discriminator = tr.getVec<float>(            getSATVar("ResolvedTopCandidate", "_discriminator")     );
-        const auto& ResTopCand_j1Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j1Idx")             );
-        const auto& ResTopCand_j2Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j2Idx")             );
-        const auto& ResTopCand_j3Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j3Idx")             );
+        //const auto& ResTopCand_LV            = tr.getVec<TLorentzVector>(   getSATVar("ResolvedTopCandidate", "TLV")                );
+        //const auto& ResTopCand_discriminator = tr.getVec<float>(            getSATVar("ResolvedTopCandidate", "_discriminator")     );
+        //const auto& ResTopCand_j1Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j1Idx")             );
+        //const auto& ResTopCand_j2Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j2Idx")             );
+        //const auto& ResTopCand_j3Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j3Idx")             );
+        
+        // --- current version --- //
+        //resolved top candidates
+        const auto& ResTopCand_LV            = tr.getVec_LVFromNano<float>("ResolvedTopCandidate");
+        const auto& ResTopCand_discriminator = tr.getVec<float>("ResolvedTopCandidate_discriminator");
+        const auto& ResTopCand_j1Idx         = tr.getVec<int>("ResolvedTopCandidate_j1Idx");
+        const auto& ResTopCand_j2Idx         = tr.getVec<int>("ResolvedTopCandidate_j2Idx");
+        const auto& ResTopCand_j3Idx         = tr.getVec<int>("ResolvedTopCandidate_j3Idx");
 
         auto* MergedTopsTLV                             = new std::vector<TLorentzVector>();
         auto* MergedTops_disc                           = new std::vector<float>();
@@ -347,7 +348,8 @@ private:
         /////////////////////////////////////////
         for(const TopObject topCand : topCandidates)
         {
-            int nConstituents = topCand.getNConstituents();
+            const std::vector<Constituent const *>& topConstituents = topCand.getConstituents();
+            int nConstituents                                       = topCand.getNConstituents();
             //printf("nConstituents = %d\n", nConstituents);
             std::vector<int> jetIdxs(3, -1);
             for (int i = 0; i < 3; ++i)
@@ -355,10 +357,9 @@ private:
                 // check that there are enough constituents before accessing
                 if (nConstituents > i)
                 {
-                    jetIdxs[i] = constituents[i].getIndex();
+                    jetIdxs[i] = topConstituents[i]->getIndex();
                 }
             }
-            const std::vector<Constituent const *>& constituents = topCand.getConstituents();
             SAT_ResolvedTopCandidate_TLV.push_back(topCand.p());
             SAT_ResolvedTopCandidate_discriminator.push_back(topCand.getDiscriminator());
             SAT_ResolvedTopCandidate_j1Idx.push_back(jetIdxs[0]);
@@ -463,6 +464,7 @@ private:
         }
         
         // --- testing photon cleaning 
+        //if (!(doPhotonCleaning_ || doLeptonCleaning_))
         if (doPhotonCleaning_)
         {
             if (nRemovedJets > 0)
