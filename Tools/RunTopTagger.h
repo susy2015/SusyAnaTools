@@ -63,6 +63,12 @@ private:
 
     void runTopTagger(NTupleReader& tr) 
     {
+        // print for testing
+        //std::cout << "### --------- Running top tagger: suffix_ = " << suffix_ << std::endl;
+        
+        // Stop0l variables for comparison
+        const auto& Stop0l_nResolved = tr.getVar<int>("Stop0l_nResolved");
+
         //get necessary tagger input variables 
 
         //AK4 jets
@@ -108,23 +114,24 @@ private:
         //AK8 subjets 
         const auto& SubJet_LV = tr.getVec_LVFromNano<float>("SubJet");
         
-        // --- old version --- //
-        //resolved top candidates
-        //const auto& ResTopCand_LV            = tr.getVec_LVFromNano<float>("ResolvedTopCandidate");
-        //const auto& ResTopCand_discriminator = tr.getVec<float>("ResolvedTopCandidate_discriminator");
-        //const auto& ResTopCand_j1Idx         = tr.getVec<int>("ResolvedTopCandidate_j1Idx");
-        //const auto& ResTopCand_j2Idx         = tr.getVec<int>("ResolvedTopCandidate_j2Idx");
-        //const auto& ResTopCand_j3Idx         = tr.getVec<int>("ResolvedTopCandidate_j3Idx");
         
-        // --- new version --- //
+        // --- old version --- //
         // load previously run top tagger candidates to fix double truncation/rounding
         // resolved top candidates
         // std::string getSATVar(std::string collection, std::string var)
-        const auto& ResTopCand_LV            = tr.getVec<TLorentzVector>(   getSATVar("ResolvedTopCandidate", "TLV")                );
-        const auto& ResTopCand_discriminator = tr.getVec<float>(            getSATVar("ResolvedTopCandidate", "_discriminator")     );
-        const auto& ResTopCand_j1Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j1Idx")             );
-        const auto& ResTopCand_j2Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j2Idx")             );
-        const auto& ResTopCand_j3Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j3Idx")             );
+        //const auto& ResTopCand_LV            = tr.getVec<TLorentzVector>(   getSATVar("ResolvedTopCandidate", "TLV")                );
+        //const auto& ResTopCand_discriminator = tr.getVec<float>(            getSATVar("ResolvedTopCandidate", "_discriminator")     );
+        //const auto& ResTopCand_j1Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j1Idx")             );
+        //const auto& ResTopCand_j2Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j2Idx")             );
+        //const auto& ResTopCand_j3Idx         = tr.getVec<int>(              getSATVar("ResolvedTopCandidate", "_j3Idx")             );
+        
+        // --- current version --- //
+        //resolved top candidates
+        const auto& ResTopCand_LV            = tr.getVec_LVFromNano<float>("ResolvedTopCandidate");
+        const auto& ResTopCand_discriminator = tr.getVec<float>("ResolvedTopCandidate_discriminator");
+        const auto& ResTopCand_j1Idx         = tr.getVec<int>("ResolvedTopCandidate_j1Idx");
+        const auto& ResTopCand_j2Idx         = tr.getVec<int>("ResolvedTopCandidate_j2Idx");
+        const auto& ResTopCand_j3Idx         = tr.getVec<int>("ResolvedTopCandidate_j3Idx");
 
         auto* MergedTopsTLV                             = new std::vector<TLorentzVector>();
         auto* MergedTops_disc                           = new std::vector<float>();
@@ -153,6 +160,8 @@ private:
         float ResolvedTopTotalSF        = 1.0;
         float ResolvedTopTotalSF_Up     = 1.0;
         float ResolvedTopTotalSF_Down   = 1.0;
+        int nRemovedJets = 0;
+        int nRemovedResolvedTops = 0;
 
         //Select AK4 jets to use in tagger
         //When reading from the resolvedTopCandidate collection from nanoAOD you must pass ALL ak4 jets to ttUtility::ConstAK4Inputs below, 
@@ -162,16 +171,27 @@ private:
         for(int i = 0; i < ak4Filter.size(); ++i)
         {
             //no need to slow the tagger down considering low pt jets
-            if(Jet_LV[i].Pt() < 20.0) ak4Filter[i] = false;
+            if(Jet_LV[i].Pt() < 20.0) 
+            {
+                ak4Filter[i] = false;
+            }
 
             //do some logic here to decide which jet was lepton/photon matched
             if (doLeptonCleaning_)
             {
-                if (Jet_matchesElectron[i] || Jet_matchesMuon[i]) ak4Filter[i] = false;
+                if (Jet_matchesElectron[i] || Jet_matchesMuon[i]) 
+                {
+                    ak4Filter[i] = false;
+                    ++nRemovedJets;
+                }
             }
             if (doPhotonCleaning_)
             {
-                if (Jet_matchesPhoton[i]) ak4Filter[i] = false;
+                if (Jet_matchesPhoton[i]) 
+                {
+                    ak4Filter[i] = false;
+                    ++nRemovedJets;
+                }
             }
         }
 
@@ -328,7 +348,8 @@ private:
         /////////////////////////////////////////
         for(const TopObject topCand : topCandidates)
         {
-            int nConstituents = topCand.getNConstituents();
+            const std::vector<Constituent const *>& topConstituents = topCand.getConstituents();
+            int nConstituents                                       = topCand.getNConstituents();
             //printf("nConstituents = %d\n", nConstituents);
             std::vector<int> jetIdxs(3, -1);
             for (int i = 0; i < 3; ++i)
@@ -336,10 +357,9 @@ private:
                 // check that there are enough constituents before accessing
                 if (nConstituents > i)
                 {
-                    jetIdxs[i] = constituents[i].getIndex();
+                    jetIdxs[i] = topConstituents[i]->getIndex();
                 }
             }
-            const std::vector<Constituent const *>& constituents = topCand.getConstituents();
             SAT_ResolvedTopCandidate_TLV.push_back(topCand.p());
             SAT_ResolvedTopCandidate_discriminator.push_back(topCand.getDiscriminator());
             SAT_ResolvedTopCandidate_j1Idx.push_back(jetIdxs[0]);
@@ -425,8 +445,14 @@ private:
 
         }
 
+        // --- WARNING: Testing fat jets --- //
+        // --- testing number of merged tops and Ws calculated in this module ---
+        // TODO: update top tagger SF calculation; use total event weight from v6 ntuple, and divide out cleaned tops...
+        nMergedTops     = MergedTopsTLV->size();
+        nWs             = WTLV->size();
         // number of resolved tops
-        nResolvedTops   = ResolvedTopsTLV->size();
+        nResolvedTops        = ResolvedTopsTLV->size();
+        nRemovedResolvedTops = Stop0l_nResolved - nResolvedTops;
         
         //print the number of tops found in the event 
         if (printTops)
@@ -438,6 +464,18 @@ private:
             std::cout << std::endl;
         }
         
+        // --- testing photon cleaning 
+        //if (!(doPhotonCleaning_ || doLeptonCleaning_))
+        //if (doPhotonCleaning_)
+        //{
+        //    if (nRemovedJets > 0)
+        //    {
+        //        printf("num. removed jets = %d, num. removed resolved tops = %d\n", nRemovedJets, nRemovedResolvedTops);
+        //    }
+        //}
+        
+        tr.registerDerivedVar("nRemovedJets" + suffix_,                             nRemovedJets);
+        tr.registerDerivedVar("nRemovedResolvedTops" + suffix_,                     nRemovedResolvedTops);
         tr.registerDerivedVar("nMergedTops" + suffix_,                              nMergedTops);
         tr.registerDerivedVar("MergedTopTotalSF" + suffix_,                         MergedTopTotalSF);
         tr.registerDerivedVar("MergedTopTotalSF_Up" + suffix_,                      MergedTopTotalSF_Up);

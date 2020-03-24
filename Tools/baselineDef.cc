@@ -146,13 +146,15 @@ bool BaselineVessel::PrepMETUncluster()
   // --- register top/W variables with MET specification for later use
   if (spec.find("METUnClust") != std::string::npos)
   {
-      tr->registerDerivedVar("nMergedTops" + firstSpec,         tr->getVar<int>("nMergedTops_jetpt30"));
-      tr->registerDerivedVar("nWs" + firstSpec,                 tr->getVar<int>("nWs_jetpt30"));
-      tr->registerDerivedVar("nResolvedTops" + firstSpec,       tr->getVar<int>("nResolvedTops_jetpt30"));
-      tr->registerDerivedVar("MergedTopTotalSF" + firstSpec,    tr->getVar<float>("MergedTopTotalSF_jetpt30"));
-      tr->registerDerivedVar("WTotalSF" + firstSpec,            tr->getVar<float>("WTotalSF_jetpt30"));
-      tr->registerDerivedVar("ResolvedTopTotalSF" + firstSpec,  tr->getVar<float>("ResolvedTopTotalSF_jetpt30"));
-      tr->registerDerivedVar("ttr" + firstSpec,                 tr->getVar<TopTaggerResults*>("ttr_jetpt30"));
+      tr->registerDerivedVar("nRemovedJets" + firstSpec,            tr->getVar<int>("nRemovedJets_jetpt30"));
+      tr->registerDerivedVar("nRemovedResolvedTops" + firstSpec,    tr->getVar<int>("nRemovedResolvedTops_jetpt30"));
+      tr->registerDerivedVar("nMergedTops" + firstSpec,             tr->getVar<int>("nMergedTops_jetpt30"));
+      tr->registerDerivedVar("nWs" + firstSpec,                     tr->getVar<int>("nWs_jetpt30"));
+      tr->registerDerivedVar("nResolvedTops" + firstSpec,           tr->getVar<int>("nResolvedTops_jetpt30"));
+      tr->registerDerivedVar("MergedTopTotalSF" + firstSpec,        tr->getVar<float>("MergedTopTotalSF_jetpt30"));
+      tr->registerDerivedVar("WTotalSF" + firstSpec,                tr->getVar<float>("WTotalSF_jetpt30"));
+      tr->registerDerivedVar("ResolvedTopTotalSF" + firstSpec,      tr->getVar<float>("ResolvedTopTotalSF_jetpt30"));
+      tr->registerDerivedVar("ttr" + firstSpec,                     tr->getVar<TopTaggerResults*>("ttr_jetpt30"));
   }
 }
 
@@ -522,35 +524,18 @@ void BaselineVessel::Test()
     if (firstSpec.compare("_jetpt30") == 0)
     {
         std::cout << " ----------------------------- Running Test ----------------------------- " << std::endl;
-        float met = 497.632263; 
-        float metphi = 0.447388; 
-        std::vector<TLorentzVector> Jets;
-        TLorentzVector v;
-        v.SetPtEtaPhiM(1075.000000, 1.201172, -2.917969, 81.625000);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(548.500000, 0.113953, -0.103775, 64.562500);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(221.375000, 0.012928, 2.608887, 40.531250);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(221.375000, 0.133606, 0.361755, 16.500000);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(199.000000, 0.565918, -1.702148, 20.203125);
-        Jets.push_back(v);
-        TLorentzVector met_TLV; 
-        // Set TLorentzVector for MET
-        met_TLV.SetPtEtaPhiM(met, 0, metphi, 0);
-        // Calculate deltaPhi
-        std::vector<float> dphi_vec = AnaFunctions::calcDPhi(Jets, met_TLV, 5, dPhiCutArrary, true);
-        int j = 0;
-        for (const auto& Jet : Jets)
-        {
-          printf("Jet_%d: pt=%f, eta=%f, phi=%f, mass=%f\n", j, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
-          ++j;
-        }
-        for (int i = 0; i < dphi_vec.size(); ++i)
-        {
-            printf("dPhi_%d = %f\n", i, dphi_vec[i]);
-        }
+        TLorentzVector jet1;
+        TLorentzVector jet2;
+        
+        //jet1.SetPtEtaPhiM(337.50000, 0.53296, 3.13477, 97.68750);
+        //jet2.SetPtEtaPhiM(177.62500, 0.25934, 3.12354, 18.20312);
+        
+        //jet1.SetPtEtaPhiM(1166.00000, -1.03369, -0.41223, 159.00000);
+        jet1.SetPtEtaPhiM(577.50000, -0.56909, 2.52930, 220.50000);
+        jet2.SetPtEtaPhiM(222.12500, -1.11816, -3.04541, 80.50000);
+        
+        float dR = ROOT::Math::VectorUtil::DeltaR(jet1, jet2);
+        printf("jet 1 and jet 2 dR = %f\n", dR);
     }
 }
 
@@ -642,6 +627,8 @@ void BaselineVessel::PassBaseline()
   const auto& MergedTopTotalSF      = tr->getVar<float>(UseSpecVar("MergedTopTotalSF"));
   const auto& WTotalSF              = tr->getVar<float>(UseSpecVar("WTotalSF"));
   const auto& ResolvedTopTotalSF    = tr->getVar<float>(UseSpecVar("ResolvedTopTotalSF"));
+  const auto& nRemovedJets          = tr->getVar<int>(UseSpecVar("nRemovedJets"));
+  const auto& nRemovedResolvedTops  = tr->getVar<int>(UseSpecVar("nRemovedResolvedTops"));
   const auto* ttr                   = tr->getVar<TopTaggerResults*>(UseSpecVar("ttr"));
   const auto& FatJet_Stop0l         = tr->getVec<int>(UseCleanedJetsVar("FatJet_Stop0l"));
   const auto& FatJet_subJetIdx1     = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx1"));
@@ -1049,9 +1036,14 @@ void BaselineVessel::PassBaseline()
   
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
+  //if (false)
   //if ( firstSpec.compare("_jetpt30") == 0 )
-  //if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference))
-  if (false)
+  //if ( firstSpec.compare("_drLeptonCleaned_jetpt30") == 0 )
+  //if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 )
+  //if ( firstSpec.compare("_jetpt30") == 0 && tr->getEvtNum() == 6410 )
+  //if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 && nRemovedJets > 0 )
+  //if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 && nRemovedResolvedTops < 0 )
+  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference) )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
@@ -1889,6 +1881,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassEventFilter();
   PassHEMVeto();
   PassBaseline();
+  //Test(); // for testing
 }
 
 void BaselineVessel::PassTrigger()

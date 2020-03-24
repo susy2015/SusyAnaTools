@@ -64,6 +64,7 @@ cut_defs = {
     "nrt1"    : ["nres == 1"],
     "nrt2"    : ["nres == 2"],
     "nrtgeq1" : ["nres >= 1"],
+    "nrtntnwgeq1" : ["(ntop + nw + nres) >= 1"],
     "nrtntnwgeq2" : ["(ntop + nw + nres) >= 2"],
     "nrtntnwgeq3" : ["(ntop + nw + nres) >= 3"],
     "htlt1000"     : ["HT < 1000"],

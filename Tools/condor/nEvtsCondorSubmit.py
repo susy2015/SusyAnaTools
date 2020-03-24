@@ -93,3 +93,6 @@ if not options.noSubmit:
     system("echo 'condor_submit condor_submit.txt'")
     system('condor_submit condor_submit.txt')
 
+print "Sample sets file: {0}".format(sampleSetsFile)
+print "Submission directory: {0}".format(dirName)
+
