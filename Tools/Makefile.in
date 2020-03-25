@@ -102,7 +102,7 @@ LHAPDFLIB  = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 FILES = $(wildcard $(SDIR)/*.cc)
 OBJS := $(FILES:$(SDIR)/%.cc=$(ODIR)/%.o)
 
-PROGRAMS = tupleTest nEvts deepTrim AliasTest bTagEfficiencyCalc ISRJetsProducer # basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots
+PROGRAMS = tupleTest nEvts deepTrim AliasTest bTagEfficiencyCalc ISRJetsProducer tTagEfficiencyCalc # basicCheck makeCombPlots makeSignalHistograms signalScan makeSignalCards makeUnblindPlots batchSignalPlots
 
 all: mkobj SusyAnaTools sampPyWrap $(PROGRAMS)
 
@@ -166,6 +166,9 @@ makeUnblindPlots: $(ODIR)/SATException.o $(ODIR)/makeUnblindPlots.o $(ODIR)/sear
 	$(LD) $^ $(LIBS) -o $@
 
 bTagEfficiencyCalc:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/bTagEfficiencyCalc.o $(ODIR)/SATException.o $(ODIR)/baselineDef.o $(ODIR)/SusyUtility.o $(ODIR)/customize.o
+	$(LD) $^ $(LIBS) -o $@
+
+tTagEfficiencyCalc:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/tTagEfficiencyCalc.o $(ODIR)/SATException.o
 	$(LD) $^ $(LIBS) -o $@
 
 ISRJetsProducer:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/ISRJetsProducer.o $(ODIR)/SATException.o $(ODIR)/baselineDef.o $(ODIR)/SusyUtility.o $(ODIR)/customize.o
