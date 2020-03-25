@@ -13,6 +13,17 @@ cd CMSSW_10_2_9
 cmsenv
 ```
 
+## Get Dependencies
+
+Get json library to use json files in C++.
+
+```
+cd $CMSSW_BASE/src
+git clone git@github.com:nlohmann/json.git
+cd json
+git checkout v3.7.3
+```
+
 
 ## TopTagger Repos
 
@@ -154,5 +165,17 @@ mkdir myStopCfgs
 $CMSSW_BASE/src/SusyAnaTools/Tools/scripts/getStopCfg.sh -t PostProcess_StopNtuple_v1.0.3 -d myStopCfgs -o
 ```
 The release will be downloaded to the directory provided with the "-d" option (myStopCfgs in this example). The softlinks will be created in the directory where the script is run. We use the -o flag, which means, "Overwrite softlinks and files in my current directory if they already exist."
+
+
+## Additional Info
+
+### Making unit bin files
+
+The following script will create units.cc, units.hh, and units.json based on a bin map input as a json file. 
+
+```
+cd $CMSSW_BASE/src/SusyAnaTools/Tools
+python3 scripts/makeUnitsCpp.py dc_BkgPred_BinMaps_master.json
+```
 
 

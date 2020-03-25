@@ -1,15 +1,14 @@
 #!/cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_8/external/slc6_amd64_gcc491/bin/python
 ####!${SRT_CMSSW_RELEASE_BASE_SCRAMRTDEL}/external/${SCRAM_ARCH}/bin/python
 
-import sys
-import os
-from os import system, environ
-sys.path = [environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/",] + sys.path
-
 from samples import SampleSet
 import optparse 
 import subprocess
 import datetime
+import sys
+import os
+from os import system, environ
+sys.path = [environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/",] + sys.path
 
 # options
 parser = optparse.OptionParser("usage: %prog [options]\n")
@@ -59,7 +58,7 @@ def makeExeAndFriendsTarrball(filestoTransfer, fname):
 
 submitFile = submitFileTT
 fileParts = [submitFile]
-sc = SampleSet(sampleSetsFile)
+ss = SampleSet(sampleSetsFile)
 
 # make directory for condor submission
 now = datetime.datetime.now()
@@ -76,7 +75,7 @@ if True:
 exeName = "nEvts"
 makeExeAndFriendsTarrball(filestoTransferTT, "TT")
 
-for ds in sc.sampleSetList():
+for ds in ss.sampleSetList():
     dsn = ds[0]
 
     fileParts.append("Arguments = %s $ENV(CMSSW_VERSION) %s\n"%(dsn, sampleSetsFile))
@@ -93,4 +92,7 @@ if not options.noSubmit:
     system('mkdir -p logs')
     system("echo 'condor_submit condor_submit.txt'")
     system('condor_submit condor_submit.txt')
+
+print "Sample sets file: {0}".format(sampleSetsFile)
+print "Submission directory: {0}".format(dirName)
 
