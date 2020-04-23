@@ -26,24 +26,37 @@ int main()
     {
         NTupleReader tr(ch, {"nJet"});
 
+        //For NTupleReader users you simply need to register the class with NTupleReader 
+        // the weight calculater requires three inputs
+        //  - the top tag efficienc input file - this is found in the nanoAOD tagger releases (last 3 lines here https://github.com/susy2015/NanoSUSY-tools/blob/master/README.md#set-up-nanosusytools-framework)
+        //  - the sampleSet name of the smaple being run over
+        //  - the year of MC being run over 
         TopWeightCalculator twc("TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2016_v1.0.6/tTagEff_2016.root", "SMS_T2tt_mStop1000_mLSP0_fastsim_2016", "2016");
         tr.registerFunction(twc);
 
+        // For non NTupleReader users the class is instantiated in the same way 
+        TopWeightCalculator twc_nontr("TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2016_v1.0.6/tTagEff_2016.root", "SMS_T2tt_mStop1000_mLSP0_fastsim_2016", "2016");
+
+
         while(tr.getNextEvent())
         {
-            //auto& FJ_ltv      = tr.getVec_LVFromNano<float>("FatJet");
-            //auto& FJ_genMatch = tr.getVec<int>("FatJet_GenMatch");
-            //auto& FJ_Stop0l   = tr.getVec<int>("FatJet_Stop0l");
-            //
-            //auto weightMap = twc.getTopWWeight(FJ_ltv, FJ_genMatch, FJ_Stop0l);
-            //
-            //for(const auto& p : weightMap) std::cout << p.first << ": " << p.second << std::endl;
+            //If using NTupleReader you can get the variables like this 
             std::cout << "weight: " << tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc") << std::endl;
             std::cout << "weight_up: " << tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_up") << std::endl;
             std::cout << "weight_dn: " << tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_dn") << std::endl;
             std::cout << std::endl;
 
+
+            //If you are not using NTupleReader you can access the weights from the class as shown below
+            auto& FJ_tlv      = tr.getVec_LVFromNano<float>("FatJet");
+            auto& FJ_genMatch = tr.getVec<int>("FatJet_GenMatch");
+            auto& FJ_Stop0l   = tr.getVec<int>("FatJet_Stop0l");
             
+            //gets a map of all necessary weights 
+            auto weightMap = twc_nontr.getTopWWeight(FJ_tlv, FJ_genMatch, FJ_Stop0l);
+            
+            for(const auto& p : weightMap) std::cout << p.first << ": " << p.second << std::endl;
+            std::cout << std::endl;
         }
     }
     catch(const SATException& e)
