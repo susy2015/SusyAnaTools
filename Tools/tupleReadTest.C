@@ -1,5 +1,5 @@
 #include "NTupleReader.h"
-#include "baselineDef.h"
+#include "TopWeightCalculator.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
@@ -11,7 +11,7 @@
 
 int main()
 {
-    char nBase[] = "root://cmseos.fnal.gov//store/user/lpcsusyhad/Stop_production/Summer16_94X_v3/PostProcessed_10Feb2019_v1//Data_SingleMuon_2016/Data_SingleMuon_2016_0.root";
+    char nBase[] = "root://cmseos.fnal.gov//eos/uscms/store/user/lpcsusyhad/Stop_production/Summer16_94X_v3/PostProcessed_11Apr2019_fastsimv5_v6p1/SMS_T2tt_mStop_400to1200_fastsim_2016/SMS_T2tt_mStop1000_mLSP0_fastsim_2016_Skim_070417_0.root";
 
     TChain *ch = new TChain("Events");
 
@@ -26,26 +26,23 @@ int main()
     {
         NTupleReader tr(ch, {"nJet"});
 
+        TopWeightCalculator twc("TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2016_v1.0.6/tTagEff_2016.root", "SMS_T2tt_mStop1000_mLSP0_fastsim_2016", "2016");
+        tr.registerFunction(twc);
+
         while(tr.getNextEvent())
         {
-            if(tr.getEvtNum() == 1)
-            {
-                tr.printTupleMembers();
-                FILE * fout = fopen("NTupleTypes.txt", "w");
-                tr.printTupleMembers(fout);
-                fclose(fout);
-            }
-      
-            int njets = tr.getVar<unsigned int>("nJet");
+            //auto& FJ_ltv      = tr.getVec_LVFromNano<float>("FatJet");
+            //auto& FJ_genMatch = tr.getVec<int>("FatJet_GenMatch");
+            //auto& FJ_Stop0l   = tr.getVec<int>("FatJet_Stop0l");
+            //
+            //auto weightMap = twc.getTopWWeight(FJ_ltv, FJ_genMatch, FJ_Stop0l);
+            //
+            //for(const auto& p : weightMap) std::cout << p.first << ": " << p.second << std::endl;
+            std::cout << "weight: " << tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc") << std::endl;
+            std::cout << "weight_up: " << tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_up") << std::endl;
+            std::cout << "weight_dn: " << tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_dn") << std::endl;
+            std::cout << std::endl;
 
-            printf("MET_pt: %10f MET_phi: %10f nJet: %10d Jet_pt: %10d Stop0l_nHOT: %-10d Stop0l_HOTtype: %10d\n",
-                    tr.getVar<float>("MET_pt"),
-                    tr.getVar<float>("MET_phi"),
-                    njets,
-                    tr.getVec<float>("Jet_pt").size(),
-                    tr.getVar<int>("Stop0l_nHOT"),
-                    tr.getVec<int>("Stop0l_HOTtype").size()
-                    );
             
         }
     }
