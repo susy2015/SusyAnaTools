@@ -13,6 +13,7 @@
 #include "TString.h"
 #include "TChain.h"
 #include "Math/VectorUtil.h"
+#include <Compression.h>
 
 //STL Headers
 #include <iostream>
@@ -87,8 +88,10 @@ int main(int argc, char* argv[])
         {
             std::string fname(fChain->GetFile()->GetName());
             size_t begin = fname.rfind("/") + 1;
-            size_t end = fname.rfind("_Skim_");
-            subSampleNameT = fname.substr(begin, end - begin);
+            size_t end = fname.find("_2016", begin);
+            if(end == std::string::npos) end = fname.find("_2017", begin);
+            if(end == std::string::npos) end = fname.find("_2018", begin);
+            subSampleNameT = fname.substr(begin, end - begin + 5);
         }
         
         ScaleMC = ss[subSampleName].getWeight();
@@ -126,25 +129,31 @@ int main(int argc, char* argv[])
         taggerWD = "";
     }
 
-    TH1* n_res_sig =   new TH1D("n_res_sig_"+subSampleNameT, "resTag_Efficiency"+subSampleNameT, nPtBins, ptBins);
-    TH1* n_res_bg =    new TH1D("n_res_bg_"+subSampleNameT, "notResTag_Efficiency"+subSampleNameT, nPtBins, ptBins);
-    TH1* d_res_sig =   new TH1D("d_res_sig_"+subSampleNameT, "resTag_Efficiency"+subSampleNameT, nPtBins, ptBins);
-    TH1* d_res_bg =    new TH1D("d_res_bg_"+subSampleNameT, "notResTag_Efficiency"+subSampleNameT, nPtBins, ptBins);
+    TH1* n_res_sig =   new TH1F("n_res_sig_"+subSampleNameT, "resTag_Efficiency"+subSampleNameT, nPtBins, ptBins);
+    TH1* n_res_bg =    new TH1F("n_res_bg_"+subSampleNameT, "notResTag_Efficiency"+subSampleNameT, nPtBins, ptBins);
+    TH1* d_res_sig =   new TH1F("d_res_sig_"+subSampleNameT, "resTag_Efficiency"+subSampleNameT, nPtBins, ptBins);
+    TH1* d_res_bg =    new TH1F("d_res_bg_"+subSampleNameT, "notResTag_Efficiency"+subSampleNameT, nPtBins, ptBins);
 
-    TH1* n_merged_t_as_t =   new TH1D("n_merged_t_as_t_"+subSampleNameT,  "mergedTasT_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
-    TH1* n_merged_t_as_w =   new TH1D("n_merged_t_as_w_"+subSampleNameT,  "mergedTasW_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
-    TH1* n_merged_w_as_t =   new TH1D("n_merged_w_as_t_"+subSampleNameT,  "mergedWasT_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
-    TH1* n_merged_w_as_w =   new TH1D("n_merged_w_as_w_"+subSampleNameT,  "mergedWasW_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
-    TH1* n_merged_bg_as_t =  new TH1D("n_merged_bg_as_t_"+subSampleNameT, "mergedBgasT_Efficiency"+subSampleNameT, nPtBinsMerged, ptBinsMerged);
-    TH1* n_merged_bg_as_w =  new TH1D("n_merged_bg_as_w_"+subSampleNameT, "mergedBgasW_Efficiency"+subSampleNameT, nPtBinsMerged, ptBinsMerged);
-    TH1* d_merged_t =   new TH1D("d_merged_t_"+subSampleNameT,  "mergedT_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
-    TH1* d_merged_w =   new TH1D("d_merged_w_"+subSampleNameT,  "mergedW_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
-    TH1* d_merged_bg =  new TH1D("d_merged_bg_"+subSampleNameT, "mergedBg_Efficiency"+subSampleNameT, nPtBinsMerged, ptBinsMerged);
+    TH1* n_merged_t_as_t =   new TH1F("n_merged_t_as_t_"+subSampleNameT,  "mergedTasT_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
+    TH1* n_merged_t_as_w =   new TH1F("n_merged_t_as_w_"+subSampleNameT,  "mergedTasW_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
+    TH1* n_merged_w_as_t =   new TH1F("n_merged_w_as_t_"+subSampleNameT,  "mergedWasT_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
+    TH1* n_merged_w_as_w =   new TH1F("n_merged_w_as_w_"+subSampleNameT,  "mergedWasW_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
+    TH1* n_merged_bg_as_t =  new TH1F("n_merged_bg_as_t_"+subSampleNameT, "mergedBgasT_Efficiency"+subSampleNameT, nPtBinsMerged, ptBinsMerged);
+    TH1* n_merged_bg_as_w =  new TH1F("n_merged_bg_as_w_"+subSampleNameT, "mergedBgasW_Efficiency"+subSampleNameT, nPtBinsMerged, ptBinsMerged);
+    TH1* d_merged_t =   new TH1F("d_merged_t_"+subSampleNameT,  "mergedT_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
+    TH1* d_merged_w =   new TH1F("d_merged_w_"+subSampleNameT,  "mergedW_Efficiency"+subSampleNameT,  nPtBinsMerged, ptBinsMerged);
+    TH1* d_merged_bg =  new TH1F("d_merged_bg_"+subSampleNameT, "mergedBg_Efficiency"+subSampleNameT, nPtBinsMerged, ptBinsMerged);
 
     n_res_sig->GetXaxis()->SetTitle("p_{T} [GeV]");
 
     n_res_bg->GetXaxis()->SetTitle("p_{T} [GeV]");
 
+    double wDiscCut = 0.981;
+    if(strstr(subSampleName, "2016") != nullptr)
+    {
+        wDiscCut = 0.973;
+    }
+    std::cout << "wDiscCut: " << wDiscCut << std::endl;
 
     TopTagger tt("TopTagger.cfg", taggerWD);
 
@@ -333,19 +342,19 @@ int main(int argc, char* argv[])
             {
                 d_merged_t->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
                 if     (FatJet_Stop0l[iFJ] == 1) n_merged_t_as_t->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
-                else if(FatJet_Stop0l[iFJ] == 2) n_merged_t_as_w->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
+                else if(FatJet_LV[iFJ].Pt() > 200.0 && FatJet_msoftdrop[iFJ] > 65 && FatJet_msoftdrop[iFJ] < 105 && FatJet_deepAK8_w[iFJ] > wDiscCut) n_merged_t_as_w->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
             }
             else if(genMatch == 2) // gen matched W
             {
                 d_merged_w->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
                 if     (FatJet_Stop0l[iFJ] == 1) n_merged_w_as_t->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
-                else if(FatJet_Stop0l[iFJ] == 2) n_merged_w_as_w->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
+                else if(FatJet_LV[iFJ].Pt() > 200.0 && FatJet_msoftdrop[iFJ] > 65 && FatJet_msoftdrop[iFJ] < 105 && FatJet_deepAK8_w[iFJ] > wDiscCut) n_merged_w_as_w->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
             }
             else // not gen matched 
             {
                 d_merged_bg->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
                 if     (FatJet_Stop0l[iFJ] == 1) n_merged_bg_as_t->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
-                else if(FatJet_Stop0l[iFJ] == 2) n_merged_bg_as_w->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
+                else if(FatJet_LV[iFJ].Pt() > 200.0 && FatJet_msoftdrop[iFJ] > 65 && FatJet_msoftdrop[iFJ] < 105 && FatJet_deepAK8_w[iFJ] > wDiscCut) n_merged_bg_as_w->Fill(FatJet_LV[iFJ].Pt(), evtWeight);
             }
             
         }

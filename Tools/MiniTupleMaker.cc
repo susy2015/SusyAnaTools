@@ -46,9 +46,11 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
                 else if(type.find("double")         != std::string::npos) prepVec<double>(tr, var);
                 else if(type.find("float")          != std::string::npos) prepVec<float>(tr, var);
                 else if(type.find("int")            != std::string::npos) prepVec<int>(tr, var);
+                else if(type.find("unsigned char")  != std::string::npos) prepVec<unsigned char>(tr, var);
                 else
                 {
-                    throw "MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var + ", type: " + type;           
+                    //throw "MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var + ", type: " + type;
+                    std::cout << ("MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var + ", type: " + type) << std::endl;
                 }
             }
         }
@@ -69,7 +71,8 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
             else if(type.find("TLorentzVector") != std::string::npos) prepVar<TLorentzVector>(tr, var);
             else
             {
-                throw "MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var + ", type: " + type;
+                //throw "MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var + ", type: " + type;
+                std::cout << ("MiniTupleMaker::initBranches(...): Variable type unknown!!! var: " + var + ", type: " + type) << std::endl;
             }
         }
     }

@@ -25,37 +25,22 @@ exeName = ""
 
 #Here is the configuration for the Data/MC validation of the TopTagger 
 filestoTransferTT  = [
-                      environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/samples.py",
-                      environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/../obj/samplesModule.so",
-                      environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/nEvts.py",
+                      environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/Overlap-check.py",
                      ]
 
 if sampleSetsFile: filestoTransferTT += [environ["CMSSW_BASE"] + "/src/SusyAnaTools/Tools/condor/" + sampleSetsFile]
 
 #go make TTopTagger plots!
 submitFileTT = """universe = vanilla
-Executable = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goNEvts.sh
+Executable = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goOverlapCheck.sh
 Requirements = OpSys == "LINUX"&& (Arch != "DUMMY" )
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goNEvts.sh,TT.tar.gz,$ENV(CMSSW_VERSION).tar.gz
+Transfer_Input_Files = $ENV(CMSSW_BASE)/src/SusyAnaTools/Tools/condor/goOverlapCheck.sh,%(filesToTransfer)s
 notify_user = ${LOGNAME}@FNAL.GOV
 x509userproxy = $ENV(X509_USER_PROXY)
 
-"""
-
-def makeExeAndFriendsTarrball(filestoTransfer, fname):
-    if True:
-        #WORLDSWORSESOLUTIONTOAPROBLEM
-        system("mkdir -p WORLDSWORSESOLUTIONTOAPROBLEM")
-        for fn in filestoTransfer:
-            system("cd WORLDSWORSESOLUTIONTOAPROBLEM; ln -s %s" % fn)
-        
-        print "Create tarball {0}.tag.gz".format(fname)
-        tarallinputs = "tar czvf %s.tar.gz WORLDSWORSESOLUTIONTOAPROBLEM --dereference" % fname
-        print tarallinputs
-        system(tarallinputs)
-        system("rm -r WORLDSWORSESOLUTIONTOAPROBLEM")
+"""%{"filesToTransfer":",".join(filestoTransferTT)}
 
 submitFile = submitFileTT
 fileParts = [submitFile]
@@ -67,19 +52,10 @@ dirName = "submission_%s"%now.strftime("%Y-%m-%d_%H-%M-%S")
 os.system("mkdir %s"%dirName)
 os.chdir(dirName)
 
-if True:
-    print "Create tarball ${CMSSW_VERSION}.tar.gz"
-    system("tar --exclude-caches-all --exclude-vcs -zcf ${CMSSW_VERSION}.tar.gz -C ${CMSSW_BASE}/.. ${CMSSW_VERSION} --exclude=src --exclude=tmp")
-
-# makeExeAndFriendsTarball() is necessary now to apply WORLDSWORSESOLUTIONTOAPROBLEM 
-
-exeName = "nEvts"
-makeExeAndFriendsTarrball(filestoTransferTT, "TT")
-
 for ds in sc.sampleSetList():
     dsn = ds[0]
 
-    fileParts.append("Arguments = %s $ENV(CMSSW_VERSION) %s\n"%(dsn, sampleSetsFile))
+    fileParts.append("Arguments = %s %s\n"%(dsn, sampleSetsFile))
     fileParts.append("Output = logs/%s.stdout\n"%(dsn))
     fileParts.append("Error = logs/%s.stderr\n"%(dsn))
     fileParts.append("Log = logs/%s.log\n"%(dsn))
@@ -92,5 +68,5 @@ fout.close()
 if not options.noSubmit: 
     system('mkdir -p logs')
     system("echo 'condor_submit condor_submit.txt'")
-    system('condor_submit condor_submit.txt')
+#    system('condor_submit condor_submit.txt')
 
