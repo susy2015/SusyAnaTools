@@ -45,6 +45,12 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     BaselineVessel blv(tr,era,"");
     //BaselineVessel blv_jetpt30(tr,era,"_jetpt30");
     //plotterFunctions::GetSearchBin getsearchbin;
+    //TopWeightCalculator twc("TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2016_v1.0.6/tTagEff_2016.root", "SMS_T2tt_mStop1000_mLSP0_fastsim_2016", "2016");
+    std::string tageffFile;
+    if(era == "2016") tageffFile = "TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2016_v1.0.6/tTagEff_2016.root";
+    else if(era == "2017") tageffFile = "TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2017_v1.0.6/tTagEff_2017.root";
+    else if(era == "2018") tageffFile = "TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2018_v1.0.6/tTagEff_2018.root";
+    TopWeightCalculator twc(tageffFile, samplename, era);
     
     if(verbose) std::cout << "Registering getVectors" << std::endl;
 
@@ -60,9 +66,11 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     //tr.registerFunction(blv_jetpt30);
     //if(verbose) std::cout << "Registering getsearchbin" << std::endl;
     //tr.registerFunction(getsearchbin);
+    tr.registerFunction(twc);
     if(verbose) std::cout << "Done registering" << std::endl;
 
     auto *h_vb = new TH1F("h_vb","Validation Bins",43,0,43);
+    auto *h_vb_fast = new TH1F("h_vb_fast","Validation Bins (fast central tagger weight)",43,0,43);
     h_vb->Sumw2();
     auto *h_vb_bsf_up = new TH1F("h_vb_bsf_up","VB B SF Up",43,0,43);
     auto *h_vb_bsf_down = new TH1F("h_vb_bsf_down","VB B SF Down",43,0,43);
@@ -121,6 +129,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_vb_tauyield_down = new TH1F("h_vb_tauyield_down","VB Yield Down with >=1 Tau",43,0,43);
 
     auto *h_sb = new TH1F("h_sb","Search Bins",183,0,183);
+    auto *h_sb_fast = new TH1F("h_sb_fast","Search Bins (fast central tagger weight)",183,0,183);
     h_sb->Sumw2();
     auto *h_sb_raw = new TH1F("h_sb_raw","Search Bins raw val",183,0,183);
     auto *h_sb_bsf_up = new TH1F("h_sb_bsf_up","SB B SF Up",183,0,183);
@@ -187,6 +196,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_sb_wfastdn_bin181 = new TH1F("h_sb_wfastdn_bin181","Distribution of w_fast_dn weights for bin 181",100,0,2);
 
     auto *h_ub = new TH1F("h_ub","LL CR Unit Bins",112,0,112);
+    auto *h_ub_fast = new TH1F("h_ub_fast","LL CR Unit Bins (fast central tagger weight)",112,0,112);
     h_ub->Sumw2();
     auto *h_ub_bsf_up = new TH1F("h_ub_bsf_up","UB B SF Up",112,0,112);
     auto *h_ub_bsf_down = new TH1F("h_ub_bsf_down","UB B SF Down",112,0,112);
@@ -245,6 +255,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_ub_tauyield_down = new TH1F("h_ub_tauyield_down","UB Yield Down with >=1 Tau",112,0,112);
 
     auto *h_qb = new TH1F("h_qb","QCD CR Unit Bins",92,0,92);
+    auto *h_qb_fast = new TH1F("h_qb_fast","QCD CR Unit Bins (fast central tagger weight)",92,0,92);
     h_qb->Sumw2();
     auto *h_qb_bsf_up = new TH1F("h_qb_bsf_up","QCD CR B SF Up",92,0,92);
     auto *h_qb_bsf_down = new TH1F("h_qb_bsf_down","QCD CR B SF Down",92,0,92);
@@ -787,25 +798,26 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         auto Stop0l_ResTopWeight_fast_Dn = tr.getVar<float>("Stop0l_ResTopWeight_fast_Dn");
         auto Stop0l_ResTopWeight_JESUp = tr.getVar<float>("Stop0l_ResTopWeight_JESUp");
         auto Stop0l_ResTopWeight_JESDown = tr.getVar<float>("Stop0l_ResTopWeight_JESDown");
-        auto Stop0l_DeepAK8_SFWeight_fast_total_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_total_up");
-        auto Stop0l_DeepAK8_SFWeight_fast_total_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_total_dn");
-        auto Stop0l_DeepAK8_SFWeight = tr.getVar<float>("Stop0l_DeepAK8_SFWeight");
-        auto Stop0l_DeepAK8_SFWeight_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_total_up");
-        auto Stop0l_DeepAK8_SFWeight_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_total_dn");
-        auto Stop0l_DeepAK8_SFWeight_fast_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_total_up");
-        auto Stop0l_DeepAK8_SFWeight_fast_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_total_dn");
-        auto Stop0l_DeepAK8_SFWeight_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_veto_up");
-        auto Stop0l_DeepAK8_SFWeight_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_veto_dn");
-        auto Stop0l_DeepAK8_SFWeight_fast_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_veto_up");
-        auto Stop0l_DeepAK8_SFWeight_fast_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_veto_dn");
-        auto Stop0l_DeepAK8_SFWeight_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_w_up");
-        auto Stop0l_DeepAK8_SFWeight_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_w_dn");
-        auto Stop0l_DeepAK8_SFWeight_fast_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_w_up");
-        auto Stop0l_DeepAK8_SFWeight_fast_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_w_dn");
-        auto Stop0l_DeepAK8_SFWeight_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_top_up");
-        auto Stop0l_DeepAK8_SFWeight_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_top_dn");
-        auto Stop0l_DeepAK8_SFWeight_fast_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_top_up");
-        auto Stop0l_DeepAK8_SFWeight_fast_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_top_dn");
+        auto Stop0l_DeepAK8_SFWeight = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc");
+        auto Stop0l_DeepAK8_SFWeight_fast = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc");
+        auto Stop0l_DeepAK8_SFWeight_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_up");
+        auto Stop0l_DeepAK8_SFWeight_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_dn");
+        auto Stop0l_DeepAK8_SFWeight_fast_total_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_up");
+        auto Stop0l_DeepAK8_SFWeight_fast_total_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_dn");
+        auto Stop0l_DeepAK8_SFWeight_fast_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_up");
+        auto Stop0l_DeepAK8_SFWeight_fast_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_dn");
+        auto Stop0l_DeepAK8_SFWeight_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_up");
+        auto Stop0l_DeepAK8_SFWeight_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_dn");
+        auto Stop0l_DeepAK8_SFWeight_fast_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_up");
+        auto Stop0l_DeepAK8_SFWeight_fast_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_dn");
+        auto Stop0l_DeepAK8_SFWeight_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_up");
+        auto Stop0l_DeepAK8_SFWeight_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_dn");
+        auto Stop0l_DeepAK8_SFWeight_fast_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_w_up");
+        auto Stop0l_DeepAK8_SFWeight_fast_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_w_dn");
+        auto Stop0l_DeepAK8_SFWeight_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_up");
+        auto Stop0l_DeepAK8_SFWeight_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_dn");
+        auto Stop0l_DeepAK8_SFWeight_fast_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_up");
+        auto Stop0l_DeepAK8_SFWeight_fast_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_dn");
         
        
         //std::cout << "Stop0l_ResTopWeight: " << Stop0l_ResTopWeight << "\tResTop_SF: " << ResTop_SF << "\tStop0l_ResTopWeight_Up: " << Stop0l_ResTopWeight_Up << "\tStop0l_ResTopWeight_fast_Up: " << Stop0l_ResTopWeight_fast_Up << std::endl;
@@ -1179,6 +1191,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             if(bin_num != -1)
             {
                 h_vb->Fill(bin_num,SF*lowDMevtWeight);
+                h_vb_fast->Fill(bin_num,SF*lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_vb_bsf_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up / B_SF);
                 h_vb_bsf_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Down / B_SF);
                 h_vb_bsf_fast_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up_fast / B_SF_fast);
@@ -1316,6 +1329,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             if(bin_num != -1)
             {
                 h_vb->Fill(bin_num,SF*lowDMevtWeight);
+                h_vb_fast->Fill(bin_num,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_njets_low_middphi->Fill(njets,SF*lowDMevtWeight);
                 h_vb_bsf_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up / B_SF);
                 h_vb_bsf_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Down / B_SF);
@@ -1457,6 +1471,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 //if(ntop_res != 0) topw_sf *= ResTop_SF;
                 //if(nw != 0) topw_sf *= W_SF;
                 h_vb->Fill(bin_num,SF*highDMevtWeight * topw_sf);
+                h_vb_fast->Fill(bin_num,SF*highDMevtWeight * topw_sf* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_njets_high_middphi->Fill(njets,SF*highDMevtWeight * topw_sf);
                 h_vb_bsf_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Up / B_SF);
                 h_vb_bsf_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Down / B_SF);
@@ -1643,6 +1658,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             {
                 h_sb->Fill(bin_num,SF*lowDMevtWeight);
                 h_sb_raw->Fill(bin_num,sign);
+                h_sb_fast->Fill(bin_num,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_sb_bsf_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up / B_SF);
                 h_sb_bsf_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Down / B_SF);
                 h_sb_bsf_fast_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up_fast / B_SF_fast);
@@ -1812,6 +1828,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 //if(nw != 0) topw_sf *= W_SF;
                 h_sb->Fill(bin_num,SF*highDMevtWeight * topw_sf);
                 h_sb_raw->Fill(bin_num,sign);
+                h_sb_fast->Fill(bin_num,SF*highDMevtWeight * topw_sf* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_sb_bsf_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Up / B_SF);
                 h_sb_bsf_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Down / B_SF);
                 h_sb_bsf_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Up_fast / B_SF_fast);
@@ -2061,6 +2078,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             {
                 //std::cout << "Low DM UB num: " << bin_num << std::endl;
                 h_ub->Fill(bin_num,SF*lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF);
+                h_ub_fast->Fill(bin_num,SF*lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_ub_bsf_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * B_SF_Up / B_SF);
                 h_ub_bsf_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * B_SF_Down / B_SF);
                 h_ub_bsf_fast_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * B_SF_Up_fast / B_SF_fast);
@@ -2189,6 +2207,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 //if(ntop_res != 0) topw_sf *= ResTop_SF;
                 //if(nw != 0) topw_sf *= W_SF;
                 h_ub->Fill(bin_num,SF*highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf);
+                h_ub_fast->Fill(bin_num,SF*highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_ub_bsf_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * B_SF_Up / B_SF);
                 h_ub_bsf_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * B_SF_Down / B_SF);
                 h_ub_bsf_fast_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * B_SF_Up_fast / B_SF_fast);
@@ -2380,6 +2399,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             {
                 //std::cout << "Low DM UB num: " << bin_num << std::endl;
                 h_qb->Fill(bin_num,SF*lowDMevtWeight);
+                h_qb_fast->Fill(bin_num,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_qb_bsf_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up / B_SF);
                 h_qb_bsf_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Down / B_SF);
                 h_qb_bsf_fast_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up_fast / B_SF_fast);
@@ -2505,6 +2525,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 if(ntop_res != 0) topw_sf *= ResTop_SF;
                 if(nw != 0) topw_sf *= W_SF;
                 h_qb->Fill(bin_num,SF*highDMevtWeight * topw_sf);
+                h_qb_fast->Fill(bin_num,SF*highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_qb_bsf_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Up / B_SF);
                 h_qb_bsf_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Down / B_SF);
                 h_qb_bsf_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Up_fast / B_SF_fast);
@@ -2709,6 +2730,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_vb_lepyield->Multiply(h_vb_tauyield);
     ///*
     h_vb->Multiply(h_vb_lepyield);
+    h_vb_fast->Multiply(h_vb_lepyield);
     h_vb_bsf_up->Multiply(h_vb_lepyield);
     h_vb_bsf_down->Multiply(h_vb_lepyield);
     h_vb_bsf_fast_up->Multiply(h_vb_lepyield);
@@ -2777,10 +2799,11 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_sb_eff_tau_down->Multiply(h_sb_elecyield);
     h_sb_eff_tau_down->Multiply(h_sb_muonyield);
     ///*
-    std::cout << "SB yield bin 183 no lumi: " << h_sb->GetBinContent(183)/nosplit_lumi << std::endl;
-    std::cout << "SB yield bin 183: " << h_sb->GetBinContent(183) << std::endl;
+    //std::cout << "SB yield bin 183 no lumi: " << h_sb->GetBinContent(183)/nosplit_lumi << std::endl;
+    //std::cout << "SB yield bin 183: " << h_sb->GetBinContent(183) << std::endl;
     h_sb->Multiply(h_sb_lepyield);
-    std::cout << "SB yield bin 183: " << h_sb->GetBinContent(183) << std::endl;
+    //std::cout << "SB yield bin 183: " << h_sb->GetBinContent(183) << std::endl;
+    h_sb_fast->Multiply(h_sb_lepyield);
     h_sb_bsf_up->Multiply(h_sb_lepyield);
     h_sb_bsf_down->Multiply(h_sb_lepyield);
     h_sb_bsf_fast_up->Multiply(h_sb_lepyield);
@@ -2883,6 +2906,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_njets_low_middphi->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_njets_high_middphi->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_fast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb_bsf_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb_bsf_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb_bsf_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
@@ -2930,7 +2954,8 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_vb_ak8veto_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb_ak8veto_fast_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_sb->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    std::cout << "SB yield bin 183: " << h_sb->GetBinContent(183) << std::endl;
+    //std::cout << "SB yield bin 183: " << h_sb->GetBinContent(183) << std::endl;
+    h_sb_fast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_sb_bsf_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_sb_bsf_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_sb_bsf_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
@@ -2976,6 +3001,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_sb_ak8veto_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_sb_ak8veto_fast_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_fast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_bsf_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_bsf_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_bsf_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
@@ -3023,6 +3049,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_ub_ak8veto_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_ak8veto_fast_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_fast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_bsf_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_bsf_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_bsf_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
@@ -3085,6 +3112,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_sb_wfastup_bin181->Write();
     h_sb_wfastdn_bin181->Write();
     h_vb->Write();
+    h_vb_fast->Write();
     h_vb_bsf_up->Write();
     h_vb_bsf_down->Write();
     h_vb_bsf_fast_up->Write();
@@ -3133,6 +3161,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_vb_ak8veto_fast_down->Write();
     h_vb_lepyield->Write();
     h_sb->Write();
+    h_sb_fast->Write();
     h_sb_raw->Write();
     h_sb_bsf_up->Write();
     h_sb_bsf_down->Write();
@@ -3180,6 +3209,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_sb_ak8veto_fast_down->Write();
     h_sb_lepyield->Write();
     h_ub->Write();
+    h_ub_fast->Write();
     h_ub_bsf_up->Write();
     h_ub_bsf_down->Write();
     h_ub_bsf_fast_up->Write();
@@ -3227,6 +3257,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_ub_ak8veto_fast_up->Write();
     h_ub_ak8veto_fast_down->Write();
     h_qb->Write();
+    h_qb_fast->Write();
     h_qb_bsf_up->Write();
     h_qb_bsf_down->Write();
     h_qb_bsf_fast_up->Write();
@@ -3285,6 +3316,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_sb_wfastup_bin181;
     delete h_sb_wfastdn_bin181;
     delete h_vb;
+    delete h_vb_fast;
     delete h_vb_bsf_up;
     delete h_vb_bsf_down;
     delete h_vb_bsf_fast_up;
@@ -3336,6 +3368,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_vb_muonyield;
     delete h_vb_tauyield;
     delete h_sb;
+    delete h_sb_fast;
     delete h_sb_bsf_up;
     delete h_sb_bsf_down;
     delete h_sb_bsf_fast_up;
@@ -3387,6 +3420,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_sb_muonyield;
     delete h_sb_tauyield;
     delete h_ub;
+    delete h_ub_fast;
     delete h_ub_bsf_up;
     delete h_ub_bsf_down;
     delete h_ub_bsf_fast_up;
@@ -3434,6 +3468,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_ub_ak8veto_fast_up;
     delete h_ub_ak8veto_fast_down;
     delete h_qb;
+    delete h_qb_fast;
     delete h_qb_bsf_up;
     delete h_qb_bsf_down;
     delete h_qb_bsf_fast_up;
