@@ -183,6 +183,9 @@ makeUnblindPlots: $(ODIR)/SATException.o $(ODIR)/makeUnblindPlots.o $(ODIR)/sear
 bTagEfficiencyCalc:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/bTagEfficiencyCalc.o $(ODIR)/SATException.o $(ODIR)/baselineDef.o $(ODIR)/SusyUtility.o $(ODIR)/customize.o
 	$(LD) $^ $(LIBS) -o $@
 
+tTagEfficiencyCalc:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/tTagEfficiencyCalc.o $(ODIR)/SATException.o
+	$(LD) $^ $(LIBS) -o $@
+
 ISRJetsProducer:  $(ODIR)/samples.o $(ODIR)/NTupleReader.o $(ODIR)/ISRJetsProducer.o $(ODIR)/SATException.o $(ODIR)/baselineDef.o $(ODIR)/SusyUtility.o $(ODIR)/customize.o
 	$(LD) $^ $(LIBS) -o $@
 

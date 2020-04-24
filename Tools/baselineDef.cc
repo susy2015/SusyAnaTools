@@ -139,6 +139,27 @@ bool BaselineVessel::UseCleanedJets()
   return true;
 }       // -----  end of function BaselineVessel::UseCleanedJets  -----
 
+// --- MET unclustering variables
+bool BaselineVessel::PrepMETUncluster()
+{
+  // --- top tagger is not rerun for MET unclustering systematic
+  // --- register top/W variables with MET specification for later use
+  if (spec.find("METUnClust") != std::string::npos)
+  {
+      tr->registerDerivedVar("nRemovedJets" + firstSpec,            tr->getVar<int>("nRemovedJets_jetpt30"));
+      tr->registerDerivedVar("nRemovedResolvedTops" + firstSpec,    tr->getVar<int>("nRemovedResolvedTops_jetpt30"));
+      tr->registerDerivedVar("nMergedTops" + firstSpec,             tr->getVar<int>("nMergedTops_jetpt30"));
+      tr->registerDerivedVar("nWs" + firstSpec,                     tr->getVar<int>("nWs_jetpt30"));
+      tr->registerDerivedVar("nResolvedTops" + firstSpec,           tr->getVar<int>("nResolvedTops_jetpt30"));
+      tr->registerDerivedVar("MergedTopTotalSF" + firstSpec,        tr->getVar<float>("MergedTopTotalSF_jetpt30"));
+      tr->registerDerivedVar("WTotalSF" + firstSpec,                tr->getVar<float>("WTotalSF_jetpt30"));
+      tr->registerDerivedVar("ResolvedTopTotalSF" + firstSpec,      tr->getVar<float>("ResolvedTopTotalSF_jetpt30"));
+      tr->registerDerivedVar("ttr" + firstSpec,                     tr->getVar<TopTaggerResults*>("ttr_jetpt30"));
+  }
+}
+
+
+
 // ===  FUNCTION  ============================================================
 //         Name:  BaselineVessel::OpenWMassCorrFile
 //  Description:  
@@ -354,7 +375,17 @@ bool BaselineVessel::PredefineSpec()
     UseDRLeptonCleanJet = false;
     doLeptonVeto        = true;
   }
-  // TODO: make JES Up/Down options specify the right jet collections
+  // MET unclustering systematic
+  if (spec.find("METUnClustUp") != std::string::npos)
+  {
+    METLabel        = METLabel    + "_unclustEnUp";
+    METPhiLabel     = METPhiLabel + "_unclustEnUp";
+  }
+  else if (spec.find("METUnClustDown") != std::string::npos)
+  {
+    METLabel        = METLabel    + "_unclustEnDown";
+    METPhiLabel     = METPhiLabel + "_unclustEnDown";
+  }
   // Specify JES Up/Down systematics for MET and jets
   if (spec.find("jesTotalUp") != std::string::npos)
   {
@@ -493,35 +524,18 @@ void BaselineVessel::Test()
     if (firstSpec.compare("_jetpt30") == 0)
     {
         std::cout << " ----------------------------- Running Test ----------------------------- " << std::endl;
-        float met = 497.632263; 
-        float metphi = 0.447388; 
-        std::vector<TLorentzVector> Jets;
-        TLorentzVector v;
-        v.SetPtEtaPhiM(1075.000000, 1.201172, -2.917969, 81.625000);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(548.500000, 0.113953, -0.103775, 64.562500);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(221.375000, 0.012928, 2.608887, 40.531250);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(221.375000, 0.133606, 0.361755, 16.500000);
-        Jets.push_back(v);
-        v.SetPtEtaPhiM(199.000000, 0.565918, -1.702148, 20.203125);
-        Jets.push_back(v);
-        TLorentzVector met_TLV; 
-        // Set TLorentzVector for MET
-        met_TLV.SetPtEtaPhiM(met, 0, metphi, 0);
-        // Calculate deltaPhi
-        std::vector<float> dphi_vec = AnaFunctions::calcDPhi(Jets, met_TLV, 5, dPhiCutArrary, true);
-        int j = 0;
-        for (const auto& Jet : Jets)
-        {
-          printf("Jet_%d: pt=%f, eta=%f, phi=%f, mass=%f\n", j, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
-          ++j;
-        }
-        for (int i = 0; i < dphi_vec.size(); ++i)
-        {
-            printf("dPhi_%d = %f\n", i, dphi_vec[i]);
-        }
+        TLorentzVector jet1;
+        TLorentzVector jet2;
+        
+        //jet1.SetPtEtaPhiM(337.50000, 0.53296, 3.13477, 97.68750);
+        //jet2.SetPtEtaPhiM(177.62500, 0.25934, 3.12354, 18.20312);
+        
+        //jet1.SetPtEtaPhiM(1166.00000, -1.03369, -0.41223, 159.00000);
+        jet1.SetPtEtaPhiM(577.50000, -0.56909, 2.52930, 220.50000);
+        jet2.SetPtEtaPhiM(222.12500, -1.11816, -3.04541, 80.50000);
+        
+        float dR = ROOT::Math::VectorUtil::DeltaR(jet1, jet2);
+        printf("jet 1 and jet 2 dR = %f\n", dR);
     }
 }
 
@@ -553,6 +567,7 @@ void BaselineVessel::PassBaseline()
   const auto& Jets          = tr->getVec<TLorentzVector>(jetVecLabel);
   const auto& Jet_sortedIdx = tr->getVec<int>("Jet_sortedIdx");
   const auto& FatJets       = tr->getVec<TLorentzVector>(jetVecLabelAK8);
+  const auto& SubJets       = tr->getVec<TLorentzVector>("SubJetTLV");
   const auto& met           = tr->getVar<float>(METLabel); 
   const auto& metphi        = tr->getVar<float>(METPhiLabel); 
 
@@ -587,6 +602,7 @@ void BaselineVessel::PassBaseline()
   float HT      = AnaFunctions::calcHT(Jets,        JetCutArrary);
   float S_met   = met / sqrt(HT);
 
+
   //---------------------------------------//
   //--- Updated Baseline (January 2019) ---//
   //---------------------------------------//
@@ -611,10 +627,19 @@ void BaselineVessel::PassBaseline()
   const auto& MergedTopTotalSF      = tr->getVar<float>(UseSpecVar("MergedTopTotalSF"));
   const auto& WTotalSF              = tr->getVar<float>(UseSpecVar("WTotalSF"));
   const auto& ResolvedTopTotalSF    = tr->getVar<float>(UseSpecVar("ResolvedTopTotalSF"));
+  const auto& nRemovedJets          = tr->getVar<int>(UseSpecVar("nRemovedJets"));
+  const auto& nRemovedResolvedTops  = tr->getVar<int>(UseSpecVar("nRemovedResolvedTops"));
   const auto* ttr                   = tr->getVar<TopTaggerResults*>(UseSpecVar("ttr"));
+  const auto& FatJet_Stop0l         = tr->getVec<int>(UseCleanedJetsVar("FatJet_Stop0l"));
+  const auto& FatJet_subJetIdx1     = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx1"));
+  const auto& FatJet_subJetIdx2     = tr->getVec<int>(UseCleanedJetsVar("FatJet_subJetIdx2"));
+  const auto& FatJet_msoftdrop      = tr->getVec<float>(UseCleanedJetsVar("FatJet_msoftdrop"));
+  const auto& FatJet_deepTag_TvsQCD = tr->getVec<float>(UseCleanedJetsVar("FatJet_deepTag_TvsQCD"));
+  const auto& FatJet_deepTag_WvsQCD = tr->getVec<float>(UseCleanedJetsVar("FatJet_deepTag_WvsQCD"));
   // variables from post-processing
   const auto& ResolvedTopCandidateTLV               = tr->getVec<TLorentzVector>("ResolvedTopCandidateTLV");
   const auto& ResolvedTopCandidate_discriminator    = tr->getVec<float>("ResolvedTopCandidate_discriminator");
+  const auto& ResolvedTop_Stop0l                    = tr->getVec<unsigned char>("ResolvedTop_Stop0l");
   const auto& ResolvedTopCandidate_type             = tr->getVec<int>("ResolvedTopCandidate_type");
   const auto& ResolvedTopCandidate_j1Idx            = tr->getVec<int>("ResolvedTopCandidate_j1Idx");
   const auto& ResolvedTopCandidate_j2Idx            = tr->getVec<int>("ResolvedTopCandidate_j2Idx");
@@ -1000,27 +1025,6 @@ void BaselineVessel::PassBaseline()
   // ------------------------------ //
   // --- print info for testing --- //
   // ------------------------------ //
-  //if (tr->getEvtNum() == 7217)
-  //if (event == 519215141)
-  //if (SAT_Pass_lowDM != Pass_lowDM && firstSpec.empty())
-  //if (event == 1401471244)
-
-  //double a1 = 222.222222;
-  //double b1 = 222.222223;
-  //float a2 = 422.29;
-  //float b2 = 422.20;
-  //int a3 = 4;
-  //int b3 = 4;
-  //unsigned int a4 = 6666;
-  //unsigned int b4 = 6667;
-  //printf("-----------------------------------------------------------------------------------------\n");
-  //printf("%lf, %lf, isClose=%d\n", a1, b1, SusyUtility::isClose(a1, b1));
-  //printf("%f, %f, isClose=%d\n", a2, b2, SusyUtility::isClose(a2, b2));
-  //printf("%d, %d, isClose=%d\n", a3, b3, SusyUtility::isClose(a3, b3));
-  //printf("%d, %d, isClose=%d\n", a4, b4, SusyUtility::isClose(a4, b4));
-  //printf("-----------------------------------------------------------------------------------------\n");
-  // use SusyUtility::isClose()
-  // use checkEquality()
   
   // check for differences in baseline selection between ntuples and SusyAnaTools
   bool baselineDifference = (
@@ -1032,11 +1036,14 @@ void BaselineVessel::PassBaseline()
   
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
-  //if ( firstSpec.empty() && topDifference )
-  //if ( firstSpec.empty() && totalTopsWs   )
+  //if (false)
   //if ( firstSpec.compare("_jetpt30") == 0 )
-  //if ( firstSpec.compare("_jetpt30") == 0 && ( event == 33359910 || baselineDifference ) )
-  if ( firstSpec.compare("_jetpt30") == 0 && baselineDifference)
+  //if ( firstSpec.compare("_drLeptonCleaned_jetpt30") == 0 )
+  //if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 )
+  //if ( firstSpec.compare("_jetpt30") == 0 && tr->getEvtNum() == 6410 )
+  //if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 && nRemovedJets > 0 )
+  //if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 && nRemovedResolvedTops < 0 )
+  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference) )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
@@ -1055,44 +1062,70 @@ void BaselineVessel::PassBaseline()
     printf("\thui_Pass_dPhiMETLowDM  = %d and caleb_SAT_Pass_dPhiMETLowDM     = %d %s\n", Pass_dPhiMETLowDM,            SAT_Pass_dPhiMETLowDM,      checkEquality(SusyUtility::isClose(Pass_dPhiMETLowDM,               SAT_Pass_dPhiMETLowDM)).c_str());
     printf("\thui_Pass_dPhiMETMedDM  = %d and caleb_SAT_Pass_mid_dPhiMETLowDM = %d %s\n", Pass_dPhiMETMedDM,            SAT_Pass_mid_dPhiMETLowDM,  checkEquality(SusyUtility::isClose(Pass_dPhiMETMedDM,               SAT_Pass_mid_dPhiMETLowDM)).c_str());
     printf("\thui_Pass_dPhiMETHighDM = %d and caleb_SAT_Pass_dPhiMETHighDM    = %d %s\n", Pass_dPhiMETHighDM,           SAT_Pass_dPhiMETHighDM,     checkEquality(SusyUtility::isClose(Pass_dPhiMETHighDM,              SAT_Pass_dPhiMETHighDM)).c_str());
-    printf("\thui_MET_pt             = %.30lf and caleb_met                   = %.30lf %s\n", MET_pt,                   met,                        checkEquality(SusyUtility::isClose(MET_pt,                          met)).c_str());
-    printf("\thui_Stop0l_HT          = %.30lf and caleb_HT                    = %.30lf %s\n", Stop0l_HT,                HT,                         checkEquality(SusyUtility::isClose(Stop0l_HT,                       HT)).c_str());
-    printf("\thui_Stop0l_ISRJetPt    = %.30lf and caleb_ISRJetPt              = %.30lf %s\n", Stop0l_ISRJetPt,          ISRJetPt,                   checkEquality(SusyUtility::isClose(Stop0l_ISRJetPt,                 ISRJetPt)).c_str());
-    printf("\thui_Stop0l_METSig      = %.30lf and caleb_S_met                 = %.30lf %s\n", Stop0l_METSig,            S_met,                      checkEquality(SusyUtility::isClose(Stop0l_METSig,                   S_met)).c_str());
-    printf("\thui_Stop0l_Mtb         = %.30lf and caleb_mtb                   = %.30lf %s\n", Stop0l_Mtb,               mtb,                        checkEquality(SusyUtility::isClose(Stop0l_Mtb,                      mtb)).c_str());
-    printf("\thui_Stop0l_Ptb         = %.30lf and caleb_ptb                   = %.30lf %s\n", Stop0l_Ptb,               ptb,                        checkEquality(SusyUtility::isClose(Stop0l_Ptb,                      ptb)).c_str());
+    printf("\thui_MET_pt             = %.15lf and caleb_met                   = %.15lf %s\n", MET_pt,                   met,                        checkEquality(SusyUtility::isClose(MET_pt,                          met)).c_str());
+    printf("\thui_Stop0l_HT          = %.15lf and caleb_HT                    = %.15lf %s\n", Stop0l_HT,                HT,                         checkEquality(SusyUtility::isClose(Stop0l_HT,                       HT)).c_str());
+    printf("\thui_Stop0l_ISRJetPt    = %.15lf and caleb_ISRJetPt              = %.15lf %s\n", Stop0l_ISRJetPt,          ISRJetPt,                   checkEquality(SusyUtility::isClose(Stop0l_ISRJetPt,                 ISRJetPt)).c_str());
+    printf("\thui_Stop0l_METSig      = %.15lf and caleb_S_met                 = %.15lf %s\n", Stop0l_METSig,            S_met,                      checkEquality(SusyUtility::isClose(Stop0l_METSig,                   S_met)).c_str());
+    printf("\thui_Stop0l_Mtb         = %.15lf and caleb_mtb                   = %.15lf %s\n", Stop0l_Mtb,               mtb,                        checkEquality(SusyUtility::isClose(Stop0l_Mtb,                      mtb)).c_str());
+    printf("\thui_Stop0l_Ptb         = %.15lf and caleb_ptb                   = %.15lf %s\n", Stop0l_Ptb,               ptb,                        checkEquality(SusyUtility::isClose(Stop0l_Ptb,                      ptb)).c_str());
     printf("\thui_Stop0l_nJets       = %d and caleb_nJets                     = %d %s\n", Stop0l_nJets,                 nJets,                      checkEquality(SusyUtility::isClose(Stop0l_nJets,                    nJets)).c_str());
     printf("\thui_Stop0l_nSoftb      = %d and caleb_nSoftBottoms              = %d %s\n", Stop0l_nSoftb,                nSoftBottoms,               checkEquality(SusyUtility::isClose(Stop0l_nSoftb,                   nSoftBottoms)).c_str());
     printf("\thui_Stop0l_nbtags      = %d and caleb_nBottoms                  = %d %s\n", Stop0l_nbtags,                nBottoms,                   checkEquality(SusyUtility::isClose(Stop0l_nbtags,                   nBottoms)).c_str());
     printf("\thui_Stop0l_nTop        = %d and caleb_nMergedTops               = %d %s\n", Stop0l_nTop,                  nMergedTops,                checkEquality(SusyUtility::isClose(Stop0l_nTop,                     nMergedTops)).c_str());
     printf("\thui_Stop0l_nW          = %d and caleb_nWs                       = %d %s\n", Stop0l_nW,                    nWs,                        checkEquality(SusyUtility::isClose(Stop0l_nW,                       nWs)).c_str());
     printf("\thui_Stop0l_nResolved   = %d and caleb_nResolvedTops             = %d %s\n", Stop0l_nResolved,             nResolvedTops,              checkEquality(SusyUtility::isClose(Stop0l_nResolved,                nResolvedTops)).c_str());
-    printf("\tcaleb_MergedTopTotalSF    = %.30lf\n", MergedTopTotalSF);
-    printf("\tcaleb_WTotalSF            = %.30lf\n", WTotalSF);
-    printf("\tcaleb_ResolvedTopTotalSF  = %.30lf\n", ResolvedTopTotalSF);
-    
-    printf("------------- hui tops -------------\n");
+    printf("\tcaleb_MergedTopTotalSF    = %.15lf\n", MergedTopTotalSF);
+    printf("\tcaleb_WTotalSF            = %.15lf\n", WTotalSF);
+    printf("\tcaleb_ResolvedTopTotalSF  = %.15lf\n", ResolvedTopTotalSF);
+ 
+    printf("------------- hui resolved top candidates -------------\n");
     for (int i = 0; i < ResolvedTopCandidateTLV.size(); ++i)
     {
-        printf("\tresolved top %d: pt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf, disc=%.30lf, type=%d\n", i, ResolvedTopCandidateTLV[i].Pt(), ResolvedTopCandidateTLV[i].Eta(), ResolvedTopCandidateTLV[i].Phi(), ResolvedTopCandidateTLV[i].M(), ResolvedTopCandidate_discriminator[i], ResolvedTopCandidate_type[i]);
+        printf("\tresolved top %d: pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d, j1Idx=%d, j2Idx=%d, j3Idx=%d\n", i, ResolvedTopCandidateTLV[i].Pt(), ResolvedTopCandidateTLV[i].Eta(), ResolvedTopCandidateTLV[i].Phi(), ResolvedTopCandidateTLV[i].M(), ResolvedTopCandidate_discriminator[i], ResolvedTopCandidate_type[i], ResolvedTopCandidate_j1Idx[i], ResolvedTopCandidate_j2Idx[i], ResolvedTopCandidate_j3Idx[i]);
     }
-    printf("------------- caleb tops -------------\n");
-    for(const auto& top : ttr->getTops())
+    printf("------------- hui tagged resolved tops -------------\n");
+    for (int i = 0; i < ResolvedTopCandidateTLV.size(); ++i)
     {
-        printf("\tpt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf, disc=%.30lf, type=%d\n", top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M(), top->getDiscriminator(), top->getType());
-        for (const auto& jet : top->getConstituents())
+        if (ResolvedTop_Stop0l[i])
         {
-            printf("\t\tjet: (pt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf)\n", jet->p().Pt(), jet->p().Eta(), jet->p().Phi(), jet->p().M());
+            printf("\tresolved top %d: pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d, j1Idx=%d, j2Idx=%d, j3Idx=%d\n", i, ResolvedTopCandidateTLV[i].Pt(), ResolvedTopCandidateTLV[i].Eta(), ResolvedTopCandidateTLV[i].Phi(), ResolvedTopCandidateTLV[i].M(), ResolvedTopCandidate_discriminator[i], ResolvedTopCandidate_type[i], ResolvedTopCandidate_j1Idx[i], ResolvedTopCandidate_j2Idx[i], ResolvedTopCandidate_j3Idx[i]);
+        }
+    }
+    // ttr->getTopCandidates() returns TopObjects and gives top candidates
+    printf("------------- caleb top candidates -------------\n");
+    int t = 0;
+    for(const auto& top : ttr->getTopCandidates())
+    {
+        printf("\ttop %d: pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d\n", t, top.p().Pt(), top.p().Eta(), top.p().Phi(), top.p().M(), top.getDiscriminator(), top.getType());
+        for (const auto& jet : top.getConstituents())
+        {
+            printf("\t\tjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf), b_tag_disc=%.5lf\n", jet->p().Pt(), jet->p().Eta(), jet->p().Phi(), jet->p().M(), jet->getBTagDisc());
             for(const auto& subjet : jet->getSubjets())
             {
-                printf("\t\t\tsubjet: (pt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf)\n", subjet.p().Pt(), subjet.p().Eta(), subjet.p().Phi(), subjet.p().M());
+                printf("\t\t\tsubjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", subjet.p().Pt(), subjet.p().Eta(), subjet.p().Phi(), subjet.p().M());
             }
         }
-        
+        ++t;
+    }
+    // ttr->getTops() returns TopObjects* and gives tagged tops
+    printf("------------- caleb tagged tops -------------\n");
+    t = 0;
+    for(const auto& top : ttr->getTops())
+    {
+        printf("\ttop %d: pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf, disc=%.5lf, type=%d\n", t, top->p().Pt(), top->p().Eta(), top->p().Phi(), top->p().M(), top->getDiscriminator(), top->getType());
+        for (const auto& jet : top->getConstituents())
+        {
+            printf("\t\tjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", jet->p().Pt(), jet->p().Eta(), jet->p().Phi(), jet->p().M());
+            for(const auto& subjet : jet->getSubjets())
+            {
+                printf("\t\t\tsubjet: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", subjet.p().Pt(), subjet.p().Eta(), subjet.p().Phi(), subjet.p().M());
+            }
+        }
+        ++t;
     }
     printf("------------- caleb met, jets, dphi -------------\n");
-    printf("met = %.30lf\n",             met);
-    printf("metphi = %.30lf\n",          metphi);
+    printf("met = %.5lf\n",             met);
+    printf("metphi = %.5lf\n",          metphi);
     for (int i = 0; i < Jet_sortedIdx.size(); ++i)
     {
         printf("jet index=%d, sorted_index=%d\n", i, Jet_sortedIdx[i]);
@@ -1100,18 +1133,32 @@ void BaselineVessel::PassBaseline()
     int j = 0;
     for (const auto& Jet : Jets)
     {
-      printf("Jet_%d: pt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf\n", j, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
+      printf("Jet_%d: pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf\n", j, Jet.Pt(), Jet.Eta(), Jet.Phi(), Jet.M());
       ++j;
     }
     for (int i = 0; i < dPhiVec->size(); ++i)
     {
-        printf("dPhi_%d = %.30lf\n", i, dPhiVec->at(i));
+        printf("dPhi_%d = %.5lf\n", i, dPhiVec->at(i));
     }
-    printf("------------- caleb fat jets -------------\n");
+    printf("------------- hui and caleb fat jets -------------\n");
+    //printf("FatJets.size()=%d, FatJet_Stop0l.size()=%d, FatJet_deepTag_TvsQCD.size()=%d, FatJet_deepTag_WvsQCD=%d\n", FatJets.size(), FatJet_Stop0l.size(), FatJet_deepTag_TvsQCD.size(), FatJet_deepTag_WvsQCD.size());
     j = 0;
     for (const auto& FatJet : FatJets)
     {
-      printf("FatJet_%d: pt=%.30lf, eta=%.30lf, phi=%.30lf, mass=%.30lf\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M());
+      printf("FatJet_%d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf), type=%d, mt-disc=%.5lf, w-disc=%.5lf, msoftdrop=%.5lf\n", j, FatJet.Pt(), FatJet.Eta(), FatJet.Phi(), FatJet.M(), FatJet_Stop0l[j], FatJet_deepTag_TvsQCD[j], FatJet_deepTag_WvsQCD[j], FatJet_msoftdrop[j]);
+      // sub jets
+      std::vector<int> subJetIdxs;
+      subJetIdxs.push_back(FatJet_subJetIdx1[j]);
+      subJetIdxs.push_back(FatJet_subJetIdx2[j]);
+      for (int k = 0; k < subJetIdxs.size(); ++k)
+      {
+        int subJetIdx = subJetIdxs[k];
+        if (subJetIdx >= 0 && subJetIdx < SubJets.size())
+        {
+          TLorentzVector subjet = SubJets[subJetIdxs[k]];
+          printf("\t\tsub jet %d: (pt=%.5lf, eta=%.5lf, phi=%.5lf, mass=%.5lf)\n", k, subjet.Pt(), subjet.Eta(), subjet.Phi(), subjet.M());
+        }
+      }
       ++j;
     }
     // for testing ISR jet pt
@@ -1826,6 +1873,7 @@ float BaselineVessel::coreMT2calc(const TLorentzVector & fatJet1LVec, const TLor
 void BaselineVessel::operator()(NTupleReader& tr_)
 {
   tr = &tr_;
+  PrepMETUncluster();
   UseCleanedJets();
   CalcBottomVars();
   CalcISRJetVars();
@@ -1834,6 +1882,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassHEMVeto();
   PassBaseline();
   //PassDiLepTrigger();
+  //Test(); // for testing
 }
 
 void BaselineVessel::PassTrigger()
@@ -2056,32 +2105,105 @@ bool BaselineVessel::PassObjectVeto(std::vector<TLorentzVector> objects, float e
     return true;
 }
 
+
+// PassHEMVeto eta, phi, and pt cuts
+// HEMVeto for jets, electrons, and photons
+// https://github.com/susy2015/NanoSUSY-tools/blob/master/python/modules/Stop0lBaselineProducer.py#L236-L239
 void BaselineVessel::PassHEMVeto()
 {
-    // PassHEMVeto eta, phi, and pt cuts
-    // https://github.com/susy2015/NanoSUSY-tools/blob/master/python/modules/Stop0lBaselineProducer.py#L236-L239
+    bool verbose = false;
+    // check if we are running on data
+    bool isData             = ! tr->checkBranch("genWeight");
+    const auto& run         = tr->getVar<unsigned int>("run");
     const auto& Jets        = tr->getVec<TLorentzVector>(jetVecLabel);
     const auto& Electrons   = tr->getVec<TLorentzVector>("cutElecVec");
     const auto& Photons     = tr->getVec<TLorentzVector>("cutPhotonTLV");
     // use exact (narrow) window for electrons and photons: eta_low, eta_high, phi_low, phi_high = -3.0, -1.4, -1.57, -0.87
     // use extended (wide) window for jets:                 eta_low, eta_high, phi_low, phi_high = -3.2, -1.2, -1.77, -0.67
-    float narrow_eta_low  = -3.0;
-    float narrow_eta_high = -1.4;
-    float narrow_phi_low  = -1.57;
-    float narrow_phi_high = -0.87;
-    float wide_eta_low    = -3.2;
-    float wide_eta_high   = -1.2;
-    float wide_phi_low    = -1.77;
-    float wide_phi_high   = -0.67;
+    float narrow_eta_low  =  -3.0;
+    float narrow_eta_high =  -1.4;
+    float narrow_phi_low  =  -1.57;
+    float narrow_phi_high =  -0.87;
+    float wide_eta_low    =  -3.2;
+    float wide_eta_high   =  -1.2;
+    float wide_phi_low    =  -1.77;
+    float wide_phi_high   =  -0.67;
     float min_electron_pt =  20.0;
     float min_photon_pt   = 220.0;
-    float jet_pt_cut      = 30.0;
+    float jet_pt_cut      =  30.0;
     // bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low) 
     bool SAT_Pass_HEMVeto = true;
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Electrons, narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_electron_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Photons,   narrow_eta_low, narrow_eta_high, narrow_phi_low, narrow_phi_high, min_photon_pt);
     SAT_Pass_HEMVeto = SAT_Pass_HEMVeto && PassObjectVeto(Jets,      wide_eta_low,   wide_eta_high,   wide_phi_low,   wide_phi_high,   jet_pt_cut);
-    tr->registerDerivedVar("SAT_Pass_HEMVeto"+firstSpec,   SAT_Pass_HEMVeto);
+    
+    
+    // HEM vetos
+    // - Cut for Data only, used for running over all 2018 at once
+    // - Cut for Data and MC, used for running over 2018 pre/post HEM eras
+    bool SAT_Pass_HEMVeto_DataOnly  = SAT_Pass_HEMVeto; 
+    bool SAT_Pass_HEMVeto_DataAndMC = SAT_Pass_HEMVeto; 
+    
+    // only apply HEM veto in 2018
+    if (year.compare("2018") != 0)
+    {
+        SAT_Pass_HEMVeto           = true;
+        SAT_Pass_HEMVeto_DataOnly  = true; 
+        SAT_Pass_HEMVeto_DataAndMC = true;
+    }
+    else
+    {
+        // for data, only apply HEM veto to 2018 starting with run 319077
+        if (isData)
+        {
+            if (run < 319077)
+            {
+                SAT_Pass_HEMVeto_DataOnly = true;
+            }
+        }
+        // only apply HEM veto cut to data when using HEM veto weight for MC
+        else
+        {
+            SAT_Pass_HEMVeto_DataOnly = true;
+        }
+    }
+    
+    // get HEM veto weight
+    // WARNING: luminosities are hard coded here
+    float lumi2018PreHEM    = 21068.576;
+    float lumi2018PostHEM   = 38630.913;
+    float lumi2018          = lumi2018PreHEM + lumi2018PostHEM;
+    float SAT_HEMVetoWeight = lumi2018PreHEM / lumi2018;
+    if (SAT_Pass_HEMVeto)
+    {
+        SAT_HEMVetoWeight = 1.0;
+    }
+    if (verbose && firstSpec.compare("_jetpt30") == 0)
+    {
+        printf("SAT_Pass_HEMVeto_DataOnly = %d, SAT_Pass_HEMVeto_DataAndMC = %d, SAT_HEMVetoWeight = %f\n", SAT_Pass_HEMVeto_DataOnly, SAT_Pass_HEMVeto_DataAndMC, SAT_HEMVetoWeight);
+    }
+    // register variables
+    tr->registerDerivedVar("SAT_Pass_HEMVeto_DataOnly"   + firstSpec, SAT_Pass_HEMVeto_DataOnly     );
+    tr->registerDerivedVar("SAT_Pass_HEMVeto_DataAndMC"  + firstSpec, SAT_Pass_HEMVeto_DataAndMC    );
+    tr->registerDerivedVar("SAT_HEMVetoWeight"           + firstSpec, SAT_HEMVetoWeight             );
+}
+
+void BaselineVessel::GetPileupWeight()
+{
+    const auto& puWeight       = tr->getVar<float>("puWeight");
+    const auto& puWeight2017BE = tr->getVar<float>("17BtoEpuWeight");
+    const auto& puWeight2017F  = tr->getVar<float>("17FpuWeight");
+    // WARNING: luminosities are hard coded here
+    float lumi2017BE         = 27987.721;
+    float lumi2017F          = 13498.415;
+    float lumi2017           = lumi2017BE + lumi2017F;
+    float puWeight2017weightedAverage = (puWeight2017BE * lumi2017BE + puWeight2017F * lumi2017F) / lumi2017;
+    // print for testing
+    //if (firstSpec.compare("_jetpt30") == 0)
+    if (false)
+    {
+        printf("puWeight2017BE = %f, puWeight2017F = %f, puWeight2017weightedAverage = %f, puWeight = %f, diff = %f\n", puWeight2017BE, puWeight2017F, puWeight2017weightedAverage, puWeight, puWeight2017weightedAverage - puWeight);
+    }
 }
 
 // ===  FUNCTION  ============================================================
@@ -2411,7 +2533,7 @@ int BaselineVessel::GetISRJetIdx(bool verbose)
   int nFatJets = fat_jets.size();
   int nSubJets = SubJet_btagDeepB.size();
   int i = 0; // only use leading fat jet (ordered by pt, index 0)
-  if (verbose) printf("FatJet %d: p_t = %.30lf, eta = %.30lf, phi = %.30lf, mass = %.30lf, btag_disc = %.30lf\n", i, fat_jets[i].Pt(), fat_jets[i].Eta(), fat_jets[i].Phi(), fat_jets[i].M(), FatJet_btagDeepB[i]);
+  if (verbose && fat_jets.size()) printf("FatJet %d: p_t = %.30lf, eta = %.30lf, phi = %.30lf, mass = %.30lf, btag_disc = %.30lf\n", i, fat_jets[i].Pt(), fat_jets[i].Eta(), fat_jets[i].Phi(), fat_jets[i].M(), FatJet_btagDeepB[i]);
   // require that there are no merged or resolved tops and no Ws
   if (nMergedTops + nResolvedTops + nWs != 0) 
   {

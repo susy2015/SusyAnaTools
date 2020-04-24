@@ -112,6 +112,7 @@ public:
     void PassEventFilter();
     bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low);
     void PassHEMVeto();
+    void GetPileupWeight();
     bool PrintoutConfig() const;
     bool CalcBottomVars();
     int  GetISRJetIdx(bool verbose=false); 
@@ -121,6 +122,7 @@ public:
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
     bool UseCleanedJets();
+    bool PrepMETUncluster();
     bool OpenWMassCorrFile();
 
     bool FlagDeepAK8Jets();
