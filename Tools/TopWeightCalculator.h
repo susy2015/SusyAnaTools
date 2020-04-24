@@ -34,7 +34,6 @@ private:
         {
             if(pt >= entry.binLowEdge && pt < entry.binHighEdge)
             {
-                std::cout << pt << "\t" << entry.binLowEdge << "\t" << entry.binHighEdge << "\t" << entry.value << "\t" << entry.error << std::endl;
                 return std::make_tuple(entry.value, entry.error);
             }
         }
@@ -44,7 +43,6 @@ private:
 
     float getEff(TH1* h, float pt)
     {
-        std::cout << pt << "\t" << h->GetBinContent(h->FindBin(pt)) << std::endl;
         return h->GetBinContent(h->FindBin(pt));
     }
 
@@ -102,7 +100,6 @@ private:
 
             if(recoTag == 1)
             {
-                std::cout << "TOP: " << genMatch << std::endl;
                 float SF = 1.0;
                 float SFerr = 0.0;
 
@@ -138,7 +135,6 @@ private:
             }
             else if(recoTag == 2)
             {
-                std::cout << "W: " << genMatch << std::endl;
                 float SF = 1.0;
                 float SFerr = 0.0;
 
@@ -174,7 +170,6 @@ private:
             }
             else
             {
-                std::cout << "VETO: " << genMatch << std::endl;
                 float SF_t = 1.0;
                 float SFerr_t = 0.0;
                 float SF_w = 1.0;
