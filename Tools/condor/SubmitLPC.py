@@ -14,22 +14,32 @@ from collections import defaultdict
 
 #DelExe    = '../tupleReadNormEx'
 #DelExe    = '../tupleReadElec'
-DelExe    = '../SB_reader'
+#DelExe    = '../SB_reader'
+DelExe    = '../SB_reader_LL'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
 #ShortProjectName = 'TTZNormEx'
 #ShortProjectName = 'TTZElec'
-ShortProjectName = 'VBSBv5_nolepvetoSF'
+#ShortProjectName = 'VBSBv6'
+#ShortProjectName = 'METvalidation2'
+ShortProjectName = 'LLvalidation'
 argument = "%s.$(Process).list %s_$(Process).root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
 defaultLperFile = 5
 run_everything = False
 if run_everything: defaultLperFile = 100
-year = "2016"
+#year = "2016"
 #year = "2017"
-#year = "2018"
+year = "2018"
 #if args.era != "":
 #    year = args.era
+
+Data = False
+PeriodF = False
+PostHEM = False
+loose_cuts = False
+isTTZ = False
+isTTbar = False
 
 process_dict = {
 ##Rare would include TTZToQQ, Diboson, Triboson, Higgs. Also include DY?
@@ -43,7 +53,7 @@ process_dict = {
 #	"TopAssoc" : ["ST_tW_top_incl", "ST_tW_antitop_incl", "ST_s_lep", "ST_t_top", "ST_t_antitop", "TTZToLLNuNu", "TTZToQQ"],
 ##	"TopAssoc" : ["ST_tW_top_incl", "ST_tW_antitop_incl", "ST_s_lep", "ST_t_top", "ST_t_antitop", "TTZToQQ"],
 #	"TopAssoc_ext" : ["TTWJetsToLNu","TTWJetsToQQ","TTTT","TTGJets","ST_tWll","ST_tWnunu","tZq_ll"],
-#    "resubmit" : ["ttHToNonbb","WWTo2L2Nu","WWTo4Q","VHToNonbb","WZ","ZZZ"],
+##    "resubmit" : ["ttHToNonbb","WWTo2L2Nu","WWTo4Q","VHToNonbb","WZ","ZZZ"],
 #   "TTZToQQ" : ["TTZToQQ"],
 #	"Diboson" : ["ZZTo2Q2Nu", "ZZTo2L2Nu", "WZ", "WWTo2L2Nu", "WWToLNuQQ"],
 #	"Diboson_ext" : ["WWTo4Q","WZTo1L1Nu2Q","WZTo1L3Nu","WZTo3LNu","ZZTo2L2Q","ZZTo4Q","ZZTo4L"],
@@ -65,12 +75,10 @@ process_dict = {
 #   "SingleElectron_2017_F" : ["Data_SingleElectron_2017_PeriodF"],
 #    "SingleElectron_2018_PreHEM" : ["Data_EGamma_2018_PeriodA","Data_EGamma_2018_PeriodB_PreHEM"],
 #    "SingleElectron_2018_PostHEM" : ["Data_EGamma_2018_PeriodB_PostHEM","Data_EGamma_2018_PeriodC","Data_EGamma_2018_PeriodD"],
+    "LL_TTbar" : ["TTbar_HT_600to800","TTbar_HT_800to1200","TTbar_HT_1200to2500","TTbar_HT_2500toInf","TTbarDiLep","TTbarSingleLepT","TTbarSingleLepTbar"],
+    "LL_other" : ["WJetsToLNu_HT_70to100","WJetsToLNu_HT_100to200","WJetsToLNu_HT_200to400","WJetsToLNu_HT_400to600","WJetsToLNu_HT_600to800","WJetsToLNu_HT_800to1200","WJetsToLNu_HT_1200to2500","WJetsToLNu_HT_2500toInf","ST_tW_top_NoHad","ST_tW_antitop_NoHad","ST_s_lep","ST_t_top","ST_t_antitop","ST_tWll","ST_tWnunu","ST_tW_top_incl","ST_tW_antitop_incl","TTZToLLNuNu","TTZToQQ","TTWJetsToLNu","TTWJetsToQQ"],
+#TTbar_HT*, TTbarDiLep, TTbarSingleLep, WJetsToLNu_HT*, ST_tW_top_NoHad, ST_tW_antitop_NoHad_2016, ST_s_lep, ST_t_top, ST_t_antitop, ST_tW*, TTZTo*, TTWJetsTo*
     }
-Data = False
-PeriodF = False
-PostHEM = False
-loose_cuts = False
-isTTZ = False
 
 process_list = []
 for sub_list in process_dict.values():
@@ -105,10 +113,14 @@ if PeriodF:
 if loose_cuts and (DelExe != '../SB_reader'):
     argument += " --loose_cuts"
 
-if DelExe == '../SB_reader':
+if DelExe == '../SB_reader' or DelExe == '../SB_reader_METval':
     if isTTZ:
         LongProjectName = LongProjectName + "_TTZ"
         argument += " --isTTZ"
+if DelExe == '../SB_reader_LL':
+    if isTTbar:
+        LongProjectName = LongProjectName + "_TTbar"
+        argument += " --isTTbar"
 
 #print process_list
 

@@ -9,21 +9,31 @@ int Plot_1D_TTZ_norm()
 	//lumi = 42; //2017
 	//lumi = 59; //2018
 	TString year = "_2018";
+    bool PeriodF = false;
+    bool PostHEM = true;
+    TString suffix = "";
+    if(PeriodF | PostHEM) suffix = "2";
+    bool nlc = false;
 	bool plot_log = false;
 	bool plot_sig_pad = true;
 	bool plot_BG = true;
-    bool PostHEM = true;
 	bool use_low_stat_sig = false;
 	//use_low_stat_sig = true;
 	bool use_original_title = false;
+    bool save_plot = true;
 
 	TString result_path = "results/";
 	//TString data_name = "SingleMuon";
     TString data_name = "EGamma";
     //TString data_name = "SingleElectron";
     TString outputfile = "results/TTZoutput/output_" + data_name + year + "_norm.root";
+    if(PeriodF) outputfile = "results/TTZoutput/output_" + data_name + year + "_PeriodF_norm.root";
     if(PostHEM) outputfile = "results/TTZoutput/output_" + data_name + year + "_PostHEM_norm.root";
-    bool createOutputFile = true;
+    bool createOutputFile = false;
+    bool plot_norm = true; //norm
+    bool plot_num_mu = false; //n_mu
+    bool plot_num_elec = false; //n_elec
+    if (plot_norm) createOutputFile = true;
 
     if(data_name == "SingleMuon")
     {
@@ -36,6 +46,16 @@ int Plot_1D_TTZ_norm()
         {
             lumi = 41.525059; //42
             shortlumi = 42; //BtoE: 27.9865, F: 13.538559
+            if (PeriodF)
+            {
+                lumi = 13.538559;
+                shortlumi = 13;
+            }
+            else
+            {
+                lumi = 27.9865;
+                shortlumi = 28;
+            }
         }
         if(year == "_2018")
         {
@@ -62,6 +82,16 @@ int Plot_1D_TTZ_norm()
         {
             lumi = 41.525338;
             shortlumi = 42;
+            if (PeriodF)
+            {
+                lumi = 13.539222;
+                shortlumi = 13;
+            }
+            else
+            {
+                lumi = 27.986116;
+                shortlumi = 18;
+            }
         }
         if(year == "_2018")
         {
@@ -88,18 +118,15 @@ int Plot_1D_TTZ_norm()
     bool plot_njetpt40eta24 = false;
     bool plot_njetpt40 = false;
     bool plot_Stop0l_nJets = false;
-    bool plot_num_mu = false; //n_mu
     bool plot_num_mu_notrigwt = false;
     bool plot_num_mu_trimmed = false;
-    bool plot_num_elec = false; //n_elec
     bool plot_num_elec_notrigwt = false;
     bool plot_mu_indices = false;
     bool plot_lep1pT = false;
     bool plot_lep2pT = false;
     bool plot_lep3pT = false;
-    bool plot_norm = false;
     bool plot_norm_eta_eff = false;
-    bool plot_norm_pt_eff = true; //norm
+    bool plot_norm_pt_eff = false;
     bool plot_norm_notrigwt = false;
     bool plot_numZ_noweights = false;
     bool plot_norm_trimmed = false;
@@ -256,6 +283,10 @@ int Plot_1D_TTZ_norm()
         folder = "";
         rebin = 1;
         ymax = 30;
+        if (nlc)
+        {
+            ymax = 140;
+        }
         if (plot_log)
         {
             ymin = 1;
@@ -374,6 +405,10 @@ int Plot_1D_TTZ_norm()
         rebin = 1;
         ymin = 0;
         ymax = 100;
+        if (nlc)
+        {
+            ymax = 250;
+        }
         if (plot_log)
         {
             ymin = 1;
@@ -388,6 +423,10 @@ int Plot_1D_TTZ_norm()
         rebin = 1;
         ymin = 0;
         ymax = 100;
+        if (nlc)
+        {
+            ymax = 250;
+        }
         if (plot_log)
         {
             ymin = 1;
@@ -417,6 +456,10 @@ int Plot_1D_TTZ_norm()
         rebin = 1;
         ymin = 0;
         ymax = 100;
+        if (nlc)
+        {
+            ymax = 250;
+        }
         if (plot_log)
         {
             ymin = 1;
@@ -431,6 +474,10 @@ int Plot_1D_TTZ_norm()
         rebin = 1;
         ymin = 0;
         ymax = 100;
+        if (nlc)
+        {
+            ymax = 250;
+        }
         if (plot_log)
         {
             ymin = 1;
@@ -578,7 +625,8 @@ int Plot_1D_TTZ_norm()
 
 	THStack *hs = new THStack();
     TH1D *h_TTZ = NULL;
-    TH1D *h_other = NULL;
+    TH1D *h_Rare = NULL;
+    TH1D *h_NonPrompt = NULL;
     TH1D *h_Data = NULL;
     TH1D *h_SF = NULL;
 
@@ -591,7 +639,7 @@ int Plot_1D_TTZ_norm()
         {
                 TString sp = "TTZToLLNuNu";
 
-                TFile *f1 = new TFile("results/" + sp + year + ".root");
+                TFile *f1 = new TFile("results/" + sp + year + suffix + ".root");
                 TH1D *h1 = (TH1D*)f1->Get(folder + var);
                 //TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
                 TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -637,7 +685,7 @@ int Plot_1D_TTZ_norm()
         {
             TString sp = "ttHToNonbb";
 
-            TFile *f1 = new TFile("results/" + sp + year + ".root");
+            TFile *f1 = new TFile("results/" + sp + year + suffix + ".root");
             TH1D *h1 = (TH1D*)f1->Get(folder + var);
             //TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
             TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -668,78 +716,79 @@ int Plot_1D_TTZ_norm()
 		if (true)
 		{
 			TString sp = "VHToNonbb";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true) //prev not in 2017
 		{
 			TString sp = "GluGluHToZZTo4L";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true) //prev not in 2017
+		//if (year != "_2017") //prev not in 2017... but now broken?
 		{
 			TString sp = "ST_tWll";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
 		}
 
 		if (true) //Was ST_tZq_ll until v4
 		{
 			TString sp = "tZq_ll";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
 		}
 		if (true)
 		{
 			TString sp = "TTWJetsToLNu";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
 		}
 		if (true)
 		{
 			TString sp = "WZTo3LNu";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
 		}
 		if (true)
 		{
 			TString sp = "ZZTo4L";
-			Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+			Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
 		}
         if (true) //prev not in 2017
         {
             TString sp = "WWZ";
-            Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+            Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
         }
         if (true)
         {
             TString sp = "WZZ";
-            Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+            Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
         }
         if (true)
         {
             TString sp = "ZZZ";
-            Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+            Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
         }
         if (true)
         {
             TString sp = "WZG";
-            Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+            Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
         }
         if (true)
         {
             TString sp = "WWG";
-            Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+            Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
         }
         if (true)
         {
             TString sp = "WWW";
-            Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+            Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
         }
         if (true)
         {
             TString sp = "TTTT";
-            Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kGreen, pro, rebin);
+            Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kGreen, pro, rebin);
         }
 
-        h_other = (TH1D*)pro->Clone("other");
+        h_Rare = (TH1D*)pro->Clone("Rare");
 
         pro->SetLineColor(kBlack);
         //pro->SetLineWidth(3);
@@ -759,7 +808,7 @@ int Plot_1D_TTZ_norm()
         {
                 TString sp = "DYJetsToLL_HT_70to100";
 
-                TFile *f1 = new TFile("results/" + sp + year + ".root");
+                TFile *f1 = new TFile("results/" + sp + year + suffix + ".root");
                 TH1D *h1 = (TH1D*)f1->Get(folder + var);
                 //TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
                 TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -792,45 +841,45 @@ int Plot_1D_TTZ_norm()
         if (true)
         {
                 TString sp = "DYJetsToLL_HT_100to200";
-                Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kOrange+1, pro, rebin);
+                Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kOrange+1, pro, rebin);
         }
         if (true)
         {
                 TString sp = "DYJetsToLL_HT_200to400";
-                Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kOrange+1, pro, rebin);
+                Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kOrange+1, pro, rebin);
         }
         if (true)
         {
                 TString sp = "DYJetsToLL_HT_400to600";
-                Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kOrange+1, pro, rebin);
+                Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kOrange+1, pro, rebin);
         }
         if (true)
         {
                 TString sp = "DYJetsToLL_HT_600to800";
-                Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kOrange+1, pro, rebin);
+                Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kOrange+1, pro, rebin);
         }
         if (true)
         {
                 TString sp = "DYJetsToLL_HT_800to1200";
-                Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kOrange+1, pro, rebin);
+                Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kOrange+1, pro, rebin);
         }
         if (true)
         {
                 TString sp = "DYJetsToLL_HT_1200to2500";
-                Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kOrange+1, pro, rebin);
+                Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kOrange+1, pro, rebin);
         }
         if (true)
         {
                 TString sp = "DYJetsToLL_HT_2500toInf";
-                Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kOrange+1, pro, rebin);
+                Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kOrange+1, pro, rebin);
         }
         if (true)
         {
                 TString sp = "TTbarDiLep";
-                Plot_1D_AUX_bg (lumi, sp, year, var, folder, leg, kOrange+1, pro, rebin);
+                Plot_1D_AUX_bg (lumi, sp, year + suffix, var, folder, leg, kOrange+1, pro, rebin);
         }
 
-        h_other->Add(pro);
+        h_NonPrompt = (TH1D*)pro->Clone("NonPrompt");
 
         pro->SetLineColor(kBlack);
         //pro->SetLineWidth(3);
@@ -883,7 +932,12 @@ int Plot_1D_TTZ_norm()
         {
             if(PostHEM) f1 = new TFile(result_path + sp + year + "_PostHEM.root");
             else f1 = new TFile(result_path + sp + year + "_PreHEM.root");
-        }	
+        }
+        else if (year == "_2017")
+        {
+            if(PeriodF) f1 = new TFile(result_path + sp + year + "_PeriodF.root");
+            else f1 = new TFile(result_path + sp + year + "_BtoE.root");
+        }
 		else f1 = new TFile(result_path + sp + year + ".root");
 		TH1D *h1 = (TH1D*)f1->Get(folder + var);
 		TH1D *h2 = (TH1D*)f1->Get("Baseline_Only/eff_h");
@@ -956,6 +1010,11 @@ int Plot_1D_TTZ_norm()
             {
                 if(PostHEM) f1 = new TFile(result_path + sp + year + "_PostHEM.root");
                 else f1 = new TFile(result_path + sp + year + "_PreHEM.root");
+            }	
+            else if (year == "_2017")
+            {
+                if(PeriodF) f1 = new TFile(result_path + sp + year + "_PeriodF.root");
+                else f1 = new TFile(result_path + sp + year + "_BtoE.root");
             }	
             else f1 = new TFile(result_path + sp + year + ".root");
 			TH1D *h1 = (TH1D*)f1->Get(folder + var);
@@ -1033,7 +1092,12 @@ int Plot_1D_TTZ_norm()
             {
                 if(PostHEM) f1 = new TFile(result_path + sp + year + "_PostHEM.root");
                 else f1 = new TFile(result_path + sp + year + "_PreHEM.root");
-            }	
+            }
+            if (year == "_2017")
+            {
+                if(PeriodF) f1 = new TFile(result_path + sp + year + "_PeriodF.root");
+                else f1 = new TFile(result_path + sp + year + "_BtoE.root");
+            }
             else f1 = new TFile(result_path + sp + year + ".root");
 			TH1D *h1 = (TH1D*)f1->Get(folder + var);
 			//TH1D *h2 = (TH1D*)f1->Get(folder + "/eff_h");
@@ -1094,11 +1158,13 @@ int Plot_1D_TTZ_norm()
 	}
 
     h_SF = (TH1D*)h_Data->Clone("SF");
-    h_SF->Add(h_other,-1);
+    h_SF->Add(h_Rare,-1);
+    h_SF->Add(h_NonPrompt,-1);
     h_SF->Divide(h_TTZ);
     std::cout << "Data: " << h_Data->GetBinContent(2) << std::endl;
     std::cout << "TTZ: " << h_TTZ->GetBinContent(2) << std::endl;
-    std::cout << "Other: " << h_other->GetBinContent(2) << std::endl;
+    std::cout << "Rare: " << h_Rare->GetBinContent(2) << std::endl;
+    std::cout << "NonPrompt: " << h_NonPrompt->GetBinContent(2) << std::endl;
     std::cout << "SF: " << h_SF->GetBinContent(2) << " +/- " << h_SF->GetBinError(2) << std::endl;
 
     if(createOutputFile)
@@ -1106,29 +1172,43 @@ int Plot_1D_TTZ_norm()
         TFile out_file(outputfile,"RECREATE");
         h_Data->Write();
         h_TTZ->Write();
-        h_other->Write();
+        h_Rare->Write();
+        h_NonPrompt->Write();
         h_SF->Write();
         out_file.Close();
     }
 
-	if(use_low_stat_sig)
-	{
-		//mycanvas->SetLogy();
-		if (year == "_2018")
-        {
-            if (PostHEM) mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PostHEM_use_low_stat_sig.png");
-		    else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PreHEM_use_low_stat_sig.png");
-        }
-		else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_use_low_stat_sig.png");
-	}
-	else
+    if(save_plot)
     {
-		if (year == "_2018") 
+        if(use_low_stat_sig)
         {
-            if (PostHEM) mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PostHEM.png");
-		    else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PreHEM.png");
-		}
-        else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + ".png");
+            //mycanvas->SetLogy();
+            if (year == "_2018")
+            {
+                if (PostHEM) mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PostHEM_use_low_stat_sig.png");
+                else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PreHEM_use_low_stat_sig.png");
+            }
+            else if (year == "_2017")
+            {
+                if (PeriodF) mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PeriodF_use_low_stat_sig.png");
+                else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_BtoE_use_low_stat_sig.png");
+            }
+            else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_use_low_stat_sig.png");
+        }
+        else
+        {
+            if (year == "_2018") 
+            {
+                if (PostHEM) mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PostHEM.png");
+                else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PreHEM.png");
+            }
+            else if (year == "_2017")
+            {
+                if (PeriodF) mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_PeriodF.png");
+                else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + "_BtoE.png");
+            }
+            else mycanvas->SaveAs("plots/" + data_name + "_" + var + year + ".png");
+        }
     }
 
 	return 0;

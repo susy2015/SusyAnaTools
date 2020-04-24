@@ -57,6 +57,11 @@ if ($? == 0) then
   rm TTZ_VB_2017_PeriodF.root
   rm TTZ_VB_2018.root
   rm TTZ_VB_2018_PostHEM.root
+  rm TTZ_VB_v6old.root
+  rm TTZ_VB_METval.root
+  rm TTZ_VB_METval_2016.root
+  rm TTZ_VB_METval_2017.root
+  rm TTZ_VB_METval_2018.root
   rm output_2016_norm.root
   rm output_2017_norm.root
   rm output_2018_PostHEM_norm.root
@@ -81,6 +86,11 @@ if ($? == 0) then
   rm TTZ_final_vb_2017.root
   rm TTZ_final_vb_2018.root
   rm xSec.root
+  rm output_2016_norm.root
+  rm output_2017_norm.root
+  rm output_2018_norm.root
+  rm output_2018_PostHEM_norm.root
+  rm output_run2.root
   foreach tarfile (`ls *gz FileList/*gz`)
     tar -tf $tarfile  | xargs rm -r
   end

@@ -16,17 +16,18 @@ from collections import defaultdict
 #DelExe    = '../tupleReadElec'
 DelExe    = '../SB_reader_signal'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
-tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
+#tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
+tempdir = '/uscmst1b_scratch/lpc1/3DayLifetime/%s/TestCondor/'  % getpass.getuser()
 #Sample name added in myprocess, which has access to args
-ShortProjectName = 'VBSB_signal_v5'
+ShortProjectName = 'VBSB_signal_v6p1'
 argument = "%s.$(Process).list %s.root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
 defaultLperFile = 5
 run_everything = True
 #if run_everything: defaultLperFile = 100
-year = "2016"
+#year = "2016"
 #year = "2017"
-#year = "2018"
+year = "2018"
 #if args.era != "":
 #    year = args.era
 
