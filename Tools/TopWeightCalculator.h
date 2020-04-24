@@ -34,6 +34,7 @@ private:
         {
             if(pt >= entry.binLowEdge && pt < entry.binHighEdge)
             {
+                std::cout << pt << "\t" << entry.binLowEdge << "\t" << entry.binHighEdge << "\t" << entry.value << "\t" << entry.error << std::endl;
                 return std::make_tuple(entry.value, entry.error);
             }
         }
@@ -43,6 +44,7 @@ private:
 
     float getEff(TH1* h, float pt)
     {
+        std::cout << pt << "\t" << h->GetBinContent(h->FindBin(pt)) << std::endl;
         return h->GetBinContent(h->FindBin(pt));
     }
 
@@ -96,8 +98,11 @@ private:
             const int& genMatch = FatJet_genMatch[iFJ];
             const int& recoTag = FatJet_Stop0l[iFJ];
 
+            if(fjPt < 200.0) continue;
+
             if(recoTag == 1)
             {
+                std::cout << "TOP: " << genMatch << std::endl;
                 float SF = 1.0;
                 float SFerr = 0.0;
 
@@ -110,22 +115,22 @@ private:
                 std::tie(SFfast, SFfasterr) = getSFAndErr(DeepTop_fastSF_era, fjPt);
 
                 numerator *= SF;
-                numerator_up *= (1+SFerr)*SF;
-                numerator_dn *= (1-SFerr)*SF;
+                numerator_up *= SF+SFerr;
+                numerator_dn *= SF-SFerr;
 
-                numerator_t_up *= (1+SFerr)*SF;
-                numerator_t_dn *= (1-SFerr)*SF;
+                numerator_t_up *= SF+SFerr;
+                numerator_t_dn *= SF-SFerr;
                 numerator_w_up *= SF;
                 numerator_w_dn *= SF;
                 numerator_v_up *= SF;
                 numerator_v_dn *= SF;
 
                 numerator_fast *= SF*SFfast;
-                numerator_fast_up *= (1+SFfasterr)*SF*SFfast;
-                numerator_fast_dn *= (1-SFfasterr)*SF*SFfast;
+                numerator_fast_up *= (SFfast+SFfasterr)*SF;
+                numerator_fast_dn *= (SFfast-SFfasterr)*SF;
 
-                numerator_fast_t_up *= (1+SFfasterr)*SF*SFfast;
-                numerator_fast_t_dn *= (1-SFfasterr)*SF*SFfast;
+                numerator_fast_t_up *= (SFfast+SFfasterr)*SF;
+                numerator_fast_t_dn *= (SFfast-SFfasterr)*SF;
                 numerator_fast_w_up *= SF*SFfast;
                 numerator_fast_w_dn *= SF*SFfast;
                 numerator_fast_v_up *= SF*SFfast;
@@ -133,6 +138,7 @@ private:
             }
             else if(recoTag == 2)
             {
+                std::cout << "W: " << genMatch << std::endl;
                 float SF = 1.0;
                 float SFerr = 0.0;
 
@@ -145,29 +151,30 @@ private:
                 std::tie(SFfast, SFfasterr) = getSFAndErr(DeepW_fastSF_era, fjPt);
 
                 numerator *= SF;
-                numerator_up *= (1+SFerr)*SF;
-                numerator_dn *= (1-SFerr)*SF;
+                numerator_up *= SF+SFerr;
+                numerator_dn *= SF-SFerr;
 
                 numerator_t_up *= SF;
                 numerator_t_dn *= SF;
-                numerator_w_up *= (1+SFerr)*SF;
-                numerator_w_dn *= (1-SFerr)*SF;
+                numerator_w_up *= SF+SFerr;
+                numerator_w_dn *= SF-SFerr;
                 numerator_v_up *= SF;
                 numerator_v_dn *= SF;
 
                 numerator_fast *= SF*SFfast;
-                numerator_fast_up *= (1+SFfasterr)*SF*SFfast;
-                numerator_fast_dn *= (1-SFfasterr)*SF*SFfast;
+                numerator_fast_up *= (SFfast+SFfasterr)*SF;
+                numerator_fast_dn *= (SFfast-SFfasterr)*SF;
 
                 numerator_fast_t_up *= SF*SFfast;
                 numerator_fast_t_dn *= SF*SFfast;
-                numerator_fast_w_up *= (1+SFfasterr)*SF*SFfast;
-                numerator_fast_w_dn *= (1-SFfasterr)*SF*SFfast;
+                numerator_fast_w_up *= (SFfast+SFfasterr)*SF;
+                numerator_fast_w_dn *= (SFfast-SFfasterr)*SF;
                 numerator_fast_v_up *= SF*SFfast;
                 numerator_fast_v_dn *= SF*SFfast;
             }
             else
             {
+                std::cout << "VETO: " << genMatch << std::endl;
                 float SF_t = 1.0;
                 float SFerr_t = 0.0;
                 float SF_w = 1.0;
@@ -207,31 +214,34 @@ private:
                 }
 
                 numerator *= 1 - SF_t*Eff_t - SF_w*Eff_w;
-                numerator_up *= 1 - (1+SFerr_t)*SF_t*Eff_t - (1+SFerr_w)*SF_w*Eff_w;
-                numerator_dn *= 1 - (1-SFerr_t)*SF_t*Eff_t - (1-SFerr_w)*SF_w*Eff_w;
+                numerator_up *= 1 - (SF_t+SFerr_t)*Eff_t - (SF_w+SFerr_w)*Eff_w;
+                numerator_dn *= 1 - (SF_t-SFerr_t)*Eff_t - (SF_w-SFerr_w)*Eff_w;
 
                 numerator_t_up *= 1 - SF_t*Eff_t - SF_w*Eff_w;
                 numerator_t_dn *= 1 - SF_t*Eff_t - SF_w*Eff_w;
                 numerator_w_up *= 1 - SF_t*Eff_t - SF_w*Eff_w;
                 numerator_w_dn *= 1 - SF_t*Eff_t - SF_w*Eff_w;
-                numerator_v_up *= 1 - (1+SFerr_t)*SF_t*Eff_t - (1+SFerr_w)*SF_w*Eff_w;
-                numerator_v_dn *= 1 - (1-SFerr_t)*SF_t*Eff_t - (1-SFerr_w)*SF_w*Eff_w;
+                numerator_v_up *= 1 - (SF_t+SFerr_t)*Eff_t - (SF_w+SFerr_w)*Eff_w;
+                numerator_v_dn *= 1 - (SF_t-SFerr_t)*Eff_t - (SF_w-SFerr_w)*Eff_w;
 
                 numerator_fast *= 1 - SF_t*SFfast_t*Eff_t - SF_w*SFfast_w*Eff_w;
-                numerator_fast_up *= 1 - (1+SFfasterr_t)*SF_t*SFfast_t*Eff_t - (1+SFfasterr_w)*SF_w*SFfast_w*Eff_w;
-                numerator_fast_dn *= 1 - (1-SFfasterr_t)*SF_t*SFfast_t*Eff_t - (1-SFfasterr_w)*SF_w*SFfast_w*Eff_w;
+                numerator_fast_up *= 1 - (SFfast_t+SFfasterr_t)*SF_t*Eff_t - (SFfast_w+SFfasterr_w)*SF_w*Eff_w;
+                numerator_fast_dn *= 1 - (SFfast_t-SFfasterr_t)*SF_t*Eff_t - (SFfast_w-SFfasterr_w)*SF_w*Eff_w;
 
                 numerator_fast_t_up *= 1 - SF_t*SFfast_t*Eff_t - SF_w*SFfast_w*Eff_w;
                 numerator_fast_t_dn *= 1 - SF_t*SFfast_t*Eff_t - SF_w*SFfast_w*Eff_w;
                 numerator_fast_w_up *= 1 - SF_t*SFfast_t*Eff_t - SF_w*SFfast_w*Eff_w;
                 numerator_fast_w_dn *= 1 - SF_t*SFfast_t*Eff_t - SF_w*SFfast_w*Eff_w;
-                numerator_fast_v_up *= 1 - (1+SFfasterr_t)*SF_t*SFfast_t*Eff_t - (1+SFfasterr_w)*SF_w*SFfast_w*Eff_w;
-                numerator_fast_v_dn *= 1 - (1-SFfasterr_t)*SF_t*SFfast_t*Eff_t - (1-SFfasterr_w)*SF_w*SFfast_w*Eff_w;
+                numerator_fast_v_up *= 1 - (SFfast_t+SFfasterr_t)*SF_t*Eff_t - (SFfast_w+SFfasterr_w)*SF_w*Eff_w;
+                numerator_fast_v_dn *= 1 - (SFfast_t-SFfasterr_t)*SF_t*Eff_t - (SFfast_w-SFfasterr_w)*SF_w*Eff_w;
 
                 denominator *= 1 - Eff_t - Eff_w;
             }
 
         }
+
+        //safety just in case!
+        if(denominator < 0.0001) denominator = 0.0001;
 
         return std::make_tuple(numerator/denominator, 
                                numerator_up/denominator,
