@@ -1969,11 +1969,11 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_ak8veto_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_veto_dn / Stop0l_DeepAK8_SFWeight_recalc);
                 h_sb_ak8veto_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_fast_veto_up / Stop0l_DeepAK8_SFWeight_recalc);
                 h_sb_ak8veto_fast_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_fast_veto_dn / Stop0l_DeepAK8_SFWeight_recalc);
-                */
                 h_sb_eff_restoptag_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_Up / Stop0l_ResTopWeight);
                 h_sb_eff_restoptag_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
                 h_sb_eff_restoptag_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
                 h_sb_eff_restoptag_fast_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                */
                 //v6 new tagger tests
                 h_sb_topfast->Fill(ntop_merge,SF*highDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_sb_topfast_up->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_top_up / Stop0l_DeepAK8_SFWeight);

@@ -54,8 +54,8 @@ def myprocess(sample,mass_point,bintype):
     #infilename = "results/VBSB/{0}/{1}_2016.root".format(sample,mass_point)
     #infilename = "results/VBSB_update/T2fbd/{0}.root".format(mass_point)
     #infilename = "results/VBSB/{0}/{1}.root".format(sample,mass_point)
-    #infilename = "fastsimstuff/v6testrecalc/{0}.root".format(mass_point)
-    infilename = "fastsimstuff/v6testrecalc/{0}_2016.root".format(mass_point)
+    #infilename = "fastsimstuff/v6testinternal/{0}.root".format(mass_point)
+    infilename = "fastsimstuff/v6testinternal/{0}_2016.root".format(mass_point)
     infile = ROOT.TFile(infilename)
     h_b  = infile.Get("h_{0}".format(bintype))
     h_b_fast  = infile.Get("h_{0}_fast".format(bintype))
@@ -245,7 +245,7 @@ if __name__ == "__main__":
     samplename = args.config.split("/")[-1].split(".")[0][:-5]
     #Make directory based on sample name (if it doesn't already exist).
     #fastsimdir = os.path.abspath("fastsim_results/v6p1_2016/{0}".format(samplename))
-    fastsimdir = os.path.abspath("fastsimstuff/v6testrecalc/{0}_2016".format(samplename))
+    fastsimdir = os.path.abspath("fastsimstuff/v6testinternal/{0}_2016".format(samplename))
     if not os.path.exists(fastsimdir):
         os.makedirs(fastsimdir)
     #extensions = ["_bsf","_trig_eff","_puWeight","_PFWeight","_pdfWeight","_JES","_METUnClust","_ivfunc","_eff_e","_err_mu","_eff_tau","_ISRWeight","_fastSF","_METunc","_eff_wtag","_eff_toptag","_eff_restoptag"]
@@ -359,7 +359,7 @@ if __name__ == "__main__":
                 leg.AddEntry(hist_down, "Down","l")
                 leg.Draw("same")
                 #mycanvas.SaveAs("VBSB_plots/v5signal_nofastSF/{0}{1}.png".format(shortmasspoint,ext))
-                mycanvas.SaveAs("fastsimstuff/v6testrecalc/{0}_2016/{1}{2}.png".format(samplename,shortmasspoint,ext))
+                mycanvas.SaveAs("fastsimstuff/v6testinternal/{0}_2016/{1}{2}.png".format(samplename,shortmasspoint,ext))
                 #c = raw_input("Press Enter to continue")
             
             '''
@@ -402,7 +402,7 @@ if __name__ == "__main__":
                 leg.AddEntry(hist_down, "Down","l")
                 leg.Draw("same")
                 #mycanvas.SaveAs("VBSB_plots/v5signal_nofastSF/{0}{1}.png".format(shortmasspoint,ext))
-                mycanvas.SaveAs("fastsimstuff/v6testrecalc/{0}{1}_lepCR.png".format(shortmasspoint,ext))
+                mycanvas.SaveAs("fastsimstuff/v6testinternal/{0}{1}_lepCR.png".format(shortmasspoint,ext))
                 #c = raw_input("Press Enter to continue")
             '''
             '''
@@ -442,7 +442,7 @@ if __name__ == "__main__":
                 leg.AddEntry(hist_down_highdm, shortmasspoint + ext + " Down HighDM","l")
                 leg.Draw("same")
                 #mycanvas.SaveAs("VBSB_plots/v5signal/{0}{1}_vb_highdm.png".format(shortmasspoint,ext))
-                mycanvas.SaveAs("fastsimstuff/v6testrecalc/{0}{1}_vb_highdm.png".format(shortmasspoint,ext))
+                mycanvas.SaveAs("fastsimstuff/v6testinternal/{0}{1}_vb_highdm.png".format(shortmasspoint,ext))
                 '''
     j = {}
     j["signals"] = mass_point_list
@@ -451,7 +451,7 @@ if __name__ == "__main__":
     
     for point in mass_point_list:
         #json_outfile = "fastsim_results/v6p1_2016/{0}/{1}.json".format(samplename,point)
-        json_outfile = "fastsimstuff/v6testrecalc/{0}_2016/{1}.json".format(samplename,point)
+        json_outfile = "fastsimstuff/v6testinternal/{0}_2016/{1}.json".format(samplename,point)
         print "Creating file {0}".format(json_outfile)
         with open(json_outfile,"w") as outfile:
             y = {}
@@ -462,7 +462,7 @@ if __name__ == "__main__":
             y["yieldsMap"]["qcdcr_{0}".format(point)] = yieldsmap["qcdcr_{0}".format(point)]
             json.dump(y,outfile,sort_keys=True,indent=4,separators=(',',': '))
         #syst_outfile = "fastsim_results/v6p1_2016/{0}/{1}_syst.conf".format(samplename,point)
-        syst_outfile = "fastsimstuff/v6testrecalc/{0}_2016/{1}_syst.conf".format(samplename,point)
+        syst_outfile = "fastsimstuff/v6testinternal/{0}_2016/{1}_syst.conf".format(samplename,point)
         print "Creating file {0}".format(syst_outfile)
         with open(syst_outfile,"w") as outfile:
             for ext in extensions:
