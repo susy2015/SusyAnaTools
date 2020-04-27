@@ -28,14 +28,14 @@ private:
         float binLowEdge, binHighEdge, value, error;
     };
 
-    std::tuple<float, float> getSFAndErr(const std::vector<SFEntry>& sfVec, float pt, int nGenPart, int genMatch)
+    std::tuple<float, float> getSFAndErr(const std::vector<SFEntry>& sfVec, float pt, int nGenPart, int recoTag)
     {
         for(const auto& entry : sfVec)
         {
             if(pt >= entry.binLowEdge && pt < entry.binHighEdge)
             {
-                if(nGenPart >= 4 && genMatch == 1) return std::make_tuple(entry.value, sqrt(entry.error*entry.error + 0.2*0.2));
-                else                               return std::make_tuple(entry.value, entry.error);
+                if(nGenPart >= 4 && recoTag == 1) return std::make_tuple(entry.value, sqrt(entry.error*entry.error + 0.2*0.2));
+                else                              return std::make_tuple(entry.value, entry.error);
             }
         }
 
@@ -108,10 +108,10 @@ private:
                 float SFfast = 1.0;
                 float SFfasterr = 0.0;
 
-                if(genMatch == 1) std::tie(SF, SFerr) = getSFAndErr(DeepTop_SF_era,      fjPt, nGenPart, genMatch);
-                else              std::tie(SF, SFerr) = getSFAndErr(DeepTop_Fake_SF_era, fjPt, nGenPart, genMatch);
+                if(genMatch == 1) std::tie(SF, SFerr) = getSFAndErr(DeepTop_SF_era,      fjPt, nGenPart, recoTag);
+                else              std::tie(SF, SFerr) = getSFAndErr(DeepTop_Fake_SF_era, fjPt, nGenPart, recoTag);
 
-                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, genMatch);
+                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, recoTag);
 
                 numerator *= SF;
                 numerator_up *= SF+SFerr;
@@ -143,10 +143,10 @@ private:
                 float SFfast = 1.0;
                 float SFfasterr = 0.0;
 
-                if(genMatch == 2) std::tie(SF, SFerr) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, genMatch);
-                else              std::tie(SF, SFerr) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, genMatch);
+                if(genMatch == 2) std::tie(SF, SFerr) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, recoTag);
+                else              std::tie(SF, SFerr) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, recoTag);
 
-                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, genMatch);
+                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, recoTag);
 
                 numerator *= SF;
                 numerator_up *= SF+SFerr;
@@ -185,14 +185,14 @@ private:
                 float Eff_t = 0.0;
                 float Eff_w = 0.0;
 
-                if(genMatch == 1) std::tie(SF_t, SFerr_t) = getSFAndErr(DeepTop_SF_era,      fjPt, nGenPart, genMatch);
-                else              std::tie(SF_t, SFerr_t) = getSFAndErr(DeepTop_Fake_SF_era, fjPt, nGenPart, genMatch);
+                if(genMatch == 1) std::tie(SF_t, SFerr_t) = getSFAndErr(DeepTop_SF_era,      fjPt, nGenPart, recoTag);
+                else              std::tie(SF_t, SFerr_t) = getSFAndErr(DeepTop_Fake_SF_era, fjPt, nGenPart, recoTag);
 
-                if(genMatch == 2) std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, genMatch);
-                else              std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, genMatch);
+                if(genMatch == 2) std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, recoTag);
+                else              std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, recoTag);
 
-                std::tie(SFfast_t, SFfasterr_t) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, genMatch);
-                std::tie(SFfast_w, SFfasterr_w) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, genMatch);
+                std::tie(SFfast_t, SFfasterr_t) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, recoTag);
+                std::tie(SFfast_w, SFfasterr_w) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, recoTag);
 
                 if(genMatch == 1)
                 {
