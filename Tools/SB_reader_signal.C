@@ -1176,11 +1176,11 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             if(nosplit && (era == "2018") && Pass_HEMVeto30_JESDown) nosplit_lumi_JESDown = 59.699489;
             if(nosplit && (era == "2018") && Pass_HEMVeto30_METUnClustUp) nosplit_lumi_METUnClustUp = 59.699489;
             if(nosplit && (era == "2018") && Pass_HEMVeto30_METUnClustDown) nosplit_lumi_METUnClustDown = 59.699489;
-            lowDMevtWeight = evtWeight * sign * B_SF * B_SF_fast * trigger_eff * puWeight * PrefireWeight * SB_SF * ISRWeight * nosplit_lumi * Stop0l_ResTopWeight * Stop0l_DeepAK8_SFWeight_recalc;
+            lowDMevtWeight = evtWeight * sign * B_SF * B_SF_fast * trigger_eff * puWeight * PrefireWeight * SB_SF * ISRWeight * nosplit_lumi * Stop0l_ResTopWeight * Stop0l_DeepAK8_SFWeight;
             //v5
             //highDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * ISRWeight * nosplit_lumi;
             //v6
-            highDMevtWeight = evtWeight * sign * B_SF * B_SF_fast * trigger_eff * puWeight * PrefireWeight * ISRWeight * nosplit_lumi * Stop0l_ResTopWeight * Stop0l_DeepAK8_SFWeight_recalc;
+            highDMevtWeight = evtWeight * sign * B_SF * B_SF_fast * trigger_eff * puWeight * PrefireWeight * ISRWeight * nosplit_lumi * Stop0l_ResTopWeight * Stop0l_DeepAK8_SFWeight;
             W_SF = 1.0;
             MergedTop_SF = 1.0;
             ResTop_SF = 1.0;
@@ -1721,6 +1721,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_ISRWeight_up->Fill(bin_num, SF * lowDMevtWeight * ISRWeight_Up / ISRWeight);
                 h_sb_ISRWeight_down->Fill(bin_num, SF * lowDMevtWeight * ISRWeight_Down / ISRWeight);
                 //v6
+                
                 h_sb_fast->Fill(bin_num,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_wtag_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_wtag_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
@@ -1783,7 +1784,11 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_vetofullw_up->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_vetofullw_dn->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
                 //more tagger tests
-                //if(Stop0l_DeepAK8_SFWeight != Stop0l_DeepAK8_SFWeight_recalc) std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight = " << Stop0l_DeepAK8_SFWeight << " Stop0l_DeepAK8_SFWeight_recalc = " << Stop0l_DeepAK8_SFWeight_recalc << std::endl;
+                if(std::abs(Stop0l_DeepAK8_SFWeight_top_up - Stop0l_DeepAK8_SFWeight_recalc_top_up) > 0.0001)
+                {
+                    std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight_top_up = " << Stop0l_DeepAK8_SFWeight_top_up << " Stop0l_DeepAK8_SFWeight_recalc_top_up = " << Stop0l_DeepAK8_SFWeight_recalc_top_up << std::endl;
+                    std::cout << "ntop: " << ntop_merge << " nw: " << nw << std::endl;
+                }
                 //if(Stop0l_DeepAK8_SFWeight_fast != Stop0l_DeepAK8_SFWeight_recalc_fast) std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight_fast = " << Stop0l_DeepAK8_SFWeight_fast << " Stop0l_DeepAK8_SFWeight_fast_recalc = " << Stop0l_DeepAK8_SFWeight_recalc_fast << std::endl;
                 /*//v5
                 h_sb_eff_wtag_up->Fill(bin_num, SF * lowDMevtWeight * W_SF_up / W_SF);
@@ -1938,6 +1943,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_ISRWeight_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * ISRWeight_Up / ISRWeight);
                 h_sb_ISRWeight_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * ISRWeight_Down / ISRWeight);
                 //v6
+                
                 h_sb_fast->Fill(bin_num,SF*highDMevtWeight * topw_sf* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_wtag_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_wtag_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
@@ -2000,7 +2006,11 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_vetofullw_up->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_vetofullw_dn->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
                 //more tagger tests
-                //if(Stop0l_DeepAK8_SFWeight != Stop0l_DeepAK8_SFWeight_recalc) std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight = " << Stop0l_DeepAK8_SFWeight << " Stop0l_DeepAK8_SFWeight_recalc = " << Stop0l_DeepAK8_SFWeight_recalc << std::endl;
+                if(std::abs(Stop0l_DeepAK8_SFWeight_top_up - Stop0l_DeepAK8_SFWeight_recalc_top_up) > 0.0001)
+                {
+                    std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight_top_up = " << Stop0l_DeepAK8_SFWeight_top_up << " Stop0l_DeepAK8_SFWeight_recalc_top_up = " << Stop0l_DeepAK8_SFWeight_recalc_top_up << std::endl;
+                    std::cout << "ntop: " << ntop_merge << " nw: " << nw << std::endl;
+                }
                 //if(Stop0l_DeepAK8_SFWeight_fast != Stop0l_DeepAK8_SFWeight_recalc_fast) std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight_fast = " << Stop0l_DeepAK8_SFWeight_fast << " Stop0l_DeepAK8_SFWeight_fast_recalc = " << Stop0l_DeepAK8_SFWeight_recalc_fast << std::endl;
                 /*//v5
                 h_sb_eff_wtag_up->Fill(bin_num, SF * highDMevtWeight * W_SF_up / W_SF);

@@ -28,13 +28,14 @@ private:
         float binLowEdge, binHighEdge, value, error;
     };
 
-    std::tuple<float, float> getSFAndErr(const std::vector<SFEntry>& sfVec, float pt)
+    std::tuple<float, float> getSFAndErr(const std::vector<SFEntry>& sfVec, float pt, int nGenPart, int genMatch)
     {
         for(const auto& entry : sfVec)
         {
             if(pt >= entry.binLowEdge && pt < entry.binHighEdge)
             {
-                return std::make_tuple(entry.value, entry.error);
+                if(nGenPart >= 4 && genMatch == 1) return std::make_tuple(entry.value, sqrt(entry.error*entry.error + 0.2*0.2));
+                else                               return std::make_tuple(entry.value, entry.error);
             }
         }
 
@@ -53,7 +54,7 @@ private:
     std::map<std::string, std::vector<SFEntry>> DeepW_Fake_SF;
     std::map<std::string, std::vector<SFEntry>> DeepW_fastSF;
 
-    std::tuple<float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float>  calculateWeights(const std::vector<TLorentzVector>& FatJet_LV, const std::vector<int>& FatJet_genMatch, const std::vector<int>& FatJet_Stop0l)
+    std::tuple<float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float>  calculateWeights(const std::vector<TLorentzVector>& FatJet_LV, const std::vector<int>& FatJet_genMatch, const std::vector<int>& FatJet_Stop0l, const std::vector<int>& FatJet_nGenPart)
     {
         float numerator = 1.0;
         float numerator_up = 1.0;
@@ -95,6 +96,7 @@ private:
             const auto& fjPt = FatJet_LV[iFJ].Pt();
             const int& genMatch = FatJet_genMatch[iFJ];
             const int& recoTag = FatJet_Stop0l[iFJ];
+            const int& nGenPart = FatJet_nGenPart[iFJ];
 
             if(fjPt < 200.0) continue;
 
@@ -106,10 +108,10 @@ private:
                 float SFfast = 1.0;
                 float SFfasterr = 0.0;
 
-                if(genMatch == 1) std::tie(SF, SFerr) = getSFAndErr(DeepTop_SF_era,      fjPt);
-                else              std::tie(SF, SFerr) = getSFAndErr(DeepTop_Fake_SF_era, fjPt);
+                if(genMatch == 1) std::tie(SF, SFerr) = getSFAndErr(DeepTop_SF_era,      fjPt, nGenPart, genMatch);
+                else              std::tie(SF, SFerr) = getSFAndErr(DeepTop_Fake_SF_era, fjPt, nGenPart, genMatch);
 
-                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepTop_fastSF_era, fjPt);
+                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, genMatch);
 
                 numerator *= SF;
                 numerator_up *= SF+SFerr;
@@ -141,10 +143,10 @@ private:
                 float SFfast = 1.0;
                 float SFfasterr = 0.0;
 
-                if(genMatch == 2) std::tie(SF, SFerr) = getSFAndErr(DeepW_SF_era,      fjPt);
-                else              std::tie(SF, SFerr) = getSFAndErr(DeepW_Fake_SF_era, fjPt);
+                if(genMatch == 2) std::tie(SF, SFerr) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, genMatch);
+                else              std::tie(SF, SFerr) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, genMatch);
 
-                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepW_fastSF_era, fjPt);
+                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, genMatch);
 
                 numerator *= SF;
                 numerator_up *= SF+SFerr;
@@ -183,14 +185,14 @@ private:
                 float Eff_t = 0.0;
                 float Eff_w = 0.0;
 
-                if(genMatch == 1) std::tie(SF_t, SFerr_t) = getSFAndErr(DeepTop_SF_era,      fjPt);
-                else              std::tie(SF_t, SFerr_t) = getSFAndErr(DeepTop_Fake_SF_era, fjPt);
+                if(genMatch == 1) std::tie(SF_t, SFerr_t) = getSFAndErr(DeepTop_SF_era,      fjPt, nGenPart, genMatch);
+                else              std::tie(SF_t, SFerr_t) = getSFAndErr(DeepTop_Fake_SF_era, fjPt, nGenPart, genMatch);
 
-                if(genMatch == 2) std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_SF_era,      fjPt);
-                else              std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_Fake_SF_era, fjPt);
+                if(genMatch == 2) std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, genMatch);
+                else              std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, genMatch);
 
-                std::tie(SFfast_t, SFfasterr_t) = getSFAndErr(DeepTop_fastSF_era, fjPt);
-                std::tie(SFfast_w, SFfasterr_w) = getSFAndErr(DeepW_fastSF_era, fjPt);
+                std::tie(SFfast_t, SFfasterr_t) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, genMatch);
+                std::tie(SFfast_w, SFfasterr_w) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, genMatch);
 
                 if(genMatch == 1)
                 {
@@ -438,9 +440,9 @@ public:
         };
     }
 
-    std::map<std::string, float> getTopWWeight(const std::vector<TLorentzVector>& FatJet_LV, const std::vector<int>& FatJet_genMatch, const std::vector<int>& FatJet_Stop0l)
+    std::map<std::string, float> getTopWWeight(const std::vector<TLorentzVector>& FatJet_LV, const std::vector<int>& FatJet_genMatch, const std::vector<int>& FatJet_Stop0l, const std::vector<int>& FatJet_nGenPart)
     {
-        auto weights = calculateWeights(FatJet_LV, FatJet_genMatch, FatJet_Stop0l);
+        auto weights = calculateWeights(FatJet_LV, FatJet_genMatch, FatJet_Stop0l, FatJet_nGenPart);
         return {{"weight", std::get<0>(weights)}, 
                 {"weight_up", std::get<1>(weights)}, 
                 {"weight_dn", std::get<2>(weights)},
@@ -467,6 +469,7 @@ public:
         const std::vector<TLorentzVector>& FJ_tlv = tr.template getVec_LVFromNano<float>("FatJet");
         const std::vector<int>& FJ_genMatch       = tr.template getVec<int>("FatJet_GenMatch");
         const std::vector<int>& FJ_Stop0l         = tr.template getVec<int>("FatJet_Stop0l");
+        const std::vector<int>& FJ_nGenPart       = tr.template getVec<int>("FatJet_nGenPart");
         
         float& weight           = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc");
         float& weight_up        = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_up");
@@ -486,7 +489,7 @@ public:
         float& weight_fast_w_dn = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_w_dn");
         float& weight_fast_v_up = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_up");
         float& weight_fast_v_dn = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_dn");
-        std::tie(weight, weight_up, weight_dn, weight_t_up, weight_t_dn, weight_w_up, weight_w_dn, weight_v_up, weight_v_dn, weight_fast, weight_fast_up, weight_fast_dn, weight_fast_t_up, weight_fast_t_dn, weight_fast_w_up, weight_fast_w_dn, weight_fast_v_up, weight_fast_v_dn) = calculateWeights(FJ_tlv, FJ_genMatch, FJ_Stop0l);
+        std::tie(weight, weight_up, weight_dn, weight_t_up, weight_t_dn, weight_w_up, weight_w_dn, weight_v_up, weight_v_dn, weight_fast, weight_fast_up, weight_fast_dn, weight_fast_t_up, weight_fast_t_dn, weight_fast_w_up, weight_fast_w_dn, weight_fast_v_up, weight_fast_v_dn) = calculateWeights(FJ_tlv, FJ_genMatch, FJ_Stop0l, FJ_nGenPart);
     }
 
 };
