@@ -54,9 +54,11 @@ def myprocess(sample,mass_point,bintype):
     #infilename = "results/VBSB/{0}/{1}_2016.root".format(sample,mass_point)
     #infilename = "results/VBSB_update/T2fbd/{0}.root".format(mass_point)
     #infilename = "results/VBSB/{0}/{1}.root".format(sample,mass_point)
-    infilename = "fastsimstuff/v6p1wfast/{0}.root".format(mass_point)
+    #infilename = "fastsimstuff/v6testrecalc/{0}.root".format(mass_point)
+    infilename = "fastsimstuff/v6testrecalc/{0}_2016.root".format(mass_point)
     infile = ROOT.TFile(infilename)
     h_b  = infile.Get("h_{0}".format(bintype))
+    h_b_fast  = infile.Get("h_{0}_fast".format(bintype))
     #h_sb_avgwtsq = infile.Get("h_sb_avg_weight_sq")
 
     #extensions = ["_bsf","_trig_eff","_puWeight","_PFWeight","_pdfWeight","_JES","_METUnClust","_ivfunc","_eff_e","_err_mu","_eff_tau","_ISRWeight","_fastSF","_METunc","_eff_wtag","_eff_toptag","_eff_restoptag"]
@@ -65,6 +67,7 @@ def myprocess(sample,mass_point,bintype):
     leptonvetos = ["_eff_e","_err_mu","_eff_tau"]
     topvetos = ["_eff_wtag","_eff_toptag","_eff_restoptag","_eff_wtag_fast","_eff_toptag_fast","_eff_restoptag_fast"]
     ak8vetos = ["_eff_wtag","_eff_toptag","_eff_wtag_fast","_eff_toptag_fast"]
+    fast_tagger = ["_eff_wtag_fast","_eff_toptag_fast","_ak8veto_fast"]
     ext_names = {   "_bsf" : "b",
                     "_bsf_fast" : "b_fast",
                     "_trig_eff" : "trigger_err",
@@ -94,10 +97,12 @@ def myprocess(sample,mass_point,bintype):
     #rate
     #if bintype == "sb": print "Bin 183:", h_b.GetBinContent(183)
     dict_b = {i : [h_b.GetBinContent(i+1),h_b.GetBinError(i+1)] for i in range(nBins)}
+    dict_b_fast = {i : [h_b_fast.GetBinContent(i+1),h_b_fast.GetBinError(i+1)] for i in range(nBins)}
     #if bintype == "sb": print "dict_b 182:", dict_b[182]
     #Ensure non-negative; no need to remove 0 signal (as opposed to 0 background, which does cause problems)
     for k,v in dict_b.iteritems():
         if dict_b[k][0] < 0: dict_b[k] = [0,0]
+        if dict_b_fast[k][0] < 0: dict_b_fast[k] = [0,0]
     #if bintype == "sb": print "dict_b 182:", dict_b[182]
 
     '''
@@ -146,13 +151,18 @@ def myprocess(sample,mass_point,bintype):
         #print ext, infilename
         sys_b[ext] = [infile.Get("h_" + bintype + ext + "_up"),infile.Get("h_" + bintype + ext + "_down")]
         for i in range(nBins):
-            #then divide by nominal
-            if dict_b[i][0] > 0:
-                #if sys_b[ext][0].GetBinContent(i+1)/dict_b[i][0] > sys_b[ext][1].GetBinContent(i+1)/dict_b[i][0]:
-                #    syst_updown.update({i : [sys_b[ext][0].GetBinContent(i+1)/dict_b[i][0],sys_b[ext][1].GetBinContent(i+1)/dict_b[i][0]]})
-                #else: syst_updown.update({i : [sys_b[ext][1].GetBinContent(i+1)/dict_b[i][0],sys_b[ext][0].GetBinContent(i+1)/dict_b[i][0]]})
-                syst_updown.update({i : [sys_b[ext][0].GetBinContent(i+1)/dict_b[i][0],sys_b[ext][1].GetBinContent(i+1)/dict_b[i][0]]})
-            else: syst_updown.update({i : [0.0,0.0]})
+            if ext not in fast_tagger:
+                #then divide by nominal
+                if dict_b[i][0] > 0:
+                    #if sys_b[ext][0].GetBinContent(i+1)/dict_b[i][0] > sys_b[ext][1].GetBinContent(i+1)/dict_b[i][0]:
+                    #    syst_updown.update({i : [sys_b[ext][0].GetBinContent(i+1)/dict_b[i][0],sys_b[ext][1].GetBinContent(i+1)/dict_b[i][0]]})
+                    #else: syst_updown.update({i : [sys_b[ext][1].GetBinContent(i+1)/dict_b[i][0],sys_b[ext][0].GetBinContent(i+1)/dict_b[i][0]]})
+                    syst_updown.update({i : [sys_b[ext][0].GetBinContent(i+1)/dict_b[i][0],sys_b[ext][1].GetBinContent(i+1)/dict_b[i][0]]})
+                else: syst_updown.update({i : [0.0,0.0]})
+            else:
+                if dict_b_fast[i][0] > 0:
+                    syst_updown.update({i : [sys_b[ext][0].GetBinContent(i+1)/dict_b_fast[i][0],sys_b[ext][1].GetBinContent(i+1)/dict_b_fast[i][0]]})
+                else: syst_updown.update({i : [0.0,0.0]})
         #syst_unc[ext] = combineupdown(syst_updown)
         syst_unc[ext] = simupdown(syst_updown)
         for i in range(nBins):
@@ -235,7 +245,7 @@ if __name__ == "__main__":
     samplename = args.config.split("/")[-1].split(".")[0][:-5]
     #Make directory based on sample name (if it doesn't already exist).
     #fastsimdir = os.path.abspath("fastsim_results/v6p1_2016/{0}".format(samplename))
-    fastsimdir = os.path.abspath("fastsimstuff/v6p1wfast/{0}".format(samplename))
+    fastsimdir = os.path.abspath("fastsimstuff/v6testrecalc/{0}_2016".format(samplename))
     if not os.path.exists(fastsimdir):
         os.makedirs(fastsimdir)
     #extensions = ["_bsf","_trig_eff","_puWeight","_PFWeight","_pdfWeight","_JES","_METUnClust","_ivfunc","_eff_e","_err_mu","_eff_tau","_ISRWeight","_fastSF","_METunc","_eff_wtag","_eff_toptag","_eff_restoptag"]
@@ -305,7 +315,7 @@ if __name__ == "__main__":
             hist.Draw()
             mycanvas.SaveAs("VBSB_plots/v5p1/{0}_logy_min.png".format(shortmasspoint))
             '''
-            '''
+            
             mycanvas = ROOT.TCanvas(shortmasspoint, shortmasspoint, 600, 600)
             ROOT.gStyle.SetOptStat(0)
             #testext = ["_eff_wtag_fast"]
@@ -315,6 +325,10 @@ if __name__ == "__main__":
                 leg = ROOT.TLegend(0.6,0.8,0.9,0.89)
                 leg.SetBorderSize(0)
                 leg.SetTextSize(0.04)
+                #ci = 1756
+                #newcolor = ROOT.TColor(ci, 0.1, 0.2, 0.3, "", 0.5)
+                #leg.SetFillColor(newcolor)
+                #leg.IsTransparent()
                 hist_up = ROOT.TH1F(shortmasspoint + ext + "_up", shortmasspoint + " " + ext_names[ext],183,0,183)
                 hist_down = ROOT.TH1F(shortmasspoint + ext + "_down", shortmasspoint + " " + ext_names[ext] + " Down",183,0,183)
                 hist_up_lowdm = ROOT.TH1F(shortmasspoint + ext + "_up_lowdm", shortmasspoint + " " + ext_names[ext] + " LowDM",53,0,53)
@@ -345,8 +359,9 @@ if __name__ == "__main__":
                 leg.AddEntry(hist_down, "Down","l")
                 leg.Draw("same")
                 #mycanvas.SaveAs("VBSB_plots/v5signal_nofastSF/{0}{1}.png".format(shortmasspoint,ext))
-                mycanvas.SaveAs("fastsimstuff/v6p1wfast/{0}{1}.png".format(shortmasspoint,ext))
+                mycanvas.SaveAs("fastsimstuff/v6testrecalc/{0}_2016/{1}{2}.png".format(samplename,shortmasspoint,ext))
                 #c = raw_input("Press Enter to continue")
+            
             '''
             mycanvas = ROOT.TCanvas(shortmasspoint, shortmasspoint, 600, 600)
             ROOT.gStyle.SetOptStat(0)
@@ -387,9 +402,9 @@ if __name__ == "__main__":
                 leg.AddEntry(hist_down, "Down","l")
                 leg.Draw("same")
                 #mycanvas.SaveAs("VBSB_plots/v5signal_nofastSF/{0}{1}.png".format(shortmasspoint,ext))
-                mycanvas.SaveAs("fastsimstuff/v6p1wfast/{0}{1}_lepCR.png".format(shortmasspoint,ext))
+                mycanvas.SaveAs("fastsimstuff/v6testrecalc/{0}{1}_lepCR.png".format(shortmasspoint,ext))
                 #c = raw_input("Press Enter to continue")
-            
+            '''
             '''
             mycanvas = ROOT.TCanvas(shortmasspoint, shortmasspoint, 600, 600)
             ROOT.gStyle.SetOptStat(0)
@@ -427,16 +442,16 @@ if __name__ == "__main__":
                 leg.AddEntry(hist_down_highdm, shortmasspoint + ext + " Down HighDM","l")
                 leg.Draw("same")
                 #mycanvas.SaveAs("VBSB_plots/v5signal/{0}{1}_vb_highdm.png".format(shortmasspoint,ext))
-                mycanvas.SaveAs("fastsimstuff/v6p1wfast/{0}{1}_vb_highdm.png".format(shortmasspoint,ext))
+                mycanvas.SaveAs("fastsimstuff/v6testrecalc/{0}{1}_vb_highdm.png".format(shortmasspoint,ext))
                 '''
     j = {}
     j["signals"] = mass_point_list
     j["yieldsMap"] = yieldsmap
 
-    '''    
+    
     for point in mass_point_list:
         #json_outfile = "fastsim_results/v6p1_2016/{0}/{1}.json".format(samplename,point)
-        json_outfile = "fastsimstuff/v6p1wfast/{0}/{1}.json".format(samplename,point)
+        json_outfile = "fastsimstuff/v6testrecalc/{0}_2016/{1}.json".format(samplename,point)
         print "Creating file {0}".format(json_outfile)
         with open(json_outfile,"w") as outfile:
             y = {}
@@ -447,7 +462,7 @@ if __name__ == "__main__":
             y["yieldsMap"]["qcdcr_{0}".format(point)] = yieldsmap["qcdcr_{0}".format(point)]
             json.dump(y,outfile,sort_keys=True,indent=4,separators=(',',': '))
         #syst_outfile = "fastsim_results/v6p1_2016/{0}/{1}_syst.conf".format(samplename,point)
-        syst_outfile = "fastsimstuff/v6p1wfast/{0}/{1}_syst.conf".format(samplename,point)
+        syst_outfile = "fastsimstuff/v6testrecalc/{0}_2016/{1}_syst.conf".format(samplename,point)
         print "Creating file {0}".format(syst_outfile)
         with open(syst_outfile,"w") as outfile:
             for ext in extensions:
@@ -463,5 +478,5 @@ if __name__ == "__main__":
                     if (v[0] != 1 and v[1] != 1) or (ext not in leptonvetos and ext not in topvetos and ext != "_ivfunc"):
                         outfile.write("{0}    {1}_Up    {2}    {3}\n".format(k,ext_names[ext],point,v[0]))
                         outfile.write("{0}    {1}_Down    {2}    {3}\n".format(k,ext_names[ext],point,v[1]))
-    '''
+    
 

@@ -1,5 +1,6 @@
 #include "NTupleReader.h"
 #include "baselineDef.h"
+#include "TopWeightCalculator.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
@@ -188,12 +189,30 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_sb_muonyield_down = new TH1F("h_sb_muonyield_down","SB Yield Down with >=1 Muon",183,0,183);
     auto *h_sb_tauyield_down = new TH1F("h_sb_tauyield_down","SB Yield Down with >=1 Tau",183,0,183);
 
-    auto *h_sb_wfastup_bin179 = new TH1F("h_sb_wfastup_bin179","Distribution of w_fast_up weights for bin 179",100,0,2);
-    auto *h_sb_wfastdn_bin179 = new TH1F("h_sb_wfastdn_bin179","Distribution of w_fast_dn weights for bin 179",100,0,2);
-    auto *h_sb_wfastup_bin180 = new TH1F("h_sb_wfastup_bin180","Distribution of w_fast_up weights for bin 180",100,0,2);
-    auto *h_sb_wfastdn_bin180 = new TH1F("h_sb_wfastdn_bin180","Distribution of w_fast_dn weights for bin 180",100,0,2);
-    auto *h_sb_wfastup_bin181 = new TH1F("h_sb_wfastup_bin181","Distribution of w_fast_up weights for bin 181",100,0,2);
-    auto *h_sb_wfastdn_bin181 = new TH1F("h_sb_wfastdn_bin181","Distribution of w_fast_dn weights for bin 181",100,0,2);
+    auto *h_sb_topfast = new TH1F("h_sb_topfast","SB Events by nTop, fastsim top weights",5,0,5);
+    auto *h_sb_topfast_up = new TH1F("h_sb_topfast_up","SB Events by nTop, fastsim top weight up",5,0,5);
+    auto *h_sb_topfast_dn = new TH1F("h_sb_topfast_dn","SB Events by nTop, fastsim top weight dn",5,0,5);
+    auto *h_sb_wfast = new TH1F("h_sb_wfast","SB Events by nW, fastsim w weights",5,0,5);
+    auto *h_sb_wfast_up = new TH1F("h_sb_wfast_up","SB Events by nW, fastsim w weight up",5,0,5);
+    auto *h_sb_wfast_dn = new TH1F("h_sb_wfast_dn","SB Events by nW, fastsim w weight dn",5,0,5);
+    auto *h_sb_vetofastt = new TH1F("h_sb_vetofastt","SB Events by nTop, fastsim veto weights",5,0,5);
+    auto *h_sb_vetofastt_up = new TH1F("h_sb_vetofastt_up","SB Events by nTop, fastsim veto weight up",5,0,5);
+    auto *h_sb_vetofastt_dn = new TH1F("h_sb_vetofastt_dn","SB Events by nTop, fastsim veto weight dn",5,0,5);
+    auto *h_sb_vetofastw = new TH1F("h_sb_vetofastw","SB Events by nW, fastsim veto weights",5,0,5);
+    auto *h_sb_vetofastw_up = new TH1F("h_sb_vetofastw_up","SB Events by nW, fastsim veto weight up",5,0,5);
+    auto *h_sb_vetofastw_dn = new TH1F("h_sb_vetofastw_dn","SB Events by nW, fastsim veto weight dn",5,0,5);
+    auto *h_sb_topfull = new TH1F("h_sb_topfull","SB Events by nTop, fullsim top weights",5,0,5);
+    auto *h_sb_topfull_up = new TH1F("h_sb_topfull_up","SB Events by nTop, fullsim top weight up",5,0,5);
+    auto *h_sb_topfull_dn = new TH1F("h_sb_topfull_dn","SB Events by nTop, fullsim top weight dn",5,0,5);
+    auto *h_sb_wfull = new TH1F("h_sb_wfull","SB Events by nW, fullsim w weights",5,0,5);
+    auto *h_sb_wfull_up = new TH1F("h_sb_wfull_up","SB Events by nW, fullsim w weight up",5,0,5);
+    auto *h_sb_wfull_dn = new TH1F("h_sb_wfull_dn","SB Events by nW, fullsim w weight dn",5,0,5);
+    auto *h_sb_vetofullt = new TH1F("h_sb_vetofullt","SB Events by nTop, fullsim veto weights",5,0,5);
+    auto *h_sb_vetofullt_up = new TH1F("h_sb_vetofullt_up","SB Events by nTop, fullsim veto weight up",5,0,5);
+    auto *h_sb_vetofullt_dn = new TH1F("h_sb_vetofullt_dn","SB Events by nTop, fullsim veto weight dn",5,0,5);
+    auto *h_sb_vetofullw = new TH1F("h_sb_vetofullw","SB Events by nW, fullsim veto weights",5,0,5);
+    auto *h_sb_vetofullw_up = new TH1F("h_sb_vetofullw_up","SB Events by nW, fullsim veto weight up",5,0,5);
+    auto *h_sb_vetofullw_dn = new TH1F("h_sb_vetofullw_dn","SB Events by nW, fullsim veto weight dn",5,0,5);
 
     auto *h_ub = new TH1F("h_ub","LL CR Unit Bins",112,0,112);
     auto *h_ub_fast = new TH1F("h_ub_fast","LL CR Unit Bins (fast central tagger weight)",112,0,112);
@@ -798,26 +817,47 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         auto Stop0l_ResTopWeight_fast_Dn = tr.getVar<float>("Stop0l_ResTopWeight_fast_Dn");
         auto Stop0l_ResTopWeight_JESUp = tr.getVar<float>("Stop0l_ResTopWeight_JESUp");
         auto Stop0l_ResTopWeight_JESDown = tr.getVar<float>("Stop0l_ResTopWeight_JESDown");
-        auto Stop0l_DeepAK8_SFWeight = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc");
-        auto Stop0l_DeepAK8_SFWeight_fast = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc");
-        auto Stop0l_DeepAK8_SFWeight_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_up");
-        auto Stop0l_DeepAK8_SFWeight_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_dn");
-        auto Stop0l_DeepAK8_SFWeight_fast_total_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_up");
-        auto Stop0l_DeepAK8_SFWeight_fast_total_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_dn");
-        auto Stop0l_DeepAK8_SFWeight_fast_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_up");
-        auto Stop0l_DeepAK8_SFWeight_fast_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_dn");
-        auto Stop0l_DeepAK8_SFWeight_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_up");
-        auto Stop0l_DeepAK8_SFWeight_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_dn");
-        auto Stop0l_DeepAK8_SFWeight_fast_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_up");
-        auto Stop0l_DeepAK8_SFWeight_fast_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_dn");
-        auto Stop0l_DeepAK8_SFWeight_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_up");
-        auto Stop0l_DeepAK8_SFWeight_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_dn");
-        auto Stop0l_DeepAK8_SFWeight_fast_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_w_up");
-        auto Stop0l_DeepAK8_SFWeight_fast_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_w_dn");
-        auto Stop0l_DeepAK8_SFWeight_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_up");
-        auto Stop0l_DeepAK8_SFWeight_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_dn");
-        auto Stop0l_DeepAK8_SFWeight_fast_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_up");
-        auto Stop0l_DeepAK8_SFWeight_fast_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_dn");
+        auto Stop0l_DeepAK8_SFWeight = tr.getVar<float>("Stop0l_DeepAK8_SFWeight");
+        auto Stop0l_DeepAK8_SFWeight_fast = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast");
+        auto Stop0l_DeepAK8_SFWeight_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_total_up");
+        auto Stop0l_DeepAK8_SFWeight_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_total_dn");
+        auto Stop0l_DeepAK8_SFWeight_fast_total_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_total_up");
+        auto Stop0l_DeepAK8_SFWeight_fast_total_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_total_dn");
+        auto Stop0l_DeepAK8_SFWeight_fast_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_total_up");
+        auto Stop0l_DeepAK8_SFWeight_fast_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_total_dn");
+        auto Stop0l_DeepAK8_SFWeight_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_veto_up");
+        auto Stop0l_DeepAK8_SFWeight_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_veto_dn");
+        auto Stop0l_DeepAK8_SFWeight_fast_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_veto_up");
+        auto Stop0l_DeepAK8_SFWeight_fast_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_veto_dn");
+        auto Stop0l_DeepAK8_SFWeight_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_w_up");
+        auto Stop0l_DeepAK8_SFWeight_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_w_dn");
+        auto Stop0l_DeepAK8_SFWeight_fast_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_w_up");
+        auto Stop0l_DeepAK8_SFWeight_fast_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_w_dn");
+        auto Stop0l_DeepAK8_SFWeight_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_top_up");
+        auto Stop0l_DeepAK8_SFWeight_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_top_dn");
+        auto Stop0l_DeepAK8_SFWeight_fast_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_top_up");
+        auto Stop0l_DeepAK8_SFWeight_fast_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_top_dn");
+        //recalc
+        auto Stop0l_DeepAK8_SFWeight_recalc = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc");
+        auto Stop0l_DeepAK8_SFWeight_recalc_fast = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc");
+        auto Stop0l_DeepAK8_SFWeight_recalc_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_dn");
+        auto Stop0l_DeepAK8_SFWeight_recalc_fast_total_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_fast_total_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_dn");
+        auto Stop0l_DeepAK8_SFWeight_recalc_fast_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_fast_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_dn");
+        auto Stop0l_DeepAK8_SFWeight_recalc_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_dn");
+        auto Stop0l_DeepAK8_SFWeight_recalc_fast_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_fast_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_dn");
+        auto Stop0l_DeepAK8_SFWeight_recalc_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_dn");
+        auto Stop0l_DeepAK8_SFWeight_recalc_fast_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_w_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_fast_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_w_dn");
+        auto Stop0l_DeepAK8_SFWeight_recalc_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_dn");
+        auto Stop0l_DeepAK8_SFWeight_recalc_fast_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_fast_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_dn");
         
        
         //std::cout << "Stop0l_ResTopWeight: " << Stop0l_ResTopWeight << "\tResTop_SF: " << ResTop_SF << "\tStop0l_ResTopWeight_Up: " << Stop0l_ResTopWeight_Up << "\tStop0l_ResTopWeight_fast_Up: " << Stop0l_ResTopWeight_fast_Up << std::endl;
@@ -1136,11 +1176,11 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             if(nosplit && (era == "2018") && Pass_HEMVeto30_JESDown) nosplit_lumi_JESDown = 59.699489;
             if(nosplit && (era == "2018") && Pass_HEMVeto30_METUnClustUp) nosplit_lumi_METUnClustUp = 59.699489;
             if(nosplit && (era == "2018") && Pass_HEMVeto30_METUnClustDown) nosplit_lumi_METUnClustDown = 59.699489;
-            lowDMevtWeight = evtWeight * sign * B_SF * B_SF_fast * trigger_eff * puWeight * PrefireWeight * SB_SF * ISRWeight * nosplit_lumi * Stop0l_ResTopWeight * Stop0l_DeepAK8_SFWeight;
+            lowDMevtWeight = evtWeight * sign * B_SF * B_SF_fast * trigger_eff * puWeight * PrefireWeight * SB_SF * ISRWeight * nosplit_lumi * Stop0l_ResTopWeight * Stop0l_DeepAK8_SFWeight_recalc;
             //v5
             //highDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * ISRWeight * nosplit_lumi;
             //v6
-            highDMevtWeight = evtWeight * sign * B_SF * B_SF_fast * trigger_eff * puWeight * PrefireWeight * ISRWeight * nosplit_lumi * Stop0l_ResTopWeight * Stop0l_DeepAK8_SFWeight;
+            highDMevtWeight = evtWeight * sign * B_SF * B_SF_fast * trigger_eff * puWeight * PrefireWeight * ISRWeight * nosplit_lumi * Stop0l_ResTopWeight * Stop0l_DeepAK8_SFWeight_recalc;
             W_SF = 1.0;
             MergedTop_SF = 1.0;
             ResTop_SF = 1.0;
@@ -1658,7 +1698,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             {
                 h_sb->Fill(bin_num,SF*lowDMevtWeight);
                 h_sb_raw->Fill(bin_num,sign);
-                h_sb_fast->Fill(bin_num,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_sb_bsf_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up / B_SF);
                 h_sb_bsf_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Down / B_SF);
                 h_sb_bsf_fast_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up_fast / B_SF_fast);
@@ -1679,7 +1718,10 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_err_mu_down->Fill(bin_num, SF * lowDMevtWeight);
                 h_sb_eff_tau_up->Fill(bin_num, SF * lowDMevtWeight);
                 h_sb_eff_tau_down->Fill(bin_num, SF * lowDMevtWeight);
+                h_sb_ISRWeight_up->Fill(bin_num, SF * lowDMevtWeight * ISRWeight_Up / ISRWeight);
+                h_sb_ISRWeight_down->Fill(bin_num, SF * lowDMevtWeight * ISRWeight_Down / ISRWeight);
                 //v6
+                h_sb_fast->Fill(bin_num,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_wtag_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_wtag_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_wtag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_w_up / Stop0l_DeepAK8_SFWeight);
@@ -1688,8 +1730,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_eff_toptag_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_top_dn / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_toptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_top_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_toptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_top_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_ISRWeight_up->Fill(bin_num, SF * lowDMevtWeight * ISRWeight_Up / ISRWeight);
-                h_sb_ISRWeight_down->Fill(bin_num, SF * lowDMevtWeight * ISRWeight_Down / ISRWeight);
                 h_sb_ak8veto_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_ak8veto_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
                 h_sb_ak8veto_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
@@ -1698,6 +1738,53 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_eff_restoptag_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
                 h_sb_eff_restoptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
                 h_sb_eff_restoptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                /*
+                h_sb_fast->Fill(bin_num,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_recalc_fast / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_wtag_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_w_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_wtag_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_w_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_wtag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_fast_w_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_wtag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_fast_w_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_toptag_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_top_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_toptag_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_top_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_toptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_fast_top_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_toptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_fast_top_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_ak8veto_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_veto_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_ak8veto_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_veto_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_ak8veto_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_fast_veto_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_ak8veto_fast_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_fast_veto_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_restoptag_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_Up / Stop0l_ResTopWeight);
+                h_sb_eff_restoptag_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
+                h_sb_eff_restoptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
+                h_sb_eff_restoptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                */
+                //v6 new tagger tests
+                h_sb_topfast->Fill(ntop_merge,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
+                h_sb_topfast_up->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_top_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_topfast_dn->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_top_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfast->Fill(nw,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfast_up->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_w_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfast_dn->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_w_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastt->Fill(ntop_merge,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastt_up->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastt_dn->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastw->Fill(nw,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastw_up->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastw_dn->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_topfull->Fill(ntop_merge,SF*lowDMevtWeight);
+                h_sb_topfull_up->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_top_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_topfull_dn->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_top_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfull->Fill(nw,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfull_up->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfull_dn->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofullt->Fill(ntop_merge,SF*lowDMevtWeight);
+                h_sb_vetofullt_up->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofullt_dn->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofullw->Fill(nw,SF*lowDMevtWeight);
+                h_sb_vetofullw_up->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofullw_dn->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
+                //more tagger tests
+                //if(Stop0l_DeepAK8_SFWeight != Stop0l_DeepAK8_SFWeight_recalc) std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight = " << Stop0l_DeepAK8_SFWeight << " Stop0l_DeepAK8_SFWeight_recalc = " << Stop0l_DeepAK8_SFWeight_recalc << std::endl;
+                //if(Stop0l_DeepAK8_SFWeight_fast != Stop0l_DeepAK8_SFWeight_recalc_fast) std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight_fast = " << Stop0l_DeepAK8_SFWeight_fast << " Stop0l_DeepAK8_SFWeight_fast_recalc = " << Stop0l_DeepAK8_SFWeight_recalc_fast << std::endl;
                 /*//v5
                 h_sb_eff_wtag_up->Fill(bin_num, SF * lowDMevtWeight * W_SF_up / W_SF);
                 h_sb_eff_wtag_down->Fill(bin_num, SF * lowDMevtWeight * W_SF_down / W_SF);
@@ -1828,7 +1915,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 //if(nw != 0) topw_sf *= W_SF;
                 h_sb->Fill(bin_num,SF*highDMevtWeight * topw_sf);
                 h_sb_raw->Fill(bin_num,sign);
-                h_sb_fast->Fill(bin_num,SF*highDMevtWeight * topw_sf* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_sb_bsf_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Up / B_SF);
                 h_sb_bsf_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Down / B_SF);
                 h_sb_bsf_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Up_fast / B_SF_fast);
@@ -1849,7 +1935,10 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_err_mu_down->Fill(bin_num, SF * highDMevtWeight * topw_sf);
                 h_sb_eff_tau_up->Fill(bin_num, SF * highDMevtWeight * topw_sf);
                 h_sb_eff_tau_down->Fill(bin_num, SF * highDMevtWeight * topw_sf);
+                h_sb_ISRWeight_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * ISRWeight_Up / ISRWeight);
+                h_sb_ISRWeight_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * ISRWeight_Down / ISRWeight);
                 //v6
+                h_sb_fast->Fill(bin_num,SF*highDMevtWeight * topw_sf* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_wtag_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_wtag_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_wtag_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_fast_w_up / Stop0l_DeepAK8_SFWeight);
@@ -1858,8 +1947,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_eff_toptag_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_top_dn / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_toptag_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_fast_top_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_eff_toptag_fast_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_fast_top_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_ISRWeight_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * ISRWeight_Up / ISRWeight);
-                h_sb_ISRWeight_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * ISRWeight_Down / ISRWeight);
                 h_sb_ak8veto_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_ak8veto_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
                 h_sb_ak8veto_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
@@ -1868,6 +1955,53 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_eff_restoptag_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
                 h_sb_eff_restoptag_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
                 h_sb_eff_restoptag_fast_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                /*
+                h_sb_fast->Fill(bin_num,SF*highDMevtWeight * topw_sf* Stop0l_DeepAK8_SFWeight_recalc_fast / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_wtag_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_w_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_wtag_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_w_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_wtag_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_fast_w_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_wtag_fast_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_fast_w_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_toptag_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_top_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_toptag_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_top_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_toptag_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_fast_top_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_eff_toptag_fast_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_fast_top_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_ak8veto_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_veto_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_ak8veto_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_veto_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_ak8veto_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_fast_veto_up / Stop0l_DeepAK8_SFWeight_recalc);
+                h_sb_ak8veto_fast_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_DeepAK8_SFWeight_recalc_fast_veto_dn / Stop0l_DeepAK8_SFWeight_recalc);
+                */
+                h_sb_eff_restoptag_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_Up / Stop0l_ResTopWeight);
+                h_sb_eff_restoptag_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
+                h_sb_eff_restoptag_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
+                h_sb_eff_restoptag_fast_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                //v6 new tagger tests
+                h_sb_topfast->Fill(ntop_merge,SF*highDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
+                h_sb_topfast_up->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_top_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_topfast_dn->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_top_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfast->Fill(nw,SF*highDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfast_up->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_w_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfast_dn->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_w_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastt->Fill(ntop_merge,SF*highDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastt_up->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastt_dn->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastw->Fill(nw,SF*highDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastw_up->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofastw_dn->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_topfull->Fill(ntop_merge,SF*highDMevtWeight);
+                h_sb_topfull_up->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_top_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_topfull_dn->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_top_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfull->Fill(nw,SF*highDMevtWeight* Stop0l_DeepAK8_SFWeight / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfull_up->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_wfull_dn->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofullt->Fill(ntop_merge,SF*highDMevtWeight);
+                h_sb_vetofullt_up->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofullt_dn->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofullw->Fill(nw,SF*highDMevtWeight);
+                h_sb_vetofullw_up->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_vetofullw_dn->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
+                //more tagger tests
+                //if(Stop0l_DeepAK8_SFWeight != Stop0l_DeepAK8_SFWeight_recalc) std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight = " << Stop0l_DeepAK8_SFWeight << " Stop0l_DeepAK8_SFWeight_recalc = " << Stop0l_DeepAK8_SFWeight_recalc << std::endl;
+                //if(Stop0l_DeepAK8_SFWeight_fast != Stop0l_DeepAK8_SFWeight_recalc_fast) std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight_fast = " << Stop0l_DeepAK8_SFWeight_fast << " Stop0l_DeepAK8_SFWeight_fast_recalc = " << Stop0l_DeepAK8_SFWeight_recalc_fast << std::endl;
                 /*//v5
                 h_sb_eff_wtag_up->Fill(bin_num, SF * highDMevtWeight * W_SF_up / W_SF);
                 h_sb_eff_wtag_down->Fill(bin_num, SF * highDMevtWeight * W_SF_down / W_SF);
@@ -1880,27 +2014,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_eff_restoptag_up->Fill(bin_num, SF * highDMevtWeight * ResTop_SF_up / ResTop_SF);
                 h_sb_eff_restoptag_down->Fill(bin_num, SF * highDMevtWeight * ResTop_SF_down / ResTop_SF);
                 */
-                if(bin_num == 179)
-                {
-                    h_sb_wfastup_bin179->Fill(Stop0l_DeepAK8_SFWeight_fast_w_up);
-                    h_sb_wfastdn_bin179->Fill(Stop0l_DeepAK8_SFWeight_fast_w_dn);
-                    std::cout << "Event in bin 179. Printing FatJet_Stop0l (1=t, 2=w), FatJet_fastSF, FatJet_fastSFerr, Stop0l_DeepAK8_SFWeight_fast_w_up, Stop0l_DeepAK8_SFWeight_fast_w_dn for each object." << std::endl;
-                    std::cout << Stop0l_DeepAK8_SFWeight_fast_w_up << " " << Stop0l_DeepAK8_SFWeight_fast_w_dn << std::endl;
-                    for(int v = 0; v < vec_FatJet_fastSF.size(); v++)
-                    {
-                        std::cout << FatJet_Stop0l[v] << " " << vec_FatJet_fastSF[v] << " " << vec_FatJet_fastSFerr[v] << std::endl;
-                    }
-                }
-                if(bin_num == 180)
-                {
-                    h_sb_wfastup_bin180->Fill(Stop0l_DeepAK8_SFWeight_fast_w_up);
-                    h_sb_wfastdn_bin180->Fill(Stop0l_DeepAK8_SFWeight_fast_w_dn);
-                }
-                if(bin_num == 181)
-                {
-                    h_sb_wfastup_bin181->Fill(Stop0l_DeepAK8_SFWeight_fast_w_up);
-                    h_sb_wfastdn_bin181->Fill(Stop0l_DeepAK8_SFWeight_fast_w_dn);
-                }
                 eff_h->Fill(1.,sign);
                 /*
                 if(bin_num == 182) 
@@ -3000,6 +3113,31 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_sb_ak8veto_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_sb_ak8veto_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_sb_ak8veto_fast_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    //v6 new tagger tests
+    h_sb_topfast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_topfast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_topfast_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_wfast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_wfast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_wfast_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofastt->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofastt_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofastt_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofastw->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofastw_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofastw_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_topfull->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_topfull_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_topfull_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_wfull->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_wfull_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_wfull_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofullt->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofullt_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofullt_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofullw->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofullw_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_vetofullw_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_fast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_bsf_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
@@ -3105,12 +3243,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     out_file.cd("../");
     h_njets_low_middphi->Write();
     h_njets_high_middphi->Write();
-    h_sb_wfastup_bin179->Write();
-    h_sb_wfastdn_bin179->Write();
-    h_sb_wfastup_bin180->Write();
-    h_sb_wfastdn_bin180->Write();
-    h_sb_wfastup_bin181->Write();
-    h_sb_wfastdn_bin181->Write();
     h_vb->Write();
     h_vb_fast->Write();
     h_vb_bsf_up->Write();
@@ -3208,6 +3340,31 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_sb_ak8veto_fast_up->Write();
     h_sb_ak8veto_fast_down->Write();
     h_sb_lepyield->Write();
+    //v6 new tagger tests
+    h_sb_topfast->Write();
+    h_sb_topfast_up->Write();
+    h_sb_topfast_dn->Write();
+    h_sb_wfast->Write();
+    h_sb_wfast_up->Write();
+    h_sb_wfast_dn->Write();
+    h_sb_vetofastt->Write();
+    h_sb_vetofastt_up->Write();
+    h_sb_vetofastt_dn->Write();
+    h_sb_vetofastw->Write();
+    h_sb_vetofastw_up->Write();
+    h_sb_vetofastw_dn->Write();
+    h_sb_topfull->Write();
+    h_sb_topfull_up->Write();
+    h_sb_topfull_dn->Write();
+    h_sb_wfull->Write();
+    h_sb_wfull_up->Write();
+    h_sb_wfull_dn->Write();
+    h_sb_vetofullt->Write();
+    h_sb_vetofullt_up->Write();
+    h_sb_vetofullt_dn->Write();
+    h_sb_vetofullw->Write();
+    h_sb_vetofullw_up->Write();
+    h_sb_vetofullw_dn->Write();
     h_ub->Write();
     h_ub_fast->Write();
     h_ub_bsf_up->Write();
@@ -3309,12 +3466,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete eff_h;
     delete h_njets_low_middphi;
     delete h_njets_high_middphi;
-    delete h_sb_wfastup_bin179;
-    delete h_sb_wfastdn_bin179;
-    delete h_sb_wfastup_bin180;
-    delete h_sb_wfastdn_bin180;
-    delete h_sb_wfastup_bin181;
-    delete h_sb_wfastdn_bin181;
     delete h_vb;
     delete h_vb_fast;
     delete h_vb_bsf_up;
@@ -3419,6 +3570,31 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_sb_elecyield;
     delete h_sb_muonyield;
     delete h_sb_tauyield;
+    //v6 new tagger tests
+    delete h_sb_topfast;
+    delete h_sb_topfast_up;
+    delete h_sb_topfast_dn;
+    delete h_sb_wfast;
+    delete h_sb_wfast_up;
+    delete h_sb_wfast_dn;
+    delete h_sb_vetofastt;
+    delete h_sb_vetofastt_up;
+    delete h_sb_vetofastt_dn;
+    delete h_sb_vetofastw;
+    delete h_sb_vetofastw_up;
+    delete h_sb_vetofastw_dn;
+    delete h_sb_topfull;
+    delete h_sb_topfull_up;
+    delete h_sb_topfull_dn;
+    delete h_sb_wfull;
+    delete h_sb_wfull_up;
+    delete h_sb_wfull_dn;
+    delete h_sb_vetofullt;
+    delete h_sb_vetofullt_up;
+    delete h_sb_vetofullt_dn;
+    delete h_sb_vetofullw;
+    delete h_sb_vetofullw_up;
+    delete h_sb_vetofullw_dn;
     delete h_ub;
     delete h_ub_fast;
     delete h_ub_bsf_up;
