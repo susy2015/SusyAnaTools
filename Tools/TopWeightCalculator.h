@@ -28,14 +28,14 @@ private:
         float binLowEdge, binHighEdge, value, error;
     };
 
-    std::tuple<float, float> getSFAndErr(const std::vector<SFEntry>& sfVec, float pt, int nGenPart, int recoTag)
+    std::tuple<float, float> getSFAndErr(const std::vector<SFEntry>& sfVec, float pt, int nGenPart, int recoTag, bool isFastSim = false)
     {
         for(const auto& entry : sfVec)
         {
             if(pt >= entry.binLowEdge && pt < entry.binHighEdge)
             {
-                if(nGenPart >= 4 && recoTag == 1) return std::make_tuple(entry.value, sqrt(entry.error*entry.error + 0.2*0.2));
-                else                              return std::make_tuple(entry.value, entry.error);
+                if(!isFastSim && nGenPart >= 4 && recoTag == 1) return std::make_tuple(entry.value, sqrt(entry.error*entry.error + 0.2*0.2));
+                else                                            return std::make_tuple(entry.value, entry.error);
             }
         }
 
@@ -111,7 +111,7 @@ private:
                 if(genMatch == 1) std::tie(SF, SFerr) = getSFAndErr(DeepTop_SF_era,      fjPt, nGenPart, recoTag);
                 else              std::tie(SF, SFerr) = getSFAndErr(DeepTop_Fake_SF_era, fjPt, nGenPart, recoTag);
 
-                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, recoTag);
+                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, recoTag, true);
 
                 numerator *= SF;
                 numerator_up *= SF+SFerr;
@@ -146,7 +146,7 @@ private:
                 if(genMatch == 2) std::tie(SF, SFerr) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, recoTag);
                 else              std::tie(SF, SFerr) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, recoTag);
 
-                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, recoTag);
+                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, recoTag, true);
 
                 numerator *= SF;
                 numerator_up *= SF+SFerr;
@@ -191,8 +191,8 @@ private:
                 if(genMatch == 2) std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, recoTag);
                 else              std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, recoTag);
 
-                std::tie(SFfast_t, SFfasterr_t) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, recoTag);
-                std::tie(SFfast_w, SFfasterr_w) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, recoTag);
+                std::tie(SFfast_t, SFfasterr_t) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, recoTag, true);
+                std::tie(SFfast_w, SFfasterr_w) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, recoTag, true);
 
                 if(genMatch == 1)
                 {
