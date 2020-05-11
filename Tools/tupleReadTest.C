@@ -16,14 +16,14 @@ private:
     void getScaleWeights(NTupleReader& tr)
     {
         if(trSupp_.getNextEvent() &&
-           tr.getVar<unsigned long long>("event") == trSupp_.getVar<int>("event") &&
-           tr.getVar<float>("GenMET_pt")          == static_cast<float>(trSupp_.getVar<double>("GenMET_pt")) )
+           tr.getVar<unsigned long long>("event") == trSupp_.getVar<unsigned long long>("event") &&
+           tr.getVar<float>("GenMET_pt")          == trSupp_.getVar<float>("GenMET_pt") )
         {
-            tr.registerDerivedVec("LHEScaleWeight", new std::vector(trSupp_.getVec<double>("LHEScaleWeight")));
-            std::cout << tr.getVar<unsigned long long>("event") << "\t" << trSupp_.getVar<int>("event") << "\t" << tr.getVar<float>("GenMET_pt") << "\t" << trSupp_.getVar<double>("GenMET_pt") << std::endl;
+            tr.registerDerivedVec("LHEScaleWeight", new std::vector(trSupp_.getVec<float>("LHEScaleWeight")));
         }
         else
         {
+            std::cout << tr.getVar<unsigned long long>("event") << "\t" << trSupp_.getVar<unsigned long long>("event") << "\t" << tr.getVar<float>("GenMET_pt") << "\t" << trSupp_.getVar<float>("met") << std::endl;
             THROW_SATEXCEPTION("ERROR: Event mismatch between master and supplamental file!!!!");
         }
     }
@@ -39,6 +39,7 @@ public:
 int main()
 {
     char baseFile[] = "root://cmseos.fnal.gov//eos/uscms/store/user/lpcsusyhad/Stop_production/Summer16_94X_v3/PostProcessed_11Apr2019_fastsimv5_v6p1_v6p5/SMS_T2bW_fastsim_2016//SMS_T2bW_mStop1000_mLSP0_fastsim_2016_Skim_070602_0_100332.root";
+    //char supplamantalFile[] = "root://cmseos.fnal.gov//eos/uscms/store/user/lpcsusyhad/Stop_production/Summer16_94X_v3/ScaleProcessed_11Apr2019_fastsimv5_v6p1_v6p5/SMS_T2bW_fastsim_2016//SMS_T2bW_mStop1000_mLSP0_fastsim_2016_Skim_070602_0_100332.root";
     char supplamantalFile[] = "root://cmseos.fnal.gov//eos/uscms/store/user/lpcsusyhad/Stop_production/Summer16_94X_v3/ScaleProcessed_11Apr2019_fastsimv5_v6p1_v6p5/SMS_T2bW_fastsim_2016//SMS_T2bW_mStop1000_mLSP0_fastsim_2016_Skim_070602_0_100332.root";
 
     TChain *chBase = new TChain("Events");
@@ -56,7 +57,7 @@ int main()
 
         while(tr.getNextEvent())
         {
-            const auto& LHEScaleWeight = tr.getVec<double>("LHEScaleWeight");
+            const auto& LHEScaleWeight = tr.getVec<float>("LHEScaleWeight");
 
             std::cout << LHEScaleWeight.size() << std::endl;
         }
