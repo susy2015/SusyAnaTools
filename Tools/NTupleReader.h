@@ -252,6 +252,7 @@ private:
 
         FuncWrapperImpl(T& f) : func_(std::move(f)) {}
         FuncWrapperImpl(T&& f) : func_(std::move(f)) {}
+        template <typename ...Args> FuncWrapperImpl(Args&&... args) : func_(args...) {}
     };
 
     template <class Tfrom, class Tto> 
