@@ -22,15 +22,16 @@ tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
 #ShortProjectName = 'TTZElec'
 #ShortProjectName = 'VBSBv6'
 #ShortProjectName = 'METvalidation2'
-ShortProjectName = 'LLvalidation'
-argument = "%s.$(Process).list %s_$(Process).root"
+ShortProjectName = 'LLCrossCheck'
+argument = "%s.$(Process).list %s_$(Process).root --samplename %s"
+#argument = "%s.$(Process).list %s_$(Process).root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
 defaultLperFile = 5
 run_everything = False
 if run_everything: defaultLperFile = 100
-#year = "2016"
+year = "2016"
 #year = "2017"
-year = "2018"
+#year = "2018"
 #if args.era != "":
 #    year = args.era
 
@@ -39,12 +40,12 @@ PeriodF = False
 PostHEM = False
 loose_cuts = False
 isTTZ = False
-isTTbar = False
 
 process_dict = {
 ##Rare would include TTZToQQ, Diboson, Triboson, Higgs. Also include DY?
 #    "TTZToLLNuNu" : ["TTZToLLNuNu"],
 #    "ttHToNonbb" : ["ttHToNonbb"],
+#    "TTbarSingleLep" : ["TTbarSingleLepT","TTbarSingleLepTbar"],
 #    "Normalization" : ["TTZToLLNuNu","ttHToNonbb","VHToNonbb","GluGluHToZZTo4L","ST_tWll","tZq_ll","TTWJetsToLNu","WZTo3LNu","ZZTo4L","WWZ","WZZ","ZZZ","WZG","WWG","WWW","TTTT","TTbarDiLep","DYJetsToLL_HT_70to100","DYJetsToLL_HT_100to200","DYJetsToLL_HT_200to400","DYJetsToLL_HT_400to600","DYJetsToLL_HT_600to800","DYJetsToLL_HT_800to1200","DYJetsToLL_HT_1200to2500","DYJetsToLL_HT_2500toInf"],
 #	"TTbar" : ["TTbarSingleLepT", "TTbarSingleLepTbar", "TTbarDiLep"],
 #	"WJets" : ["WJetsToLNu_HT_70to100", "WJetsToLNu_HT_100to200", "WJetsToLNu_HT_200to400", "WJetsToLNu_HT_400to600", "WJetsToLNu_HT_600to800", "WJetsToLNu_HT_800to1200", "WJetsToLNu_HT_1200to2500", "WJetsToLNu_HT_2500toInf"],
@@ -76,7 +77,7 @@ process_dict = {
 #    "SingleElectron_2018_PreHEM" : ["Data_EGamma_2018_PeriodA","Data_EGamma_2018_PeriodB_PreHEM"],
 #    "SingleElectron_2018_PostHEM" : ["Data_EGamma_2018_PeriodB_PostHEM","Data_EGamma_2018_PeriodC","Data_EGamma_2018_PeriodD"],
     "LL_TTbar" : ["TTbar_HT_600to800","TTbar_HT_800to1200","TTbar_HT_1200to2500","TTbar_HT_2500toInf","TTbarDiLep","TTbarSingleLepT","TTbarSingleLepTbar"],
-    "LL_other" : ["WJetsToLNu_HT_70to100","WJetsToLNu_HT_100to200","WJetsToLNu_HT_200to400","WJetsToLNu_HT_400to600","WJetsToLNu_HT_600to800","WJetsToLNu_HT_800to1200","WJetsToLNu_HT_1200to2500","WJetsToLNu_HT_2500toInf","ST_tW_top_NoHad","ST_tW_antitop_NoHad","ST_s_lep","ST_t_top","ST_t_antitop","ST_tWll","ST_tWnunu","ST_tW_top_incl","ST_tW_antitop_incl","TTZToLLNuNu","TTZToQQ","TTWJetsToLNu","TTWJetsToQQ"],
+    "LL_other" : ["WJetsToLNu_HT_70to100","WJetsToLNu_HT_100to200","WJetsToLNu_HT_200to400","WJetsToLNu_HT_400to600","WJetsToLNu_HT_600to800","WJetsToLNu_HT_800to1200","WJetsToLNu_HT_1200to2500","WJetsToLNu_HT_2500toInf","ST_tW_top_NoHad","ST_tW_antitop_NoHad","ST_s_lep","ST_t_top","ST_t_antitop","ST_tWll","ST_tWnunu","TTZToLLNuNu","TTZToQQ","TTWJetsToLNu","TTWJetsToQQ"],
 #TTbar_HT*, TTbarDiLep, TTbarSingleLep, WJetsToLNu_HT*, ST_tW_top_NoHad, ST_tW_antitop_NoHad_2016, ST_s_lep, ST_t_top, ST_t_antitop, ST_tW*, TTZTo*, TTWJetsTo*
     }
 
@@ -117,10 +118,6 @@ if DelExe == '../SB_reader' or DelExe == '../SB_reader_METval':
     if isTTZ:
         LongProjectName = LongProjectName + "_TTZ"
         argument += " --isTTZ"
-if DelExe == '../SB_reader_LL':
-    if isTTbar:
-        LongProjectName = LongProjectName + "_TTbar"
-        argument += " --isTTbar"
 
 #print process_list
 
@@ -262,7 +259,7 @@ def my_process(args):
         print key
         print "==============================================="
         #if args.loose_cuts: argument += " -l"
-        arg = "\nArguments = " + argument % (key, key) + "\n Queue %d \n" % NewNpro[key]
+        arg = "\nArguments = " + argument % (key, key, key) + "\n Queue %d \n" % NewNpro[key]
 
         ## Prepare the condor file
         condorfile = tempdir + "/" + "condor_" + ProjectName +"_" + key

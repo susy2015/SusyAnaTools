@@ -25,10 +25,49 @@
 #include <getopt.h>
 #include "units.hh"
 
+class GetScaleWeights
+{
+private:
+    NTupleReader trSupp_;
+
+    void getScaleWeights(NTupleReader& tr)
+    {
+        if(trSupp_.getNextEvent() &&
+           tr.getVar<unsigned long long>("event") == trSupp_.getVar<unsigned long long>("event") &&
+           tr.getVar<float>("GenMET_pt")          == static_cast<float>(trSupp_.getVar<float>("GenMET_pt")) )
+        {
+            tr.registerDerivedVec("LHEScaleWeight", new std::vector(trSupp_.getVec<float>("LHEScaleWeight")));
+            //std::cout << tr.getVar<unsigned long long>("event") << "\t" << trSupp_.getVar<unsigned long long>("event") << "\t" << tr.getVar<float>("GenMET_pt") << "\t" << trSupp_.getVar<float>("GenMET_pt") << std::endl;
+        }
+        else
+        {
+            THROW_SATEXCEPTION("ERROR: Event mismatch between master and supplamental file!!!!");
+        }
+    }
+
+public:
+    GetScaleWeights(TChain *ch) : trSupp_(ch, {"event"}) {}
+    GetScaleWeights(GetScaleWeights&) = delete;
+    GetScaleWeights(GetScaleWeights&& gsw) : trSupp_(std::move(gsw.trSupp_)) {}
+
+    void operator()(NTupleReader& tr) { getScaleWeights(tr); }
+};
+
 int analyze(std::string filename, std::string era, int max_events, bool isData, bool isSignal, bool PeriodF, bool PostHEM, float SF, bool nosplit, bool verbose)
 {
     TChain *ch = new TChain("Events");
     ch->Add(filename.c_str());
+
+    //LHEScaleWeight supplemental file 
+    std::string supplementalFile = filename;
+    std::size_t pos = supplementalFile.find("PostProcessed");
+    if(pos != std::string::npos) supplementalFile.replace(pos,4,"Scale");
+    else std::cout << "Error: Can't find \"PostProcessed\" to replace for the supplemental file" << std::endl;
+    std::cout << filename << std::endl;
+    std::cout << supplementalFile << std::endl;
+    TChain *chSupp = new TChain("Events");
+    chSupp->Add(supplementalFile.c_str());
+    
     std::string samplename;
     samplename = filename.substr(filename.find("SMS_"),filename.find(".root")-filename.find("SMS_"));
     if(samplename.find("/") != std::string::npos) samplename = samplename.substr(samplename.find("/") + 1);
@@ -38,6 +77,8 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     if(verbose) std::cout << "Setting up" << std::endl;
 
     NTupleReader tr(ch);
+    //LHEScaleWeight supplemental
+    tr.emplaceModule<GetScaleWeights>(chSupp);
     GetVectors getVectors;
     plotterFunctions::BasicLepton basicLepton;
     plotterFunctions::Gamma gamma(era);
@@ -115,10 +156,15 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_vb_ak8veto_fast_down = new TH1F("h_vb_ak8veto_fast_down","VB AK8Jet Fast Veto Down",43,0,43);
     auto *h_vb_ISRWeight_up = new TH1F("h_vb_ISRWeight_up","VB ISR Weight Up",43,0,43);
     auto *h_vb_ISRWeight_down = new TH1F("h_vb_ISRWeight_down","VB ISR Weight Down",43,0,43);
-    auto *h_vb_fastSF_up = new TH1F("h_vb_fastSF_up","VB Fastsim SF Up",43,0,43);
-    auto *h_vb_fastSF_down = new TH1F("h_vb_fastSF_down","VB Fastsim SF Down",43,0,43);
     auto *h_vb_METunc_up = new TH1F("h_vb_METunc_up","VB MET uncertainty Up",43,0,43);
     auto *h_vb_METunc_down = new TH1F("h_vb_METunc_down","VB MET uncertainty Down",43,0,43);
+    auto *h_vb_LHEScaleWeight_0 = new TH1F("h_vb_LHEScaleWeight_0", "VB LHE Scale Weight 0",43,0,43);
+    auto *h_vb_LHEScaleWeight_1 = new TH1F("h_vb_LHEScaleWeight_1", "VB LHE Scale Weight 1",43,0,43);
+    auto *h_vb_LHEScaleWeight_3 = new TH1F("h_vb_LHEScaleWeight_3", "VB LHE Scale Weight 3",43,0,43);
+    auto *h_vb_LHEScaleWeight_4 = new TH1F("h_vb_LHEScaleWeight_4", "VB LHE Scale Weight 4",43,0,43);
+    auto *h_vb_LHEScaleWeight_5 = new TH1F("h_vb_LHEScaleWeight_5", "VB LHE Scale Weight 5",43,0,43);
+    auto *h_vb_LHEScaleWeight_7 = new TH1F("h_vb_LHEScaleWeight_7", "VB LHE Scale Weight 7",43,0,43);
+    auto *h_vb_LHEScaleWeight_8 = new TH1F("h_vb_LHEScaleWeight_8", "VB LHE Scale Weight 8",43,0,43);
     auto *h_vb_elecyield = new TH1F("h_vb_elecyield","VB Yield with >=1 Electron",43,0,43);
     auto *h_vb_muonyield = new TH1F("h_vb_muonyield","VB Yield with >=1 Muon",43,0,43);
     auto *h_vb_tauyield = new TH1F("h_vb_tauyield","VB Yield with >=1 Tau",43,0,43);
@@ -175,10 +221,15 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_sb_ak8veto_fast_down = new TH1F("h_sb_ak8veto_fast_down","SB AK8Jet Fast Veto Down",183,0,183);
     auto *h_sb_ISRWeight_up = new TH1F("h_sb_ISRWeight_up","SB ISR Weight Up",183,0,183);
     auto *h_sb_ISRWeight_down = new TH1F("h_sb_ISRWeight_down","SB ISR Weight Down",183,0,183);
-    auto *h_sb_fastSF_up = new TH1F("h_sb_fastSF_up","SB Fastsim SF Up",183,0,183);
-    auto *h_sb_fastSF_down = new TH1F("h_sb_fastSF_down","SB Fastsim SF Down",183,0,183);
     auto *h_sb_METunc_up = new TH1F("h_sb_METunc_up","SB MET uncertainty Up",183,0,183);
     auto *h_sb_METunc_down = new TH1F("h_sb_METunc_down","SB MET uncertainty Down",183,0,183);
+    auto *h_sb_LHEScaleWeight_0 = new TH1F("h_sb_LHEScaleWeight_0", "SB LHE Scale Weight 0",183,0,183);
+    auto *h_sb_LHEScaleWeight_1 = new TH1F("h_sb_LHEScaleWeight_1", "SB LHE Scale Weight 1",183,0,183);
+    auto *h_sb_LHEScaleWeight_3 = new TH1F("h_sb_LHEScaleWeight_3", "SB LHE Scale Weight 3",183,0,183);
+    auto *h_sb_LHEScaleWeight_4 = new TH1F("h_sb_LHEScaleWeight_4", "SB LHE Scale Weight 4",183,0,183);
+    auto *h_sb_LHEScaleWeight_5 = new TH1F("h_sb_LHEScaleWeight_5", "SB LHE Scale Weight 5",183,0,183);
+    auto *h_sb_LHEScaleWeight_7 = new TH1F("h_sb_LHEScaleWeight_7", "SB LHE Scale Weight 7",183,0,183);
+    auto *h_sb_LHEScaleWeight_8 = new TH1F("h_sb_LHEScaleWeight_8", "SB LHE Scale Weight 8",183,0,183);
     auto *h_sb_elecyield = new TH1F("h_sb_elecyield","SB Yield with >=1 Electron",183,0,183);
     auto *h_sb_muonyield = new TH1F("h_sb_muonyield","SB Yield with >=1 Muon",183,0,183);
     auto *h_sb_tauyield = new TH1F("h_sb_tauyield","SB Yield with >=1 Tau",183,0,183);
@@ -188,31 +239,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_sb_elecyield_down = new TH1F("h_sb_elecyield_down","SB Yield Down with >=1 Electron",183,0,183);
     auto *h_sb_muonyield_down = new TH1F("h_sb_muonyield_down","SB Yield Down with >=1 Muon",183,0,183);
     auto *h_sb_tauyield_down = new TH1F("h_sb_tauyield_down","SB Yield Down with >=1 Tau",183,0,183);
-
-    auto *h_sb_topfast = new TH1F("h_sb_topfast","SB Events by nTop, fastsim top weights",5,0,5);
-    auto *h_sb_topfast_up = new TH1F("h_sb_topfast_up","SB Events by nTop, fastsim top weight up",5,0,5);
-    auto *h_sb_topfast_dn = new TH1F("h_sb_topfast_dn","SB Events by nTop, fastsim top weight dn",5,0,5);
-    auto *h_sb_wfast = new TH1F("h_sb_wfast","SB Events by nW, fastsim w weights",5,0,5);
-    auto *h_sb_wfast_up = new TH1F("h_sb_wfast_up","SB Events by nW, fastsim w weight up",5,0,5);
-    auto *h_sb_wfast_dn = new TH1F("h_sb_wfast_dn","SB Events by nW, fastsim w weight dn",5,0,5);
-    auto *h_sb_vetofastt = new TH1F("h_sb_vetofastt","SB Events by nTop, fastsim veto weights",5,0,5);
-    auto *h_sb_vetofastt_up = new TH1F("h_sb_vetofastt_up","SB Events by nTop, fastsim veto weight up",5,0,5);
-    auto *h_sb_vetofastt_dn = new TH1F("h_sb_vetofastt_dn","SB Events by nTop, fastsim veto weight dn",5,0,5);
-    auto *h_sb_vetofastw = new TH1F("h_sb_vetofastw","SB Events by nW, fastsim veto weights",5,0,5);
-    auto *h_sb_vetofastw_up = new TH1F("h_sb_vetofastw_up","SB Events by nW, fastsim veto weight up",5,0,5);
-    auto *h_sb_vetofastw_dn = new TH1F("h_sb_vetofastw_dn","SB Events by nW, fastsim veto weight dn",5,0,5);
-    auto *h_sb_topfull = new TH1F("h_sb_topfull","SB Events by nTop, fullsim top weights",5,0,5);
-    auto *h_sb_topfull_up = new TH1F("h_sb_topfull_up","SB Events by nTop, fullsim top weight up",5,0,5);
-    auto *h_sb_topfull_dn = new TH1F("h_sb_topfull_dn","SB Events by nTop, fullsim top weight dn",5,0,5);
-    auto *h_sb_wfull = new TH1F("h_sb_wfull","SB Events by nW, fullsim w weights",5,0,5);
-    auto *h_sb_wfull_up = new TH1F("h_sb_wfull_up","SB Events by nW, fullsim w weight up",5,0,5);
-    auto *h_sb_wfull_dn = new TH1F("h_sb_wfull_dn","SB Events by nW, fullsim w weight dn",5,0,5);
-    auto *h_sb_vetofullt = new TH1F("h_sb_vetofullt","SB Events by nTop, fullsim veto weights",5,0,5);
-    auto *h_sb_vetofullt_up = new TH1F("h_sb_vetofullt_up","SB Events by nTop, fullsim veto weight up",5,0,5);
-    auto *h_sb_vetofullt_dn = new TH1F("h_sb_vetofullt_dn","SB Events by nTop, fullsim veto weight dn",5,0,5);
-    auto *h_sb_vetofullw = new TH1F("h_sb_vetofullw","SB Events by nW, fullsim veto weights",5,0,5);
-    auto *h_sb_vetofullw_up = new TH1F("h_sb_vetofullw_up","SB Events by nW, fullsim veto weight up",5,0,5);
-    auto *h_sb_vetofullw_dn = new TH1F("h_sb_vetofullw_dn","SB Events by nW, fullsim veto weight dn",5,0,5);
 
     auto *h_ub = new TH1F("h_ub","LL CR Unit Bins",112,0,112);
     auto *h_ub_fast = new TH1F("h_ub_fast","LL CR Unit Bins (fast central tagger weight)",112,0,112);
@@ -259,10 +285,15 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_ub_ak8veto_fast_down = new TH1F("h_ub_ak8veto_fast_down","UB AK8Jet Fast Veto Down",112,0,112);
     auto *h_ub_ISRWeight_up = new TH1F("h_ub_ISRWeight_up","UB ISR Weight Up",112,0,112);
     auto *h_ub_ISRWeight_down = new TH1F("h_ub_ISRWeight_down","UB ISR Weight Down",112,0,112);
-    auto *h_ub_fastSF_up = new TH1F("h_ub_fastSF_up","UB Fastsim SF Up",112,0,112);
-    auto *h_ub_fastSF_down = new TH1F("h_ub_fastSF_down","UB Fastsim SF Down",112,0,112);
     auto *h_ub_METunc_up = new TH1F("h_ub_METunc_up","UB MET uncertainty Up",112,0,112);
     auto *h_ub_METunc_down = new TH1F("h_ub_METunc_down","UB MET uncertainty Down",112,0,112);
+    auto *h_ub_LHEScaleWeight_0 = new TH1F("h_ub_LHEScaleWeight_0", "UB LHE Scale Weight 0",112,0,112);
+    auto *h_ub_LHEScaleWeight_1 = new TH1F("h_ub_LHEScaleWeight_1", "UB LHE Scale Weight 1",112,0,112);
+    auto *h_ub_LHEScaleWeight_3 = new TH1F("h_ub_LHEScaleWeight_3", "UB LHE Scale Weight 3",112,0,112);
+    auto *h_ub_LHEScaleWeight_4 = new TH1F("h_ub_LHEScaleWeight_4", "UB LHE Scale Weight 4",112,0,112);
+    auto *h_ub_LHEScaleWeight_5 = new TH1F("h_ub_LHEScaleWeight_5", "UB LHE Scale Weight 5",112,0,112);
+    auto *h_ub_LHEScaleWeight_7 = new TH1F("h_ub_LHEScaleWeight_7", "UB LHE Scale Weight 7",112,0,112);
+    auto *h_ub_LHEScaleWeight_8 = new TH1F("h_ub_LHEScaleWeight_8", "UB LHE Scale Weight 8",112,0,112);
     auto *h_ub_elecyield = new TH1F("h_ub_elecyield","UB Yield with >=1 Electron",112,0,112);
     auto *h_ub_muonyield = new TH1F("h_ub_muonyield","UB Yield with >=1 Muon",112,0,112);
     auto *h_ub_tauyield = new TH1F("h_ub_tauyield","UB Yield with >=1 Tau",112,0,112);
@@ -318,10 +349,15 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_qb_ak8veto_fast_down = new TH1F("h_qb_ak8veto_fast_down","QCD CR AK8Jet Veto Down",92,0,92);
     auto *h_qb_ISRWeight_up = new TH1F("h_qb_ISRWeight_up","QCD CR ISR Weight Up",92,0,92);
     auto *h_qb_ISRWeight_down = new TH1F("h_qb_ISRWeight_down","QCD CR ISR Weight Down",92,0,92);
-    auto *h_qb_fastSF_up = new TH1F("h_qb_fastSF_up","QCD CR Fastsim SF Up",92,0,92);
-    auto *h_qb_fastSF_down = new TH1F("h_qb_fastSF_down","QCD CR Fastsim SF Down",92,0,92);
     auto *h_qb_METunc_up = new TH1F("h_qb_METunc_up","QCD CR MET uncertainty Up",92,0,92);
     auto *h_qb_METunc_down = new TH1F("h_qb_METunc_down","QCD CR MET uncertainty Down",92,0,92);
+    auto *h_qb_LHEScaleWeight_0 = new TH1F("h_qb_LHEScaleWeight_0", "QB LHE Scale Weight 0",92,0,92);
+    auto *h_qb_LHEScaleWeight_1 = new TH1F("h_qb_LHEScaleWeight_1", "QB LHE Scale Weight 1",92,0,92);
+    auto *h_qb_LHEScaleWeight_3 = new TH1F("h_qb_LHEScaleWeight_3", "QB LHE Scale Weight 3",92,0,92);
+    auto *h_qb_LHEScaleWeight_4 = new TH1F("h_qb_LHEScaleWeight_4", "QB LHE Scale Weight 4",92,0,92);
+    auto *h_qb_LHEScaleWeight_5 = new TH1F("h_qb_LHEScaleWeight_5", "QB LHE Scale Weight 5",92,0,92);
+    auto *h_qb_LHEScaleWeight_7 = new TH1F("h_qb_LHEScaleWeight_7", "QB LHE Scale Weight 7",92,0,92);
+    auto *h_qb_LHEScaleWeight_8 = new TH1F("h_qb_LHEScaleWeight_8", "QB LHE Scale Weight 8",92,0,92);
     auto *h_qb_elecyield = new TH1F("h_qb_elecyield","QB Yield with >=1 Electron",92,0,92);
     auto *h_qb_muonyield = new TH1F("h_qb_muonyield","QB Yield with >=1 Muon",92,0,92);
     auto *h_qb_tauyield = new TH1F("h_qb_tauyield","QB Yield with >=1 Tau",92,0,92);
@@ -370,7 +406,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         if(tr.getEvtNum() == 1)
         {
             std::cout << "Outputting tuplemembers to SBR_NTupleTypes.txt" << std::endl;
-            tr.printTupleMembers();
+            if(verbose) tr.printTupleMembers();
             FILE *fout = fopen("SBR_NTupleTypes.txt","w");
             tr.printTupleMembers(fout);
             fclose(fout);
@@ -808,6 +844,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         float MergedTop_SF_up = MergedTop_SF + std::sqrt(MergedTop_SFerr);
         float MergedTop_SF_down = MergedTop_SF - std::sqrt(MergedTop_SFerr);
         
+        auto LHEScaleWeight = tr.getVec<float>("LHEScaleWeight");
         
         //New vars for v6:
         auto Stop0l_ResTopWeight = tr.getVar<float>("Stop0l_ResTopWeight");
@@ -860,22 +897,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         auto Stop0l_DeepAK8_SFWeight_recalc_fast_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_dn");
         
        
-        //std::cout << "Stop0l_ResTopWeight: " << Stop0l_ResTopWeight << "\tResTop_SF: " << ResTop_SF << "\tStop0l_ResTopWeight_Up: " << Stop0l_ResTopWeight_Up << "\tStop0l_ResTopWeight_fast_Up: " << Stop0l_ResTopWeight_fast_Up << std::endl;
-        //ResTop_SF = Stop0l_ResTopWeight;
-        //float ResTop_SF_up_err = std::sqrt(std::abs(Stop0l_ResTopWeight_Up - Stop0l_ResTopWeight)/Stop0l_ResTopWeight) + std::sqrt(std::abs(Stop0l_ResTopWeight_fast_Up - Stop0l_ResTopWeight)/Stop0l_ResTopWeight);
-        //ResTop_SF_up = Stop0l_ResTopWeight * (1 + ResTop_SF_up_err * ResTop_SF_up_err);
-        //float ResTop_SF_down_err = std::sqrt(std::abs(Stop0l_ResTopWeight_Dn - Stop0l_ResTopWeight)/Stop0l_ResTopWeight) + std::sqrt(std::abs(Stop0l_ResTopWeight_fast_Dn - Stop0l_ResTopWeight)/Stop0l_ResTopWeight);
-        //ResTop_SF_down = Stop0l_ResTopWeight * (1 + ResTop_SF_down_err * ResTop_SF_down_err);
-        
-        //float W_SF_up_err = std::sqrt(std::abs(Stop0l_DeepAK8_SFWeight_w_up - Stop0l_DeepAK8_SFWeight)/Stop0l_DeepAK8_SFWeight) + std::sqrt(std::abs(Stop0l_DeepAK8_SFWeight_fast_w_up - Stop0l_DeepAK8_SFWeight)/Stop0l_DeepAK8_SFWeight);
-        //W_SF_up = Stop0l_DeepAK8_SFWeight * (1 + W_SF_up_err * W_SF_up_err);
-        //float W_SF_down_err = std::sqrt(std::abs(Stop0l_DeepAK8_SFWeight_w_down - Stop0l_DeepAK8_SFWeight)/Stop0l_DeepAK8_SFWeight) + std::sqrt(std::abs(Stop0l_DeepAK8_SFWeight_fast_w_down - Stop0l_DeepAK8_SFWeight)/Stop0l_DeepAK8_SFWeight);
-        //W_SF_down = Stop0l_DeepAK8_SFWeight * (1 - W_SF_down_err * W_SF_down_err);
-        //float MergedTop_SF_up_err = std::sqrt(std::abs(Stop0l_DeepAK8_SFWeight_top_up - Stop0l_DeepAK8_SFWeight)/Stop0l_DeepAK8_SFWeight) + std::sqrt(std::abs(Stop0l_DeepAK8_SFWeight_fast_top_up - Stop0l_DeepAK8_SFWeight)/Stop0l_DeepAK8_SFWeight);
-        //MergedTop_SF_up = Stop0l_DeepAK8_SFWeight * (1 + MergedTop_SF_up_err * MergedTop_SF_up_err);
-        //float MergedTop_SF_down_err = std::sqrt(std::abs(Stop0l_DeepAK8_SFWeight_top_down - Stop0l_DeepAK8_SFWeight)/Stop0l_DeepAK8_SFWeight) + std::sqrt(std::abs(Stop0l_DeepAK8_SFWeight_fast_top_down - Stop0l_DeepAK8_SFWeight)/Stop0l_DeepAK8_SFWeight);
-        //MergedTop_SF_down = Stop0l_DeepAK8_SFWeight * (1 - MergedTop_SF_down_err * MergedTop_SF_down_err);
-
         //MET uncertainty
         //doesn't seem to be a SF, but rather error. Listed in MET var section.
 
@@ -1007,15 +1028,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         float HT_JESDown = tr.getVar<float>("Stop0l_HT_JESDown");
 
         //met //defined by baselines
-        //if(verbose && (tr.getEvtNum() < 1000)) std::cout << "met" << std::endl;
-        //float met = tr.getVar<float>("MET_pt");
-        //float met_JESUp = tr.getVar<float>("MET_pt_jesTotalUp");
-        //float met_JESDown = tr.getVar<float>("MET_pt_jesTotalDown");
-        //float met_METUnClustUp = tr.getVar<float>("MET_pt_unclustEnUp");
-        //float met_METUnClustDown = tr.getVar<float>("MET_pt_unclustEnDown");
-        //auto MET_err = tr.getVar<float>("MET_pt_fasterr");
-        //float METunc_up = met + MET_err;
-        //float METunc_down = met - MET_err;
 
         //S_met
         //if(verbose && (tr.getEvtNum() < 1000)) std::cout << "S_met" << std::endl;
@@ -1176,6 +1188,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             if(nosplit && (era == "2018") && Pass_HEMVeto30_JESDown) nosplit_lumi_JESDown = 59.699489;
             if(nosplit && (era == "2018") && Pass_HEMVeto30_METUnClustUp) nosplit_lumi_METUnClustUp = 59.699489;
             if(nosplit && (era == "2018") && Pass_HEMVeto30_METUnClustDown) nosplit_lumi_METUnClustDown = 59.699489;
+            //add in recalc if running over it here
             lowDMevtWeight = evtWeight * sign * B_SF * B_SF_fast * trigger_eff * puWeight * PrefireWeight * SB_SF * ISRWeight * nosplit_lumi * Stop0l_ResTopWeight * Stop0l_DeepAK8_SFWeight;
             //v5
             //highDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * ISRWeight * nosplit_lumi;
@@ -1270,6 +1283,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_vb_eff_restoptag_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
                 h_vb_eff_restoptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
                 h_vb_eff_restoptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                h_vb_LHEScaleWeight_0->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[0]);
+                h_vb_LHEScaleWeight_1->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[1]);
+                h_vb_LHEScaleWeight_3->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[3]);
+                h_vb_LHEScaleWeight_4->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[4]);
+                h_vb_LHEScaleWeight_5->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[5]);
+                h_vb_LHEScaleWeight_7->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[7]);
+                h_vb_LHEScaleWeight_8->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[8]);
                 eff_h->Fill(1.,sign);
             }
             else if(verbose) std::cout << "Event number " << tr.getEvtNum() << " passing Val_bin_0_14 has bin number -1." << std::endl;
@@ -1409,6 +1429,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_vb_eff_restoptag_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
                 h_vb_eff_restoptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
                 h_vb_eff_restoptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                h_vb_LHEScaleWeight_0->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[0]);
+                h_vb_LHEScaleWeight_1->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[1]);
+                h_vb_LHEScaleWeight_3->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[3]);
+                h_vb_LHEScaleWeight_4->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[4]);
+                h_vb_LHEScaleWeight_5->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[5]);
+                h_vb_LHEScaleWeight_7->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[7]);
+                h_vb_LHEScaleWeight_8->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[8]);
                 eff_h->Fill(1.,sign);
             }
             else if(verbose) std::cout << "Event number " << tr.getEvtNum() << " passing Val_bin_15_18 has bin number -1." << std::endl;
@@ -1551,6 +1578,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_vb_eff_restoptag_down->Fill(bin_num, SF * highDMevtWeight * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
                 h_vb_eff_restoptag_fast_up->Fill(bin_num, SF * highDMevtWeight * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
                 h_vb_eff_restoptag_fast_down->Fill(bin_num, SF * highDMevtWeight * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                h_vb_LHEScaleWeight_0->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[0]);
+                h_vb_LHEScaleWeight_1->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[1]);
+                h_vb_LHEScaleWeight_3->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[3]);
+                h_vb_LHEScaleWeight_4->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[4]);
+                h_vb_LHEScaleWeight_5->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[5]);
+                h_vb_LHEScaleWeight_7->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[7]);
+                h_vb_LHEScaleWeight_8->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[8]);
                 eff_h->Fill(1.,sign);
             }
             else if(verbose) std::cout << "Event number " << tr.getEvtNum() << " passing Val_bin_19_42 has bin number -1." << std::endl;
@@ -1758,50 +1792,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_eff_restoptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
                 h_sb_eff_restoptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
                 */
-                //v6 new tagger tests
-                h_sb_topfast->Fill(ntop_merge,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
-                h_sb_topfast_up->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_top_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_topfast_dn->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_top_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfast->Fill(nw,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfast_up->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_w_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfast_dn->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_w_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastt->Fill(ntop_merge,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastt_up->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastt_dn->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastw->Fill(nw,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastw_up->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastw_dn->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_topfull->Fill(ntop_merge,SF*lowDMevtWeight);
-                h_sb_topfull_up->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_top_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_topfull_dn->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_top_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfull->Fill(nw,SF*lowDMevtWeight* Stop0l_DeepAK8_SFWeight / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfull_up->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfull_dn->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofullt->Fill(ntop_merge,SF*lowDMevtWeight);
-                h_sb_vetofullt_up->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofullt_dn->Fill(ntop_merge, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofullw->Fill(nw,SF*lowDMevtWeight);
-                h_sb_vetofullw_up->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofullw_dn->Fill(nw, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
-                //more tagger tests
-                if(std::abs(Stop0l_DeepAK8_SFWeight_top_up - Stop0l_DeepAK8_SFWeight_recalc_top_up) > 0.0001)
-                {
-                    std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight_top_up = " << Stop0l_DeepAK8_SFWeight_top_up << " Stop0l_DeepAK8_SFWeight_recalc_top_up = " << Stop0l_DeepAK8_SFWeight_recalc_top_up << std::endl;
-                    std::cout << "ntop: " << ntop_merge << " nw: " << nw << std::endl;
-                }
-                //if(Stop0l_DeepAK8_SFWeight_fast != Stop0l_DeepAK8_SFWeight_recalc_fast) std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight_fast = " << Stop0l_DeepAK8_SFWeight_fast << " Stop0l_DeepAK8_SFWeight_fast_recalc = " << Stop0l_DeepAK8_SFWeight_recalc_fast << std::endl;
-                /*//v5
-                h_sb_eff_wtag_up->Fill(bin_num, SF * lowDMevtWeight * W_SF_up / W_SF);
-                h_sb_eff_wtag_down->Fill(bin_num, SF * lowDMevtWeight * W_SF_down / W_SF);
-                h_sb_eff_toptag_up->Fill(bin_num, SF * lowDMevtWeight * MergedTop_SF_up / MergedTop_SF);
-                h_sb_eff_toptag_down->Fill(bin_num, SF * lowDMevtWeight * MergedTop_SF_down / MergedTop_SF);
-                h_sb_ISRWeight_up->Fill(bin_num, SF * lowDMevtWeight * ISRWeight_Up / ISRWeight);
-                h_sb_ISRWeight_down->Fill(bin_num, SF * lowDMevtWeight * ISRWeight_Down / ISRWeight);
-                //h_sb_fastSF_up->Fill(bin_num, SF * lowDMevtWeight * fastSF_up / fastSF);
-                //h_sb_fastSF_down->Fill(bin_num, SF * lowDMevtWeight * fastSF_down / fastSF);
-                h_sb_eff_restoptag_up->Fill(bin_num, SF * lowDMevtWeight * ResTop_SF_up / ResTop_SF);
-                h_sb_eff_restoptag_down->Fill(bin_num, SF * lowDMevtWeight * ResTop_SF_down / ResTop_SF);
-                */
+                h_sb_LHEScaleWeight_0->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[0]);
+                h_sb_LHEScaleWeight_1->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[1]);
+                h_sb_LHEScaleWeight_3->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[3]);
+                h_sb_LHEScaleWeight_4->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[4]);
+                h_sb_LHEScaleWeight_5->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[5]);
+                h_sb_LHEScaleWeight_7->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[7]);
+                h_sb_LHEScaleWeight_8->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[8]);
                 eff_h->Fill(1.,sign);
                 /*
                 if(bin_num == 29) 
@@ -1980,50 +1977,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_sb_eff_restoptag_fast_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
                 h_sb_eff_restoptag_fast_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
                 */
-                //v6 new tagger tests
-                h_sb_topfast->Fill(ntop_merge,SF*highDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
-                h_sb_topfast_up->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_top_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_topfast_dn->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_top_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfast->Fill(nw,SF*highDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfast_up->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_w_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfast_dn->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_w_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastt->Fill(ntop_merge,SF*highDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastt_up->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastt_dn->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastw->Fill(nw,SF*highDMevtWeight* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastw_up->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofastw_dn->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_topfull->Fill(ntop_merge,SF*highDMevtWeight);
-                h_sb_topfull_up->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_top_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_topfull_dn->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_top_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfull->Fill(nw,SF*highDMevtWeight* Stop0l_DeepAK8_SFWeight / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfull_up->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_wfull_dn->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofullt->Fill(ntop_merge,SF*highDMevtWeight);
-                h_sb_vetofullt_up->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofullt_dn->Fill(ntop_merge, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofullw->Fill(nw,SF*highDMevtWeight);
-                h_sb_vetofullw_up->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_sb_vetofullw_dn->Fill(nw, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
-                //more tagger tests
-                if(std::abs(Stop0l_DeepAK8_SFWeight_top_up - Stop0l_DeepAK8_SFWeight_recalc_top_up) > 0.0001)
-                {
-                    std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight_top_up = " << Stop0l_DeepAK8_SFWeight_top_up << " Stop0l_DeepAK8_SFWeight_recalc_top_up = " << Stop0l_DeepAK8_SFWeight_recalc_top_up << std::endl;
-                    std::cout << "ntop: " << ntop_merge << " nw: " << nw << std::endl;
-                }
-                //if(Stop0l_DeepAK8_SFWeight_fast != Stop0l_DeepAK8_SFWeight_recalc_fast) std::cout << tr.getEvtNum() << " Stop0l_DeepAK8_SFWeight_fast = " << Stop0l_DeepAK8_SFWeight_fast << " Stop0l_DeepAK8_SFWeight_fast_recalc = " << Stop0l_DeepAK8_SFWeight_recalc_fast << std::endl;
-                /*//v5
-                h_sb_eff_wtag_up->Fill(bin_num, SF * highDMevtWeight * W_SF_up / W_SF);
-                h_sb_eff_wtag_down->Fill(bin_num, SF * highDMevtWeight * W_SF_down / W_SF);
-                h_sb_eff_toptag_up->Fill(bin_num, SF * highDMevtWeight * MergedTop_SF_up / MergedTop_SF);
-                h_sb_eff_toptag_down->Fill(bin_num, SF * highDMevtWeight * MergedTop_SF_down / MergedTop_SF);
-                h_sb_ISRWeight_up->Fill(bin_num, SF * highDMevtWeight * ISRWeight_Up / ISRWeight);
-                h_sb_ISRWeight_down->Fill(bin_num, SF * highDMevtWeight * ISRWeight_Down / ISRWeight);
-                //h_sb_fastSF_up->Fill(bin_num, SF * highDMevtWeight * fastSF_up / fastSF);
-                //h_sb_fastSF_down->Fill(bin_num, SF * highDMevtWeight * fastSF_down / fastSF);
-                h_sb_eff_restoptag_up->Fill(bin_num, SF * highDMevtWeight * ResTop_SF_up / ResTop_SF);
-                h_sb_eff_restoptag_down->Fill(bin_num, SF * highDMevtWeight * ResTop_SF_down / ResTop_SF);
-                */
+                h_sb_LHEScaleWeight_0->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[0]);
+                h_sb_LHEScaleWeight_1->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[1]);
+                h_sb_LHEScaleWeight_3->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[3]);
+                h_sb_LHEScaleWeight_4->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[4]);
+                h_sb_LHEScaleWeight_5->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[5]);
+                h_sb_LHEScaleWeight_7->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[7]);
+                h_sb_LHEScaleWeight_8->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[8]);
                 eff_h->Fill(1.,sign);
                 /*
                 if(bin_num == 182) 
@@ -2200,46 +2160,53 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
             if(bin_num != -1)
             {
                 //std::cout << "Low DM UB num: " << bin_num << std::endl;
-                h_ub->Fill(bin_num,SF*lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF);
-                h_ub_fast->Fill(bin_num,SF*lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF* Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
-                h_ub_bsf_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * B_SF_Up / B_SF);
-                h_ub_bsf_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * B_SF_Down / B_SF);
-                h_ub_bsf_fast_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * B_SF_Up_fast / B_SF_fast);
-                h_ub_bsf_fast_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * B_SF_Down_fast / B_SF_fast);
-                h_ub_trig_eff_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * trigger_eff_up / trigger_eff);
-                h_ub_trig_eff_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * trigger_eff_down / trigger_eff);
-                h_ub_puWeight_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * puWeightUp / puWeight);
-                h_ub_puWeight_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * puWeightDown / puWeight);
-                h_ub_PFWeight_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * PrefireWeightUp / PrefireWeight);
-                h_ub_PFWeight_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * PrefireWeightDown / PrefireWeight);
-                h_ub_pdfWeight_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * pdfWeight_Up);
-                h_ub_pdfWeight_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * pdfWeight_Down);
-                h_ub_ivfunc_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * SB_SF_up / SB_SF);
-                h_ub_ivfunc_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * SB_SF_down / SB_SF);
-                h_ub_eff_e_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Electron_SF_up / Electron_SF);
-                h_ub_eff_e_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Electron_SF_down / Electron_SF);
-                h_ub_err_mu_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Muon_MediumSF_up / Muon_MediumSF);
-                h_ub_err_mu_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Muon_MediumSF_down / Muon_MediumSF);
-                h_ub_eff_tau_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Tau_MediumSF_Up / Tau_MediumSF);
-                h_ub_eff_tau_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Tau_MediumSF_Down / Tau_MediumSF);
-                h_ub_eff_wtag_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_wtag_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_wtag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_w_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_wtag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_w_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_toptag_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_top_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_toptag_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_top_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_toptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_top_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_toptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_top_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_ISRWeight_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * ISRWeight_Up / ISRWeight);
-                h_ub_ISRWeight_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * ISRWeight_Down / ISRWeight);
-                h_ub_ak8veto_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_ak8veto_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_ak8veto_fast_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_ak8veto_fast_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_restoptag_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_ResTopWeight_Up / Stop0l_ResTopWeight);
-                h_ub_eff_restoptag_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
-                h_ub_eff_restoptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
-                h_ub_eff_restoptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                h_ub->Fill(bin_num,SF*lowDMevtWeight * Electron_SF * Muon_MediumSF);
+                h_ub_fast->Fill(bin_num,SF*lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
+                h_ub_bsf_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * B_SF_Up / B_SF);
+                h_ub_bsf_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * B_SF_Down / B_SF);
+                h_ub_bsf_fast_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * B_SF_Up_fast / B_SF_fast);
+                h_ub_bsf_fast_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * B_SF_Down_fast / B_SF_fast);
+                h_ub_trig_eff_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * trigger_eff_up / trigger_eff);
+                h_ub_trig_eff_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * trigger_eff_down / trigger_eff);
+                h_ub_puWeight_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * puWeightUp / puWeight);
+                h_ub_puWeight_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * puWeightDown / puWeight);
+                h_ub_PFWeight_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF *PrefireWeightUp / PrefireWeight);
+                h_ub_PFWeight_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * PrefireWeightDown / PrefireWeight);
+                h_ub_pdfWeight_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * pdfWeight_Up);
+                h_ub_pdfWeight_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * pdfWeight_Down);
+                h_ub_ivfunc_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * SB_SF_up / SB_SF);
+                h_ub_ivfunc_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * SB_SF_down / SB_SF);
+                h_ub_eff_e_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Electron_SF_up / Electron_SF);
+                h_ub_eff_e_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Electron_SF_down / Electron_SF);
+                h_ub_err_mu_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Muon_MediumSF_up / Muon_MediumSF);
+                h_ub_err_mu_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Muon_MediumSF_down / Muon_MediumSF);
+                h_ub_eff_tau_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF);
+                h_ub_eff_tau_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF);
+                h_ub_eff_wtag_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_wtag_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_wtag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_w_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_wtag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_w_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_toptag_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_top_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_toptag_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_top_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_toptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_top_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_toptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_top_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_ISRWeight_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * ISRWeight_Up / ISRWeight);
+                h_ub_ISRWeight_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * ISRWeight_Down / ISRWeight);
+                h_ub_ak8veto_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_ak8veto_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_ak8veto_fast_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_ak8veto_fast_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_restoptag_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_ResTopWeight_Up / Stop0l_ResTopWeight);
+                h_ub_eff_restoptag_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
+                h_ub_eff_restoptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
+                h_ub_eff_restoptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                h_ub_LHEScaleWeight_0->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[0]);
+                h_ub_LHEScaleWeight_1->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[1]);
+                h_ub_LHEScaleWeight_3->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[3]);
+                h_ub_LHEScaleWeight_4->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[4]);
+                h_ub_LHEScaleWeight_5->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[5]);
+                h_ub_LHEScaleWeight_7->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[7]);
+                h_ub_LHEScaleWeight_8->Fill(bin_num, SF * lowDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[8]);
                 eff_h->Fill(1.,sign);
             }
         }
@@ -2329,46 +2296,53 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 //if(ntop_merge != 0) topw_sf *= MergedTop_SF;
                 //if(ntop_res != 0) topw_sf *= ResTop_SF;
                 //if(nw != 0) topw_sf *= W_SF;
-                h_ub->Fill(bin_num,SF*highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf);
-                h_ub_fast->Fill(bin_num,SF*highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
-                h_ub_bsf_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * B_SF_Up / B_SF);
-                h_ub_bsf_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * B_SF_Down / B_SF);
-                h_ub_bsf_fast_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * B_SF_Up_fast / B_SF_fast);
-                h_ub_bsf_fast_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * B_SF_Down_fast / B_SF_fast);
-                h_ub_trig_eff_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * trigger_eff_up / trigger_eff);
-                h_ub_trig_eff_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * trigger_eff_down / trigger_eff);
-                h_ub_puWeight_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * puWeightUp / puWeight);
-                h_ub_puWeight_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * puWeightDown / puWeight);
-                h_ub_PFWeight_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * PrefireWeightUp / PrefireWeight);
-                h_ub_PFWeight_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * PrefireWeightDown / PrefireWeight);
-                h_ub_pdfWeight_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * pdfWeight_Up);
-                h_ub_pdfWeight_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * pdfWeight_Down);
-                h_ub_ivfunc_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * SB_SF_up / SB_SF);
-                h_ub_ivfunc_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * SB_SF_down / SB_SF);
-                h_ub_eff_e_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * Electron_SF_up / Electron_SF);
-                h_ub_eff_e_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * Electron_SF_down / Electron_SF);
-                h_ub_err_mu_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * Muon_MediumSF_up / Muon_MediumSF);
-                h_ub_err_mu_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * Muon_MediumSF_down / Muon_MediumSF);
-                h_ub_eff_tau_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * Tau_MediumSF_Up / Tau_MediumSF);
-                h_ub_eff_tau_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * topw_sf * Tau_MediumSF_Down / Tau_MediumSF);
-                h_ub_eff_wtag_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_wtag_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_wtag_fast_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_w_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_wtag_fast_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_w_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_toptag_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_top_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_toptag_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_top_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_toptag_fast_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_top_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_toptag_fast_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_top_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_ISRWeight_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * ISRWeight_Up / ISRWeight);
-                h_ub_ISRWeight_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * ISRWeight_Down / ISRWeight);
-                h_ub_ak8veto_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_ak8veto_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_ak8veto_fast_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
-                h_ub_ak8veto_fast_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
-                h_ub_eff_restoptag_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_ResTopWeight_Up / Stop0l_ResTopWeight);
-                h_ub_eff_restoptag_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
-                h_ub_eff_restoptag_fast_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
-                h_ub_eff_restoptag_fast_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Tau_MediumSF * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                h_ub->Fill(bin_num,SF*highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf);
+                h_ub_fast->Fill(bin_num,SF*highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * Stop0l_DeepAK8_SFWeight_fast / Stop0l_DeepAK8_SFWeight);
+                h_ub_bsf_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * B_SF_Up / B_SF);
+                h_ub_bsf_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * B_SF_Down / B_SF);
+                h_ub_bsf_fast_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * B_SF_Up_fast / B_SF_fast);
+                h_ub_bsf_fast_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * B_SF_Down_fast / B_SF_fast);
+                h_ub_trig_eff_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * trigger_eff_up / trigger_eff);
+                h_ub_trig_eff_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * trigger_eff_down / trigger_eff);
+                h_ub_puWeight_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * puWeightUp / puWeight);
+                h_ub_puWeight_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * puWeightDown / puWeight);
+                h_ub_PFWeight_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * PrefireWeightUp / PrefireWeight);
+                h_ub_PFWeight_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * PrefireWeightDown / PrefireWeight);
+                h_ub_pdfWeight_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * pdfWeight_Up);
+                h_ub_pdfWeight_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * pdfWeight_Down);
+                h_ub_ivfunc_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * SB_SF_up / SB_SF);
+                h_ub_ivfunc_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * SB_SF_down / SB_SF);
+                h_ub_eff_e_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * Electron_SF_up / Electron_SF);
+                h_ub_eff_e_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * Electron_SF_down / Electron_SF);
+                h_ub_err_mu_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * Muon_MediumSF_up / Muon_MediumSF);
+                h_ub_err_mu_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * Muon_MediumSF_down / Muon_MediumSF);
+                h_ub_eff_tau_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * Tau_MediumSF_Up / Tau_MediumSF);
+                h_ub_eff_tau_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * topw_sf * Tau_MediumSF_Down / Tau_MediumSF);
+                h_ub_eff_wtag_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_w_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_wtag_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_w_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_wtag_fast_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_w_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_wtag_fast_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_w_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_toptag_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_top_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_toptag_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_top_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_toptag_fast_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_top_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_toptag_fast_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_top_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_ISRWeight_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * ISRWeight_Up / ISRWeight);
+                h_ub_ISRWeight_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * ISRWeight_Down / ISRWeight);
+                h_ub_ak8veto_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_ak8veto_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_ak8veto_fast_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_ub_ak8veto_fast_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_DeepAK8_SFWeight_fast_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_ub_eff_restoptag_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_ResTopWeight_Up / Stop0l_ResTopWeight);
+                h_ub_eff_restoptag_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
+                h_ub_eff_restoptag_fast_up->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
+                h_ub_eff_restoptag_fast_down->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                h_ub_LHEScaleWeight_0->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[0]);
+                h_ub_LHEScaleWeight_1->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[1]);
+                h_ub_LHEScaleWeight_3->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[3]);
+                h_ub_LHEScaleWeight_4->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[4]);
+                h_ub_LHEScaleWeight_5->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[5]);
+                h_ub_LHEScaleWeight_7->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[7]);
+                h_ub_LHEScaleWeight_8->Fill(bin_num, SF * highDMevtWeight * Electron_SF * Muon_MediumSF * LHEScaleWeight[8]);
                 eff_h->Fill(1.,sign);
             }
         }
@@ -2468,23 +2442,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         //QCD CR
         if(verbose) std::cout << "QCD CR Bins" << std::endl;
         //int QCDCRunit(bool Pass_Baseline, bool Pass_QCDCR, bool Pass_LepCR, bool Pass_PhoCR, bool HighDM, bool LowDM, int nb, float mtb, float ptb, float MET, int nSoftB, int njets, float ISRpt, float HT, int nres, int ntop, int nw);
-        /*
-        bool QCD_lowdm = Pass_QCDCR && Pass_LowDM && (S_met > 10);
-        //bool QCD_highdm = Pass_QCDCR && Pass_HighDM && Pass_dPhiMETHighDM;
-        bool QCD_highdm = Pass_QCDCR && Pass_HighDM;
-        bool QCD_lowdm_JESUp = Pass_QCDCR_JESUp && Pass_LowDM_JESUp && (S_met_JESUp > 10);
-        bool QCD_lowdm_JESDown = Pass_QCDCR_JESDown && Pass_LowDM_JESDown && (S_met_JESDown > 10);
-        //bool QCD_highdm_JESUp = Pass_QCDCR_JESUp && Pass_HighDM_JESUp && Pass_dPhiMETHighDM_JESUp;
-        //bool QCD_highdm_JESDown = Pass_QCDCR_JESDown && Pass_HighDM_JESDown && Pass_dPhiMETHighDM_JESDown;
-        bool QCD_highdm_JESUp = Pass_QCDCR_JESUp && Pass_HighDM_JESUp;
-        bool QCD_highdm_JESDown = Pass_QCDCR_JESDown && Pass_HighDM_JESDown;
-        bool QCD_lowdm_METUnClustUp = Pass_QCDCR_METUnClustUp && Pass_LowDM_METUnClustUp && (S_met_METUnClustUp > 10);
-        bool QCD_lowdm_METUnClustDown = Pass_QCDCR_METUnClustDown && Pass_LowDM_METUnClustDown && (S_met_METUnClustDown > 10);
-        //bool QCD_highdm_METUnClustUp = Pass_QCDCR_METUnClustUp && Pass_HighDM_METUnClustUp && Pass_dPhiMETHighDM_METUnClustUp;
-        //bool QCD_highdm_METUnClustDown = Pass_QCDCR_METUnClustDown && Pass_HighDM_METUnClustDown && Pass_dPhiMETHighDM_METUnClustDown;
-        bool QCD_highdm_METUnClustUp = Pass_QCDCR_METUnClustUp && Pass_HighDM_METUnClustUp;
-        bool QCD_highdm_METUnClustDown = Pass_QCDCR_METUnClustDown && Pass_HighDM_METUnClustDown;
-        */
         if(verbose) std::cout << "Pass QCD CR" << std::endl;
         bool QCD_lowdm = tr.getVar<bool>("Pass_QCDCR_lowDM");
         bool QCD_highdm = tr.getVar<bool>("Pass_QCDCR_highDM");
@@ -2561,6 +2518,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_qb_eff_restoptag_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
                 h_qb_eff_restoptag_fast_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
                 h_qb_eff_restoptag_fast_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                h_qb_LHEScaleWeight_0->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[0]);
+                h_qb_LHEScaleWeight_1->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[1]);
+                h_qb_LHEScaleWeight_3->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[3]);
+                h_qb_LHEScaleWeight_4->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[4]);
+                h_qb_LHEScaleWeight_5->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[5]);
+                h_qb_LHEScaleWeight_7->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[7]);
+                h_qb_LHEScaleWeight_8->Fill(bin_num, SF * lowDMevtWeight * LHEScaleWeight[8]);
                 eff_h->Fill(1.,sign);
             }
         }
@@ -2687,6 +2651,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
                 h_qb_eff_restoptag_down->Fill(bin_num, SF * highDMevtWeight * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
                 h_qb_eff_restoptag_fast_up->Fill(bin_num, SF * highDMevtWeight * Stop0l_ResTopWeight_fast_Up / Stop0l_ResTopWeight);
                 h_qb_eff_restoptag_fast_down->Fill(bin_num, SF * highDMevtWeight * Stop0l_ResTopWeight_fast_Dn / Stop0l_ResTopWeight);
+                h_qb_LHEScaleWeight_0->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[0]);
+                h_qb_LHEScaleWeight_1->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[1]);
+                h_qb_LHEScaleWeight_3->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[3]);
+                h_qb_LHEScaleWeight_4->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[4]);
+                h_qb_LHEScaleWeight_5->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[5]);
+                h_qb_LHEScaleWeight_7->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[7]);
+                h_qb_LHEScaleWeight_8->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[8]);
                 eff_h->Fill(1.,sign);
             }
         }
@@ -2898,11 +2869,17 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_vb_ISRWeight_down->Multiply(h_vb_lepyield);
     h_vb_METunc_up->Multiply(h_vb_lepyield);
     h_vb_METunc_down->Multiply(h_vb_lepyield);
+    h_vb_LHEScaleWeight_0->Multiply(h_vb_lepyield);
+    h_vb_LHEScaleWeight_1->Multiply(h_vb_lepyield);
+    h_vb_LHEScaleWeight_3->Multiply(h_vb_lepyield);
+    h_vb_LHEScaleWeight_4->Multiply(h_vb_lepyield);
+    h_vb_LHEScaleWeight_5->Multiply(h_vb_lepyield);
+    h_vb_LHEScaleWeight_7->Multiply(h_vb_lepyield);
+    h_vb_LHEScaleWeight_8->Multiply(h_vb_lepyield);
     //*/
     auto *h_sb_lepyield = (TH1F*)h_sb_elecyield->Clone("h_sb_lepyield");
     h_sb_lepyield->Multiply(h_sb_muonyield);
     h_sb_lepyield->Multiply(h_sb_tauyield);
-    std::cout << "SB lep veto SF bin 183: " << h_sb_lepyield->GetBinContent(183) << std::endl;
     h_sb_eff_e_up->Multiply(h_sb_elecyield_up);
     h_sb_eff_e_up->Multiply(h_sb_muonyield);
     h_sb_eff_e_up->Multiply(h_sb_tauyield);
@@ -2971,6 +2948,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_sb_ISRWeight_down->Multiply(h_sb_lepyield);
     h_sb_METunc_up->Multiply(h_sb_lepyield);
     h_sb_METunc_down->Multiply(h_sb_lepyield);
+    h_sb_LHEScaleWeight_0->Multiply(h_sb_lepyield);
+    h_sb_LHEScaleWeight_1->Multiply(h_sb_lepyield);
+    h_sb_LHEScaleWeight_3->Multiply(h_sb_lepyield);
+    h_sb_LHEScaleWeight_4->Multiply(h_sb_lepyield);
+    h_sb_LHEScaleWeight_5->Multiply(h_sb_lepyield);
+    h_sb_LHEScaleWeight_7->Multiply(h_sb_lepyield);
+    h_sb_LHEScaleWeight_8->Multiply(h_sb_lepyield);
     //*/
 
     if(verbose) std::cout << "Lumi" << std::endl;
@@ -3056,8 +3040,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_vb_eff_tau_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb_ISRWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb_ISRWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    //h_vb_fastSF_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    //h_vb_fastSF_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb_METunc_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb_METunc_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb_eff_wtag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
@@ -3076,6 +3058,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_vb_ak8veto_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb_ak8veto_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_vb_ak8veto_fast_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_LHEScaleWeight_0->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_LHEScaleWeight_1->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_LHEScaleWeight_3->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_LHEScaleWeight_4->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_LHEScaleWeight_5->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_LHEScaleWeight_7->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_vb_LHEScaleWeight_8->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_sb->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     //std::cout << "SB yield bin 183: " << h_sb->GetBinContent(183) << std::endl;
     h_sb_fast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
@@ -3123,31 +3112,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_sb_ak8veto_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_sb_ak8veto_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_sb_ak8veto_fast_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    //v6 new tagger tests
-    h_sb_topfast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_topfast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_topfast_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_wfast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_wfast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_wfast_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofastt->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofastt_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofastt_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofastw->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofastw_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofastw_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_topfull->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_topfull_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_topfull_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_wfull->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_wfull_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_wfull_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofullt->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofullt_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofullt_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofullw->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofullw_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    h_sb_vetofullw_dn->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_LHEScaleWeight_0->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_LHEScaleWeight_1->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_LHEScaleWeight_3->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_LHEScaleWeight_4->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_LHEScaleWeight_5->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_LHEScaleWeight_7->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_sb_LHEScaleWeight_8->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_fast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_bsf_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
@@ -3176,8 +3147,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_ub_eff_tau_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_ISRWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_ISRWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    //h_ub_fastSF_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    //h_ub_fastSF_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_METunc_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_METunc_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_eff_wtag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
@@ -3196,6 +3165,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_ub_ak8veto_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_ak8veto_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_ub_ak8veto_fast_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_LHEScaleWeight_0->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_LHEScaleWeight_1->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_LHEScaleWeight_3->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_LHEScaleWeight_4->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_LHEScaleWeight_5->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_LHEScaleWeight_7->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_ub_LHEScaleWeight_8->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_fast->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_bsf_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
@@ -3224,8 +3200,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_qb_eff_tau_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_ISRWeight_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_ISRWeight_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    //h_qb_fastSF_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
-    //h_qb_fastSF_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_METunc_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_METunc_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_eff_wtag_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
@@ -3244,13 +3218,23 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_qb_ak8veto_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_ak8veto_fast_up->Scale(lumi * xs * genfiltereff * 1000 / all_events);
     h_qb_ak8veto_fast_down->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_LHEScaleWeight_0->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_LHEScaleWeight_1->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_LHEScaleWeight_3->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_LHEScaleWeight_4->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_LHEScaleWeight_5->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_LHEScaleWeight_7->Scale(lumi * xs * genfiltereff * 1000 / all_events);
+    h_qb_LHEScaleWeight_8->Scale(lumi * xs * genfiltereff * 1000 / all_events);
 
     TString outputfile = samplename + ".root";
+    std::cout << "Outputting to file " << outputfile << std::endl;
     TFile out_file(outputfile,"RECREATE");
     out_file.mkdir("Baseline_Only");
     out_file.cd("Baseline_Only");
+    if(verbose) std::cout << "Writing eff_h" << std::endl;
     eff_h->Write();
     out_file.cd("../");
+    if(verbose) std::cout << "Writing the rest" << std::endl;
     h_njets_low_middphi->Write();
     h_njets_high_middphi->Write();
     h_vb->Write();
@@ -3281,8 +3265,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_vb_eff_tau_down->Write();
     h_vb_ISRWeight_up->Write();
     h_vb_ISRWeight_down->Write();
-    //h_vb_fastSF_up->Write();
-    //h_vb_fastSF_down->Write();
     h_vb_METunc_up->Write();
     h_vb_METunc_down->Write();
     h_vb_eff_wtag_up->Write();
@@ -3302,6 +3284,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_vb_ak8veto_fast_up->Write();
     h_vb_ak8veto_fast_down->Write();
     h_vb_lepyield->Write();
+    h_vb_LHEScaleWeight_0->Write();
+    h_vb_LHEScaleWeight_1->Write();
+    h_vb_LHEScaleWeight_3->Write();
+    h_vb_LHEScaleWeight_4->Write();
+    h_vb_LHEScaleWeight_5->Write();
+    h_vb_LHEScaleWeight_7->Write();
+    h_vb_LHEScaleWeight_8->Write();
     h_sb->Write();
     h_sb_fast->Write();
     h_sb_raw->Write();
@@ -3350,31 +3339,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_sb_ak8veto_fast_up->Write();
     h_sb_ak8veto_fast_down->Write();
     h_sb_lepyield->Write();
-    //v6 new tagger tests
-    h_sb_topfast->Write();
-    h_sb_topfast_up->Write();
-    h_sb_topfast_dn->Write();
-    h_sb_wfast->Write();
-    h_sb_wfast_up->Write();
-    h_sb_wfast_dn->Write();
-    h_sb_vetofastt->Write();
-    h_sb_vetofastt_up->Write();
-    h_sb_vetofastt_dn->Write();
-    h_sb_vetofastw->Write();
-    h_sb_vetofastw_up->Write();
-    h_sb_vetofastw_dn->Write();
-    h_sb_topfull->Write();
-    h_sb_topfull_up->Write();
-    h_sb_topfull_dn->Write();
-    h_sb_wfull->Write();
-    h_sb_wfull_up->Write();
-    h_sb_wfull_dn->Write();
-    h_sb_vetofullt->Write();
-    h_sb_vetofullt_up->Write();
-    h_sb_vetofullt_dn->Write();
-    h_sb_vetofullw->Write();
-    h_sb_vetofullw_up->Write();
-    h_sb_vetofullw_dn->Write();
+    h_sb_LHEScaleWeight_0->Write();
+    h_sb_LHEScaleWeight_1->Write();
+    h_sb_LHEScaleWeight_3->Write();
+    h_sb_LHEScaleWeight_4->Write();
+    h_sb_LHEScaleWeight_5->Write();
+    h_sb_LHEScaleWeight_7->Write();
+    h_sb_LHEScaleWeight_8->Write();
     h_ub->Write();
     h_ub_fast->Write();
     h_ub_bsf_up->Write();
@@ -3403,8 +3374,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_ub_eff_tau_down->Write();
     h_ub_ISRWeight_up->Write();
     h_ub_ISRWeight_down->Write();
-    //h_ub_fastSF_up->Write();
-    //h_ub_fastSF_down->Write();
     h_ub_METunc_up->Write();
     h_ub_METunc_down->Write();
     h_ub_eff_wtag_up->Write();
@@ -3423,6 +3392,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_ub_ak8veto_down->Write();
     h_ub_ak8veto_fast_up->Write();
     h_ub_ak8veto_fast_down->Write();
+    h_ub_LHEScaleWeight_0->Write();
+    h_ub_LHEScaleWeight_1->Write();
+    h_ub_LHEScaleWeight_3->Write();
+    h_ub_LHEScaleWeight_4->Write();
+    h_ub_LHEScaleWeight_5->Write();
+    h_ub_LHEScaleWeight_7->Write();
+    h_ub_LHEScaleWeight_8->Write();
     h_qb->Write();
     h_qb_fast->Write();
     h_qb_bsf_up->Write();
@@ -3451,8 +3427,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_qb_eff_tau_down->Write();
     h_qb_ISRWeight_up->Write();
     h_qb_ISRWeight_down->Write();
-    //h_qb_fastSF_up->Write();
-    //h_qb_fastSF_down->Write();
     h_qb_METunc_up->Write();
     h_qb_METunc_down->Write();
     h_qb_eff_wtag_up->Write();
@@ -3471,8 +3445,17 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     h_qb_ak8veto_down->Write();
     h_qb_ak8veto_fast_up->Write();
     h_qb_ak8veto_fast_down->Write();
+    h_qb_LHEScaleWeight_0->Write();
+    h_qb_LHEScaleWeight_1->Write();
+    h_qb_LHEScaleWeight_3->Write();
+    h_qb_LHEScaleWeight_4->Write();
+    h_qb_LHEScaleWeight_5->Write();
+    h_qb_LHEScaleWeight_7->Write();
+    h_qb_LHEScaleWeight_8->Write();
+    if(verbose) std::cout << "Closing file" << std::endl;
     out_file.Close();
 
+    if(verbose) std::cout << "Deleting histograms" << std::endl;
     delete eff_h;
     delete h_njets_low_middphi;
     delete h_njets_high_middphi;
@@ -3504,8 +3487,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_vb_eff_tau_down;
     delete h_vb_ISRWeight_up;
     delete h_vb_ISRWeight_down;
-    delete h_vb_fastSF_up;
-    delete h_vb_fastSF_down;
     delete h_vb_METunc_up;
     delete h_vb_METunc_down;
     delete h_vb_eff_wtag_up;
@@ -3524,6 +3505,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_vb_ak8veto_down;
     delete h_vb_ak8veto_fast_up;
     delete h_vb_ak8veto_fast_down;
+    delete h_vb_LHEScaleWeight_0;
+    delete h_vb_LHEScaleWeight_1;
+    delete h_vb_LHEScaleWeight_3;
+    delete h_vb_LHEScaleWeight_4;
+    delete h_vb_LHEScaleWeight_5;
+    delete h_vb_LHEScaleWeight_7;
+    delete h_vb_LHEScaleWeight_8;
     delete h_vb_lepyield;
     delete h_vb_elecyield;
     delete h_vb_muonyield;
@@ -3556,8 +3544,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_sb_eff_tau_down;
     delete h_sb_ISRWeight_up;
     delete h_sb_ISRWeight_down;
-    delete h_sb_fastSF_up;
-    delete h_sb_fastSF_down;
     delete h_sb_METunc_up;
     delete h_sb_METunc_down;
     delete h_sb_eff_wtag_up;
@@ -3576,35 +3562,17 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_sb_ak8veto_down;
     delete h_sb_ak8veto_fast_up;
     delete h_sb_ak8veto_fast_down;
+    delete h_sb_LHEScaleWeight_0;
+    delete h_sb_LHEScaleWeight_1;
+    delete h_sb_LHEScaleWeight_3;
+    delete h_sb_LHEScaleWeight_4;
+    delete h_sb_LHEScaleWeight_5;
+    delete h_sb_LHEScaleWeight_7;
+    delete h_sb_LHEScaleWeight_8;
     delete h_sb_lepyield;
     delete h_sb_elecyield;
     delete h_sb_muonyield;
     delete h_sb_tauyield;
-    //v6 new tagger tests
-    delete h_sb_topfast;
-    delete h_sb_topfast_up;
-    delete h_sb_topfast_dn;
-    delete h_sb_wfast;
-    delete h_sb_wfast_up;
-    delete h_sb_wfast_dn;
-    delete h_sb_vetofastt;
-    delete h_sb_vetofastt_up;
-    delete h_sb_vetofastt_dn;
-    delete h_sb_vetofastw;
-    delete h_sb_vetofastw_up;
-    delete h_sb_vetofastw_dn;
-    delete h_sb_topfull;
-    delete h_sb_topfull_up;
-    delete h_sb_topfull_dn;
-    delete h_sb_wfull;
-    delete h_sb_wfull_up;
-    delete h_sb_wfull_dn;
-    delete h_sb_vetofullt;
-    delete h_sb_vetofullt_up;
-    delete h_sb_vetofullt_dn;
-    delete h_sb_vetofullw;
-    delete h_sb_vetofullw_up;
-    delete h_sb_vetofullw_dn;
     delete h_ub;
     delete h_ub_fast;
     delete h_ub_bsf_up;
@@ -3633,8 +3601,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_ub_eff_tau_down;
     delete h_ub_ISRWeight_up;
     delete h_ub_ISRWeight_down;
-    delete h_ub_fastSF_up;
-    delete h_ub_fastSF_down;
     delete h_ub_METunc_up;
     delete h_ub_METunc_down;
     delete h_ub_eff_wtag_up;
@@ -3653,6 +3619,13 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_ub_ak8veto_down;
     delete h_ub_ak8veto_fast_up;
     delete h_ub_ak8veto_fast_down;
+    delete h_ub_LHEScaleWeight_0;
+    delete h_ub_LHEScaleWeight_1;
+    delete h_ub_LHEScaleWeight_3;
+    delete h_ub_LHEScaleWeight_4;
+    delete h_ub_LHEScaleWeight_5;
+    delete h_ub_LHEScaleWeight_7;
+    delete h_ub_LHEScaleWeight_8;
     delete h_qb;
     delete h_qb_fast;
     delete h_qb_bsf_up;
@@ -3681,8 +3654,6 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_qb_eff_tau_down;
     delete h_qb_ISRWeight_up;
     delete h_qb_ISRWeight_down;
-    delete h_qb_fastSF_up;
-    delete h_qb_fastSF_down;
     delete h_qb_METunc_up;
     delete h_qb_METunc_down;
     delete h_qb_eff_wtag_up;
@@ -3697,10 +3668,19 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     delete h_qb_eff_restoptag_down;
     delete h_qb_eff_restoptag_fast_up;
     delete h_qb_eff_restoptag_fast_down;
+    delete h_qb_LHEScaleWeight_0;
+    delete h_qb_LHEScaleWeight_1;
+    delete h_qb_LHEScaleWeight_3;
+    delete h_qb_LHEScaleWeight_4;
+    delete h_qb_LHEScaleWeight_5;
+    delete h_qb_LHEScaleWeight_7;
+    delete h_qb_LHEScaleWeight_8;
     delete h_qb_ak8veto_up;
     delete h_qb_ak8veto_down;
     delete h_qb_ak8veto_fast_up;
     delete h_qb_ak8veto_fast_down;
+
+    if(verbose) std::cout << "End." << std::endl;
     return 0;
 
 }

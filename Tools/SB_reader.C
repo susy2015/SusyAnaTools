@@ -1,5 +1,6 @@
 #include "NTupleReader.h"
 #include "baselineDef.h"
+#include "TopWeightCalculator.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
@@ -26,6 +27,7 @@ int main(int argc, char* argv[])
 {
     //defaults
     std::string era = "2018";
+    std::string samplename = "";
     //float SF = 1.17; //for TTZToLLNuNu
     float SF = 1.0; //for everything else
     float SF_up = 1.0;
@@ -62,8 +64,9 @@ int main(int argc, char* argv[])
             {"PeriodF",     no_argument,        0,  'F'},
             {"PostHEM",     no_argument,        0,  'H'},
             {"verbose",     no_argument,        0,  'v'},
+            {"samplename",  required_argument,  0,  's'},
         };
-        c = getopt_long(argc,argv,"e:m:dTSFHv",long_options,NULL);
+        c = getopt_long(argc,argv,"e:m:dTSFHvs:",long_options,NULL);
         if(c==-1) break;
         switch (c)
         {
@@ -90,6 +93,9 @@ int main(int argc, char* argv[])
                 break;
             case 'v':
                 verbose = true;
+                break;
+            case 's':
+                samplename = optarg;
                 break;
         }
     }
@@ -143,6 +149,13 @@ int main(int argc, char* argv[])
     //CleanedJets cleanedJets;
     RunTopTagger runTopTagger;
     BaselineVessel blv(tr,era,"");
+    std::string tageffFile;
+    if(era == "2016") tageffFile = "TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2016_v1.0.6/tTagEff_2016.root";
+    else if(era == "2017") tageffFile = "TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2017_v1.0.6/tTagEff_2017.root";
+    else if(era == "2018") tageffFile = "TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2018_v1.0.6/tTagEff_2018.root";
+    //TODO: replace with samplename
+    if(verbose) std::cout << "Declaring TopWeightCalculator" << std::endl;
+    TopWeightCalculator twc(tageffFile, samplename, era);
     
     if(verbose) std::cout << "Registering getVectors" << std::endl;
 
@@ -154,6 +167,8 @@ int main(int argc, char* argv[])
     tr.registerFunction(runTopTagger);
     if(verbose) std::cout << "Registering blv" << std::endl;
     tr.registerFunction(blv);
+    tr.registerFunction(twc);
+    if(verbose) std::cout << "Done registering" << std::endl;
 
     auto *h_vb_low = new TH1F("h_vb_low","Low dm Validation Bins",19,0,19);
     auto *h_vb_low_bsf_up = new TH1F("h_vb_low_bsf_up","VB Low B SF Up",19,0,19);
@@ -274,6 +289,13 @@ int main(int argc, char* argv[])
     auto *h_sb_low_eff_wtag_down = new TH1F("h_sb_low_eff_wtag_down","SB Low W TagSF Down",53,0,53);
     auto *h_sb_low_ak8veto_up = new TH1F("h_sb_low_ak8veto_up","SB Low AK8Jet Veto Up",53,0,53);
     auto *h_sb_low_ak8veto_down = new TH1F("h_sb_low_ak8veto_down","SB Low AK8Jet Veto Down",53,0,53);
+    auto *h_sb_low_recalc = new TH1F("h_sb_low_recalc","SB Low Recalc SF",53,0,53);
+    auto *h_sb_low_eff_toptag_recalc_up = new TH1F("h_sb_low_eff_toptag_recalc_up","SB Low Merged Top Tag SF Up",53,0,53);
+    auto *h_sb_low_eff_toptag_recalc_down = new TH1F("h_sb_low_eff_toptag_recalc_down","SB Low Merged Top Tag SF Down",53,0,53);
+    auto *h_sb_low_eff_wtag_recalc_up = new TH1F("h_sb_low_eff_wtag_recalc_up","SB Low W Tag SF Up",53,0,53);
+    auto *h_sb_low_eff_wtag_recalc_down = new TH1F("h_sb_low_eff_wtag_recalc_down","SB Low W TagSF Down",53,0,53);
+    auto *h_sb_low_ak8veto_recalc_up = new TH1F("h_sb_low_ak8veto_recalc_up","SB Low AK8Jet Veto Up",53,0,53);
+    auto *h_sb_low_ak8veto_recalc_down = new TH1F("h_sb_low_ak8veto_recalc_down","SB Low AK8Jet Veto Down",53,0,53);
     auto *h_sb_low_elecyield = new TH1F("h_sb_low_elecyield","SB Low Yield with >=1 Electron",53,0,53);
     auto *h_sb_low_muonyield = new TH1F("h_sb_low_muonyield","SB Low Yield with >=1 Muon",53,0,53);
     auto *h_sb_low_tauyield = new TH1F("h_sb_low_tauyield","SB Low Yield with >=1 Tau",53,0,53);
@@ -317,6 +339,13 @@ int main(int argc, char* argv[])
     auto *h_sb_high_eff_wtag_down = new TH1F("h_sb_high_eff_wtag_down","SB High W TagSF Down",130,53,183);
     auto *h_sb_high_ak8veto_up = new TH1F("h_sb_high_ak8veto_up","SB High AK8Jet Veto Up",130,53,183);
     auto *h_sb_high_ak8veto_down = new TH1F("h_sb_high_ak8veto_down","SB High AK8Jet Veto Down",130,53,183);
+    auto *h_sb_high_recalc = new TH1F("h_sb_high_recalc","SB High Recalc SF",130,53,183);
+    auto *h_sb_high_eff_toptag_recalc_up = new TH1F("h_sb_high_eff_toptag_recalc_up","SB High Merged Top Tag SF Up",130,53,183);
+    auto *h_sb_high_eff_toptag_recalc_down = new TH1F("h_sb_high_eff_toptag_recalc_down","SB High Merged Top Tag SF Down",130,53,183);
+    auto *h_sb_high_eff_wtag_recalc_up = new TH1F("h_sb_high_eff_wtag_recalc_up","SB High W Tag SF Up",130,53,183);
+    auto *h_sb_high_eff_wtag_recalc_down = new TH1F("h_sb_high_eff_wtag_recalc_down","SB High W TagSF Down",130,53,183);
+    auto *h_sb_high_ak8veto_recalc_up = new TH1F("h_sb_high_ak8veto_recalc_up","SB High AK8Jet Veto Up",130,53,183);
+    auto *h_sb_high_ak8veto_recalc_down = new TH1F("h_sb_high_ak8veto_recalc_down","SB High AK8Jet Veto Down",130,53,183);
     auto *h_sb_high_elecyield = new TH1F("h_sb_high_elecyield","SB High Yield with >=1 Electron",130,53,183);
     auto *h_sb_high_muonyield = new TH1F("h_sb_high_muonyield","SB High Yield with >=1 Muon",130,53,183);
     auto *h_sb_high_tauyield = new TH1F("h_sb_high_tauyield","SB High Yield with >=1 Tau",130,53,183);
@@ -669,7 +698,7 @@ int main(int argc, char* argv[])
         float MergedTop_SF_up = MergedTop_SF + std::sqrt(MergedTop_SFerr);
         float MergedTop_SF_down = MergedTop_SF - std::sqrt(MergedTop_SFerr);
 
-        
+        if(verbose && (tr.getEvtNum() < 1000)) std::cout << "New vars time" << std::endl;
         //New vars for v6:
         auto Stop0l_ResTopWeight = tr.getVar<float>("Stop0l_ResTopWeight");
         auto Stop0l_ResTopWeight_Up = tr.getVar<float>("Stop0l_ResTopWeight_Up");
@@ -685,6 +714,18 @@ int main(int argc, char* argv[])
         auto Stop0l_DeepAK8_SFWeight_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_w_dn");
         auto Stop0l_DeepAK8_SFWeight_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_top_up");
         auto Stop0l_DeepAK8_SFWeight_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_top_dn");
+        if(verbose && (tr.getEvtNum() < 1000)) std::cout << "recalc vars time" << std::endl;
+        //recalc
+        auto Stop0l_DeepAK8_SFWeight_recalc = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc");
+        if(verbose && (tr.getEvtNum() < 1000)) std::cout << "first recalc var done" << std::endl;
+        auto Stop0l_DeepAK8_SFWeight_recalc_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_dn");
+        auto Stop0l_DeepAK8_SFWeight_recalc_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_dn");
+        auto Stop0l_DeepAK8_SFWeight_recalc_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_dn");
+        auto Stop0l_DeepAK8_SFWeight_recalc_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_up");
+        auto Stop0l_DeepAK8_SFWeight_recalc_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_dn");
        
         //std::cout << "Stop0l_ResTopWeight: " << Stop0l_ResTopWeight << "\tResTop_SF: " << ResTop_SF << "\tStop0l_ResTopWeight_Up: " << Stop0l_ResTopWeight_Up /*<< "\tStop0l_ResTopWeight_fast_Up: " << Stop0l_ResTopWeight_fast_Up*/ << std::endl;
         
@@ -1311,6 +1352,13 @@ int main(int argc, char* argv[])
                 h_sb_low_eff_restoptag_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
                 h_sb_low_ak8veto_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_low_ak8veto_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_low_recalc->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc / Stop0l_DeepAK8_SFWeight);
+                h_sb_low_eff_wtag_recalc_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_w_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_low_eff_wtag_recalc_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_w_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_low_eff_toptag_recalc_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_top_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_low_eff_toptag_recalc_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_top_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_low_ak8veto_recalc_up->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_low_ak8veto_recalc_down->Fill(bin_num, SF * lowDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_veto_dn / Stop0l_DeepAK8_SFWeight);
                 eff_h->Fill(1.,sign);
             }
         }
@@ -1418,6 +1466,13 @@ int main(int argc, char* argv[])
                 h_sb_high_eff_restoptag_down->Fill(bin_num, SF * highDMevtWeight * Stop0l_ResTopWeight_Dn / Stop0l_ResTopWeight);
                 h_sb_high_ak8veto_up->Fill(bin_num, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_up / Stop0l_DeepAK8_SFWeight);
                 h_sb_high_ak8veto_down->Fill(bin_num, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_veto_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_high_recalc->Fill(bin_num, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc / Stop0l_DeepAK8_SFWeight);
+                h_sb_high_eff_wtag_recalc_up->Fill(bin_num, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_w_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_high_eff_wtag_recalc_down->Fill(bin_num, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_w_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_high_eff_toptag_recalc_up->Fill(bin_num, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_top_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_high_eff_toptag_recalc_down->Fill(bin_num, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_top_dn / Stop0l_DeepAK8_SFWeight);
+                h_sb_high_ak8veto_recalc_up->Fill(bin_num, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_veto_up / Stop0l_DeepAK8_SFWeight);
+                h_sb_high_ak8veto_recalc_down->Fill(bin_num, SF * highDMevtWeight * Stop0l_DeepAK8_SFWeight_recalc_veto_dn / Stop0l_DeepAK8_SFWeight);
                 eff_h->Fill(1.,sign);
             }
         }
@@ -1924,6 +1979,13 @@ int main(int argc, char* argv[])
     h_sb_low_eff_restoptag_down->Write();
     h_sb_low_ak8veto_up->Write();
     h_sb_low_ak8veto_down->Write();
+    h_sb_low_recalc->Write();
+    h_sb_low_eff_wtag_recalc_up->Write();
+    h_sb_low_eff_wtag_recalc_down->Write();
+    h_sb_low_eff_toptag_recalc_up->Write();
+    h_sb_low_eff_toptag_recalc_down->Write();
+    h_sb_low_ak8veto_recalc_up->Write();
+    h_sb_low_ak8veto_recalc_down->Write();
     h_sb_low_elecyield->Write();
     h_sb_low_muonyield->Write();
     h_sb_low_tauyield->Write();
@@ -1960,6 +2022,13 @@ int main(int argc, char* argv[])
     h_sb_high_eff_restoptag_down->Write();
     h_sb_high_ak8veto_up->Write();
     h_sb_high_ak8veto_down->Write();
+    h_sb_high_recalc->Write();
+    h_sb_high_eff_wtag_recalc_up->Write();
+    h_sb_high_eff_wtag_recalc_down->Write();
+    h_sb_high_eff_toptag_recalc_up->Write();
+    h_sb_high_eff_toptag_recalc_down->Write();
+    h_sb_high_ak8veto_recalc_up->Write();
+    h_sb_high_ak8veto_recalc_down->Write();
     h_sb_high_elecyield->Write();
     h_sb_high_muonyield->Write();
     h_sb_high_tauyield->Write();
