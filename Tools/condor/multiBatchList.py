@@ -29,9 +29,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--sampleSetsFile", "-s",   default = "",                           help="Sample sets config file")
     parser.add_argument("--run",            "-r",   default = False, action = "store_true", help="run batchList.py on all directories")
+    parser.add_argument("--force",          "-f",   default = False, action = "store_true", help="Force overwrite when doing xrdcp (use with caution!)")
     options         = parser.parse_args()
     sampleSetsFile  = options.sampleSetsFile
     run             = options.run 
+    force           = options.force
 
     if not os.path.exists(sampleSetsFile):
         print "The sample sets config file \"{0}\" does not exist.".format(sampleSetsFile)
@@ -41,6 +43,8 @@ if __name__ == "__main__":
     for d in dirs:
         if run:
             command = "python batchList.py -d {0} -l -c".format(d)
+            if force:
+                command += " --force"
             print command
             subprocess.call(command, shell=True)
         else:

@@ -7,13 +7,17 @@ import os
 
 def my_process(args):
    #Create new config file with pre->post + version number directory replacement and text file name replacement
-    if (args.config == ""):
+    if not args.input:
         raise Exception('No preprocessing config file given. Please specify a config file.')
     else:
-      pre_config = os.path.abspath(args.config)
-      post_config = os.path.abspath(args.config.replace("Pre","Post"))
+        pre_config = os.path.abspath(args.input)
+        # set output config name if specified
+        if args.output:
+            post_config = args.output
+        else:
+            post_config = os.path.abspath(args.input.replace("Pre","Post"))
       
-      with open(post_config, "wt") as outfile:
+    with open(post_config, "wt") as outfile:
         lines = open(pre_config).readlines()
         for line_ in lines:
             line = line_.strip()
@@ -53,8 +57,10 @@ def my_process(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Creating postprocessed config file from preprocessed.')
-    parser.add_argument('-c','--config', default="", help = "Preprocessing config to create a postprocessing config file for")
+    parser.add_argument('-i','--input',   default="",  help = "Input (typically preprocessing) config")
+    parser.add_argument('-o','--output',  default="",  help = "Output (typically postprocessing) [default: use input filename, but replace Pre with Post]")
     parser.add_argument('-v','--version', default="2", help = "Round of postprocessing. Match to version number in SubmitLPC.py; this is the number appended to the eos directory name.")
 
     args = parser.parse_args()
     my_process(args)
+
