@@ -84,6 +84,10 @@ NTupleReader::NTupleReader(TTree * tree)
     init();
 }
 
+NTupleReader::NTupleReader(NTupleReader&& tr) : tree_(tr.tree_), nevt_(tr.nevt_), evtProcessed_(tr.evtProcessed_), chainCurrentTree_(tr.chainCurrentTree_), isUpdateDisabled_(tr.isUpdateDisabled_), reThrow_(tr.reThrow_), convertHackActive_(tr.convertHackActive_), branchMap_(std::move(tr.branchMap_)), branchVecMap_(std::move(tr.branchVecMap_)), functionVec_(std::move(tr.functionVec_)), typeMap_(std::move(tr.typeMap_)), activeBranches_(std::move(tr.activeBranches_))
+{    
+}
+
 NTupleReader::NTupleReader()
 {
     tree_ = nullptr;
