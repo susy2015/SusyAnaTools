@@ -63,13 +63,15 @@ public:
     bool incZEROtop;
     bool UseDRLeptonCleanJet;
     bool UseDRPhotonCleanJet;
+    bool UseJESUpJet;
+    bool UseJESDownJet;
     bool UseDeepTagger;
     bool UseDeepCSV;
 
     std::string year;
     std::string jetVecLabel;
     std::string jetVecLabelAK8;
-    std::string CSVVecLabel;
+    std::string btagVecLabel;
     std::string METLabel;
     std::string METPhiLabel;
     std::string muonsFlagIDLabel;
@@ -90,7 +92,6 @@ public:
     bool SAT_Pass_highDM;
     bool SAT_Pass_highDM_Loose;
     bool SAT_Pass_highDM_Mid;
-    float min_jet_pt;
     AnaConsts::AccRec JetCutArrary;
     AnaConsts::AccRec dPhiCutArrary;
 
@@ -99,23 +100,28 @@ public:
     BaselineVessel(const std::string year, const std::string specialization = "", const std::string filterString = "");
     ~BaselineVessel();
 
+    inline std::string UseSpecVar(std::string varname) const;
     inline std::string UseCleanedJetsVar(std::string varname) const;
     bool getBool(const std::string& var);
+    std::string checkEquality(bool equal);
+    void Test();
     void PassBaseline();
     void PassTrigger();
     void PassJetID();
     void PassEventFilter();
     bool PassObjectVeto(std::vector<TLorentzVector> objects, float eta_low, float eta_high, float phi_low, float phi_high, float pt_low);
     void PassHEMVeto();
+    void GetPileupWeight();
     bool PrintoutConfig() const;
     bool CalcBottomVars();
-    int  GetISRJetIdx(); 
+    int  GetISRJetIdx(bool verbose=false); 
     bool CalcISRJetVars();
     bool passNoiseEventFilterFunc();
     bool passQCDHighMETFilterFunc();
     bool passFastsimEventFilterFunc();
     bool PredefineSpec();
     bool UseCleanedJets();
+    bool PrepMETUncluster();
     bool OpenWMassCorrFile();
 
     bool FlagDeepAK8Jets();

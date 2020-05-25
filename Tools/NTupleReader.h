@@ -252,6 +252,7 @@ private:
 
         FuncWrapperImpl(T& f) : func_(std::move(f)) {}
         FuncWrapperImpl(T&& f) : func_(std::move(f)) {}
+        template <typename ...Args> FuncWrapperImpl(Args&&... args) : func_(args...) {}
     };
 
     template <class Tfrom, class Tto> 
@@ -262,7 +263,10 @@ public:
     NTupleReader(TTree * tree, const std::set<std::string>& activeBranches_);
     NTupleReader(TTree * tree);
     NTupleReader();
+    NTupleReader(NTupleReader&& tr);
     ~NTupleReader();
+
+    NTupleReader(NTupleReader&) = delete;
 
     std::string getFileName() const;
 
@@ -326,7 +330,7 @@ public:
 
     template<typename T, typename ...Args> T& emplaceModule(Args&&... args)
     {
-        if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(std::move(T(args...))));
+        if(isFirstEvent()) functionVec_.emplace_back(new FuncWrapperImpl<T>(args...));
         else THROW_SATEXCEPTION("New module cannot be registered after tuple reading begins!\n");        
         return static_cast<FuncWrapperImpl<T>*>(functionVec_.back())->getFunc();
     }

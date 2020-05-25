@@ -1,5 +1,5 @@
 #include "NTupleReader.h"
-#include "baselineDef.h"
+#include "TopWeightCalculator.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
@@ -8,45 +8,58 @@
 #include <string>
 #include <ctime>
 
+class GetScaleWeights
+{
+private:
+    NTupleReader trSupp_;
+
+    void getScaleWeights(NTupleReader& tr)
+    {
+        if(trSupp_.getNextEvent() &&
+           tr.getVar<unsigned long long>("event") == trSupp_.getVar<unsigned long long>("event") &&
+           tr.getVar<float>("GenMET_pt")          == trSupp_.getVar<float>("GenMET_pt") )
+        {
+            tr.registerDerivedVec("LHEScaleWeight", new std::vector(trSupp_.getVec<float>("LHEScaleWeight")));
+        }
+        else
+        {
+            std::cout << tr.getVar<unsigned long long>("event") << "\t" << trSupp_.getVar<unsigned long long>("event") << "\t" << tr.getVar<float>("GenMET_pt") << "\t" << trSupp_.getVar<float>("met") << std::endl;
+            THROW_SATEXCEPTION("ERROR: Event mismatch between master and supplamental file!!!!");
+        }
+    }
+
+public:
+    GetScaleWeights(TChain *ch) : trSupp_(ch, {"event"}) {}
+    GetScaleWeights(GetScaleWeights&) = delete;
+    GetScaleWeights(GetScaleWeights&& gsw) : trSupp_(std::move(gsw.trSupp_)) {}
+
+    void operator()(NTupleReader& tr) { getScaleWeights(tr); }
+};
 
 int main()
 {
-    char nBase[] = "root://cmseos.fnal.gov//store/user/lpcsusyhad/Stop_production/Summer16_94X_v3/PostProcessed_10Feb2019_v1//Data_SingleMuon_2016/Data_SingleMuon_2016_0.root";
+    char baseFile[] = "root://cmseos.fnal.gov//eos/uscms/store/user/lpcsusyhad/Stop_production/Summer16_94X_v3/PostProcessed_11Apr2019_fastsimv5_v6p1_v6p5/SMS_T2bW_fastsim_2016//SMS_T2bW_mStop1000_mLSP0_fastsim_2016_Skim_070602_0_100332.root";
+    //char supplamantalFile[] = "root://cmseos.fnal.gov//eos/uscms/store/user/lpcsusyhad/Stop_production/Summer16_94X_v3/ScaleProcessed_11Apr2019_fastsimv5_v6p1_v6p5/SMS_T2bW_fastsim_2016//SMS_T2bW_mStop1000_mLSP0_fastsim_2016_Skim_070602_0_100332.root";
+    char supplamantalFile[] = "root://cmseos.fnal.gov//eos/uscms/store/user/lpcsusyhad/Stop_production/Summer16_94X_v3/ScaleProcessed_11Apr2019_fastsimv5_v6p1_v6p5/SMS_T2bW_fastsim_2016//SMS_T2bW_mStop1000_mLSP0_fastsim_2016_Skim_070602_0_100332.root";
 
-    TChain *ch = new TChain("Events");
+    TChain *chBase = new TChain("Events");
+    chBase->Add(baseFile);
 
-    char chname[512];
-    for(int i = 1; i <= 1; ++i)
-    {
-        sprintf(chname, nBase, i);
-        ch->Add(chname);
-    }
+    TChain *chSupp = new TChain("Events");
+    chSupp->Add(supplamantalFile);
 
     try
     {
-        NTupleReader tr(ch, {"nJet"});
+        NTupleReader tr(chBase, {"nJet"});
+
+        //For NTupleReader users you simply need to register the class with NTupleReader 
+        tr.emplaceModule<GetScaleWeights>(chSupp);
 
         while(tr.getNextEvent())
         {
-            if(tr.getEvtNum() == 1)
-            {
-                tr.printTupleMembers();
-                FILE * fout = fopen("NTupleTypes.txt", "w");
-                tr.printTupleMembers(fout);
-                fclose(fout);
-            }
-      
-            int njets = tr.getVar<unsigned int>("nJet");
+            const auto& LHEScaleWeight = tr.getVec<float>("LHEScaleWeight");
 
-            printf("MET_pt: %10f MET_phi: %10f nJet: %10d Jet_pt: %10d Stop0l_nHOT: %-10d Stop0l_HOTtype: %10d\n",
-                    tr.getVar<float>("MET_pt"),
-                    tr.getVar<float>("MET_phi"),
-                    njets,
-                    tr.getVec<float>("Jet_pt").size(),
-                    tr.getVar<int>("Stop0l_nHOT"),
-                    tr.getVec<int>("Stop0l_HOTtype").size()
-                    );
-            
+            std::cout << LHEScaleWeight.size() << std::endl;
         }
     }
     catch(const SATException& e)
