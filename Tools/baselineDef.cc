@@ -595,7 +595,7 @@ void BaselineVessel::PassBaseline()
   metLVec.SetPtEtaPhiM(met, 0, metphi, 0);
   // Calculate deltaPhi
   std::vector<float> * dPhiVec = new std::vector<float>();
-  (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, dPhiCutArrary, false);
+  (*dPhiVec) = AnaFunctions::calcDPhi(Jets, metLVec, 5, dPhiCutArrary);
   // more vars
   int nJets     = AnaFunctions::countJets(Jets,     JetCutArrary);  
   //int nFatJets  = AnaFunctions::countJets(FatJets,  AnaConsts::pt200Eta24Arr);  

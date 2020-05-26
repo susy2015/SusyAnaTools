@@ -34,14 +34,14 @@ private:
     {
         if(trSupp_.getNextEvent() &&
            tr.getVar<unsigned long long>("event") == trSupp_.getVar<unsigned long long>("event") &&
-           tr.getVar<float>("GenMET_pt")          == static_cast<float>(trSupp_.getVar<float>("GenMET_pt")) )
+           tr.getVar<float>("GenMET_pt")          == trSupp_.getVar<float>("GenMET_pt") )
         {
             tr.registerDerivedVec("LHEScaleWeight", new std::vector(trSupp_.getVec<float>("LHEScaleWeight")));
-            //std::cout << tr.getVar<unsigned long long>("event") << "\t" << trSupp_.getVar<unsigned long long>("event") << "\t" << tr.getVar<float>("GenMET_pt") << "\t" << trSupp_.getVar<float>("GenMET_pt") << std::endl;
         }
         else
         {
-            THROW_SATEXCEPTION("ERROR: Event mismatch between master and supplamental file!!!!");
+            std::cout << tr.getVar<unsigned long long>("event") << "\t" << trSupp_.getVar<unsigned long long>("event") << "\t" << tr.getVar<float>("GenMET_pt") << "\t" << trSupp_.getVar<float>("met") << std::endl;
+            THROW_SATEXCEPTION("ERROR: Event mismatch between master and supplemental file!!!!");
         }
     }
 
@@ -53,20 +53,11 @@ public:
     void operator()(NTupleReader& tr) { getScaleWeights(tr); }
 };
 
-int analyze(std::string filename, std::string era, int max_events, bool isData, bool isSignal, bool PeriodF, bool PostHEM, float SF, bool nosplit, bool verbose)
+int analyze(std::string filename, std::string era, int max_events, bool isData, bool isSignal, bool PeriodF, bool PostHEM, float SF, bool nosplit, bool verbose, bool doLHEScaleWeight)
 {
     TChain *ch = new TChain("Events");
     ch->Add(filename.c_str());
-
-    //LHEScaleWeight supplemental file 
-    std::string supplementalFile = filename;
-    std::size_t pos = supplementalFile.find("PostProcessed");
-    if(pos != std::string::npos) supplementalFile.replace(pos,4,"Scale");
-    else std::cout << "Error: Can't find \"PostProcessed\" to replace for the supplemental file" << std::endl;
-    std::cout << filename << std::endl;
-    std::cout << supplementalFile << std::endl;
-    TChain *chSupp = new TChain("Events");
-    chSupp->Add(supplementalFile.c_str());
+    
     
     std::string samplename;
     samplename = filename.substr(filename.find("SMS_"),filename.find(".root")-filename.find("SMS_"));
@@ -77,8 +68,18 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     if(verbose) std::cout << "Setting up" << std::endl;
 
     NTupleReader tr(ch);
-    //LHEScaleWeight supplemental
-    tr.emplaceModule<GetScaleWeights>(chSupp);
+    //LHEScaleWeight supplemental file 
+    if(doLHEScaleWeight){
+        std::string supplementalFile = filename;
+        std::size_t pos = supplementalFile.find("PostProcessed");
+        if(pos != std::string::npos) supplementalFile.replace(pos,4,"Scale");
+        else std::cout << "Error: Can't find \"PostProcessed\" to replace for the supplemental file" << std::endl;
+        std::cout << filename << std::endl;
+        std::cout << supplementalFile << std::endl;
+        TChain *chSupp = new TChain("Events");
+        chSupp->Add(supplementalFile.c_str());
+        tr.emplaceModule<GetScaleWeights>(chSupp);
+    }
     GetVectors getVectors;
     plotterFunctions::BasicLepton basicLepton;
     plotterFunctions::Gamma gamma(era);
@@ -114,6 +115,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_vb = new TH1F("h_vb","Validation Bins",43,0,43);
     auto *h_vb_fast = new TH1F("h_vb_fast","Validation Bins (fast central tagger weight)",43,0,43);
     h_vb->Sumw2();
+    h_vb->SetBinErrorOption(TH1::kPoisson);
     auto *h_vb_bsf_up = new TH1F("h_vb_bsf_up","VB B SF Up",43,0,43);
     auto *h_vb_bsf_down = new TH1F("h_vb_bsf_down","VB B SF Down",43,0,43);
     auto *h_vb_bsf_fast_up = new TH1F("h_vb_bsf_fast_up","VB B Fast SF Up",43,0,43);
@@ -178,6 +180,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_sb = new TH1F("h_sb","Search Bins",183,0,183);
     auto *h_sb_fast = new TH1F("h_sb_fast","Search Bins (fast central tagger weight)",183,0,183);
     h_sb->Sumw2();
+    h_sb->SetBinErrorOption(TH1::kPoisson);
     auto *h_sb_raw = new TH1F("h_sb_raw","Search Bins raw val",183,0,183);
     auto *h_sb_bsf_up = new TH1F("h_sb_bsf_up","SB B SF Up",183,0,183);
     auto *h_sb_bsf_down = new TH1F("h_sb_bsf_down","SB B SF Down",183,0,183);
@@ -243,6 +246,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_ub = new TH1F("h_ub","LL CR Unit Bins",112,0,112);
     auto *h_ub_fast = new TH1F("h_ub_fast","LL CR Unit Bins (fast central tagger weight)",112,0,112);
     h_ub->Sumw2();
+    h_ub->SetBinErrorOption(TH1::kPoisson);
     auto *h_ub_bsf_up = new TH1F("h_ub_bsf_up","UB B SF Up",112,0,112);
     auto *h_ub_bsf_down = new TH1F("h_ub_bsf_down","UB B SF Down",112,0,112);
     auto *h_ub_bsf_fast_up = new TH1F("h_ub_bsf_fast_up","UB B Fast SF Up",112,0,112);
@@ -307,6 +311,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
     auto *h_qb = new TH1F("h_qb","QCD CR Unit Bins",92,0,92);
     auto *h_qb_fast = new TH1F("h_qb_fast","QCD CR Unit Bins (fast central tagger weight)",92,0,92);
     h_qb->Sumw2();
+    h_qb->SetBinErrorOption(TH1::kPoisson);
     auto *h_qb_bsf_up = new TH1F("h_qb_bsf_up","QCD CR B SF Up",92,0,92);
     auto *h_qb_bsf_down = new TH1F("h_qb_bsf_down","QCD CR B SF Down",92,0,92);
     auto *h_qb_bsf_fast_up = new TH1F("h_qb_bsf_fast_up","QCD CR B Fast SF Up",92,0,92);
@@ -844,7 +849,8 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         float MergedTop_SF_up = MergedTop_SF + std::sqrt(MergedTop_SFerr);
         float MergedTop_SF_down = MergedTop_SF - std::sqrt(MergedTop_SFerr);
         
-        auto LHEScaleWeight = tr.getVec<float>("LHEScaleWeight");
+        std::vector<float> LHEScaleWeight{1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
+        if(doLHEScaleWeight) LHEScaleWeight = tr.getVec<float>("LHEScaleWeight");
         
         //New vars for v6:
         auto Stop0l_ResTopWeight = tr.getVar<float>("Stop0l_ResTopWeight");
@@ -896,6 +902,7 @@ int analyze(std::string filename, std::string era, int max_events, bool isData, 
         auto Stop0l_DeepAK8_SFWeight_recalc_fast_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_up");
         auto Stop0l_DeepAK8_SFWeight_recalc_fast_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_dn");
         
+        //std::cout << (Stop0l_DeepAK8_SFWeight_top_up - Stop0l_DeepAK8_SFWeight_recalc_top_up)/Stop0l_DeepAK8_SFWeight_recalc_top_up << std::endl;
        
         //MET uncertainty
         //doesn't seem to be a SF, but rather error. Listed in MET var section.
@@ -3700,6 +3707,7 @@ int main(int argc, char* argv[])
     bool PostHEM = false;
     bool isSignal = true;
     bool nosplit = true;
+    bool doLHEScaleWeight = false;
 
     if (argc < 3)
     {
@@ -3720,11 +3728,12 @@ int main(int argc, char* argv[])
             {"max_events",  required_argument,  0,  'm'},
             {"isData",      no_argument,        0,  'd'},
             {"isSignal",    no_argument,        0,  'S'},
+            {"doLHEScaleWeight",no_argument,    0,  'L'},
             {"PeriodF",     no_argument,        0,  'F'},
             {"PostHEM",     no_argument,        0,  'H'},
             {"verbose",     no_argument,        0,  'v'},
         };
-        c = getopt_long(argc,argv,"e:m:dTSFHv",long_options,NULL);
+        c = getopt_long(argc,argv,"e:m:dTSLFHv",long_options,NULL);
         if(c==-1) break;
         switch (c)
         {
@@ -3740,6 +3749,9 @@ int main(int argc, char* argv[])
             case 'S':
                 isSignal = true;
                 break;
+            case 'L':
+                doLHEScaleWeight = true;
+                break;
             case 'F':
                 PeriodF = true;
                 break;
@@ -3752,7 +3764,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    std::cout << "Era: " << era << "\tSF: " << SF << "\tisSignal: " << isSignal << "\tisData: " << isData << "\tPeriodF: " << PeriodF << "\tPostHEM: " << PostHEM << "\tMax events: " << max_events << std::endl;
+    std::cout << "Era: " << era << "\tSF: " << SF << "\tisSignal: " << isSignal << "\tisData: " << isData << "\tdoLHEScaleWeight: " << doLHEScaleWeight << "\tPeriodF: " << PeriodF << "\tPostHEM: " << PostHEM << "\tMax events: " << max_events << std::endl;
 
     /*
     TChain *ch = new TChain("Events");
@@ -3784,7 +3796,7 @@ int main(int argc, char* argv[])
         while (getline(bigfile,filename))
         {
             std::cout << filename << std::endl;
-            analyze(filename,era,max_events,isData,isSignal,PeriodF,PostHEM,SF,nosplit,verbose);
+            analyze(filename,era,max_events,isData,isSignal,PeriodF,PostHEM,SF,nosplit,verbose,doLHEScaleWeight);
         }
         bigfile.close();
     }

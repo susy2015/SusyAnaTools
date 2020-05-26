@@ -57,6 +57,7 @@ if ($? == 0) then
   rm TTZ_VB_2017_PeriodF.root
   rm TTZ_VB_2018.root
   rm TTZ_VB_2018_PostHEM.root
+  rm TTZ_VB_1617.root
   rm TTZ_VB_v6old.root
   rm TTZ_VB_METval.root
   rm TTZ_VB_METval_2016.root
