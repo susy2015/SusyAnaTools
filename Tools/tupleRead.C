@@ -150,6 +150,8 @@ int main(int argc, char* argv[]){
 	auto HT_uc_h=new TH1F("HT_uc_h","HT, no cuts",100,0.0,3000.0);
 	auto HT_h=new TH1F("HT_h","HT, loose baseline",100,0.0,3000.0);
 
+	auto S_met_lowdm_no_S_met_h=new TH1F("S_met_lowdm_no_S_met_h","MET sig, low dm, no MET sig cut",100,0.0,100.0);
+	auto S_met_lowdm_no_S_met_Stop0l_evtWeight_h=new TH1F("S_met_lowdm_no_S_met_Stop0l_evtWeight_h","MET sig with Stop0l_evtWeight, low dm, no MET sig cut",100,0.0,100.0);
 	auto ISRpt_lowdm_h=new TH1F("ISRpt_lowdm_h","ISR pt, low dm",80,0.0,1600.0);
 	auto bottompt_scalar_sum_lowdm_h=new TH1F("bottompt_scalar_sum_lowdm_h","bottom pt sclar sum, low dm",80,0.0,1600.0);
 	auto min_jet_dPhi_lowdm_h=new TH1F("min_jet_dPhi_lowdm_h","min jet dPhi, low dm",80,0.0,3.2);
@@ -420,6 +422,7 @@ int main(int argc, char* argv[]){
 		bool Pass_dPhi_0p15 = (min_jet_dPhi < 0.15);
 		bool Pass_dPhi_0p2 = (min_jet_dPhi < 0.2);
 		bool Pass_lowDM_no_dPhi = (Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2 && tr.getVar<bool>("Pass_MET") && tr.getVar<bool>("Pass_HT") && ntop_merge == 0 && ntop_res == 0 && nw == 0 && mtb < 175 && S_met > 10 && ISRpt >= 200);
+		bool Pass_lowDM_no_S_met = (Pass_EventFilter && tr.getVar<bool>("Pass_LeptonVeto") && njets >= 2 && tr.getVar<bool>("Pass_MET") && tr.getVar<bool>("Pass_HT") && ntop_merge == 0 && ntop_res == 0 && nw == 0 && mtb < 175 && ISRpt >= 200 && tr.getVar<bool>("Pass_dPhiMET"));
 		bool Pass_lowDM_mid_dPhi_0p1 = (Pass_lowDM_no_dPhi && (!Pass_dPhi_QCD) && (!tr.getVar<bool>("Pass_dPhiMET")));
 		//bool Pass_lowDM_mid_dPhi_0p15 = (Pass_lowDM_no_dPhi && (!Pass_dPhi_0p15) && (!tr.getVar<bool>("Pass_dPhiMET")));
 		bool Pass_lowDM_mid_dPhi_0p15 = (Pass_lowDM_no_dPhi && tr.getVar<bool>("Pass_dPhiMETMedDM"));
@@ -765,6 +768,12 @@ int main(int argc, char* argv[]){
 			//}
 		}
 
+		if(Pass_lowDM_no_S_met) 
+		{
+			S_met_lowdm_no_S_met_h->Fill(S_met,evtWeight);
+			S_met_lowdm_no_S_met_Stop0l_evtWeight_h->Fill(S_met,evtWeight * fabs(Stop0l_evtWeight));
+		}
+
 		if(Pass_lowDM_no_dPhi) 
 		{
 			min_jet_dPhi_lowdm_h->Fill(min_jet_dPhi,evtWeight);
@@ -862,6 +871,8 @@ int main(int argc, char* argv[]){
 
 	nMuons_uc_h->Write();
 	nElectrons_uc_h->Write();
+	S_met_lowdm_no_S_met_h->Write();
+	S_met_lowdm_no_S_met_Stop0l_evtWeight_h->Write();
 	ISRpt_lowdm_h->Write();
 	bottompt_scalar_sum_lowdm_h->Write();
 	min_jet_dPhi_lowdm_h->Write();

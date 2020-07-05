@@ -12,8 +12,9 @@ int Plot_compare_validation()
 	bool plot_zinv_highdm = false;
 	bool plot_LL_lowdm = false;
 	bool plot_LL_highdm = false;
-	bool plot_data_Matt_lowdm = false;
-	bool plot_data_Matt_highdm = true;
+	bool plot_LL_highdm_Matt = false;
+	bool plot_data_Matt_lowdm = true;
+	bool plot_data_Matt_highdm = false;
 	bool plot_data_Matt_lowdm_MET = false;
 	bool plot_data_Matt_highdm_MET = false;
 	bool plot_data_Dipika_lowdm = false;
@@ -28,7 +29,7 @@ int Plot_compare_validation()
 	bool plot_met_LLCR_highdm = false;
 
 	TString year = "";
-	//year = "_2016";
+	//year = "_2016and2017";
 	//year = "_2017";
 	//year = "_2018";
 	TString folder = "";
@@ -138,14 +139,26 @@ int Plot_compare_validation()
 
 	if(plot_LL_highdm)
 	{
-		f1_name = "LL_validation_highdm_2016";
+		f1_name = "LL_validation_highdm";
 		hist1 = "LL_SR"; 
 		f1_leg = "MC"; 
-		f2_name = "std_pred_trad_HM_2016"; 
+		f2_name = "std_pred_trad_HM_noextrap"; 
+		//hist2 = "ttbarplusw_pred";
+		hist2 = "ttbarplusw_mc";
+		//f2_leg = "Matt_noextrap"; 
+		f2_leg = "Matt_MC"; 
+	}
+
+	if(plot_LL_highdm_Matt)
+	{
+		f1_name = "std_pred_trad_HM";
+		hist1 = "ttbarplusw_mc"; 
+		f1_leg = "Matt_MC"; 
+		f2_name = "std_pred_trad_HM_noextrap"; 
 		//hist2 = "ttbarplusw_pred";
 		hist2 = "ttbarplusw_mc";
 		//f2_leg = "Matt"; 
-		f2_leg = "Matt_MC"; 
+		f2_leg = "Matt_MC_noextrap"; 
 	}
 
 	if(plot_data_Matt_lowdm)
