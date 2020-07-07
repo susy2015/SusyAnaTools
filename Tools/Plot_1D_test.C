@@ -635,7 +635,7 @@ int Plot_1D_test()
 			pro = (TH1D*)h1->Clone("QCD");
 		}
 
-		if (false)
+		if (true)
 		{
 			TString sp = "QCD_HT_200to300";
 			if(use_smear_QCD) sp = "QCD_Smear_HT_200to300";
@@ -659,7 +659,7 @@ int Plot_1D_test()
 			else Plot_1D_AUX_bg_with_weight (lumi, sp, year, var_weight, folder, leg, kGreen, pro, rebin, bin_test);
 		}
 
-		if (false)
+		if (true)
 		{
 			TString sp = "QCD_HT_700to1000";
 			if(use_smear_QCD) sp = "QCD_Smear_HT_700to1000";

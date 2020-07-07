@@ -19,7 +19,7 @@ int main(int argc, char* argv[]){
 	bool debug = false;
 
 	int max_events = -1;
-	//max_events = 1;
+	//max_events = 100000;
 
 	// ---------- Input & Output File Arguments ----------
 
@@ -98,16 +98,14 @@ int main(int argc, char* argv[]){
         auto PU_SF_uc_h=new TH1F("PU_SF_uc_h","pileup weight, no cuts",100,0.0,2.0);
         auto preFire_SF_uc_h=new TH1F("preFire_SF_uc_h","preFire weight, no cuts",100,0.0,2.0);
         auto Res_SF_uc_h=new TH1F("Res_SF_uc_h","Res top tagging SF, no cuts",100,0.0,2.0);
-        auto Top_SF_uc_h=new TH1F("Top_SF_uc_h","Top tagging SF, no cuts",100,0.0,2.0);
-        auto fastsim_SF_uc_h=new TH1F("fastsim_SF_uc_h","fastsim SF, no cuts",100,0.0,2.0);
+        auto AK8_SF_uc_h=new TH1F("AK8_SF_uc_h","AK8 tagging SF, no cuts",100,0.0,2.0);
         auto ISR_SF_h=new TH1F("ISR_SF_h","ISR SF, loose baseline",100,0.0,2.0);
         auto B_SF_h=new TH1F("B_SF_h","B tagging SF, loose baseline",100,0.0,2.0);
         auto Trigger_SF_h=new TH1F("Trigger_SF_h","Trigger efficiency, loose baseline",100,0.0,2.0);
         auto PU_SF_h=new TH1F("PU_SF_h","pileup weight, loose baseline",100,0.0,2.0);
         auto preFire_SF_h=new TH1F("preFire_SF_h","preFire weight, loose baseline",100,0.0,2.0);
         auto Res_SF_h=new TH1F("Res_SF_h","Res top tagging SF, loose baseline",100,0.0,2.0);
-        auto Top_SF_h=new TH1F("Top_SF_h","Top tagging SF, loose baseline",100,0.0,2.0);
-        auto fastsim_SF_h=new TH1F("fastsim_SF_h","fastsim SF, loose baseline",100,0.0,2.0);
+        auto AK8_SF_h=new TH1F("AK8_SF_h","AK8 tagging SF, loose baseline",100,0.0,2.0);
 
 	auto met_uc_h=new TH1F("met_uc_h","MET, no cuts",80,0.0,1600.0);
 	auto met_h=new TH1F("met_h","MET, loose baseline",80,0.0,1600.0);
@@ -260,8 +258,7 @@ int main(int argc, char* argv[]){
 		float puWeight = 1.0;
 		float PrefireWeight = 1.0;
 		float Res_SF = 1.0;
-		float Top_SF = 1.0;
-		float fastsim_SF = 1.0;
+		float AK8_SF = 1.0;
 		
 		if(apply_SF)
 		{
@@ -270,20 +267,22 @@ int main(int argc, char* argv[]){
 			puWeight = tr.getVar<float>("puWeight");
 			
 			Res_SF = tr.getVar<float>("Stop0l_ResTopWeight");
-			std::vector<float> Top_SF_vec = tr.getVec<float>("FatJet_SF");
-			for(int i = 0; i < Top_SF_vec.size(); i++)
-			{Top_SF = Top_SF * Top_SF_vec.at(i);}
+			AK8_SF = tr.getVar<float>("Stop0l_DeepAK8_SFWeight");
 
 			if(apply_fastsim_SF)
 			{
-				std::vector<float> fastsim_SF_vec = tr.getVec<float>("FatJet_fastSF");
-				for(int i = 0; i < fastsim_SF_vec.size(); i++)
-				{fastsim_SF = fastsim_SF * fastsim_SF_vec.at(i);}
+			    AK8_SF = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_fast");
 			}
 			if(apply_prefire_SF) PrefireWeight = tr.getVar<float>("PrefireWeight");
 			if(apply_ISR_SF) ISR_SF = tr.getVar<float>("ISRWeight");
-			evtWeight = evtWeight_sign * B_SF * ISR_SF * trigger_eff * puWeight * PrefireWeight * Res_SF * Top_SF * fastsim_SF;
-		}
+			evtWeight = evtWeight_sign * B_SF * ISR_SF * trigger_eff * puWeight * PrefireWeight * Res_SF * AK8_SF;
+		        if (fabs(evtWeight) > 10)
+                        {
+                            std::cout << "large evtWeight = " << evtWeight << std::endl;
+		            std::cout << "event index = " << tr.getEvtNum() << ", event = " << tr.getVar<unsigned long long>("event") << std::endl;
+                            std::cout << "SF = " << evtWeight_sign << ", " << B_SF << ", " << ISR_SF << ", " << trigger_eff << ", " << puWeight << ", " << PrefireWeight << ", " << Res_SF << ", " << AK8_SF << std::endl;
+                        }
+                }
 
 		bool Pass_trigger_MET = true;
 		if(apply_pass_trigger) Pass_trigger_MET = tr.getVar<bool>("Pass_trigger_MET");
@@ -535,8 +534,7 @@ int main(int argc, char* argv[]){
                 PU_SF_uc_h->Fill(puWeight);
                 preFire_SF_uc_h->Fill(PrefireWeight);
                 Res_SF_uc_h->Fill(Res_SF);
-                Top_SF_uc_h->Fill(Top_SF);
-                fastsim_SF_uc_h->Fill(fastsim_SF);
+                AK8_SF_uc_h->Fill(AK8_SF);
 
 		for (int i=0; i < Jet_dPhiMET.size(); i++)
 		{
@@ -564,8 +562,7 @@ int main(int argc, char* argv[]){
                 	PU_SF_h->Fill(puWeight);
                 	preFire_SF_h->Fill(PrefireWeight);
                         Res_SF_h->Fill(Res_SF);
-                        Top_SF_h->Fill(Top_SF);
-                        fastsim_SF_h->Fill(fastsim_SF);
+                        AK8_SF_h->Fill(AK8_SF);
 
 
 			for (int i=0; i < Jet_dPhiMET.size(); i++)
@@ -824,16 +821,14 @@ int main(int argc, char* argv[]){
         PU_SF_uc_h->Write();
         preFire_SF_uc_h->Write();
         Res_SF_uc_h->Write();
-        Top_SF_uc_h->Write();
-        fastsim_SF_uc_h->Write();
+        AK8_SF_uc_h->Write();
         ISR_SF_h->Write();
         B_SF_h->Write();
         Trigger_SF_h->Write();
         PU_SF_h->Write();
         preFire_SF_h->Write();
         Res_SF_h->Write();
-        Top_SF_h->Write();
-        fastsim_SF_h->Write();
+        AK8_SF_h->Write();
 
 	met_uc_h->Write();
 	met_h->Write();
