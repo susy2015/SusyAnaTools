@@ -533,16 +533,22 @@ void BaselineVessel::Test()
         const auto& BTagWeightHeavy         = tr->getVar<float>("BTagWeightHeavy");
         const auto& BTagWeightHeavy_Up      = tr->getVar<float>("BTagWeightHeavy_Up");
         const auto& BTagWeightHeavy_Down    = tr->getVar<float>("BTagWeightHeavy_Down");
-        float inclusive     = BTagWeight;
-        float inclusiveUp   = BTagWeight_Up;
-        float inclusiveDown = BTagWeight_Down;
-        float split         = BTagWeightLight * BTagWeightHeavy;
-        float splitUp       = BTagWeightLight_Up * BTagWeightHeavy_Up;
-        float splitDown     = BTagWeightLight_Down * BTagWeightHeavy_Down;
-        printf(">>> btag weights: split = BTagWeightLight * BTagWeightHeavy; inclusive = BTagWeight\n");
-        printf("split = %f, inclusive = %f, split - inclusive = %f\n",                  split, inclusive, split - inclusive);
-        printf("splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",          splitUp, inclusiveUp, splitUp - inclusiveUp);
-        printf("splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",  splitDown, inclusiveDown, splitDown - inclusiveDown);
+        float inclusiveNominal  = BTagWeight;
+        float inclusiveUp       = BTagWeight_Up;
+        float inclusiveDown     = BTagWeight_Down;
+        float splitNominal      = BTagWeightLight * BTagWeightHeavy;
+        float splitUp           = BTagWeightLight_Up * BTagWeightHeavy_Up;
+        float splitDown         = BTagWeightLight_Down * BTagWeightHeavy_Down;
+        float diffNominal       = splitNominal - inclusiveNominal;
+        float diffUp            = splitUp - inclusiveUp;
+        float diffDown          = splitDown - inclusiveDown;
+        //printf(">>> btag weights: split = BTagWeightLight * BTagWeightHeavy; inclusive = BTagWeight\n");
+        //printf("splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n",    splitNominal, inclusiveNominal, diffNominal);
+        //printf("splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                        splitUp, inclusiveUp, diffUp);
+        //printf("splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",                splitDown, inclusiveDown, diffDown);
+        if (abs(diffNominal) > 0.01) printf("splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n", splitNominal, inclusiveNominal, diffNominal);
+        if (abs(diffUp)      > 0.01) printf("splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                     splitUp, inclusiveUp, diffUp);
+        if (abs(diffDown)    > 0.01) printf("splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",             splitDown, inclusiveDown, diffDown);
     }
 }
 
