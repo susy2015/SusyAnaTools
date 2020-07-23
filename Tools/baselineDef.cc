@@ -524,6 +524,7 @@ void BaselineVessel::Test()
     if (firstSpec.compare("_jetpt30") == 0)
     {
         // testing btag weights
+        const auto& Stop0l_nbtags           = tr->getVar<int>("Stop0l_nbtags");
         const auto& BTagWeight              = tr->getVar<float>("BTagWeight");
         const auto& BTagWeight_Up           = tr->getVar<float>("BTagWeight_Up");
         const auto& BTagWeight_Down         = tr->getVar<float>("BTagWeight_Down");
@@ -533,6 +534,7 @@ void BaselineVessel::Test()
         const auto& BTagWeightHeavy         = tr->getVar<float>("BTagWeightHeavy");
         const auto& BTagWeightHeavy_Up      = tr->getVar<float>("BTagWeightHeavy_Up");
         const auto& BTagWeightHeavy_Down    = tr->getVar<float>("BTagWeightHeavy_Down");
+        
         float inclusiveNominal  = BTagWeight;
         float inclusiveUp       = BTagWeight_Up;
         float inclusiveDown     = BTagWeight_Down;
@@ -542,13 +544,24 @@ void BaselineVessel::Test()
         float diffNominal       = splitNominal - inclusiveNominal;
         float diffUp            = splitUp - inclusiveUp;
         float diffDown          = splitDown - inclusiveDown;
-        //printf(">>> btag weights: split = BTagWeightLight * BTagWeightHeavy; inclusive = BTagWeight\n");
-        //printf("splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n",    splitNominal, inclusiveNominal, diffNominal);
-        //printf("splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                        splitUp, inclusiveUp, diffUp);
-        //printf("splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",                splitDown, inclusiveDown, diffDown);
-        if (abs(diffNominal) > 0.000001) printf("splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n", splitNominal, inclusiveNominal, diffNominal);
-        if (abs(diffUp)      > 0.000001) printf("splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                     splitUp, inclusiveUp, diffUp);
-        if (abs(diffDown)    > 0.000001) printf("splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",             splitDown, inclusiveDown, diffDown);
+        
+        // split     = BTagWeightLight * BTagWeightHeavy
+        // inclusive = BTagWeight
+        
+        if (false)
+        {
+            if (abs(diffNominal) > 0.000001) printf("Stop0l_nbtags = %d, splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n", Stop0l_nbtags, splitNominal, inclusiveNominal, diffNominal);
+            if (abs(diffUp)      > 0.000001) printf("Stop0l_nbtags = %d, splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                     Stop0l_nbtags, splitUp, inclusiveUp, diffUp);
+            if (abs(diffDown)    > 0.000001) printf("Stop0l_nbtags = %d, splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",             Stop0l_nbtags, splitDown, inclusiveDown, diffDown);
+        }
+        
+        if (Stop0l_nbtags > 0)
+        {
+            printf("--------------------------------------------------------------------------------------------------\n");
+            printf("Stop0l_nbtags = %d, splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n", Stop0l_nbtags, splitNominal, inclusiveNominal, diffNominal);
+            printf("Stop0l_nbtags = %d, splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                     Stop0l_nbtags, splitUp, inclusiveUp, diffUp);
+            printf("Stop0l_nbtags = %d, splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",             Stop0l_nbtags, splitDown, inclusiveDown, diffDown);
+        }
     }
 }
 
@@ -1894,7 +1907,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassEventFilter();
   PassHEMVeto();
   PassBaseline();
-  Test(); // for testing
+  //Test(); // for testing
 }
 
 void BaselineVessel::PassTrigger()
