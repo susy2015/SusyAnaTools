@@ -546,9 +546,9 @@ void BaselineVessel::Test()
         //printf("splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n",    splitNominal, inclusiveNominal, diffNominal);
         //printf("splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                        splitUp, inclusiveUp, diffUp);
         //printf("splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",                splitDown, inclusiveDown, diffDown);
-        if (abs(diffNominal) > 0.01) printf("splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n", splitNominal, inclusiveNominal, diffNominal);
-        if (abs(diffUp)      > 0.01) printf("splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                     splitUp, inclusiveUp, diffUp);
-        if (abs(diffDown)    > 0.01) printf("splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",             splitDown, inclusiveDown, diffDown);
+        if (abs(diffNominal) > 0.000001) printf("splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n", splitNominal, inclusiveNominal, diffNominal);
+        if (abs(diffUp)      > 0.000001) printf("splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                     splitUp, inclusiveUp, diffUp);
+        if (abs(diffDown)    > 0.000001) printf("splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",             splitDown, inclusiveDown, diffDown);
     }
 }
 
