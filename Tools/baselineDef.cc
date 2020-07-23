@@ -523,19 +523,26 @@ void BaselineVessel::Test()
 {
     if (firstSpec.compare("_jetpt30") == 0)
     {
-        std::cout << " ----------------------------- Running Test ----------------------------- " << std::endl;
-        TLorentzVector jet1;
-        TLorentzVector jet2;
-        
-        //jet1.SetPtEtaPhiM(337.50000, 0.53296, 3.13477, 97.68750);
-        //jet2.SetPtEtaPhiM(177.62500, 0.25934, 3.12354, 18.20312);
-        
-        //jet1.SetPtEtaPhiM(1166.00000, -1.03369, -0.41223, 159.00000);
-        jet1.SetPtEtaPhiM(577.50000, -0.56909, 2.52930, 220.50000);
-        jet2.SetPtEtaPhiM(222.12500, -1.11816, -3.04541, 80.50000);
-        
-        float dR = ROOT::Math::VectorUtil::DeltaR(jet1, jet2);
-        printf("jet 1 and jet 2 dR = %f\n", dR);
+        // testing btag weights
+        const auto& BTagWeight              = tr->getVar<float>("BTagWeight");
+        const auto& BTagWeight_Up           = tr->getVar<float>("BTagWeight_Up");
+        const auto& BTagWeight_Down         = tr->getVar<float>("BTagWeight_Down");
+        const auto& BTagWeightLight         = tr->getVar<float>("BTagWeightLight");
+        const auto& BTagWeightLight_Up      = tr->getVar<float>("BTagWeightLight_Up");
+        const auto& BTagWeightLight_Down    = tr->getVar<float>("BTagWeightLight_Down");
+        const auto& BTagWeightHeavy         = tr->getVar<float>("BTagWeightHeavy");
+        const auto& BTagWeightHeavy_Up      = tr->getVar<float>("BTagWeightHeavy_Up");
+        const auto& BTagWeightHeavy_Down    = tr->getVar<float>("BTagWeightHeavy_Down");
+        float inclusive     = BTagWeight;
+        float inclusiveUp   = BTagWeight_Up;
+        float inclusiveDown = BTagWeight_Down;
+        float split         = BTagWeightLight * BTagWeightHeavy;
+        float splitUp       = BTagWeightLight_Up * BTagWeightHeavy_Up;
+        float splitDown     = BTagWeightLight_Down * BTagWeightHeavy_Down;
+        printf(">>> btag weights: split = BTagWeightLight * BTagWeightHeavy; inclusive = BTagWeight\n");
+        printf("split = %f, inclusive = %f, split - inclusive = %f\n",                  split, inclusive, split - inclusive);
+        printf("splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",          splitUp, inclusiveUp, splitUp - inclusiveUp);
+        printf("splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",  splitDown, inclusiveDown, splitDown - inclusiveDown);
     }
 }
 
@@ -1881,7 +1888,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassEventFilter();
   PassHEMVeto();
   PassBaseline();
-  //Test(); // for testing
+  Test(); // for testing
 }
 
 void BaselineVessel::PassTrigger()
