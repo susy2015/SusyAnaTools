@@ -521,46 +521,65 @@ bool BaselineVessel::PrintoutConfig() const
 
 void BaselineVessel::Test()
 {
+    bool testBtags = false;
+    bool testTops  = true;
     if (firstSpec.compare("_jetpt30") == 0)
     {
-        // testing btag weights
-        const auto& Stop0l_nbtags           = tr->getVar<int>("Stop0l_nbtags");
-        const auto& BTagWeight              = tr->getVar<float>("BTagWeight");
-        const auto& BTagWeight_Up           = tr->getVar<float>("BTagWeight_Up");
-        const auto& BTagWeight_Down         = tr->getVar<float>("BTagWeight_Down");
-        const auto& BTagWeightLight         = tr->getVar<float>("BTagWeightLight");
-        const auto& BTagWeightLight_Up      = tr->getVar<float>("BTagWeightLight_Up");
-        const auto& BTagWeightLight_Down    = tr->getVar<float>("BTagWeightLight_Down");
-        const auto& BTagWeightHeavy         = tr->getVar<float>("BTagWeightHeavy");
-        const auto& BTagWeightHeavy_Up      = tr->getVar<float>("BTagWeightHeavy_Up");
-        const auto& BTagWeightHeavy_Down    = tr->getVar<float>("BTagWeightHeavy_Down");
-        
-        float inclusiveNominal  = BTagWeight;
-        float inclusiveUp       = BTagWeight_Up;
-        float inclusiveDown     = BTagWeight_Down;
-        float splitNominal      = BTagWeightLight * BTagWeightHeavy;
-        float splitUp           = BTagWeightLight_Up * BTagWeightHeavy_Up;
-        float splitDown         = BTagWeightLight_Down * BTagWeightHeavy_Down;
-        float diffNominal       = splitNominal - inclusiveNominal;
-        float diffUp            = splitUp - inclusiveUp;
-        float diffDown          = splitDown - inclusiveDown;
-        
-        // split     = BTagWeightLight * BTagWeightHeavy
-        // inclusive = BTagWeight
-        
-        if (false)
+        if (testBtags)
         {
-            if (abs(diffNominal) > 0.000001) printf("Stop0l_nbtags = %d, splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n", Stop0l_nbtags, splitNominal, inclusiveNominal, diffNominal);
-            if (abs(diffUp)      > 0.000001) printf("Stop0l_nbtags = %d, splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                     Stop0l_nbtags, splitUp, inclusiveUp, diffUp);
-            if (abs(diffDown)    > 0.000001) printf("Stop0l_nbtags = %d, splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",             Stop0l_nbtags, splitDown, inclusiveDown, diffDown);
+            // testing btag weights
+            const auto& Stop0l_nbtags           = tr->getVar<int>("Stop0l_nbtags");
+            const auto& BTagWeight              = tr->getVar<float>("BTagWeight");
+            const auto& BTagWeight_Up           = tr->getVar<float>("BTagWeight_Up");
+            const auto& BTagWeight_Down         = tr->getVar<float>("BTagWeight_Down");
+            const auto& BTagWeightLight         = tr->getVar<float>("BTagWeightLight");
+            const auto& BTagWeightLight_Up      = tr->getVar<float>("BTagWeightLight_Up");
+            const auto& BTagWeightLight_Down    = tr->getVar<float>("BTagWeightLight_Down");
+            const auto& BTagWeightHeavy         = tr->getVar<float>("BTagWeightHeavy");
+            const auto& BTagWeightHeavy_Up      = tr->getVar<float>("BTagWeightHeavy_Up");
+            const auto& BTagWeightHeavy_Down    = tr->getVar<float>("BTagWeightHeavy_Down");
+            
+            float inclusiveNominal  = BTagWeight;
+            float inclusiveUp       = BTagWeight_Up;
+            float inclusiveDown     = BTagWeight_Down;
+            float splitNominal      = BTagWeightLight * BTagWeightHeavy;
+            float splitUp           = BTagWeightLight_Up * BTagWeightHeavy_Up;
+            float splitDown         = BTagWeightLight_Down * BTagWeightHeavy_Down;
+            float diffNominal       = splitNominal - inclusiveNominal;
+            float diffUp            = splitUp - inclusiveUp;
+            float diffDown          = splitDown - inclusiveDown;
+            
+            // split     = BTagWeightLight * BTagWeightHeavy
+            // inclusive = BTagWeight
+            
+            if (false)
+            {
+                if (abs(diffNominal) > 0.000001) printf("Stop0l_nbtags = %d, splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n", Stop0l_nbtags, splitNominal, inclusiveNominal, diffNominal);
+                if (abs(diffUp)      > 0.000001) printf("Stop0l_nbtags = %d, splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                     Stop0l_nbtags, splitUp, inclusiveUp, diffUp);
+                if (abs(diffDown)    > 0.000001) printf("Stop0l_nbtags = %d, splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",             Stop0l_nbtags, splitDown, inclusiveDown, diffDown);
+            }
+            
+            if (Stop0l_nbtags > 0)
+            {
+                printf("--------------------------------------------------------------------------------------------------\n");
+                printf("Stop0l_nbtags = %d, splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n", Stop0l_nbtags, splitNominal, inclusiveNominal, diffNominal);
+                printf("Stop0l_nbtags = %d, splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                     Stop0l_nbtags, splitUp, inclusiveUp, diffUp);
+                printf("Stop0l_nbtags = %d, splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",             Stop0l_nbtags, splitDown, inclusiveDown, diffDown);
+            }
         }
-        
-        if (Stop0l_nbtags > 0)
+        if (testTops)
         {
-            printf("--------------------------------------------------------------------------------------------------\n");
-            printf("Stop0l_nbtags = %d, splitNominal = %f, inclusiveNominal = %f, splitNominal - inclusiveNominal = %f\n", Stop0l_nbtags, splitNominal, inclusiveNominal, diffNominal);
-            printf("Stop0l_nbtags = %d, splitUp = %f, inclusiveUp = %f, splitUp - inclusiveUp = %f\n",                     Stop0l_nbtags, splitUp, inclusiveUp, diffUp);
-            printf("Stop0l_nbtags = %d, splitDown = %f, inclusiveDown = %f, splitDown - inclusiveDown = %f\n",             Stop0l_nbtags, splitDown, inclusiveDown, diffDown);
+            // testing top weights (for v7 ntuple)
+            const auto& Stop0l_nTop                         = tr->getVar<int>("Stop0l_nTop");
+            const auto& Stop0l_nW                           = tr->getVar<int>("Stop0l_nW");
+            const auto& Stop0l_DeepAK8_SFWeight_densetop_up = tr->getVar<float>("Stop0l_DeepAK8_SFWeight_densetop_up");
+            const auto& Stop0l_DeepAK8_SFWeight_densetop_dn = tr->getVar<float>("Stop0l_DeepAK8_SFWeight_densetop_dn");
+            const auto& Stop0l_DeepAK8_SFWeight             = tr->getVar<float>("Stop0l_DeepAK8_SFWeight");
+
+            //const auto& Stop0l_DeepAK8_SFWeight_recalc   = tr->getVar<float>("Stop0l_DeepAK8_SFWeight_recalc");
+            //float DeepAK8_SFWeight_diff = Stop0l_DeepAK8_SFWeight_densetop - Stop0l_DeepAK8_SFWeight_recalc;
+
+            printf("Stop0l_nTop = %d, Stop0l_nW = %d, Stop0l_DeepAK8_SFWeight = %f, Stop0l_DeepAK8_SFWeight_densetop_up = %f, Stop0l_DeepAK8_SFWeight_densetop_dn = %f\n", Stop0l_nTop, Stop0l_nW, Stop0l_DeepAK8_SFWeight, Stop0l_DeepAK8_SFWeight_densetop_up, Stop0l_DeepAK8_SFWeight_densetop_dn);
         }
     }
 }
@@ -1907,7 +1926,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassEventFilter();
   PassHEMVeto();
   PassBaseline();
-  //Test(); // for testing
+  Test(); // for testing
 }
 
 void BaselineVessel::PassTrigger()
