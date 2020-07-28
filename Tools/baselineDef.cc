@@ -522,7 +522,7 @@ bool BaselineVessel::PrintoutConfig() const
 void BaselineVessel::Test()
 {
     bool testBtags = false;
-    bool testTops  = true;
+    bool testTops  = false;
     if (firstSpec.compare("_jetpt30") == 0)
     {
         if (testBtags)
@@ -1926,7 +1926,7 @@ void BaselineVessel::operator()(NTupleReader& tr_)
   PassEventFilter();
   PassHEMVeto();
   PassBaseline();
-  Test(); // for testing
+  //Test(); // for testing
 }
 
 void BaselineVessel::PassTrigger()
