@@ -1081,6 +1081,7 @@ void BaselineVessel::PassBaseline()
   
   bool topDifference = bool(Stop0l_nTop != nMergedTops || Stop0l_nResolved != nResolvedTops || Stop0l_nW != nWs);
   int totalTopsWs = nMergedTops + nResolvedTops + nWs; 
+  std::vector<unsigned long long> eventsToDisplay = {469238759, 756182493, 206923075, 196720783, 1887015358};
   //if (false)
   //if ( firstSpec.compare("_jetpt30") == 0 )
   //if ( firstSpec.compare("_drLeptonCleaned_jetpt30") == 0 )
@@ -1088,7 +1089,8 @@ void BaselineVessel::PassBaseline()
   //if ( firstSpec.compare("_jetpt30") == 0 && tr->getEvtNum() == 6410 )
   //if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 && nRemovedJets > 0 )
   //if ( firstSpec.compare("_drPhotonCleaned_jetpt30") == 0 && nRemovedResolvedTops < 0 )
-  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference) )
+  //if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference) )
+  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && SusyUtility::containsElement(event, eventsToDisplay) )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");

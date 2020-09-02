@@ -49,6 +49,20 @@ namespace SusyUtility
     void printJson(const std::string& fileName, const std::string& key, const std::string& title);
     // check if file exists
     bool fileExists(const std::string& fileName);
+    // check if element exists in vector
+    template<typename T>
+    bool containsElement(T element, std::vector<T> vec)
+    {
+        if(std::find(vec.begin(), vec.end(), element) != vec.end())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     // compare ints, doubles, floats, etc.
     // use relative tolerance
     template<typename T>
