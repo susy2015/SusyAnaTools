@@ -35,7 +35,6 @@ int main(int argc, char* argv[])
     bool verbose = false;
     int max_events = -1;
     bool isData = false;
-    bool isTTZ = false;
     bool PeriodF = false;
     bool PostHEM = false;
     bool isSignal = false;
@@ -59,14 +58,13 @@ int main(int argc, char* argv[])
             {"era",         required_argument,  0,  'e'},
             {"max_events",  required_argument,  0,  'm'},
             {"isData",      no_argument,        0,  'd'},
-            {"isTTZ",       no_argument,        0,  'T'},
             {"isSignal",    no_argument,        0,  'S'},
             {"PeriodF",     no_argument,        0,  'F'},
             {"PostHEM",     no_argument,        0,  'H'},
             {"verbose",     no_argument,        0,  'v'},
             {"samplename",  required_argument,  0,  's'},
         };
-        c = getopt_long(argc,argv,"e:m:dTSFHvs:",long_options,NULL);
+        c = getopt_long(argc,argv,"e:m:dSFHvs:",long_options,NULL);
         if(c==-1) break;
         switch (c)
         {
@@ -78,9 +76,6 @@ int main(int argc, char* argv[])
                 break;
             case 'd':
                 isData = true;
-                break;
-            case 'T':
-                isTTZ = true;
                 break;
             case 'S':
                 isSignal = true;
@@ -100,6 +95,9 @@ int main(int argc, char* argv[])
         }
     }
 
+    bool isTTZ = false;
+    std::size_t foundTTZ = samplename.find("TTZToLLNuNu");
+    if(foundTTZ != std::string::npos) isTTZ = true;
     if(isTTZ)
     {
         //SF = 1.14066; //was 1.17, then 1.26484, then 1.24827, then 1.19589
@@ -153,7 +151,6 @@ int main(int argc, char* argv[])
     if(era == "2016") tageffFile = "TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2016_v1.0.6/tTagEff_2016.root";
     else if(era == "2017") tageffFile = "TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2017_v1.0.6/tTagEff_2017.root";
     else if(era == "2018") tageffFile = "TopTaggerCfg-DeepResolved_DeepCSV_GR_nanoAOD_2018_v1.0.6/tTagEff_2018.root";
-    //TODO: replace with samplename
     if(verbose) std::cout << "Declaring TopWeightCalculator" << std::endl;
     TopWeightCalculator twc(tageffFile, samplename, era);
     
@@ -175,6 +172,10 @@ int main(int argc, char* argv[])
     h_vb_low->SetBinErrorOption(TH1::kPoisson);
     auto *h_vb_low_bsf_up = new TH1F("h_vb_low_bsf_up","VB Low B SF Up",19,0,19);
     auto *h_vb_low_bsf_down = new TH1F("h_vb_low_bsf_down","VB Low B SF Down",19,0,19);
+    auto *h_vb_low_bsf_light_up = new TH1F("h_vb_low_bsf_light_up","VB Low B SF Light Up",19,0,19);
+    auto *h_vb_low_bsf_light_down = new TH1F("h_vb_low_bsf_light_down","VB Low B SF Light Down",19,0,19);
+    auto *h_vb_low_bsf_heavy_up = new TH1F("h_vb_low_bsf_heavy_up","VB Low B SF Heavy Up",19,0,19);
+    auto *h_vb_low_bsf_heavy_down = new TH1F("h_vb_low_bsf_heavy_down","VB Low B SF Heavy Down",19,0,19);
     auto *h_vb_low_trig_eff_up = new TH1F("h_vb_low_trig_eff_up","VB Low Trigger Efficiency Up",19,0,19);
     auto *h_vb_low_trig_eff_down = new TH1F("h_vb_low_trig_eff_down","VB Low Trigger Efficiency Down",19,0,19);
     auto *h_vb_low_puWeight_up = new TH1F("h_vb_low_puWeight_up","VB Low PU Weight Up",19,0,19);
@@ -229,6 +230,10 @@ int main(int argc, char* argv[])
     h_vb_high->SetBinErrorOption(TH1::kPoisson);
     auto *h_vb_high_bsf_up = new TH1F("h_vb_high_bsf_up","VB High B SF Up",24,19,43);
     auto *h_vb_high_bsf_down = new TH1F("h_vb_high_bsf_down","VB High B SF Down",24,19,43);
+    auto *h_vb_high_bsf_light_up = new TH1F("h_vb_high_bsf_light_up","VB High B SF Light Up",24,19,43);
+    auto *h_vb_high_bsf_light_down = new TH1F("h_vb_high_bsf_light_down","VB High B SF Light Down",24,19,43);
+    auto *h_vb_high_bsf_heavy_up = new TH1F("h_vb_high_bsf_heavy_up","VB High B SF Heavy Up",24,19,43);
+    auto *h_vb_high_bsf_heavy_down = new TH1F("h_vb_high_bsf_heavy_down","VB High B SF Heavy Down",24,19,43);
     auto *h_vb_high_trig_eff_up = new TH1F("h_vb_high_trig_eff_up","VB High Trigger Efficiency Up",24,19,43);
     auto *h_vb_high_trig_eff_down = new TH1F("h_vb_high_trig_eff_down","VB High Trigger Efficiency Down",24,19,43);
     auto *h_vb_high_puWeight_up = new TH1F("h_vb_high_puWeight_up","VB High PU Weight Up",24,19,43);
@@ -283,6 +288,10 @@ int main(int argc, char* argv[])
     h_sb_low->SetBinErrorOption(TH1::kPoisson);
     auto *h_sb_low_bsf_up = new TH1F("h_sb_low_bsf_up","SB Low B SF Up",53,0,53);
     auto *h_sb_low_bsf_down = new TH1F("h_sb_low_bsf_down","SB Low B SF Down",53,0,53);
+    auto *h_sb_low_bsf_light_up = new TH1F("h_sb_low_bsf_light_up","SB Low B SF Light Up",53,0,53);
+    auto *h_sb_low_bsf_light_down = new TH1F("h_sb_low_bsf_light_down","SB Low B SF Light Down",53,0,53);
+    auto *h_sb_low_bsf_heavy_up = new TH1F("h_sb_low_bsf_heavy_up","SB Low B SF Heavy Up",53,0,53);
+    auto *h_sb_low_bsf_heavy_down = new TH1F("h_sb_low_bsf_heavy_down","SB Low B SF Heavy Down",53,0,53);
     auto *h_sb_low_trig_eff_up = new TH1F("h_sb_low_trig_eff_up","SB Low Trigger Efficiency Up",53,0,53);
     auto *h_sb_low_trig_eff_down = new TH1F("h_sb_low_trig_eff_down","SB Low Trigger Efficiency Down",53,0,53);
     auto *h_sb_low_puWeight_up = new TH1F("h_sb_low_puWeight_up","SB Low PU Weight Up",53,0,53);
@@ -337,6 +346,10 @@ int main(int argc, char* argv[])
     h_sb_high->SetBinErrorOption(TH1::kPoisson);
     auto *h_sb_high_bsf_up = new TH1F("h_sb_high_bsf_up","SB High B SF Up",130,53,183);
     auto *h_sb_high_bsf_down = new TH1F("h_sb_high_bsf_down","SB High B SF Down",130,53,183);
+    auto *h_sb_high_bsf_light_up = new TH1F("h_sb_high_bsf_light_up","SB High B SF Light Up",130,53,183);
+    auto *h_sb_high_bsf_light_down = new TH1F("h_sb_high_bsf_light_down","SB High B SF Light Down",130,53,183);
+    auto *h_sb_high_bsf_heavy_up = new TH1F("h_sb_high_bsf_heavy_up","SB High B SF Heavy Up",130,53,183);
+    auto *h_sb_high_bsf_heavy_down = new TH1F("h_sb_high_bsf_heavy_down","SB High B SF Heavy Down",130,53,183);
     auto *h_sb_high_trig_eff_up = new TH1F("h_sb_high_trig_eff_up","SB High Trigger Efficiency Up",130,53,183);
     auto *h_sb_high_trig_eff_down = new TH1F("h_sb_high_trig_eff_down","SB High Trigger Efficiency Down",130,53,183);
     auto *h_sb_high_puWeight_up = new TH1F("h_sb_high_puWeight_up","SB High PU Weight Up",130,53,183);
@@ -388,6 +401,8 @@ int main(int argc, char* argv[])
 
     auto *h_njets_low_middphi = new TH1F("h_njets_low_middphi","NJets for Low DM mid-dphi region",25,0,25);
     auto *h_njets_high_middphi = new TH1F("h_njets_high_middphi","NJets for High DM mid-dphi region",25,0,25);
+    auto *MET = new TH1F("MET","MET",40,0,1000);
+    auto *BTagWeight = new TH1F("BTagWeight","BTagWeight",50,0,5);
 
     auto *eff_h = new TH1F("eff_h","eff_h",4,0,4); //Counting events. First bin counts all, second event filter, third baselines, fourth counts total to VB.
 
@@ -735,6 +750,7 @@ int main(int argc, char* argv[])
         auto Stop0l_ResTopWeight_Dn = tr.getVar<float>("Stop0l_ResTopWeight_Dn");
         auto Stop0l_ResTopWeight_JESUp = tr.getVar<float>("Stop0l_ResTopWeight_JESUp");
         auto Stop0l_ResTopWeight_JESDown = tr.getVar<float>("Stop0l_ResTopWeight_JESDown");
+        /*
         auto Stop0l_DeepAK8_SFWeight = tr.getVar<float>("Stop0l_DeepAK8_SFWeight");
         auto Stop0l_DeepAK8_SFWeight_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_total_up");
         auto Stop0l_DeepAK8_SFWeight_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_total_dn");
@@ -744,10 +760,20 @@ int main(int argc, char* argv[])
         auto Stop0l_DeepAK8_SFWeight_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_w_dn");
         auto Stop0l_DeepAK8_SFWeight_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_top_up");
         auto Stop0l_DeepAK8_SFWeight_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_top_dn");
-        auto Stop0l_DeepAK8_SFWeight_densetop_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_densetop_up");
-        auto Stop0l_DeepAK8_SFWeight_densetop_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_densetop_dn");
-        auto Stop0l_DeepAK8_SFWeight_recalc_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_up");
-        auto Stop0l_DeepAK8_SFWeight_recalc_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_dn");
+        */
+        auto Stop0l_DeepAK8_SFWeight_densetop_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_densetop_up");
+        auto Stop0l_DeepAK8_SFWeight_densetop_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_densetop_dn");
+        //auto Stop0l_DeepAK8_SFWeight_recalc_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_up");
+        //auto Stop0l_DeepAK8_SFWeight_recalc_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_dn");
+        auto Stop0l_DeepAK8_SFWeight = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc");
+        auto Stop0l_DeepAK8_SFWeight_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_up");
+        auto Stop0l_DeepAK8_SFWeight_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_dn");
+        auto Stop0l_DeepAK8_SFWeight_veto_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_up");
+        auto Stop0l_DeepAK8_SFWeight_veto_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_dn");
+        auto Stop0l_DeepAK8_SFWeight_w_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_up");
+        auto Stop0l_DeepAK8_SFWeight_w_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_dn");
+        auto Stop0l_DeepAK8_SFWeight_top_up = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_up");
+        auto Stop0l_DeepAK8_SFWeight_top_dn = tr.getVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_dn");
        
         //std::cout << "Stop0l_ResTopWeight: " << Stop0l_ResTopWeight << "\tResTop_SF: " << ResTop_SF << "\tStop0l_ResTopWeight_Up: " << Stop0l_ResTopWeight_Up /*<< "\tStop0l_ResTopWeight_fast_Up: " << Stop0l_ResTopWeight_fast_Up*/ << std::endl;
         
@@ -902,6 +928,12 @@ int main(int argc, char* argv[])
         float B_SF = 1.0;
         float B_SF_Down = 1.0;
         float B_SF_Up = 1.0;
+        float B_SF_Light = 1.0;
+        float B_SF_Light_Down = 1.0;
+        float B_SF_Light_Up = 1.0;
+        float B_SF_Heavy = 1.0;
+        float B_SF_Heavy_Down = 1.0;
+        float B_SF_Heavy_Up = 1.0;
         float trigger_eff = 1.0;
         float trigger_eff_down = 1.0;
         float trigger_eff_up = 1.0;
@@ -919,6 +951,12 @@ int main(int argc, char* argv[])
             B_SF = tr.getVar<float>("BTagWeight");
             B_SF_Down = tr.getVar<float>("BTagWeight_Down");
             B_SF_Up = tr.getVar<float>("BTagWeight_Up");
+            B_SF_Heavy = tr.getVar<float>("BTagWeightHeavy");
+            B_SF_Heavy_Down = tr.getVar<float>("BTagWeightHeavy_Down");
+            B_SF_Heavy_Up = tr.getVar<float>("BTagWeightHeavy_Up");
+            B_SF_Light = tr.getVar<float>("BTagWeightLight");
+            B_SF_Light_Down = tr.getVar<float>("BTagWeightLight_Down");
+            B_SF_Light_Up = tr.getVar<float>("BTagWeightLight_Up");
             trigger_eff = tr.getVar<float>("Stop0l_trigger_eff_MET_loose_baseline");
             trigger_eff_down = tr.getVar<float>("Stop0l_trigger_eff_MET_loose_baseline_down");
             trigger_eff_up = tr.getVar<float>("Stop0l_trigger_eff_MET_loose_baseline_up");
@@ -951,6 +989,33 @@ int main(int argc, char* argv[])
                 PrefireWeightDown = tr.getVar<float>("PrefireWeight_Down");
                 PrefireWeightUp = tr.getVar<float>("PrefireWeight_Up");
             }
+            float* weightList[] = {&B_SF, &B_SF_Up, &B_SF_Down, &B_SF_Light, &B_SF_Light_Up, &B_SF_Light_Down, &B_SF_Heavy, &B_SF_Heavy_Up, &B_SF_Heavy_Down, &SB_SF, &SB_SF_up, &SB_SF_down, &trigger_eff, &trigger_eff_up, &trigger_eff_down, &puWeight, &puWeightUp, &puWeightDown, &PrefireWeight, &PrefireWeightUp, &PrefireWeightDown, &Stop0l_DeepAK8_SFWeight, &Stop0l_DeepAK8_SFWeight_w_up, &Stop0l_DeepAK8_SFWeight_w_dn, &Stop0l_DeepAK8_SFWeight_top_up, &Stop0l_DeepAK8_SFWeight_top_dn, &Stop0l_DeepAK8_SFWeight_densetop_up, &Stop0l_DeepAK8_SFWeight_densetop_dn, &Stop0l_DeepAK8_SFWeight_veto_up, &Stop0l_DeepAK8_SFWeight_veto_dn, &Stop0l_ResTopWeight, &Stop0l_ResTopWeight_Up, &Stop0l_ResTopWeight_Dn, &Muon_MediumSF, &Muon_MediumSF_up, &Muon_MediumSF_down, &Tau_MediumSF, &Tau_MediumSF_up, &Tau_MediumSF_down, &Electron_VetoSF, &Electron_VetoSF_up, &Electron_VetoSF_down, &Stop0l_ResTopWeight_JESUp, &Stop0l_ResTopWeight_JESDown};
+            for(int i = 0; i < std::size(weightList); i++)
+            {
+                if(!isfinite(*weightList[i]))
+                {
+                    std::cout << "Infinite weight indexed at " << i << " in event " << tr.getVar<unsigned long long>("event") << ". Setting to 1.0." << std::endl;
+                    *weightList[i] = 1.0;
+                }
+                if(*weightList[i] > 5.0)
+                {
+                    std::cout << "Large weight indexed at " << i << " in event " << tr.getVar<unsigned long long>("event") << ". Capping to 5.0." << std::endl;
+                    *weightList[i] = 5.0;
+                }
+            }
+            for(int i = 0; i < 9; i++)
+            {
+                if(!isfinite(LHEScaleWeight[i]))
+                {
+                    std::cout << "Infinite LHEScaleWeight[" << i << "] in event " << tr.getVar<unsigned long long>("event") << ". Setting to 1.0." << std::endl;
+                    LHEScaleWeight[i] = 1.0;
+                }
+                if(LHEScaleWeight[i] > 5.0)
+                {
+                    std::cout << "Large LHEScaleWeight[" << i << "] in event " << tr.getVar<unsigned long long>("event") << ". Capping to 5.0." << std::endl;
+                    LHEScaleWeight[i] = 5.0;
+                }
+            }
 
             //lowDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * SB_SF * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * W_SF * MergedTop_SF * ResTop_SF;
             //highDMevtWeight = evtWeight * sign * B_SF * trigger_eff * puWeight * PrefireWeight * Electron_VetoSF * Muon_MediumSF * Tau_MediumSF * W_SF * MergedTop_SF * ResTop_SF;
@@ -977,6 +1042,9 @@ int main(int argc, char* argv[])
             //...Instead of finding the list of bins (which can vary and will be large), just check what ntop, nres, nw is
         }
 
+        MET->Fill(met,lowDMevtWeight);
+        BTagWeight->Fill(B_SF,lowDMevtWeight);
+
         //if(!Val_bin_0_14 && !Val_bin_15_18 && !Val_bin_19_42 && !Search_lowdm && !Search_highdm) continue;
         //eff_h->Fill(2.,sign);
 
@@ -998,6 +1066,10 @@ int main(int argc, char* argv[])
                 h_vb_low->Fill(bin_num,SF*lowDMevtWeight);
                 h_vb_low_bsf_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up / B_SF);
                 h_vb_low_bsf_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Down / B_SF);
+                h_vb_low_bsf_light_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Light_Up / B_SF_Light);
+                h_vb_low_bsf_light_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Light_Down / B_SF_Light);
+                h_vb_low_bsf_heavy_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Heavy_Up / B_SF_Heavy);
+                h_vb_low_bsf_heavy_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Heavy_Down / B_SF_Heavy);
                 h_vb_low_trig_eff_up->Fill(bin_num, SF * lowDMevtWeight * trigger_eff_up / trigger_eff);
                 h_vb_low_trig_eff_down->Fill(bin_num, SF * lowDMevtWeight * trigger_eff_down / trigger_eff);
                 h_vb_low_puWeight_up->Fill(bin_num, SF * lowDMevtWeight * puWeightUp / puWeight);
@@ -1112,6 +1184,10 @@ int main(int argc, char* argv[])
                 h_njets_low_middphi->Fill(njets,SF*lowDMevtWeight);
                 h_vb_low_bsf_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up / B_SF);
                 h_vb_low_bsf_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Down / B_SF);
+                h_vb_low_bsf_light_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Light_Up / B_SF_Light);
+                h_vb_low_bsf_light_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Light_Down / B_SF_Light);
+                h_vb_low_bsf_heavy_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Heavy_Up / B_SF_Heavy);
+                h_vb_low_bsf_heavy_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Heavy_Down / B_SF_Heavy);
                 h_vb_low_trig_eff_up->Fill(bin_num, SF * lowDMevtWeight * trigger_eff_up / trigger_eff);
                 h_vb_low_trig_eff_down->Fill(bin_num, SF * lowDMevtWeight * trigger_eff_down / trigger_eff);
                 h_vb_low_puWeight_up->Fill(bin_num, SF * lowDMevtWeight * puWeightUp / puWeight);
@@ -1247,8 +1323,12 @@ int main(int argc, char* argv[])
 
                 h_vb_high->Fill(bin_num,SF*highDMevtWeight * topw_sf);
                 h_njets_high_middphi->Fill(njets,SF*highDMevtWeight * topw_sf);
-                h_vb_high_bsf_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Up / B_SF);
-                h_vb_high_bsf_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Down / B_SF);
+                h_vb_high_bsf_up->Fill(bin_num, SF * highDMevtWeight * B_SF_Up / B_SF);
+                h_vb_high_bsf_down->Fill(bin_num, SF * highDMevtWeight * B_SF_Down / B_SF);
+                h_vb_high_bsf_light_up->Fill(bin_num, SF * highDMevtWeight * B_SF_Light_Up / B_SF_Light);
+                h_vb_high_bsf_light_down->Fill(bin_num, SF * highDMevtWeight * B_SF_Light_Down / B_SF_Light);
+                h_vb_high_bsf_heavy_up->Fill(bin_num, SF * highDMevtWeight * B_SF_Heavy_Up / B_SF_Heavy);
+                h_vb_high_bsf_heavy_down->Fill(bin_num, SF * highDMevtWeight * B_SF_Heavy_Down / B_SF_Heavy);
                 h_vb_high_trig_eff_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * trigger_eff_up / trigger_eff);
                 h_vb_high_trig_eff_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * trigger_eff_down / trigger_eff);
                 h_vb_high_puWeight_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * puWeightUp / puWeight);
@@ -1381,6 +1461,10 @@ int main(int argc, char* argv[])
                 h_sb_low->Fill(bin_num,SF*lowDMevtWeight);
                 h_sb_low_bsf_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Up / B_SF);
                 h_sb_low_bsf_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Down / B_SF);
+                h_sb_low_bsf_light_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Light_Up / B_SF_Light);
+                h_sb_low_bsf_light_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Light_Down / B_SF_Light);
+                h_sb_low_bsf_heavy_up->Fill(bin_num, SF * lowDMevtWeight * B_SF_Heavy_Up / B_SF_Heavy);
+                h_sb_low_bsf_heavy_down->Fill(bin_num, SF * lowDMevtWeight * B_SF_Heavy_Down / B_SF_Heavy);
                 h_sb_low_trig_eff_up->Fill(bin_num, SF * lowDMevtWeight * trigger_eff_up / trigger_eff);
                 h_sb_low_trig_eff_down->Fill(bin_num, SF * lowDMevtWeight * trigger_eff_down / trigger_eff);
                 h_sb_low_puWeight_up->Fill(bin_num, SF * lowDMevtWeight * puWeightUp / puWeight);
@@ -1495,8 +1579,12 @@ int main(int argc, char* argv[])
                 //if(ntop_res != 0) topw_sf *= ResTop_SF;
                 //if(nw != 0) topw_sf *= W_SF;
                 h_sb_high->Fill(bin_num,SF*highDMevtWeight * topw_sf);
-                h_sb_high_bsf_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Up / B_SF);
-                h_sb_high_bsf_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * B_SF_Down / B_SF);
+                h_sb_high_bsf_up->Fill(bin_num, SF * highDMevtWeight * B_SF_Up / B_SF);
+                h_sb_high_bsf_down->Fill(bin_num, SF * highDMevtWeight * B_SF_Down / B_SF);
+                h_sb_high_bsf_light_up->Fill(bin_num, SF * highDMevtWeight * B_SF_Light_Up / B_SF_Light);
+                h_sb_high_bsf_light_down->Fill(bin_num, SF * highDMevtWeight * B_SF_Light_Down / B_SF_Light);
+                h_sb_high_bsf_heavy_up->Fill(bin_num, SF * highDMevtWeight * B_SF_Heavy_Up / B_SF_Heavy);
+                h_sb_high_bsf_heavy_down->Fill(bin_num, SF * highDMevtWeight * B_SF_Heavy_Down / B_SF_Heavy);
                 h_sb_high_trig_eff_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * trigger_eff_up / trigger_eff);
                 h_sb_high_trig_eff_down->Fill(bin_num, SF * highDMevtWeight * topw_sf * trigger_eff_down / trigger_eff);
                 h_sb_high_puWeight_up->Fill(bin_num, SF * highDMevtWeight * topw_sf * puWeightUp / puWeight);
@@ -1533,6 +1621,11 @@ int main(int argc, char* argv[])
                 h_sb_high_LHEScaleWeight_7->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[7]);
                 h_sb_high_LHEScaleWeight_8->Fill(bin_num, SF * highDMevtWeight * LHEScaleWeight[8]);
                 eff_h->Fill(1.,sign);
+                
+                if(bin_num == 173)
+                {
+                    std::cout << "173: " << highDMevtWeight << std::endl;
+                }
             }
         }
         if(Search_highdm_JESUp)
@@ -1747,12 +1840,6 @@ int main(int argc, char* argv[])
     h_vb_low_METUnClust_down->Multiply(h_vb_low_lepyield);
     h_vb_low_ivfunc_up->Multiply(h_vb_low_lepyield);
     h_vb_low_ivfunc_down->Multiply(h_vb_low_lepyield);
-    h_vb_low_eff_e_up->Multiply(h_vb_low_lepyield);
-    h_vb_low_eff_e_down->Multiply(h_vb_low_lepyield);
-    h_vb_low_err_mu_up->Multiply(h_vb_low_lepyield);
-    h_vb_low_err_mu_down->Multiply(h_vb_low_lepyield);
-    h_vb_low_eff_tau_up->Multiply(h_vb_low_lepyield);
-    h_vb_low_eff_tau_down->Multiply(h_vb_low_lepyield);
     h_vb_low_eff_wtag_up->Multiply(h_vb_low_lepyield);
     h_vb_low_eff_wtag_down->Multiply(h_vb_low_lepyield);
     h_vb_low_eff_toptag_up->Multiply(h_vb_low_lepyield);
@@ -1802,12 +1889,6 @@ int main(int argc, char* argv[])
     h_vb_high_METUnClust_down->Multiply(h_vb_high_lepyield);
     h_vb_high_ivfunc_up->Multiply(h_vb_high_lepyield);
     h_vb_high_ivfunc_down->Multiply(h_vb_high_lepyield);
-    h_vb_high_eff_e_up->Multiply(h_vb_high_lepyield);
-    h_vb_high_eff_e_down->Multiply(h_vb_high_lepyield);
-    h_vb_high_err_mu_up->Multiply(h_vb_high_lepyield);
-    h_vb_high_err_mu_down->Multiply(h_vb_high_lepyield);
-    h_vb_high_eff_tau_up->Multiply(h_vb_high_lepyield);
-    h_vb_high_eff_tau_down->Multiply(h_vb_high_lepyield);
     h_vb_high_eff_wtag_up->Multiply(h_vb_high_lepyield);
     h_vb_high_eff_wtag_down->Multiply(h_vb_high_lepyield);
     h_vb_high_eff_toptag_up->Multiply(h_vb_high_lepyield);
@@ -1857,12 +1938,6 @@ int main(int argc, char* argv[])
     h_sb_low_METUnClust_down->Multiply(h_sb_low_lepyield);
     h_sb_low_ivfunc_up->Multiply(h_sb_low_lepyield);
     h_sb_low_ivfunc_down->Multiply(h_sb_low_lepyield);
-    h_sb_low_eff_e_up->Multiply(h_sb_low_lepyield);
-    h_sb_low_eff_e_down->Multiply(h_sb_low_lepyield);
-    h_sb_low_err_mu_up->Multiply(h_sb_low_lepyield);
-    h_sb_low_err_mu_down->Multiply(h_sb_low_lepyield);
-    h_sb_low_eff_tau_up->Multiply(h_sb_low_lepyield);
-    h_sb_low_eff_tau_down->Multiply(h_sb_low_lepyield);
     h_sb_low_eff_wtag_up->Multiply(h_sb_low_lepyield);
     h_sb_low_eff_wtag_down->Multiply(h_sb_low_lepyield);
     h_sb_low_eff_toptag_up->Multiply(h_sb_low_lepyield);
@@ -1912,12 +1987,6 @@ int main(int argc, char* argv[])
     h_sb_high_METUnClust_down->Multiply(h_sb_high_lepyield);
     h_sb_high_ivfunc_up->Multiply(h_sb_high_lepyield);
     h_sb_high_ivfunc_down->Multiply(h_sb_high_lepyield);
-    h_sb_high_eff_e_up->Multiply(h_sb_high_lepyield);
-    h_sb_high_eff_e_down->Multiply(h_sb_high_lepyield);
-    h_sb_high_err_mu_up->Multiply(h_sb_high_lepyield);
-    h_sb_high_err_mu_down->Multiply(h_sb_high_lepyield);
-    h_sb_high_eff_tau_up->Multiply(h_sb_high_lepyield);
-    h_sb_high_eff_tau_down->Multiply(h_sb_high_lepyield);
     h_sb_high_eff_wtag_up->Multiply(h_sb_high_lepyield);
     h_sb_high_eff_wtag_down->Multiply(h_sb_high_lepyield);
     h_sb_high_eff_toptag_up->Multiply(h_sb_high_lepyield);
@@ -1933,9 +2002,15 @@ int main(int argc, char* argv[])
     out_file.cd("../");
     h_njets_low_middphi->Write();
     h_njets_high_middphi->Write();
+    MET->Write();
+    BTagWeight->Write();
     h_vb_low->Write();
     h_vb_low_bsf_up->Write();
     h_vb_low_bsf_down->Write();
+    h_vb_low_bsf_light_up->Write();
+    h_vb_low_bsf_light_down->Write();
+    h_vb_low_bsf_heavy_up->Write();
+    h_vb_low_bsf_heavy_down->Write();
     h_vb_low_trig_eff_up->Write();
     h_vb_low_trig_eff_down->Write();
     h_vb_low_puWeight_up->Write();
@@ -1981,6 +2056,10 @@ int main(int argc, char* argv[])
     h_vb_high->Write();
     h_vb_high_bsf_up->Write();
     h_vb_high_bsf_down->Write();
+    h_vb_high_bsf_light_up->Write();
+    h_vb_high_bsf_light_down->Write();
+    h_vb_high_bsf_heavy_up->Write();
+    h_vb_high_bsf_heavy_down->Write();
     h_vb_high_trig_eff_up->Write();
     h_vb_high_trig_eff_down->Write();
     h_vb_high_puWeight_up->Write();
@@ -2026,6 +2105,10 @@ int main(int argc, char* argv[])
     h_sb_low->Write();
     h_sb_low_bsf_up->Write();
     h_sb_low_bsf_down->Write();
+    h_sb_low_bsf_light_up->Write();
+    h_sb_low_bsf_light_down->Write();
+    h_sb_low_bsf_heavy_up->Write();
+    h_sb_low_bsf_heavy_down->Write();
     h_sb_low_trig_eff_up->Write();
     h_sb_low_trig_eff_down->Write();
     h_sb_low_puWeight_up->Write();
@@ -2071,6 +2154,10 @@ int main(int argc, char* argv[])
     h_sb_high->Write();
     h_sb_high_bsf_up->Write();
     h_sb_high_bsf_down->Write();
+    h_sb_high_bsf_light_up->Write();
+    h_sb_high_bsf_light_down->Write();
+    h_sb_high_bsf_heavy_up->Write();
+    h_sb_high_bsf_heavy_down->Write();
     h_sb_high_trig_eff_up->Write();
     h_sb_high_trig_eff_down->Write();
     h_sb_high_puWeight_up->Write();

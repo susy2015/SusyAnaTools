@@ -28,18 +28,20 @@ private:
         float binLowEdge, binHighEdge, value, error;
     };
 
-    std::tuple<float, float> getSFAndErr(const std::vector<SFEntry>& sfVec, float pt, int nGenPart, int recoTag, bool isFastSim = false)
+    std::tuple<float, float, float> getSFAndErr(const std::vector<SFEntry>& sfVec, float pt, int nGenPart, int recoTag)
     {
         for(const auto& entry : sfVec)
         {
             if(pt >= entry.binLowEdge && pt < entry.binHighEdge)
             {
-                if(!isFastSim && nGenPart >= 4 && recoTag == 1) return std::make_tuple(entry.value, sqrt(entry.error*entry.error + 0.2*0.2));
-                else                                            return std::make_tuple(entry.value, entry.error);
+                float denseTopUncertainty = 0.0;
+                if(nGenPart >= 4 && recoTag == 1) denseTopUncertainty = 0.2;
+
+                return std::make_tuple(entry.value, entry.error, denseTopUncertainty);
             }
         }
 
-        return std::make_tuple(1.0, 0.0);
+        return std::make_tuple(1.0, 0.0, 0.0);
     }
 
     float getEff(TH1* h, float pt)
@@ -54,7 +56,7 @@ private:
     std::map<std::string, std::vector<SFEntry>> DeepW_Fake_SF;
     std::map<std::string, std::vector<SFEntry>> DeepW_fastSF;
 
-    std::tuple<float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float>  calculateWeights(const std::vector<TLorentzVector>& FatJet_LV, const std::vector<int>& FatJet_genMatch, const std::vector<int>& FatJet_Stop0l, const std::vector<int>& FatJet_nGenPart)
+    std::tuple<float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float>  calculateWeights(const std::vector<TLorentzVector>& FatJet_LV, const std::vector<int>& FatJet_genMatch, const std::vector<int>& FatJet_Stop0l, const std::vector<int>& FatJet_nGenPart)
     {
         float numerator = 1.0;
         float numerator_up = 1.0;
@@ -68,6 +70,9 @@ private:
 
         float numerator_v_up = 1.0;
         float numerator_v_dn = 1.0;
+
+        float numerator_t_denseTop_up = 1.0;
+        float numerator_t_denseTop_dn = 1.0;
 
         float denominator = 1.0;
 
@@ -104,14 +109,15 @@ private:
             {
                 float SF = 1.0;
                 float SFerr = 0.0;
+                float SFerr_DenseTop = 0.0;
 
                 float SFfast = 1.0;
                 float SFfasterr = 0.0;
 
-                if(genMatch == 1) std::tie(SF, SFerr) = getSFAndErr(DeepTop_SF_era,      fjPt, nGenPart, recoTag);
-                else              std::tie(SF, SFerr) = getSFAndErr(DeepTop_Fake_SF_era, fjPt, nGenPart, recoTag);
+                if(genMatch == 1) std::tie(SF, SFerr, SFerr_DenseTop) = getSFAndErr(DeepTop_SF_era,      fjPt, nGenPart, recoTag);
+                else              std::tie(SF, SFerr, SFerr_DenseTop) = getSFAndErr(DeepTop_Fake_SF_era, fjPt, nGenPart, recoTag);
 
-                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, recoTag, true);
+                std::tie(SFfast, SFfasterr, std::ignore) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, recoTag);
 
                 numerator *= SF;
                 numerator_up *= SF+SFerr;
@@ -123,6 +129,9 @@ private:
                 numerator_w_dn *= SF;
                 numerator_v_up *= SF;
                 numerator_v_dn *= SF;
+
+                numerator_t_denseTop_up *= SF*(1+SFerr_DenseTop);
+                numerator_t_denseTop_dn *= SF/(1+SFerr_DenseTop);
 
                 numerator_fast *= SF*SFfast;
                 numerator_fast_up *= (SFfast+SFfasterr)*SF;
@@ -143,10 +152,10 @@ private:
                 float SFfast = 1.0;
                 float SFfasterr = 0.0;
 
-                if(genMatch == 2) std::tie(SF, SFerr) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, recoTag);
-                else              std::tie(SF, SFerr) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, recoTag);
+                if(genMatch == 2) std::tie(SF, SFerr, std::ignore) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, recoTag);
+                else              std::tie(SF, SFerr, std::ignore) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, recoTag);
 
-                std::tie(SFfast, SFfasterr) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, recoTag, true);
+                std::tie(SFfast, SFfasterr, std::ignore) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, recoTag);
 
                 numerator *= SF;
                 numerator_up *= SF+SFerr;
@@ -158,6 +167,9 @@ private:
                 numerator_w_dn *= SF-SFerr;
                 numerator_v_up *= SF;
                 numerator_v_dn *= SF;
+
+                numerator_t_denseTop_up *= SF;
+                numerator_t_denseTop_dn *= SF;
 
                 numerator_fast *= SF*SFfast;
                 numerator_fast_up *= (SFfast+SFfasterr)*SF;
@@ -185,14 +197,14 @@ private:
                 float Eff_t = 0.0;
                 float Eff_w = 0.0;
 
-                if(genMatch == 1) std::tie(SF_t, SFerr_t) = getSFAndErr(DeepTop_SF_era,      fjPt, nGenPart, recoTag);
-                else              std::tie(SF_t, SFerr_t) = getSFAndErr(DeepTop_Fake_SF_era, fjPt, nGenPart, recoTag);
+                if(genMatch == 1) std::tie(SF_t, SFerr_t, std::ignore) = getSFAndErr(DeepTop_SF_era,      fjPt, nGenPart, recoTag);
+                else              std::tie(SF_t, SFerr_t, std::ignore) = getSFAndErr(DeepTop_Fake_SF_era, fjPt, nGenPart, recoTag);
 
-                if(genMatch == 2) std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, recoTag);
-                else              std::tie(SF_w, SFerr_w) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, recoTag);
+                if(genMatch == 2) std::tie(SF_w, SFerr_w, std::ignore) = getSFAndErr(DeepW_SF_era,      fjPt, nGenPart, recoTag);
+                else              std::tie(SF_w, SFerr_w, std::ignore) = getSFAndErr(DeepW_Fake_SF_era, fjPt, nGenPart, recoTag);
 
-                std::tie(SFfast_t, SFfasterr_t) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, recoTag, true);
-                std::tie(SFfast_w, SFfasterr_w) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, recoTag, true);
+                std::tie(SFfast_t, SFfasterr_t, std::ignore) = getSFAndErr(DeepTop_fastSF_era, fjPt, nGenPart, recoTag);
+                std::tie(SFfast_w, SFfasterr_w, std::ignore) = getSFAndErr(DeepW_fastSF_era, fjPt, nGenPart, recoTag);
 
                 if(genMatch == 1)
                 {
@@ -220,6 +232,9 @@ private:
                 numerator_w_dn *= 1 - SF_t*Eff_t - SF_w*Eff_w;
                 numerator_v_up *= 1 - (SF_t+SFerr_t)*Eff_t - (SF_w+SFerr_w)*Eff_w;
                 numerator_v_dn *= 1 - (SF_t-SFerr_t)*Eff_t - (SF_w-SFerr_w)*Eff_w;
+
+                numerator_t_denseTop_up *= 1 - SF_t*Eff_t - SF_w*Eff_w;
+                numerator_t_denseTop_dn *= 1 - SF_t*Eff_t - SF_w*Eff_w;
 
                 numerator_fast *= 1 - SF_t*SFfast_t*Eff_t - SF_w*SFfast_w*Eff_w;
                 numerator_fast_up *= 1 - (SFfast_t+SFfasterr_t)*SF_t*Eff_t - (SFfast_w+SFfasterr_w)*SF_w*Eff_w;
@@ -249,6 +264,8 @@ private:
                                numerator_w_dn/denominator, 
                                numerator_v_up/denominator, 
                                numerator_v_dn/denominator,
+                               numerator_t_denseTop_up/denominator,
+                               numerator_t_denseTop_dn/denominator,
                                numerator_fast/denominator, 
                                numerator_fast_up/denominator,
                                numerator_fast_dn/denominator, 
@@ -452,15 +469,17 @@ public:
                 {"weight_w_dn", std::get<6>(weights)},
                 {"weight_v_up", std::get<7>(weights)},
                 {"weight_v_dn", std::get<8>(weights)},
-                {"weight_fast", std::get<9>(weights)}, 
-                {"weight_fast_up", std::get<10>(weights)}, 
-                {"weight_fast_dn", std::get<11>(weights)},
-                {"weight_fast_t_up", std::get<12>(weights)},
-                {"weight_fast_t_dn", std::get<13>(weights)},
-                {"weight_fast_w_up", std::get<14>(weights)},
-                {"weight_fast_w_dn", std::get<15>(weights)},
-                {"weight_fast_v_up", std::get<16>(weights)},
-                {"weight_fast_v_dn", std::get<17>(weights)}, };
+                {"weight_densetop_up", std::get<9>(weights)},
+                {"weight_densetop_dn", std::get<10>(weights)},
+                {"weight_fast", std::get<11>(weights)}, 
+                {"weight_fast_up", std::get<12>(weights)}, 
+                {"weight_fast_dn", std::get<13>(weights)},
+                {"weight_fast_t_up", std::get<14>(weights)},
+                {"weight_fast_t_dn", std::get<15>(weights)},
+                {"weight_fast_w_up", std::get<16>(weights)},
+                {"weight_fast_w_dn", std::get<17>(weights)},
+                {"weight_fast_v_up", std::get<18>(weights)},
+                {"weight_fast_v_dn", std::get<19>(weights)}, };
     }
 
     template<typename NTupleReader>
@@ -471,25 +490,27 @@ public:
         const std::vector<int>& FJ_Stop0l         = tr.template getVec<int>("FatJet_Stop0l");
         const std::vector<int>& FJ_nGenPart       = tr.template getVec<int>("FatJet_nGenPart");
         
-        float& weight           = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc");
-        float& weight_up        = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_up");
-        float& weight_dn        = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_dn");
-        float& weight_t_up      = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_up");
-        float& weight_t_dn      = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_dn");
-        float& weight_w_up      = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_up");
-        float& weight_w_dn      = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_dn");
-        float& weight_v_up      = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_up");
-        float& weight_v_dn      = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_dn");
-        float& weight_fast      = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc");
-        float& weight_fast_up   = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_up");
-        float& weight_fast_dn   = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_dn");
-        float& weight_fast_t_up = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_up");
-        float& weight_fast_t_dn = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_dn");
-        float& weight_fast_w_up = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_w_up");
-        float& weight_fast_w_dn = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_w_dn");
-        float& weight_fast_v_up = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_up");
-        float& weight_fast_v_dn = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_dn");
-        std::tie(weight, weight_up, weight_dn, weight_t_up, weight_t_dn, weight_w_up, weight_w_dn, weight_v_up, weight_v_dn, weight_fast, weight_fast_up, weight_fast_dn, weight_fast_t_up, weight_fast_t_dn, weight_fast_w_up, weight_fast_w_dn, weight_fast_v_up, weight_fast_v_dn) = calculateWeights(FJ_tlv, FJ_genMatch, FJ_Stop0l, FJ_nGenPart);
+        float& weight             = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc");
+        float& weight_up          = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_up");
+        float& weight_dn          = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_total_dn");
+        float& weight_t_up        = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_up");
+        float& weight_t_dn        = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_top_dn");
+        float& weight_w_up        = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_up");
+        float& weight_w_dn        = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_w_dn");
+        float& weight_v_up        = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_up");
+        float& weight_v_dn        = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_veto_dn");
+        float& weight_denseTop_up = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_densetop_up");
+        float& weight_denseTop_dn = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_recalc_densetop_dn");
+        float& weight_fast        = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc");
+        float& weight_fast_up     = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_up");
+        float& weight_fast_dn     = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_total_dn");
+        float& weight_fast_t_up   = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_up");
+        float& weight_fast_t_dn   = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_top_dn");
+        float& weight_fast_w_up   = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_w_up");
+        float& weight_fast_w_dn   = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_w_dn");
+        float& weight_fast_v_up   = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_up");
+        float& weight_fast_v_dn   = tr.template createDerivedVar<float>("Stop0l_DeepAK8_SFWeight_fast_recalc_veto_dn");
+        std::tie(weight, weight_up, weight_dn, weight_t_up, weight_t_dn, weight_w_up, weight_w_dn, weight_v_up, weight_v_dn, weight_denseTop_up, weight_denseTop_dn, weight_fast, weight_fast_up, weight_fast_dn, weight_fast_t_up, weight_fast_t_dn, weight_fast_w_up, weight_fast_w_dn, weight_fast_v_up, weight_fast_v_dn) = calculateWeights(FJ_tlv, FJ_genMatch, FJ_Stop0l, FJ_nGenPart);
     }
 
 };

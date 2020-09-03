@@ -15,19 +15,26 @@ from collections import defaultdict
 #DelExe    = '../tupleReadNormEx'
 #DelExe    = '../tupleReadElec'
 DelExe    = '../SB_reader_signal'
+#DelExe = '../SB_reader_TTbarDM'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 #tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
 tempdir = '/uscmst1b_scratch/lpc1/3DayLifetime/%s/TestCondor/'  % getpass.getuser()
 #Sample name added in myprocess, which has access to args
-ShortProjectName = 'VBSB_signal_v6p1'
+#ShortProjectName = 'VBSB_signal_v6p5_otherT2tt_noLHE'
+#ShortProjectName = 'signal_v6p5'
+ShortProjectName = 'signal_v6p5_noLHE'
+#ShortProjectName = 'TTbarDM_extrapoints'
+#ShortProjectName = 'T2tt_tests'
+#argument = "%s.$(Process).list %s.root -L"
 argument = "%s.$(Process).list %s.root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
 defaultLperFile = 5
+#5 is good for most signal; 1 is better for 2017 T2tt 350-400 and for TTbarDM
 run_everything = True
 #if run_everything: defaultLperFile = 100
-#year = "2016"
+year = "2016"
 #year = "2017"
-year = "2018"
+#year = "2018"
 #if args.era != "":
 #    year = args.era
 
@@ -73,7 +80,7 @@ def tar_cmssw():
         if tarinfo.size > 100*1024*1024:
             tarinfo = None
             return tarinfo
-        exclude_patterns = ['/.git/', '/tmp/', '/jobs.*/', '/logs/', '/.SCRAM/', '.pyc', '/datacards/', '/results.*/', '/plots.*/','/fastsim_results.*/']
+        exclude_patterns = ['/.git/', '/tmp/', '/jobs.*/', '/logs/', '/.SCRAM/', '.pyc', '/datacards/', '/results.*/', '/plots.*/','/fastsim_results.*/','/fastsimstuff.*/']
         for pattern in exclude_patterns:
             if re.search(pattern, tarinfo.name):
                 # print('ignoring %s in the tarball', tarinfo.name)

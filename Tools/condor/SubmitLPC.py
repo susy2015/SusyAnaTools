@@ -14,24 +14,24 @@ from collections import defaultdict
 
 #DelExe    = '../tupleReadNormEx'
 #DelExe    = '../tupleReadElec'
-#DelExe    = '../SB_reader'
-DelExe    = '../SB_reader_LL'
+DelExe    = '../SB_reader'
+#DelExe    = '../SB_reader_LL'
 OutDir = '/store/user/%s/StopStudy' %  getpass.getuser()
 tempdir = '/uscms_data/d3/%s/condor_temp/' % getpass.getuser()
 #ShortProjectName = 'TTZNormEx'
 #ShortProjectName = 'TTZElec'
-#ShortProjectName = 'VBSBv6'
-#ShortProjectName = 'METvalidation2'
-ShortProjectName = 'LLCrossCheck'
+ShortProjectName = 'VBSBv7'
+#ShortProjectName = 'TTZRare_noGenLepVeto'
+#ShortProjectName = 'LLCrossCheck'
 argument = "%s.$(Process).list %s_$(Process).root --samplename %s"
 #argument = "%s.$(Process).list %s_$(Process).root"
 # argument = "--inputFiles=%s.$(Process).list --outputFile=%s_$(Process).root --jettype=L1PuppiJets"
 defaultLperFile = 5
 run_everything = False
 if run_everything: defaultLperFile = 100
-year = "2016"
+#year = "2016"
 #year = "2017"
-#year = "2018"
+year = "2018"
 #if args.era != "":
 #    year = args.era
 
@@ -43,7 +43,12 @@ isTTZ = False
 
 process_dict = {
 ##Rare would include TTZToQQ, Diboson, Triboson, Higgs. Also include DY?
-#    "TTZToLLNuNu" : ["TTZToLLNuNu"],
+    "TTZToLLNuNu" : ["TTZToLLNuNu"],
+   "TTZToQQ" : ["TTZToQQ"],
+	"Diboson" : ["ZZTo2Q2Nu", "ZZTo2L2Nu", "WZ", "WWTo2L2Nu", "WWToLNuQQ"],
+	"Diboson_ext" : ["WWTo4Q","WZTo1L1Nu2Q","WZTo1L3Nu","WZTo3LNu","WZTo2L2Q","ZZTo2L2Q","ZZTo4Q","ZZTo4L"],
+	"Triboson" : ["WWW","WWZ","WZZ","ZZZ","WZG","WWG"],
+	"Higgs" : ["ttHTobb","ttHToNonbb","VHToNonbb","GluGluHToZZTo4L"],
 #    "ttHToNonbb" : ["ttHToNonbb"],
 #    "TTbarSingleLep" : ["TTbarSingleLepT","TTbarSingleLepTbar"],
 #    "Normalization" : ["TTZToLLNuNu","ttHToNonbb","VHToNonbb","GluGluHToZZTo4L","ST_tWll","tZq_ll","TTWJetsToLNu","WZTo3LNu","ZZTo4L","WWZ","WZZ","ZZZ","WZG","WWG","WWW","TTTT","TTbarDiLep","DYJetsToLL_HT_70to100","DYJetsToLL_HT_100to200","DYJetsToLL_HT_200to400","DYJetsToLL_HT_400to600","DYJetsToLL_HT_600to800","DYJetsToLL_HT_800to1200","DYJetsToLL_HT_1200to2500","DYJetsToLL_HT_2500toInf"],
@@ -55,11 +60,6 @@ process_dict = {
 ##	"TopAssoc" : ["ST_tW_top_incl", "ST_tW_antitop_incl", "ST_s_lep", "ST_t_top", "ST_t_antitop", "TTZToQQ"],
 #	"TopAssoc_ext" : ["TTWJetsToLNu","TTWJetsToQQ","TTTT","TTGJets","ST_tWll","ST_tWnunu","tZq_ll"],
 ##    "resubmit" : ["ttHToNonbb","WWTo2L2Nu","WWTo4Q","VHToNonbb","WZ","ZZZ"],
-#   "TTZToQQ" : ["TTZToQQ"],
-#	"Diboson" : ["ZZTo2Q2Nu", "ZZTo2L2Nu", "WZ", "WWTo2L2Nu", "WWToLNuQQ"],
-#	"Diboson_ext" : ["WWTo4Q","WZTo1L1Nu2Q","WZTo1L3Nu","WZTo3LNu","ZZTo2L2Q","ZZTo4Q","ZZTo4L"],
-#	"Triboson" : ["WWW","WWZ","WZZ","ZZZ","WZG","WWG"],
-#	"Higgs" : ["ttHTobb","ttHToNonbb","VHToNonbb","GluGluHToZZTo4L"],
 #	"DY" : ["DYJetsToLL_HT_70to100","DYJetsToLL_HT_100to200","DYJetsToLL_HT_200to400","DYJetsToLL_HT_400to600","DYJetsToLL_HT_600to800","DYJetsToLL_HT_800to1200","DYJetsToLL_HT_1200to2500","DYJetsToLL_HT_2500toInf"],
 #	"GJets" : ["GJets_HT_100To200","GJets_HT_200To400","GJets_HT_400To600","GJets_HT_600ToInf"],
 ##	"Signal_2017_fullsim" : ["SMS_T1tttt_mGluino2000_mLSP100_fullsim","SMS_T1tttt_mGluino1200_mLSP800_fullsim","SMS_T2tt_mStop_1200_mLSP_100_fullsim","SMS_T2tt_mStop_650_mLSP_350_fullsim","SMS_T2tt_mStop_1200_mLSP_100_TuneCP5_fullsim","SMS_T2tt_mStop_850_mLSP_100_TuneCP5_fullsim","SMS_T2tt_mStop_650_mLSP_350_TuneCP5_fullsim","SMS_T1bbbb_mGluino1000_mLSP900_fullsim","SMS_T1bbbb_mGluino1500_mLSP100_fullsim",],
@@ -76,9 +76,11 @@ process_dict = {
 #   "SingleElectron_2017_F" : ["Data_SingleElectron_2017_PeriodF"],
 #    "SingleElectron_2018_PreHEM" : ["Data_EGamma_2018_PeriodA","Data_EGamma_2018_PeriodB_PreHEM"],
 #    "SingleElectron_2018_PostHEM" : ["Data_EGamma_2018_PeriodB_PostHEM","Data_EGamma_2018_PeriodC","Data_EGamma_2018_PeriodD"],
-    "LL_TTbar" : ["TTbar_HT_600to800","TTbar_HT_800to1200","TTbar_HT_1200to2500","TTbar_HT_2500toInf","TTbarDiLep","TTbarSingleLepT","TTbarSingleLepTbar"],
-    "LL_other" : ["WJetsToLNu_HT_70to100","WJetsToLNu_HT_100to200","WJetsToLNu_HT_200to400","WJetsToLNu_HT_400to600","WJetsToLNu_HT_600to800","WJetsToLNu_HT_800to1200","WJetsToLNu_HT_1200to2500","WJetsToLNu_HT_2500toInf","ST_tW_top_NoHad","ST_tW_antitop_NoHad","ST_s_lep","ST_t_top","ST_t_antitop","ST_tWll","ST_tWnunu","TTZToLLNuNu","TTZToQQ","TTWJetsToLNu","TTWJetsToQQ"],
-#TTbar_HT*, TTbarDiLep, TTbarSingleLep, WJetsToLNu_HT*, ST_tW_top_NoHad, ST_tW_antitop_NoHad_2016, ST_s_lep, ST_t_top, ST_t_antitop, ST_tW*, TTZTo*, TTWJetsTo*
+#    "LL_TTbar" : ["TTbar_HT_600to800","TTbar_HT_800to1200","TTbar_HT_1200to2500","TTbar_HT_2500toInf","TTbarDiLep","TTbarSingleLepT","TTbarSingleLepTbar"],
+#    "LL_other" : ["WJetsToLNu_HT_70to100","WJetsToLNu_HT_100to200","WJetsToLNu_HT_200to400","WJetsToLNu_HT_400to600","WJetsToLNu_HT_600to800","WJetsToLNu_HT_800to1200","WJetsToLNu_HT_1200to2500","WJetsToLNu_HT_2500toInf","ST_tW_top_NoHad","ST_tW_antitop_NoHad","ST_s_lep","ST_t_top","ST_t_antitop","ST_tWll","ST_tWnunu","TTZToLLNuNu","TTZToQQ","TTWJetsToLNu","TTWJetsToQQ"],
+#    "tZq_ll" : ["tZq_ll"],
+##   #TTbar_HT*, TTbarDiLep, TTbarSingleLep, WJetsToLNu_HT*, ST_tW_top_NoHad, ST_tW_antitop_NoHad_2016, ST_s_lep, ST_t_top, ST_t_antitop, ST_tW*, TTZTo*, TTWJetsTo*
+#    "ForScarlet" : ["QCD_HT_500to700","QCD_HT_700to1000","TTbarSingleLepT","TTbarSingleLepTbar","ZJetsToNuNu_HT_400to600","ZJetsToNuNu_HT_600to800"],
     }
 
 process_list = []
@@ -114,7 +116,7 @@ if PeriodF:
 if loose_cuts and (DelExe != '../SB_reader'):
     argument += " --loose_cuts"
 
-if DelExe == '../SB_reader' or DelExe == '../SB_reader_METval':
+if DelExe == '../SB_reader_METval':
     if isTTZ:
         LongProjectName = LongProjectName + "_TTZ"
         argument += " --isTTZ"
@@ -136,7 +138,7 @@ def tar_cmssw():
         if tarinfo.size > 100*1024*1024:
             tarinfo = None
             return tarinfo
-        exclude_patterns = ['/.git/', '/tmp/', '/jobs.*/', '/logs/', '/.SCRAM/', '.pyc', '/datacards/', '/results.*/', '/plots.*/','/fastsim_results.*/']
+        exclude_patterns = ['/.git/', '/tmp/', '/jobs.*/', '/logs/', '/.SCRAM/', '.pyc', '/datacards/', '/results.*/', '/plots.*/','/fastsim_results.*/','/fastsimstuff.*/']
         for pattern in exclude_patterns:
             if re.search(pattern, tarinfo.name):
                 # print('ignoring %s in the tarball', tarinfo.name)
