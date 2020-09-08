@@ -694,6 +694,7 @@ void BaselineVessel::PassBaseline()
   const auto& Stop0l_Mtb                            = tr->getVar<float>("Stop0l_Mtb");
   const auto& Stop0l_Ptb                            = tr->getVar<float>("Stop0l_Ptb");
   const auto& MET_pt                                = tr->getVar<float>("MET_pt");
+  const auto& MET_phi                               = tr->getVar<float>("MET_phi");
   const auto& Stop0l_METSig                         = tr->getVar<float>("Stop0l_METSig");
   const auto& Stop0l_HT                             = tr->getVar<float>("Stop0l_HT");
   const auto& Stop0l_nJets                          = tr->getVar<int>("Stop0l_nJets");;
@@ -1110,6 +1111,7 @@ void BaselineVessel::PassBaseline()
     printf("\thui_Pass_dPhiMETMedDM  = %d and caleb_SAT_Pass_mid_dPhiMETLowDM = %d %s\n", Pass_dPhiMETMedDM,            SAT_Pass_mid_dPhiMETLowDM,  checkEquality(SusyUtility::isClose(Pass_dPhiMETMedDM,               SAT_Pass_mid_dPhiMETLowDM)).c_str());
     printf("\thui_Pass_dPhiMETHighDM = %d and caleb_SAT_Pass_dPhiMETHighDM    = %d %s\n", Pass_dPhiMETHighDM,           SAT_Pass_dPhiMETHighDM,     checkEquality(SusyUtility::isClose(Pass_dPhiMETHighDM,              SAT_Pass_dPhiMETHighDM)).c_str());
     printf("\thui_MET_pt             = %.15lf and caleb_met                   = %.15lf %s\n", MET_pt,                   met,                        checkEquality(SusyUtility::isClose(MET_pt,                          met)).c_str());
+    printf("\thui_MET_phi            = %.15lf and caleb_metphi                = %.15lf %s\n", MET_phi,                  metphi,                     checkEquality(SusyUtility::isClose(MET_phi,                         metphi)).c_str());
     printf("\thui_Stop0l_HT          = %.15lf and caleb_HT                    = %.15lf %s\n", Stop0l_HT,                HT,                         checkEquality(SusyUtility::isClose(Stop0l_HT,                       HT)).c_str());
     printf("\thui_Stop0l_ISRJetPt    = %.15lf and caleb_ISRJetPt              = %.15lf %s\n", Stop0l_ISRJetPt,          ISRJetPt,                   checkEquality(SusyUtility::isClose(Stop0l_ISRJetPt,                 ISRJetPt)).c_str());
     printf("\thui_Stop0l_METSig      = %.15lf and caleb_S_met                 = %.15lf %s\n", Stop0l_METSig,            S_met,                      checkEquality(SusyUtility::isClose(Stop0l_METSig,                   S_met)).c_str());
