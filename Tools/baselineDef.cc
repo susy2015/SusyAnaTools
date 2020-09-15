@@ -1097,7 +1097,7 @@ void BaselineVessel::PassBaseline()
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
-    printf("firstSpec=%s; run=%d; luminosityBlock=%d; CMS_event=%d; ntuple_event=%d\n",   firstSpec.c_str(), run, luminosityBlock, event, tr->getEvtNum());
+    printf("firstSpec=%s; run=%d; luminosityBlock=%d; CMS_event=%llu; ntuple_event=%d\n",   firstSpec.c_str(), run, luminosityBlock, event, tr->getEvtNum());
     printf("hui_Pass_lowDM           = %d and caleb_SAT_Pass_lowDM            = %d %s\n", Pass_lowDM,                   SAT_Pass_lowDM,             checkEquality(SusyUtility::isClose(Pass_lowDM,                      SAT_Pass_lowDM)).c_str());
     printf("hui_Pass_highDM          = %d and caleb_SAT_Pass_highDM           = %d %s\n", Pass_highDM,                  SAT_Pass_highDM,            checkEquality(SusyUtility::isClose(Pass_highDM,                     SAT_Pass_highDM)).c_str());
     printf("hui_Pass_lowDM_mid_dPhi  = %d and caleb_SAT_Pass_lowDM_mid_dPhi   = %d %s\n", Pass_lowDM_mid_dPhi,          SAT_Pass_lowDM_mid_dPhi,    checkEquality(SusyUtility::isClose(Pass_lowDM_mid_dPhi,             SAT_Pass_lowDM_mid_dPhi)).c_str());
