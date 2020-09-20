@@ -1094,8 +1094,7 @@ void BaselineVessel::PassBaseline()
   //if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && SusyUtility::containsElement(event, eventsToDisplay) )
   //if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && SusyUtility::containsElement(event, eventsToDisplayTwoResolvedTops) )
   //if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && SusyUtility::containsElement(event, eventsToDisplayOneMergedTopOneResTop) )
-  
-  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && SusyUtility::containsElement(event, eventsToDisplayOneMergedTopOneResTop) )
+  if ( firstSpec.compare("_jetpt30") == 0 && Pass_LeptonVeto && (baselineDifference || topDifference) )
   {
     //printf("WARNING: Difference in number of tops and/or Ws found!\n");
     printf("-----------------------------------------------------------------------------------------\n");
