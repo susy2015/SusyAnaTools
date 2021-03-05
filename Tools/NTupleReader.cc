@@ -163,6 +163,21 @@ int NTupleReader::getNEntries() const
     }
 }
 
+std::string NTupleReader::split(const std::string& half, const std::string& s, const std::string& h) const
+{
+    if(s.find(h) != std::string::npos)
+    {
+        std::string token;
+        if      ("first"==half) token = s.substr(0, s.find(h));
+        else if ("last" ==half) token = s.substr(s.find(h) + h.length(), std::string::npos);
+        return token;
+    }
+    else
+    {
+        return s;
+    }
+}
+
 void NTupleReader::populateBranchList()
 {
     TObjArray *lob = tree_->GetListOfBranches();
@@ -189,19 +204,29 @@ void NTupleReader::registerBranch(TBranch * const branch, bool activate) const
 {
     std::string type;
     std::string name(branch->GetName());
+    std::string title;
+    std::string firstdim, seconddim;
     int leafLength = -1;
     TLeaf *countLeaf = nullptr;
 
     TObjArray *lol = branch->GetListOfLeaves();
     int lolSize = lol->GetEntries();
-    
+    std::vector<int> dimVec;
+
     if (lolSize >= 1) 
     {
         TLeaf *leaf = (TLeaf*)lol->UncheckedAt(0);
         type = leaf->GetTypeName();
         leafLength = leaf->GetLen();
+        title = leaf->GetTitle();
         //count leaf is set if the branch holds a variable length array
         countLeaf = leaf->GetLeafCount();
+        firstdim  = split("last", split("first", title, "]"), "[");
+        seconddim = split("first", split("last", title, "]["), "]");
+        if(firstdim == title) firstdim = "";
+        if(seconddim != title && seconddim.find(name) != std::string::npos) seconddim = "";
+        if(firstdim  != "") dimVec.emplace_back(std::atoi(firstdim.c_str()));
+        if(seconddim != "") dimVec.emplace_back(std::atoi(seconddim.c_str()));
     }
     else
     {
@@ -275,27 +300,27 @@ void NTupleReader::registerBranch(TBranch * const branch, bool activate) const
             else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
         }
     }
-    else if(countLeaf) //if this ptr is non-null then this is a variable length array
+    else if(countLeaf || leafLength > 1) //if this ptr is non-null then this is a variable length arra
     {
-        if     (type.find("double")         != std::string::npos) registerArrayBranch<double>(name, branch, activate);
-        else if(type.find("unsigned int")   != std::string::npos) registerArrayBranch<unsigned int>(name, branch, activate);
-        else if(type.find("unsigned long")  != std::string::npos) registerArrayBranch<unsigned long>(name, branch, activate);
-        else if(type.find("unsigned char")  != std::string::npos) registerArrayBranch<unsigned char>(name, branch, activate);
-        else if(type.find("unsigned short") != std::string::npos) registerArrayBranch<unsigned short>(name, branch, activate);
-        else if(type.find("short")          != std::string::npos) registerArrayBranch<short>(name, branch, activate);
-        else if(type.find("char")           != std::string::npos) registerArrayBranch<char>(name, branch, activate);
-        else if(type.find("int")            != std::string::npos) registerArrayBranch<int>(name, branch, activate);
-        else if(type.find("bool")           != std::string::npos) registerArrayBranch<uint8_t>(name, branch, activate);
-        else if(type.find("string")         != std::string::npos) registerArrayBranch<std::string>(name, branch, activate);
-        else if(type.find("TLorentzVector") != std::string::npos) registerArrayBranch<TLorentzVector>(name, branch, activate);
-        else if(type.find("float")          != std::string::npos) registerArrayBranch<float>(name, branch, activate);
-        else if(type.find("UInt_t")         != std::string::npos) registerArrayBranch<UInt_t>(name, branch, activate);
-        else if(type.find("ULong64_t")      != std::string::npos) registerArrayBranch<ULong64_t>(name, branch, activate);
-        else if(type.find("UChar_t")        != std::string::npos) registerArrayBranch<UChar_t>(name, branch, activate);
-        else if(type.find("Float_t")        != std::string::npos) registerArrayBranch<float>(name, branch, activate);
-        else if(type.find("Double_t")       != std::string::npos) registerArrayBranch<double>(name, branch, activate);
-        else if(type.find("Int_t")          != std::string::npos) registerArrayBranch<int>(name, branch, activate);
-        else if(type.find("Bool_t")         != std::string::npos) registerArrayBranch<uint8_t>(name, branch, activate);
+        if     (type.find("double")         != std::string::npos) registerArrayBranch<double>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("unsigned int")   != std::string::npos) registerArrayBranch<unsigned int>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("unsigned long")  != std::string::npos) registerArrayBranch<unsigned long>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("unsigned char")  != std::string::npos) registerArrayBranch<unsigned char>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("unsigned short") != std::string::npos) registerArrayBranch<unsigned short>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("short")          != std::string::npos) registerArrayBranch<short>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("char")           != std::string::npos) registerArrayBranch<char>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("int")            != std::string::npos) registerArrayBranch<int>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("bool")           != std::string::npos) registerArrayBranch<uint8_t>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("string")         != std::string::npos) registerArrayBranch<std::string>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("TLorentzVector") != std::string::npos) registerArrayBranch<TLorentzVector>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("float")          != std::string::npos) registerArrayBranch<float>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("UInt_t")         != std::string::npos) registerArrayBranch<UInt_t>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("ULong64_t")      != std::string::npos) registerArrayBranch<ULong64_t>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("UChar_t")        != std::string::npos) registerArrayBranch<UChar_t>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("Float_t")        != std::string::npos) registerArrayBranch<float>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("Double_t")       != std::string::npos) registerArrayBranch<double>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("Int_t")          != std::string::npos) registerArrayBranch<int>(name, branch, activate, leafLength, dimVec);
+        else if(type.find("Bool_t")         != std::string::npos) registerArrayBranch<uint8_t>(name, branch, activate, leafLength, dimVec);
         else THROW_SATEXCEPTION("No type match for branch \"" + name + "\" with type \"" + type + "\"!!!");
     }
     else
@@ -311,7 +336,7 @@ void NTupleReader::createVectorsForArrayReads(int evt)
     //if this tree is defined this is a TChain
     if(chainCurrentTree_ >= -1)
     {
-        //Loaf next file in chain if needed and get local event number for file 
+        //Load next file in chain if needed and get local event number for file 
         iEvtLocal = tree_->LoadTree(evt);
 
         //check if we have moved to a new file in the chain
@@ -336,6 +361,11 @@ void NTupleReader::createVectorsForArrayReads(int evt)
                 if(l->GetLeafCount())
                 { 
                     handlePair.second.branch = l->GetLeafCount()->GetBranch();
+                }
+                else if(l->GetLen() > 1)
+                {
+                    handlePair.second.branch = handlePair.second.branchVec;
+                    handlePair.second.branchVec = nullptr;
                 }
                 else
                 {
