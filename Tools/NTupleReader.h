@@ -7,6 +7,7 @@
 #include "TBranch.h"
 #include "TLeaf.h"
 #include "TTree.h"
+#include "Math/Vector4D.h"
 
 #include <vector>
 #include <map>
@@ -24,6 +25,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class vector<TLorentzVector>+;
+#pragma link C++ class vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float>>>+;
 #endif
 
 
@@ -330,6 +332,12 @@ public:
     {
         TBranch* br = static_cast<TBranch*>(tree_->FindBranch(name.c_str()));
         return (br != nullptr);
+    }
+
+    inline std::string getBranchTitle(const std::string& name) const
+    {
+        TBranch* br = static_cast<TBranch*>(tree_->FindBranch(name.c_str()));
+        return std::string(br->GetTitle());
     }
 
     inline bool hasVar(const std::string& name) const {return checkBranch(name); }
@@ -668,7 +676,12 @@ private:
         {
             branchVecMap_[name] = createVecHandle(new std::vector<T>*(), true);
 
-            tree_->SetBranchStatus(name.c_str(), 1);
+            std::string statusBranchName = name;
+            if(typeMap_[name].find("ROOT::Math::LorentzVector") != std::string::npos)
+            {
+                statusBranchName += "*";
+            }
+            tree_->SetBranchStatus(statusBranchName.c_str(), 1);
             tree_->SetBranchAddress(name.c_str(), branchVecMap_[name].ptr);
         }
     }

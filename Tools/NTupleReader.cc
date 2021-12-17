@@ -3,6 +3,7 @@
 #include "TFile.h"
 #include "TChain.h"
 #include "TObjArray.h"
+#include "TBranchElement.h"
 
 NTupleReaderIterator::NTupleReaderIterator(NTupleReader& tr, int begin) : tr_(tr), current_(begin)
 {
@@ -227,6 +228,15 @@ void NTupleReader::registerBranch(TBranch * const branch, bool activate) const
         if(seconddim != title && seconddim.find(name) != std::string::npos) seconddim = "";
         if(firstdim  != "") dimVec.emplace_back(std::atoi(firstdim.c_str()));
         if(seconddim != "") dimVec.emplace_back(std::atoi(seconddim.c_str()));
+
+        //Get varable type for weird objects
+        const TClassRef tbranchelement("TBranchElement");
+        if(branch->InheritsFrom(tbranchelement)) 
+        {
+            auto be = static_cast<TBranchElement*>(branch);
+            auto currentClass = be->GetCurrentClass();
+            type = currentClass->GetName();
+        }
     }
     else
     {
@@ -254,7 +264,8 @@ void NTupleReader::registerBranch(TBranch * const branch, bool activate) const
         }
         else if(type.find("vector") != std::string::npos)
         {
-            if     (type.find("double")         != std::string::npos) registerVecBranch<double>(name, activate);
+            if     (type.find("ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float> >")         != std::string::npos) registerVecBranch<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float>>>(name, activate);
+            else if(type.find("double")         != std::string::npos) registerVecBranch<double>(name, activate);
             else if(type.find("unsigned int")   != std::string::npos) registerVecBranch<unsigned int>(name, activate);
             else if(type.find("unsigned long")  != std::string::npos) registerVecBranch<unsigned long>(name, activate);
             else if(type.find("unsigned char")  != std::string::npos) registerVecBranch<unsigned char>(name, activate);
