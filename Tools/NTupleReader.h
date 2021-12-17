@@ -334,6 +334,12 @@ public:
         return (br != nullptr);
     }
 
+    inline std::string getBranchTitle(const std::string& name) const
+    {
+        TBranch* br = static_cast<TBranch*>(tree_->FindBranch(name.c_str()));
+        return std::string(br->GetTitle());
+    }
+
     inline bool hasVar(const std::string& name) const {return checkBranch(name); }
 
     bool goToEvent(int evt);
