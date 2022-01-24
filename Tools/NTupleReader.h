@@ -7,6 +7,7 @@
 #include "TBranch.h"
 #include "TLeaf.h"
 #include "TTree.h"
+#include "Math/Vector4D.h"
 
 #include <vector>
 #include <map>
@@ -24,6 +25,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class vector<TLorentzVector>+;
+#pragma link C++ class vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float>>>+;
 #endif
 
 
@@ -79,7 +81,7 @@ private:
     class deleter_base
     {
     public:
-        virtual void create(void *, TBranch*, TBranch*, const NTupleReader&, int) {}
+        virtual void create(void *, TBranch*, TBranch*, const NTupleReader&, int, int = -1,  const std::vector<int>& = {}) {}
         virtual void deletePtr(void *) {}
         virtual void destroy(void *) = 0;
         virtual ~deleter_base() {}
@@ -127,7 +129,7 @@ private:
     public:
         void deletePtr(void*) {}
 
-        void create(void * ptr, TBranch* branch, TBranch* branchVec, const NTupleReader& tr, int evt)
+        void create(void * ptr, TBranch* branch, TBranch* branchVec, const NTupleReader& tr, int evt, int,  const std::vector<int>&)
         {
             //Get the array length
             if(branch->GetReadEntry() != evt) branch->GetEntry(evt);
@@ -145,6 +147,27 @@ private:
         }
     };
 
+    //Templated class to create/store vector object deleter for arrays
+    template<typename T>
+    class fixedlen_array_deleter : public vec_deleter<T>
+    {
+    public:
+        void deletePtr(void*) {}
+
+        void create(void * ptr, TBranch* branch, TBranch*, const NTupleReader&, int, int len, const std::vector<int>&)
+        {
+            //Delete vector if one already exists
+            T* vecptr = static_cast<T*>(ptr);
+            if(*vecptr != nullptr) delete *vecptr;
+
+            //with vector cleaned up, create new vector
+            //this typedef seems manditory to unconfuse the compilier 
+            typedef typename std::remove_pointer<T>::type vec_type;
+            *vecptr = new vec_type(len);
+            branch->SetAddress( (*vecptr)->data() );
+        }
+    };
+
     //Handle class to hold pointer and deleter
     class Handle
     {
@@ -155,18 +178,19 @@ private:
         mutable TBranch *branch;
         mutable TBranch *branchVec;
         mutable bool activeFromNTuple;
+        mutable int len;
 
-        Handle() : ptr(nullptr), deleter(nullptr), type(typeid(nullptr)), branch(nullptr), branchVec(nullptr), activeFromNTuple(false) {}
+        Handle() : ptr(nullptr), deleter(nullptr), type(typeid(nullptr)), branch(nullptr), branchVec(nullptr), activeFromNTuple(false), len(-1) {}
 
-        Handle(const Handle& h) : ptr(h.ptr), deleter(h.deleter), type(h.type), branch(h.branch), branchVec(h.branchVec), activeFromNTuple(h.activeFromNTuple) {}
+        Handle(const Handle& h) : ptr(h.ptr), deleter(h.deleter), type(h.type), branch(h.branch), branchVec(h.branchVec), activeFromNTuple(h.activeFromNTuple), len(h.len) {}
 
-        Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr), TBranch* branch = nullptr, TBranch* branchVec = nullptr, const bool activeFromNTuple = false) :  ptr(ptr), deleter(deleter), type(type), branch(branch), branchVec(branchVec), activeFromNTuple(activeFromNTuple) {}
+        Handle(void* ptr, deleter_base* deleter = nullptr, const std::type_index& type = typeid(nullptr), TBranch* branch = nullptr, TBranch* branchVec = nullptr, const bool activeFromNTuple = false, int len = -1) :  ptr(ptr), deleter(deleter), type(type), branch(branch), branchVec(branchVec), activeFromNTuple(activeFromNTuple), len(len) {}
 
         void create(const NTupleReader& tr, int evt) const
         {
             if(deleter)
             {
-                deleter->create(ptr, branch, branchVec, tr, evt);
+                deleter->create(ptr, branch, branchVec, tr, evt, len);
             }
         }
 
@@ -220,6 +244,13 @@ private:
         {
             THROW_SATEXCEPTION("ERROR: Unknown array length type: " + type);
         }
+    }
+    
+    //Helper to make fixed length array Handle
+    template<typename T>
+    static inline Handle createFixedlenArrayHandle(T* ptr, TBranch* branch, const bool activeFromNTuple = false, int len = -1)
+    {
+        return Handle(ptr, new fixedlen_array_deleter<T>, typeid(typename std::remove_pointer<T>::type), branch, nullptr, activeFromNTuple, len);
     }
 
     //function wrapper 
@@ -301,6 +332,12 @@ public:
     {
         TBranch* br = static_cast<TBranch*>(tree_->FindBranch(name.c_str()));
         return (br != nullptr);
+    }
+
+    inline std::string getBranchTitle(const std::string& name) const
+    {
+        TBranch* br = static_cast<TBranch*>(tree_->FindBranch(name.c_str()));
+        return std::string(br->GetTitle());
     }
 
     inline bool hasVar(const std::string& name) const {return checkBranch(name); }
@@ -447,7 +484,6 @@ public:
     template<typename T> const T& getVar(const std::string& var) const
     {
         //This function can be used to return single variables
-
         try
         {
             return getTupleObj<T>(var, branchMap_);
@@ -463,16 +499,56 @@ public:
     template<typename T> const std::vector<T>& getVec(const std::string& var) const
     {
         //This function can be used to return vectors
-
         try
-        {
-            return *getTupleObj<std::vector<T>*>(var, branchVecMap_);
+        {            
+            return *getTupleObj<std::vector<T>*>(var, branchVecMap_);                
         }
         catch(const SATException& e)
         {
             if(isFirstEvent()) e.print();
             if(reThrow_) throw;
             return *static_cast<std::vector<T>*>(nullptr);
+        }
+    }
+
+    template<typename T> const std::vector<std::vector<T>>& getVecVec(const std::string& var) const
+    {
+        //This function can be used to return vectors
+        try
+        {            
+            const auto& dimIter = branchDimMap_.find(var);
+            if( dimIter == branchDimMap_.end() )
+            {
+                return *getTupleObj<std::vector<std::vector<T>>*>(var, branchVecMap_);                
+            }
+            else 
+            {
+                std::string dimName = "_array";
+                auto& dimVec = dimIter->second;
+                for(const auto d : dimVec) dimName += "_" + std::to_string(d);
+                std::string name = var+dimName;
+
+                //check if name has already been created
+                auto iter = branchVecMap_.find(name);
+                if(iter != branchVecMap_.end() && *(static_cast<void**>(iter->second.ptr)) != nullptr)
+                {
+                    return getVec<std::vector<T>>(name);
+                }
+
+                const auto& vec1D = *getTupleObj<std::vector<T>*>(var, branchVecMap_);
+                auto& vec2D = createDerivedVec<std::vector<T>>(name);
+                for(int i = 0; i < dimVec[0]; i++)
+                {
+                    vec2D.emplace_back(vec1D.begin()+dimVec[1]*i, vec1D.begin()+dimVec[1]*(i+1));
+                }
+                return vec2D;
+            }
+        }
+        catch(const SATException& e)
+        {
+            if(isFirstEvent()) e.print();
+            if(reThrow_) throw;
+            return *static_cast<std::vector<std::vector<T>>*>(nullptr);
         }
     }
 
@@ -544,7 +620,8 @@ public:
             return *static_cast<std::map<T, V>*>(nullptr);
         }
     }
- 
+
+    std::string split(const std::string& half, const std::string& s, const std::string& h) const;
  
 private:
     // private variables for internal use
@@ -555,6 +632,7 @@ private:
     // stl collections to hold branch list and associated info
     mutable std::unordered_map<std::string, Handle> branchMap_;
     mutable std::unordered_map<std::string, Handle> branchVecMap_;
+    mutable std::unordered_map<std::string, std::vector<int>> branchDimMap_;
     std::vector<FuncWrapper*> functionVec_;
     mutable std::unordered_map<std::string, std::string> typeMap_;
     std::set<std::string> activeBranches_;
@@ -598,13 +676,19 @@ private:
         {
             branchVecMap_[name] = createVecHandle(new std::vector<T>*(), true);
 
-            tree_->SetBranchStatus(name.c_str(), 1);
+            std::string statusBranchName = name;
+            if(typeMap_[name].find("ROOT::Math::LorentzVector") != std::string::npos)
+            {
+                statusBranchName += "*";
+            }
+            tree_->SetBranchStatus(statusBranchName.c_str(), 1);
             tree_->SetBranchAddress(name.c_str(), branchVecMap_[name].ptr);
         }
     }
 
-    template<typename T> void registerArrayBranch(const std::string& name, TBranch * branch, bool activate = true) const
-    {
+    template<typename T> void registerArrayBranch(const std::string& name, TBranch * branch, bool activate = true, int len = -1, const std::vector<int>& dimVec = {}) const
+    {        
+        if(dimVec.size() > 1) branchDimMap_[name] = dimVec;
         typeMap_[name] = demangle<std::vector<T>>();
 
         if(activate)
@@ -615,14 +699,17 @@ private:
             if(l->GetLeafCount())
             { 
                 countBranch = l->GetLeafCount()->GetBranch();
+                branchVecMap_[name] = createArrayHandle(new std::vector<T>*(), countBranch, branch, true);
+            }
+            else if(l->GetLen() > 1)
+            {
+                branchVecMap_[name] = createFixedlenArrayHandle(new std::vector<T>*(), branch, true, len);
             }
             else
             {
                 THROW_SATEXCEPTION("Branch \"" + name + "\" appears to be an array, but there is no size branch");
             }
         
-            branchVecMap_[name] = createArrayHandle(new std::vector<T>*(), countBranch, branch, true);
-
             tree_->SetBranchStatus(name.c_str(), 1);
         }
     }
